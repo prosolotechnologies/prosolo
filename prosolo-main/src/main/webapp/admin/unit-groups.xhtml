@@ -71,9 +71,9 @@
 
     <div class="container">
         <ol class="breadcrumb">
-            <li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+            <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
             <li>
-                <h:link outcome="/admin/adminOrganizationNew">
+                <h:link outcome="/admin/organizationNew">
                     #{manageGroupsBean.organizationTitle}
                     <f:param name="id" value="#{param.orgId}" />
                 </h:link>
@@ -91,57 +91,73 @@
                     <f:param name="unitId" value="#{param.id}" />
                 </h:link>
             </li>
-            <li class="active">User Groups</li>
+            <li class="active">Student Groups</li>
         </ol>
     </div>
 
     <div class="container">
         <div class="row">
             <h:panelGroup layout="block" id="panelGroups" styleClass="col-md-12">
-                <ul class="whiteBox peopleList">
-                    <ui:repeat value="#{manageGroupsBean.groups}" var="group">
-                        <li>
-                            <div class="peopleListLeft">
-                                <h2>#{group.name}</h2>
-                            </div>
-                            <div class="peopleListRight">
-                                <div class="studentsNum">
-                                    Users: <span>#{group.userCount}</span>
+                <ui:fragment rendered="#{empty manageGroupsBean.groups}">
+                    <div class="noContentMessage">
+                        <p>
+                            No groups
+                        </p>
+                    </div>
+                </ui:fragment>
+                <ui:fragment rendered="#{not empty manageGroupsBean.groups}">
+                    <ul class="whiteBox peopleList">
+                        <ui:repeat value="#{manageGroupsBean.groups}" var="group">
+                            <li>
+                                <div class="peopleListLeft">
+                                    <h2>
+                                        <h:link outcome="/admin/unit-group-users">
+                                            #{group.name}
+                                            <f:param name="orgId" value="#{param.orgId}" />
+                                            <f:param name="unitId" value="#{param.id}" />
+                                            <f:param name="id" value="#{util:encodeId(group.id)}" />
+                                        </h:link>
+                                    </h2>
                                 </div>
-                                <div class="userEditOpt">
-                                    <h:link outcome="/admin/unit-group-users">
-                                        Manage Users
-                                        <f:param name="orgId" value="#{param.orgId}" />
-                                        <f:param name="unitId" value="#{param.id}" />
-                                        <f:param name="id" value="#{util:encodeId(group.id)}" />
-                                    </h:link>
-                                    <p:commandLink pt:data-toggle="modal"
-                                                   process="@this"
-                                                   action="#{manageGroupsBean.prepareGroupForEditJoinURL(group.id)}"
-                                                   update=":joinURLForm"
-                                                   oncomplete="$('#joinURLModal').modal('show');">Join URL</p:commandLink>
+                                <div class="peopleListRight">
+                                    <div class="studentsNum">
+                                        Users: <span>#{group.userCount}</span>
+                                    </div>
+                                    <div class="userEditOpt">
+                                        <h:link outcome="/admin/unit-group-users">
+                                            Manage Users
+                                            <f:param name="orgId" value="#{param.orgId}" />
+                                            <f:param name="unitId" value="#{param.id}" />
+                                            <f:param name="id" value="#{util:encodeId(group.id)}" />
+                                        </h:link>
+                                        <p:commandLink pt:data-toggle="modal"
+                                                       process="@this"
+                                                       action="#{manageGroupsBean.prepareGroupForEditJoinURL(group.id)}"
+                                                       update=":joinURLForm"
+                                                       oncomplete="$('#joinURLModal').modal('show');">Join URL</p:commandLink>
 
-                                    <p:commandLink pt:data-toggle="modal"
-                                                   process="@this"
-                                                   action="#{manageGroupsBean.prepareGroupForEdit(group)}"
-                                                   update=":newGroupForm:panelNewGroup"
-                                                   oncomplete="$('#newGroupModal').modal('show');">Edit Name</p:commandLink>
+                                        <p:commandLink pt:data-toggle="modal"
+                                                       process="@this"
+                                                       action="#{manageGroupsBean.prepareGroupForEdit(group)}"
+                                                       update=":newGroupForm:panelNewGroup"
+                                                       oncomplete="$('#newGroupModal').modal('show');">Edit Name</p:commandLink>
 
-                                    <ui:fragment rendered="#{not group.canBeDeleted}">
-                                        <a href="javascript:void(0);" class="linkRed disabled"
-                                           data-toggle="tooltip"
-                                           title="This group can't be deleted because it is being used in at least one credential/competency">Delete</a>
-                                    </ui:fragment>
-                                    <p:commandLink rendered="#{group.canBeDeleted}" styleClass="linkRed" pt:data-toggle="modal"
-                                                   process="@this"
-                                                   action="#{manageGroupsBean.prepareGroupForEdit(group)}"
-                                                   update=":formDeleteGroup:panelDeleteGroup"
-                                                   oncomplete="$('#deleteGroup').modal('show');">Delete</p:commandLink>
+                                        <ui:fragment rendered="#{not group.canBeDeleted}">
+                                            <a href="javascript:void(0);" class="linkRed disabled"
+                                               data-toggle="tooltip"
+                                               title="This group can't be deleted because it is being used in at least one #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()}">Delete</a>
+                                        </ui:fragment>
+                                        <p:commandLink rendered="#{group.canBeDeleted}" styleClass="linkRed" pt:data-toggle="modal"
+                                                       process="@this"
+                                                       action="#{manageGroupsBean.prepareGroupForEdit(group)}"
+                                                       update=":formDeleteGroup:panelDeleteGroup"
+                                                       oncomplete="$('#deleteGroup').modal('show');">Delete</p:commandLink>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    </ui:repeat>
-                </ul>
+                            </li>
+                        </ui:repeat>
+                    </ul>
+                </ui:fragment>
             </h:panelGroup>
         </div>
 
@@ -163,6 +179,7 @@
                             <h2 class="modal-title">Join URL</h2>
                         </div>
                         <div class="modal-body alignLeft">
+                            <p>Students can join this group via URL. Only students that are part of this unit can join the group.</p>
                             <div class="checkbox checkLine">
                                 <h:selectBooleanCheckbox id="activateJoiningViaUrl"
                                                          value="#{manageGroupsBean.groupForEdit.joinUrlActive}"

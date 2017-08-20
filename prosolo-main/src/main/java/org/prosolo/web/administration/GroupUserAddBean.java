@@ -1,21 +1,15 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
-import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -115,7 +109,7 @@ public class GroupUserAddBean implements Serializable, Paginable {
 	public boolean addUser(UserData user, String groupName) {
 		try {
 			List<EventData> events = userGroupManager.addUserToTheGroupAndGetEvents(groupId, user.getId(),
-					loggedUser.getUserId(), PageUtil.extractLearningContextData()).getEvents();
+					loggedUser.getUserContext()).getEvents();
 			/*
 			TODO for now events are fired here in a JSF bean because addUserToTheGroup method is called
 			in other places too so event generation can't be moved to this method at the moment. This should be

@@ -9,8 +9,12 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean(name = "competenceUserPrivilegeBean")
@@ -41,18 +46,26 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
 	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
 	private String competenceId;
 	private long compId;
+	private String credId;
+	private long decodedCredId;
 	private long creatorId;
 	private String competenceTitle;
 
 	private UserGroupPrivilege privilege;
 
+	private String credTitle;
+
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
+
+	private List<Long> unitIds = new ArrayList<>();
 
 	//private boolean manageSection;
 
@@ -74,11 +87,15 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private void init() {
 		compId = idEncoder.decodeId(competenceId);
+		decodedCredId = idEncoder.decodeId(credId);
 		if (compId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
+				if(decodedCredId > 0){
+					this.credTitle = credManager.getCredentialTitle(decodedCredId);
+				}
 				if(!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
@@ -97,6 +114,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 							roleId = roleIds.get(0);
 						}
 
+						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(compId);
+
 						logger.info("Manage visibility for competency with id " + compId);
 
 						loadData();
@@ -114,7 +133,10 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	}
 
 	private void loadData() {
-		setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId, privilege));
+		//only Learn privilege can be added to user groups
+		if (privilege == UserGroupPrivilege.Learn) {
+			setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId, privilege));
+		}
 		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(compId, privilege));
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
@@ -137,8 +159,14 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 //		} else {
 //			res = userGroupTextSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
 //		}
-		res = userGroupTextSearch.searchUsersAndGroups(searchTerm, getLimit(),
-				getUsersToExclude(), getGroupsToExclude(), roleId);
+		if (privilege == UserGroupPrivilege.Learn) {
+			//groups are retrieved only for Learn privilege
+			res = userGroupTextSearch.searchUsersAndGroups(loggedUserBean.getOrganizationId(), searchTerm,
+					getLimit(), getUsersToExclude(), getGroupsToExclude(), roleId, unitIds);
+		} else {
+			res = userGroupTextSearch.searchUsersInUnitsWithRole(loggedUserBean.getOrganizationId(), searchTerm,
+					getLimit(), unitIds, getUsersToExclude(), roleId);
+		}
 
 		setSearchMembers(res.getFoundNodes());
 	}
@@ -155,9 +183,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
 			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
-					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			saved = true;
 		} catch (DbConnectionException e) {
@@ -251,5 +278,17 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public void setCompetenceId(String competenceId) {
 		this.competenceId = competenceId;
+	}
+
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
 	}
 }

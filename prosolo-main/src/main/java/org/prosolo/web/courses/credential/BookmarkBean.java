@@ -1,9 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-
-import javax.inject.Inject;
-
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -14,6 +10,9 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.Serializable;
 
 @Component("bookmarkBean")
 @Scope("request")
@@ -27,13 +26,10 @@ public class BookmarkBean implements Serializable {
 
 	public void bookmarkCredential(CredentialData cred) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
 			if(cred.isBookmarkedByCurrentUser()) {
-				credentialManager.deleteCredentialBookmark(cred.getId(), 
-						loggedUserBean.getUserId(), context);
+				credentialManager.deleteCredentialBookmark(cred.getId(), loggedUserBean.getUserContext());
 			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserId(),
-						context);
+				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserContext());
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
 		} catch(DbConnectionException e) {
@@ -43,13 +39,11 @@ public class BookmarkBean implements Serializable {
 	
 	public void bookmarkCompetence(CompetenceData1 comp) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
 			if(comp.isBookmarkedByCurrentUser()) {
-				competenceManager.deleteCompetenceBookmark(comp.getCompetenceId(), 
-						loggedUserBean.getUserId(), context);
+				competenceManager.deleteCompetenceBookmark(comp.getCompetenceId(),
+						loggedUserBean.getUserContext());
 			} else {
-				competenceManager.bookmarkCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(),
-						context);
+				competenceManager.bookmarkCompetence(comp.getCompetenceId(), loggedUserBean.getUserContext());
 			}
 			comp.setBookmarkedByCurrentUser(!comp.isBookmarkedByCurrentUser());
 		} catch(DbConnectionException e) {

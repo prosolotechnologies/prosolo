@@ -62,10 +62,9 @@
                                                      value="#{unitEditBean.unit.title}"
                                                      placeholder="Unit Name">
                                         </h:inputText>
-                                        <h:panelGroup
-                                                rendered="#{not empty facesContext.getMessageList('formMainEditUnit:inputTextUnitTitle')}">
-                                            <small class="redText"><h:message for="inputTextUnitTitle"></h:message></small>
-                                        </h:panelGroup>
+
+                                        <small class="redText"><h:message for="inputTextUnitTitle"></h:message></small>
+
                                     </div>
                                 </div>
                                 <div class="formLine">

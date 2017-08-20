@@ -3,13 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -22,6 +15,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -36,6 +30,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "credentialInstructorsBean")
 @Component("credentialInstructorsBean")
@@ -56,6 +56,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private RoleManager roleManager;
 	@Inject private StudentAssignBean studentAssignBean;
+	@Inject private UnitManager unitManager;
 
 	// PARAMETERS
 	private String id;
@@ -79,6 +80,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	private String instructorSearchTerm;
 	private List<UserData> unassignedInstructors;
 	private long instructorRoleId;
+	List<Long> unitIds;
 	//list of ids of instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
 	
@@ -133,8 +135,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		try {
 			unassignedInstructors = new ArrayList<>();
 			PaginatedResult<UserData> result = userTextSearch
-					.searchUsersWithInstructorRole(instructorSearchTerm, decodedId, instructorRoleId,
-							excludedInstructorIds);
+					.searchUsersWithInstructorRole(loggedUserBean.getOrganizationId(), instructorSearchTerm, decodedId,
+							instructorRoleId, unitIds, excludedInstructorIds);
 			unassignedInstructors = result.getFoundNodes();
 		} catch(Exception e) {
 			logger.error(e);
@@ -149,11 +151,14 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 				if (roleIds.size() == 1) {
 					instructorRoleId = roleIds.get(0);
 				}
+
+				//retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
+				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));
 			}
 			instructorSearchTerm = "";
 			searchUnassignedInstructors();
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 			//TODO
 		}
 	}
@@ -168,7 +173,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData ctx = new LearningContextData(page, context, service);
 			credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserId(), ctx);
+					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
 			paginationData.setPage(1);
 			searchTerm = "";
 			sortOption = InstructorSortOption.Date;
@@ -188,7 +193,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
 	public void getCredentialInstructors() {
 		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null); 
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null);
 	
 		paginationData.update((int) searchResponse.getHitsNumber());
 		instructors = searchResponse.getFoundNodes();
@@ -216,8 +221,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					+ instructorForRemoval.getInstructorId() + "/";
 			LearningContextData ctx = new LearningContextData(appPage, lContext, service);
 			credInstructorManager.removeInstructorFromCredential(
-					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically, 
-					loggedUserBean.getUserId(), ctx);
+					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
+					loggedUserBean.getUserContext(ctx));
 
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();

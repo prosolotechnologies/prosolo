@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -159,15 +160,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserGroup saveNewGroup(long unitId, String name, boolean isDefault, long userId,
-			LearningContextData context) throws DbConnectionException {
+	public UserGroup saveNewGroup(long unitId, String name, boolean isDefault,
+								  UserContextData context) throws DbConnectionException {
 		try {
 			UserGroup group = resourceFactory.saveNewGroup(unitId, name, isDefault);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Create, userId, group, null, page, lContext,
-					service, null);
+			LearningContextData lContext = context.getContext();
+			String page = lContext != null ? lContext.getPage() : null;
+			String learningContext = lContext != null ? lContext.getLearningContext() : null;
+			String service = lContext != null ? lContext.getService() : null;
+			eventFactory.generateEvent(EventType.Create, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), group,
+					null, page, learningContext, service, null, null);
 			return group;
 		} catch(DbConnectionException dbce) {
 			throw dbce;
@@ -180,15 +183,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public UserGroup updateGroupName(long groupId, String newName, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public UserGroup updateGroupName(long groupId, String newName, UserContextData context)
+			throws DbConnectionException {
 		try {
 			UserGroup group = resourceFactory.updateGroupName(groupId, newName);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, userId, group, null, page, lContext,
-					service, null);
+
+			LearningContextData lcd = context.getContext();
+			String page = lcd != null ? lcd.getPage() : null;
+			String lContext = lcd != null ? lcd.getLearningContext() : null;
+			String service = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), group, null, page, lContext,
+					service, null, null);
 			return group;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -199,15 +205,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-	public UserGroup updateJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword, long userId,
-			LearningContextData context) {
+	public UserGroup updateJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword,
+			UserContextData context) {
 		try {
 			UserGroup group = resourceFactory.updateGroupJoinUrl(groupId, joinUrlActive, joinUrlPassword);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, userId, group, null, page, lContext,
-					service, null);
+			LearningContextData lcd = context.getContext();
+			String page = lcd != null ? lcd.getPage() : null;
+			String lContext = lcd != null ? lcd.getLearningContext() : null;
+			String service = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), group, null, page,
+					lContext, service, null, null);
 			return group;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -218,7 +226,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void deleteUserGroup(long id, long userId, LearningContextData context) 
+	public void deleteUserGroup(long id, UserContextData context)
 			throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, id);
@@ -227,11 +235,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			//generate delete event
 			UserGroup deletedGroup = new UserGroup();
 			deletedGroup.setId(id);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Delete, userId, deletedGroup, null, page, lContext,
-					service, null);
+
+			LearningContextData lcd = context.getContext();
+			String page = lcd != null ? lcd.getPage() : null;
+			String lContext = lcd != null ? lcd.getLearningContext() : null;
+			String service = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.Delete, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), deletedGroup,
+					null, page, lContext, service, null, null);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -259,7 +270,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
 		try {
 			for(Long user : userIds) {
-				addUserToTheGroupAndGetEvents(groupId, user, 0, null);
+				//TODO add context
+				addUserToTheGroupAndGetEvents(groupId, user, UserContextData.empty());
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -307,7 +319,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
 			for(Long group : groupIds) {
-				addUserToTheGroupAndGetEvents(group, userId, 0, null);
+				//TODO add context
+				addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -537,8 +550,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = true)
-    private List<CredentialUserGroup> getCredentialUserGroups (long credId, boolean returnDefaultGroups, 
+    private List<CredentialUserGroup> getCredentialUserGroups (long credId, boolean returnDefaultGroups,
     		UserGroupPrivilege privilege, Session session) throws DbConnectionException {
 		try {
     		StringBuilder query = new StringBuilder (
@@ -622,14 +634,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, long actorId, LearningContextData lcd) throws DbConnectionException {
+    		List<ResourceVisibilityMember> users, UserContextData context) throws DbConnectionException {
     	try {
     		if(groups == null || users == null) {
     			throw new NullPointerException("Invalid argument values");
     		}
     		List<EventData> events = new ArrayList<>();
-    		events.addAll(saveCredentialUsers(credId, users, actorId, lcd).getEvents());
-    		events.addAll(saveCredentialGroups(credId, groups, actorId, lcd).getEvents());
+    		events.addAll(saveCredentialUsers(credId, users, context).getEvents());
+    		events.addAll(saveCredentialGroups(credId, groups, context).getEvents());
     		Credential1 cred = new Credential1();
     		cred.setId(credId);
     		
@@ -652,7 +664,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		
     		if (visibilityChanged) {
     			events.add(eventFactory.generateEventData(
-        				EventType.RESOURCE_VISIBILITY_CHANGE, actorId, cred, null, lcd, null));
+        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), cred,
+						null, context.getContext(), null));
     		}
     		
     		Result<Void> res = new Result<>();
@@ -667,9 +681,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> saveCredentialUsers(long credId, List<ResourceVisibilityMember> users, long actorId, 
-    		LearningContextData context) throws DbConnectionException {
+    private Result<Void> saveCredentialUsers(long credId, List<ResourceVisibilityMember> users,
+											 UserContextData context) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		if (users == null) {
@@ -688,7 +701,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
 								if (editCredGroup == null) {
 									Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
-											credId, user.getPrivilege(), actorId, context);
+											credId, user.getPrivilege(), context);
 									res.addEvents(credUserGroupRes.getEvents());
 									editCredGroup = credUserGroupRes.getResult();
 								}
@@ -696,21 +709,21 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							} else {
 								if (learnCredGroup == null) {
 									Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
-											credId, user.getPrivilege(), actorId, context);
+											credId, user.getPrivilege(), context);
 									res.addEvents(credUserGroupRes.getEvents());
 									learnCredGroup = credUserGroupRes.getResult();
 								}
 								credGroup = learnCredGroup;
 							}
 							saveNewUserToCredentialGroup(user.getUserId(), credGroup);
-							generateUserGroupChangeEventIfNotGenerated(credGroup.getUserGroup().getId(), actorId,
+							generateUserGroupChangeEventIfNotGenerated(credGroup.getUserGroup().getId(),
 									context, userGroupsChangedEvents);
 							break;
 	    				case REMOVED:
 	    					userGroupUser = (UserGroupUser) persistence
 								.currentManager().load(UserGroupUser.class, user.getId());
 	    					delete(userGroupUser);
-	    					generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId,
+	    					generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(),
 	    							context, userGroupsChangedEvents);
 	    					break;
 	    				case UP_TO_DATE:
@@ -740,25 +753,31 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 
-	private void generateUserGroupChangeEventIfNotGenerated(long userGroupId, long actorId,
-			LearningContextData context, Map<Long, EventData> userGroupsChangedEvents) {
+	private void generateUserGroupChangeEventIfNotGenerated(long userGroupId,
+															UserContextData context,
+															Map<Long, EventData> userGroupsChangedEvents) {
 		UserGroup ug = new UserGroup();
 		ug.setId(userGroupId);
 		//if event for this user group is not already generated, generate it and put it in the map
 		if(userGroupsChangedEvents.get(userGroupId) == null) {
 			userGroupsChangedEvents.put(userGroupId,
-					eventFactory.generateEventData(EventType.USER_GROUP_CHANGE, actorId, ug,
-							null, context, null));
+					eventFactory.generateEventData(
+							EventType.USER_GROUP_CHANGE,
+							context.getActorId(), context.getOrganizationId(),
+							context.getSessionId(), ug, null,
+							context.getContext(), null));
 		}
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, 
-			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException {
+	public Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId,
+																	 UserGroupPrivilege privilege,
+																	 UserContextData context)
+			throws DbConnectionException {
 		try {
-			Result<CredentialUserGroup> credGroup = getOrCreateDefaultCredentialUserGroup(credId, privilege, actorId, 
-					context);
+			Result<CredentialUserGroup> credGroup = getOrCreateDefaultCredentialUserGroup(credId,
+					privilege, context);
 			saveNewUserToCredentialGroup(userId, credGroup.getResult());
 			Result<Void> res = new Result<>();
 			res.setEvents(credGroup.getEvents());
@@ -770,8 +789,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				object.setId(userId);
 				UserGroup target = new UserGroup();
 				target.setId(credGroup.getResult().getUserGroup().getId());
-				res.addEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, actorId, object, target, 
-						context, null));
+				res.addEvent(eventFactory.generateEventData(
+						EventType.ADD_USER_TO_GROUP, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), object, target,
+						context.getContext(), null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -784,14 +805,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = true)
 	public Result<Void> removeUserFromDefaultCredentialGroupAndGetEvents(long userId, long credId,
-																	 UserGroupPrivilege privilege, long actorId,
-																	 LearningContextData context) throws DbConnectionException {
+																	 UserGroupPrivilege privilege,
+																	 UserContextData context)
+			throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 
 			UserGroupUser ugu = getUserFromDefaultCredentialUserGroup(userId, credId, privilege);
 			if (ugu != null) {
-				result.addEvents(removeUserFromGroupAndGetEvents(ugu, actorId, context).getEvents());
+				result.addEvents(removeUserFromGroupAndGetEvents(ugu, context).getEvents());
 			}
 			return result;
 		} catch (Exception e) {
@@ -804,11 +826,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = true)
 	public Result<Void> saveUserToDefaultCompetenceGroupAndGetEvents(long userId, long compId,
-																	 UserGroupPrivilege privilege, long actorId,
-																	 LearningContextData context) throws DbConnectionException {
+																	 UserGroupPrivilege privilege,
+																	 UserContextData context)
+			throws DbConnectionException {
 		try {
-			Result<CompetenceUserGroup> compGroup = getOrCreateDefaultCompetenceUserGroup(compId, privilege, actorId,
-					context);
+			Result<CompetenceUserGroup> compGroup = getOrCreateDefaultCompetenceUserGroup(
+					compId, privilege, context);
 			saveNewUserToCompetenceGroup(userId, compGroup.getResult());
 			Result<Void> res = new Result<>();
 			res.addEvents(compGroup.getEvents());
@@ -820,8 +843,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				object.setId(userId);
 				UserGroup target = new UserGroup();
 				target.setId(compGroup.getResult().getUserGroup().getId());
-				res.addEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, actorId, object, target,
-						context, null));
+				res.addEvent(eventFactory.generateEventData(
+						EventType.ADD_USER_TO_GROUP, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), object, target,
+						context.getContext(), null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -834,14 +859,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = true)
 	public Result<Void> removeUserFromDefaultCompetenceGroupAndGetEvents(long userId, long compId,
-																		 UserGroupPrivilege privilege, long actorId,
-																		 LearningContextData context) throws DbConnectionException {
+																		 UserGroupPrivilege privilege, UserContextData context)
+			throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 
 			UserGroupUser ugu = getUserFromDefaultCompetenceUserGroup(userId, compId, privilege);
 			if (ugu != null) {
-				result.addEvents(removeUserFromGroupAndGetEvents(ugu, actorId, context).getEvents());
+				result.addEvents(removeUserFromGroupAndGetEvents(ugu, context).getEvents());
 			}
 
 			return result;
@@ -910,8 +935,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional
-	public Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, long actorId,
-											  LearningContextData context) throws DbConnectionException {
+	public Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
 			saveNewUserToUserGroup(userId, group, persistence.currentManager());
@@ -924,7 +948,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			User u = new User();
 			u.setId(userId);
 			res.addEvent(eventFactory.generateEventData(
-					EventType.ADD_USER_TO_GROUP, actorId, u, ug, context, null));
+					EventType.ADD_USER_TO_GROUP, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), u, ug, context.getContext(), null));
 			return res;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -947,9 +972,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
-	@Transactional(readOnly = false)
-	private Result<Void> removeUserFromGroupAndGetEvents(UserGroupUser userGroupUser, long actorId, 
-			LearningContextData context) {
+	private Result<Void> removeUserFromGroupAndGetEvents(UserGroupUser userGroupUser,
+														 UserContextData context) {
 		Result<Void> res = new Result<>();
 		
 		User object = new User();
@@ -957,7 +981,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		UserGroup target = new UserGroup();
 		target.setId(userGroupUser.getGroup().getId());
 		res.addEvent(eventFactory.generateEventData(
-				EventType.REMOVE_USER_FROM_GROUP, actorId, object, target, context, null));
+				EventType.REMOVE_USER_FROM_GROUP, context.getActorId(),
+				context.getOrganizationId(), context.getSessionId(), object, target,
+				context.getContext(), null));
 		delete(userGroupUser);
 		return res;
 	}
@@ -988,9 +1014,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> saveCredentialGroups(long credId, List<ResourceVisibilityMember> groups, long userId, 
-    		LearningContextData lcd) throws DbConnectionException {
+    private Result<Void> saveCredentialGroups(long credId, List<ResourceVisibilityMember> groups, UserContextData context)
+			throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		
@@ -1002,13 +1027,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     			switch(group.getStatus()) {
     				case CREATED:
     					res.addEvents(
-    							createNewCredentialUserGroup(group.getGroupId(), false, credId, 
-    									group.getPrivilege(), userId, lcd)
+    							createNewCredentialUserGroup(group.getGroupId(), false, credId, group.getPrivilege(), context)
     										.getEvents());
     					break;
     				case REMOVED:
     					res.addEvents(
-    							removeCredentialUserGroup(credId, group.getId(), group.getGroupId(), userId, lcd)
+    							removeCredentialUserGroup(credId, group.getId(), group.getGroupId(), context)
     								.getEvents());
     					break;
     				case UP_TO_DATE:
@@ -1024,8 +1048,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	private Result<Void> removeCredentialUserGroup(long credId, long credUserGroupId, long userGroupId, long userId, 
-			LearningContextData lcd) {
+	private Result<Void> removeCredentialUserGroup(long credId, long credUserGroupId, long userGroupId, UserContextData context) {
 		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
 				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
 		
@@ -1037,8 +1060,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("credentialUserGroupId", credGroup.getId() + "");
 		params.put("privilege", credGroup.getPrivilege().name());
-		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, userId, userGroup, 
-				cred, lcd, params));
+		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, context.getActorId(), context.getOrganizationId(),
+				context.getSessionId(), userGroup, cred, context.getContext(), params));
 
 		delete(credGroup);
 		
@@ -1066,13 +1089,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 //	}
 	
 	private Result<CredentialUserGroup> getOrCreateDefaultCredentialUserGroup(long credId, UserGroupPrivilege priv,
-			long userId, LearningContextData lcd) {
+			UserContextData context) {
 		Optional<CredentialUserGroup> credGroupOptional = getCredentialDefaultGroup(credId, priv);
 		Result<CredentialUserGroup> res = new Result<>();
 		if (credGroupOptional.isPresent()) {
 			res.setResult(credGroupOptional.get());
 		} else {
-			res = createNewCredentialUserGroup(0, true, credId, priv, userId, lcd);
+			res = createNewCredentialUserGroup(0, true, credId, priv, context);
 		}
 		return res;
 	}
@@ -1084,12 +1107,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 * @param isDefault - true if it is a default group
 	 * @param credId
 	 * @param priv
-	 * @param userId
-	 * @param lcd
+	 * @param context
 	 * @return
 	 */
 	private Result<CredentialUserGroup> createNewCredentialUserGroup(long userGroupId, boolean isDefault, long credId, 
-			UserGroupPrivilege priv, long userId, LearningContextData lcd) {
+			UserGroupPrivilege priv, UserContextData context) {
 		UserGroup userGroup = null;
 		if (userGroupId > 0) {
 			userGroup = (UserGroup) persistence.currentManager().load(UserGroup.class, userGroupId);
@@ -1113,8 +1135,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		params.put("default", isDefault + "");
 		params.put("credentialUserGroupId", credGroup.getId() + "");
 		params.put("privilege", priv.name());
-		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, userId, ug, credential, 
-				lcd, params);
+		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context.getActorId(), context.getOrganizationId(),
+				context.getSessionId(), ug, credential, context.getContext(), params);
 		
 		Result<CredentialUserGroup> res = new Result<>();
 		res.setResult(credGroup);
@@ -1238,7 +1260,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 
-	@Transactional(readOnly = true)
 	private List<UserGroup> getCompetenceUserGroups(long compId, boolean returnDefaultGroups,
 															  UserGroupPrivilege privilege, Session session)
 			throws DbConnectionException {
@@ -1288,15 +1309,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Void> saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups,
-													 List<ResourceVisibilityMember> users, long actorId,
-													 LearningContextData lcd) throws DbConnectionException {
+													 List<ResourceVisibilityMember> users, UserContextData context)
+			throws DbConnectionException {
 		try {
 			if(groups == null || users == null) {
 				throw new NullPointerException("Invalid argument values");
 			}
 			List<EventData> events = new ArrayList<>();
-			events.addAll(saveCompetenceUsers(compId, users, actorId, lcd).getEvents());
-			events.addAll(saveCompetenceGroups(compId, groups, actorId, lcd).getEvents());
+			events.addAll(saveCompetenceUsers(compId, users, context).getEvents());
+			events.addAll(saveCompetenceGroups(compId, groups, context).getEvents());
 			Competence1 comp = new Competence1();
 			comp.setId(compId);
 
@@ -1319,7 +1340,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 			if (visibilityChanged) {
 				events.add(eventFactory.generateEventData(
-						EventType.RESOURCE_VISIBILITY_CHANGE, actorId, comp, null, lcd, null));
+						EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+						comp, null, context.getContext(), null));
 			}
 
 			Result<Void> res = new Result<>();
@@ -1334,9 +1356,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
-	@Transactional(readOnly = false)
-	private Result<Void> saveCompetenceUsers(long compId, List<ResourceVisibilityMember> users, long actorId,
-											 LearningContextData context) throws DbConnectionException {
+	private Result<Void> saveCompetenceUsers(long compId, List<ResourceVisibilityMember> users, UserContextData context)
+			throws DbConnectionException {
 		try {
 			Result<Void> res = new Result<>();
 			if (users == null) {
@@ -1347,14 +1368,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				CompetenceUserGroup learnCompGroup = null;
 				CompetenceUserGroup editCompGroup = null;
 				for (ResourceVisibilityMember user : users) {
-					UserGroupUser userGroupUser = null;
-					CompetenceUserGroup compGroup = null;
+					UserGroupUser userGroupUser;
+					CompetenceUserGroup compGroup;
 					switch (user.getStatus()) {
 						case CREATED:
 							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
 								if (editCompGroup == null) {
 									Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
-											compId, user.getPrivilege(), actorId, context);
+											compId, user.getPrivilege(), context);
 									res.addEvents(compUserGroupRes.getEvents());
 									editCompGroup = compUserGroupRes.getResult();
 								}
@@ -1362,7 +1383,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							} else {
 								if (learnCompGroup == null) {
 									Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
-											compId, user.getPrivilege(), actorId, context);
+											compId, user.getPrivilege(), context);
 									res.addEvents(compUserGroupRes.getEvents());
 									learnCompGroup = compUserGroupRes.getResult();
 								}
@@ -1389,9 +1410,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
-	@Transactional(readOnly = false)
-	private Result<Void> saveCompetenceGroups(long compId, List<ResourceVisibilityMember> groups, long userId,
-											  LearningContextData lcd) throws DbConnectionException {
+	private Result<Void> saveCompetenceGroups(long compId, List<ResourceVisibilityMember> groups, UserContextData context)
+			throws DbConnectionException {
 		try {
 			Result<Void> res = new Result<>();
 
@@ -1404,13 +1424,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					case CREATED:
 						res.addEvents(
 								createNewCompetenceUserGroup(group.getGroupId(), false, compId,
-										group.getPrivilege(), userId, lcd)
+										group.getPrivilege(), context)
 										.getEvents());
 						break;
 					case REMOVED:
 						res.addEvents(
-								removeCompetenceUserGroup(compId, group.getId(), group.getGroupId(), userId, lcd)
-										.getEvents());
+								removeCompetenceUserGroup(compId, group.getId(),
+										group.getGroupId(), context).getEvents());
 						break;
 					case UP_TO_DATE:
 						break;
@@ -1425,8 +1445,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
-	private Result<Void> removeCompetenceUserGroup(long compId, long compUserGroupId, long userGroupId, long userId,
-												   LearningContextData lcd) {
+	private Result<Void> removeCompetenceUserGroup(long compId, long compUserGroupId, long userGroupId,
+												   UserContextData context) {
 		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
 				.currentManager().load(CompetenceUserGroup.class, compUserGroupId);
 		delete(compGroup);
@@ -1438,27 +1458,27 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		comp.setId(compId);
 		Map<String, String> params = new HashMap<>();
 		params.put("competenceUserGroupId", compGroup.getId() + "");
-		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, userId, userGroup,
-				comp, lcd, params));
+		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
+				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+				userGroup, comp, context.getContext(), params));
 
 		return res;
 	}
 
 	private Result<CompetenceUserGroup> getOrCreateDefaultCompetenceUserGroup(long compId, UserGroupPrivilege priv,
-																			  long userId, LearningContextData lcd) {
-		return getOrCreateDefaultCompetenceUserGroup(compId, priv, userId, lcd, persistence.currentManager());
+																			  UserContextData context) {
+		return getOrCreateDefaultCompetenceUserGroup(compId, priv, context, persistence.currentManager());
 	}
 
 	private Result<CompetenceUserGroup> getOrCreateDefaultCompetenceUserGroup(long compId, UserGroupPrivilege priv,
-																			  long userId, LearningContextData lcd,
-																			  Session session) {
+																			  UserContextData context, Session session) {
 		Optional<CompetenceUserGroup> compGroupOptional = getCompetenceDefaultGroup(compId, priv, false,
 				session);
 		Result<CompetenceUserGroup> res = new Result<>();
 		if(compGroupOptional.isPresent()) {
 			res.setResult(compGroupOptional.get());
 		} else {
-			res = createNewCompetenceUserGroup(0, true, compId, priv, userId, lcd, session);
+			res = createNewCompetenceUserGroup(0, true, compId, priv, context, session);
 		}
 		return res;
 	}
@@ -1470,19 +1490,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 * @param isDefault - true if it is a default group
 	 * @param compId
 	 * @param priv
-	 * @param userId
-	 * @param lcd
+	 * @param context
 	 * @return
 	 */
 	private Result<CompetenceUserGroup> createNewCompetenceUserGroup(long userGroupId, boolean isDefault, long compId,
-																	 UserGroupPrivilege priv, long userId,
-																	 LearningContextData lcd) {
-		return createNewCompetenceUserGroup(userGroupId, isDefault, compId, priv, userId, lcd, persistence.currentManager());
+																	 UserGroupPrivilege priv, UserContextData context) {
+		return createNewCompetenceUserGroup(userGroupId, isDefault, compId, priv, context, persistence.currentManager());
 	}
 
 	private Result<CompetenceUserGroup> createNewCompetenceUserGroup(long userGroupId, boolean isDefault, long compId,
-																	 UserGroupPrivilege priv, long userId,
-																	 LearningContextData lcd, Session session) {
+																	 UserGroupPrivilege priv, UserContextData context,
+																	 Session session) {
 		UserGroup userGroup = null;
 		if (userGroupId > 0) {
 			userGroup = (UserGroup) session.load(UserGroup.class, userGroupId);
@@ -1505,8 +1523,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("default", isDefault + "");
 		params.put("competenceUserGroupId", compGroup.getId() + "");
-		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, userId, ug, competence,
-				lcd, params);
+		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context.getActorId(),
+				context.getOrganizationId(), context.getSessionId(), ug, competence, context.getContext(), params);
 
 		Result<CompetenceUserGroup> res = new Result<>();
 		res.setResult(compGroup);
@@ -1553,12 +1571,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId, 
-    		Session session) throws DbConnectionException {
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
-    		res.addEvents(removeUserGroupPrivilegeFromCompetencesAndGetEvents(credId, userGroupId, session)
+    		res.addEvents(removeUserGroupPrivilegeFromCompetencesAndGetEvents(credId, userGroupId, context, session)
     				.getEvents());
-    		res.addEvents(removeUserGroupPrivilegeFromDeliveriesAndGetEvents(credId, userGroupId, session)
+    		res.addEvents(removeUserGroupPrivilegeFromDeliveriesAndGetEvents(credId, userGroupId, context, session)
     				.getEvents());
     		return res;
     	} catch(Exception e) {
@@ -1568,9 +1586,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> removeUserGroupPrivilegeFromCompetencesAndGetEvents(long credId, long userGroupId, 
-    		Session session) throws DbConnectionException {
+    private Result<Void> removeUserGroupPrivilegeFromCompetencesAndGetEvents(long credId, long userGroupId,
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		String query = "DELETE FROM CompetenceUserGroup gr " +
     					   "WHERE gr.userGroup.id = :userGroupId " +
@@ -1595,7 +1612,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	        		Competence1 comp = new Competence1();
 	        		comp.setId(compId);
 	        		res.addEvent(eventFactory.generateEventData(
-	        				EventType.RESOURCE_VISIBILITY_CHANGE, 0, comp, null, null, null));
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(),
+							context.getSessionId(), comp, null, context.getContext(), null));
 	    		}
     		}
     		return res;
@@ -1606,9 +1624,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> removeUserGroupPrivilegeFromDeliveriesAndGetEvents(long credId, long userGroupId, 
-    		Session session) throws DbConnectionException {
+    private Result<Void> removeUserGroupPrivilegeFromDeliveriesAndGetEvents(long credId, long userGroupId,
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		String query = "DELETE gr FROM credential_user_group gr " +
     					   "INNER JOIN credential1 c on gr.credential = c.id " +
@@ -1636,7 +1653,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	        		Credential1 del = new Credential1();
 	        		del.setId(delId);
 	        		res.addEvent(eventFactory.generateEventData(
-	        				EventType.RESOURCE_VISIBILITY_CHANGE, 0, del, null, null, null));
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
+							context.getOrganizationId(), context.getSessionId(), del, null, context.getContext(),
+							null));
 	    		}
     		}
     		return res;
@@ -1650,7 +1669,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(long compId, long credId, 
-    		Session session) throws DbConnectionException {
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		String query = "DELETE FROM CompetenceUserGroup gr " +
     				       "WHERE gr.competence.id = :compId " +
@@ -1673,7 +1692,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		comp.setId(compId);
     		Result<Void> res = new Result<>();
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, 0, comp, null, null, null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), comp, null,
+					context.getContext(), null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1685,24 +1706,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
-    		Session session) throws DbConnectionException {
+    		UserContextData context, Session session) throws DbConnectionException {
 		Result<Void> res = new Result<>();
 		res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(
-				credUserGroupId, session).getEvents());
+				credUserGroupId, context, session).getEvents());
 		res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(
-				credUserGroupId, session).getEvents());
+				credUserGroupId, context, session).getEvents());
 		return res;
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId, 
-    		Session session) throws DbConnectionException {
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId,
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		CredentialUserGroup credUserGroup = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
     		List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(credUserGroup.getCredential().getId(), session);
     		for (long compId : compIds) {
-    			res.addEvents(propagateUserGroupPrivilegeFromCredential(credUserGroup, compId, session).getEvents());
+    			res.addEvents(propagateUserGroupPrivilegeFromCredential(credUserGroup, compId, context, session).getEvents());
     		}
     		return res;
     	} catch(Exception e) {
@@ -1716,13 +1736,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 * Propagates privilege to all credential deliveries but only if it is edit privilege.
 	 * 
 	 * @param credUserGroupId
+	 * @param context
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = false)
-    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(long credUserGroupId, 
-    		Session session) throws DbConnectionException {
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(long credUserGroupId,
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		CredentialUserGroup credUserGroup = (CredentialUserGroup) session.load(CredentialUserGroup.class, 
@@ -1732,8 +1752,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	    		List<Long> deliveries = credManager.getIdsOfAllCredentialDeliveries(
 	    				credUserGroup.getCredential().getId(), session);
 	    		for (long deliveryId : deliveries) {
-	    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credUserGroup, deliveryId, session)
-	    					.getEvents());
+	    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credUserGroup, deliveryId,
+							context, session).getEvents());
 	    		}
     		}
     		return res;
@@ -1747,14 +1767,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(long credId, long compId, 
-    		Session session) throws DbConnectionException {
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		//we should propagate all groups, event default
     		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true,
 					UserGroupPrivilege.Edit, session);
     		for (CredentialUserGroup credGroup : credGroups) {
-    			res.addEvents(propagateUserGroupPrivilegeFromCredential(credGroup, compId, session).getEvents());
+    			res.addEvents(propagateUserGroupPrivilegeFromCredential(credGroup, compId, context,
+						session).getEvents());
     		}
     		return res;
     	} catch(Exception e) {
@@ -1764,9 +1785,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> propagateUserGroupPrivilegeFromCredential(CredentialUserGroup credUserGroup, long compId, 
-    		Session session) throws DbConnectionException {
+    private Result<Void> propagateUserGroupPrivilegeFromCredential(CredentialUserGroup credUserGroup, long compId,
+    		UserContextData context, Session session) throws DbConnectionException {
     	try {
     		CompetenceUserGroup cug = new CompetenceUserGroup();
     		Competence1 comp = (Competence1) session.load(Competence1.class, compId);
@@ -1784,9 +1804,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		Competence1 competence =  new Competence1();
     		competence.setId(comp.getId());
     		Result<Void> res = new Result<>();
-    		//actor is zero because this method is always called from a background process and it is not triggered by user
+
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, 0, competence, null, null, null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), competence, null,
+					context.getContext(), null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1798,14 +1820,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId, 
-    		long deliveryId, Session session) throws DbConnectionException {
+    		long deliveryId, UserContextData context, Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
     		//we should propagate all groups, event default
     		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true, UserGroupPrivilege.Edit, 
     				session);
     		for (CredentialUserGroup credGroup : credGroups) {
-    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credGroup, deliveryId, session)
+    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credGroup, deliveryId, context, session)
     					.getEvents());
     		}
     		return res;
@@ -1816,9 +1838,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Transactional(readOnly = false)
-    private Result<Void> propagateUserGroupPrivilegeFromCredentialToDelivery(CredentialUserGroup credUserGroup, 
-    		long deliveryId, Session session) throws DbConnectionException {
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToDelivery(CredentialUserGroup credUserGroup,
+    		long deliveryId, UserContextData context, Session session) throws DbConnectionException {
     	try {
     		CredentialUserGroup cug = new CredentialUserGroup();
     		Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
@@ -1834,9 +1855,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		Credential1 delivery =  new Credential1();
     		delivery.setId(deliveryId);
     		Result<Void> res = new Result<>();
-    		//actor is zero because this method is always called from a background process and it is not triggered by user
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, 0, delivery, null, null, null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), delivery, null, context.getContext(), null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1885,21 +1906,22 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     @Transactional
     @Override
     public Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
-																			 long actorId, LearningContextData context,
+																			 UserContextData context,
 																			 Session session) {
 		Result<Void> res = new Result<>();
 		try {
 			List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(credId, session);
 			for (long compId : compIds) {
 				Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
-						compId, UserGroupPrivilege.Learn, actorId, context, session);
+						compId, UserGroupPrivilege.Learn, context, session);
 				res.addEvents(compUserGroupRes.getEvents());
 				saveNewUserToCompetenceGroup(userId, compUserGroupRes.getResult(), session);
 
 				Competence1 comp = new Competence1();
 				comp.setId(compId);
-				res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_VISIBILITY_CHANGE, actorId,
-						comp, null, context, null));
+				res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), comp, null, context.getContext(),
+						null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -1912,11 +1934,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional
 	public Result<Void> createCredentialUserGroupAndSaveNewUser(long userId, long credId, UserGroupPrivilege privilege,
-														boolean isDefault, long actorId, LearningContextData context)
+														boolean isDefault, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<CredentialUserGroup> res = createNewCredentialUserGroup(
-					0, isDefault, credId, privilege, actorId, context);
+					0, isDefault, credId, privilege, context);
 			saveNewUserToCredentialGroup(userId, res.getResult());
 			return Result.of(res.getEvents());
 		} catch (Exception e) {
@@ -1929,11 +1951,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional
 	public Result<Void> createCompetenceUserGroupAndSaveNewUser(long userId, long compId, UserGroupPrivilege privilege,
-																boolean isDefault, long actorId, LearningContextData context)
+																boolean isDefault, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<CompetenceUserGroup> res = createNewCompetenceUserGroup(
-					0, isDefault, compId, privilege, actorId, context);
+					0, isDefault, compId, privilege, context);
 			saveNewUserToCompetenceGroup(userId, res.getResult());
 			return Result.of(res.getEvents());
 		} catch (Exception e) {

@@ -1,0 +1,88 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:util="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="units" required="true" />
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="learningContext" default="" />
+		<composite:attribute name="update" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+		<ui:fragment rendered="#{empty cc.attrs.units}">
+			<div class="noPeopleMessage">
+				<p>No units</p>
+			</div>
+		</ui:fragment>
+		<ui:fragment rendered="#{not empty cc.attrs.units}">
+			<h:form id="formSelectUnits">
+				<p:growl id="growlSelectUnits" showDetail="true" globalOnly="true" />
+				<ul class="adminUnitsList adminUnitsListSelect">
+					<ui:repeat value="#{cc.attrs.units}" var="unit">
+						<li>
+							<div class="liContent">
+								<div class="adminUnitsListLeft">
+									<div class="checkbox">
+										<h:selectBooleanCheckbox id="checkboxSelectRootUnit" value="#{unit.selected}">
+											<f:attribute name="unit" value="#{unit}" />
+											<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:attribute name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:UNIT|id:'.concat(unit.id))}" />
+											<f:ajax execute="@this" event="change" listener="#{cc.attrs.bean.unitSelectionListener}" render="#{cc.attrs.update} @this"/>
+										</h:selectBooleanCheckbox>
+										<h:outputLabel for="checkboxSelectRootUnit">&#160;</h:outputLabel>
+									</div>
+									<h2>#{unit.title}</h2>
+								</div>
+							</div>
+							<ul class="unitLevel2">
+								<ui:repeat value="#{unit.childrenUnits}" var="child">
+									<li>
+										<div class="liContent">
+											<div class="adminUnitsListLeft">
+												<div class="checkbox">
+													<h:selectBooleanCheckbox id="checkboxSelectChildUnit" value="#{child.selected}">
+														<f:attribute name="unit" value="#{child}" />
+														<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
+														<f:attribute name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:UNIT|id:'.concat(child.id))}" />
+														<f:ajax execute="@this" event="change" listener="#{cc.attrs.bean.unitSelectionListener}" render="#{cc.attrs.update} @this"/>
+													</h:selectBooleanCheckbox>
+													<h:outputLabel for="checkboxSelectChildUnit">&#160;</h:outputLabel>
+												</div>
+												<h3>#{child.title}</h3>
+											</div>
+										</div>
+										<ul class="unitLevel3">
+											<ui:repeat var="child2" value="#{child.childrenUnits}">
+												<li>
+													<div class="liContent">
+														<div class="adminUnitsListLeft">
+															<div class="checkbox">
+																<h:selectBooleanCheckbox id="checkboxSelectChild2Unit" value="#{child2.selected}">
+																	<f:attribute name="unit" value="#{child2}" />
+																	<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
+																	<f:attribute name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:UNIT|id:'.concat(child2.id))}" />
+																	<f:ajax execute="@this" event="change" listener="#{cc.attrs.bean.unitSelectionListener}" render="#{cc.attrs.update} @this"/>
+																</h:selectBooleanCheckbox>
+																<h:outputLabel for="checkboxSelectChild2Unit">&#160;</h:outputLabel>
+															</div>
+															#{child2.title}
+														</div>
+													</div>
+												</li>
+											</ui:repeat>
+										</ul>
+									</li>
+								</ui:repeat>
+							</ul>
+						</li>
+					</ui:repeat>
+				</ul>
+			</h:form>
+		</ui:fragment>
+	</composite:implementation>
+</ui:component>

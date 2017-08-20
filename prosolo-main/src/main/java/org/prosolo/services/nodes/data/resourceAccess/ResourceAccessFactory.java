@@ -4,8 +4,12 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.factory.CredentialDeliveryStatusFactory;
+import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,7 +17,7 @@ import java.util.List;
 @Component
 public class ResourceAccessFactory {
 
-	public ResourceAccessData determineAccessRights(ResourceAccessRequirements req, UserAccessSpecification userAccess) {
+	public ResourceAccessData determineAccessRights(long userId, long resourceId, ResourceAccessRequirements req, UserAccessSpecification userAccess) {
 		//collection of needed privileges - user has to have one of them
 		List<UserGroupPrivilege> privileges = req.getPrivileges();
 		/*
@@ -64,9 +68,15 @@ public class ResourceAccessFactory {
 		
 		if(!canLearn || !canAccess) {
 			if(userAccess.isResourceVisibleToAll() && visitor.allowedToLearn) {
-				canLearn = true;
-				if(privileges.contains(UserGroupPrivilege.Learn)) {
-					canAccess = true;
+				//check if user has student role in at least one unit that is connected to credential
+				UserUnitAccessSpecificationVisitor visitor2 = new UserUnitAccessSpecificationVisitor(userId, resourceId);
+				userAccess.accept(visitor2);
+
+				if (visitor2.canAccess) {
+					canLearn = true;
+					if (privileges.contains(UserGroupPrivilege.Learn)) {
+						canAccess = true;
+					}
 				}
 			}
 		}
@@ -153,5 +163,47 @@ public class ResourceAccessFactory {
 							: resourceType == LearningResourceType.UNIVERSITY_CREATED);
 		}
 		
+	}
+
+	//Visitor which visits UserAccessSpecification objects and check if user has student role in appropriate units
+	private class UserUnitAccessSpecificationVisitor implements UserAccessSpecificationVisitor<Void> {
+
+		private long userId;
+		private long resourceId;
+
+		private boolean canAccess;
+
+		public UserUnitAccessSpecificationVisitor(long userId, long resourceId) {
+			this.userId = userId;
+			this.resourceId = resourceId;
+		}
+
+		@Override
+		public Void visit(CredentialUserAccessSpecification spec) {
+			canAccess = ServiceLocator.getInstance().getService(UnitManager.class)
+					.checkIfUserHasRoleInUnitsConnectedToCredential(userId,
+							ServiceLocator.getInstance().getService(CredentialManager.class).getCredentialIdForDelivery(resourceId),
+							getStudentRoleId());
+			return null;
+		}
+
+		@Override
+		public Void visit(CompetenceUserAccessSpecification spec) {
+			canAccess = ServiceLocator.getInstance().getService(UnitManager.class)
+					.checkIfUserHasRoleInUnitsConnectedToCompetence(userId, resourceId, getStudentRoleId());
+			return null;
+		}
+
+		private long getStudentRoleId() {
+			List<Long> roleIds = ServiceLocator.getInstance().getService(RoleManager.class)
+					.getRoleIdsForName(RoleNames.USER);
+
+			if (roleIds.size() == 1) {
+				return roleIds.get(0);
+			}
+
+			return 0;
+		}
+
 	}
 }

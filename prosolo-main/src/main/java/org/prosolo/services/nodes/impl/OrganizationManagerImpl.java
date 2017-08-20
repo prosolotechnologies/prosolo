@@ -9,13 +9,13 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -54,10 +54,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private OrganizationManager self;
 
     @Override
-    public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
+    public Organization createNewOrganization(String title, List<UserData> adminsChosen, UserContextData context)
             throws DbConnectionException,EventException {
 
-        Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
+        Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -66,8 +66,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional
-    public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                                  LearningContextData contextData) throws DbConnectionException {
+    public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, UserContextData context)
+            throws DbConnectionException {
         try {
             Organization organization = new Organization();
             organization.setTitle(title);
@@ -77,7 +77,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             Result<Organization> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, organization, null, contextData, null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+                    organization, null, context.getContext(), null));
 
             res.setResult(organization);
             return res;
@@ -118,9 +119,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public Organization updateOrganization(long organizationId, String title, List<UserData> chosenUsers, long creatorId,
-            LearningContextData contextData) throws DbConnectionException, EventException {
-        Result<Organization> res = self.updateOrganizationAndGetEvents(organizationId,title,chosenUsers,creatorId,contextData);
+    public Organization updateOrganization(long organizationId, String title, List<UserData> chosenUsers, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Organization> res = self.updateOrganizationAndGetEvents(organizationId, title, chosenUsers, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -130,7 +131,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional
     public Result<Organization> updateOrganizationAndGetEvents(long organizationId, String title, List<UserData> chosenUsers,
-                                                       long creatorId,LearningContextData contextData) throws DbConnectionException {
+                                                               UserContextData context) throws DbConnectionException {
         try{
             Result<Organization> res = new Result<>();
 
@@ -142,13 +143,13 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 switch (ud.getObjectStatus()){
                     case REMOVED:
                         userManager.setUserOrganization(ud.getId(),0);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, creatorId,
-                                user, organization, contextData, null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context.getActorId(),
+                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
                         break;
                     case CREATED:
                         userManager.setUserOrganization(ud.getId(),organizationId);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, creatorId,
-                                user, organization, contextData, null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context.getActorId(),
+                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
                         break;
                     default:
                         break;
@@ -181,42 +182,48 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins) {
-        PaginatedResult<OrganizationData> response = new PaginatedResult<>();
+    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
+            throws DbConnectionException {
+        try {
+            PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
-        String query =
-                "SELECT organization " +
-                "FROM Organization organization " +
-                "WHERE organization.deleted IS FALSE ";
+            String query =
+                    "SELECT organization " +
+                            "FROM Organization organization " +
+                            "WHERE organization.deleted IS FALSE ";
 
-        Query q = persistence.currentManager().createQuery(query);
-        if (page >= 0 && limit > 0) {
-            q.setFirstResult(page * limit);
-            q.setMaxResults(limit);
-        }
-
-        List<Organization> organizations = q.list();
-
-        for(Organization o : organizations) {
-            OrganizationData od;
-            if (loadAdmins) {
-                String[] rolesArray = new String[]{"Admin", "Super Admin"};
-                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
-                List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
-                List<UserData> listToPass = new ArrayList<>();
-                for (User u : chosenAdmins) {
-                    listToPass.add(new UserData(u));
-                }
-                od = new OrganizationData(o, listToPass);
-            } else {
-                od = new OrganizationData(o);
+            Query q = persistence.currentManager().createQuery(query);
+            if (page >= 0 && limit > 0) {
+                q.setFirstResult(page * limit);
+                q.setMaxResults(limit);
             }
 
-            response.addFoundNode(od);
+            List<Organization> organizations = q.list();
+
+            for (Organization o : organizations) {
+                OrganizationData od;
+                if (loadAdmins) {
+                    String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                    List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+                    List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
+                    List<UserData> listToPass = new ArrayList<>();
+                    for (User u : chosenAdmins) {
+                        listToPass.add(new UserData(u));
+                    }
+                    od = new OrganizationData(o, listToPass);
+                } else {
+                    od = new OrganizationData(o);
+                }
+
+                response.addFoundNode(od);
+            }
+            response.setHitsNumber(getOrganizationsCount());
+            return response;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving organization data");
         }
-        response.setHitsNumber(getOrganizationsCount());
-        return response;
     }
 
     private Long getOrganizationsCount(){

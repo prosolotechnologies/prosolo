@@ -5,10 +5,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -22,7 +19,9 @@ import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,11 +163,17 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 	@Override
 	public PaginatedResult<ResourceVisibilityMember> searchUsersAndGroups(
-			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId) {
+			long orgId, String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId,
+			List<Long> unitIds) {
 		PaginatedResult<ResourceVisibilityMember> response = new PaginatedResult<>();
 		try {
-			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, roleId);
-			SearchHit[] groupHits = getUserGroups(searchTerm, limit, groupsToExclude);
+			if (unitIds == null || unitIds.isEmpty()) {
+				return response;
+			}
+
+			SearchHit[] userHits = getResourceVisibilityUsers(orgId, searchTerm, limit, usersToExclude, roleId,
+					unitIds);
+			SearchHit[] groupHits = getUserGroups(orgId, searchTerm, limit, groupsToExclude, unitIds);
 			
 			int userLength = userHits.length, groupLength = groupHits.length;
 			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
@@ -212,12 +217,32 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return response;
 	}
+
+	@Override
+	public PaginatedResult<ResourceVisibilityMember> searchUsersInUnitsWithRole(long orgId, String searchTerm,
+																		 int limit, List<Long> unitIds,
+																		 List<Long> usersToExclude, long roleId) {
+		PaginatedResult<ResourceVisibilityMember> response = new PaginatedResult<>();
+
+		SearchHit[] userHits = getResourceVisibilityUsers(orgId, searchTerm, limit, usersToExclude, roleId, unitIds);
+		for(int i = 0; i < userHits.length; i++) {
+			SearchHit hit = userHits[i];
+			response.addFoundNode(extractVisibilityUserResult(hit));
+		}
+
+		return response;
+	}
 	
-	private SearchHit[] getResourceVisibilityUsers(String searchTerm, int limit, 
-			List<Long> usersToExclude, long roleId) {
+	private SearchHit[] getResourceVisibilityUsers(long orgId, String searchTerm, int limit,
+			List<Long> usersToExclude, long roleId, List<Long> unitIds) {
 		try {
+			if (unitIds == null || unitIds.isEmpty()) {
+				return new SearchHit[0];
+			}
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			//search users
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -231,20 +256,27 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			
 			bQueryBuilder.mustNot(termQuery("system", true));
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("roles.units.id", unitId));
+			}
+			unitRoleFilter.filter(unitFilter);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
 			
 			if (usersToExclude != null) {
 				for (Long exUserId : usersToExclude) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
 				}
 			}
-
-			if (roleId > 0) {
-				bQueryBuilder.filter(termQuery("roles.id", roleId));
-			}
 			
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -274,10 +306,17 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		return new SearchHit[0];
 	}
 	
-	private SearchHit[] getUserGroups(String searchTerm, int limit, List<Long> groupsToExclude) {
+	private SearchHit[] getUserGroups(long orgId, String searchTerm, int limit, List<Long> groupsToExclude,
+									  List<Long> unitIds) {
 		try {
+			if (unitIds == null || unitIds.isEmpty()) {
+				return new SearchHit[0];
+			}
+
+			String indexName = ESIndexNames.INDEX_USER_GROUP + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
 			
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
@@ -286,6 +325,12 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
 			bqBuilder.must(qb);
+
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("unit", unitId));
+			}
+			bqBuilder.filter(unitFilter);
 			
 			if (groupsToExclude != null) {
 				for (Long g : groupsToExclude) {
@@ -293,7 +338,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				}
 			}
 			
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+			SearchRequestBuilder srb = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.USER_GROUP)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bqBuilder)
@@ -332,10 +377,12 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	@Override
-	public PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
-                                                                           int limit, List<Long> usersToExclude) {
+	public PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(long orgId, String searchTerm,
+                                                                           int limit, List<Long> unitIds,
+																		   List<Long> usersToExclude) {
 		PaginatedResult<ResourceVisibilityMember> response = new PaginatedResult<>();
-		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, 0);
+		SearchHit[] userHits = getResourceVisibilityUsers(orgId, searchTerm, limit, usersToExclude, 0,
+				unitIds);
 			
 		for(SearchHit h : userHits) {
 			response.addFoundNode(extractVisibilityUserResult(h));

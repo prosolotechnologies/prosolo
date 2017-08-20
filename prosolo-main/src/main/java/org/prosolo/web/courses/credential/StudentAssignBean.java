@@ -3,16 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -33,6 +23,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "studentAssignBean")
 @Component("studentAssignBean")
@@ -126,7 +125,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 	
 	public void searchStudents() {
 		PaginatedResult<StudentData> result = userTextSearch
-				.searchUnassignedAndStudentsAssignedToInstructor(studentSearchTerm, credId, 
+				.searchUnassignedAndStudentsAssignedToInstructor(
+						loggedUserBean.getOrganizationId(), studentSearchTerm, credId,
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
 						paginationData.getPage() - 1, paginationData.getLimit());
 		students = result.getFoundNodes();
@@ -230,7 +230,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 					usersToAssign = studentsToAssign;
 				}
 				credInstructorManager.updateInstructorAndStudentsAssigned(credId, instructorForStudentAssign, 
-						usersToAssign, studentsToUnassign, loggedUserBean.getUserId(), ctx);
+						usersToAssign, studentsToUnassign, loggedUserBean.getUserContext(ctx));
 				//fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
 				//fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
 				int numberOfAffectedStudents = usersToAssign.size() - studentsToUnassign.size();

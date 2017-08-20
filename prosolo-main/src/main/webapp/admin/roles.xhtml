@@ -53,13 +53,6 @@
 									<tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
 										<td class="col1 alignLeft">#{role.name}</td>
 										<td class="col2">
-											<ui:remove>
-											<h:link rendered="#{not empty role.userIds}"
-												outcome="/admin/users">
-												<f:param name="role" value="#{util:encodeId(role.id)}"></f:param>
-												#{role.userIds.size()} users
-											</h:link>
-											</ui:remove>
 											<h:outputText rendered="#{not empty role.userIds}" value="#{role.userIds.size()} users" />
 											<h:outputText rendered="#{empty role.userIds}" value="0 users" />
 										</td>

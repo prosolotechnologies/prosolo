@@ -16,5 +16,5 @@ public interface AuthenticationService {
 
 	boolean loginOpenId(String email) throws AuthenticationException;
 
-	boolean checkPassword(String oldPassword, String newPassword);
+	boolean checkPassword(String rawPassword, String encodedPassword);
 }

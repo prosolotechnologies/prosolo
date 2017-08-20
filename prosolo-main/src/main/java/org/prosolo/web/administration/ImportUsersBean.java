@@ -10,7 +10,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserImportData;
-import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.validators.EmailValidatorUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -163,9 +162,9 @@ public class ImportUsersBean implements Serializable {
 							+ user.getLastName() + " , position: " + user.getPosition());
 
 					boolean importSuccessful = userManager.createNewUserAndConnectToResources(
-							organizationId, user.getFirstName(), user.getLastName(), user.getEmail(),
+							user.getFirstName(), user.getLastName(), user.getEmail(),
 							null, user.getPosition(), unitId, roleId, groupId,
-							PageUtil.extractLearningContextData(), loggedUser.getUserId());
+							loggedUser.getUserContext(organizationId));
 
 					if (!importSuccessful) {
 						usersNotImported.add(getUserCSV(user));

@@ -100,8 +100,8 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetencesForManager(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption);
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
+				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -138,10 +138,9 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -163,10 +162,9 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -195,10 +193,9 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void duplicate() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			try {
-				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(), 
-						loggedUserBean.getUserId(), ctx);
+				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(),
+						loggedUserBean.getUserContext());
 				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);

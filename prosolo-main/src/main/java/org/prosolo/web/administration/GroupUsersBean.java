@@ -109,9 +109,12 @@ public class GroupUsersBean implements Serializable, Paginable {
 			u.setId(user.getId());
 			UserGroup group = new UserGroup();
 			group.setId(decodedGroupId);
-			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(),
+			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP,
+					loggedUserBean.getUserId(),
+					decodedOrgId,
+					loggedUserBean.getSessionId(),
 					u, group, page, lContext,
-					service, null);
+					service, null, null);
 
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " successfully removed from the group");
 

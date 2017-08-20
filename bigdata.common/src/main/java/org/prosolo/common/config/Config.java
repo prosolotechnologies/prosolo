@@ -45,10 +45,7 @@ public class Config {
 	}
 
 	public String getNamespaceSufix() {
-		if (this.namespace.equals("local")) {
-			return "";
-		} else
-			return "_" + this.namespace;
+		return "_" + this.namespace;
 	}
 
 	public AppConfig getAppConfig() {

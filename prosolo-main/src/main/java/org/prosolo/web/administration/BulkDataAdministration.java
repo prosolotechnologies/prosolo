@@ -1,10 +1,13 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.hibernate.Session;
 import org.prosolo.app.AfterContextLoader;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
@@ -49,7 +52,6 @@ public class BulkDataAdministration implements Serializable {
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
 
 	public void deleteAndReindexElasticSearch() {
-
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -71,12 +73,17 @@ public class BulkDataAdministration implements Serializable {
 			public void run() {
 				try {
 					logger.info("Delete and reindex users started");
-					deleteAndInitIndex(ESIndexNames.INDEX_USERS);
+					//delete all user indexes
+					esAdministration.deleteIndexByName(ESIndexNames.INDEX_USERS + "*");
+
+					//create system user index
+					esAdministration.createIndex(ESIndexNames.INDEX_USERS);
 
 					List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
 							.getFoundNodes();
 					for (OrganizationData o : organizations) {
-						deleteAndInitIndex(ESIndexNames.INDEX_USERS
+						//create user index for each organization
+						esAdministration.createIndex(ESIndexNames.INDEX_USERS
 								+ ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
 					}
 					indexUsers();
@@ -129,10 +136,10 @@ public class BulkDataAdministration implements Serializable {
 				userEntityESService.saveUserNode(user, session);
 				//}
 			}
-			
+
 			//index credentials
 			List<Credential1> credentials = credManager.getAllCredentials(session);
-			for(Credential1 cred : credentials) {
+			for (Credential1 cred : credentials) {
 				credESService.saveCredentialNode(cred, session);
 			}
 			//index competences

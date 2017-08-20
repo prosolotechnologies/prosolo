@@ -14,10 +14,10 @@ import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventData;
@@ -34,6 +34,7 @@ import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Inject private UnitManager unitManager;
 	@Inject private UserGroupManager userGroupManager;
 
-	@Autowired private PasswordEncrypter passwordEncrypter;
+	@Autowired private PasswordEncoder passwordEncoder;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
@@ -243,11 +244,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public String changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
-//		User user = loadResource(User.class, userId);
-//		user.setPassword(passwordEncrypter.encodePassword(newPassword));
-//		user.setPasswordLength(newPassword.length());
-//		return saveEntity(user);
-		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
 		try {
 			String query =
@@ -271,7 +268,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public String changePasswordWithResetKey(String resetKey, String newPassword) {
-		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
 		try {
 			String query =
@@ -327,11 +324,23 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public User updateUser(long userId, String name, String lastName, String email,
-			boolean emailVerified, boolean changePassword, String password,
-			String position, List<Long> roles, List<Long> rolesToUpdate, long creatorId) throws DbConnectionException, EventException {
+						   boolean emailVerified, boolean changePassword, String password,
+						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+			throws DbConnectionException, EventException {
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, roles, rolesToUpdate);
-		eventFactory.generateEvent(EventType.Edit_Profile, creatorId, user);
+
+		String page = null;
+		String lContext = null;
+		String service = null;
+		LearningContextData lcd = context.getContext();
+		if (lcd != null) {
+			page = lcd.getPage();
+			lContext = lcd.getLearningContext();
+			service = lcd.getService();
+		}
+		eventFactory.generateEvent(EventType.Edit_Profile, context.getActorId(), context.getOrganizationId(),
+				context.getSessionId(), user, null, page, lContext, service, null, null);
 		return user;
 	}
 
@@ -445,8 +454,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
-	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException, EventException {
-		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId);
+	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
 		for (EventData ev : result.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -454,20 +464,20 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException {
+	public Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId, UserContextData context)
+			throws DbConnectionException {
 			User user;
 			Result<Void> result = new Result<>();
 			try {
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
 				saveEntity(user);
-				assignNewOwner(newCreatorId, oldCreatorId);
-				saveEntity(user);
-				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
 
+				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId, context).getEvents());
 				User u = new User(oldCreatorId);
 				//actor not passed
-				result.addEvent(eventFactory.generateEventData(EventType.Delete, 0,
+				result.addEvent(eventFactory.generateEventData(EventType.Delete,
+						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
 						u, null, null, null));
 				//TODO check if line below is needed
 				//userEntityESService.deleteNodeFromES(user);
@@ -480,7 +490,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public void setUserOrganization(long userId,long organizationId) {
+	public void setUserOrganization(long userId, long organizationId) {
 		try {
 			User user = loadResource(User.class,userId);
 			if(organizationId != 0) {
@@ -668,10 +678,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		return additionalInfo;
 	}
 
-	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {
+	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId, UserContextData context) {
 		Result<Void> result = new Result<>();
-		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId).getEvents());
-		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId).getEvents());
+		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId, context).getEvents());
+		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId, context).getEvents());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
 		return result;
 	}
@@ -762,15 +772,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
-	public boolean createNewUserAndConnectToResources(long organizationId,
+	public boolean createNewUserAndConnectToResources(
 												   String name, String lastname, String emailAddress,
 												   String password, String position, long unitId,
 												   long unitRoleId, long userGroupId,
-												   LearningContextData context, long actorId)
+												   UserContextData context)
 			throws DbConnectionException, EventException {
 		Result<UserCreationData> res = self.createNewUserConnectToResourcesAndGetEvents(
-				organizationId, name, lastname, emailAddress, password, position, unitId, unitRoleId,
-				userGroupId, context, actorId);
+				name, lastname, emailAddress, password, position, unitId, unitRoleId,
+				userGroupId, context);
 
 		if (res.getResult() != null) {
 			taskExecutor.execute(() -> {
@@ -829,19 +839,19 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(long organizationId,
+	public Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(
 														   String name, String lastname, String emailAddress,
 														   String password, String position, long unitId,
 														   long unitRoleId, long userGroupId,
-														   LearningContextData context, long actorId)
+														   UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<UserCreationData> res = new Result<>();
 
 			Result<UserCreationData> newUserRes = createOrUpdateUser(
-					organizationId, name, lastname, emailAddress, true,
+					name, lastname, emailAddress, true,
 					password, position, false, null, null,
-					unitRoleId, context, actorId);
+					unitRoleId, context);
 
 			res.setResult(newUserRes.getResult());
 			res.addEvents(newUserRes.getEvents());
@@ -850,12 +860,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			if (newUserRes.getResult() != null) {
 				if (unitId > 0 && unitRoleId > 0) {
 					res.addEvents(unitManager.addUserToUnitWithRoleAndGetEvents(
-							newUserRes.getResult().getUser().getId(), unitId, unitRoleId, actorId, context).getEvents());
+							newUserRes.getResult().getUser().getId(), unitId, unitRoleId, context).getEvents());
 				}
 
 				if (userGroupId > 0) {
 					res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(userGroupId, newUserRes.getResult().getUser().getId(),
-							actorId, context).getEvents());
+							context).getEvents());
 				}
 			}
 
@@ -872,7 +882,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	 */
 	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							   String password, String position, boolean system, InputStream avatarStream,
-						       String avatarFilename, List<Long> roles, LearningContextData context)
+						       String avatarFilename, List<Long> roles, UserContextData context)
 			throws UserAlreadyRegisteredException, DbConnectionException {
 		try {
 			if (checkIfUserExists(emailAddress)) {
@@ -894,7 +904,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			}
 
 			if (password != null) {
-				user.setPassword(passwordEncrypter.encodePassword(password));
+				user.setPassword(passwordEncoder.encode(password));
 				user.setPasswordLength(password.length());
 			}
 
@@ -927,7 +937,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			so I used new user id as an actor in event, but this is probably not semantically correct
 			 */
 			res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
-					user, null, context, null));
+					context.getOrganizationId(), context.getSessionId(), user, null, context.getContext(), null));
 
 			return res;
 		} catch (UserAlreadyRegisteredException e) {
@@ -949,7 +959,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	 *
 	 * Deleted user is activated with name, last name and position updated and also role ({@code roleId}) added
 	 *
-	 * @param organizationId
 	 * @param name
 	 * @param lastname
 	 * @param emailAddress
@@ -961,13 +970,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	 * @param avatarFilename
 	 * @param roleId
 	 * @param context
-	 * @param actorId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private Result<UserCreationData> createOrUpdateUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+	private Result<UserCreationData> createOrUpdateUser(String name, String lastname, String emailAddress, boolean emailVerified,
 														String password, String position, boolean system, InputStream avatarStream,
-														String avatarFilename, long roleId, LearningContextData context, long actorId)
+														String avatarFilename, long roleId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			List<Long> roleIds = null;
@@ -976,7 +984,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roleIds.add(roleId);
 			}
 
-			Result<User> newUserRes = createNewUser(organizationId, name, lastname, emailAddress, emailVerified,
+			Result<User> newUserRes = createNewUser(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
 					password, position, system, avatarStream, avatarFilename, roleIds, context);
 			Result<UserCreationData> res = new Result<>();
 			res.setResult(new UserCreationData(newUserRes.getResult(), true));
@@ -990,11 +998,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				That should be revisited when there can be two users with same email address and different
 				organization
 				 */
-				User user = getUser(organizationId, emailAddress.toLowerCase());
+				User user = getUser(context.getOrganizationId(), emailAddress.toLowerCase());
 				if (user != null) {
 					if (user.isDeleted()) {
 						res.addEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
-								context, actorId).getEvents());
+								context).getEvents());
 						res.setResult(new UserCreationData(user, true));
 						return res;
 					} else {
@@ -1013,7 +1021,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 										(Role) persistence.currentManager().load(Role.class, roleId));
 								User us = new User(user.getId());
 								res.addEvent(eventFactory.generateEventData(
-										EventType.USER_ROLES_UPDATED, actorId, us, null, context, null));
+										EventType.USER_ROLES_UPDATED, context.getActorId(), context.getOrganizationId(),
+										context.getSessionId(), us, null, context.getContext(), null));
 							}
 						}
 					}
@@ -1042,7 +1051,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	 */
 	private Result<Void> activateUserAndUpdateBasicInfo(User user, String firstName, String lastName,
 														String position, long roleId,
-														LearningContextData context, long actorId) {
+														UserContextData context) {
 		user.setDeleted(false);
 		user.setName(firstName);
 		user.setLastname(lastName);
@@ -1061,8 +1070,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		User u = new User(user.getId());
 		Result<Void> res = new Result<>();
-		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, actorId,
-				u, null, context, null));
+		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context.getActorId(),
+				context.getOrganizationId(), context.getSessionId(), u, null, context.getContext(), null));
 
 		return res;
 	}

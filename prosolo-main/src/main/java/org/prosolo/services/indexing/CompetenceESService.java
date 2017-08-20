@@ -22,39 +22,47 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	/**
 	 * adds user to appropriate collection of users which have privilege of viewing or editing competence 
 	 * with id - {@code compId}
+	 *
+	 * @param organizationId
 	 * @param compId
 	 * @param userId
 	 * @param privilege
 	 */
-	void addUserToIndex(long compId, long userId, UserGroupPrivilege privilege);
+	void addUserToIndex(long organizationId, long compId, long userId, UserGroupPrivilege privilege);
 	
 	/**
 	 * removes user from appropriate colleciton of users which have privilege of viewing or editing competence
 	 * with id - {@code compId}
+	 *
+	 * @param organizationId
 	 * @param compId
 	 * @param userId
 	 * @param privilege
 	 */
-	void removeUserFromIndex(long compId, long userId, UserGroupPrivilege privilege);
+	void removeUserFromIndex(long organizationId, long compId, long userId, UserGroupPrivilege privilege);
 	
-	void updateVisibleToAll(long compId, boolean value);
+	void updateVisibleToAll(long organizationId, long compId, boolean value);
 	
-	void updateCompetenceUsersWithPrivileges(long compId, Session session);
+	void updateCompetenceUsersWithPrivileges(long organizationId, long compId, Session session);
 	
-	void updateStatus(long compId, boolean published, Date datePublished);
+	void updateStatus(long organizationId, long compId, boolean published, Date datePublished);
 	
-	void addBookmarkToCompetenceIndex(long compId, long userId);
+	void addBookmarkToCompetenceIndex(long organizationId, long compId, long userId);
 	
-	void removeBookmarkFromCompetenceIndex(long compId, long userId);
+	void removeBookmarkFromCompetenceIndex(long organizationId, long compId, long userId);
 	
-	void addStudentToCompetenceIndex(long compId, long userId);
+	void addStudentToCompetenceIndex(long organizationId, long compId, long userId);
 	
-	void removeStudentFromCompetenceIndex(long compId, long userId);
+	void removeStudentFromCompetenceIndex(long organizationId, long compId, long userId);
 	
-	void archiveCompetence(long compId);
+	void archiveCompetence(long organizationId, long compId);
 	
-	void restoreCompetence(long compId);
+	void restoreCompetence(long organizationId, long compId);
 
-	void updateCompetenceOwner(long compId, long newOwnerId);
+	void updateCompetenceOwner(long organizationId, long compId, long newOwnerId);
+
+	void addUnitToCompetenceIndex(long organizationId, long compId, long unitId);
+
+	void removeUnitFromCompetenceIndex(long organizationId, long compId, long unitId);
 
 }

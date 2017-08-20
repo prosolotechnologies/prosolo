@@ -67,9 +67,9 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+                <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
                 <li>
-                    <h:link outcome="/admin/adminOrganizationNew">
+                    <h:link outcome="/admin/organizationNew">
                         #{groupUsersBean.organizationTitle}
                         <f:param name="id" value="#{param.orgId}" />
                     </h:link>
@@ -89,7 +89,7 @@
                 </li>
                 <li>
                     <h:link outcome="/admin/unit-groups">
-                        Unit Groups
+                        Student Groups
                         <f:param name="orgId" value="#{param.orgId}" />
                         <f:param name="id" value="#{param.unitId}" />
                     </h:link>
@@ -113,31 +113,38 @@
                             </p>
                         </div>
                         <h:panelGroup id="panelUsers">
-                            <ul class="list hasTopBorder">
-                                <ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
-                                    <li>
-                                        <div class="instructorInfo">
-                                            <utilcomp:userAvatar avatar="#{user.avatarUrl}"
-                                                                 fullName="#{user.fullName}" width="48" height="48" />
+                            <ui:fragment rendered="#{empty groupUsersBean.users}">
+                                <div class="noPeopleMessage">
+                                    <p>No students</p>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{not empty groupUsersBean.users}">
+                                <ul class="list hasTopBorder">
+                                    <ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
+                                        <li>
+                                            <div class="instructorInfo">
+                                                <utilcomp:userAvatar avatar="#{user.avatarUrl}"
+                                                                     fullName="#{user.fullName}" width="48" height="48" />
 
-                                            <div class="infoWrap">
-                                                <h3>#{user.fullName}</h3>
-                                                <span>#{user.position}</span>
+                                                <div class="infoWrap">
+                                                    <h3>#{user.fullName}</h3>
+                                                    <span>#{user.position}</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="assignOpt">
-                                            <p:commandLink styleClass="removeX" process="@this"
-                                                           action="#{groupUsersBean.removeUserFromGroup(user)}"
-                                                           update=":panelUsers :growlMain">
-                                                Close
-                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                                <f:param name="learningContext"
-                                                         value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
-                                            </p:commandLink>
-                                        </div>
-                                    </li>
-                                </ui:repeat>
-                            </ul>
+                                            <div class="assignOpt">
+                                                <p:commandLink styleClass="removeX" process="@this"
+                                                               action="#{groupUsersBean.removeUserFromGroup(user)}"
+                                                               update=":panelUsers :growlMain">
+                                                    Close
+                                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                    <f:param name="learningContext"
+                                                             value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
+                                                </p:commandLink>
+                                            </div>
+                                        </li>
+                                    </ui:repeat>
+                                </ul>
+                            </ui:fragment>
                         </h:panelGroup>
 
                         <utilcomp:pagination id="pagination"
@@ -170,6 +177,7 @@
                 userPanelId="panelUsers"
                 paginationPanelId="pagination"
                 learningContext="#{learningContext}"
+                noResultsMessage="No students"
         />
 
     </ui:define>

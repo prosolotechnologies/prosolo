@@ -1,14 +1,8 @@
 package org.prosolo.services.indexing.impl;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -22,6 +16,8 @@ import org.prosolo.services.indexing.impl.elasticSearchObserver.NodeChangeProces
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 
 @Service("org.prosolo.services.indexing.NodeChangeObserver")
 public class NodeChangeObserver extends EventObserver {
@@ -72,6 +68,10 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.USER_ASSIGNED_TO_ORGANIZATION,
 			EventType.ADD_USER_TO_UNIT,
 			EventType.REMOVE_USER_FROM_UNIT,
+			EventType.ADD_CREDENTIAL_TO_UNIT,
+			EventType.REMOVE_CREDENTIAL_FROM_UNIT,
+			EventType.ADD_COMPETENCE_TO_UNIT,
+			EventType.REMOVE_COMPETENCE_FROM_UNIT,
 			EventType.Account_Activated
 		};
 	}

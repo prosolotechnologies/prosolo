@@ -3,15 +3,10 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout2.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
 		Activity Response
@@ -31,7 +26,7 @@
     <ui:define name="resourceTitle">
     	<h1>#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}</h1>
     </ui:define>
-    
+	<utilcomp:messagesBundle var="msg" />
 	<ui:define name="content">
 	<script>
 		$(function() {
@@ -63,7 +58,7 @@
     	<ui:fragment rendered="#{activityResultsBeanUser.competenceData.credentialId != 0}">
 	    	<ol class="breadcrumb">
 	            <li>
-	            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+	            	<h:link value="#{msg['label.credential.plural']}" outcome="/credentialLibrary"/>
 	            </li>
 	            <li>
 	            	<h:link 
@@ -123,7 +118,7 @@
 	    <ui:fragment rendered="#{activityResultsBeanUser.competenceData.credentialId == 0}">
 		    <ol class="breadcrumb">	 
     			<li>
-    				<h:link value="Competencies" outcome="competenceLibrary"/>
+    				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 	            </li> 
     			<li>
 	            	<h:link 

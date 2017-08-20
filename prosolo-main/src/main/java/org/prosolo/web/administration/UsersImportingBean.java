@@ -101,17 +101,7 @@ public class UsersImportingBean implements Serializable {
 				logger.error(e);
 			}
 
-			try {
-				PageUtil.fireSuccessfulInfoMessage(
-						ResourceBundleUtil.getMessage(
-								"admin.users.importing.growl", 
-								loggedUser.getLocale(), 
-								event.getFile().getFileName(),
-								noUsersCreated,
-								noUsersDidntCreated));
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}
+			PageUtil.fireSuccessfulInfoMessage("File "+event.getFile().getFileName()+" is uploaded. Created "+noUsersCreated+" participants, couldn't create "+noUsersDidntCreated+" participants.");
 		}
 	}
 	

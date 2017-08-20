@@ -36,6 +36,9 @@
     <ui:define name="content">
         <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
         <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+        <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+
         <div class="whiteBar">
 
         </div>
@@ -71,11 +74,9 @@
                                                  required="true"
                                                  requiredMessage="Organization name is required"
                                                  value="#{organizationEditBean.organization.title}"/>
-                                    <h:panelGroup  layout="block"
-                                                   rendered="#{not empty facesContext.getMessageList('formMain:inputTextOrganizationName')}"
-                                                   styleClass="alert alert-danger" pt:role="alert">
-                                        <h:message for="inputTextOrganizationName"></h:message>
-                                    </h:panelGroup>
+
+                                    <small class="redText"><h:message for="inputTextOrganizationName"></h:message></small>
+
                                 </div>
                             </div>
                             <div class="formLine">
@@ -148,11 +149,8 @@
                                             </h:panelGroup>
                                             <h:inputHidden validator="selectUserForOrganizationValidator" value="0"
                                                            id="hiddenInput"></h:inputHidden>
-                                            <h:panelGroup layout="block"
-                                                          rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
-                                                          styleClass="alert alert-danger" pt:role="alert">
-                                                <h:message for="hiddenInput"></h:message>
-                                            </h:panelGroup>
+
+                                            <small class="redText"><h:message for="hiddenInput"></h:message></small>
                                         </h:panelGroup>
                                 </div>
                             </div>
@@ -160,7 +158,7 @@
                                 <label>&#160;</label>
                                 <div class="formLineRight">
                                     <p:commandLink  id="saveBtn" styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
-                                                    action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                                    action="#{organizationEditBean.saveOrganization()}" update=":formMain :growlMain">
                                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                                     <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
                                     </p:commandLink>

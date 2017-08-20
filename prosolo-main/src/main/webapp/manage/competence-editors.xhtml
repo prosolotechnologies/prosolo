@@ -5,15 +5,19 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
     xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
-    xmlns:ls="http://java.sun.com/jsf/composite/components/learningResource">
+    xmlns:ls="http://java.sun.com/jsf/composite/components/learningResource"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
         #{competenceUserPrivilegeBean.competenceTitle}
 	</ui:define>
 
+	<utilcomp:messagesBundle var="msg" />
+
 	<ui:define name="metadata">
 		<f:metadata>
             <f:viewParam name="id" value="#{competenceUserPrivilegeBean.competenceId}" default="null" />
+			<f:viewParam name="credId" value="#{competenceUserPrivilegeBean.credId}" default="null" />
             <f:viewAction action="#{competenceUserPrivilegeBean.initWithEditPrivilege()}" />
 		</f:metadata>
 	</ui:define>
@@ -26,40 +30,65 @@
          <mngComp:competenceHeaderNavLinks
                  id="headerNavLinks"
                  compId="#{competenceUserPrivilegeBean.compId}"
+				 credId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
 	
 
 	<ui:define name="content">
+		<utilcomp:messagesBundle var="msg" />
 
         <p:growl id="growlMain" globalOnly="true" showDetail="true" />
 
-		<div class="whiteBar">
-        
-    	</div>
+		<div class="whiteBar"></div>
 
     	<div class="container">
             <div class="row">
 				<div class="container">
-					<ol class="breadcrumb">
-						<li>
-							<h:link value="Competencies" outcome="competenceLibrary"/>
-						</li>
-						<li>
-							<h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
-								<f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
-							</h:link>
-						</li>
-						<li class="active">
-							Editors
-						</li>
-					</ol>
+					<ui:fragment rendered="#{not empty param['credId']}">
+						<ol class="breadcrumb">
+							<li>
+								<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+							</li>
+							<li>
+								<h:link value="#{competenceUserPrivilegeBean.credTitle}"
+										outcome="create-credential">
+									<f:param name="id" value="#{param['credId']}"></f:param>
+								</h:link>
+							</li>
+							<li>
+								<h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+									<f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
+									<f:param name="credId" value="#{competenceUserPrivilegeBean.credId}"></f:param>
+								</h:link>
+							</li>
+							<li class="active">
+								Editors
+							</li>
+						</ol>
+					</ui:fragment>
+					<ui:fragment rendered="#{empty param['credId']}">
+						<ol class="breadcrumb">
+							<li>
+								<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
+							</li>
+							<li>
+								<h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+									<f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
+								</h:link>
+							</li>
+							<li class="active">
+								Editors
+							</li>
+						</ol>
+					</ui:fragment>
 				</div>
+
                 <div class="col-md-12">
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">
                             <h2>Editors</h2>
-                            <p>Select who can edit content of this competency:</p>
+                            <p>Select who can edit contents of this #{msg['label.competence'].toLowerCase()}:</p>
                         </div>
 
                         <h:form id="formMain">
@@ -73,6 +102,5 @@
                 </div>
             </div>
         </div>
-
 	</ui:define>
 </ui:composition>

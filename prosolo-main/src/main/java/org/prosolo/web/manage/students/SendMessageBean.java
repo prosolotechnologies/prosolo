@@ -70,8 +70,9 @@ public class SendMessageBean implements Serializable {
 		            		//parameters.put("context", createContext());
 		            		parameters.put("user", String.valueOf(receiverId));
 		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, 
-		            				null, page, lContext, service, parameters);
+		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(),
+									loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(), message1,
+		            				null, page, lContext, service, null, parameters);
 		            	} catch (EventException e) {
 		            		logger.error(e);
 		            	}

@@ -71,21 +71,23 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			String prog = params.get("progress");
 			int progress = prog != null ? Integer.parseInt(prog) : 0;
 			userEntityESService.addCredentialToUserIndex(
+					event.getOrganizationId(),
 					cred.getId(), 
 					event.getActorId(), 
 					instructorId,
 					progress,
 					dateEnrolledString);
 			//add student to credential index
-			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
+			credESService.addStudentToCredentialIndex(event.getOrganizationId(), cred.getId(), event.getActorId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {
 			Competence1 comp = (Competence1) event.getObject();
 			String date = params.get("dateEnrolled");
 			userEntityESService.addCompetenceToUserIndex(
+					event.getOrganizationId(),
 					comp.getId(), 
 					event.getActorId(),  
 					date);
-			compESService.addStudentToCompetenceIndex(comp.getId(), event.getActorId());
+			compESService.addStudentToCompetenceIndex(event.getOrganizationId(), comp.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
@@ -100,14 +102,17 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 				instructorId = event.getTarget().getId();
 			}
-			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), credId, instructorId);
+			userEntityESService.assignInstructorToUserInCredential(event.getOrganizationId(), event.getObject().getId(),
+					credId, instructorId);
 		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL) {
 			String dateAssigned = params.get("dateAssigned");
-			userEntityESService.addInstructorToCredential(event.getTarget().getId(), event.getObject().getId(), dateAssigned);
-			credESService.addInstructorToCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+			userEntityESService.addInstructorToCredential(event.getOrganizationId(), event.getTarget().getId(),
+					event.getObject().getId(), dateAssigned);
+			credESService.addInstructorToCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
-			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), event.getObject().getId());
-			credESService.removeInstructorFromCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+			userEntityESService.removeInstructorFromCredential(event.getOrganizationId(), event.getTarget().getId(),
+					event.getObject().getId());
+			credESService.removeInstructorFromCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	BaseEntity object = cpe.getObject();
@@ -116,7 +121,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		    	Credential1 cr = tc.getCredential();
 		    	
 				if (cr != null) {
-			    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
+			    	userEntityESService.changeCredentialProgress(event.getOrganizationId(), cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
 		    	}
 	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
@@ -127,8 +132,8 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					if (params != null) {
 						dateCompleted = params.get("dateCompleted");
 					}
-			    	userEntityESService.updateCompetenceProgress(cpe.getActorId(), c.getId(), cpe.getNewProgressValue(),
-			    			dateCompleted);
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), cpe.getActorId(),
+							c.getId(), cpe.getNewProgressValue(), dateCompleted);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
