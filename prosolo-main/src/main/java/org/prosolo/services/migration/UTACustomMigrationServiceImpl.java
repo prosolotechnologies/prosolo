@@ -4,25 +4,23 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.OrganizationData;
-import org.prosolo.services.nodes.data.UnitData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
@@ -77,7 +75,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
             // Create UTA organization
             Organization orgUta = ServiceLocator.getInstance().getService(OrganizationManager.class)
-                    .createNewOrganization("UTA", Arrays.asList(new UserData(userJustinDellinger)), UserContextData.empty());
+                    .createNewOrganizationAndGetEvents("UTA", Arrays.asList(new UserData(userJustinDellinger)), UserContextData.empty()).getResult();
 
             // Giving Justin Dellinger an admin role in UTA
             Role roleAdmin = roleManager.getRoleByName(RoleNames.ADMIN);
@@ -85,8 +83,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
 
             // Create History Department unit
-            UnitData unitHistoryDepartment = unitManager.createNewUnit("History Department", orgUta.getId(),
-                    0, UserContextData.of(userJustinDellinger.getId(), orgUta.getId(), null, null));
+            Unit unitHistoryDepartment = unitManager.createNewUnitAndGetEvents("History Department", orgUta.getId(),
+                    0, UserContextData.of(userJustinDellinger.getId(), orgUta.getId(), null, null)).getResult();
 
 
             // loading all users from the db
@@ -103,7 +101,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                     roleManager.assignRoleToUser(roleUser, user);
 
                     // adding user to the History Department unit as a student
-                    unitManager.addUserToUnitWithRole(user.getId(), unitHistoryDepartment.getId(), roleUser.getId(), UserContextData.empty());
+                    unitManager.addUserToUnitWithRoleAndGetEvents(user.getId(), unitHistoryDepartment.getId(), roleUser.getId(), UserContextData.empty());
                 }
             }
 
@@ -113,15 +111,15 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             User userMattCrosslin = userManager.getUser("matt@uta.edu");
             Role roleManage = roleManager.getRoleByName(RoleNames.MANAGER);
             userKimberlyBreuer = roleManager.assignRoleToUser(roleManage, userKimberlyBreuer);
-            unitManager.addUserToUnitWithRole(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
+            unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
 
             userMattCrosslin = roleManager.assignRoleToUser(roleManage, userMattCrosslin);
-            unitManager.addUserToUnitWithRole(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
+            unitManager.addUserToUnitWithRoleAndGetEvents(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
 
 
             // deleting unused users
             deleteUsers(userJustinDellinger.getId());
-        } catch (EventException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
             throw new RuntimeException();
@@ -153,21 +151,46 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             //create original credential from last delivery
             Credential1 originalCred = createOriginalCredentialFromDelivery(lastDelivery.getId(), org.getId());
             //connect credential to unit
-            unitManager.addCredentialToUnit(originalCred.getId(), unit.getId(), UserContextData.ofOrganization(org.getId()));
+            unitManager.addCredentialToUnitAndGetEvents(originalCred.getId(), unit.getId(), UserContextData.ofOrganization(org.getId()));
             convertOriginalCredToDelivery(org.getId(), lastDelivery, originalCred, Date.from(mapping.lastDelivery.start.atZone(ZoneId.systemDefault()).toInstant()),
                     Date.from(mapping.lastDelivery.end.atZone(ZoneId.systemDefault()).toInstant()));
-                for (DeliveryData dd : mapping.restDeliveries) {
+            //add edit privilege to credential owner as this should be explicit in new app version
+            addEditPrivilegeToCredentialOwner(lastDelivery, org.getId());
+            for (DeliveryData dd : mapping.restDeliveries) {
                 Credential1 del = (Credential1) persistence.currentManager()
                         .load(Credential1.class, dd.id);
                 convertOriginalCredToDelivery(org.getId(), del, originalCred, Date.from(dd.start.atZone(ZoneId.systemDefault()).toInstant()),
                         Date.from(dd.end.atZone(ZoneId.systemDefault()).toInstant()));
-
-
+                //add edit privilege to credential owner as this should be explicit in new app version
+                addEditPrivilegeToCredentialOwner(del, org.getId());
             }
         }
 
-        connectAllCompetencesToOrgAndUnit(org.getId(), unit.getId());
+        updateAllCompetences(org.getId(), unit.getId());
 
+        connectCompetenceVersions();
+
+    }
+
+    private void connectCompetenceVersions() {
+        List<CompetenceVersionMapping> versionMappings = getCompetencesVersionsMappings();
+        for (CompetenceVersionMapping mapping : versionMappings) {
+            Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class,
+                    mapping.getVersionId());
+            comp.setOriginalVersion((Competence1) persistence.currentManager().load(Competence1.class,
+                    mapping.getOriginalId()));
+        }
+        persistence.currentManager().flush();
+    }
+
+    private void addEditPrivilegeToCredentialOwner(Credential1 cred, long orgId) {
+        userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(cred.getCreatedBy().getId(), cred.getId(),
+                UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId));
+    }
+
+    private void addEditPrivilegeToCompetenceOwner(Competence1 comp, long orgId) {
+        userGroupManager.saveUserToDefaultCompetenceGroupAndGetEvents(comp.getCreatedBy().getId(),
+                comp.getId(), UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId));
     }
 
     private Unit getOrgUnit(long orgId) {
@@ -182,12 +205,18 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     private Credential1 createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
         CredentialData lastDeliveryData = credManager.getCredentialForEdit(deliveryId, 0).getResource();
         //save original credential based on the last delivery
-        Credential1 originalCred = credManager.saveNewCredential(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
+        Credential1 originalCred = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null)).getResult();
         //propagate edit privileges from last delivery to original credential
-        //method name suggests that propagation is done from original cred to delivery but it can be other way too
-        userGroupManager.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
-                deliveryId, originalCred.getId(), UserContextData.ofOrganization(orgId), persistence.currentManager());
+        copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, originalCred.getId());
         return originalCred;
+    }
+
+    private void copyEditPrivilegesFromDeliveryToOriginal(long orgId, long deliveryId, long credId) {
+       List<ResourceVisibilityMember> editors = userGroupManager.getCredentialVisibilityUsers(deliveryId, UserGroupPrivilege.Edit);
+       for (ResourceVisibilityMember editor :editors) {
+           userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(editor.getUserId(), credId,
+                   UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId));
+       }
     }
 
     private void convertOriginalCredToDelivery(long orgId, Credential1 credToConvert, Credential1 original, Date startDate, Date endDate) {
@@ -197,14 +226,25 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
         credToConvert.setDeliveryOf(original);
         credToConvert.setDeliveryStart(startDate);
         credToConvert.setDeliveryEnd(endDate);
+        persistence.currentManager().flush();
     }
 
-    private void connectAllCompetencesToOrgAndUnit(long orgId, long unitId) throws Exception {
+    private void updateAllCompetences(long orgId, long unitId) throws Exception {
         List<Competence1> comps = getAllCompetences();
         for (Competence1 c : comps) {
+            //connect competence to organization and unit
             c.setOrganization((Organization) persistence.currentManager().load(
                     Organization.class, orgId));
-            unitManager.addCompetenceToUnit(c.getId(), unitId, UserContextData.ofOrganization(orgId));
+            //set date published for competency so big edits can't be made
+            c.setDatePublished(Date.from(LocalDateTime.of(2017, Month.APRIL, 14, 2, 13)
+                    .atZone(ZoneId.systemDefault()).toInstant()));
+
+            persistence.currentManager().flush();
+
+            //add edit privilege to comp owner
+            addEditPrivilegeToCompetenceOwner(c, orgId);
+
+            unitManager.addCompetenceToUnitAndGetEvents(c.getId(), unitId, UserContextData.ofOrganization(orgId));
         }
     }
 
@@ -278,7 +318,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
                                 LocalDateTime.of(2017, Month.MAY, 20, 17, 10)),
                         Arrays.asList(
-                                new DeliveryData(425984L,
+                                new DeliveryData(425984,
                                         LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
                                         LocalDateTime.of(2017, Month.MAY, 20, 17, 10)))),
 
@@ -318,6 +358,70 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             this.id = id;
             this.start = start;
             this.end = end;
+        }
+    }
+
+    private List<CompetenceVersionMapping> getCompetencesVersionsMappings() {
+        return Arrays.asList(
+            // Credential 0: Bootcamp competencies
+            new CompetenceVersionMapping(294912, 425984),
+            new CompetenceVersionMapping(294913, 425985),
+            new CompetenceVersionMapping(294914, 425986),
+            new CompetenceVersionMapping(294915, 425987),
+
+            // Credential 1: The Rise of the First Civilizations competencies
+            new CompetenceVersionMapping(327680, 425988),
+            new CompetenceVersionMapping(327681, 425989),
+            new CompetenceVersionMapping(327682, 425990),
+            new CompetenceVersionMapping(327683, 425991),
+            new CompetenceVersionMapping(327684, 425992),
+            new CompetenceVersionMapping(327685, 425993),
+            new CompetenceVersionMapping(327686, 425994),
+            new CompetenceVersionMapping(327687, 425995),
+            new CompetenceVersionMapping(327688, 425996),
+            new CompetenceVersionMapping(327689, 425997),
+            new CompetenceVersionMapping(327690, 425998),
+            new CompetenceVersionMapping(327691, 425999),
+
+            // Credential 2: The Classic Era in World History competencies
+            new CompetenceVersionMapping(360448, 458752),
+            new CompetenceVersionMapping(360449, 458753),
+            new CompetenceVersionMapping(360450, 458754),
+            new CompetenceVersionMapping(360451, 458755),
+            new CompetenceVersionMapping(360452, 458756),
+            new CompetenceVersionMapping(360454, 458757),
+            new CompetenceVersionMapping(360455, 458758),
+            new CompetenceVersionMapping(360456, 458759),
+            new CompetenceVersionMapping(360457, 458760),
+
+            // Credential 3: The Postclassic Era in World History competencies
+            new CompetenceVersionMapping(393216, 458761),
+            new CompetenceVersionMapping(393217, 458762),
+            new CompetenceVersionMapping(393218, 458763),
+            new CompetenceVersionMapping(393219, 458764),
+            new CompetenceVersionMapping(393220, 458765),
+            new CompetenceVersionMapping(393221, 458766),
+            new CompetenceVersionMapping(393222, 458767),
+            new CompetenceVersionMapping(393223, 458768),
+            new CompetenceVersionMapping(393224, 458769)
+        );
+    }
+
+    private class CompetenceVersionMapping {
+        long originalId;
+        long versionId;
+
+        public CompetenceVersionMapping(long originalId, long versionId) {
+            this.originalId = originalId;
+            this.versionId = versionId;
+        }
+
+        public long getOriginalId() {
+            return originalId;
+        }
+
+        public long getVersionId() {
+            return versionId;
         }
     }
 }
