@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
@@ -12,10 +11,16 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,21 +53,38 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     private CredentialManager credManager;
     @Inject
     private UserGroupManager userGroupManager;
+    @Inject private EventFactory eventFactory;
 
-    @Transactional
+    @Override
     public void migrateCredentialsFrom06To07 () {
+        logger.info("MIGRATION STARTED");
+        List<EventData> events = ServiceLocator.getInstance().getService(UTACustomMigrationService.class)
+               .migrateCredentials();
+        for (EventData ev : events) {
+           try {
+               eventFactory.generateEvent(ev);
+           } catch (EventException e) {
+               logger.error(e);
+           }
+        }
+        logger.info("MIGRATION FINISHED");
+    }
+
+    @Override
+    @Transactional
+    public List<EventData> migrateCredentials() {
         try {
-            logger.info("MIGRATION STARTED");
             migrateUsers();
-            migrateData();
-            logger.info("MIGRATION FINISHED");
+            return migrateData();
         } catch (Exception e) {
             logger.error("Error", e);
         }
+        return new ArrayList<>();
     }
 
     private void migrateUsers() {
         try {
+            logger.info("Migrate users start");
             // converting users Admin Admin (email=zoran.jeremic@gmail.com, id=1) and Nikola Milikic (email=zoran.jeremic@uta.edu, id=163840) to Super Admins
             User userAdminAdmin = userManager.getUser("zoran.jeremic@gmail.com");
             User userNikolaMilikic = userManager.getUser("zoran.jeremic@uta.edu");
@@ -119,6 +141,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
             // deleting unused users
             deleteUsers(userJustinDellinger.getId());
+
+            logger.info("Migrate users finished");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
@@ -132,44 +156,75 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
         for (long id : usersToDelete) {
             try {
-                userManager.deleteUser(id, newCreatorId, UserContextData.empty());
-            } catch (EventException e) {
+                userManager.deleteUserAndGetEvents(id, newCreatorId, UserContextData.empty());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void migrateData() throws Exception {
+    private List<EventData> migrateData() throws Exception {
+        logger.info("Migrate data start");
+        /*
+        collect events related to adding privileges to users to be able to generate those events
+        which would fire observers to propagate privileges to deliveries and competences
+         */
+        List<EventData> events = new ArrayList<>();
+
         //connect credentials to organization and unit
         OrganizationData org = orgManager.getAllOrganizations(0, 1, false).getFoundNodes().get(0);
         Unit unit = getOrgUnit(org.getId());
 
         List<CredentialMapping> credMappings = getCredentialMappings();
+        //collect ids of all deliveries to be able to remove all edit privileges from them
+        List<Long> deliveryIds = new ArrayList<>();
         for (CredentialMapping mapping : credMappings) {
             Credential1 lastDelivery = (Credential1) persistence.currentManager()
                     .load(Credential1.class, mapping.lastDelivery.id);
             //create original credential from last delivery
-            Credential1 originalCred = createOriginalCredentialFromDelivery(lastDelivery.getId(), org.getId());
+            Result<Credential1> originalCredRes = createOriginalCredentialFromDelivery(lastDelivery.getId(), org.getId());
+            events.addAll(originalCredRes.getEvents());
+            Credential1 originalCred = originalCredRes.getResult();
             //connect credential to unit
             unitManager.addCredentialToUnitAndGetEvents(originalCred.getId(), unit.getId(), UserContextData.ofOrganization(org.getId()));
             convertOriginalCredToDelivery(org.getId(), lastDelivery, originalCred, Date.from(mapping.lastDelivery.start.atZone(ZoneId.systemDefault()).toInstant()),
                     Date.from(mapping.lastDelivery.end.atZone(ZoneId.systemDefault()).toInstant()));
+            deliveryIds.add(mapping.lastDelivery.id);
             //add edit privilege to credential owner as this should be explicit in new app version
-            addEditPrivilegeToCredentialOwner(lastDelivery, org.getId());
+            //addEditPrivilegeToCredentialOwner(lastDelivery, org.getId());
             for (DeliveryData dd : mapping.restDeliveries) {
                 Credential1 del = (Credential1) persistence.currentManager()
                         .load(Credential1.class, dd.id);
                 convertOriginalCredToDelivery(org.getId(), del, originalCred, Date.from(dd.start.atZone(ZoneId.systemDefault()).toInstant()),
                         Date.from(dd.end.atZone(ZoneId.systemDefault()).toInstant()));
+                deliveryIds.add(dd.id);
                 //add edit privilege to credential owner as this should be explicit in new app version
-                addEditPrivilegeToCredentialOwner(del, org.getId());
+                //addEditPrivilegeToCredentialOwner(del, org.getId());
             }
         }
+
+        //delete all edit privileges from all deliveries as this will be propagated from original credential through event observers
+        removeEditPrivilegesFromCredentials(deliveryIds);
 
         updateAllCompetences(org.getId(), unit.getId());
 
         connectCompetenceVersions();
 
+        logger.info("Migrate data finished");
+
+        return events;
+    }
+
+    private void removeEditPrivilegesFromCredentials(List<Long> deliveryIds) {
+        String q = "DELETE FROM CredentialUserGroup cug " +
+                   "WHERE cug.credential.id IN (:credIds) " +
+                   "AND cug.privilege = :priv";
+
+        int affected = persistence.currentManager().createQuery(q)
+                .setParameterList("credIds", deliveryIds)
+                .setString("priv", UserGroupPrivilege.Edit.name())
+                .executeUpdate();
+        logger.info("Number of deleted credential groups for deliveries: " + affected);
     }
 
     private void connectCompetenceVersions() {
@@ -202,21 +257,24 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                 .uniqueResult();
     }
 
-    private Credential1 createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
+    private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
         CredentialData lastDeliveryData = credManager.getCredentialForEdit(deliveryId, 0).getResource();
         //save original credential based on the last delivery
-        Credential1 originalCred = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null)).getResult();
+        Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential
-        copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, originalCred.getId());
-        return originalCred;
+        res.addEvents(copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, res.getResult().getId()));
+        persistence.currentManager().flush();
+        return res;
     }
 
-    private void copyEditPrivilegesFromDeliveryToOriginal(long orgId, long deliveryId, long credId) {
+    private List<EventData> copyEditPrivilegesFromDeliveryToOriginal(long orgId, long deliveryId, long credId) {
+       List<EventData> events = new ArrayList<>();
        List<ResourceVisibilityMember> editors = userGroupManager.getCredentialVisibilityUsers(deliveryId, UserGroupPrivilege.Edit);
        for (ResourceVisibilityMember editor :editors) {
-           userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(editor.getUserId(), credId,
-                   UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId));
+           events.addAll(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(editor.getUserId(), credId,
+                   UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId)).getEvents());
        }
+       return events;
     }
 
     private void convertOriginalCredToDelivery(long orgId, Credential1 credToConvert, Credential1 original, Date startDate, Date endDate) {
