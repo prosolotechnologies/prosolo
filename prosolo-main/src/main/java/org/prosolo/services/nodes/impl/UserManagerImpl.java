@@ -784,30 +784,31 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		if (res.getResult() != null) {
 			taskExecutor.execute(() -> {
+				//TODO for now, we do not send emails
 				//send email if new or activated account
-				if (res.getResult().isNewAccount()) {
-					boolean emailSent = false;
-					Session session = persistence.openSession();
-					Transaction t = null;
-					try {
-						t = session.beginTransaction();
-						emailSent = emailSenderManager.sendEmailAboutNewAccount(
-								res.getResult().getUser(), emailAddress, session);
-						t.commit();
-					} catch (Exception e) {
-						logger.error("Error", e);
-						e.printStackTrace();
-						if (t != null) {
-							t.rollback();
-						}
-					} finally {
-						session.close();
-					}
-					if (!emailSent) {
-						logger.error("Error while sending email to the user ("
-								+ res.getResult().getUser().getId() + ") with new account created");
-					}
-				}
+//				if (res.getResult().isNewAccount()) {
+//					boolean emailSent = false;
+//					Session session = persistence.openSession();
+//					Transaction t = null;
+//					try {
+//						t = session.beginTransaction();
+//						emailSent = emailSenderManager.sendEmailAboutNewAccount(
+//								res.getResult().getUser(), emailAddress, session);
+//						t.commit();
+//					} catch (Exception e) {
+//						logger.error("Error", e);
+//						e.printStackTrace();
+//						if (t != null) {
+//							t.rollback();
+//						}
+//					} finally {
+//						session.close();
+//					}
+//					if (!emailSent) {
+//						logger.error("Error while sending email to the user ("
+//								+ res.getResult().getUser().getId() + ") with new account created");
+//					}
+//				}
 
 				//generate events
 				for (EventData ev : res.getEvents()) {
