@@ -128,15 +128,18 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             }
 
 
-            // Giving Kimberly Breuer and Matt Crosslin manager roles in UTA and adding them to the History Department as teachers
+            // Giving Kimberly Breuer and Matt Crosslin instructor and manager roles in UTA and adding them to the History Department as teachers
             User userKimberlyBreuer = userManager.getUser("breuer@uta.edu");
             User userMattCrosslin = userManager.getUser("matt@uta.edu");
             Role roleManage = roleManager.getRoleByName(RoleNames.MANAGER);
+            Role roleInstructor = roleManager.getRoleByName(RoleNames.INSTRUCTOR);
             userKimberlyBreuer = roleManager.assignRoleToUser(roleManage, userKimberlyBreuer);
             unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
+            unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleInstructor.getId(), UserContextData.empty());
 
             userMattCrosslin = roleManager.assignRoleToUser(roleManage, userMattCrosslin);
             unitManager.addUserToUnitWithRoleAndGetEvents(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
+            unitManager.addUserToUnitWithRoleAndGetEvents(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleInstructor.getId(), UserContextData.empty());
 
 
             // deleting unused users

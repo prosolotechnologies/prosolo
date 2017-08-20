@@ -99,7 +99,6 @@ ALTER TABLE `target_activity1`
 
 ALTER TABLE `target_activity1`
   DROP COLUMN `dtype`,
-  DROP COLUMN `act_order`,
   DROP COLUMN `duration`,
   DROP COLUMN `result_type`,
   DROP COLUMN `upload_assignment`,
@@ -163,10 +162,6 @@ ALTER TABLE `competence1`
 ALTER TABLE `activity1`
   DROP COLUMN `published`,
   ADD COLUMN `version` bigint(20) DEFAULT 0;
-
-#v0.7_20170330-target_activity_order.sql
-ALTER TABLE `target_activity1`
-  ADD COLUMN `act_order` int(11);
 
 #v0.7_20170404-credential_changes.sql
 ALTER TABLE `credential1`

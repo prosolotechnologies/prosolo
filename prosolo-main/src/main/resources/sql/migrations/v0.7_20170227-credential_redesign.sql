@@ -68,7 +68,6 @@ ALTER TABLE `target_activity1`
 	
 ALTER TABLE `target_activity1`
 	DROP COLUMN `dtype`,
-	DROP COLUMN `act_order`,
 	DROP COLUMN `duration`,
 	DROP COLUMN `result_type`,
 	DROP COLUMN `upload_assignment`,
