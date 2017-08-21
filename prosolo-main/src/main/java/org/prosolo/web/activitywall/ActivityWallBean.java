@@ -375,6 +375,10 @@ public class ActivityWallBean implements Serializable {
 			PageUtil.fireErrorMessage("The file was not uploaded!");
 		}
     }
+
+    public void prepareModal(){
+		uploadFile = new AttachmentPreview1();
+	}
 	
 	public void saveUploadedFile() {
 		if(uploadFile.getLink() == null || uploadFile.getLink().isEmpty() 
@@ -441,6 +445,7 @@ public class ActivityWallBean implements Serializable {
             }
         });
 	}
+
 	
 	public boolean isCurrentUserCreator(SocialActivityData1 sa) {
 		return sa.getActor() != null && loggedUser.getUserId() == sa.getActor().getId();

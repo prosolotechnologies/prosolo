@@ -326,15 +326,16 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
 
-								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
+								<h:panelGroup  id="fileUploadMessagePanel" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									<small class="redText bottom5 topMinus20 displayBlock">File must be uploaded</small>
-								</ui:fragment>
+								</h:panelGroup>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -424,16 +425,9 @@
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
 		                    		update="errorMessageUrlTitle errorMessageUrl :#{cc.clientId}:formMain:activityPanel:panelLinks"
-		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">
 		                    	</p:commandLink>
-								<p:commandLink
-										id="cancelUrlBtn"
-										styleClass="btn btn-default"
-										value="Cancel"
-										onclick="$('#createActivity\\:formModalAddUrl\\:inputUrlTitle').val('');
-											$('#createActivity\\:formModalAddUrl\\:inputUrl').val('');"
-										oncomplete="$('#addURL').modal('hide');">
-								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>
 		                </h:panelGroup>
 		            </div>
@@ -468,6 +462,7 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
@@ -475,9 +470,9 @@
 		                        </div>
 
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
-									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
+									  <h:panelGroup id="subtitleUploadMessagePanel" rendered="#{empty activityEditBean.resLinkToAdd.url}">
 										  <small class="redText bottom5 topMinus20 displayBlock">Subtitles must be uploaded</small>
-									  </ui:fragment>
+									  </h:panelGroup>
 									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
 										  <small class="redText bottom5 topMinus20 displayBlock">Invalid file. Only SRT format allowed.</small>
 									  </ui:fragment>
