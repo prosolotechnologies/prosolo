@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>prosolo</artifactId>
 	<groupId>ca.prosolo</groupId>
-	<version>1.0.0/version>
+	<version>1.0.0</version>
 	<name>ProSolo</name>
 	<packaging>war</packaging>
 	<properties>
