@@ -9,6 +9,7 @@
 	<artifactId>prosolo-analytics</artifactId>
 	<name>ProSolo Analytics</name>
 	<packaging>war</packaging>
+	<version>1.0.0</version>
 	<properties>
 		<jersey.version>2.8</jersey.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
@@ -100,12 +101,12 @@
 		<dependency>
 			<groupId>org.prosolo</groupId>
 			<artifactId>bigdata.common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.prosolo</groupId>
 			<artifactId>spark-jobs</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 
 
