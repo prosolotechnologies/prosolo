@@ -199,9 +199,10 @@
 							pt:data-toggle="modal"
 							action="#{cc.attrs.prepareAddingResLinkMethod}"
 							update="#{cc.attrs.toUpdateModalAddLink}"
-							oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show');
+							oncomplete="attachListenerForFetchingPageTitle();
 								$('#createActivity\\:formModalAddUrl\\:inputUrl').val('');
-								$('#createActivity\\:formModalAddUrl\\:inputUrlTitle').val('');">Add New URL
+								$('#createActivity\\:formModalAddUrl\\:inputUrlTitle').val('');
+								$('##{cc.attrs.addLinkModalId}').modal('show');">Add New URL
 					</p:commandLink>
 					</div>
 				</div>
