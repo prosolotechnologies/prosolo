@@ -7,7 +7,9 @@
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 		xmlns:post="http://java.sun.com/jsf/composite/components/post"
-		xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
+		xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -15,6 +17,8 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 	</composite:interface>
+
+	<utilcomp:messagesBundle var="msg" />
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-fix.min.js"></script>
@@ -66,7 +70,7 @@
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
 		    		<ol class="breadcrumb">
 			            <li>
-			            	<h:link value="Credentials" outcome="credentialLibrary"/>
+			            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 			            </li>
 			            <li>
 			            	<h:link 
@@ -97,7 +101,7 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	 
 		    			<li>
-		    				<h:link value="Competencies" outcome="competenceLibrary"/>
+		    				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li> 
 		    			<li>
 			            	<h:link 

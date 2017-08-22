@@ -186,7 +186,8 @@ public class MessagesBean implements Serializable {
         		parameters.put("context", context1);
         		parameters.put("threadId", String.valueOf(threadData.getId()));
         		
-        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(), thread, null, page1, context1, null, parameters);
+        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(),
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), thread, null, page1, context1, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}
@@ -329,7 +330,9 @@ public class MessagesBean implements Serializable {
         		//DirectMessageDialog uses recipient as user param
         		parameters.put("user", String.valueOf(participants.get(0).getId()));
         		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId, message, null, parameters);
+        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId,
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), message, null,
+						null, null, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}

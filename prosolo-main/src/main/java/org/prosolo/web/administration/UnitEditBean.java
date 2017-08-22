@@ -2,7 +2,7 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -38,15 +38,20 @@ public class UnitEditBean implements Serializable {
     private UrlIdEncoder idEncoder;
     @Inject
     private UnitManager unitManager;
+    @Inject
+    private OrganizationManager organizationManager;
 
     private UnitData unit;
     private String id;
     private long decodedId;
+    private String organizationId;
+    private String organizationTitle;
 
     public void init(){
         try{
             this.decodedId = idEncoder.decodeId(id);
             this.unit = unitManager.getUnitData(decodedId);
+            this.organizationTitle = organizationManager.getOrganizationTitle(idEncoder.decodeId(organizationId));
         }catch (Exception e){
             logger.error(e);
             e.printStackTrace();
@@ -54,10 +59,9 @@ public class UnitEditBean implements Serializable {
     }
 
     public void updateUnit(){
-        try{
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
-            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(),loggedUser.getUserId(),lcd);
+        try {
+            //TODO add organization id to user context
+            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(), loggedUser.getUserContext(0));
 
             logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
             PageUtil.fireSuccessfulInfoMessage("Unit is updated");
@@ -92,4 +96,14 @@ public class UnitEditBean implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public String getOrganizationTitle() { return organizationTitle; }
 }

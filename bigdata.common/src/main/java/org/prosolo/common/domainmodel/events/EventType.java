@@ -30,6 +30,7 @@ public enum EventType {
 	Follow,
 	Unfollow,
 	Registered,
+	Account_Activated,
 	MarkAsFavourite, 
 	FollowEvent, 
 	Create_recommendation, 
@@ -148,7 +149,12 @@ public enum EventType {
 	OWNER_CHANGE,
 
 	ADD_USER_TO_UNIT,
-	REMOVE_USER_FROM_UNIT;
+	REMOVE_USER_FROM_UNIT,
+
+	ADD_CREDENTIAL_TO_UNIT,
+	REMOVE_CREDENTIAL_FROM_UNIT,
+	ADD_COMPETENCE_TO_UNIT,
+	REMOVE_COMPETENCE_FROM_UNIT;
 	
 	private String customText;
 	

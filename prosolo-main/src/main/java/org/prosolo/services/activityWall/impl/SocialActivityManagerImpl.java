@@ -3,36 +3,12 @@
  */
 package org.prosolo.services.activityWall.impl;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialEnrollSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.*;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -41,6 +17,7 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -59,6 +36,12 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service("org.prosolo.services.activitywall.SocialActivityManager")
@@ -900,7 +883,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional(readOnly = false)
 	public PostSocialActivity1 updatePost(long userId, long postId, String newText, 
-			LearningContextData context) throws DbConnectionException {
+			UserContextData context) throws DbConnectionException {
 		try {
 			PostSocialActivity1 post = resourceFactory.updatePost(postId, newText);
 			
@@ -910,11 +893,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			parameters.put("newText", newText);
 			
 			try {
-				String page = context != null ? context.getPage() : null;
-				String lContext = context != null ? context.getLearningContext() : null;
-				String service = context != null ? context.getService() : null;
-				eventFactory.generateEvent(EventType.PostUpdate, user.getId(), post, null,
-						page, lContext, service, parameters);
+				LearningContextData lcd = context.getContext();
+				String page = lcd != null ? lcd.getPage() : null;
+				String lContext = lcd != null ? lcd.getLearningContext() : null;
+				String service = lcd != null ? lcd.getService() : null;
+				eventFactory.generateEvent(EventType.PostUpdate, context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), post, null, page, lContext, service, null, parameters);
 			} catch (EventException e) {
 				logger.error(e);
 			}

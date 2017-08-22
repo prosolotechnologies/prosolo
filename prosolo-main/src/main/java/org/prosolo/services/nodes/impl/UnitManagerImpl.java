@@ -4,13 +4,13 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
+import org.prosolo.common.domainmodel.organization.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -55,10 +55,10 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Inject
     private RoleManager roleManager;
 
-    public UnitData createNewUnit(String title, long organizationId,long parentUnitId, long creatorId, LearningContextData contextData)
+    public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnitId, creatorId, contextData);
+        Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnitId, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -67,8 +67,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional
-    public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, long creatorId,
-                                                  LearningContextData contextData)
+    public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Unit> res = new Result<>();
@@ -85,7 +84,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             }
             saveEntity(unit);
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, unit, null, contextData, null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+                    unit, null, context.getContext(), null));
             res.setResult(unit);
 
             return res;
@@ -100,7 +100,6 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
-    @Transactional
     private List<UnitData> getOrganizationUnits(long organizationId) {
 
         String query =
@@ -142,8 +141,17 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
-
         List<UnitData> units = getOrganizationUnits(organizationId);
+        return getRootUnitsWithSubunits(units);
+    }
+
+    /**
+     * Returns list of root units with child units (and their child units) mapped.
+     *
+     * @param units
+     * @return
+     */
+    private List<UnitData> getRootUnitsWithSubunits(List<UnitData> units) {
         Map<Long, List<UnitData>> childUnits = new HashMap<>();
         Map<Long, UnitData> parentUnits = new HashMap<>();
         List<UnitData> unitsToReturn = new ArrayList<>();
@@ -233,21 +241,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     //nt
-    public UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
-                                      LearningContextData context) throws DbConnectionException, EventException {
-        Result<UnitRoleMembership> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, actorId, context);
+    public void addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
+        throws DbConnectionException, EventException {
+        Result<Void> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
-
-        return res.getResult();
     }
 
     @Override
     @Transactional
-    public Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
-                                                                        LearningContextData context) throws DbConnectionException {
+    public Result<Void> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException {
+        Result<Void> result = new Result<>();
         try {
             UnitRoleMembership urm = new UnitRoleMembership();
             urm.setUser((User) persistence.currentManager().load(User.class, userId));
@@ -255,17 +261,20 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             urm.setRole((Role) persistence.currentManager().load(Role.class, roleId));
 
             saveEntity(urm);
+            persistence.currentManager().flush();
 
             User user = new User(userId);
             Unit unit = new Unit();
             unit.setId(unitId);
-            Result<UnitRoleMembership> result = new Result<>();
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
-                    EventType.ADD_USER_TO_UNIT, actorId, user, unit, context, params));
+                    EventType.ADD_USER_TO_UNIT, context.getActorId(), context.getOrganizationId(), context.getSessionId(), user, unit,
+                    context.getContext(), params));
 
-            result.setResult(urm);
+            return result;
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("User (" + userId + ") not added to unit (" + unitId + ") with role (" + roleId + ") because he is already added");
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
@@ -276,9 +285,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     //nt
-    public void removeUserFromUnitWithRole(long userId, long unitId, long roleId, long actorId,
-                                           LearningContextData context) throws DbConnectionException, EventException {
-        Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(userId, unitId, roleId, actorId, context);
+    public void removeUserFromUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
@@ -287,8 +296,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional
-    public Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId,
-                                                               long actorId, LearningContextData context)
+    public Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context)
             throws DbConnectionException {
         try {
             String query = "DELETE FROM UnitRoleMembership urm " +
@@ -312,7 +320,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
-                    EventType.REMOVE_USER_FROM_UNIT, actorId, user, unit, context, params));
+                    EventType.REMOVE_USER_FROM_UNIT, context.getActorId(), context.getOrganizationId(), context.getSessionId(), user, unit,
+                    context.getContext(), params));
 
             return result;
         } catch (Exception e) {
@@ -357,10 +366,10 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public Unit updateUnit(long unitId, String title, long creatorId, LearningContextData contextData)
+    public Unit updateUnit(long unitId, String title, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Unit> res = self.updateUnitAndGetEvents(unitId, title, creatorId, contextData);
+        Result<Unit> res = self.updateUnitAndGetEvents(unitId, title, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -368,7 +377,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public Result<Unit> updateUnitAndGetEvents(long unitId, String title, long creatorId, LearningContextData contextData)
+    public Result<Unit> updateUnitAndGetEvents(long unitId, String title, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Unit> res = new Result<>();
@@ -386,7 +395,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setParameter("unitId", unitId)
                     .executeUpdate();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Edit, creatorId, unit, null, contextData, null));
+            res.addEvent(eventFactory.generateEventData(EventType.Edit, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+                    unit, null, context.getContext(), null));
             res.setResult(unit);
 
             return res;
@@ -583,6 +593,361 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user data");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnitData> getUnitsWithCredentialSelectionInfo(long organizationId, long credId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT u, CASE WHEN c IS NULL THEN false ELSE true END FROM Unit u " +
+                    "LEFT JOIN u.credentialUnits c " +
+                            "WITH c.credential.id = :credId " +
+                    "WHERE u.organization.id = :orgId";
+
+            List<Object[]> res = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setLong("credId", credId)
+                    .list();
+
+            List<UnitData> units = new ArrayList<>();
+
+            for (Object[] row : res) {
+                Unit u = (Unit) row[0];
+                boolean selected = (boolean) row[1];
+                units.add(new UnitData(u, selected));
+            }
+
+            return getRootUnitsWithSubunits(units);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit data");
+        }
+    }
+
+    @Override
+    //nt
+    public void addCredentialToUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addCredentialToUnitAndGetEvents(credId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addCredentialToUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            CredentialUnit cu = new CredentialUnit();
+            cu.setCredential((Credential1) persistence.currentManager().load(Credential1.class, credId));
+            cu.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            saveEntity(cu);
+
+            Credential1 cr = new Credential1();
+            cr.setId(credId);
+            Unit un = new Unit();
+            un.setId(unitId);
+            res.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_CREDENTIAL_TO_UNIT, context.getActorId(),
+                    context.getOrganizationId(), context.getSessionId(), cr, un,
+                    context.getContext(), null));
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("Credential (" + credId + ") already added to the unit (" + unitId + ") so it can't be added again");
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while adding credential to unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    //nt
+    public void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeCredentialFromUnitAndGetEvents(credId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeCredentialFromUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            String query = "DELETE FROM CredentialUnit cu " +
+                    "WHERE cu.unit.id = :unitId " +
+                    "AND cu.credential.id = :credId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("credId", credId)
+                    .executeUpdate();
+
+            logger.info("Number of removed credentials in a unit: " + affected);
+
+            if (affected > 0) {
+                Credential1 cr = new Credential1();
+                cr.setId(credId);
+                Unit un = new Unit();
+                un.setId(unitId);
+                res.addEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_CREDENTIAL_FROM_UNIT, context.getActorId(),
+                        context.getOrganizationId(), context.getSessionId(), cr, un,
+                        context.getContext(), null));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing credential from unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId)
+            throws DbConnectionException {
+        return getAllUnitIdsCredentialIsConnectedTo(credId, persistence.currentManager());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId, Session session)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cu.unit.id FROM CredentialUnit cu " +
+                    "WHERE cu.credential.id = :credId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> res = session
+                    .createQuery(query)
+                    .setLong("credId", credId)
+                    .list();
+
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnitData> getUnitsWithCompetenceSelectionInfo(long organizationId, long compId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT u, CASE WHEN c IS NULL THEN false ELSE true END FROM Unit u " +
+                            "LEFT JOIN u.competenceUnits c " +
+                            "WITH c.competence.id = :compId " +
+                            "WHERE u.organization.id = :orgId";
+
+            List<Object[]> res = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setLong("compId", compId)
+                    .list();
+
+            List<UnitData> units = new ArrayList<>();
+
+            for (Object[] row : res) {
+                Unit u = (Unit) row[0];
+                boolean selected = (boolean) row[1];
+                units.add(new UnitData(u, selected));
+            }
+
+            return getRootUnitsWithSubunits(units);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit data");
+        }
+    }
+
+    @Override
+    //nt
+    public void addCompetenceToUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addCompetenceToUnitAndGetEvents(compId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addCompetenceToUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            CompetenceUnit cu = new CompetenceUnit();
+            cu.setCompetence((Competence1) persistence.currentManager().load(Competence1.class, compId));
+            cu.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            saveEntity(cu);
+
+            Competence1 comp = new Competence1();
+            comp.setId(compId);
+            Unit un = new Unit();
+            un.setId(unitId);
+            res.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_COMPETENCE_TO_UNIT, context.getActorId(),
+                    context.getOrganizationId(), context.getSessionId(), comp, un,
+                    context.getContext(), null));
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("Competency (" + compId + ") already added to the unit (" + unitId + ") so it can't be added again");
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while adding competency to unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    //nt
+    public void removeCompetenceFromUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeCompetenceFromUnitAndGetEvents(compId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeCompetenceFromUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            String query = "DELETE FROM CompetenceUnit cu " +
+                    "WHERE cu.unit.id = :unitId " +
+                    "AND cu.competence.id = :compId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("compId", compId)
+                    .executeUpdate();
+
+            logger.info("Number of removed competencies from unit: " + affected);
+
+            if (affected > 0) {
+                Competence1 comp = new Competence1();
+                comp.setId(compId);
+                Unit un = new Unit();
+                un.setId(unitId);
+                res.addEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_COMPETENCE_FROM_UNIT, context.getActorId(),
+                        context.getOrganizationId(), context.getSessionId(), comp, un,
+                        context.getContext(), null));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing competency from unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId, Session session)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cu.unit.id FROM CompetenceUnit cu " +
+                    "WHERE cu.competence.id = :compId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> res = session
+                    .createQuery(query)
+                    .setLong("compId", compId)
+                    .list();
+
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId)
+            throws DbConnectionException {
+        return getAllUnitIdsCompetenceIsConnectedTo(compId, persistence.currentManager());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCredential(long userId, long credId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCredentialIsConnectedTo(credId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCompetenceIsConnectedTo(compId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+    }
+
+    private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
+        if (unitIds == null || unitIds.isEmpty()) {
+            return false;
+        }
+
+        String query =
+                "SELECT COUNT(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id IN (:unitIds) " +
+                "AND urm.user.id = :userId";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setParameterList("unitIds", unitIds)
+                .setLong("roleId", roleId)
+                .setLong("userId", userId)
+                .uniqueResult() > 0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT urm.unit.id " +
+                            "FROM UnitRoleMembership urm " +
+                            "WHERE urm.role.id = :roleId " +
+                            "AND urm.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user units");
         }
     }
 

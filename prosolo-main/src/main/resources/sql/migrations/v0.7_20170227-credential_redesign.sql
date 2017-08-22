@@ -11,13 +11,13 @@ ALTER TABLE `credential1`
 	ADD COLUMN `delivery_start` datetime DEFAULT NULL,
 	ADD COLUMN `delivery_end` datetime DEFAULT NULL,
 	ADD COLUMN `type` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'Original',
-	ADD CONSTRAINT `FK_deliveryOf` FOREIGN KEY (`delivery_of`) REFERENCES `credential1` (`id`);
+	ADD CONSTRAINT `FK_credential1_delivery_of` FOREIGN KEY (`delivery_of`) REFERENCES `credential1` (`id`);
 
 ALTER TABLE `competence1` 
 	ADD COLUMN `original_version` bigint(20),
 	ADD COLUMN `date_published` datetime DEFAULT NULL,
 	ADD COLUMN `can_be_edited` char(1) DEFAULT 'F',
-	ADD CONSTRAINT `FK_originalVersion` FOREIGN KEY (`original_version`) REFERENCES `competence1` (`id`);
+	ADD CONSTRAINT `FK_competence1_originalVersion` FOREIGN KEY (`original_version`) REFERENCES `competence1` (`id`);
 	
 ALTER TABLE `activity1`
 	DROP FOREIGN KEY `FK_sajnjcx3qxj6c34jgix4do7m4`;
@@ -57,7 +57,7 @@ ALTER TABLE `target_competence1`
 	DROP COLUMN `added`,
 	DROP COLUMN `created_by`,
 	ADD COLUMN `user` bigint(20),
-	ADD UNIQUE KEY `UK_competence_user` (`competence`,`user`);
+	ADD UNIQUE KEY `UK_target_competence1_competence_user` (`competence`,`user`);
 
 DROP TABLE `target_activity1_links`;
 DROP TABLE `target_activity1_files`;
@@ -68,7 +68,6 @@ ALTER TABLE `target_activity1`
 	
 ALTER TABLE `target_activity1`
 	DROP COLUMN `dtype`,
-	DROP COLUMN `act_order`,
 	DROP COLUMN `duration`,
 	DROP COLUMN `result_type`,
 	DROP COLUMN `upload_assignment`,

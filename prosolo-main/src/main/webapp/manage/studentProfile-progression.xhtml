@@ -1,8 +1,10 @@
 <ui:composition
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<style>
 		.slick-slide{
@@ -58,7 +60,7 @@
 			   </script>
            </div>
 
-           <h2>Competences</h2>
+           <h2>#{msg['label.competence.plural']}</h2>
            <h:panelGroup layout="block" styleClass="blockRow" id="competencesBlock" style="display: none;">
            	   <p:commandLink styleClass="sliderIconLeftCred"
 					update=":svgContainer">

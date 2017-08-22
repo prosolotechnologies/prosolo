@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.CredentialUnit;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -34,6 +35,7 @@ public class Credential1 extends BaseEntity {
 
 	//version field that is used for optimistic locking purposes
 	private long version;
+	private Organization organization;
 	private User createdBy;
 	private Set<Tag> tags;
 	private Set<Tag> hashtags;
@@ -327,5 +329,15 @@ public class Credential1 extends BaseEntity {
 	
 	public void setCredentialUnits(List<CredentialUnit> credentialUnits){
 		this.credentialUnits = credentialUnits;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 }

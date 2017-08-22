@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -99,17 +98,11 @@ public class ManageGroupsBean implements Serializable, Paginable {
 
 	public void saveGroup() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
 			if(groupForEdit.getId() > 0) {
-				userGroupManager.updateGroupName(groupForEdit.getId(), groupForEdit.getName(),
-						loggedUserBean.getUserId(), lcd);
+				userGroupManager.updateGroupName(groupForEdit.getId(), groupForEdit.getName(), loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("Group name is updated");
 			} else {
-				userGroupManager.saveNewGroup(decodedUnitId, groupForEdit.getName(), false,
-						loggedUserBean.getUserId(), lcd);
+				userGroupManager.saveNewGroup(decodedUnitId, groupForEdit.getName(), false, loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("Group '" + groupForEdit.getName() + "' is created");
 			}
 			loadGroupsFromDB();
@@ -122,14 +115,9 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	
 	public void saveGroupJoinUrl() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			
 			if (groupForEdit.getId() > 0) {
 				userGroupManager.updateJoinUrl(groupForEdit.getId(), groupForEdit.isJoinUrlActive(), groupForEdit.getJoinUrlPassword(),
-						loggedUserBean.getUserId(), lcd);
+						loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("Join by URL settings updated");
 			}
 			groupForEdit = null;
@@ -141,12 +129,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	
 	public void deleteGroup() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			userGroupManager.deleteUserGroup(groupForEdit.getId(), loggedUserBean.getUserId(),
-					lcd);
+			userGroupManager.deleteUserGroup(groupForEdit.getId(), loggedUserBean.getUserContext(decodedOrgId));
 			PageUtil.fireSuccessfulInfoMessage("Group " + groupForEdit.getName() + " is deleted");
 			loadGroupsFromDB();
 			groupForEdit = null;

@@ -9,10 +9,12 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -40,6 +42,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private GroupUserAddBean groupUserAddBean;
+	@Inject private ImportUsersBean importUsersBean;
+	@Inject private RoleManager roleManager;
 	
 	private List<UserData> users;
 
@@ -59,24 +63,31 @@ public class GroupUsersBean implements Serializable, Paginable {
 	private String organizationTitle;
 	private String unitTitle;
 	private String userGroupTitle;
+	private long roleId;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedGroupId = idEncoder.decodeId(groupId);
 		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
-			TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
-					decodedOrgId, decodedUnitId, decodedGroupId);
-			if (td != null) {
-				organizationTitle = td.getOrganizationTitle();
-				unitTitle = td.getUnitTitle();
-				userGroupTitle = td.getUserGroupTitle();
-				if (page > 0) {
-					paginationData.setPage(page);
+			try {
+				TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
+						decodedOrgId, decodedUnitId, decodedGroupId);
+				if (td != null) {
+					organizationTitle = td.getOrganizationTitle();
+					unitTitle = td.getUnitTitle();
+					userGroupTitle = td.getUserGroupTitle();
+					if (page > 0) {
+						paginationData.setPage(page);
+					}
+					roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+					loadUsersFromDB();
+				} else {
+					PageUtil.notFound();
 				}
-				loadUsersFromDB();
-			} else {
-				PageUtil.notFound();
+			} catch (Exception e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error while loading the page");
 			}
 		} else {
 			PageUtil.notFound();
@@ -98,9 +109,12 @@ public class GroupUsersBean implements Serializable, Paginable {
 			u.setId(user.getId());
 			UserGroup group = new UserGroup();
 			group.setId(decodedGroupId);
-			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(),
+			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP,
+					loggedUserBean.getUserId(),
+					decodedOrgId,
+					loggedUserBean.getSessionId(),
 					u, group, page, lContext,
-					service, null);
+					service, null, null);
 
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " successfully removed from the group");
 
@@ -119,8 +133,23 @@ public class GroupUsersBean implements Serializable, Paginable {
 		}
 	}
 
+	public void prepareImportingUsers() {
+		importUsersBean.init();
+	}
+
+	public void importUsers() {
+		importUsersBean.importUsersToGroup(decodedOrgId, decodedUnitId, roleId, decodedGroupId);
+		resetSearchData();
+		try {
+			loadUsersFromDB();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error while loading user data");
+		}
+	}
+
 	public void prepareAddingUsers() {
-		groupUserAddBean.init(decodedOrgId, decodedUnitId, decodedGroupId);
+		groupUserAddBean.init(decodedOrgId, decodedUnitId, roleId, decodedGroupId);
 	}
 
 	public void addUser(UserData userData) {

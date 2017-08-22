@@ -78,7 +78,8 @@ public enum ContextName {
 	UPDATE_UNIT(""),
 	UNIT("Unit"),
 	USER_GROUP("UserGroup"),
-	ADD_USERS_DIALOG("User");
+	ADD_USERS_DIALOG("User"),
+	IMPORT_USERS_DIALOG("");
 
     private String objectType; 
     

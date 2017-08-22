@@ -11,6 +11,7 @@ import org.prosolo.services.activityWall.filters.Filter;
 public class SessionData {
 
 	private long userId;
+	private long organizationId;
 	private String encodedUserId;
 	private String name;
 	private String lastName;
@@ -22,9 +23,6 @@ public class SessionData {
 	private boolean doNotShowTutorial;
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	private String ipAddress;
-
-
-
 
 	private String sessionId;
 
@@ -185,5 +183,11 @@ public class SessionData {
 		this.sessionId = sessionId;
 	}
 
+	public long getOrganizationId() {
+		return organizationId;
+	}
 
+	public void setOrganizationId(long organizationId) {
+		this.organizationId = organizationId;
+	}
 }

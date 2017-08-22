@@ -7,45 +7,48 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 public interface CredentialESService  extends AbstractBaseEntityESService {
 
 	/**
-	 * @param cred 
+	 * @param cred
 	 * @param session
 	 */
 	void saveCredentialNode(Credential1 cred, Session session);
-	
+
 	/**
+	 *
 	 * @param cred
-	 * @param originalVersionId when {@code cred} is a draft version
-	 * originalVersionId is needed. Otherwise 0 should be passed.
-	 * @param changeTracker
+	 * @param session
 	 */
 	void updateCredentialNode(Credential1 cred, Session session);
 	
-	void addBookmarkToCredentialIndex(long credId, long userId);
+	void addBookmarkToCredentialIndex(long organizationId, long credId, long userId);
 	
-	void removeBookmarkFromCredentialIndex(long credId, long userId);
+	void removeBookmarkFromCredentialIndex(long organizationId, long credId, long userId);
 	
-	void updateCredentialBookmarks(long credId, Session session);
+	void updateCredentialBookmarks(long organizationId, long credId, Session session);
 	
-	void addUserToCredentialIndex(long credId, long userId, UserGroupPrivilege privilege);
+	void addUserToCredentialIndex(long organizationId, long credId, long userId, UserGroupPrivilege privilege);
 	
-	void removeUserFromCredentialIndex(long credId, long userId, UserGroupPrivilege privilege);
+	void removeUserFromCredentialIndex(long organizationId, long credId, long userId, UserGroupPrivilege privilege);
 	
-	void addStudentToCredentialIndex(long credId, long userId);
+	void addStudentToCredentialIndex(long organizationId, long credId, long userId);
 	
-	void removeStudentFromCredentialIndex(long credId, long userId);
+	void removeStudentFromCredentialIndex(long organizationId, long credId, long userId);
 	
-	void updateCredentialUsersWithPrivileges(long credId, Session session);
+	void updateCredentialUsersWithPrivileges(long organizationId, long credId, Session session);
 	
-	void updateVisibleToAll(long credId, boolean value);
+	void updateVisibleToAll(long organizationId, long credId, boolean value);
 	
-	void addInstructorToCredentialIndex(long credId, long userId);
+	void addInstructorToCredentialIndex(long organizationId, long credId, long userId);
 	
-	void removeInstructorFromCredentialIndex(long credId, long userId);
+	void removeInstructorFromCredentialIndex(long organizationId, long credId, long userId);
 	
-	void archiveCredential(long credId);
+	void archiveCredential(long organizationId, long credId);
 	
-	void restoreCredential(long credId);
+	void restoreCredential(long organizationId, long credId);
 
-	void updateCredentialOwner(long credId, long newOwnerId);
+	void updateCredentialOwner(long organizationId, long credId, long newOwnerId);
+
+	void addUnitToCredentialIndex(long organizationId, long credId, long unitId);
+
+	void removeUnitFromCredentialIndex(long organizationId, long credId, long unitId);
 
 }

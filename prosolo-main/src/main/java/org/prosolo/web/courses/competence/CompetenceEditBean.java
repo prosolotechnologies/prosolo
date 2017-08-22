@@ -259,8 +259,7 @@ public class CompetenceEditBean implements Serializable {
 			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if (competenceData.hasObjectChanged()) {
-					compManager.updateCompetence(competenceData, 
-							loggedUser.getUserId(), lcd);
+					compManager.updateCompetence(competenceData, loggedUser.getUserContext(lcd));
 
 					if (reloadData) {
 						initializeValues();
@@ -272,8 +271,8 @@ public class CompetenceEditBean implements Serializable {
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				Competence1 comp = compManager.saveNewCompetence(competenceData,
-						loggedUser.getUserId(), credentialId, lcd);
+				Competence1 comp = compManager.saveNewCompetence(competenceData, credentialId,
+						loggedUser.getUserContext(lcd));
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
@@ -338,9 +337,8 @@ public class CompetenceEditBean implements Serializable {
 //	}
 	
 	public void archive() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			compManager.archiveCompetence(decodedId, loggedUser.getUserId(), ctx);
+			compManager.archiveCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
 		} catch(DbConnectionException e) {
@@ -350,9 +348,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void restore() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserId(), ctx);
+			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
 		} catch(DbConnectionException e) {
@@ -362,10 +359,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void duplicate() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			long compId = compManager.duplicateCompetence(decodedId, 
-					loggedUser.getUserId(), ctx);
+			long compId = compManager.duplicateCompetence(decodedId, loggedUser.getUserContext());
 
 			PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 		} catch(DbConnectionException e) {

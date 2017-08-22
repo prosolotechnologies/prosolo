@@ -13,8 +13,7 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	private final LearningResourceType resourceType;
 	
 	private CompetenceUserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll,
-											  boolean resourcePublished, Date datePublished,
-			LearningResourceType resourceType) {
+											  boolean resourcePublished, Date datePublished, LearningResourceType resourceType) {
 		super(privileges, resourceVisibleToAll);
 		this.resourcePublished = resourcePublished;
 		this.datePublished = datePublished;
@@ -23,7 +22,6 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	
 	/**
 	 * Returns {@link CompetenceUserAccessSpecification} object based on provided data.
-	 * 
 	 * 
 	 * @param privileges
 	 * @param resourceVisibleToAll
@@ -34,7 +32,7 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	 * @throws IllegalArgumentException - when {@code privileges} collection is either null or empty, 
 	 * or when {@code resourceType} is null
 	 */
-	public static CompetenceUserAccessSpecification of(Collection<UserGroupPrivilege> privileges, 
+	public static CompetenceUserAccessSpecification of(Collection<UserGroupPrivilege> privileges,
 			boolean resourceVisibleToAll, boolean resourcePublished, Date datePublished,
 			LearningResourceType resourceType) {
 		if (privileges == null || privileges.isEmpty() || resourceType == null) {

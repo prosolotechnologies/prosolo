@@ -2,7 +2,7 @@ package org.prosolo.services.nodes;
 
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
@@ -19,11 +19,11 @@ import java.util.List;
 
 public interface Activity1Manager extends AbstractManager {
 	
-	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
+	Activity1 saveNewActivity(ActivityData data, UserContextData context)
 			throws DbConnectionException, EventException, IllegalDataStateException;
 
 	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
-									 long userId, LearningContextData context)
+									 UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 	
 	/**
@@ -33,12 +33,12 @@ public interface Activity1Manager extends AbstractManager {
 	 * Acquires exclusive lock on a competence which has activity with id {@code activityId}
 	 * 
 	 * @param activityId
-	 * @param userId
+	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 * @throws IllegalDataStateException
 	 */
-	Activity1 deleteActivity(long activityId, long userId) throws DbConnectionException, IllegalDataStateException;
+	Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException;
 	
@@ -77,8 +77,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @return
 	 * @throws {@link DbConnectionException}, {@link StaleDataException}, {@link IllegalDataStateException}
 	 */
-	Activity1 updateActivity(ActivityData data, long userId, 
-			LearningContextData context) throws DbConnectionException, StaleDataException, IllegalDataStateException;
+	Activity1 updateActivity(ActivityData data, UserContextData context) throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
 	/**
 	 * Updates activity.
@@ -91,7 +90,7 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException;
 	
-	
+
 	/**
 	 * Returns activity with all details for specified id with {@code activityId} argument as well as all competence
 	 * activities basic info for competence specified by {@code compId} id. 
@@ -110,11 +109,11 @@ public interface Activity1Manager extends AbstractManager {
 			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
-	 void saveResponse(long targetActId, String path, Date postDate, long userId, 
-				ActivityResultType resType, LearningContextData context) throws DbConnectionException;
+	 void saveResponse(long targetActId, String path, Date postDate, ActivityResultType resType,
+					   UserContextData context) throws DbConnectionException;
 	 
-	 void updateTextResponse(long targetActId, String path, long userId, 
-				LearningContextData context) throws DbConnectionException;
+	 void updateTextResponse(long targetActId, String path, UserContextData context)
+			 throws DbConnectionException;
 
 	/**
 	 * Updates activity flag to true. Also, progress of a competence that includes
@@ -126,14 +125,14 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	void completeActivity(long targetActId, long targetCompId, long userId, LearningContextData contextData) 
+	void completeActivity(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException;
 	
 	RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
-	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
+	void deleteAssignment(long targetActivityId, UserContextData context)
 			throws DbConnectionException;
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
@@ -236,8 +235,8 @@ public interface Activity1Manager extends AbstractManager {
 	ActivityData getActivityResponseForUserToView(long targetActId, long userToViewId)
 			throws DbConnectionException;
 	
-	Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
-			LearningContextData context) throws DbConnectionException;
+	Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId,
+			UserContextData context) throws DbConnectionException;
 
 	void updateActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 

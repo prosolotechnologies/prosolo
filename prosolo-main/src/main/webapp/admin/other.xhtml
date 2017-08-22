@@ -34,13 +34,18 @@
 						<p:commandLink value="Reindex Users"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexUsers}"
-						/>
+									   action="#{bulkDataAdministration.deleteAndReindexUsers}"	/>
 						<p:commandLink value="Reindex Everything"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
-						/>
+									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}" />
+
+						<p:commandLink value="Migrate UTA to 0.7"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   onclick=""
+									   action="#{otherSettingsBean.migrateUtaCredentialsTo07()}"
+									   oncomplete="" />
 						<div class="clear top30"></div>
 					</div>
 				</div>

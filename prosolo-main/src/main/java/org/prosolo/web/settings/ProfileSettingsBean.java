@@ -156,7 +156,9 @@ public class ProfileSettingsBean implements Serializable {
 					String page = PageUtil.getPostParameter("page");
 					String lContext = PageUtil.getPostParameter("learningContext");
 					
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(), null, null, page, lContext, null, null);
+					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(),
+							loggedUser.getOrganizationId(), loggedUser.getSessionId(), null, null,
+							page, lContext, null, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Changes are not saved!");
@@ -253,7 +255,9 @@ public class ProfileSettingsBean implements Serializable {
 			if (newSocialNetworkAccountIsAdded) {
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
-					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserId());
+					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserId(),
+							loggedUser.getOrganizationId(), loggedUser.getSessionId(), null, null,
+							null, null, null, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 				}

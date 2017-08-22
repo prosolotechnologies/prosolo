@@ -176,15 +176,11 @@ public class ActivityWallBean implements Serializable {
 		final String updatedText = socialActivityData.getText();
 		
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
 			PostSocialActivity1 updatedPost = socialActivityManger.updatePost(
 					loggedUser.getUserId(),
 					socialActivityData.getId(),
 					updatedText, 
-					lcd);
+					loggedUser.getUserContext());
 			
 			socialActivityData.setLastAction(updatedPost.getLastAction());
 			

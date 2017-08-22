@@ -92,6 +92,7 @@ public class SearchPeopleBean implements Serializable{
 		List<Long> excludeUsers = new ArrayList<Long>();
 		excludeUsers.add(loggedUser.getUserId());
 		TextSearchResponse usersResponse=userTextSearch.searchUsers(
+				loggedUser.getOrganizationId(),
 				query,
 				-1, 
 				limit,
@@ -116,6 +117,7 @@ public class SearchPeopleBean implements Serializable{
  
 	public void fetchUsers(String query, List<Long> excludeUsers, int limit, boolean loadOneMore) {
 		TextSearchResponse usersResponse = userTextSearch.searchUsers(
+				loggedUser.getOrganizationId(),
 				query, 
 				this.page, 
 				limit, 

@@ -3,19 +3,11 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
@@ -25,11 +17,20 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialLibraryBeanManager")
 @Component("credentialLibraryBeanManager")
@@ -99,7 +100,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
-				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
+				loggedUserBean.getOrganizationId(), searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 				loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
 		this.paginationData.update((int) response.getHitsNumber());
@@ -150,21 +151,28 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive credential");
+				try {
+					PageUtil.fireErrorMessage("Error while trying to archive " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+				} catch (KeyNotFoundInBundleException e1) {
+					logger.error(e1);
+				}
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+					try {
+						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " archived successfully");
+					} catch (KeyNotFoundInBundleException e) {
+						logger.error(e);
+					}
 				} catch(DbConnectionException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Error while refreshing data");
@@ -175,21 +183,28 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore credential");
+				try {
+					PageUtil.fireErrorMessage("Error while trying to restore " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+				} catch (KeyNotFoundInBundleException e1) {
+					logger.error(e1);
+				}
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+					try {
+						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " restored successfully");
+					} catch (KeyNotFoundInBundleException e) {
+						logger.error(e);
+					}
 				} catch(DbConnectionException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Error while refreshing data");

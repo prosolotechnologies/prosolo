@@ -1,8 +1,5 @@
 package org.prosolo.search;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
@@ -16,8 +13,10 @@ import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 
@@ -26,13 +25,14 @@ import org.prosolo.services.nodes.data.instructor.InstructorData;
  */
 public interface UserTextSearch extends AbstractManager {
 
-	TextSearchResponse searchUsers(String searchString,
+	TextSearchResponse searchUsers(long orgId, String searchString,
 			int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.
-	 * 
+	 *
+	 * @param orgId
 	 * @param searchTerm
 	 * @param filter
 	 * @param page
@@ -43,20 +43,19 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
-			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
+			long orgId, String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId,
 			long instructorId, CredentialMembersSortOption sortOption);
 	
 	PaginatedResult<InstructorData> searchInstructors (
-			String searchTerm, int page, int limit, long credId, 
+			long orgId, String searchTerm, int page, int limit, long credId,
 			InstructorSortOption sortOption, List<Long> excludedIds);
-	
-	PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
-                                                             long credId, long roleId, List<Long> excludedUserIds);
 
-	List<Long> getInstructorCourseIds (long userId);
+	PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
+															 long credId, long roleId, List<Long> unitIds,
+															 List<Long> excludedUserIds);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
+			long orgId, String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit);
 	
 	/**
@@ -82,22 +81,23 @@ public interface UserTextSearch extends AbstractManager {
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId);
 	
 	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
-			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long orgId, String searchTerm, LearningStatus filter, int page, int limit, long credId,
 			long userId, CredentialMembersSortOption sortOption);
 	
 	PaginatedResult<StudentData> searchUnenrolledUsersWithUserRole (
-			String searchTerm, int page, int limit, long credId, long userRoleId);
+			long orgId, String searchTerm, int page, int limit, long credId, long userRoleId, List<Long> unitIds);
 
 	/**
 	 * Retrieves all users followed by the user with specified id and fulfilling the search term.
-	 * 
+	 *
+	 * @param orgId
 	 * @param searchTerm
 	 * @param page
 	 * @param limit
 	 * @param userId
 	 * @return
 	 */
-	PaginatedResult<UserData> searchPeopleUserFollows(String searchTerm,
+	PaginatedResult<UserData> searchPeopleUserFollows(long orgId, String searchTerm,
                                                       int page, int limit, long userId);
 
 	PaginatedResult<UserData> searchUsersInGroups(
@@ -105,7 +105,8 @@ public interface UserTextSearch extends AbstractManager {
 
 	/**
 	 * Searches through credential members by their name and last name, except for the excluded ones.
-	 * 
+	 *
+	 * @param orgId
 	 * @param searchTerm search term
 	 * @param limit number of results to return
 	 * @param credId credential id
@@ -113,7 +114,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return response containing initialized UserData that matches the search.
 	 */
 	PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
-			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
+			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 	
 	/**
 	 * Returns list of students currently learning competence specified by {@code compId}.
@@ -127,10 +128,10 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchCompetenceStudents (
-			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
+			long orgId, String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter,
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 
-	PaginatedResult<UserData> searchUsers(String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles);
+	PaginatedResult<UserData> searchUsers(long orgId, String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles);
 
 	/**
 	 * Returns users belonging to organization with {@code orgId} id who have a role with {@code roleId} id

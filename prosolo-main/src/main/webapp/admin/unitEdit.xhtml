@@ -11,7 +11,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="unitId" value="#{unitEditBean.id}" />
-            <f:viewParam name="id" value="#{unitsBean.organizationId}" />
+            <f:viewParam name="id" value="#{unitEditBean.organizationId}" />
             <f:viewAction action="#{unitEditBean.init()}" />
         </f:metadata>
     </ui:define>
@@ -37,8 +37,15 @@
                             <h:link value="Organizations" outcome="/admin/organizations"/>
                         </li>
                         <li>
-                            <h:link value="#{unitsBean.organizationData.title}" outcome="/admin/organizationNew">
-                            <f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
+                            <h:link value="#{unitEditBean.organizationTitle}" outcome="/admin/organizationNew">
+                                <f:param name="id" value="#{param.orgId}" />
+                            </h:link>
+                        </li>
+                        <li>
+                            <h:link outcome="/admin/units">
+                                Units
+                                <f:param name="id" value="#{param.orgId}" />
+                            </h:link>
                         </li>
                         <li class="active">
                             #{unitEditBean.unit.title}

@@ -6,8 +6,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -344,20 +342,16 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	public void updateGrade(boolean retry) {
 		try {
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
 			if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
 				createAssessment(currentResult.getTargetActivityId(),
 						currentResult.getAssessment().getCompAssessmentId(),
-						currentResult.getAssessment().getTargetCompId(), true, lcd);
+						currentResult.getAssessment().getTargetCompId(), true);
 			} else {
 				assessmentManager.updateGradeForActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(),
 						currentResult.getAssessment().getCompAssessmentId(),
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade().getValue(), loggedUserBean.getUserId(), lcd);
+						currentResult.getAssessment().getGrade().getValue(), loggedUserBean.getUserContext());
 			}
 
 			currentResult.getAssessment().getGrade().setAssessed(true);
@@ -381,7 +375,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
-								  boolean updateGrade, LearningContextData context)
+								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
 		Integer grade = updateGrade
 				? currentResult != null ? currentResult.getAssessment().getGrade().getValue() : null
@@ -409,13 +403,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
 								loggedUserBean.getUserId(), true, grade, true,
-								context).getId()));
+								loggedUserBean.getUserContext()).getId()));
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						true, context);
+						true, loggedUserBean.getUserContext());
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
 				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
 			}

@@ -102,15 +102,20 @@ public class UsersGroupsBean implements Serializable {
 				UserGroup group = new UserGroup();
 				group.setId(id);
 				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserId(), 
+						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
 						user, group, page, lContext,
-						service, null);
+						service, null, null);
 			}
 			for(long id : groupsToRemoveUserFrom) {
 				UserGroup group = new UserGroup();
 				group.setId(id);
-				eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(), 
+				eventFactory.generateEvent(
+						EventType.REMOVE_USER_FROM_GROUP,
+						loggedUserBean.getUserId(),
+						loggedUserBean.getOrganizationId(),
+						loggedUserBean.getSessionId(),
 						user, group, page, lContext,
-						service, null);
+						service, null, null);
 			}
 			PageUtil.fireSuccessfulInfoMessage("User is added to the group");
 		} catch (Exception ex) {

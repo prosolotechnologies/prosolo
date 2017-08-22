@@ -1,12 +1,9 @@
 <ui:component
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="attachmentPreview" required="true"/>
@@ -17,7 +14,6 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<utilcomp:messagesBundle var="msg" />
 		<h:outputScript library="javascript" name="jquery.shortenedText.js" target="head"/>
 	
 		<h:panelGroup layout="block" class="linkPreview #{cc.attrs.styleClass}" id="linkPreview">
@@ -102,7 +98,7 @@
 					<p class="atcTitleInput">
 						<h:inputText value="#{cc.attrs.attachmentPreview.title}"
 							class="#{empty cc.attrs.attachmentPreview.images ? 'long' : 'short'}"
-							placeholder="#{msg['textfield.title']}" />
+							placeholder="Enter title" />
 					</p> 
 					<p class="atcUrl">
 						<h:outputText value="#{util:getDomainFromUrl(cc.attrs.attachmentPreview.link)}" />
@@ -110,7 +106,7 @@
 					<p class="atcDescInput marginTop10">
 						<h:inputTextarea value="#{cc.attrs.attachmentPreview.description}"
 							class="#{empty cc.attrs.attachmentPreview.images ? 'long' : 'short'}"
-							placeholder="#{msg['textarea.description']}" />
+							placeholder="Enter description..." />
 					</p> 
 				</h:panelGroup>
 				

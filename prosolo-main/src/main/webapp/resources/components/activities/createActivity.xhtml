@@ -17,14 +17,15 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 
-	    <div class="whiteBar">
-	    </div>
+	    <div class="whiteBar"></div>
 	    
 		<div id="#{cc.clientId}">
 			<script>
@@ -37,7 +38,7 @@
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
 				            <li>
-				            	<h:link value="Credentials" outcome="credentialLibrary"/>
+				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
@@ -64,7 +65,7 @@
 			        <ui:fragment rendered="#{empty param['credId']}">
 			    		<ol class="breadcrumb">	 
 			    			<li>
-				            	<h:link value="Competencies" outcome="competenceLibrary"/>
+				            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
 				            	<h:link 
@@ -87,7 +88,7 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{activityEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-								Since competency was published, only small edits are allowed for this activity.
+								Since #{msg['label.competence'].toLowerCase()} was published, only small edits are allowed for this activity.
 			            	</h:panelGroup>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade in active" id="info">

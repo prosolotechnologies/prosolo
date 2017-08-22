@@ -4,14 +4,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
-	xmlns:util="http://www.prosolo.com/util"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
@@ -25,6 +18,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<div id="#{cc.clientId}">
 			<p:growl id="growlDetails" globalOnly="true" showDetail="true" />
 		    
@@ -35,7 +30,7 @@
 	                   	styleClass="btn btn-green btn-sm item"
 	                   	process="@this"
 	                   	action="#{cc.attrs.bean.enrollInCompetence()}">
-	                   	Start Competency
+	                   	Start #{msg['label.competence']}
 	                   	<f:param name="context" value="#{cc.attrs.learningContext}" />
 	                   </p:commandLink>
 	            </div>
