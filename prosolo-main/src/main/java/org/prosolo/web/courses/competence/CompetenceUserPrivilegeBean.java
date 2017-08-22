@@ -22,6 +22,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -70,6 +71,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	//private boolean manageSection;
 
 	private ResourceVisibilityUtil resVisibilityUtil;
+
+	private long newOwnerId;
 
 	public CompetenceUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -204,6 +207,25 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		}
 	}
 
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") +
+					" owner successfully changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error while trying to change the "
+					+ ResourceBundleUtil.getLabel("competence").toLowerCase() + " owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
+		}
+	}
+
 	public String getSearchTerm() {
 		return resVisibilityUtil.getSearchTerm();
 	}
@@ -290,5 +312,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public String getCredTitle() {
 		return credTitle;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }
