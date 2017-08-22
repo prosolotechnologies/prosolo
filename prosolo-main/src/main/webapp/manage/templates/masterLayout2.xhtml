@@ -148,6 +148,12 @@
 									value="Reports" />
 							</li>
 							</ui:remove>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('manage-rubricLibrary','mainmenu');"
+										outcome="/manage/rubricLibrary"
+										value="#{msg['label.rubric.plural']}" />
+							</li>
 						</ul>
 					</nav>
 				</div>

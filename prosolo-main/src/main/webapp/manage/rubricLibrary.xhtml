@@ -1,0 +1,153 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+                xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
+                xmlns:mng="http://java.sun.com/jsf/composite/components/manage">
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        #{msg['label.rubric.plural']}
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{msg['label.rubric.plural']}</h1>
+    </ui:define>
+
+    <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+        <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <a href="manage-rubric-new.html" class="btn btn-green btn-sm item">New #{msg['label.rubric']}</a>
+                        <div class="searchBox">
+                            <input type="search" name="name" value="" placeholder="Filter by Keywords"/>
+                        </div>
+                    </div>
+                    <div class="whiteBarRight">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><a href="#">Level 1</a></li>
+                <li><a href="#">Level 2</a></li>
+                <li class="active">Current Page</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="whiteBox manageRubricsList">
+                        <li>
+                            <div class="manageRubricsListLeft">
+                                <h2><a href="manage-rubric.html">Aliquam vestibulum nulla</a></h2>
+                                <div class="rubricsInfo">
+                                    <div class="creator">
+                                        Creator: <span>Gustavo Fring</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="manageRubricsListRight">
+                                <a href="manage-rubric.html" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <div class="dropdown optMoreMenu">
+                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                    <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                        <li><a href="#" data-toggle="modal" data-target="#deleteRub">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="manageRubricsListLeft">
+                                <h2><a href="manage-rubric.html">Aliquam vestibulum nulla</a></h2>
+                                <div class="rubricsInfo">
+                                    <div class="creator">
+                                        Creator: <span>Gustavo Fring</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="manageRubricsListRight">
+                                <a href="manage-rubric.html" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <div class="dropdown optMoreMenu">
+                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                    <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                        <li><a href="#" data-toggle="modal" data-target="#deleteRub">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="manageRubricsListLeft">
+                                <h2><a href="manage-rubric.html">Aliquam vestibulum nulla</a></h2>
+                                <div class="rubricsInfo">
+                                    <div class="creator">
+                                        Creator: <span>Gustavo Fring</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="manageRubricsListRight">
+                                <a href="manage-rubric.html" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <div class="dropdown optMoreMenu">
+                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                    <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                        <li><a href="#" data-toggle="modal" data-target="#deleteRub">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="paginationWrapper">
+                <ul class="pagination">
+                    <li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
+                    <li><a href="#">1</a></li>
+                    <li class="active"><a href="#">2</a></li>
+                    <li>...</li>
+                    <li><a href="#">7</a></li>
+                    <li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="modal fade" id="deleteRub" tabindex="-1" role="dialog" aria-labelledby="deleteRubrics">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#xd7;</span></button>
+                        <h2 class="modal-title" id="deleteRubrics">Delete Rubrics?</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete rubrics?<br/><br/>
+                            <small>Note: Action can NOT be un-done!</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-red">Delete</a>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>
