@@ -8,7 +8,7 @@ import org.prosolo.services.util.roles.RoleNames;
 /**
  * @author Stefan Vuckovic
  * @date 2017-07-11
- * @since 0.7
+ * @since 1.0.0
  */
 public class RoleUtil {
 

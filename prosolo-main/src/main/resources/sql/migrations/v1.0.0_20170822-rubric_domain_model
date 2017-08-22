@@ -1,0 +1,15 @@
+CREATE TABLE `rubric` (
+    `id` bigint(20) NOT NULL,
+    `created` datetime DEFAULT NULL,
+    `deleted` char(1) DEFAULT 'F',
+    `description` longtext,
+    `title` varchar(1000) DEFAULT NULL,
+    `creator` bigint(20) NOT NULL
+);
+
+ALTER TABLE `rubric`
+    ADD PRIMARY KEY (`id`),
+    ADD KEY `FK_rubric_creator` (`creator`);
+
+ALTER TABLE `rubric`
+  ADD CONSTRAINT `FK_rubric_creator` FOREIGN KEY (`creator`) REFERENCES `user` (`id`);

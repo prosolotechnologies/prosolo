@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Stefan Vuckovic
  * @date 2017-08-06
- * @since 0.7
+ * @since 1.0.0
  */
 @ManagedBean(name = "groupUserAddBean")
 @Component("groupUserAddBean")

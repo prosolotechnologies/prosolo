@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * @author Bojan Trifkovic
  * @date 2017-07-14
- * @since 0.7
+ * @since 1.0.0
  */
 
 @ManagedBean(name = "unitEditBean")
