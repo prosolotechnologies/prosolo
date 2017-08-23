@@ -3,7 +3,7 @@ CREATE TABLE `rubric` (
     `created` datetime DEFAULT NULL,
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
-    `title` varchar(1000) DEFAULT NULL,
+    `title` varchar(255) DEFAULT NULL,
     `creator` bigint(20) NOT NULL
 );
 
@@ -18,7 +18,7 @@ CREATE TABLE `category` (
     `created` datetime DEFAULT NULL,
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
-    `title` varchar(1000) DEFAULT NULL,
+    `title` varchar(255) DEFAULT NULL,
     `points` bigint(20) NOT NULL,
     `rubric` bigint(20) NOT NULL
 );
@@ -35,7 +35,7 @@ CREATE TABLE `level` (
     `created` datetime DEFAULT NULL,
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
-    `title` varchar(1000) DEFAULT NULL,
+    `title` varchar(255) DEFAULT NULL,
     `points` bigint(20) NOT NULL,
     `rubric` bigint(20) NOT NULL
 );
