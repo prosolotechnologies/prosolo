@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"rubric"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
 public class Category extends BaseEntity {
 
     private int points;
