@@ -1,27 +1,51 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	template="templates/masterLayout2.xhtml"
->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+	<head>
+		<meta charset="utf-8"></meta>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title>Error - Access Denied</title>
+		<link rel="stylesheet" type="text/css" media="all"
+			  href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css" media="all"
+			  href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
+		<link rel="stylesheet" type="text/css" media="all"
+			  href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
 
-	<ui:define name="windowTitle">
-		Error - Access Denied
-	</ui:define>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script
+				src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+		<script
+				src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+	</head>
 
-    <ui:define name="resourceTitle">
-    	<h1>Error</h1>
-    </ui:define>
-    
-	<ui:define name="content">
-	
+	<body>
+		<header>
+			<div class="container">
+				<div class="headerTop">
+					<div class="headerTopLeft">
+						<ui:include src="/WEB-INF/roleChanger.xhtml">
+							<ui:param name="section" value="STUDENT" />
+						</ui:include>
+					</div>
+				</div>
+				<h1>Error</h1>
+			</div>
+		</header>
+
 		<div class="whiteBar"></div>
-		
+
 		<div class="container">
-	        <div class="row">
-	            <div class="col-md-12">
-	                <h2>Access Denied</h2>
-	                <p>You do not have permissions to access this page.</p>
-	            </div>
-	        </div>
-	    </div>
-	</ui:define>
-</ui:composition>
+			<div class="row">
+				<div class="col-md-12">
+					<h2>Access Denied</h2>
+					<p>You do not have permissions to access this page.</p>
+
+					<a href="javascript:history.back();">Back to Previous Page</a>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

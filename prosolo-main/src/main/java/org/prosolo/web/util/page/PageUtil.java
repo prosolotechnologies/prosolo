@@ -137,18 +137,29 @@ public class PageUtil {
 	 * @return
 	 */
 	public static PageSection getSectionForView() {
-		String viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+		return getSectionForUri(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+	}
+
+	/**
+	 * Returns section based on a passed uri.
+	 *
+	 * It is not important if uri passed is pretty uri or servlet path (path to real file)
+	 * as long as it does not contain context path
+	 *
+	 * @return
+	 */
+	public static PageSection getSectionForUri(String uri) {
 		/*
-		 * find section by returning viewId substring from the beginning to the second
-		 * occurrence of '/' character. That is because viewId always starts with 
+		 * find section by returning uri substring from the beginning to the second
+		 * occurrence of '/' character. That is because uri always starts with
 		 * "/section/page" (if there is a section)
 		 */
-		int secondSlashIndex = StringUtils.ordinalIndexOf(viewId, "/", 2);
+		int secondSlashIndex = StringUtils.ordinalIndexOf(uri, "/", 2);
 		String section = "";
 		if (secondSlashIndex != -1) {
-			section = viewId.substring(0, secondSlashIndex);
+			section = uri.substring(0, secondSlashIndex);
 		}
-		
+
 		if (section.equals(PageSection.ADMIN.getPrefix())) {
 			return PageSection.ADMIN;
 		} else if (section.equals(PageSection.MANAGE.getPrefix())) {
@@ -165,14 +176,6 @@ public class PageUtil {
 		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		
 		return (String) request.getAttribute("javax.servlet.forward.request_uri");
-	}
-
-	public static void showNotFoundPage() {
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-		} catch (IOException e) {
-			logger.error(e);
-		}
 	}
 	
 	/**
@@ -221,10 +224,18 @@ public class PageUtil {
 	}
 	
 	public static void accessDenied() {
-		forward("/accessDenied.xhtml");
+		forward(getSectionForView().getPrefix() + "/accessDenied");
 	}
 	
 	public static void notFound() {
-		forward("/notfound.xhtml");
+		forward(getSectionForView().getPrefix() + "/notfound");
+	}
+
+	/**
+	 * Forwards to not found page
+	 * @param uri
+	 */
+	public static void notFound(String uri) {
+		forward(getSectionForUri(uri).getPrefix() + "/notfound");
 	}
 }
