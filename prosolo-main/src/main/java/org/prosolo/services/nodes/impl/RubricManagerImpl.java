@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -35,10 +36,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     private RubricManager self;
 
     @Override
-    public Rubric createNewRubric(String name, long creatorId, UserContextData context) throws DbConnectionException,
+    public Rubric createNewRubric(String name, long creatorId,long organizationId, UserContextData context) throws DbConnectionException,
             EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Rubric> res = self.createNewRubricAndGetEvents(name, creatorId, context);
+        Result<Rubric> res = self.createNewRubricAndGetEvents(name, creatorId,organizationId, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -46,14 +47,17 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, UserContextData context) throws
+    public Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, long organizationId,UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Rubric rubric = new Rubric();
             User user = new User();
+            Organization organization = new Organization();
+            organization.setId(organizationId);
             user.setId(creatorId);
             rubric.setTitle(name);
             rubric.setCreator(user);
+            rubric.setOrganization(organization);
 
             saveEntity(rubric);
 
@@ -67,6 +71,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             return res;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
+            e.printStackTrace();
             throw e;
         } catch (Exception e) {
             logger.error(e);

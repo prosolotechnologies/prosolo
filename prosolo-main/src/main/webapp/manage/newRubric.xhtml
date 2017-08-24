@@ -23,7 +23,7 @@
     </ui:define>
 
     <ui:define name="content">
-        <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+        <p:growl id="growlMainNewRubric" showDetail="true" globalOnly="true" />
 
         <div class="whiteBar">
         </div>
@@ -55,7 +55,7 @@
                                                    styleClass="btn btn-green"
                                                    value="Create"
                                                    action="#{rubricEditBean.createRubric()}"
-                                                   update=":formMainNewRubric">
+                                                   update="growlMainNewRubric :formMainNewRubric">
 
                                         <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                         <f:param name="learningContext" value="name:new_rubric" />

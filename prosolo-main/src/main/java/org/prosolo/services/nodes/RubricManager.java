@@ -16,9 +16,9 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 public interface RubricManager extends AbstractManager {
 
-    Rubric createNewRubric(String name, long creatorId, UserContextData context)
+    Rubric createNewRubric(String name, long creatorId, long organizationId, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, UserContextData context)
-            throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
+    Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, long organizationId, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 }
