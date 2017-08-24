@@ -57,6 +57,7 @@ public class RubricEditBean implements Serializable {
                     loggedUser.getOrganizationId(), loggedUser.getUserContext(decodedId));
 
             this.rubric.setId(rubric.getId());
+            this.rubric.setOrganizationId(rubric.getOrganization().getId());
 
             logger.debug("New Rubric (" + rubric.getTitle() + ")");
 

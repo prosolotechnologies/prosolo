@@ -10,13 +10,9 @@ public class RubricData {
 
     private long id;
     private String name;
+    private long organizationId;
 
     public RubricData(){}
-
-    public RubricData(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public long getId() {
         return id;
@@ -32,5 +28,13 @@ public class RubricData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(long organizationId) {
+        this.organizationId = organizationId;
     }
 }
