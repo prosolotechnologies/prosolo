@@ -3095,4 +3095,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfUncompletedDeliveries(long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential1.credential.id " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.progress < 100";
+
+			List<Long> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.list();
+
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving uncompleted deliveries");
+		}
+	}
+
 }
