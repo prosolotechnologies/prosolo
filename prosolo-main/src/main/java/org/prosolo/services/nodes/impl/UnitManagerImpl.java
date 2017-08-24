@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * @author Bojan
  * @date 2017-07-04
- * @since 0.7
+ * @since 1.0.0
  */
 
 @Service("org.prosolo.services.nodes.UnitManager")

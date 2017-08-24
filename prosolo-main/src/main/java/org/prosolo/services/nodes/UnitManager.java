@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Bojan
  * @date 2017-07-04
- * @since 0.7
+ * @since 1.0.0
  */
 public interface UnitManager extends AbstractManager{
 
