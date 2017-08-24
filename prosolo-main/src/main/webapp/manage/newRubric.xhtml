@@ -1,4 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
@@ -11,6 +12,7 @@
 
     <ui:define name="metadata">
         <f:metadata>
+            <f:viewAction action="#{rubricEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -30,24 +32,43 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="whiteBox">
-                        <div class="formWrapper editOrgForm">
+                        <h:form id="formMainNewRubric" class="formWrapper editOrgForm">
                             <div class="formLine">
                                 <label>Name</label>
                                 <div class="formLineRight">
-                                    <input type="text"/>
+                                    <h:inputText id="inputTextRubricName"
+                                                 value="#{rubricEditBean.rubric.name}"
+                                                 autocomplete="off"
+                                                 autofocus="true"
+                                                 required="true"
+                                                 requiredMessage="Rubric name is required"
+                                                 placeholder="Rubric Name">
+                                    </h:inputText>
+
+                                    <small class="redText"><h:message for="inputTextRubricName"></h:message></small>
                                 </div>
                             </div>
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <a href="#" class="btn btn-green">Create</a>
+                                    <p:commandLink id="createBtn"
+                                                   styleClass="btn btn-green"
+                                                   value="Create"
+                                                   action="#{rubricEditBean.createRubric()}"
+                                                   update=":formMainNewRubric">
+
+                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                        <f:param name="learningContext" value="name:new_rubric" />
+                                    </p:commandLink>
+                                    <p:defaultCommand target="createBtn" />
                                 </div>
                             </div>
-                        </div>
+                        </h:form>
                     </div>
                 </div>
             </div>
         </div>
+
 
     </ui:define>
 </ui:composition>
