@@ -7,7 +7,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 
 /**
