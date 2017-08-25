@@ -87,8 +87,6 @@ public class JoinGroupBean implements Serializable {
 			
 			try {
 				//TODO generate events here
-				// if user is not part of a unit, add him/her
-
 				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
 
 				try {

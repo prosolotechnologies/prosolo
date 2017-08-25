@@ -238,7 +238,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     @Transactional
     public Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = new Result<>();
 
         if (unitId > 0 && roleId > 0 && groupId > 0) {

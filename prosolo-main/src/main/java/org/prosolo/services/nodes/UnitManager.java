@@ -38,7 +38,7 @@ public interface UnitManager extends AbstractManager{
 
     void addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException, EventException;
 
-    Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context) throws EventException;
+    Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context);
 
     void addUserToUnitAndGroupWithRole(long userId, long unitId, long roleId, long groupId, UserContextData context) throws EventException;
 
