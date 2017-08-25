@@ -236,19 +236,26 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
+    @Transactional
+    public Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = new Result<>();
+
+        if (unitId > 0 && roleId > 0 && groupId > 0) {
+            res.addEvents(addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context).getEvents());
+            res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(groupId, userId, context).getEvents());
+        }
+        return res;
+    }
+
+    @Override
     //nt
     public void addUserToUnitAndGroupWithRole(long userId, long unitId, long roleId, long groupId, UserContextData context)
             throws DbConnectionException, EventException {
+        Result<Void> res = self.addUserToUnitAndGroupWithRoleAndGetEvents(userId, unitId, roleId, groupId, context);
 
-        if (unitId > 0 && roleId > 0 && groupId > 0) {
-            Result<Void> res = new Result<>();
-
-            res.addEvents(self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context).getEvents());
-            res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(groupId, userId, context).getEvents());
-
-            for (EventData ev : res.getEvents()) {
-                eventFactory.generateEvent(ev);
-            }
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
         }
     }
 
