@@ -390,6 +390,7 @@ DROP TABLE reminder;
 DROP TABLE request;
 DROP TABLE rich_content;
 DROP TABLE social_activity;
+DROP TABLE social_activity_hashtags;
 DROP TABLE social_activity_comments;
 DROP TABLE social_activity_notification;
 DROP TABLE social_activity_notification_sub_views;
@@ -400,4 +401,8 @@ DROP TABLE user_featured_news;
 DROP TABLE user_learning_goals;
 DROP TABLE user_learning_goal_target_competence;
 DROP TABLE user_notification_actions;
+ALTER TABLE followed_entity DROP FOREIGN KEY FK_e621cferbujqxfxjau0o4mfq6 ;
+ALTER TABLE followed_entity DROP INDEX FK_e621cferbujqxfxjau0o4mfq6;
+ALTER TABLE followed_entity DROP COLUMN followed_node;
 SET FOREIGN_KEY_CHECKS = 1;
+
