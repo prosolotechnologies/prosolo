@@ -91,18 +91,13 @@ public class JoinGroupBean implements Serializable {
 
 				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
 
-				//check if user is added as a student to unit
-				if (!unitManager.isUserAddedToUnitWithRole(groupData.getUnitId(), loggedUserBean.getUserId(), roleId))  {
-					try {
-						unitManager.addUserToUnitWithRole(loggedUserBean.getUserId(), groupData.getUnitId(), roleId, loggedUserBean.getUserContext());
-						userGroupManager.addUserToTheGroupAndGetEvents(decodedId, loggedUserBean.getUserId(),
-								loggedUserBean.getUserContext());
+				try {
+					unitManager.addUserToUnitAndGroupWithRole(loggedUserBean.getUserId(), groupData.getUnitId(), roleId, decodedId, loggedUserBean.getUserContext());
 
-						PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
-					} catch (EventException e) {
-						logger.error(e);
-						PageUtil.fireErrorMessage("joinForm:join", "There was a problem adding you to the group");
-					}
+					PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
+				} catch (EventException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("joinForm:join", "There was a problem adding you to the group");
 				}
 			} catch (DbConnectionException e) {
 				logger.warn(e);
