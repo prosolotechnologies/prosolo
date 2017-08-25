@@ -407,9 +407,8 @@ public class CredentialEditBean implements Serializable {
 			Map<String, String> params = new HashMap<>();
 			params.put("query", compSearchTerm);
 			try {
-				loggingService.logServiceUse(loggedUser.getUserId(), 
-						ComponentName.SEARCH_COMPETENCES, 
-						params, loggedUser.getIpAddress(), lcd);
+				loggingService.logServiceUse(loggedUser.getUserContext(lcd),
+						ComponentName.SEARCH_COMPETENCES, null, params, loggedUser.getIpAddress());
 			} catch(Exception e) {
 				logger.error(e);
 			}

@@ -223,7 +223,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				//ipAddress = accessResolver.findRemoteIPAddress();
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserId(), getIpAddress());
+				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
@@ -265,8 +265,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(),
-							getOrganizationId(), event.getSession().getId(), null, null, null,
+					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+							getUserId(), getOrganizationId(), event.getSession().getId(), null),
 							null, null, null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
@@ -300,19 +300,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (playButtonPressed || isDoNotShowTutorial()) {
 			getSessionData().getPagesTutorialPlayed().add(page);
 
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Session session = (Session) userManager.getPersistence().openSession();
+			taskExecutor.execute(() -> {
+				Session session = (Session) userManager.getPersistence().openSession();
 
-					try {
-						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
-						session.flush();
-					} catch (Exception e) {
-						logger.error("Exception in handling message", e);
-					} finally {
-						HibernateUtil.close(session);
-					}
+				try {
+					setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
+					session.flush();
+				} catch (Exception e) {
+					logger.error("Exception in handling message", e);
+				} finally {
+					HibernateUtil.close(session);
 				}
 			});
 		}
@@ -358,7 +355,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
@@ -379,7 +376,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void forceUserLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
 		} catch (Exception e) {
 			logger.error(e);

@@ -85,7 +85,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			//generate event after roles are updated
 			Map<String, String> params = null;
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-					EventType.USER_ROLES_UPDATED, userNickPowell.getId(), userNickPowell, null, params);
+					EventType.USER_ROLES_UPDATED, UserContextData.ofActor(userNickPowell.getId()),
+					userNickPowell, null, null, params);
 
 			//create organization
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
@@ -137,23 +138,29 @@ public class BusinessCase4_EDX extends BusinessCase {
 			try {
 				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
 				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userNickPowell);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userNickPowell, null, null, null);
 
 				userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userPhillAmstrong);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userPhillAmstrong, null, null, null);
 
 				userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userAnnaHallowell);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userAnnaHallowell, null, null, null);
 
 				userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userTimothyRivera);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userTimothyRivera, null, null, null);
 
 				userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userErikaAmes);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userErikaAmes, null, null, null);
 
 				userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
 				userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userKarenWhite);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userKarenWhite);
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+						EventType.Edit_Profile, UserContextData.of(userNickPowell.getId(), userNickPowell.getOrganization().getId(), null, null), userKarenWhite, null, null, null);
 			} catch (EventException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -697,56 +704,56 @@ public class BusinessCase4_EDX extends BusinessCase {
 			/*
 			 * Liking comments
 			 */
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAkikoKido.getId(), comment5.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment5.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment5.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment5.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment5.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment6.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userKevinHall.getId(), comment6.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment6.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment9.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment9.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment12.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment12.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment13.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userRichardAnderson.getId(), comment13.getCommentId(), new LearningContextData());
-			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment14.getCommentId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userAkikoKido.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userKevinHall.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment9.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment9.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment12.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment12.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment13.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment13.getCommentId(), UserContextData.ofActor(userRichardAnderson.getId()));
+			ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment14.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
 
 			/*
 			 * Sending private messages
 			 */
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Hi Richard");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Can you help me with a task");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userRichardAnderson.getId(), userKevinHall.getId(), "Sure. What's the problem?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userRichardAnderson.getId(), "Hi Richard");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userRichardAnderson.getId(), "Can you help me with a task");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userRichardAnderson.getId()), userKevinHall.getId(), "Sure. What's the problem?");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Hi Anna");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Do you have time to help me with something?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userAnnaHallowell.getId(), "Hi Anna");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userAnnaHallowell.getId(), "Do you have time to help me with something?");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi George");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi Ida");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userIdaFritz.getId()), userGeorgeYoung.getId(), "Hi George");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userIdaFritz.getId()), userGeorgeYoung.getId(), "Hi Ida");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userAnnaHallowell.getId(), userPhillAmstrong.getId(), "Hello Phill");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Hi");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userAnnaHallowell.getId()), userPhillAmstrong.getId(), "Hello Phill");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userPhillAmstrong.getId()), userAnnaHallowell.getId(), "Hi");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userPhillAmstrong.getId()), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
 
 			/*
 			 * User following
 			 */
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userPhillAmstrong.getId(), UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userAnnaHallowell.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userGeorgeYoung.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userIdaFritz.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(), userKevinHall.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userKevinHall.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userPhillAmstrong.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userIdaFritz.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userSheriLaureano.getId(), userPhillAmstrong.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userLoriAbner.getId(), userPhillAmstrong.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userLoriAbner.getId(), userKevinHall.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userTaniaCortese.getId(), userIdaFritz.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userJosephGarcia.getId(), userSheriLaureano.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
-			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAngelicaFallon.getId(), userKevinHall.getId(),  UserContextData.ofLearningContext(new LearningContextData()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(), UserContextData.ofActor(userKevinHall.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(),  UserContextData.ofActor(userKevinHall.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userGeorgeYoung.getId(),  UserContextData.ofActor(userKevinHall.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userKevinHall.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userIdaFritz.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userSheriLaureano.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userLoriAbner.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userLoriAbner.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userTaniaCortese.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userSheriLaureano.getId(),  UserContextData.ofActor(userJosephGarcia.getId()));
+			ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userAngelicaFallon.getId()));
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -766,8 +773,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 		
 		LearningContextData context = new LearningContextData("/activity.xhtml", null, null);
 		
-		Comment1 comment = ServiceLocator.getInstance().getService(CommentManager.class).saveNewComment(newComment, userKevinHall.getId(), 
-				CommentedResourceType.Activity, context);
+		Comment1 comment = ServiceLocator.getInstance().getService(CommentManager.class).saveNewComment(newComment,
+				CommentedResourceType.Activity, UserContextData.of(userKevinHall.getId(), userKevinHall.getOrganization().getId(), null, context));
 		
 		newComment.setCommentId(comment.getId());
 		

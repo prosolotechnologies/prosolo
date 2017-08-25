@@ -102,19 +102,12 @@ public class GroupUsersBean implements Serializable, Paginable {
 			in other places too so event generation can't be moved to this method at the moment. This should be
 			refactored later.
 			 */
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			User u = new User();
 			u.setId(user.getId());
 			UserGroup group = new UserGroup();
 			group.setId(decodedGroupId);
 			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP,
-					loggedUserBean.getUserId(),
-					decodedOrgId,
-					loggedUserBean.getSessionId(),
-					u, group, page, lContext,
-					service, null, null);
+					loggedUserBean.getUserContext(decodedOrgId), u, group, null, null);
 
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " successfully removed from the group");
 

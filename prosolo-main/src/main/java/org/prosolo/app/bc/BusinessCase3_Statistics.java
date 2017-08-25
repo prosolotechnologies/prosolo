@@ -93,7 +93,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			//generate event after roles are updated
 			Map<String, String> params = null;
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-					EventType.USER_ROLES_UPDATED, userNickPowell.getId(), userNickPowell, null, params);
+					EventType.USER_ROLES_UPDATED, UserContextData.ofActor(userNickPowell.getId()), userNickPowell, null, null, params);
 			
 			//create organization
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)

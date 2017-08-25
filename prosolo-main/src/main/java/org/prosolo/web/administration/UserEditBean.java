@@ -323,24 +323,21 @@ public class UserEditBean implements Serializable {
 
 		final User user = userManager.getUser(this.user.getEmail());
 
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Session session = (Session) userManager.getPersistence().openSession();
-				try {
-					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-					session.flush();
-					if (resetLinkSent) {
-						logger.info("Password instructions have been sent");
-					} else {
-						logger.error("Error sending password instruction");
-					}
-				}catch (Exception e){
-					logger.error("Exception in handling mail sending", e);
-				}finally {
-					HibernateUtil.close(session);
+		taskExecutor.execute(() -> {
+			Session session = (Session) userManager.getPersistence().openSession();
+			try {
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+				session.flush();
+				if (resetLinkSent) {
+					logger.info("Password instructions have been sent");
+				} else {
+					logger.error("Error sending password instruction");
 				}
+			}catch (Exception e){
+				logger.error("Exception in handling mail sending", e);
+			}finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}

@@ -1,11 +1,11 @@
 package org.prosolo.services.logging;
 
-import java.util.Map;
-
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.logging.exception.LoggingException;
+
+import java.util.Map;
 
 //import com.mongodb.DBObject;
 
@@ -16,46 +16,38 @@ import org.prosolo.services.logging.exception.LoggingException;
 
 public interface LoggingService {
 
-	void logServiceUse(long userId, String componentName, String parametersJson,
-			String ipAddress) throws LoggingException;
+	void logServiceUse(UserContextData context, String componentName,
+					   String parametersJson, String ipAddress) throws LoggingException;
 
-	void logServiceUse(long userId, ComponentName component, String link,
-			Map<String, String> parameters, String ipAddress) throws LoggingException;
+	void logNavigation(UserContextData context, String link, String ipAddress) throws LoggingException;
 
-	void logNavigation(long actorId, String link, String ipAddress) throws LoggingException;
-
-	void logNavigationFromContext(long userId, String link,
-			String context, String page, String learningContext, String service, 
-			String parametersString, String ipAddress) throws LoggingException;
+	void logNavigationFromContext(UserContextData context, String link,
+								  String ctx, String parametersString, String ipAddress)
+			throws LoggingException;
 	
-	void logEmailNavigation(long actorId, String link,
-			String parametersString, String ipAddress,
-			LearningContextData lContext) throws LoggingException;
+	void logEmailNavigation(UserContextData context, String link,
+							String parametersString, String ipAddress) throws LoggingException;
 
-	void logTabNavigationFromContext(long userId, String tabName, String context,
-			String parameters, String ipAddress) throws LoggingException;
+	void logTabNavigationFromContext(UserContextData userContext, String tabName,
+									 String context, String parametersString, String ipAddress) throws LoggingException;
 
-	void logEvent(EventType eventType, long actorId, String ipAddress);
+	void logEvent(EventType eventType, UserContextData context, String ipAddress);
 
 	void increaseUserActivityLog(long userid, long date);
 
 	void recordUserActivity(long userid, long time) throws LoggingException;
 
-	void logEventObserved(EventType eventType, long actorId, String objectType, long objectId,
-			Map<String, String> parameters, String ipAddress);
+	void logEventObservedAsync(EventType eventType, UserContextData context, String objectType, long objectId,
+							   Map<String, String> parameters, String ipAddress);
 
-	void logSessionEnded(EventType eventType, long actorId, String ipAddress);
-
-	void logEventObserved(EventType eventType, long actorId,
-			String objectType, long objectId, String objectTitle,
-			String targetType, long targetId,
+	void logEventObserved(EventType eventType, long actorId, long organizationId, String sessionId,
+			String objectType, long objectId, String objectTitle, String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException;
 	
-	void logServiceUse(long userId, ComponentName component, Map<String, String> params, 
-			String ipAddress, LearningContextData context) throws LoggingException;
+	void logServiceUse(UserContextData context, ComponentName component, String link, Map<String, String> params,
+			String ipAddress) throws LoggingException;
 
-	void logEventObserved(EventType eventType, long actorId, String objectType, long objectId,
-			String objectTitle,	String targetType, long targetId,
-			Map<String, String> parameters, String ipAddress) throws LoggingException;
+	void logEventObserved(EventType eventType, UserContextData context, String objectType, long objectId, String objectTitle,
+						  String targetType, Map<String, String> params, String ipAddress) throws LoggingException;
 
 }

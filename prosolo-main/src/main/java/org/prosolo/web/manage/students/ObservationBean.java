@@ -1,17 +1,5 @@
 package org.prosolo.web.manage.students;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.model.SelectItem;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -19,6 +7,7 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
@@ -34,6 +23,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.model.SelectItem;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.*;
 
 @ManagedBean(name = "observationBean")
 @Component("observationBean")
@@ -99,14 +94,13 @@ public class ObservationBean implements Serializable {
 
 	public void saveObservation() {
 		try {
-			long creatorId = loggedUserBean.getUserId();
 			Date date = isNew ? new Date() : editObservation.getEditObservation().getDateCreated();
 			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
-					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), creatorId,
+					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), loggedUserBean.getUserContext(),
 					studentId);
 			
-			logger.info("User with id "+creatorId + " created observation for student with id "+studentId);
+			logger.info("User with id "+ loggedUserBean.getUserId() + " created observation for student with id "+studentId);
 			
 			Object msg = result.get("message");
 			
@@ -114,21 +108,18 @@ public class ObservationBean implements Serializable {
 				final String context = "studentProfile.observation." + Long.parseLong(result.get("observationId").toString());
 
 				final Message message1 = (Message) msg;
-				taskExecutor.execute(new Runnable() {
-		            @Override
-		            public void run() {
-		            	try {
-		            		Map<String, String> parameters = new HashMap<String, String>();
-		            		parameters.put("context", context);
-		            		parameters.put("user", String.valueOf(studentId));
-		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(),
-									loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
-									message1, null, null, null, null, null, parameters);
-		            	} catch (EventException e) {
-		            		logger.error(e);
-		            	}
-		            }
+				UserContextData userContext = loggedUserBean.getUserContext();
+				taskExecutor.execute(() -> {
+					try {
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("context", context);
+						parameters.put("user", String.valueOf(studentId));
+						parameters.put("message", String.valueOf(message1.getId()));
+						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
+								message1, null, null, parameters);
+					} catch (EventException e) {
+						logger.error(e);
+					}
 				});
 			}
 			

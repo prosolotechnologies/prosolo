@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.*;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
@@ -84,8 +83,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             }
             saveEntity(unit);
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    unit, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context, unit, null, null, null));
             res.setResult(unit);
 
             return res;
@@ -269,8 +267,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
-                    EventType.ADD_USER_TO_UNIT, context.getActorId(), context.getOrganizationId(), context.getSessionId(), user, unit,
-                    context.getContext(), params));
+                    EventType.ADD_USER_TO_UNIT, context, user, unit, null, params));
 
             return result;
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
@@ -320,8 +317,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
-                    EventType.REMOVE_USER_FROM_UNIT, context.getActorId(), context.getOrganizationId(), context.getSessionId(), user, unit,
-                    context.getContext(), params));
+                    EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
 
             return result;
         } catch (Exception e) {
@@ -395,8 +391,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setParameter("unitId", unitId)
                     .executeUpdate();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Edit, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    unit, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Edit, context, unit, null, null, null));
             res.setResult(unit);
 
             return res;
@@ -654,9 +649,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit un = new Unit();
             un.setId(unitId);
             res.addEvent(eventFactory.generateEventData(
-                    EventType.ADD_CREDENTIAL_TO_UNIT, context.getActorId(),
-                    context.getOrganizationId(), context.getSessionId(), cr, un,
-                    context.getContext(), null));
+                    EventType.ADD_CREDENTIAL_TO_UNIT, context, cr, un, null, null));
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.info("Credential (" + credId + ") already added to the unit (" + unitId + ") so it can't be added again");
         } catch (Exception e) {
@@ -701,9 +694,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 Unit un = new Unit();
                 un.setId(unitId);
                 res.addEvent(eventFactory.generateEventData(
-                        EventType.REMOVE_CREDENTIAL_FROM_UNIT, context.getActorId(),
-                        context.getOrganizationId(), context.getSessionId(), cr, un,
-                        context.getContext(), null));
+                        EventType.REMOVE_CREDENTIAL_FROM_UNIT, context, cr, un,null, null));
             }
         } catch (Exception e) {
             logger.error("Error", e);
@@ -800,9 +791,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit un = new Unit();
             un.setId(unitId);
             res.addEvent(eventFactory.generateEventData(
-                    EventType.ADD_COMPETENCE_TO_UNIT, context.getActorId(),
-                    context.getOrganizationId(), context.getSessionId(), comp, un,
-                    context.getContext(), null));
+                    EventType.ADD_COMPETENCE_TO_UNIT, context, comp, un,null, null));
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.info("Competency (" + compId + ") already added to the unit (" + unitId + ") so it can't be added again");
         } catch (Exception e) {
@@ -847,9 +836,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 Unit un = new Unit();
                 un.setId(unitId);
                 res.addEvent(eventFactory.generateEventData(
-                        EventType.REMOVE_COMPETENCE_FROM_UNIT, context.getActorId(),
-                        context.getOrganizationId(), context.getSessionId(), comp, un,
-                        context.getContext(), null));
+                        EventType.REMOVE_COMPETENCE_FROM_UNIT, context, comp, un,null, null));
             }
         } catch (Exception e) {
             logger.error("Error", e);

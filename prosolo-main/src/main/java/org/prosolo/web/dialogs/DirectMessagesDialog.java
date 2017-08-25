@@ -1,16 +1,9 @@
 package org.prosolo.web.dialogs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -25,6 +18,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zoran Jeremic
@@ -71,28 +71,26 @@ public class DirectMessagesDialog implements Serializable {
 	
 	public void sendMessage() {
 		try {
-			Message message = messagingManager.sendMessage(loggedUser.getUserId(), receiver.getId(), this.messageContent);
+			Message message = messagingManager.sendMessage(loggedUser.getUserContext(), receiver.getId(), this.messageContent);
 			logger.debug("User "+loggedUser.getUserId()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();
 			participants.add(new UserData(loggedUser.getUserId(), loggedUser.getFullName(), loggedUser.getAvatar()));
 			
 			final Message message1 = message;
-			
-			taskExecutor.execute(new Runnable() {
-	            @Override
-	            public void run() {
-	            	try {
-	            		Map<String, String> parameters = new HashMap<String, String>();
-	            		parameters.put("context", context);
-	            		parameters.put("user", String.valueOf(receiver.getId()));
-	            		parameters.put("message", String.valueOf(message1.getId()));
-	            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUser.getUserId(),
-								loggedUser.getOrganizationId(), loggedUser.getSessionId(), message1, null, null, null, null, null, parameters);
-	            	} catch (EventException e) {
-	            		logger.error(e);
-	            	}
-	            }
+
+			UserContextData userContext = loggedUser.getUserContext();
+			taskExecutor.execute(() -> {
+				try {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("context", context);
+					parameters.put("user", String.valueOf(receiver.getId()));
+					parameters.put("message", String.valueOf(message1.getId()));
+					//TODO what to do for sending message from admin section where organization id maybe does not exist in user session
+					eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1, null, null, parameters);
+				} catch (EventException e) {
+					logger.error(e);
+				}
 			});
 			
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Message sent");

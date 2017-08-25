@@ -9,6 +9,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -138,11 +139,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 					fullAssessmentData.getTargetCredentialId(), reviewText);
 			markCredentialApproved();
 
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentApprovedAsync(decodedAssessmentId, page, lContext, service,
-					fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
+					fullAssessmentData.getCredentialId());
 
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
@@ -171,8 +169,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, String page, String lContext, String service,
-			long assessedStudentId, long credentialId) {
+	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, long assessedStudentId, long credentialId) {
+		UserContextData context = loggedUserBean.getUserContext();
 		taskExecutor.execute(() -> {
 			User student = new User();
 			student.setId(assessedStudentId);
@@ -181,9 +179,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(),
-						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
-						assessment, student, page, lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.AssessmentApproved, context, assessment, student, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

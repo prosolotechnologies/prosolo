@@ -3,7 +3,6 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;

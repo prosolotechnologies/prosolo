@@ -3,13 +3,6 @@
  */
 package org.prosolo.web.settings;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -40,6 +33,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author "Nikola Milikic"
@@ -153,12 +152,8 @@ public class ProfileSettingsBean implements Serializable {
 				loggedUser.reinitializeSessionData(user);
 				
 				try {
-					String page = PageUtil.getPostParameter("page");
-					String lContext = PageUtil.getPostParameter("learningContext");
-					
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(),
-							loggedUser.getOrganizationId(), loggedUser.getSessionId(), null, null,
-							page, lContext, null, null, null);
+					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserContext(),
+							null, null, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Changes are not saved!");
@@ -255,9 +250,8 @@ public class ProfileSettingsBean implements Serializable {
 			if (newSocialNetworkAccountIsAdded) {
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
-					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserId(),
-							loggedUser.getOrganizationId(), loggedUser.getSessionId(), null, null,
-							null, null, null, null, null);
+					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
+							null, null, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 				}

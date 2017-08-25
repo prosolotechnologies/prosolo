@@ -1,12 +1,5 @@
 package org.prosolo.web.users;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
@@ -22,6 +15,12 @@ import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "usersGroupsBean")
 @Component("usersGroupsBean")
@@ -93,29 +92,21 @@ public class UsersGroupsBean implements Serializable {
 		try {
 			userGroupManager.updateUserParticipationInGroups(user.getId(), groupsToRemoveUserFrom, 
 					groupsToAddUserTo);
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			User user = new User();
 			user.setId(user.getId());
 			for(long id : groupsToAddUserTo) {
 				UserGroup group = new UserGroup();
 				group.setId(id);
-				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserId(), 
-						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
-						user, group, page, lContext,
-						service, null, null);
+				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserContext(),
+						user, group,null, null);
 			}
 			for(long id : groupsToRemoveUserFrom) {
 				UserGroup group = new UserGroup();
 				group.setId(id);
 				eventFactory.generateEvent(
 						EventType.REMOVE_USER_FROM_GROUP,
-						loggedUserBean.getUserId(),
-						loggedUserBean.getOrganizationId(),
-						loggedUserBean.getSessionId(),
-						user, group, page, lContext,
-						service, null, null);
+						loggedUserBean.getUserContext(),
+						user, group,null, null);
 			}
 			PageUtil.fireSuccessfulInfoMessage("User is added to the group");
 		} catch (Exception ex) {

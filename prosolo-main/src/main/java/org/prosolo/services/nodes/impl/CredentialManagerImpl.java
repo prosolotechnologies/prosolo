@@ -17,7 +17,6 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.common.util.date.DateUtil;
@@ -134,8 +133,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Result<Credential1> res = new Result<>();
 
 			res.addEvent(eventFactory.generateEventData(
-					EventType.Create, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), cred, null, context.getContext(), null));
+					EventType.Create, context, cred, null, null, null));
 
 			//add Edit privilege to the credential creator
 			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(
@@ -175,9 +173,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Credential1 del = new Credential1();
 				del.setId(deliveryId);
 				res.addEvent(eventFactory.generateEventData(EventType.Delete,
-						context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), del, null, context.getContext(),
-						null));
+						context, del, null, null, null));
 			
 				//delete delivery from database
 				deleteById(Credential1.class, deliveryId, persistence.currentManager());
@@ -520,16 +516,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			Result<Credential1> res = resourceFactory.updateCredential(data, context);
 			Credential1 cred = res.getResult();
-
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
 			
 			for(EventData ev : res.getEvents()) {
-				ev.setPage(page);
-				ev.setContext(lContext);
-				ev.setService(service);
 				eventFactory.generateEvent(ev);
 			}
 			
@@ -539,9 +527,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Map<String, String> params = new HashMap<>();
 				params.put("newhashtags", data.getHashtagsString());
 				params.put("oldhashtags", data.getOldHashtags());
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), cred, null, page,
-						lContext, service, null, params);
+				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context, cred, null, null, params);
 			}
 			/* 
 			 * flushing to force lock timeout exception so it can be catched here. 
@@ -588,18 +574,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
-	    String page = null;
-	    String lContext = null;
-	    String service = null;
-	    LearningContextData lcd = context.getContext();
-	    if (lcd != null) {
-	    	page = lcd.getPage();
-	    	lContext = lcd.getLearningContext();
-	    	service = lcd.getService();
-		}
-	    eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), cred, null,
-				page, lContext, service, null, params);
+	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
 	}
 	
 	@Override
@@ -673,9 +648,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				Competence1 competence = new Competence1();
 		    				competence.setId(comp.getId());
 		    				res.addEvent(eventFactory.generateEventData(
-		    						EventType.Attach, context.getActorId(), context.getOrganizationId(),
-									context.getSessionId(), competence, credToUpdate,
-									context.getContext(), null));
+		    						EventType.Attach, context, competence, credToUpdate,null, null));
 		    				recalculateDuration = true;
 		    				break;
 		    			case CHANGED:
@@ -691,9 +664,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				Competence1 competence1 = new Competence1();
 		    				competence1.setId(cd.getCompetenceId());
 		    				res.addEvent(eventFactory.generateEventData(
-		    						EventType.Detach, context.getActorId(), context.getOrganizationId(),
-									context.getSessionId(), competence1, credToUpdate, context.getContext(),
-									null));
+		    						EventType.Detach, context, competence1, credToUpdate, null, null));
 		    				recalculateDuration = true;
 		    				break;
 		    			case UP_TO_DATE:
@@ -808,16 +779,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			params.put("progress", targetCred.getProgress() + "");
 			result.addEvent(eventFactory.generateEventData(
-					EventType.ENROLL_COURSE, userId,
-					context.getOrganizationId(), context.getSessionId(), cred, null,
-					context.getContext(), params));
+					EventType.ENROLL_COURSE, context, cred, null, null, params));
 
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
 				result.addEvent(eventFactory.generateEventData(
-						EventType.Completion, userId, context.getOrganizationId(),
-						context.getSessionId(), targetCred, null, context.getContext(),
-						null));
+						EventType.Completion, context, targetCred, null, null, null));
 			}
 			
 			return result;
@@ -943,9 +910,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Competence1 competence = new Competence1();
 			competence.setId(comp.getId());
-			events.add(eventFactory.generateEventData(EventType.Attach, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), competence, cred,
-					context.getContext(), null));
+			events.add(eventFactory.generateEventData(EventType.Attach, context, competence, cred,null, null));
 			
 			return events;
 		} catch(Exception e) { 
@@ -1152,18 +1117,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.Bookmark, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), bookmark, credential,
-					page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.Bookmark, context, bookmark, credential, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1201,18 +1155,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.RemoveBookmark, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), cb, credential,
-					page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.RemoveBookmark, context, cb, credential,null, null);
 			
 		} catch(Exception e) {
 			logger.error(e);
@@ -1409,16 +1352,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		tCred.setCredential(cred);
 		
 		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
-				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-				tCred, null, context.getContext(), null);
+				context, tCred, null, null, null);
 		ev.setProgress(finalCredProgress);
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tCred, finalCredProgress, 
 //				lcPage, lcContext, lcService, null);
 		if(finalCredProgress == 100) {
-			events.add(eventFactory.generateEventData(EventType.Completion, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tCred, null,
-					context.getContext(), null));
+			events.add(eventFactory.generateEventData(EventType.Completion, context, tCred, null, null, null));
 //			eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
 //					lcPage, lcContext, lcService, null);
 		}
@@ -2415,10 +2355,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credential.setId(credId);
 				credential.setVisibleToAll(visibleToAll);
 				events.add(eventFactory.generateEventData(
-						EventType.VISIBLE_TO_ALL_CHANGED, 
-						context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), credential, null, context.getContext(),
-						null));
+						EventType.VISIBLE_TO_ALL_CHANGED, context, credential, null, null,null));
 			}
 			events.addAll(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, context).getEvents());
 			return events;
@@ -2550,18 +2487,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.ARCHIVE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), credential,
-					null, page, lContext, service, null, null);
+
+			eventFactory.generateEvent(EventType.ARCHIVE, context, credential,null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2579,18 +2506,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.RESTORE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), credential,
-					null, page, lContext, service, null, null);
+
+			eventFactory.generateEvent(EventType.RESTORE, context, credential, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2847,9 +2764,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			saveEntity(cred);
 			
-			res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), cred, null,
-					context.getContext(), null));
+			res.addEvent(eventFactory.generateEventData(EventType.Create, context, cred, null,
+					null, null));
 			Set<Tag> hashtags = cred.getHashtags();
 			if (!hashtags.isEmpty()) {
 				Map<String, String> params = new HashMap<>();
@@ -2857,8 +2773,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				params.put("newhashtags", csv);
 				params.put("oldhashtags", "");
 				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS,
-						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-						cred, null, context.getContext(), params));
+						context, cred, null, null, params));
 			}
 			
 			//lock competencies so they cannot be unpublished after they are published here which would violate our integrity rule
@@ -2979,9 +2894,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Map<String, String> params = new HashMap<>();
 				params.put("oldOwnerId", oldCreatorId + "");
 				params.put("newOwnerId", newCreatorId + "");
-				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), cred, null,
-						context.getContext(), params));
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, context, cred, null, null, params));
 			}
 			return result;
 		} catch (Exception e) {
