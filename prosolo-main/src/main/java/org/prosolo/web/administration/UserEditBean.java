@@ -126,7 +126,7 @@ public class UserEditBean implements Serializable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		initOrgTitle();
 		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager"});
+			init(new String[]{"User", "Instructor", "Manager", "Admin"});
 		}
 	}
 
