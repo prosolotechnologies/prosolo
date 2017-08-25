@@ -175,7 +175,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 			resetSearchData();
 			loadUsersFromDB();
 			PageUtil.fireSuccessfulInfoMessage("User " + data.getFullName()
-					+ " successfully removed from the unit '" + unitTitle + "'");
+					+ " is removed from the unit '" + unitTitle + "'");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while trying to remove "

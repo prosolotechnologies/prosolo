@@ -227,7 +227,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();
 			instructorForRemoval = null;
-			PageUtil.fireSuccessfulInfoMessage("Instructor successfully removed from credential");
+			PageUtil.fireSuccessfulInfoMessage("Instructor is removed from the credential");
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		} catch (EventException ee) {
