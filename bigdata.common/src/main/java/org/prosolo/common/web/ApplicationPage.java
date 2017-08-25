@@ -90,6 +90,7 @@ public enum ApplicationPage {
 	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
 	MANAGER_RUBRIC_LIBRARY("/manage/rubricLibrary.xhtml"),
 	MANAGER_RUBRIC_NEW("/manage/createRubric.xhtml"),
+	MANAGER_RUBRIC_EDIT("/manage/rubricEdit.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

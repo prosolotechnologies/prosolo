@@ -198,7 +198,8 @@
             "name": "manage.rubrics.view",
             "description": "View rubrics library in manage section",
             "roles": [
-                "Manager"
+                "Manager",
+                "Instructor"
             ]
         },
         {

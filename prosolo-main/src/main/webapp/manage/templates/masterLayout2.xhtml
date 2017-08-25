@@ -150,7 +150,8 @@
 							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
-										or util:getPagePath(view.viewId)  == 'newRubric' ? 'active' : ''}">
+										or util:getPagePath(view.viewId)  == 'newRubric'
+										or util:getPagePath(view.viewId)  == 'rubricEdit' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-rubricLibrary','mainmenu');"
 										outcome="/manage/rubricLibrary"
 										value="#{msg['label.rubric.plural']}" />
