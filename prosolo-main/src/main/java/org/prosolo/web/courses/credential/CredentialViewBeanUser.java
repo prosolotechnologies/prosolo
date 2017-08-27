@@ -103,8 +103,7 @@ public class CredentialViewBeanUser implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if (justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage(
-								"You have enrolled the " +  + credentialData.getTitle());
+						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
