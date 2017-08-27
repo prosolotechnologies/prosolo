@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -25,6 +26,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -102,7 +104,7 @@ public class CredentialViewBeanUser implements Serializable {
 				} else {
 					if (justEnrolled) {
 						PageUtil.fireSuccessfulInfoMessage(
-								"You have enrolled in the credential " + credentialData.getTitle());
+								"You have enrolled the " +  + credentialData.getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
@@ -150,7 +152,7 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 
@@ -267,7 +269,7 @@ public class CredentialViewBeanUser implements Serializable {
 				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
 						service);
 
-				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("You assessment request is sent");
 
 				if (peersToExcludeFromSearch != null) {
 					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());

@@ -39,7 +39,7 @@ public class WallActionsBean {
 		if (activityWallBean != null)
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		
-		PageUtil.fireSuccessfulInfoMessage("Activity is hidden!");
+		PageUtil.fireSuccessfulInfoMessage("The activity has been hidden");
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
 		String service = PageUtil.getPostParameter("service");
@@ -72,7 +72,7 @@ public class WallActionsBean {
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		}
 		
-		PageUtil.fireSuccessfulInfoMessage("Activity is deleted!");
+		PageUtil.fireSuccessfulInfoMessage("The activity has been deleted!");
 		
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
@@ -98,7 +98,7 @@ public class WallActionsBean {
 	
 	public void enableComments(SocialActivityData1 socialActivity){
 		socialActivity.setCommentsDisabled(false);
-		PageUtil.fireSuccessfulInfoMessage("Comments are enabled!");
+		PageUtil.fireSuccessfulInfoMessage("Comments have been enabled");
 
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
@@ -126,7 +126,7 @@ public class WallActionsBean {
 	
 	public void disableComments(final SocialActivityData1 socialActivity) {
 		socialActivity.setCommentsDisabled(true);
-		PageUtil.fireSuccessfulInfoMessage("Comments are disabled!");
+		PageUtil.fireSuccessfulInfoMessage("Comments have been disabled");
 
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");

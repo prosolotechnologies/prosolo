@@ -200,7 +200,7 @@ public class UserEditBean implements Serializable {
 
 			sendNewPassword();
 
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("New user is created");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("A new user has been created");
 			if (decodedOrgId > 0) {
 				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
 			} else {
@@ -234,10 +234,10 @@ public class UserEditBean implements Serializable {
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User is updated");
+			PageUtil.fireSuccessfulInfoMessage("The user has been updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user data");
+			PageUtil.fireErrorMessage("Error updating the user");
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -349,7 +349,7 @@ public class UserEditBean implements Serializable {
 		if (userToDelete != null) {
 			try {
 				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId(), loggedUser.getUserContext(decodedOrgId));
-				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
+				PageUtil.fireSuccessfulInfoMessage("The user has been deleted");
 				userToDelete = null;
 				String url = decodedOrgId > 0
 						? "/admin/organizations/" + orgId + "/users"
@@ -357,7 +357,7 @@ public class UserEditBean implements Serializable {
 				PageUtil.redirect(url);
 			} catch (Exception ex) {
 				logger.error(ex);
-				PageUtil.fireErrorMessage("Error while trying to delete user");
+				PageUtil.fireErrorMessage("Error deleting the user");
 			}
 		}
 	}
@@ -393,7 +393,7 @@ public class UserEditBean implements Serializable {
 		}
 		try {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+			PageUtil.fireSuccessfulInfoMessage("The password has been updated");
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");

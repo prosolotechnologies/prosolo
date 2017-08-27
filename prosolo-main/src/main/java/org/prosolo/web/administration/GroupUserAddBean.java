@@ -119,8 +119,8 @@ public class GroupUserAddBean implements Serializable, Paginable {
 				eventFactory.generateEvent(ev);
 			}
 
-			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName()
-					+ " successfully added to the group '" + groupName + "'");
+			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
+					+ " has been added to the group " + groupName);
 			resetSearchData();
 			try {
 				loadUsersFromDB();

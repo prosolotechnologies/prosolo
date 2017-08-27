@@ -356,21 +356,21 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 			currentResult.getAssessment().getGrade().setAssessed(true);
 
-			PageUtil.fireSuccessfulInfoMessage("Grade updated");
+			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (IllegalDataStateException e) {
 			if (retry) {
 				//if this exception is thrown, data is repopulated and we should retry updating grade
 				updateGrade(false);
 			} else {
 				logger.error("Error after retry: " + e);
-				PageUtil.fireErrorMessage("Error while updating grade. Please refresh the page and try again.");
+				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
 		} catch (EventException e) {
 			logger.info(e);
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while updating grade");
+			PageUtil.fireErrorMessage("Error updating the grade");
 		}
 	}
 
