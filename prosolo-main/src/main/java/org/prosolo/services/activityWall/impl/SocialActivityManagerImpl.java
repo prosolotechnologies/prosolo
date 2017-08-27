@@ -314,13 +314,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       ON actObject.created_by = actObjectActor.id " +
 				
 				"	INNER JOIN user AS actor \n" +
-				"		ON sa.actor = actor.id \n";
-				if (!queryById && !credentialIds.isEmpty()) {
-					q += " LEFT JOIN target_credential1 targetCred \n" +
-							"   	ON actor.id = targetCred.user \n" +
-							"		AND targetCred.credential IN (:credentialIds) \n";
-				}
-				q +=
+				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
 				"       AND annotation.annotated_resource = :annotatedResource " +
@@ -339,7 +333,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 
 		if (!queryById) {
 			if (!credentialIds.isEmpty()) {
-				q += "AND (targetCred.id IS NOT NULL OR actor.id = :userId) ";
+				q += "AND (actor.id = :userId OR EXISTS " +
+						"(SELECT cred.id from target_credential1 cred WHERE cred.user = actor.id AND cred.credential IN (:credentialIds))) ";
 			} else {
 				q += "AND actor.id = :userId ";
 			}
