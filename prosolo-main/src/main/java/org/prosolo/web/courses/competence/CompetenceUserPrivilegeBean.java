@@ -15,6 +15,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -178,11 +179,11 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		try {
 			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a competency");
+			PageUtil.fireErrorMessage("Error updating user privileges for the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (EventException ee) {
 			logger.error(ee);
 		}

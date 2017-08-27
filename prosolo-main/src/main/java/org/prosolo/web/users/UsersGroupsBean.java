@@ -108,7 +108,7 @@ public class UsersGroupsBean implements Serializable {
 						loggedUserBean.getUserContext(),
 						user, group,null, null);
 			}
-			PageUtil.fireSuccessfulInfoMessage("User is added to the group");
+			PageUtil.fireSuccessfulInfoMessage("The user is added to the group");
 		} catch (Exception ex) {
 			logger.error(ex);
 			loadGroups();

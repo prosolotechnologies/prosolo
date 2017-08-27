@@ -145,7 +145,7 @@ public class ObservationBean implements Serializable {
 				}
 			}
 			
-			PageUtil.fireSuccessfulInfoMessage("Observation saved");
+			PageUtil.fireSuccessfulInfoMessage("The observation has been saved");
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

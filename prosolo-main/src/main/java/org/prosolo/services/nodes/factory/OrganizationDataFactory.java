@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Bojan
  * @date 2017-07-01
- * @since 0.7
+ * @since 1.0.0
  */
 @Component
 public class OrganizationDataFactory {

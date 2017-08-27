@@ -26,6 +26,11 @@ import org.springframework.stereotype.Service;
 public class EmailSender {
 	
 	public boolean sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
+		// if development mode is ON, comments should be sent only to the developer
+		if (CommonSettings.getInstance().config.appConfig.developmentMode) {
+			email = CommonSettings.getInstance().config.appConfig.developerEmail;
+		}
+
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		
 		String host = smtpConfig.host;

@@ -181,10 +181,10 @@ public class ActivityWallBean implements Serializable {
 			removeSocialActivityIfExists(socialActivityData);
 			socialActivities.add(0, socialActivityData);
 			
-			PageUtil.fireSuccessfulInfoMessage("Post updated");
+			PageUtil.fireSuccessfulInfoMessage("You post is updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while updating post");
+			PageUtil.fireErrorMessage("Error updating the post");
 		}
 		
 	}
@@ -218,10 +218,10 @@ public class ActivityWallBean implements Serializable {
 					initializeActivities();
 					
 					logger.debug("User "+loggedUser.getUserId()+" successfully changed Activity Wall filter to '"+filterType+"'.");
-					PageUtil.fireSuccessfulInfoMessage("Activity Wall filter changed!");
+					PageUtil.fireSuccessfulInfoMessage("The Activity Wall filter has been changed");
 				} else {
 					logger.error("User "+loggedUser.getUserId()+" could not change Activity Wall filter to '"+filterType+"'.");
-					PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
+					PageUtil.fireErrorMessage("Error chaniging the Activity Wall filter");
 				}
 
 				UserContextData context = loggedUser.getUserContext();
@@ -253,7 +253,7 @@ public class ActivityWallBean implements Serializable {
 			PostSocialActivity1 post = socialActivityManger.createNewPost(
 					newSocialActivity, loggedUser.getUserContext());
 			
-			PageUtil.fireSuccessfulInfoMessage("New status posted!");
+			PageUtil.fireSuccessfulInfoMessage("Your new status is posted");
 			newSocialActivity.setId(post.getId());
 			//set actor from session
 			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
@@ -284,7 +284,7 @@ public class ActivityWallBean implements Serializable {
 			PostReshareSocialActivity postShare = socialActivityManger.sharePost(
 					postShareText, socialActivityForShare.getId(), loggedUser.getUserContext());
 			
-			PageUtil.fireSuccessfulInfoMessage("Post successfully shared!");
+			PageUtil.fireSuccessfulInfoMessage("The post has been shared");
 			SocialActivityData1 postShareSocialActivity = new SocialActivityData1();
 			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
 			postShareSocialActivity.setId(postShare.getId());

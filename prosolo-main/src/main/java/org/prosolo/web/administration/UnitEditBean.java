@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * @author Bojan Trifkovic
  * @date 2017-07-14
- * @since 0.7
+ * @since 1.0.0
  */
 
 @ManagedBean(name = "unitEditBean")
@@ -64,7 +64,7 @@ public class UnitEditBean implements Serializable {
             unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(), loggedUser.getUserContext(0));
 
             logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
-            PageUtil.fireSuccessfulInfoMessage("Unit is updated");
+            PageUtil.fireSuccessfulInfoMessage("The unit has been updated");
         }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
@@ -77,7 +77,7 @@ public class UnitEditBean implements Serializable {
                     new FacesMessage("Unit with this name already exists") );
         }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to update unit");
+            PageUtil.fireErrorMessage("Error updating the unit");
         }
     }
 

@@ -384,7 +384,7 @@ public class ActivityEditBean implements Serializable {
 				loadActivityData(decodedCredId, decodedCompId, decodedId);
 				activityData.setCompetenceName(competenceName);
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			return true;
 		} catch(EventException ee) {
 			logger.error(ee);

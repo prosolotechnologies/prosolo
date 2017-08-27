@@ -26,6 +26,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -102,8 +103,7 @@ public class CredentialViewBeanUser implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if (justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage(
-								"You have enrolled in the credential " + credentialData.getTitle());
+						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
@@ -151,7 +151,7 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 
@@ -265,7 +265,7 @@ public class CredentialViewBeanUser implements Serializable {
 
 				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
 
-				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("You assessment request is sent");
 
 				if (peersToExcludeFromSearch != null) {
 					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());

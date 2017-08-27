@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 /**
  * @author stefanvuckovic
  * @date 2017-08-09
- * @since 0.7
+ * @since 1.0.0
  */
 public class EmailValidatorUtil {
 

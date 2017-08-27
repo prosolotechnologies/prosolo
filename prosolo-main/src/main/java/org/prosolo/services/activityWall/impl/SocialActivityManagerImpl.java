@@ -30,6 +30,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -60,6 +61,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private CommentManager commentManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private CredentialManager credentialManager;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -98,12 +100,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.actor = :userId \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 		
 	private List<SocialActivityData1> getMyNetworkSocialActivities(long user, int offset, int limit,
@@ -115,12 +117,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"				) \n";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit,
@@ -128,13 +130,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.dtype = :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
 				previousDate, false, false, locale);
-		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private List<SocialActivityData1> getAllProSoloSocialActivities(long user, int offset, int limit,
@@ -142,25 +144,25 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.dtype != :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
 				previousDate, false, false, locale);
-		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 
 	private List<SocialActivityData1> getAllSocialActivities(long user, int offset, int limit,
 			long previousId, Date previousDate, Locale locale) {
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, "", previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private String getSelectPart() {
@@ -255,7 +257,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate,
-			boolean queryById, boolean shouldReturnHidden) {
+			boolean queryById, boolean shouldReturnHidden, List<Long> credentialIds) {
 		String q =
 				"FROM social_activity1 sa \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
@@ -310,7 +312,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"   LEFT JOIN user AS actObjectActor " +
 				"       ON actObject.created_by = actObjectActor.id " +
 				
-				"	LEFT JOIN user AS actor \n" +
+				"	INNER JOIN user AS actor \n" +
 				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
@@ -324,10 +326,20 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						
 				"WHERE sa.deleted = :saDeleted \n";
 			
-		if(!shouldReturnHidden) {
-			q += "	AND config.id IS NULL \n";
+		if (!shouldReturnHidden) {
+			q += " AND config.id IS NULL \n";
 		}
-		if(!queryById) {
+
+		if (!queryById) {
+			if (!credentialIds.isEmpty()) {
+				q += "AND (actor.id = :userId OR EXISTS " +
+						"(SELECT cred.id from target_credential1 cred WHERE cred.user = actor.id AND cred.credential IN (:credentialIds))) ";
+			} else {
+				q += "AND actor.id = :userId ";
+			}
+		}
+
+		if (!queryById) {
 			if(previousDate != null && previousId > 0) {
 				q += "AND sa.last_action <= :date \n " +
 					 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
@@ -418,9 +430,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
 			String specificCondition, long previousId, Date previousDate, boolean queryById, 
 			boolean shouldReturnHidden, Locale locale) {
+		List<Long> deliveriesUserIsLearning = null;
+		if (!queryById) {
+			deliveriesUserIsLearning = credentialManager.getIdsOfUncompletedDeliveries(userId);
+		}
 		String query = getSelectPart() + getTablesString(specificCondition, previousId, previousDate,
-				queryById, shouldReturnHidden);
-		
+				queryById, shouldReturnHidden, deliveriesUserIsLearning);
+
 		Query q = persistence.currentManager().createSQLQuery(query)
 			.setLong("userId", userId)
 			.setString("postReshareDType", PostReshareSocialActivity.class.getSimpleName())
@@ -434,95 +450,100 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("annotationType", AnnotationType.Like.name())
 			//.setBoolean("boolFalse", false)
 			.setCharacter("saDeleted", 'F')
-			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
-			.setResultTransformer(new ResultTransformer() {
-				private static final long serialVersionUID = 3421375509302043275L;
+			.setString("commentResourceType", CommentedResourceType.SocialActivity.name());
 
-				@Override
-				public Object transformTuple(Object[] tuple, String[] aliases) {
-					return socialActivityFactory.getSocialActivityData(
-							(BigInteger) tuple[0],
-							(String) tuple[1],
-							(Date) tuple[2], 
-							(Date) tuple[3], 
-							(Character) tuple[4], 
-							(String) tuple[5], 
-							(Integer) tuple[6], 
-							(BigInteger) tuple[7], 
-							(String) tuple[8], 
-							(String) tuple[9], 
-							(String) tuple[10], 
-							(String) tuple[11], 
-							(String) tuple[12], 
-							(String) tuple[13], 
-							(String) tuple[14], 
-							(String) tuple[15], 
-							(Integer) tuple[16],
-							(String) tuple[17], 
-							(String) tuple[18], 
-							(String) tuple[19], 
-							(String) tuple[20], 
-							(String) tuple[21],
-							(String) tuple[22],
-							(String) tuple[23],
-							(BigInteger) tuple[24], 
-							(String) tuple[25], 
-							(String) tuple[26], 
-							(String) tuple[27], 
-							(String) tuple[28], 
-							(String) tuple[29], 
-							(String) tuple[30], 
-							(String) tuple[31],
-							(String) tuple[32],
-							(BigInteger) tuple[33], 
-							(String) tuple[34], 
-							(String) tuple[35], 
-							(String) tuple[36],
-							(Date) tuple[37],
-							(BigInteger) tuple[38], 
-							(String) tuple[39], 
-							(BigInteger) tuple[40],
-							(BigInteger) tuple[41],
-							(String) tuple[42],
-							(String) tuple[43],
-							(String) tuple[44],
-							(BigInteger) tuple[45],
-							(String) tuple[46],
-							(BigInteger) tuple[47],
-							(String) tuple[48],
-							(BigInteger) tuple[49],
-							(String) tuple[50],
-							(BigInteger) tuple[51],
-							(String) tuple[52],
-							(String) tuple [53],
-							(BigInteger) tuple[54],
-							(String) tuple[55],
-							(BigInteger) tuple[56],
-							(String) tuple[57],
-							(BigInteger) tuple[58],
-							(String) tuple[59],
-							(String) tuple[60],
-							(String) tuple[61],
-							(String) tuple[62],
-							(String) tuple[63],
-							(BigInteger) tuple[64],
-							(BigInteger) tuple[65],
-							(String) tuple[66],
-							(BigInteger) tuple[67],
-							(String) tuple[68],
-							(BigInteger) tuple[69],
-							(String) tuple[70],
-							(String) tuple[71],
-							(String) tuple[72],
-							(Integer) tuple[73],
-							(BigInteger) tuple[74],
-							locale);
-				}
-				
-				@SuppressWarnings("rawtypes")
-				@Override
-				public List transformList(List collection) {return collection;}
-			});
+		if (!queryById && !deliveriesUserIsLearning.isEmpty()) {
+			q.setParameterList("credentialIds", deliveriesUserIsLearning);
+		}
+
+		q.setResultTransformer(new ResultTransformer() {
+			private static final long serialVersionUID = 3421375509302043275L;
+
+			@Override
+			public Object transformTuple(Object[] tuple, String[] aliases) {
+				return socialActivityFactory.getSocialActivityData(
+						(BigInteger) tuple[0],
+						(String) tuple[1],
+						(Date) tuple[2],
+						(Date) tuple[3],
+						(Character) tuple[4],
+						(String) tuple[5],
+						(Integer) tuple[6],
+						(BigInteger) tuple[7],
+						(String) tuple[8],
+						(String) tuple[9],
+						(String) tuple[10],
+						(String) tuple[11],
+						(String) tuple[12],
+						(String) tuple[13],
+						(String) tuple[14],
+						(String) tuple[15],
+						(Integer) tuple[16],
+						(String) tuple[17],
+						(String) tuple[18],
+						(String) tuple[19],
+						(String) tuple[20],
+						(String) tuple[21],
+						(String) tuple[22],
+						(String) tuple[23],
+						(BigInteger) tuple[24],
+						(String) tuple[25],
+						(String) tuple[26],
+						(String) tuple[27],
+						(String) tuple[28],
+						(String) tuple[29],
+						(String) tuple[30],
+						(String) tuple[31],
+						(String) tuple[32],
+						(BigInteger) tuple[33],
+						(String) tuple[34],
+						(String) tuple[35],
+						(String) tuple[36],
+						(Date) tuple[37],
+						(BigInteger) tuple[38],
+						(String) tuple[39],
+						(BigInteger) tuple[40],
+						(BigInteger) tuple[41],
+						(String) tuple[42],
+						(String) tuple[43],
+						(String) tuple[44],
+						(BigInteger) tuple[45],
+						(String) tuple[46],
+						(BigInteger) tuple[47],
+						(String) tuple[48],
+						(BigInteger) tuple[49],
+						(String) tuple[50],
+						(BigInteger) tuple[51],
+						(String) tuple[52],
+						(String) tuple [53],
+						(BigInteger) tuple[54],
+						(String) tuple[55],
+						(BigInteger) tuple[56],
+						(String) tuple[57],
+						(BigInteger) tuple[58],
+						(String) tuple[59],
+						(String) tuple[60],
+						(String) tuple[61],
+						(String) tuple[62],
+						(String) tuple[63],
+						(BigInteger) tuple[64],
+						(BigInteger) tuple[65],
+						(String) tuple[66],
+						(BigInteger) tuple[67],
+						(String) tuple[68],
+						(BigInteger) tuple[69],
+						(String) tuple[70],
+						(String) tuple[71],
+						(String) tuple[72],
+						(Integer) tuple[73],
+						(BigInteger) tuple[74],
+						locale);
+			}
+
+			@SuppressWarnings("rawtypes")
+			@Override
+			public List transformList(List collection) {return collection;}
+		});
 		
 		if(!queryById && previousDate != null && previousId > 0) {
 			q.setTimestamp("date", previousDate);

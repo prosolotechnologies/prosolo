@@ -287,7 +287,7 @@ public class MessagesBean implements Serializable {
 			//at this point, threadData is initialized (either through init method, or now, by sending very first message)
 			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId()+ " with content: '"+this.messageText+"'");
 			publishSentMessage(loggedUser.getUserId(), threadData.getParticipants(), message);
-			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Message sent");
+			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
 			//set archived to false, as sending message unarchives thread
 			archiveView = false;
 			//reset message data, so we can re-fetch messages and messages threads

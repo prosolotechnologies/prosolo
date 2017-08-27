@@ -39,9 +39,9 @@ public class WallActionsBean {
 		if (activityWallBean != null)
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		
-		PageUtil.fireSuccessfulInfoMessage("Activity is hidden!");
+		PageUtil.fireSuccessfulInfoMessage("The activity has been hidden");
 		UserContextData context = loggedUser.getUserContext();
-		
+
 		taskExecutor.execute(() -> {
 			Session session = (Session) defaultManager.getPersistence().openSession();
 
@@ -65,7 +65,7 @@ public class WallActionsBean {
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		}
 		
-		PageUtil.fireSuccessfulInfoMessage("Activity is deleted!");
+		PageUtil.fireSuccessfulInfoMessage("The activity has been deleted!");
 		
 		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
@@ -86,7 +86,7 @@ public class WallActionsBean {
 	
 	public void enableComments(SocialActivityData1 socialActivity){
 		socialActivity.setCommentsDisabled(false);
-		PageUtil.fireSuccessfulInfoMessage("Comments are enabled!");
+		PageUtil.fireSuccessfulInfoMessage("Comments have been enabled");
 
 		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
@@ -109,7 +109,7 @@ public class WallActionsBean {
 	
 	public void disableComments(final SocialActivityData1 socialActivity) {
 		socialActivity.setCommentsDisabled(true);
-		PageUtil.fireSuccessfulInfoMessage("Comments are disabled!");
+		PageUtil.fireSuccessfulInfoMessage("Comments have been disabled");
 
 		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {

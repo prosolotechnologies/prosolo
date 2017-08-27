@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * @author stefanvuckovic
  * @date 2017-08-08
- * @since 0.7
+ * @since 1.0.0
  */
 public class UserCreationData implements Serializable {
 

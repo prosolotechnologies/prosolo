@@ -63,15 +63,22 @@ public class CommentBean implements Serializable, ICommentBean {
 		try {
 			CommentSortData csd = getCommentSortData(commentsData);
 			List<CommentData> comments = null;
+
+			//TODO hack - if it is competency or activity comment and it is Student,
+			// load comments only if from same deliveries user is learning
+			boolean loadCommentsFromSameDeliveries =
+					(commentsData.getResourceType() == CommentedResourceType.Activity
+							|| commentsData.getResourceType() == CommentedResourceType.Competence)
+							&& !commentsData.isManagerComment();
 			if(commentsData.getCommentId() > 0) {
 				comments = commentManager.getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 						commentsData.getResourceType(), commentsData.getResourceId(), csd, 
-						commentsData.getCommentId(), loggedUser.getUserId());
+						commentsData.getCommentId(), loggedUser.getUserId(), loadCommentsFromSameDeliveries);
 				commentsData.setNumberOfComments(comments.size());
 			} else {
 				comments = commentManager.getComments(commentsData.getResourceType(), 
 						commentsData.getResourceId(), true, limit, csd, 
-						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId());
+						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), loadCommentsFromSameDeliveries);
 				
 				int commentsNumber = comments.size();
 				if(commentsNumber == limit + 1) {
@@ -201,10 +208,10 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.addComment(newComment);
 				commentsData.incrementNumberOfComments();
         	}
-        	PageUtil.fireSuccessfulInfoMessage("Comment posted");
+        	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (DbConnectionException e) {
     		logger.error(e);
-    		PageUtil.fireErrorMessage("Error while adding new comment");
+    		PageUtil.fireErrorMessage("Error posting a comment");
     	}
 		
 //		taskExecutor.execute(new Runnable() {

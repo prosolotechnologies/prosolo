@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Stefan Vuckovic
  * @date 2017-08-06
- * @since 0.7
+ * @since 1.0.0
  */
 @ManagedBean(name = "groupUserAddBean")
 @Component("groupUserAddBean")
@@ -119,8 +119,8 @@ public class GroupUserAddBean implements Serializable, Paginable {
 				eventFactory.generateEvent(ev);
 			}
 
-			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName()
-					+ " successfully added to the group '" + groupName + "'");
+			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
+					+ " has been added to the group " + groupName);
 			resetSearchData();
 			try {
 				loadUsersFromDB();

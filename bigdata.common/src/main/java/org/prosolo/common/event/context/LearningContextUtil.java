@@ -3,7 +3,7 @@ package org.prosolo.common.event.context;
 /**
  * @author stefanvuckovic
  * @date 2017-08-02
- * @since 0.7
+ * @since 1.0.0
  */
 public class LearningContextUtil {
 

@@ -359,7 +359,7 @@ public class CredentialKeywordsBean {
 
 				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
 
-				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
 
 				if (peersToExcludeFromSearch != null) {
 					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());

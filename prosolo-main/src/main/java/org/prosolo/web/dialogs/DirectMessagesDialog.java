@@ -93,7 +93,7 @@ public class DirectMessagesDialog implements Serializable {
 				}
 			});
 			
-			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Message sent");
+			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Your message is sent");
 		} catch (Exception e) {
 			logger.error(e);
 		}

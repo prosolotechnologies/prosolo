@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -145,15 +146,15 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive competence");
+				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been archived");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error archiving the data");
 				}
 			}
 		}
@@ -169,15 +170,15 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore competency");
+				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " is restored");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}

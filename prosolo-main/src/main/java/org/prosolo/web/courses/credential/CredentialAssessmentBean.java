@@ -145,8 +145,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
-			logger.error("Error aproving assessment data", e);
-			PageUtil.fireErrorMessage("Error while approving assessment data");
+			logger.error("Error approving assessment data", e);
+			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
@@ -162,10 +162,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			assessmentManager.approveCompetence(idEncoder.decodeId(encodedCompetenceAssessmentId));
 			markCompetenceApproved(encodedCompetenceAssessmentId);
 			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
-					"You have sucessfully approved competence for " + fullAssessmentData.getStudentFullName());
+					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
-			logger.error("Error aproving assessment data", e);
-			PageUtil.fireErrorMessage("Error while approving assessment data");
+			logger.error("Error approving the assessment", e);
+			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
@@ -287,14 +287,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 			currentActivityAssessment.getGrade().setAssessed(true);
 
-			PageUtil.fireSuccessfulInfoMessage("Grade updated");
+			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (IllegalDataStateException e) {
 			if (retry) {
 				//if this exception is thrown, data is repopulated and we should retry updating grade
 				updateGrade(false);
 			} else {
 				logger.error("Error after retry: " + e);
-				PageUtil.fireErrorMessage("Error while updating grade. Please refresh the page and try again.");
+				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
 		} catch (EventException e) {
 			logger.error(e);

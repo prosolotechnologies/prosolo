@@ -17,7 +17,7 @@ import javax.faces.validator.ValidatorException;
 /**
  * @author Bojan
  * @date 2017-06-27
- * @since 0.7
+ * @since 1.0.0
  */
 
 @Component

@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * @author Stefan Vuckovic
  * @date 2017-07-13
- * @since 0.7
+ * @since 1.0.0
  */
 public class UnitRoleMembershipData implements Serializable {
 

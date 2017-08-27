@@ -237,7 +237,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 				instructorForStudentAssign.setNumberOfAssignedStudents(
 						instructorForStudentAssign.getNumberOfAssignedStudents() + numberOfAffectedStudents);
 				//instructorForStudentAssign = null;
-				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+				PageUtil.fireSuccessfulInfoMessage("Changes has been saved");
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);

@@ -99,11 +99,11 @@ public class SocialActivityViewBean implements Serializable {
 			socialActivityManger.sharePost(
 					postShareText, socialActivity.getId(), loggedUser.getUserContext());
 			
-			PageUtil.fireSuccessfulInfoMessage("Post successfully shared!");
+			PageUtil.fireSuccessfulInfoMessage("The post is shared");
 			postShareText = null;
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while sharing post!");
+			PageUtil.fireErrorMessage("Error sharing the post");
 		}
 	}
 	

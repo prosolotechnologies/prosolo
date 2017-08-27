@@ -73,11 +73,11 @@ public class OrganizationsBean implements Serializable,Paginable {
             try {
                 organizationManager.deleteOrganization(this.organizationToDelete.getId());
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization " + organizationToDelete.getTitle() + " is deleted.");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("The organization " + organizationToDelete.getTitle() + " has been deleted");
                 PageUtil.redirect("/admin/organizations");
             } catch (Exception ex) {
                 logger.error(ex);
-                PageUtil.fireErrorMessage("Error while trying to delete user");
+                PageUtil.fireErrorMessage("Error deleting the organization");
             }
         }
     }

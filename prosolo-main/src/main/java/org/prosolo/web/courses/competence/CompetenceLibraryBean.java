@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -159,7 +160,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

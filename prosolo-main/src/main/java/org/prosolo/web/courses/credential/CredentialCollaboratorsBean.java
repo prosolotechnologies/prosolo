@@ -121,12 +121,12 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		try {
 			peopleActionBean.followUserById(user.getId());
 			user.setFollowedByCurrentUser(true);
-			PageUtil.fireSuccessfulInfoMessage("Started following " + user.getFullName() + ".");
+			PageUtil.fireSuccessfulInfoMessage("You are following " + user.getFullName());
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getFullName());
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error occured. Please try again");
+			PageUtil.fireErrorMessage("Error following " + user.getFullName() + ". Please try again");
 		}
 	}
 
@@ -138,7 +138,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 			logger.error(e);
 		}
 
-		PageUtil.fireSuccessfulInfoMessage("Stopped following " + user.getFullName() + ".");
+		PageUtil.fireSuccessfulInfoMessage("You are not following " + user.getFullName());
 	}
 	
 	public void resetAndSearch() {

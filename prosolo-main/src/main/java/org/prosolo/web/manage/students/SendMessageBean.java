@@ -72,7 +72,7 @@ public class SendMessageBean implements Serializable {
 					}
 				});
 				this.message = "";
-				PageUtil.fireSuccessfulInfoMessage("Message sent");
+				PageUtil.fireSuccessfulInfoMessage("Your message is sent");
 			} catch (Exception e) {
 				logger.error(e);
 			}
