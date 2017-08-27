@@ -8,6 +8,8 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -18,6 +20,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -164,7 +167,8 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competency can not be found");
+			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " can not be found");
+			logger.info(rnfe);
 		}
 	}
 
@@ -289,7 +293,7 @@ public class CompetenceEditBean implements Serializable {
 			return true;
 		} catch (StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
+			PageUtil.fireErrorMessage("Update failed because the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been edited in the meantime. Please review those changes and try again");
 			//reload data
 			initializeValues();
 			loadCompetenceData(decodedCredId, decodedId);
@@ -340,10 +344,10 @@ public class CompetenceEditBean implements Serializable {
 		try {
 			compManager.archiveCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(true);
-			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been archived");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to archive competency");
+			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 	
@@ -351,10 +355,10 @@ public class CompetenceEditBean implements Serializable {
 		try {
 			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(false);
-			PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been restored");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to restore competency");
+			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 	
@@ -365,7 +369,7 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to duplicate competence");
+			PageUtil.fireErrorMessage("Error duplicating the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch(EventException ee) {
 			logger.error(ee);
 		}

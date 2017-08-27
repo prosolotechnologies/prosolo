@@ -125,10 +125,10 @@ public class OrganizationEditBean implements Serializable {
 
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
                 PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/edit");
             }else{
-                PageUtil.fireErrorMessage("Error while trying to save organization data");
+                PageUtil.fireErrorMessage("Error creating the organization");
             }
         }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
@@ -137,7 +137,7 @@ public class OrganizationEditBean implements Serializable {
             PageUtil.fireErrorMessage("Organization with this name already exists");
         } catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save organization data");
+            PageUtil.fireErrorMessage("Error creating the organization");
         }
     }
 
@@ -148,10 +148,10 @@ public class OrganizationEditBean implements Serializable {
 
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
-            PageUtil.fireSuccessfulInfoMessage("Organization updated");
+            PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
         } catch (DbConnectionException e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to update organization data");
+            PageUtil.fireErrorMessage("Error updating the organization");
         } catch (EventException e) {
             logger.error(e);
         }

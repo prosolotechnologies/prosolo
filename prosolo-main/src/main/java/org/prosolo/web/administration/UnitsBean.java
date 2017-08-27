@@ -85,7 +85,7 @@ public class UnitsBean implements Serializable {
                     this.unit.getParentUnitId(), loggedUser.getUserContext(idEncoder.decodeId(organizationId)));
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
-            PageUtil.fireSuccessfulInfoMessage("New unit is created");
+            PageUtil.fireSuccessfulInfoMessage("New unit has been created");
 
             this.unit = new UnitData();
             loadUnits();
@@ -116,7 +116,7 @@ public class UnitsBean implements Serializable {
             try {
                 unitManager.deleteUnit(this.unitToDelete.getId());
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("The unit " + unitToDelete.getTitle() + " has been deleted");
                 this.unitToDelete = new UnitData();
                 loadUnits();
             } catch (IllegalStateException ise) {

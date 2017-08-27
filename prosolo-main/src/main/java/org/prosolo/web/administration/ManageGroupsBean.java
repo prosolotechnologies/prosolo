@@ -118,7 +118,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			if (groupForEdit.getId() > 0) {
 				userGroupManager.updateJoinUrl(groupForEdit.getId(), groupForEdit.isJoinUrlActive(), groupForEdit.getJoinUrlPassword(),
 						loggedUserBean.getUserContext(decodedOrgId));
-				PageUtil.fireSuccessfulInfoMessage("Join by URL settings updated");
+				PageUtil.fireSuccessfulInfoMessage("Join by URL settings are updated");
 			}
 			groupForEdit = null;
 		} catch (Exception ex) {

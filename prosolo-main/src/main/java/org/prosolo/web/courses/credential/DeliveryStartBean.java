@@ -48,12 +48,8 @@ public class DeliveryStartBean implements Serializable {
 			logger.error(ee);
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
-			try {
-				String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";
-				PageUtil.fireErrorMessage(growlMessage);
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}
+			String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";
+			PageUtil.fireErrorMessage(growlMessage);
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());

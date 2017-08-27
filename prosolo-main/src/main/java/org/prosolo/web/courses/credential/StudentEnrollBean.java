@@ -131,7 +131,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 			String service = PageUtil.getPostParameter("service");
 			credManager.enrollStudentsInCredential(credId, loggedUserBean.getUserId(), studentsToEnroll,
 					loggedUserBean.getUserContext(new LearningContextData(page, context, service)));
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

@@ -47,7 +47,7 @@ public class NotificationsSettingsBean implements Serializable {
 	public void saveChanges() {
 		notificationsSettingsManager.updateNotificationSettings(loggedUser.getNotificationsSettings(), this.notificationsSettings);
 		
-		PageUtil.fireSuccessfulInfoMessage(":notificationsSettingsForm:notificationsSettingsForm", "Notifications settings updated!");
+		PageUtil.fireSuccessfulInfoMessage(":notificationsSettingsForm:notificationsSettingsForm", "Notifications settings have been updated");
 	}
 
 	

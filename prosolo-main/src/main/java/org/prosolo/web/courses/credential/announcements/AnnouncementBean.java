@@ -140,7 +140,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()), page, 
 				lContext, service, idEncoder.decodeId(credentialId));
 		
-		PageUtil.fireSuccessfulInfoMessage("Announcement published");
+		PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
 		init();
 	}
 	

@@ -213,10 +213,10 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.addComment(newComment);
 				commentsData.incrementNumberOfComments();
         	}
-        	PageUtil.fireSuccessfulInfoMessage("Comment posted");
+        	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (DbConnectionException e) {
     		logger.error(e);
-    		PageUtil.fireErrorMessage("Error while adding new comment");
+    		PageUtil.fireErrorMessage("Error posting a comment");
     	}
 		
 //		taskExecutor.execute(new Runnable() {

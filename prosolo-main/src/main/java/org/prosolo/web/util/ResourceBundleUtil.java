@@ -71,9 +71,15 @@ public class ResourceBundleUtil {
 			throw new KeyNotFoundInBundleException("Key '"+key+"' is not found in the bundle '"+path+"'");
 		}
 	}
-	
-	public static String getMessage(String key, Object... params) throws KeyNotFoundInBundleException {
-		return getMessage(key, new Locale("en", "US"), params);
+
+	public static String getMessage(String key, Object... params) {
+		try {
+			return getMessage(key, new Locale("en", "US"), params);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
 	}
 
 	public static String getMessage(String key, Locale locale, Object... params) throws KeyNotFoundInBundleException {
