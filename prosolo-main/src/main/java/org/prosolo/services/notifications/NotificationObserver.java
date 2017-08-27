@@ -128,7 +128,7 @@ public class NotificationObserver extends EventObserver {
 									public void run() {
 										Session session = (Session) defaultManager.getPersistence().openSession();
 										try {
-											String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
+											String email = notificationData.getReceiver().getEmail();
 											logger.info("Sending notification via email to " + email);
 											
 											boolean sent = notificationManager.sendNotificationByEmail(
@@ -145,7 +145,7 @@ public class NotificationObserver extends EventObserver {
 													session);
 											
 											if (sent) {
-												logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
+												logger.info("Email notification to " + email + " is sent.");
 											} else {
 												logger.error("Error sending email notification to " + email);
 											}
