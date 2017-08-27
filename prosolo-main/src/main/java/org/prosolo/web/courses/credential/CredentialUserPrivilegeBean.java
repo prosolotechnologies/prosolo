@@ -182,12 +182,11 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		try {
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a "
-					+ ResourceBundleUtil.getLabel("credential").toLowerCase());
+			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (EventException ee) {
 			logger.error(ee);
 		}

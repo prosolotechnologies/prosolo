@@ -3,11 +3,14 @@ package org.prosolo.web.achievements;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -47,8 +50,8 @@ public class CompetenceAchievementsBean implements Serializable {
 			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCompetence1List);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Competency data could not be loaded!");
 			logger.error("Error while loading target competencies with progress == 100 Error:\n" + e);
+			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " data could not be loaded!");
 		}
 	}
 
@@ -58,10 +61,10 @@ public class CompetenceAchievementsBean implements Serializable {
 	
 		try {
 			competenceManager.updateHiddenTargetCompetenceFromProfile(id, hiddenFromProfile);
-			String hiddenOrShown = hiddenFromProfile ? "hidden from" : "shown in";
-			PageUtil.fireSuccessfulInfoMessage("Competency is successfully " + hiddenOrShown + " profile.");
+			String hiddenOrShown = hiddenFromProfile ? "hidden from" : "displayed in";
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " will be " + hiddenOrShown + " your profile");
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while updating competency visibility in a profile");
+			PageUtil.fireErrorMessage("Error updating the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " visibility");
 			logger.error("Error while updating competency visibility in a profile!\n" + e);
 		}
 	}

@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.*;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
@@ -18,9 +17,8 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
@@ -38,7 +36,7 @@ import java.util.Map;
 /**
  * @author Bojan
  * @date 2017-07-04
- * @since 0.7
+ * @since 1.0.0
  */
 
 @Service("org.prosolo.services.nodes.UnitManager")
@@ -49,11 +47,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Autowired
     private EventFactory eventFactory;
     @Inject
-    private OrganizationManager organizationManager;
+    private UserGroupManager userGroupManager;
     @Inject
     private UnitManager self;
-    @Inject
-    private RoleManager roleManager;
 
     public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
@@ -237,6 +233,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 .setLong("unitId", unitId)
                 .setLong("roleId", roleId)
                 .uniqueResult();
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+
+        if (unitId > 0 && roleId > 0 && groupId > 0) {
+            res.addEvents(addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context).getEvents());
+            res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(groupId, userId, context).getEvents());
+        }
+        return res;
+    }
+
+    @Override
+    //nt
+    public void addUserToUnitAndGroupWithRole(long userId, long unitId, long roleId, long groupId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addUserToUnitAndGroupWithRoleAndGetEvents(userId, unitId, roleId, groupId, context);
+
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
     }
 
     @Override

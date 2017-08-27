@@ -53,10 +53,10 @@ public class ActivityResultBean implements Serializable {
 			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(),
 					loggedUser.getUserContext());
 			
-			PageUtil.fireSuccessfulInfoMessage("Response updated");
+			PageUtil.fireSuccessfulInfoMessage("The response have been updated");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving response");
+			PageUtil.fireErrorMessage("Error updating the response");
 		}
 	}
 	

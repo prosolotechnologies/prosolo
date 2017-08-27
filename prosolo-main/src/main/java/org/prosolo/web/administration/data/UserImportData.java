@@ -3,7 +3,7 @@ package org.prosolo.web.administration.data;
 /**
  * @author stefanvuckovic
  * @date 2017-08-09
- * @since 0.7
+ * @since 1.0.0
  */
 public class UserImportData {
 

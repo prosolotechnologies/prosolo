@@ -23,16 +23,16 @@ public class Organization extends BaseEntity {
 
 	private List<User> users;
 	private List<Unit> units;
-	
+
 	@OneToMany(mappedBy = "organization")
 	public List<User> getUsers(){
 		return users;
 	}
-	
+
 	public void setUsers(List<User> users){
 		this.users = users;
 	}
-	
+
 	@OneToMany(mappedBy = "organization")
 	public List<Unit> getUnits(){
 		return units;
@@ -41,4 +41,5 @@ public class Organization extends BaseEntity {
 	public void setUnits(List<Unit> units){
 		this.units = units;
 	}
+
 }

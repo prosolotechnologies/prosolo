@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Bojan
  * @date 2017-07-04
- * @since 0.7
+ * @since 1.0.0
  */
 public interface UnitManager extends AbstractManager{
 
@@ -38,6 +38,9 @@ public interface UnitManager extends AbstractManager{
 
     void addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException, EventException;
 
+    Result<Void> addUserToUnitAndGroupWithRoleAndGetEvents(long userId, long unitId, long roleId, long groupId, UserContextData context);
+
+    void addUserToUnitAndGroupWithRole(long userId, long unitId, long roleId, long groupId, UserContextData context) throws EventException;
 
     void removeUserFromUnitWithRole(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException, EventException;
 

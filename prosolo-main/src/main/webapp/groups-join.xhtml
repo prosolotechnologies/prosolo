@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
->
+                xmlns:util="http://www.prosolo.com/util">
 
     <ui:define name="windowTitle">
         Join Group
@@ -42,11 +42,19 @@
                             <p:growl id="growlJoinSuccess" showDetail="true" for="growlJoinSuccess" severity="info error" />
 
                             <h2>Join group</h2>
-                            <p>Please enter the password to join the group #{joinGroupBean.groupData.name}:</p>
+                            <p>
+                                By clicking the Join button, you will be added to the group #{joinGroupBean.groupData.name}.
+                                <ui:fragment rendered="#{joinGroupBean.groupData.joinUrlPasswordRequired}">
+                                    Please enter the password to join the group:
+                                </ui:fragment>
+                            </p>
 
-                            <h:inputSecret id="password"
-                                           disabled="#{joinGroupBean.joinButtonDisabled}"
-                                           value="#{joinGroupBean.password}" />
+                            <ui:fragment rendered="#{joinGroupBean.groupData.joinUrlPasswordRequired}">
+                                <h:inputSecret id="password"
+                                               disabled="#{joinGroupBean.joinButtonDisabled}"
+                                               value="#{joinGroupBean.password}" />
+                            </ui:fragment>
+
 
                             <h:panelGroup id="errorMessage">
                                 <h:panelGroup
@@ -63,8 +71,11 @@
                                            styleClass="btn btn-green #{joinGroupBean.joinButtonDisabled ? 'disabled' : ''}"
                                            action="#{joinGroupBean.join()}"
                                            disabled="#{joinGroupBean.joinButtonDisabled}"
-                                           value="Join"
-                                           update="@form" />
+                                           update="@form">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="name:group_join|id:#{util:decodeId(param['id'])}" />
+                                Join
+                            </p:commandLink>
                             <p:defaultCommand target="join" />
                         </h:form>
                     </div>

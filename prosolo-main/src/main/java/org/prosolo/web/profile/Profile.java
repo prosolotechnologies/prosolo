@@ -162,13 +162,13 @@ public class Profile {
 					});
 					this.message = "";
 					
-					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Message sent");
+					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Your message is sent");
 				} catch (Exception e) {
 					logger.error(e);
 				}
 			}
 			else {
-				PageUtil.fireErrorMessage("Canno't send message to self!");
+				PageUtil.fireErrorMessage("Can not send a message to yourself");
 				logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
 			}
 		}

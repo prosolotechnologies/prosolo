@@ -101,7 +101,7 @@ public class UsersImportingBean implements Serializable {
 				logger.error(e);
 			}
 
-			PageUtil.fireSuccessfulInfoMessage("File "+event.getFile().getFileName()+" is uploaded. Created "+noUsersCreated+" participants, couldn't create "+noUsersDidntCreated+" participants.");
+			PageUtil.fireSuccessfulInfoMessage("The file "+event.getFile().getFileName()+" has been uploaded. Created "+noUsersCreated+" users, but there was a problem creating "+noUsersDidntCreated+" users.");
 		}
 	}
 	

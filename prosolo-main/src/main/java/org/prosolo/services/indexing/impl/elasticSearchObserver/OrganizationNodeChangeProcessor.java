@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @author Stefan Vuckovic
  * @date 2017-06-21
- * @since 0.7
+ * @since 1.0.0
  */
 public class OrganizationNodeChangeProcessor implements NodeChangeProcessor {
 

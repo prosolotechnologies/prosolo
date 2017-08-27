@@ -28,8 +28,12 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSString;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,6 +53,8 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 	private RoleManager roleManager;
 	@Inject
 	private UserManager userManager;
+	@Inject
+	private UnitManager unitManager;
 	
 	@Override
 	public Object loadUserBySAML(SAMLCredential credential)
@@ -97,8 +103,12 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
 
-				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(0, fName,
+				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(1, fName,
 						lName, email, true, UUID.randomUUID().toString(), null, null, null, roles);
+
+				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+
+				unitManager.addUserToUnitWithRole(user.getId(), 1, roleId, UserContextData.empty());
 				
 				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
 				

@@ -306,10 +306,10 @@ public class ActivityViewBeanUser implements Serializable {
 				logger.error(e);
 			}
 			
-			PageUtil.fireSuccessfulInfoMessage("Activity Completed");
+			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
+			PageUtil.fireErrorMessage("Error marking the activity as completed");
 		}
 	}
 	

@@ -315,6 +315,10 @@
 		                        	placeholder="File title..."
 									value="#{activityEditBean.resLinkToAdd.linkName}">
 		                        </h:inputText>
+
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">File title must be entered</small>
+								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
 		                        	<utilcomp:simpleFileUpload
@@ -323,18 +327,16 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
 
-								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
-									<small class="redText">File title must be entered</small><br/>
-								</ui:fragment>
-								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
-									<small class="redText">File must be uploaded</small>
-								</ui:fragment>
+								<h:panelGroup  id="fileUploadMessagePanel" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">File must be uploaded</small>
+								</h:panelGroup>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -369,7 +371,11 @@
 		                        	requiredMessage="Url title must be entered"
 									autocomplete="off">
 		                        </h:inputText>
-		                        
+
+								<h:panelGroup id="errorMessageUrlTitle">
+									<small class="redText bottom20 topMinus20 displayBlock"><h:message for="inputUrlTitle" /></small>
+								</h:panelGroup>
+
 		                        <h:inputText id="inputUrl"
 		                        	placeholder="http://..."
 		                        	value="#{activityEditBean.resLinkToAdd.url}"
@@ -378,6 +384,10 @@
 		                        	validator="urlValidator"
 									autocomplete="off">
 		                        </h:inputText>
+
+								<h:panelGroup id="errorMessageUrl">
+									<small class="redText bottom2 0 topMinus20 displayBlock"><h:message for="inputUrl" /></small>
+								</h:panelGroup>
 		                        
 								<div class="checkbox checkLine">
 									<input type="checkbox" id="checkPassID" onchange="$('#addParameterContainer').fadeToggle();"/>
@@ -406,10 +416,7 @@
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
 
-		                        <h:panelGroup id="errorMessages">
-									<small class="redText"><h:message for="inputUrlTitle" /></small><br/>
-									<small class="redText"><h:message for="inputUrl" /></small>
-		                        </h:panelGroup>
+
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -418,10 +425,10 @@
 		                    		styleClass="btn btn-green"
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
-		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks"
-		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    		update="errorMessageUrlTitle errorMessageUrl :#{cc.clientId}:formMain:activityPanel:panelLinks"
+		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">
 		                    	</p:commandLink>
-		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>
 		                </h:panelGroup>
 		            </div>
@@ -444,6 +451,10 @@
 		                        	placeholder="Language"
 									value="#{activityEditBean.resLinkToAdd.linkName}">
 		                        </h:inputText>
+
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">Language must be entered</small>
+								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
 		                        	<utilcomp:simpleFileUpload
@@ -452,22 +463,19 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
 
-								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
-									<small class="redText">Language must be entered</small>
-								</ui:fragment>
-								
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
-									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
-										  <small class="redText">Subtitles must be uploaded</small>
-									  </ui:fragment>
+									  <h:panelGroup id="subtitleUploadMessagePanel" rendered="#{empty activityEditBean.resLinkToAdd.url}">
+										  <small class="redText bottom5 topMinus20 displayBlock">Subtitles must be uploaded</small>
+									  </h:panelGroup>
 									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
-										  <small class="redText">Invalid file. Only SRT format allowed.</small>
+										  <small class="redText bottom5 topMinus20 displayBlock">Invalid file. Only SRT format allowed.</small>
 									  </ui:fragment>
 								</ui:fragment>
 		                    </div>

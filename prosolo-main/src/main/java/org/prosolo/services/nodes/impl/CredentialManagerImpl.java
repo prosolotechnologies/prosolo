@@ -3165,4 +3165,70 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		logger.info("Owner updated for " + affected + " credentials");
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfUncompletedDeliveries(long userId) throws DbConnectionException {
+		return getIdsOfDeliveriesUserIsLearning(userId, UserLearningProgress.IN_PROGRESS);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfDeliveriesUserIsLearning(long userId, UserLearningProgress progress)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential1.credential.id " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"WHERE targetCredential1.user.id = :userid ";
+
+			switch (progress) {
+				case COMPLETED:
+					query += "AND targetCredential1.progress = 100";
+					break;
+				case IN_PROGRESS:
+					query += "AND targetCredential1.progress < 100";
+					break;
+				default:
+					break;
+			}
+
+			List<Long> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.list();
+
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving deliveries");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT cred.id " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"INNER JOIN targetCredential1.credential cred " +
+					"INNER JOIN cred.competences comp " +
+					"WITH comp.competence.id = :compId " +
+					"WHERE targetCredential1.user.id = :userid";
+
+
+			List<Long> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.setLong("compId", compId)
+					.list();
+
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving deliveries");
+		}
+	}
+
 }

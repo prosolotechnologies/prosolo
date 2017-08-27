@@ -16,6 +16,7 @@ public class UserGroupData implements Serializable {
 	private boolean isUserInGroup;
 	private boolean joinUrlActive;
 	private String joinUrlPassword;
+	private boolean joinUrlPasswordRequired;
 	private boolean canBeDeleted;
 	private long unitId;
 	
@@ -42,6 +43,7 @@ public class UserGroupData implements Serializable {
 		this.name = group.getName();
 		this.joinUrlActive = group.isJoinUrlActive();
 		this.joinUrlPassword = group.getJoinUrlPassword();
+		this.joinUrlPasswordRequired = joinUrlPassword != null && joinUrlPassword.length() > 0;
 		this.unitId = group.getUnit().getId();
 	}
 
@@ -109,5 +111,13 @@ public class UserGroupData implements Serializable {
 
 	public long getUnitId() {
 		return unitId;
+	}
+
+	public boolean isJoinUrlPasswordRequired() {
+		return joinUrlPasswordRequired;
+	}
+
+	public void setJoinUrlPasswordRequired(boolean joinUrlPasswordRequired) {
+		this.joinUrlPasswordRequired = joinUrlPasswordRequired;
 	}
 }

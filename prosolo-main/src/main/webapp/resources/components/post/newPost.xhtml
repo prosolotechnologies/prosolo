@@ -79,8 +79,7 @@
 			 	styleClass="inputHiddenPageSelector"
 			 	value="#{userSearchBean.page}">
 			 </h:inputText>
-			 
-					
+
              <div class="linkLoaderContainer" style="display:none;"></div>
              
              <post:attachmentPreview id="link"
@@ -109,6 +108,7 @@
                  	pt:data-toggle="modal"
                  	process="@this"
 					update=":#{cc.clientId}:formUploadFile:panelUploadFileModalContent"
+					action="#{activityWallBean.prepareModal}"
                		oncomplete="$('#uploadFileModal').modal('show');">
                  	<span></span>Upload file
                  </p:commandLink>
@@ -134,26 +134,31 @@
 				            		fileUploadListenerMethod="#{activityWallBean.handleFileUpload}"
 				            		toUpdate=":#{cc.clientId}:formUploadFile:growlFileUpload :#{cc.clientId}:formUploadFile:panelFileName :#{cc.clientId}:formUploadFile:inputTextFileTitle"
 				            		uploadButtonStyle="btn btn-green btn-sm"
-	                        	/>
+									oncomplete="$('#newPost\\:formUploadFile\\:fileUploadMessagePanel').hide();"/>
+
                                 <h:panelGroup id="panelFileName">
                                 	#{activityWallBean.uploadFile.fileName}
                                 </h:panelGroup>
                             </div>
+							<h:panelGroup id="fileUploadMessagePanel" rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}">
+								<small class="redText bottom30 topMinus30 displayBlock">File must be uploaded</small>
+							</h:panelGroup>
                             
                             <h:inputText id="inputTextFileTitle"
                             	placeholder="Title"
-                            	value="#{activityWallBean.uploadFile.title}">
+                            	value="#{activityWallBean.uploadFile.title}"
+								autocomplete="off">
                             </h:inputText>
-                            <h:inputTextarea 
+
+							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}">
+								<small class="redText bottom5 topMinus30 displayBlock">File title must be entered</small><br/>
+							</ui:fragment>
+
+                            <h:inputTextarea
+									id="inputTextFileDesc"
                             	placeholder="Description..."
                             	value="#{activityWallBean.uploadFile.description}">
                             </h:inputTextarea>
-							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}">
-								<small class="redText bottom30 topMinus30 displayBlock">File title must be entered</small><br/>
-							</ui:fragment>
-							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}">
-								<small class="redText bottom30 topMinus30 displayBlock">File must be uploaded</small>
-							</ui:fragment>
                         </div>
                         <div class="modal-footer alignLeft">
                         	<p:commandLink
@@ -163,7 +168,9 @@
 		                  	  	update=":#{cc.clientId}:formUploadFile:panelUploadFileModalContent :#{cc.clientId}:formPost:link"
 		                  	  	oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFileModal').modal('hide'); afterUploadFile();};">
 		                  	</p:commandLink>
-                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							
                              <h:panelGroup id="panelAfterUploadFile" style="display:none;">
 							 	<script>
 							 		function afterUploadFile() {
