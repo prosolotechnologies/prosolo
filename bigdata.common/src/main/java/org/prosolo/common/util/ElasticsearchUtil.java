@@ -37,6 +37,10 @@ public class ElasticsearchUtil {
         return "_" + organizationId;
     }
 
+    public static String getRubricIndexSuffix(long rubricId){
+        return "_" + rubricId;
+    }
+
     /**
      *
      * @param date

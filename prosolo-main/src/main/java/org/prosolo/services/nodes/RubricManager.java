@@ -30,4 +30,6 @@ public interface RubricManager extends AbstractManager {
             throws DbConnectionException;
 
     void deleteRubric(long rubricId) throws DbConnectionException, EventException;
+
+    String getRubricName(long id);
 }

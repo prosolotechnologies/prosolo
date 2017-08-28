@@ -67,11 +67,14 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             saveEntity(rubric);
 
+            Rubric r = new Rubric();
+            r.setId(rubric.getId());
+
             Result<Rubric> res = new Result<>();
 
             res.addEvent(eventFactory.generateEventData(
                     EventType.Create, context.getActorId(), context.getOrganizationId(),
-                    context.getSessionId(), rubric, null, context.getContext(), null));
+                    context.getSessionId(), r, null, context.getContext(), null));
 
             res.setResult(rubric);
             return res;
@@ -98,7 +101,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                             "WHERE rubric.organization =:organizationId " +
                             "AND rubric.deleted is FALSE";
 
-            Query q = persistence.currentManager().createQuery(query).setLong("organizationId",organizationId);
+            Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
             if (page >= 0 && limit > 0) {
                 q.setFirstResult(page * limit);
                 q.setMaxResults(limit);
@@ -123,13 +126,26 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     @Override
     public void deleteRubric(long rubricId) throws DbConnectionException {
         Rubric rubric = null;
-        try{
+        try {
             rubric = loadResource(Rubric.class, rubricId);
             rubric.setDeleted(true);
             saveEntity(rubric);
         } catch (ResourceCouldNotBeLoadedException e) {
             throw new DbConnectionException("Error while deleting rubric");
         }
+    }
+
+    @Override
+    @Transactional
+    public String getRubricName(long id) {
+        Rubric rubric = null;
+        try {
+            rubric = loadResource(Rubric.class, id);
+            return rubric.getTitle();
+        } catch (ResourceCouldNotBeLoadedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private Long getOrganizationRubricsCount(long organizationId) {
