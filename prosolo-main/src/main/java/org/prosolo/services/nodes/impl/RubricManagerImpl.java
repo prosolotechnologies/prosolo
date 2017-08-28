@@ -1,11 +1,8 @@
 package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
-<<<<<<< HEAD
 import org.hibernate.Query;
-=======
 import org.hibernate.ObjectNotFoundException;
->>>>>>> PRS-2762-create-rubric
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
