@@ -4,14 +4,17 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -20,6 +23,7 @@ import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -58,6 +62,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private ResourceVisibilityUtil resVisibilityUtil;
 
 	private UserGroupPrivilege privilege;
+
+	private long newOwnerId;
 	
 	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -176,11 +182,11 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		try {
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a credential");
+			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (EventException ee) {
 			logger.error(ee);
 		}
@@ -192,6 +198,23 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
 			}
+		}
+	}
+
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			credManager.changeOwner(credentialId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -269,5 +292,9 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	public long getCredentialId() {
 		return credentialId;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

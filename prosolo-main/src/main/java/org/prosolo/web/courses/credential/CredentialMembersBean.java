@@ -230,7 +230,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 			studentToAssignInstructor = null;
 			credentialInstructors = null;
-			PageUtil.fireSuccessfulInfoMessage("Instructor successfully " + action);
+			PageUtil.fireSuccessfulInfoMessage("The instructor has been " + action);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		} catch (EventException e) {

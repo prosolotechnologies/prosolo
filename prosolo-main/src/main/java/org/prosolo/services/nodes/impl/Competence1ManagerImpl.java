@@ -2229,15 +2229,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						newCreatorId, id, UserGroupPrivilege.Edit, context).getEvents());
 
 				//for all competencies change_owner event should be generated
-				Competence1 comp = new Competence1();
-				comp.setId(id);
-				Map<String, String> params = new HashMap<>();
-				params.put("oldOwnerId", oldCreatorId + "");
-				params.put("newOwnerId", newCreatorId + "");
-				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE,
-						context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), comp, null,
-						context.getContext(), params));
+				result.addEvent(getOwnerChangeEvent(id, oldCreatorId, newCreatorId, context));
 			}
 			return result;
 		} catch (Exception e) {
@@ -2245,6 +2237,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");
 		}
+	}
+
+	private EventData getOwnerChangeEvent(long compId, long oldOwnerId, long newOwnerId, UserContextData context) {
+		Competence1 comp = new Competence1();
+		comp.setId(compId);
+		Map<String, String> params = new HashMap<>();
+		params.put("oldOwnerId", oldOwnerId + "");
+		params.put("newOwnerId", newOwnerId + "");
+		return eventFactory.generateEventData(EventType.OWNER_CHANGE,
+				context.getActorId(), context.getOrganizationId(),
+				context.getSessionId(), comp, null,
+				context.getContext(), params);
 	}
 	
 	@Override
@@ -2336,6 +2340,31 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	//nt
+	public void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException {
+		for (EventData ev : self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+
+			long oldOwnerId = comp.getCreatedBy().getId();
+
+			comp.setCreatedBy((User) persistence.currentManager().load(User.class, newOwnerId));
+
+			return Result.of(Arrays.asList(getOwnerChangeEvent(compId, oldOwnerId, newOwnerId, context)));
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while changing the competency owner");
 		}
 	}
 

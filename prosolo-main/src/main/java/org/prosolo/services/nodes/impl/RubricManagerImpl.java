@@ -1,7 +1,11 @@
 package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
+<<<<<<< HEAD
 import org.hibernate.Query;
+=======
+import org.hibernate.ObjectNotFoundException;
+>>>>>>> PRS-2762-create-rubric
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -42,10 +46,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     private RubricManager self;
 
     @Override
-    public Rubric createNewRubric(String name, long creatorId, long organizationId, UserContextData context) throws DbConnectionException,
+    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
             EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Rubric> res = self.createNewRubricAndGetEvents(name, creatorId, organizationId, context);
+        Result<Rubric> res = self.createNewRubricAndGetEvents(name, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -53,17 +57,20 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, long organizationId, UserContextData context) throws
-            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+    public Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context) throws DbConnectionException,
+            ConstraintViolationException, DataIntegrityViolationException {
         try {
             Rubric rubric = new Rubric();
-            User user = new User();
-            Organization organization = new Organization();
-            organization.setId(organizationId);
-            user.setId(creatorId);
-            rubric.setTitle(name);
-            rubric.setCreator(user);
-            rubric.setOrganization(organization);
+            User user = (User) persistence.currentManager().load(User.class,
+                    context.getActorId());
+            Organization organization = (Organization) persistence.currentManager().load(Organization.class,
+                    context.getOrganizationId());
+
+            if (organization.getTitle() != null) {
+                rubric.setTitle(name);
+                rubric.setCreator(user);
+                rubric.setOrganization(organization);
+            }
 
             saveEntity(rubric);
 
@@ -75,6 +82,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             res.setResult(rubric);
             return res;
+        } catch (ObjectNotFoundException ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+            throw ex;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();
@@ -82,7 +93,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving rubric");
+            throw new DbConnectionException("Error while saving rubric data");
         }
     }
 

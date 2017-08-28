@@ -61,12 +61,7 @@ public class CredentialViewBeanManager implements Serializable {
 				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	

@@ -115,7 +115,7 @@ public class OtherSettingsBean implements Serializable {
 	public void updateSymptom() {
 		try {
 			saveSymptom(symptomForEdit.getId(), symptomForEdit.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Symptom updated");
+			PageUtil.fireSuccessfulInfoMessage("The symptom has been updated");
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
@@ -142,7 +142,7 @@ public class OtherSettingsBean implements Serializable {
 	public void updateSuggestion() {
 		try {
 			saveSuggestion(suggestionForEdit.getId(), suggestionForEdit.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Suggestion updated");
+			PageUtil.fireSuccessfulInfoMessage("The suggestion has been updated");
 		}catch(Exception e){
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
@@ -161,7 +161,7 @@ public class OtherSettingsBean implements Serializable {
 			symptomManager.deleteSymptom(symptomForEdit.getId());
 			symptomForEdit = null;
 			loadSymptoms();
-			PageUtil.fireSuccessfulInfoMessage("Symptom deleted");
+			PageUtil.fireSuccessfulInfoMessage("The symptom has been deleted");
 		}catch(DbConnectionException e){
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
@@ -172,7 +172,7 @@ public class OtherSettingsBean implements Serializable {
 			suggestionManager.deleteSuggestion(suggestionForEdit.getId());
 			suggestionForEdit = null;
 			loadSuggestions();
-			PageUtil.fireSuccessfulInfoMessage("Suggestion deleted");
+			PageUtil.fireSuccessfulInfoMessage("The suggestion has been deleted");
 		}catch(DbConnectionException e){
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

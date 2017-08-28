@@ -60,39 +60,9 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')}">
-						<div class="dropdown roleChanger">
-							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
-							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/index">
-										<span></span>Student
-									</h:link>
-								</li>
-								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/manage/library">
-										<span></span>Manage
-									</h:link>
-								</li>
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
-										outcome="/admin/organizations">
-										<span></span>Admin
-									</h:link>
-								</li>
-							</ul>
-						</div>
-					</c:if>
-					
-					<h:link id="logo" onclick="sendLogPageNavigation( '/manage', 'logo');"
-							outcome="/manage/library">
-						ProSolo
-					</h:link>
+					<ui:include src="/WEB-INF/roleChanger.xhtml">
+						<ui:param name="section" value="MANAGE" />
+					</ui:include>
 
 					<nav>
 						<ul class="nav nav-pills">

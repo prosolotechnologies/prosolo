@@ -91,7 +91,7 @@ public class ExternalToolDetailsBean implements Serializable {
 			try {
 				toolManager.updateLtiTool(tool);
 				logger.info("LTI tool updated");
-				PageUtil.fireSuccessfulInfoMessage("External tool updated");
+				PageUtil.fireSuccessfulInfoMessage("The external tool has been updated");
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
@@ -114,7 +114,7 @@ public class ExternalToolDetailsBean implements Serializable {
 						tool = it.next();
 						toolData.setLaunchUrl(tool.getFullLaunchURL());
 						toolData.setRegUrl(ts.getFullRegistrationURL());
-						PageUtil.fireSuccessfulInfoMessage("External tool saved");
+						PageUtil.fireSuccessfulInfoMessage("The external tool is saved");
 						toolData.setInitialized(true);
 					} catch (Exception e) {
 						PageUtil.fireErrorMessage(e.getMessage());

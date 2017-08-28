@@ -149,7 +149,7 @@ public class CredentialFeedsBean implements Serializable {
 					credentialFeeds.add(feedToEdit);
 				}
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(EntityAlreadyExistsException | DbConnectionException e) {
 			if(edit) {
 				boolean found = findFeedAndUpdateLink(credentialFeeds);
@@ -178,7 +178,7 @@ public class CredentialFeedsBean implements Serializable {
 		try {
 			credentialManager.removeFeed(decodedId, feedToEdit.getId());
 			credentialFeeds.remove(feedToEdit);
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

@@ -121,13 +121,7 @@ public class ActivityViewBeanUser implements Serializable {
 				
 				//if user is enrolled he can always access the resource
 				if (!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/accessDenied.xhtml");
-					} catch (IOException e) {
-						e.printStackTrace();
-						logger.error(e);
-					}
+					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false, false);
@@ -153,23 +147,14 @@ public class ActivityViewBeanUser implements Serializable {
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
 			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 
@@ -306,10 +291,10 @@ public class ActivityViewBeanUser implements Serializable {
 				logger.error(e);
 			}
 			
-			PageUtil.fireSuccessfulInfoMessage("Activity Completed");
+			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
+			PageUtil.fireErrorMessage("Error marking the activity as completed");
 		}
 	}
 	

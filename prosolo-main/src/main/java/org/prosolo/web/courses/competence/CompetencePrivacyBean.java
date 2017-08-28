@@ -88,12 +88,12 @@ public class CompetencePrivacyBean implements Serializable {
 						loggedUserBean.getUserContext(
 								PageUtil.extractLearningContextDataFromComponent(comp)));
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch (DbConnectionException e) {
 			//change selection status to previous one since saving failed
 			unit.changeSelectionStatus();
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error occurred");
+			PageUtil.fireErrorMessage("An error has occurred");
 		} catch (EventException ee) {
 			logger.error(ee);
 		}

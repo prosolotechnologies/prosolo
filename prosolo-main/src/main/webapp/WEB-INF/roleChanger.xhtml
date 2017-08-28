@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+        <c:if test="#{section eq 'STUDENT' and (loggeduser.hasCapability('basic.manager.access')  or loggeduser.hasCapability('basic.instructor.access') or loggeduser.hasCapability('basic.admin.access'))
+            or section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access'))
+            or section eq 'ADMIN' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access'))}">
+            <div class="dropdown roleChanger">
+                <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
+                <ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
+                    <li class="#{section eq 'STUDENT' ? 'selected' : ''}">
+                        <h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
+                                onclick="sendLogPageNavigation( '/index', 'mainmenu');"
+                                outcome="/index">
+                            <span></span>Student
+                        </h:link>
+                    </li>
+                    <li class="#{section eq 'MANAGE' ? 'selected' : ''}">
+                        <h:link rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
+                                onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
+                                outcome="/manage/library">
+                            <span></span>Manage
+                        </h:link>
+                    </li>
+                    <li class="#{section eq 'ADMIN' ? 'selected' : ''}">
+                        <h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+                                onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
+                                outcome="/admin/organizations">
+                            <span></span>Admin
+                        </h:link>
+                    </li>
+                </ul>
+
+            </div>
+        </c:if>
+
+        <h:link id="logo"
+                onclick="sendLogPageNavigation('#{section eq &quot;STUDENT&quot; ? &quot;/index&quot; : section eq &quot;MANAGE&quot; ? &quot;/manage&quot; : &quot;/admin&quot; }','logo');"
+                outcome="#{section eq 'STUDENT' ? '/index' : section eq 'MANAGE' ? '/manage/library' : '/admin/organizations'}">
+            ProSolo
+        </h:link>
+</ui:composition>

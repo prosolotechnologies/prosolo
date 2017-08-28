@@ -16,8 +16,6 @@ public class RubricData {
     private String creatorFullName;
     private long creatorId;
 
-    public RubricData(){}
-
     public RubricData(Rubric rubric) {
         this.id = rubric.getId();
         this.name = rubric.getTitle();
@@ -65,4 +63,5 @@ public class RubricData {
     public void setCreatorId(long creatorId) {
         this.creatorId = creatorId;
     }
+
 }

@@ -1290,6 +1290,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				return new ArrayList<>();
 			}
 
+			//TODO hack - when retrieving comments for students, retrieve only comments from users learning same credentials
+			List<Long> deliveries = null;
+			if (!isManager) {
+				//userToExclude is user for which we are returning results - another hack
+				deliveries = credManager.getIdsOfDeliveriesUserIsLearningContainingCompetence(userToExclude, compId);
+				if (deliveries.isEmpty()) {
+					return new ArrayList<>();
+				}
+			}
+
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
 			   "SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
@@ -1347,8 +1357,20 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				   		 "LEFT JOIN comment1 com " +
 				   			"ON (targetAct.id = com.commented_resource_id " +
 				   			"AND com.resource_type = :resType " +
-				   			"AND com.parent_comment is NULL) " +
-				   		 "WHERE targetAct.result is not NULL ");
+				   			"AND com.parent_comment is NULL) ");
+
+			if (isManager && credId > 0) {
+				//TODO hack - if it is manager and credential id is greater than 0, load only responses from students learning that credential
+				query.append("INNER JOIN target_credential1 cred " +
+						"ON cred.user = targetComp.user AND cred.credential = :credId ");
+			}
+
+			query.append("WHERE targetAct.result is not NULL ");
+
+			if (!isManager) {
+				query.append("AND EXISTS " +
+						"(SELECT cred.id from target_credential1 cred WHERE cred.user = targetComp.user AND cred.credential IN (:credentials)) ");
+			}
 			
 			if (filter != null && credId > 0) {
 				if (filter == StudentAssessedFilter.Assessed) {
@@ -1390,6 +1412,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			if (userToExclude > 0) {
 				q.setLong("userId", userToExclude);
+			}
+			if (!isManager) {
+				q.setParameterList("credentials", deliveries);
+			} else if (credId > 0) {
+				q.setLong("credId", credId);
 			}
 			if ((returnAssessmentData || filter != null) && credId > 0) {
 				q.setBoolean("boolTrue", true);
@@ -1591,7 +1618,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						commentsData.getResourceId(), false, 0, 
 						commentDataFactory.getCommentSortData(commentsData), 
 						CommentReplyFetchMode.FetchReplies, 
-						loggedUserId);
+						loggedUserId, false);
 				
 				Collections.reverse(comments);
 				

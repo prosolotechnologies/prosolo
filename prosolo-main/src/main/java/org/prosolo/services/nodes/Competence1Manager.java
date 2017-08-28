@@ -380,4 +380,7 @@ public interface Competence1Manager {
 	 */
 	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
+	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
+
+	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
 }

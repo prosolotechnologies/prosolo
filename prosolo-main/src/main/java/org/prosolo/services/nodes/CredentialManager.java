@@ -455,4 +455,16 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getDeliveryIdsForCredential(long credId) throws DbConnectionException;
 
+	void changeOwner(long credId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
+
+	Result<Void> changeOwnerAndGetEvents(long credId, long newOwnerId, UserContextData context) throws DbConnectionException;
+
+	List<Long> getIdsOfUncompletedDeliveries(long userId) throws DbConnectionException;
+
+	List<Long> getIdsOfDeliveriesUserIsLearning(long userId, UserLearningProgress progress)
+			throws DbConnectionException;
+
+	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
+			throws DbConnectionException;
+
 }

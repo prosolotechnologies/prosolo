@@ -1,6 +1,7 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.services.nodes.RubricManager;
@@ -54,8 +55,7 @@ public class RubricEditBean implements Serializable {
 
     public void createRubric() {
         try {
-            Rubric rubric = rubricManager.createNewRubric(this.rubric.getName(), loggedUser.getUserId(),
-                    loggedUser.getOrganizationId(), loggedUser.getUserContext(decodedId));
+            Rubric rubric = rubricManager.createNewRubric(this.rubric.getName(), loggedUser.getUserContext());
 
             this.rubric.setId(rubric.getId());
 
@@ -63,6 +63,11 @@ public class RubricEditBean implements Serializable {
 
             PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric successfully saved");
             PageUtil.redirect("/manage/rubrics");
+        } catch (ObjectNotFoundException e) {
+            logger.error(e);
+            e.printStackTrace();
+            FacesContext.getCurrentInstance().validationFailed();
+            PageUtil.fireErrorMessage("User Organization not found");
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();

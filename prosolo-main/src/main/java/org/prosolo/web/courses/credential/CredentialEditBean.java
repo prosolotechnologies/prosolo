@@ -247,7 +247,7 @@ public class CredentialEditBean implements Serializable {
 			if (reloadData && credentialData.hasObjectChanged()) {
 				reloadCredential();
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			return true;
 		} catch (StaleDataException sde) {
 			logger.error(sde);
@@ -282,11 +282,11 @@ public class CredentialEditBean implements Serializable {
 		try {
 			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(true);
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential archived successfully");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
 			PageUtil.redirect("/manage/library/credentials");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to archive credential");
+			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 	
@@ -294,10 +294,10 @@ public class CredentialEditBean implements Serializable {
 		try {
 			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(false);
-			PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to restore credential");
+			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 	
@@ -328,17 +328,14 @@ public class CredentialEditBean implements Serializable {
 			if(credentialData.getId() > 0 && isDelivery()) {
 				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserContext());
 				credentialData = new CredentialData(false);
-				try {
-					String growlMessage = ResourceBundleUtil.getMessage("label.credential") + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " deleted";
-					PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
-				} catch (KeyNotFoundInBundleException e) {
-					logger.error(e);
-				}
+
+				String growlMessage = "The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been deleted";
+				PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
 				PageUtil.redirect("/manage/library");
 			}
 		} catch (StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Delete failed because credential is edited in the meantime. Please review changed credential and try again.");
+			PageUtil.fireErrorMessage("Delete failed because credential has been edited in the meantime. Please review those changes and try again");
 			//reload data
 			reloadCredential();
 		} catch (DbConnectionException e) {

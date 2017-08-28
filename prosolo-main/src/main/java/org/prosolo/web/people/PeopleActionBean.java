@@ -44,7 +44,7 @@ public class PeopleActionBean implements Serializable {
 	public void followCollegueById(String userToFollowName, long userToFollowId) {
 		try {
 			followUserById(userToFollowId);
-			PageUtil.fireSuccessfulInfoMessage("Started following " + userToFollowName + ".");
+			PageUtil.fireSuccessfulInfoMessage("You are now following " + userToFollowName);
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
 		} catch (DbConnectionException e) {
@@ -59,7 +59,7 @@ public class PeopleActionBean implements Serializable {
 			logger.error(e);
 		}
 
-		PageUtil.fireSuccessfulInfoMessage("Stopped following " + userToUnfollowName + ".");
+		PageUtil.fireSuccessfulInfoMessage("You are not following " + userToUnfollowName);
 	}
 	
 	public void followUserById(long userToFollowId) 
@@ -75,12 +75,12 @@ public class PeopleActionBean implements Serializable {
 		try {
 			followUserById(user.getId());
 			user.setFollowed(true);
-			PageUtil.fireSuccessfulInfoMessage("Started following " + user.getName() + ".");
+			PageUtil.fireSuccessfulInfoMessage("You are now following " + user.getName());
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getName());
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error occured. Please try again");
+			PageUtil.fireErrorMessage("An error has occurred. Please try again");
 		}
 	}
 
@@ -92,7 +92,7 @@ public class PeopleActionBean implements Serializable {
 			logger.error(e);
 		}
 
-		PageUtil.fireSuccessfulInfoMessage("Stopped following " + user.getName() + ".");
+		PageUtil.fireSuccessfulInfoMessage("You are not following " + user.getName());
 	}
 
 	@Deprecated
@@ -113,7 +113,7 @@ public class PeopleActionBean implements Serializable {
 		followResourceAsyncManager.asyncFollowUser(loggedUser.getUserId(), userToFollow, context);
 //		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
 		PageUtil.fireSuccessfulInfoMessage(
-				"Started following " + userToFollow.getName() + " " + userToFollow.getLastname() + ".");
+				"You are now following " + userToFollow.getName() + " " + userToFollow.getLastname());
 	}
 
 	@Deprecated
@@ -135,7 +135,7 @@ public class PeopleActionBean implements Serializable {
 //		peopleBean.removeFollowingUserById(userToUnfollow.getId());
 
 		PageUtil.fireSuccessfulInfoMessage(
-				"Stopped following " + userToUnfollow.getName() + " " + userToUnfollow.getLastname() + ".");
+				"You are not following " + userToUnfollow.getName() + " " + userToUnfollow.getLastname());
 		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform",
 				"formMainFollowingUsers");
 	}

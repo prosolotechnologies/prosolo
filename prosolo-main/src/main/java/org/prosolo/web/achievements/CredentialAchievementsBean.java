@@ -8,6 +8,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -47,7 +48,7 @@ public class CredentialAchievementsBean implements Serializable {
 			completedCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Credential data could not be loaded!");
+			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") + " data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
 		}
 	}
@@ -60,7 +61,7 @@ public class CredentialAchievementsBean implements Serializable {
 			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Credential data could not be loaded!");
+			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") +" data could not be loaded!");
 			logger.error("Error while loading target credentials with progress < 100 Error:\n" + e);
 		}
 	}
@@ -68,13 +69,13 @@ public class CredentialAchievementsBean implements Serializable {
 	public void hideCompletedTargetCredentialFromProfile(Long id) {
 		TargetCredentialData data = completedCredentialAchievementsData.getTargetCredentialDataByid(id);
 		boolean hideFromProfile = data.isHiddenFromProfile();
-		String hiddenOrShown = hideFromProfile ? "hidden from" : "shown in";
+		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";
 		
 		try {
 			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
-			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");
+			PageUtil.fireSuccessfulInfoMessage("The" + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " will be " + hiddenOrShown + " your profile");
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while updating credential visibility in a profile!");
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " visibility");
 			logger.error("Error while updating credential visibility in a profile!\n" + e);
 		}
 	}
@@ -82,14 +83,14 @@ public class CredentialAchievementsBean implements Serializable {
 	public void hideInProgressTargetCredentialFromProfile(Long id) {
 		TargetCredentialData data = inProgressCredentialAchievementsData.getTargetCredentialDataByid(id);
 		boolean hideFromProfile = data.isHiddenFromProfile();
-		String hiddenOrShown = hideFromProfile ? "hidden from" : "shown in";
+		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";
 		
 		try {
 			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
-			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " will be " + hiddenOrShown + " your profile");
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while updating credential visibility in a profile!");
-			logger.error("Error while updating credential visibility in a profile!\n" + e);
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " visibility");
+			logger.error("Error updating credential visibility in a profile!\n" + e);
 		}
 
 	}
