@@ -1,0 +1,45 @@
+<ui:component
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:p="http://primefaces.org/ui"
+>
+
+	<composite:interface>
+		<composite:attribute name="modalId" required="true"/>
+		<composite:attribute name="makeOwnerActionName" required="true"/>
+		<composite:attribute name="makeOwnerAction" required="true" method-signature="void #{cc.attrs.makeOwnerActionName}()"/>
+		<composite:attribute name="update" default=""/>
+		<composite:attribute name="resource" default=""/>
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="modal fade" id="#{cc.attrs.modalId}" tabindex="-1" role="dialog" aria-labelledby="makeOwner">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title" id="makeOwner">Change Ownership?</h2>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to revoke your ownership on this #{cc.attrs.resource} and assign it to other user?</p>
+					</div>
+					<div class="modal-footer">
+						<p:commandLink id="makeOwnerLink" styleClass="btn btn-green"
+							action="#{cc.attrs.makeOwnerAction}"
+							update="#{cc.attrs.update}"
+							oncomplete="$('##{cc.attrs.modalId}').modal('hide')">
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+							<f:param name="service" value="name:MAKE_OWNER_DIALOG" />
+							Yes
+						</p:commandLink>
+						<p:defaultCommand target="makeOwnerLink" />
+						<a href="#" class="btn btn-default" data-dismiss="modal">No</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>
