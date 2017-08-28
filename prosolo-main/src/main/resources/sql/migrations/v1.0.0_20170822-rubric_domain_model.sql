@@ -27,7 +27,7 @@ CREATE TABLE `category` (
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
     `title` varchar(255) DEFAULT NULL,
-    `points` bigint(20) NOT NULL,
+    `points` double NOT NULL,
     `rubric` bigint(20) NOT NULL
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE `level` (
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
     `title` varchar(255) DEFAULT NULL,
-    `points` bigint(20) NOT NULL,
+    `points` double NOT NULL,
     `rubric` bigint(20) NOT NULL
 );
 
