@@ -63,11 +63,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             Organization organization = (Organization) persistence.currentManager().load(Organization.class,
                     context.getOrganizationId());
 
-            if (organization.getTitle() != null) {
-                rubric.setTitle(name);
-                rubric.setCreator(user);
-                rubric.setOrganization(organization);
-            }
+            rubric.setTitle(name);
+            rubric.setCreator(user);
+            rubric.setOrganization(organization);
 
             saveEntity(rubric);
 
@@ -79,10 +77,6 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             res.setResult(rubric);
             return res;
-        } catch (ObjectNotFoundException ex) {
-            logger.error(ex);
-            ex.printStackTrace();
-            throw ex;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();
