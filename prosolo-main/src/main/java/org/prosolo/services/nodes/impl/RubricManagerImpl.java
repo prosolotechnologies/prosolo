@@ -17,6 +17,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -48,6 +49,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
+    @Transactional
     public Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context) throws DbConnectionException,
             ConstraintViolationException, DataIntegrityViolationException {
         try {
