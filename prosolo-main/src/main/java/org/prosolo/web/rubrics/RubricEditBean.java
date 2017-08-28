@@ -58,20 +58,16 @@ public class RubricEditBean implements Serializable {
 
             logger.debug("New Rubric (" + rubric.getTitle() + ")");
 
-            PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric successfully saved");
+            PageUtil.fireSuccessfulInfoMessageAcrossPages( "Rubric has been created");
             PageUtil.redirect("/manage/rubrics");
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();
             FacesContext.getCurrentInstance().validationFailed();
-            if (loggedUser.getOrganizationId() == 0) {
-                PageUtil.fireErrorMessage("User organization doesn't exist");
-            } else {
-                PageUtil.fireErrorMessage("Rubric with this name already exists");
-            }
+            PageUtil.fireErrorMessage("Rubric with this name already exists");
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save rubric data");
+            PageUtil.fireErrorMessage("Error creating a rubric");
         }
     }
 

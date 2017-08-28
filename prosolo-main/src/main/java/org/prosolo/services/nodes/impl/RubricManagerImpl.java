@@ -54,6 +54,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
+    @Transactional
     public Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context) throws DbConnectionException,
             ConstraintViolationException, DataIntegrityViolationException {
         try {
