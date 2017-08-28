@@ -71,9 +71,15 @@ public class ResourceBundleUtil {
 			throw new KeyNotFoundInBundleException("Key '"+key+"' is not found in the bundle '"+path+"'");
 		}
 	}
-	
-	public static String getMessage(String key, Object... params) throws KeyNotFoundInBundleException {
-		return getMessage(key, new Locale("en", "US"), params);
+
+	public static String getMessage(String key, Object... params) {
+		try {
+			return getMessage(key, new Locale("en", "US"), params);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
 	}
 
 	public static String getMessage(String key, Locale locale, Object... params) throws KeyNotFoundInBundleException {
@@ -160,5 +166,19 @@ public class ResourceBundleUtil {
 			logger.error(e);
 		}
 		return relationToTarget;
+	}
+
+	public static String getLabel(String resource, Locale locale) {
+		try {
+			return ResourceBundleUtil.getMessage(
+					"label." + resource, locale);
+		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		}
+		return "";
+	}
+
+	public static String getLabel(String resource) {
+    	return getLabel(resource, new Locale("en", "US"));
 	}
 }

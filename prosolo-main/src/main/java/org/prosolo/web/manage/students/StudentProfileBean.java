@@ -148,11 +148,7 @@ public class StudentProfileBean implements Serializable {
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			try {
-				PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (KeyNotFoundInBundleException e1) {
-				logger.error(e1);
-			}
+			PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 

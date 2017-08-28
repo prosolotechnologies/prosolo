@@ -23,6 +23,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -227,7 +228,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();
 			instructorForRemoval = null;
-			PageUtil.fireSuccessfulInfoMessage("Instructor successfully removed from credential");
+			PageUtil.fireSuccessfulInfoMessage("The instructor has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		} catch (EventException ee) {

@@ -104,8 +104,8 @@ public class UnitUserAddBean implements Serializable, Paginable {
 		try {
 			unitManager.addUserToUnitWithRole(user.getId(), unitId,
 					roleId, loggedUser.getUserContext(orgId));
-			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName()
-					+ " successfully added to the unit '" + unitTitle + "'");
+			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
+					+ " is added to the unit '" + unitTitle + "'");
 			resetSearchData();
 			try {
 				loadUsersFromDB();

@@ -93,14 +93,25 @@
 
                         <h:form id="formMain">
                             <ls:userPrivileges
+									id="userPrivileges"
                                     bean="#{competenceUserPrivilegeBean}"
-                                    toUpdate=":growlMain"
-                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+                                    toUpdate=":growlMain :formMain:userPrivileges:panelExistingMembers"
+									makeOwnerModalId="mkOwner"
+									learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
                             />
                         </h:form>
                     </div>
                 </div>
             </div>
         </div>
+
+		<ls:makeOwner
+				modalId="mkOwner"
+				makeOwnerAction="#{competenceUserPrivilegeBean.makeOwner}"
+				makeOwnerActionName="makeOwner"
+				resource="#{msg['label.competence'].toLowerCase()}"
+				update=":growlMain :formMain:userPrivileges:panelExistingMembers"
+				learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+		/>
 	</ui:define>
 </ui:composition>

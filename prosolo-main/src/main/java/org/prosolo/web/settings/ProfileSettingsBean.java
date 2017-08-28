@@ -161,16 +161,15 @@ public class ProfileSettingsBean implements Serializable {
 							page, lContext, null, null, null);
 				} catch (EventException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Changes are not saved!");
 				}
 	
 				init();
 				//asyncUpdateUserDataInSocialActivities(accountData);
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch (ResourceCouldNotBeLoadedException e1) {
 			logger.error(e1);
-			PageUtil.fireErrorMessage("Changes are not saved!");
+			PageUtil.fireErrorMessage("There was a problem saving the changes");
 		}
 	}
 
@@ -216,12 +215,12 @@ public class ProfileSettingsBean implements Serializable {
 
 			newAvatar = null;
 
-			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "Profile photo updated!");
+			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "The profile photo has been updated");
 
 			init();
 		} catch (IOException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing profile photo.");
+			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing the profile photo.");
 		}
 	}
 
@@ -262,9 +261,9 @@ public class ProfileSettingsBean implements Serializable {
 					logger.error(e);
 				}
 			}
-			PageUtil.fireSuccessfulInfoMessage("Social networks updated!");
+			PageUtil.fireSuccessfulInfoMessage("Social networks have been updated");
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("There was an error changing profile photo.");
+			PageUtil.fireErrorMessage("There was an error updating social networks");
 		}
 	}
 

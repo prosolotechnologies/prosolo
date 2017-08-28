@@ -73,7 +73,7 @@ public class ActivityResultsBeanUser implements Serializable {
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
 				if (competenceData == null) {
-					PageUtil.forward("/notfound.xhtml");
+					PageUtil.notFound();
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
@@ -239,7 +239,7 @@ public class ActivityResultsBeanUser implements Serializable {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
 		
-		PageUtil.fireSuccessfulInfoMessage("File uploaded");
+		PageUtil.fireSuccessfulInfoMessage("The file has been uploaded");
 	}
 	
 	/*
