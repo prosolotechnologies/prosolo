@@ -75,7 +75,7 @@ public class JoinGroupBean implements Serializable {
 				this.joinButtonDisabled = true;
 			}
 		} else {
-			PageUtil.showNotFoundPage();
+			PageUtil.notFound();
 		}
 	}
 	

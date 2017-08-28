@@ -84,12 +84,7 @@ public class ActivityEditBean implements Serializable {
 		decodedCredId = idEncoder.decodeId(credId);
 		try {
 			if(compId == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					logger.error(ioe);
-				}
+				PageUtil.notFound();
 			} else {
 				decodedCompId = idEncoder.decodeId(compId);
 				if(id == null) {
@@ -157,11 +152,7 @@ public class ActivityEditBean implements Serializable {
 			unpackResult(res);
 			
 			if(!access.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} else {
 				logger.info("Loaded activity data for activity with id "+ id);
 			}
