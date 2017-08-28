@@ -101,25 +101,24 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                             "WHERE rubric.organization =:organizationId " +
                             "AND rubric.deleted is FALSE";
 
-            Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
-            if (page >= 0 && limit > 0) {
-                q.setFirstResult(page * limit);
-                q.setMaxResults(limit);
-            }
-
             long rubricNumber = getOrganizationRubricsCount(organizationId);
 
             if (rubricNumber > 0) {
+                Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
+                if (page >= 0 && limit > 0) {
+                    q.setFirstResult(page * limit);
+                    q.setMaxResults(limit);
+                }
                 List<Rubric> rubrics = q.list();
                 for (Rubric r : rubrics) {
-                    RubricData rd = new RubricData(r, r.getCreator().getId());
+                    RubricData rd = new RubricData(r, r.getCreator());
                     response.addFoundNode(rd);
                     response.setHitsNumber(rubricNumber);
                 }
                 return response;
             }
 
-            return null;
+            return response;
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving rubric data");

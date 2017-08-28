@@ -38,14 +38,11 @@ public class RubricsBean implements Serializable,Paginable {
     @Inject
     private LoggedUserBean loggedUser;
 
-    private String id;
-    private long decodedId;
     private List<RubricData> rubrics;
     private PaginationData paginationData = new PaginationData();
     private RubricData rubricToDelete;
 
     public void init(){
-        this.decodedId = idEncoder.decodeId(id);
         loadRubrics();
     }
 
@@ -112,11 +109,4 @@ public class RubricsBean implements Serializable,Paginable {
         this.idEncoder = idEncoder;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }

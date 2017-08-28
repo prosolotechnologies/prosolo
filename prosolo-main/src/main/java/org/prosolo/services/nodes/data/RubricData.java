@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Bojan Trifkovic
@@ -18,12 +19,12 @@ public class RubricData {
 
     public RubricData(){}
 
-    public RubricData(Rubric rubric, long creatorId) {
+    public RubricData(Rubric rubric, User creator) {
         this.id = rubric.getId();
         this.name = rubric.getTitle();
         this.organizationId = rubric.getOrganization().getId();
-        this.creatorFullName = rubric.getCreator().getFullName();
-        this.creatorId = creatorId;
+        this.creatorFullName = creator.getFullName();
+        this.creatorId = creator.getId();
     }
 
     public long getId() {
