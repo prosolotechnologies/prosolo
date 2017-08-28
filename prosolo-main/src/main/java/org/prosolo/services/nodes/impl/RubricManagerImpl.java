@@ -103,25 +103,29 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             String query =
                     "SELECT  rubric " +
                             "FROM Rubric rubric " +
+                            "LEFT JOIN FETCH rubric.creator " +
                             "WHERE rubric.organization =:organizationId " +
                             "AND rubric.deleted is FALSE";
 
-            Query q = persistence.currentManager().createQuery(query).setLong("organizationId",organizationId);
+            Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
             if (page >= 0 && limit > 0) {
                 q.setFirstResult(page * limit);
                 q.setMaxResults(limit);
             }
 
-            List<Rubric> rubrics = q.list();
+            long rubricNumber = getOrganizationRubricsCount(organizationId);
 
-            if (rubrics != null) {
+            if (rubricNumber > 0) {
+                List<Rubric> rubrics = q.list();
                 for (Rubric r : rubrics) {
-                    RubricData rd = new RubricData(r);
+                    RubricData rd = new RubricData(r, r.getCreator().getId());
                     response.addFoundNode(rd);
+                    response.setHitsNumber(rubricNumber);
                 }
+                return response;
             }
-            response.setHitsNumber(getOrganizationRubricsCount(organizationId));
-            return response;
+
+            return null;
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving rubric data");
@@ -131,7 +135,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     @Override
     public void deleteRubric(long rubricId) throws DbConnectionException {
         Rubric rubric = null;
-        try{
+        try {
             rubric = loadResource(Rubric.class, rubricId);
             rubric.setDeleted(true);
             saveEntity(rubric);

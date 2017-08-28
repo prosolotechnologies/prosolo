@@ -40,13 +40,10 @@ public class RubricEditBean implements Serializable {
     private RubricManager rubricManager;
 
     private RubricData rubric;
-    private String id;
-    private long decodedId;
 
     public void init() {
         try {
             this.rubric = new RubricData();
-            this.decodedId = idEncoder.decodeId(id);
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
