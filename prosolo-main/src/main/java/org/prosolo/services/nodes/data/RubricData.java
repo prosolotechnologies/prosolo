@@ -17,14 +17,17 @@ public class RubricData {
     private String creatorFullName;
     private long creatorId;
 
-    public RubricData(){}
+    public RubricData() {
+    }
 
     public RubricData(Rubric rubric, User creator) {
         this.id = rubric.getId();
         this.name = rubric.getTitle();
         this.organizationId = rubric.getOrganization().getId();
-        this.creatorFullName = creator.getFullName();
-        this.creatorId = creator.getId();
+        if (creator != null) {
+            this.creatorFullName = creator.getFullName();
+        }
+        this.creatorId = rubric.getCreator().getId();
     }
 
     public long getId() {
