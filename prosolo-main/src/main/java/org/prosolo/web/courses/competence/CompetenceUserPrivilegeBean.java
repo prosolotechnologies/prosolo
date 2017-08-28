@@ -215,12 +215,10 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		try {
 			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
 			creatorId = newOwnerId;
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") +
-					" owner successfully changed");
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while trying to change the "
-					+ ResourceBundleUtil.getLabel("competence").toLowerCase() + " owner");
+			PageUtil.fireErrorMessage("Error changing the owner");
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}

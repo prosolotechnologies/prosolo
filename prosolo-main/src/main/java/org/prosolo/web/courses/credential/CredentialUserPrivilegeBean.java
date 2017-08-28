@@ -209,12 +209,10 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		try {
 			credManager.changeOwner(credentialId, newOwnerId, loggedUserBean.getUserContext());
 			creatorId = newOwnerId;
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") +
-					" owner successfully changed");
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while trying to change the "
-					+ ResourceBundleUtil.getLabel("credential").toLowerCase() + " owner");
+			PageUtil.fireErrorMessage("Error changing the owner");
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}
