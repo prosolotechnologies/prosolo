@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
@@ -40,6 +41,7 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     @Inject private UserGroupESService userGroupESService;
     @Inject private ESAdministration esAdministration;
     @Inject private OrganizationManager orgManager;
+    @Inject private RubricManager rubricManager;
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -113,6 +115,9 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
             for(UserGroup group : groups) {
                 userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
             }
+
+            //index rubrics
+            List<Rubric> rubrics = rubricManager.getRu
         } catch (Exception e) {
             logger.error("Exception in handling message", e);
         } finally {

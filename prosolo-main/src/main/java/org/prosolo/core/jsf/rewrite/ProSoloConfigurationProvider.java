@@ -36,8 +36,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/verify").to("/verify.xhtml"))
 				.addRule(Join.path("/terms").to("/terms.xhtml"))
 				.addRule(Join.path("/maintenance").to("/maintenance.xhtml"))
-				.addRule(Join.path("/notfound").to("/notfound.xhtml"))
-				
+				.addRule(Join.path("/notfound").to("/404.xhtml"))
+
 				.addRule(Join.path("/").to("/index.xhtml"))
 				.addRule(Join.path("/index").to("/index.xhtml"))
 				.addRule(Join.path("/learn/{id}/{comp}").to("/learn.xhtml"))
@@ -92,7 +92,9 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
-				
+
+				.addRule(Join.path("/manage/notfound").to("/manage/404.xhtml"))
+				.addRule(Join.path("/manage/accessDenied").to("/manage/accessDenied.xhtml"))
 				.addRule(Join.path("/manage").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/rubrics").to("/manage/rubricLibrary.xhtml"))
@@ -168,6 +170,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
 				
 				//admin
+				.addRule(Join.path("/admin/notfound").to("/admin/404.xhtml"))
+				.addRule(Join.path("/admin/accessDenied").to("/admin/accessDenied.xhtml"))
 				.addRule(Join.path("/admin").to("/admin/organizations.xhtml"))
 				.addRule(Join.path("/admin/").to("/admin/organizations.xhtml"))
 				.addRule(Join.path("/admin/roles").to("/admin/roles.xhtml"))

@@ -113,12 +113,7 @@ public class TwitterBean implements Serializable {
 		}
 		
 		if (!redirected) {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 

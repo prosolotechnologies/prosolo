@@ -1,6 +1,7 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.services.nodes.RubricManager;
@@ -39,13 +40,10 @@ public class RubricEditBean implements Serializable {
     private RubricManager rubricManager;
 
     private RubricData rubric;
-    private String id;
-    private long decodedId;
 
     public void init() {
         try {
             this.rubric = new RubricData();
-            this.decodedId = idEncoder.decodeId(id);
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
@@ -54,14 +52,13 @@ public class RubricEditBean implements Serializable {
 
     public void createRubric() {
         try {
-            Rubric rubric = rubricManager.createNewRubric(this.rubric.getName(), loggedUser.getUserId(),
-                    loggedUser.getOrganizationId(), loggedUser.getUserContext(decodedId));
+            Rubric rubric = rubricManager.createNewRubric(this.rubric.getName(), loggedUser.getUserContext());
 
             this.rubric.setId(rubric.getId());
 
             logger.debug("New Rubric (" + rubric.getTitle() + ")");
 
-            PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric successfully saved");
+            PageUtil.fireSuccessfulInfoMessageAcrossPages( "Rubric has been created");
             PageUtil.redirect("/manage/rubrics");
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
@@ -70,7 +67,7 @@ public class RubricEditBean implements Serializable {
             PageUtil.fireErrorMessage("Rubric with this name already exists");
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save rubric data");
+            PageUtil.fireErrorMessage("Error creating a rubric");
         }
     }
 

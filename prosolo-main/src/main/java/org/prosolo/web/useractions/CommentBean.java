@@ -1,26 +1,13 @@
 package org.prosolo.web.useractions;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.interaction.CommentManager;
-import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.interaction.data.CommentReplyFetchMode;
-import org.prosolo.services.interaction.data.CommentSortData;
-import org.prosolo.services.interaction.data.CommentSortOption;
-import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.interaction.data.*;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
@@ -31,6 +18,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @ManagedBean(name = "commentBean")
 @Component("commentBean")
@@ -68,15 +63,22 @@ public class CommentBean implements Serializable, ICommentBean {
 		try {
 			CommentSortData csd = getCommentSortData(commentsData);
 			List<CommentData> comments = null;
+
+			//TODO hack - if it is competency or activity comment and it is Student,
+			// load comments only if from same deliveries user is learning
+			boolean loadCommentsFromSameDeliveries =
+					(commentsData.getResourceType() == CommentedResourceType.Activity
+							|| commentsData.getResourceType() == CommentedResourceType.Competence)
+							&& !commentsData.isManagerComment();
 			if(commentsData.getCommentId() > 0) {
 				comments = commentManager.getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 						commentsData.getResourceType(), commentsData.getResourceId(), csd, 
-						commentsData.getCommentId(), loggedUser.getUserId());
+						commentsData.getCommentId(), loggedUser.getUserId(), loadCommentsFromSameDeliveries);
 				commentsData.setNumberOfComments(comments.size());
 			} else {
 				comments = commentManager.getComments(commentsData.getResourceType(), 
 						commentsData.getResourceId(), true, limit, csd, 
-						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId());
+						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), loadCommentsFromSameDeliveries);
 				
 				int commentsNumber = comments.size();
 				if(commentsNumber == limit + 1) {
@@ -211,10 +213,10 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.addComment(newComment);
 				commentsData.incrementNumberOfComments();
         	}
-        	PageUtil.fireSuccessfulInfoMessage("Comment posted");
+        	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (DbConnectionException e) {
     		logger.error(e);
-    		PageUtil.fireErrorMessage("Error while adding new comment");
+    		PageUtil.fireErrorMessage("Error posting a comment");
     	}
 		
 //		taskExecutor.execute(new Runnable() {

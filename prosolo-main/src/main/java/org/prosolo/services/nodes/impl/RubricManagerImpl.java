@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -42,10 +43,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     private RubricManager self;
 
     @Override
-    public Rubric createNewRubric(String name, long creatorId, long organizationId, UserContextData context) throws DbConnectionException,
+    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
             EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Rubric> res = self.createNewRubricAndGetEvents(name, creatorId, organizationId, context);
+        Result<Rubric> res = self.createNewRubricAndGetEvents(name, context);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
@@ -53,14 +54,16 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, long organizationId, UserContextData context) throws
-            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+    @Transactional
+    public Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context) throws DbConnectionException,
+            ConstraintViolationException, DataIntegrityViolationException {
         try {
             Rubric rubric = new Rubric();
-            User user = new User();
-            Organization organization = new Organization();
-            organization.setId(organizationId);
-            user.setId(creatorId);
+            User user = (User) persistence.currentManager().load(User.class,
+                    context.getActorId());
+            Organization organization = (Organization) persistence.currentManager().load(Organization.class,
+                    context.getOrganizationId());
+
             rubric.setTitle(name);
             rubric.setCreator(user);
             rubric.setOrganization(organization);
@@ -85,7 +88,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving rubric");
+            throw new DbConnectionException("Error while saving rubric data");
         }
     }
 
@@ -98,24 +101,27 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             String query =
                     "SELECT  rubric " +
                             "FROM Rubric rubric " +
+                            "LEFT JOIN FETCH rubric.creator " +
                             "WHERE rubric.organization =:organizationId " +
                             "AND rubric.deleted is FALSE";
 
-            Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
-            if (page >= 0 && limit > 0) {
-                q.setFirstResult(page * limit);
-                q.setMaxResults(limit);
-            }
+            long rubricNumber = getOrganizationRubricsCount(organizationId);
 
-            List<Rubric> rubrics = q.list();
-
-            if (rubrics != null) {
-                for (Rubric r : rubrics) {
-                    RubricData rd = new RubricData(r);
-                    response.addFoundNode(rd);
+            if (rubricNumber > 0) {
+                Query q = persistence.currentManager().createQuery(query).setLong("organizationId", organizationId);
+                if (page >= 0 && limit > 0) {
+                    q.setFirstResult(page * limit);
+                    q.setMaxResults(limit);
                 }
+                List<Rubric> rubrics = q.list();
+                for (Rubric r : rubrics) {
+                    RubricData rd = new RubricData(r, r.getCreator());
+                    response.addFoundNode(rd);
+                    response.setHitsNumber(rubricNumber);
+                }
+                return response;
             }
-            response.setHitsNumber(getOrganizationRubricsCount(organizationId));
+
             return response;
         } catch (Exception e) {
             logger.error("Error", e);

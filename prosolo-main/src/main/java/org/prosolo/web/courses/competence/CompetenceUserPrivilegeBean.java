@@ -22,6 +22,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -70,6 +71,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	//private boolean manageSection;
 
 	private ResourceVisibilityUtil resVisibilityUtil;
+
+	private long newOwnerId;
 
 	public CompetenceUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -185,11 +188,11 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		try {
 			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a competency");
+			PageUtil.fireErrorMessage("Error updating user privileges for the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (EventException ee) {
 			logger.error(ee);
 		}
@@ -201,6 +204,23 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
 			}
+		}
+	}
+
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -290,5 +310,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public String getCredTitle() {
 		return credTitle;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

@@ -116,7 +116,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 					u, group, page, lContext,
 					service, null, null);
 
-			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " successfully removed from the group");
+			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " is removed from the group");
 
 			resetSearchData();
 			try {

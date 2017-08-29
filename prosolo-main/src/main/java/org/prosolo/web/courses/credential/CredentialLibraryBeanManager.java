@@ -159,23 +159,15 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				try {
-					PageUtil.fireErrorMessage("Error while trying to archive " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-				} catch (KeyNotFoundInBundleException e1) {
-					logger.error(e1);
-				}
+				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					try {
-						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " archived successfully");
-					} catch (KeyNotFoundInBundleException e) {
-						logger.error(e);
-					}
+					PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}
@@ -191,23 +183,15 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				try {
-					PageUtil.fireErrorMessage("Error while trying to restore " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-				} catch (KeyNotFoundInBundleException e1) {
-					logger.error(e1);
-				}
+				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					try {
-						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " restored successfully");
-					} catch (KeyNotFoundInBundleException e) {
-						logger.error(e);
-					}
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}

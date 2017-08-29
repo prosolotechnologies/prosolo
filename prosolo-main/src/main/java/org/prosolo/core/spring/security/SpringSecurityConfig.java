@@ -306,7 +306,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		to be present (at least anonymous)*/
 		web.ignoring()
 			.antMatchers("/email.xhtml")
-			.antMatchers("/notfound");
+			.antMatchers("/notfound")
+			.antMatchers("/manage/notfound")
+			.antMatchers("/admin/notfound");
 	}
 	
 	@Inject
@@ -357,7 +359,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler(){
-		AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
+		CustomAccessDeniedHandler adh = new CustomAccessDeniedHandler();
 		adh.setErrorPage("/accessDenied");
 		return adh;
 	}

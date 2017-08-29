@@ -14,15 +14,15 @@ import javax.persistence.*;
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
 public class Category extends BaseEntity {
 
-    private int points;
+    private double points;
     private Rubric rubric;
 
     @Column(name = "points", nullable = false)
-    public int getPoints() {
+    public double getPoints() {
         return points;
     }
 
-    public void setPoints(int points) {
+    public void setPoints(double points) {
         this.points = points;
     }
 

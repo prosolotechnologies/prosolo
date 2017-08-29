@@ -77,7 +77,7 @@ public class ActivityViewBeanManager implements Serializable {
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
 				 */
 				if (!access.isCanRead()) {
-					PageUtil.forward("/accessDenied.xhtml");
+					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 
@@ -92,23 +92,14 @@ public class ActivityViewBeanManager implements Serializable {
 					loadCompetenceAndCredentialTitle();
 				}
 			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	

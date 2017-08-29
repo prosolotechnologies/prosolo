@@ -28,7 +28,7 @@
 
     <ui:define name="content">
         <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-        <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+        <p:growl id="growlMainRubricLibrary" showDetail="true" globalOnly="true" />
 
         <div class="whiteBar">
             <div class="container">
@@ -48,8 +48,6 @@
             </div>
         </div>
 
-
-
         <div class="container">
             <div class="row">
                 <div class="container">
@@ -60,6 +58,13 @@
                     </ol>
                 </div>
                 <h:panelGroup id="panelRubrics" styleClass="col-md-12" layout="block">
+                    <ui:fragment rendered="#{empty rubricsBean.rubrics}">
+                        <div class="noContentMessage">
+                            <p>
+                                No rubrics.
+                            </p>
+                        </div>
+                    </ui:fragment>
                     <ul class="whiteBox manageRubricsList">
                         <ui:repeat value="#{rubricsBean.rubrics}" var="rubric">
                             <li>

@@ -107,9 +107,9 @@ public class RolesBean implements Serializable {
 		try{
 			capabilityManager.updateCapabilityRoles(cd.getId(), list);
 			cd.setRoleIds(list);
-			PageUtil.fireSuccessfulInfoMessage("Capability updated");
+			PageUtil.fireSuccessfulInfoMessage("The capability has been updated");
 		}catch(Exception e){
-			PageUtil.fireErrorMessage("Error while updating capability");
+			PageUtil.fireErrorMessage("Error updating the capability");
 		}
 	}
 	
@@ -210,7 +210,7 @@ public class RolesBean implements Serializable {
 			Role role = roleManager.createNewRole(formData.getName(), formData.getDescription(), false);
 	
 			logger.debug("New Role ("+role.getTitle()+") for the user "+ loggedUser.getFullName() );
-			PageUtil.fireSuccessfulInfoMessage("Role \""+role.getTitle()+"\" created!");
+			PageUtil.fireSuccessfulInfoMessage("Role \""+role.getTitle()+"\" has been created");
 			
 			roles.add(formData);
 			formData = null;
@@ -225,11 +225,11 @@ public class RolesBean implements Serializable {
 		
 		try {
 			Role role = roleManager.updateRole(formData.getId(), formData.getName(), formData.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Role updated!");
+			PageUtil.fireSuccessfulInfoMessage("The role has been updated");
 			logger.debug("Role ("+role.getId()+") updated by the user "+ loggedUser.getFullName());
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while updating role");
+			PageUtil.fireErrorMessage("Error updating the role");
 		}
 		
 		formData = null;
@@ -245,10 +245,10 @@ public class RolesBean implements Serializable {
 			try {
 				roleManager.deleteRole(roleToDelete.getId());
 				roles.remove(roleToDelete);
-				PageUtil.fireSuccessfulInfoMessage("Role deleted");
+				PageUtil.fireSuccessfulInfoMessage("The role has been deleted");
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while deleting role");
+				PageUtil.fireErrorMessage("Error deleting the role");
 			}
 			roleToDelete = null;
 		}

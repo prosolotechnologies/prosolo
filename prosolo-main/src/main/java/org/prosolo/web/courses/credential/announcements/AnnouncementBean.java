@@ -98,12 +98,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 													  .addPrivilege(UserGroupPrivilege.Instruct)
 													  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialAnnouncements = announcementManager
 								.getAllAnnouncementsForCredential(decodedCredId, paginationData.getPage() - 1, paginationData.getLimit());
@@ -140,7 +135,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()), page, 
 				lContext, service, idEncoder.decodeId(credentialId));
 		
-		PageUtil.fireSuccessfulInfoMessage("Announcement published");
+		PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
 		init();
 	}
 	

@@ -20,10 +20,10 @@ import java.util.List;
  */
 public interface RubricManager extends AbstractManager {
 
-    Rubric createNewRubric(String name, long creatorId, long organizationId, UserContextData context)
+    Rubric createNewRubric(String name, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Rubric> createNewRubricAndGetEvents(String name, long creatorId, long organizationId, UserContextData context)
+    Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     PaginatedResult<RubricData> getRubrics(int page, int limit,long organizationId)
