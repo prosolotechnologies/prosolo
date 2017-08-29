@@ -16,10 +16,7 @@
 
 package org.prosolo.services.authentication.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -29,9 +26,9 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSString;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -55,7 +52,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 	private UserManager userManager;
 	@Inject
 	private UnitManager unitManager;
-	
+
 	@Override
 	public Object loadUserBySAML(SAMLCredential credential)
 			throws UsernameNotFoundException {
@@ -94,9 +91,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				return userDetailsService.loadUserByUsername(email);
 			} catch(UsernameNotFoundException e) {
 				//if email does not exist, create new user account;
-				Role role = roleManager.getRoleByName("User");
-				List<Long> roles = new ArrayList<>();
-				roles.add(role.getId());
+				Role role = roleManager.getRoleByName(RoleNames.USER);
 				//String firstname = credential.getAttributeAsString("givenName");
 				//String lastname = credential.getAttributeAsString("sn");
 				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
@@ -104,7 +99,13 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
 
 				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(1, fName,
-						lName, email, true, UUID.randomUUID().toString(), null, null, null, roles);
+						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()));
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ie) {
+					logger.error("Error", ie);
+				}
 
 				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
 
