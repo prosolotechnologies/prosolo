@@ -26,6 +26,10 @@ public class Result<T> {
 		this.events = events;
 	}
 
+	public static Result<Void> empty() {
+		return new Result<>();
+	}
+
 	public static Result<Void> of(List<EventData> events) {
 		Result<Void> res = new Result<>();
 		res.addEvents(events);

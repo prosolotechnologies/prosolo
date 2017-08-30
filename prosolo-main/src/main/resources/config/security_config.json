@@ -195,6 +195,14 @@
             ]
         },
         {
+            "name": "manage.rubrics.view",
+            "description": "View rubrics library in manage section",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
+        },
+        {
             "name": "manage.credential.rssFeeds",
             "description": "Edit RSS Feeds in manage section",
             "roles": [

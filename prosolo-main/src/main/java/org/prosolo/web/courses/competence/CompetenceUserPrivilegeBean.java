@@ -65,6 +65,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private ResourceVisibilityUtil resVisibilityUtil;
 
+	private long newOwnerId;
+
 	public CompetenceUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
@@ -198,6 +200,23 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		}
 	}
 
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
+		}
+	}
+
 	public String getSearchTerm() {
 		return resVisibilityUtil.getSearchTerm();
 	}
@@ -284,5 +303,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public String getCredTitle() {
 		return credTitle;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

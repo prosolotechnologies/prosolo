@@ -4,14 +4,17 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -59,6 +62,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private ResourceVisibilityUtil resVisibilityUtil;
 
 	private UserGroupPrivilege privilege;
+
+	private long newOwnerId;
 	
 	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -196,6 +201,23 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		}
 	}
 
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			credManager.changeOwner(credentialId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
+		}
+	}
+
 	public String getSearchTerm() {
 		return resVisibilityUtil.getSearchTerm();
 	}
@@ -270,5 +292,9 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	public long getCredentialId() {
 		return credentialId;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

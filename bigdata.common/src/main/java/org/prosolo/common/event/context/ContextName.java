@@ -80,6 +80,8 @@ public enum ContextName {
 	USER_GROUP("UserGroup"),
 	ADD_USERS_DIALOG("User"),
 	IMPORT_USERS_DIALOG(""),
+	RUBRIC("Rubric"),	
+	MAKE_OWNER_DIALOG(""),
 	GROUP_JOIN("UserGroup");
 
     private String objectType; 

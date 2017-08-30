@@ -73,7 +73,7 @@ public class ActivityResultsBeanUser implements Serializable {
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
 				if (competenceData == null) {
-					PageUtil.forward("/notfound.xhtml");
+					PageUtil.notFound();
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();

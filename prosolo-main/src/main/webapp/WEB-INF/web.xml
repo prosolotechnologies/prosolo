@@ -163,6 +163,10 @@
         <exception-type>java.lang.Throwable</exception-type>
         <location>/login.xhtml</location>
     </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/404.xhtml</location>
+    </error-page>
     <!-- 
     <session-config>
         <session-timeout>10</session-timeout>

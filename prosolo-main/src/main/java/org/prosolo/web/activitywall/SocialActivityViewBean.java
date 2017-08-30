@@ -50,22 +50,12 @@ public class SocialActivityViewBean implements Serializable {
 		if(decodedId > 0) {
 			initializeActivity();
 			if(socialActivity == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					logger.error(ioe);
-				}
+				PageUtil.notFound();
 			} else {
 				initializeCommentsIfNotInitialized(socialActivity);
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	

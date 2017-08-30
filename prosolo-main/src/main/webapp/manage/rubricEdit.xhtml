@@ -1,0 +1,94 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:util="http://www.prosolo.com/util">
+
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        #{msg['label.rubric.plural']}
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>Rubric Name</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <ul class="nav nav-tabs headerSubmenu">
+            <li role="presentation" class="active"><a href="manage-rubric.html">Basic Info</a></li>
+            <li role="presentation"><a href="manage-rubric-categories.html">Categories &amp; Levels</a></li>
+            <li role="presentation"><a href="manage-rubric-privacy.html">Privacy</a></li>
+        </ul>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="whiteBar">
+
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="whiteBox">
+                        <h2>Basic Info</h2>
+                        <div class="formWrapper editOrgForm">
+                            <div class="formLine">
+                                <label>Name</label>
+                                <div class="formLineRight">
+                                    <input type="text"/>
+                                </div>
+                            </div>
+                            <div class="formLine">
+                                <label>Creator</label>
+                                <div class="formLineRight">
+                                    <ul class="addedItems">
+                                        <li>Walter White</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="formLine">
+                                <label>&#160;</label>
+                                <div class="formLineRight adminUserEditButtons">
+                                    <a href="#" class="btn btn-green">Save Changes</a>
+                                    <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteRubric">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteRubric" tabindex="-1" role="dialog" aria-labelledby="deleteRub">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="deleteRub">Delete Rubrics?</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete rubrics?<br/><br/>
+                            <small>Note: Action can NOT be un-done!</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-red">Delete</a>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+
+</ui:composition>

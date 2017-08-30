@@ -224,6 +224,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/library/credentials").hasAuthority("MANAGE.LIBRARY.VIEW")
 		   .antMatchers("/manage/library/competencies").hasAuthority("MANAGE.LIBRARY.VIEW")
 		   .antMatchers("/manage/library/instructor/credentials").hasAuthority("INSTRUCTOR.LIBRARY.VIEW")
+
+		   .antMatchers("/manage/rubrics").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/new").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/edit").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -302,7 +306,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		to be present (at least anonymous)*/
 		web.ignoring()
 			.antMatchers("/email.xhtml")
-			.antMatchers("/notfound");
+			.antMatchers("/notfound")
+			.antMatchers("/manage/notfound")
+			.antMatchers("/admin/notfound");
 	}
 	
 	@Inject
@@ -353,7 +359,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler(){
-		AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
+		CustomAccessDeniedHandler adh = new CustomAccessDeniedHandler();
 		adh.setErrorPage("/accessDenied");
 		return adh;
 	}

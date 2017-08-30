@@ -11,6 +11,7 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -79,13 +80,8 @@ public class EmailLinkBean implements Serializable {
 				    return;
 				}
 			}
-			
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+
+			PageUtil.notFound();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
