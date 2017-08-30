@@ -7,8 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -369,7 +368,7 @@ public class CredentialEditBean implements Serializable {
 //				if (lContext != null && !lContext.isEmpty()) {
 //					learningContext = contextParser.addSubContext(context, lContext);
 //				}
-//				LearningContextData lcd = new LearningContextData(page, learningContext, service);
+//				PageContextData lcd = new PageContextData(page, learningContext, service);
 //				
 //        		HashMap<String, String> parameters = new HashMap<String, String>();
 //        		parameters.put("duplicate", "true");
@@ -400,7 +399,7 @@ public class CredentialEditBean implements Serializable {
 			}
 			
 			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-			LearningContextData lcd = new LearningContextData(page, context, null);
+			PageContextData lcd = new PageContextData(page, context, null);
 			Map<String, String> params = new HashMap<>();
 			params.put("query", compSearchTerm);
 			try {

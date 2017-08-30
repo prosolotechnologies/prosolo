@@ -218,7 +218,7 @@ public class CommentBean implements Serializable, ICommentBean {
 //            @Override
 //            public void run() {	
 //            	try {
-//            		LearningContextData context = new LearningContextData(page, lContext, service);
+//            		PageContextData context = new PageContextData(page, lContext, service);
 //            		Comment1 comment = commentManager.saveNewComment(editComment, loggedUser.getUser().getId(), 
 //            				resourceType, context);
 //	            	

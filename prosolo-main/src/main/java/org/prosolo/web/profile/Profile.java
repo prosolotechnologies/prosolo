@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
@@ -104,7 +104,7 @@ public class Profile {
 				
 				String page = FacesContext.getCurrentInstance().getViewRoot().getClientId();
 				String context = "name:profile|id:" + currentStudent.getId();
-				UserContextData userContext = loggedUserBean.getUserContext(new LearningContextData(page, context, null));
+				UserContextData userContext = loggedUserBean.getUserContext(new PageContextData(page, context, null));
 				taskExecutor.execute(() -> {
 					try {
 						eventFactory.generateEvent(EventType.View_Profile, userContext, currentStudent,

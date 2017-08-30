@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
@@ -771,7 +771,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
 		
-		LearningContextData context = new LearningContextData("/activity.xhtml", null, null);
+		PageContextData context = new PageContextData("/activity.xhtml", null, null);
 		
 		Comment1 comment = ServiceLocator.getInstance().getService(CommentManager.class).saveNewComment(newComment,
 				CommentedResourceType.Activity, UserContextData.of(userKevinHall.getId(), userKevinHall.getOrganization().getId(), null, context));

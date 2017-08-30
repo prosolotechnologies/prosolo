@@ -2,7 +2,7 @@ package org.prosolo.core.jsf;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.core.spring.ServiceLocator;
@@ -79,7 +79,7 @@ public class PageLoadEventFilter implements Filter {
 			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
 			try {
 				eventFactory.generateEvent(
-						EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new LearningContextData(uri, null, null)),
+						EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new PageContextData(uri, null, null)),
 						null, null, null, params);
 			} catch (EventException e) {
 				logger.error("Error while generating page open event " + e);

@@ -2,7 +2,7 @@ package org.prosolo.web.emailLinks;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParser;
 import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
@@ -21,7 +21,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Optional;
 
@@ -59,7 +58,7 @@ public class EmailLinkBean implements Serializable {
 							linkObjData.getInfo().getLinkField());
 					
 					String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-					LearningContextData lContextData = new LearningContextData(page, context, null);
+					PageContextData lContextData = new PageContextData(page, context, null);
 
 					long organizationId = 0;
 					try {

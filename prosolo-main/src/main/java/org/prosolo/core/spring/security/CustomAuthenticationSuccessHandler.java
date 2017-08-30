@@ -1,7 +1,7 @@
 package org.prosolo.core.spring.security;
 
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
 import org.prosolo.services.event.EventFactory;
@@ -44,7 +44,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			try {
 				UserContextData context = UserContextData.of((long) sessionData.get("userId"),
 						(long) sessionData.get("organizationId"), (String) sessionData.get("sessionId"),
-						new LearningContextData());
+						new PageContextData());
 				eventFactory.generateEvent(EventType.LOGIN, context, null, null, null, null);
 			} catch (Exception e) {
 				logger.error(e);

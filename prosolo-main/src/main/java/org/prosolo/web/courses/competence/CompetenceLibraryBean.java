@@ -6,7 +6,7 @@ package org.prosolo.web.courses.competence;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
@@ -94,7 +94,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {

@@ -1033,7 +1033,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 //	private Result<Void> changeCredentialUserGroupPrivilege(long credId, long credUserGroupId, UserGroupPrivilege priv,
-//			long userId, LearningContextData lcd) {
+//			long userId, PageContextData lcd) {
 //		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
 //				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
 //		credGroup.setPrivilege(priv);

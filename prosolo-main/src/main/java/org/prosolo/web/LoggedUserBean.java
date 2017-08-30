@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSetting
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
@@ -406,7 +406,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return getUserContext(PageUtil.extractLearningContextData());
 	}
 
-	public UserContextData getUserContext(LearningContextData context) {
+	public UserContextData getUserContext(PageContextData context) {
 		return UserContextData.of(getUserId(), getOrganizationId(), getSessionId(),
 				context);
 	}

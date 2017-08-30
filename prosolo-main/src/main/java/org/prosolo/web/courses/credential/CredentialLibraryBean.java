@@ -5,7 +5,7 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
@@ -91,7 +91,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {

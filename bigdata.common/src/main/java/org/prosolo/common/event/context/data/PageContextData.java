@@ -1,16 +1,16 @@
 package org.prosolo.common.event.context.data;
 
-public class LearningContextData {
+public class PageContextData {
 
 	private String page;
 	private String learningContext;
 	private String service;
 	
-	public LearningContextData() {
+	public PageContextData() {
 
 	}
 	
-	public LearningContextData(String page, String learningContext, String service) {
+	public PageContextData(String page, String learningContext, String service) {
 		this.page = page;
 		this.learningContext = learningContext;
 		this.service = service;

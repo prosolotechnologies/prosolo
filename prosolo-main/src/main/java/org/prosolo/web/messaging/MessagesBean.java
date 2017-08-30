@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -172,7 +172,7 @@ public class MessagesBean implements Serializable {
 		String context = PageUtil.getPostParameter("context");
 		page = (page != null) ? page : "messages";
 		context = (context != null) ? context : "name:messages";
-		UserContextData userContext = loggedUser.getUserContext(new LearningContextData(page, context, null));
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 		taskExecutor.execute(() -> {
 			try {
 				Map<String, String> parameters = new HashMap<String, String>();

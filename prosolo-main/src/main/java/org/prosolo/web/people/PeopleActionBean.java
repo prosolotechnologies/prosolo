@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -110,7 +110,7 @@ public class PeopleActionBean implements Serializable {
 	@Deprecated
 	public void followCollegue(User userToFollow, String context) {
 		logger.debug("User '" + loggedUser.getUserId() + "' is following user " + userToFollow);
-		UserContextData userContext = loggedUser.getUserContext(new LearningContextData(
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(
 				FacesContext.getCurrentInstance().getViewRoot().getViewId(), context, null));
 		followResourceAsyncManager.asyncFollowUser(userToFollow, userContext);
 //		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
@@ -133,7 +133,7 @@ public class PeopleActionBean implements Serializable {
 	public void unfollowCollegue(User userToUnfollow, String context) {
 		logger.debug("User '" + loggedUser.getUserId() + "' is unfollowing user " + userToUnfollow);
 
-		UserContextData userContext = loggedUser.getUserContext(new LearningContextData(
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(
 				FacesContext.getCurrentInstance().getViewRoot().getViewId(), context, null));
 		followResourceAsyncManager.asyncUnfollowUser(userToUnfollow, userContext);
 //		peopleBean.removeFollowingUserById(userToUnfollow.getId());

@@ -403,7 +403,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //	@Override
 //	@Transactional (readOnly = false)
 //	public Comment1 saveNewCompetenceComment(CommentData data, long userId, 
-//			LearningContextData context) throws DbConnectionException {
+//			PageContextData context) throws DbConnectionException {
 //		try {
 //			return saveNewComment(data, userId, CommentedResourceType.Competence, context);
 //		} catch(Exception e) {

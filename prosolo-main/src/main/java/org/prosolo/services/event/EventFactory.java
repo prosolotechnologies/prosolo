@@ -6,7 +6,7 @@ package org.prosolo.services.event;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +84,7 @@ public class EventFactory {
 		genericEvent.setDateCreated(new Date());
 		genericEvent.setObject(object);
 		genericEvent.setTarget(target);
-		LearningContextData lcd = context.getContext();
+		PageContextData lcd = context.getContext();
 		if (context != null) {
 			genericEvent.setPage(lcd.getPage());
 			genericEvent.setContext(lcd.getLearningContext());

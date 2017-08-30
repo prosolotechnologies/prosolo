@@ -59,7 +59,7 @@ public class UserSearchBean implements Serializable {
 		
 		if (searchQuery != null && searchQuery.length() > 0) {
 			//TODO learning context is retrieved in logServiceUse method
-			//LearningContextData lcd = new LearningContextData(page, context, null);
+			//PageContextData lcd = new PageContextData(page, context, null);
 			loggingNavigationBean.logServiceUse(
 					ComponentName.SEARCH_PEOPLE, 
 					searchQuery);

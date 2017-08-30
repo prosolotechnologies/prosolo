@@ -2,7 +2,7 @@ package org.prosolo.web.util.page;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.util.ResourceBundleUtil;
 
@@ -188,11 +188,11 @@ public class PageUtil {
 	 *  
 	 * @return
 	 */
-	public static LearningContextData extractLearningContextData() {
+	public static PageContextData extractLearningContextData() {
 		String page = getPostParameter("page");
 		String lContext = getPostParameter("learningContext");
 		String service = getPostParameter("service");
-		LearningContextData context = new LearningContextData(page, lContext, service);
+		PageContextData context = new PageContextData(page, lContext, service);
 		return context;
 	}
 
@@ -206,11 +206,11 @@ public class PageUtil {
 	 *
 	 * @return
 	 */
-	public static LearningContextData extractLearningContextDataFromComponent(UIComponent component) {
+	public static PageContextData extractLearningContextDataFromComponent(UIComponent component) {
 		String page = (String) component.getAttributes().get("page");
 		String lContext = (String) component.getAttributes().get("learningContext");
 		String service = (String) component.getAttributes().get("service");
-		LearningContextData context = new LearningContextData(page, lContext, service);
+		PageContextData context = new PageContextData(page, lContext, service);
 		return context;
 	}
 	

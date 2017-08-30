@@ -242,7 +242,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 //	public void addCommentToActivityDiscussion() {
 //		try {
 //			if (StringUtils.isBlank(currentActivityAssessment.getEncodedDiscussionId())) {
-//				LearningContextData lcd = new LearningContextData();
+//				PageContextData lcd = new PageContextData();
 //				lcd.setPage(PageUtil.getPostParameter("page"));
 //				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
 //				lcd.setService(PageUtil.getPostParameter("service"));
@@ -375,7 +375,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 //	private long createDiscussion(long targetActivityId, long competenceAssessmentId,
-//			LearningContextData context) {
+//			PageContextData context) {
 //		try {
 //			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 //
