@@ -112,17 +112,14 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
 	@Override
-	public void logNavigationFromContext(UserContextData context, String link,
-			String ctx, String parametersString, String ipAddress) throws LoggingException {
+	public void logNavigationFromContext(UserContextData context, String link, String parametersString, String ipAddress)
+			throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
-		
-		if (ctx != null && ctx.length() > 0) {
-			parameters.put("context", ctx);
-		}
+
 		parameters.put("objectType", "page");
 		parameters.put("link", link);
-		
+
 		try {
 			eventFactory.generateEvent(EventType.NAVIGATE, context, null, null,null, parameters);
 		} catch (EventException e) {
@@ -149,13 +146,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 
 	@Override
 	public void logTabNavigationFromContext(UserContextData userContext, String tabName,
-			String context, String parametersString, String ipAddress) throws LoggingException {
+											String parametersString, String ipAddress) throws LoggingException {
 
 		Map<String, String> parameters = convertToMap(parametersString);
-	
-		if (context != null && context.length() > 0) {
-			parameters.put("context", context);
-		}
 		
 		parameters.put("link", tabName);
 

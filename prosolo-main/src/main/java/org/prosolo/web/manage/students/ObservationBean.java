@@ -104,15 +104,12 @@ public class ObservationBean implements Serializable {
 			
 			Object msg = result.get("message");
 			
-			if(msg != null){
-				final String context = "studentProfile.observation." + Long.parseLong(result.get("observationId").toString());
-
+			if(msg != null) {
 				final Message message1 = (Message) msg;
 				UserContextData userContext = loggedUserBean.getUserContext();
 				taskExecutor.execute(() -> {
 					try {
 						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("context", context);
 						parameters.put("user", String.valueOf(studentId));
 						parameters.put("message", String.valueOf(message1.getId()));
 						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,

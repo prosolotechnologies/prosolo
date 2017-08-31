@@ -148,7 +148,6 @@ public class Profile {
 					taskExecutor.execute(() -> {
 						try {
 							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("context", createContext());
 							parameters.put("user", String.valueOf(decodedRecieverId));
 							parameters.put("message", String.valueOf(message1.getId()));
 							eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
@@ -293,10 +292,6 @@ public class Profile {
 		} else {
 			return "N/A";
 		}
-	}
-	
-	private String createContext() {
-		return null;
 	}
 	
 	/*

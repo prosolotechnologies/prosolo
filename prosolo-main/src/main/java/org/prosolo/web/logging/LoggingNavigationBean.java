@@ -122,8 +122,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitPageNavigation(){
 		try {
-			loggingService.logNavigationFromContext(loggedUser.getUserContext(), link, context,
-					parameters, getIpAddress());
+			loggingService.logNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -131,7 +130,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitTabNavigation(){
 		try {
-			loggingService.logTabNavigationFromContext(loggedUser.getUserContext(), link, context, parameters, getIpAddress());
+			loggingService.logTabNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}

@@ -21,15 +21,14 @@ public interface LoggingService {
 
 	void logNavigation(UserContextData context, String link, String ipAddress) throws LoggingException;
 
-	void logNavigationFromContext(UserContextData context, String link,
-								  String ctx, String parametersString, String ipAddress)
+	void logNavigationFromContext(UserContextData context, String link, String parametersString, String ipAddress)
 			throws LoggingException;
 	
 	void logEmailNavigation(UserContextData context, String link,
 							String parametersString, String ipAddress) throws LoggingException;
 
 	void logTabNavigationFromContext(UserContextData userContext, String tabName,
-									 String context, String parametersString, String ipAddress) throws LoggingException;
+									 String parametersString, String ipAddress) throws LoggingException;
 
 	void logEvent(EventType eventType, UserContextData context, String ipAddress);
 
