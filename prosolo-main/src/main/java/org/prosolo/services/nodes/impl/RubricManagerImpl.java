@@ -75,8 +75,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             Result<Rubric> res = new Result<>();
 
             res.addEvent(eventFactory.generateEventData(
-                    EventType.Create, context.getActorId(), context.getOrganizationId(),
-                    context.getSessionId(), rubric, null, context.getContext(), null));
+                    EventType.Create, context, rubric, null, null, null));
 
             res.setResult(rubric);
             return res;
@@ -168,15 +167,13 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context) throws DbConnectionException {
         Rubric rubric;
         try {
-            rubric = loadResource(Rubric.class,rubricId);
+            rubric = loadResource(Rubric.class, rubricId);
             rubric.setDeleted(true);
             saveEntity(rubric);
 
             Result<Void> result = new Result<>();
 
-            result.addEvent(eventFactory.generateEventData(
-                    EventType.Delete, context.getActorId(), context.getOrganizationId(),
-                    context.getSessionId(), rubric, null, context.getContext(), null));
+            result.addEvent(eventFactory.generateEventData(EventType.Delete, context, rubric, null, null, null));
 
             return result;
 

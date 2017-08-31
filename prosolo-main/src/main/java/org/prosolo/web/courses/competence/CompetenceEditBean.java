@@ -7,9 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -259,7 +257,7 @@ public class CompetenceEditBean implements Serializable {
 			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if (competenceData.hasObjectChanged()) {

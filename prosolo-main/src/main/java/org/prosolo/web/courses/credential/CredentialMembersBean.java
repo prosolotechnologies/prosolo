@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
@@ -204,7 +204,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
-			LearningContextData ctx = new LearningContextData(page, context, service);
+			PageContextData ctx = new PageContextData(page, context, service);
 			String action = null;
 			if(studentToAssignInstructor.getInstructor() == null 
 					|| studentToAssignInstructor.getInstructor().getInstructorId() 

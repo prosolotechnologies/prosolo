@@ -10,7 +10,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -356,7 +356,7 @@ public class ActivityEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
 					activityManager.updateActivity(activityData, loggedUser.getUserContext(lcd));

@@ -1,13 +1,5 @@
 package org.prosolo.web.search;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.logging.ComponentName;
@@ -16,6 +8,12 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "userSearchBean")
 @Component("userSearchBean")
@@ -29,6 +27,7 @@ public class UserSearchBean implements Serializable {
 	@Inject private LoggingNavigationBean loggingNavigationBean;
 	
 	private String query;
+	//TODO we should make transition to the approach we are using in other places for learning context
 	private String page;
 	private String context;
 	private List<UserData> users;
@@ -37,7 +36,7 @@ public class UserSearchBean implements Serializable {
 	public UserSearchBean() {
 		users = new ArrayList<UserData>();
 	}
-	
+
 	public void searchUsers() {
 		List<Long> excludeUsers = new ArrayList<Long>();
 		excludeUsers.add(loggedUser.getUserId());
@@ -59,11 +58,11 @@ public class UserSearchBean implements Serializable {
 		fetchUsers(searchQuery, excludeUsers);
 		
 		if (searchQuery != null && searchQuery.length() > 0) {
-			LearningContextData lcd = new LearningContextData(page, context, null);
+			//TODO learning context is retrieved in logServiceUse method
+			//PageContextData lcd = new PageContextData(page, context, null);
 			loggingNavigationBean.logServiceUse(
 					ComponentName.SEARCH_PEOPLE, 
-					searchQuery,
-					lcd);
+					searchQuery);
 		}
 		
 		searchQuery = null;

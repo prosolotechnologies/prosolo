@@ -1,13 +1,5 @@
 package org.prosolo.web.dashboard;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.event.EventException;
@@ -17,6 +9,13 @@ import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 @ManagedBean(name = "dashboardBean")
 @Component("dashboardBean")
@@ -76,7 +75,8 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserId(), null, null, parameters);
+			//TODO what to do with organization id
+			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserContext(), null, null, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}
@@ -90,7 +90,8 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		try {
-			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserId(), null, null, parameters);
+			//TODO what to do with organization id since this is admin section and admins do not have to have organizationId in session
+			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserContext(), null, null, null, parameters);
 		} catch (EventException e) {
 			logger.error("Generate event failed.", e);
 		}

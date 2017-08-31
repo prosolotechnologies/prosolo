@@ -77,8 +77,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             Result<Organization> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    organization, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
 
             res.setResult(organization);
             return res;
@@ -143,13 +142,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 switch (ud.getObjectStatus()){
                     case REMOVED:
                         userManager.setUserOrganization(ud.getId(),0);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context.getActorId(),
-                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context, user, organization, null, null));
                         break;
                     case CREATED:
                         userManager.setUserOrganization(ud.getId(),organizationId);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context.getActorId(),
-                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context, user, organization, null, null));
                         break;
                     default:
                         break;

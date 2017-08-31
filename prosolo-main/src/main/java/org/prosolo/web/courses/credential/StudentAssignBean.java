@@ -5,7 +5,7 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -218,7 +218,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 				String service = PageUtil.getPostParameter("service");
 				String lContext = context + "|context:/name:INSTRUCTOR|id:" 
 						+ instructorForStudentAssign.getInstructorId() + "/";
-				LearningContextData ctx = new LearningContextData(page, lContext, service);
+				PageContextData ctx = new PageContextData(page, lContext, service);
 				List<Long> usersToAssign = null;
 				if (selectAll) {
 					List<Long> studentsToExcludeCopy = new ArrayList<>(studentsToExcludeFromAssign);

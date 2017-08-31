@@ -131,4 +131,6 @@ public interface UserManager extends AbstractManager {
 											String password, String position, long unitId,
 											long unitRoleId, long userGroupId, UserContextData context)
 			throws DbConnectionException, EventException;
+
+	long getUserOrganizationId(long userId) throws DbConnectionException;
 }

@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -77,12 +76,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		for (EventData ev : res.getEvents()) {
 			//todo observer refactor - generate attach event always when sequential event execution is supported
 			if (credentialId == 0 || ev.getEventType() != EventType.Attach) {
-				LearningContextData lcd = context.getContext();
-				if (lcd != null) {
-					ev.setPage(lcd.getPage());
-					ev.setContext(lcd.getLearningContext());
-					ev.setService(lcd.getService());
-				}
 				eventFactory.generateEvent(ev);
 			}
 		}
@@ -141,9 +134,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				params.put("credentialId", credentialId + "");
 			}
 			result.addEvent(eventFactory.generateEventData(EventType.Create,
-					context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-					comp, null, context.getContext(),
-					params));
+					context, comp, null, null, params));
 
 			//add Edit privilege to the competence creator
 			result.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
@@ -292,18 +283,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Map<String, String> params = new HashMap<>();
 			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId,
-					context.getOrganizationId(), context.getSessionId(), competence, null,
-					page, lContext, service, null, params);
+			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, context, competence, null, null, params);
 
 			return targetComp;
 		} catch(Exception e) {
@@ -495,14 +475,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		String jsonChangeTracker = gson.toJson(changeTracker);
 		params.put("changes", jsonChangeTracker);
 
-		LearningContextData lcd = context.getContext();
-		String page = lcd != null ? lcd.getPage() : null;
-		String lContext = lcd != null ? lcd.getLearningContext() : null;
-		String service = lcd != null ? lcd.getService() : null;
-
-		eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), updatedComp,
-				null, page, lContext, service, null, params);
+		eventFactory.generateEvent(EventType.Edit, context, updatedComp,null, null, params);
 	}
 
 	@Override
@@ -1358,9 +1331,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				competence.setVisibleToAll(visibleToAll);
 
 				events.add(eventFactory.generateEventData(
-						EventType.VISIBLE_TO_ALL_CHANGED,
-						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-						competence, null, context.getContext(), null));
+						EventType.VISIBLE_TO_ALL_CHANGED, context, competence, null, null, null));
 			}
 			events.addAll(userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users, context)
 					.getEvents());
@@ -1489,19 +1460,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-
-			eventFactory.generateEvent(EventType.Bookmark, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), bookmark, competence,
-					page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.Bookmark, context, bookmark, competence, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1538,19 +1497,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-
-			eventFactory.generateEvent(EventType.RemoveBookmark, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), cb, competence,
-					page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.RemoveBookmark, context, cb, competence, null, null);
 			
 		} catch(Exception e) {
 			logger.error(e);
@@ -1655,19 +1602,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-
-			eventFactory.generateEvent(EventType.ARCHIVE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(),
-					competence, null, page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.ARCHIVE, context,
+					competence, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1841,12 +1777,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException, EventException {
 		Result<Competence1> res = resourceFactory.duplicateCompetence(compId, context);
 		for (EventData ev : res.getEvents()) {
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				ev.setPage(lcd.getPage());
-				ev.setContext(lcd.getLearningContext());
-				ev.setService(lcd.getService());
-			}
 			eventFactory.generateEvent(ev);
 		}
 		return res.getResult().getId();
@@ -1917,18 +1847,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			String page = null;
-			String lContext = null;
-			String service = null;
-			LearningContextData lcd = context.getContext();
-			if (lcd != null) {
-				page = lcd.getPage();
-				lContext = lcd.getLearningContext();
-				service = lcd.getService();
-			}
-			eventFactory.generateEvent(EventType.RESTORE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), competence, null,
-					page, lContext, service, null, null);
+
+			eventFactory.generateEvent(EventType.RESTORE, context, competence, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2081,14 +2001,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
 
 			events.add(eventFactory.generateEventData(
-					EventType.Completion, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), tComp, null,
-					context.getContext(), params));
+					EventType.Completion, context, tComp, null,null, params));
 		}
 
 		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
-				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-				tComp, null, context.getContext(), params);
+				context, tComp, null, null, params);
 		ev.setProgress(finalCompProgress);
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
@@ -2125,8 +2042,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				c.setPublished(true);
 				c.setDatePublished(newDatePublished);
 				res.addEvent(eventFactory.generateEventData(EventType.STATUS_CHANGED,
-						context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), c, null, context.getContext(), null));
+						context, c, null, null,null));
 			}
 			
 			return res;
@@ -2246,11 +2162,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		params.put("oldOwnerId", oldOwnerId + "");
 		params.put("newOwnerId", newOwnerId + "");
 		return eventFactory.generateEventData(EventType.OWNER_CHANGE,
-				context.getActorId(), context.getOrganizationId(),
-				context.getSessionId(), comp, null,
-				context.getContext(), params);
+				context, comp, null, null, params);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException {
