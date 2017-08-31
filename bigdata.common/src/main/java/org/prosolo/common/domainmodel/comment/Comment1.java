@@ -3,13 +3,7 @@ package org.prosolo.common.domainmodel.comment;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -17,6 +11,9 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(indexes = {
+		@Index(columnList = "commented_resource_id,resource_type", name = "index_comment1_commented_resource_id_resource_type")
+})
 public class Comment1 extends BaseEntity {
 
 	private static final long serialVersionUID = -620642224761542131L;
@@ -66,6 +63,7 @@ public class Comment1 extends BaseEntity {
 		this.childComments = childComments;
 	}
 
+	@Column(name = "commented_resource_id")
 	public long getCommentedResourceId() {
 		return commentedResourceId;
 	}
@@ -75,6 +73,7 @@ public class Comment1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "resource_type")
 	public CommentedResourceType getResourceType() {
 		return resourceType;
 	}
