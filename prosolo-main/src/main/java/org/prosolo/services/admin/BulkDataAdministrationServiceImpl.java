@@ -30,18 +30,32 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     protected static Logger logger = Logger.getLogger(BulkDataAdministrationServiceImpl.class);
 
-    @Inject private UserManager userManager;
-    @Inject private DefaultManager defaultManager;
-    @Inject private UserEntityESService userEntityESService;
-    @Inject private CredentialManager credManager;
-    @Inject private Competence1Manager compManager;
-    @Inject private CredentialESService credESService;
-    @Inject private CompetenceESService compESService;
-    @Inject private UserGroupManager userGroupManager;
-    @Inject private UserGroupESService userGroupESService;
-    @Inject private ESAdministration esAdministration;
-    @Inject private OrganizationManager orgManager;
-    @Inject private RubricManager rubricManager;
+    @Inject
+    private UserManager userManager;
+    @Inject
+    private DefaultManager defaultManager;
+    @Inject
+    private UserEntityESService userEntityESService;
+    @Inject
+    private CredentialManager credManager;
+    @Inject
+    private Competence1Manager compManager;
+    @Inject
+    private CredentialESService credESService;
+    @Inject
+    private CompetenceESService compESService;
+    @Inject
+    private UserGroupManager userGroupManager;
+    @Inject
+    private UserGroupESService userGroupESService;
+    @Inject
+    private ESAdministration esAdministration;
+    @Inject
+    private OrganizationManager orgManager;
+    @Inject
+    private RubricManager rubricManager;
+    @Inject
+    private RubricsESService rubricsESService;
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -106,18 +120,21 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
             }
             //index competences
             List<Competence1> comps = compManager.getAllCompetences(session);
-            for(Competence1 comp : comps) {
+            for (Competence1 comp : comps) {
                 compESService.saveCompetenceNode(comp, session);
             }
 
             //index user groups
             List<UserGroup> groups = userGroupManager.getAllGroups(false, session);
-            for(UserGroup group : groups) {
+            for (UserGroup group : groups) {
                 userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
             }
 
             //index rubrics
-            List<Rubric> rubrics = rubricManager.getRu
+            List<Rubric> rubrics = rubricManager.getAllRubrics(session);
+            for (Rubric r : rubrics) {
+                rubricsESService.saveRubric(r.getOrganization().getId(),r.getId());
+            }
         } catch (Exception e) {
             logger.error("Exception in handling message", e);
         } finally {

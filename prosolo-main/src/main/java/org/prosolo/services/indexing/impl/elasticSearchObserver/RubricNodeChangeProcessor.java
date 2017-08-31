@@ -3,6 +3,10 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContextUtil;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.RubricsESService;
@@ -19,31 +23,21 @@ public class RubricNodeChangeProcessor implements NodeChangeProcessor {
     private static Logger logger = Logger.getLogger(RubricNodeChangeProcessor.class);
 
     private RubricsESService rubricsESService;
-    private UserEntityESService userEntityESService;
-    private RubricManager rubricManager;
     private Event event;
-    private Session session;
 
-
-    public RubricNodeChangeProcessor(Event event, RubricsESService rubricsESService, UserEntityESService userEntityESService,
-                                     RubricManager rubricManager, Session session) {
+    public RubricNodeChangeProcessor(Event event, RubricsESService rubricsESService) {
         this.rubricsESService = rubricsESService;
-        this.userEntityESService = userEntityESService;
-        this.rubricManager = rubricManager;
         this.event = event;
-        this.session = session;
     }
 
     @Override
     public void process() {
+        long rubricId = event.getObject().getId();
+        long orgId = event.getOrganizationId();
         if (event.getAction() == EventType.Create) {
-            try {
-                long rubricId = event.getObject().getId();
-                rubricsESService.saveRubric(rubricId);
-            } catch (Exception e) {
-                //TODO handle es exceptions somehow
-                logger.error("Error", e);
-            }
+            rubricsESService.saveRubric(orgId, rubricId);
+        } else if (event.getAction() == EventType.Delete) {
+            rubricsESService.deleteRubric(orgId, rubricId);
         }
     }
 }

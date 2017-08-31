@@ -37,8 +37,24 @@
                         <h:link outcome="/manage/newRubric"
                                 styleClass="btn btn-green btn-sm item">
                             New #{msg['label.rubric']}</h:link>
+
                         <div class="searchBox">
-                            <input type="search" name="name" value="" placeholder="Filter by Keywords"/>
+                            <h:form id="searchForm">
+                                <p:remoteCommand
+                                        name="execSearchRubrics"
+                                        process="inputRubricSearch"
+                                        update=":panelRubrics :pagination"
+                                        action="#{rubricsBean.resetAndSearch()}" />
+
+                                <h:inputText id="inputRubricSearch"
+                                             autofocus="true"
+                                             autocomplete="off"
+                                             type="search"
+                                             placeholder="Filter by Keywords"
+                                             value="#{rubricsBean.searchTerm}"
+                                             onclick="$(this).select();"
+                                             onkeyup="searchListener(execSearchRubrics);"/>
+                            </h:form>
                         </div>
                     </div>
                     <div class="whiteBarRight">

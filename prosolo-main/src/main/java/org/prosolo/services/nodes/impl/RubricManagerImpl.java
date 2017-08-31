@@ -2,7 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -19,11 +19,13 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.RubricData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +39,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     private static Logger logger = Logger.getLogger(RubricManagerImpl.class);
 
-    @Inject
+    @Autowired
     private EventFactory eventFactory;
     @Inject
     private RubricManager self;
@@ -70,14 +72,11 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             saveEntity(rubric);
 
-            Rubric r = new Rubric();
-            r.setId(rubric.getId());
-
             Result<Rubric> res = new Result<>();
 
             res.addEvent(eventFactory.generateEventData(
                     EventType.Create, context.getActorId(), context.getOrganizationId(),
-                    context.getSessionId(), r, null, context.getContext(), null));
+                    context.getSessionId(), rubric, null, context.getContext(), null));
 
             res.setResult(rubric);
             return res;
@@ -130,13 +129,59 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public void deleteRubric(long rubricId) throws DbConnectionException {
-        Rubric rubric = null;
+    @Transactional(readOnly = true)
+    public List<Rubric> getAllRubrics(Session session) throws DbConnectionException {
         try {
-            rubric = loadResource(Rubric.class, rubricId);
+            String query =
+                    "SELECT rubric " +
+                            "FROM Rubric rubric " +
+                            "WHERE rubric.deleted = :deleted";
+
+            @SuppressWarnings("unchecked")
+            List<Rubric> result = session.createQuery(query).setBoolean("deleted", false).list();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+            return result;
+        } catch (DbConnectionException e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while retrieving rubrics");
+        }
+    }
+
+    @Override
+    public void deleteRubric(long rubricId, UserContextData context) throws DbConnectionException {
+        Result<Void> result = self.deleteRubricAndGetEvents(rubricId, context);
+        for (EventData ev : result.getEvents()) {
+            try {
+                eventFactory.generateEvent(ev);
+            } catch (EventException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context) throws DbConnectionException {
+        Rubric rubric;
+        try {
+            rubric = loadResource(Rubric.class,rubricId);
             rubric.setDeleted(true);
             saveEntity(rubric);
+
+            Result<Void> result = new Result<>();
+
+            result.addEvent(eventFactory.generateEventData(
+                    EventType.Delete, context.getActorId(), context.getOrganizationId(),
+                    context.getSessionId(), rubric, null, context.getContext(), null));
+
+            return result;
+
         } catch (ResourceCouldNotBeLoadedException e) {
+            e.printStackTrace();
             throw new DbConnectionException("Error while deleting rubric");
         }
     }
@@ -152,6 +197,24 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RubricData getOrganizationRubric(long rubricId) {
+        String query =
+                "SELECT rubric " +
+                        "FROM Rubric rubric " +
+                        "WHERE rubric.id = :rubricId";
+
+        Rubric rubric = (Rubric) persistence.currentManager()
+                .createQuery(query)
+                .setLong("rubricId", rubricId)
+                .uniqueResult();
+
+        RubricData rubricData = new RubricData(rubric, rubric.getCreator());
+
+        return rubricData;
     }
 
     private Long getOrganizationRubricsCount(long organizationId) {

@@ -22,7 +22,7 @@ import java.io.IOException;
  */
 
 @Service("org.prosolo.services.indexing.RubricsESService")
-public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implements RubricsESService{
+public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implements RubricsESService {
 
     private static Logger logger = Logger.getLogger(RubricsESServiceImpl.class);
 
@@ -31,25 +31,32 @@ public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implem
 
     @Override
     @Transactional
-    public void saveRubric(long rubricId) {
-        try{
+    public void saveRubric(long orgId, long rubricId) {
+        try {
             XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-            builder.field("id",rubricId);
-            builder.field("name",rubricManager.getRubricName(rubricId));
+            builder.field("id", rubricId);
+            builder.field("name", rubricManager.getRubricName(rubricId));
             builder.endObject();
 
             System.out.println("JSON: " + builder.prettyPrint().string());
 
             String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME +
-                    ElasticsearchUtil.getRubricIndexSuffix(rubricId);
+                    ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
 
             indexNode(builder, String.valueOf(rubricId), fullIndexName,
                     ESIndexTypes.RUBRIC);
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error(e);
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void deleteRubric(long orgId, long rubricId) {
+        String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME +
+                ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
+        delete(rubricId + "", fullIndexName, ESIndexTypes.RUBRIC);
+    }
 
 }

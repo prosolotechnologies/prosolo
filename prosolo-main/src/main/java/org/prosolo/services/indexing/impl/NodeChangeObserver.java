@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -87,11 +88,12 @@ public class NodeChangeObserver extends EventObserver {
 			TargetCredential1.class,
 			TargetCompetence1.class,
 			UserGroup.class,
-			Organization.class
+			Organization.class,
+			Rubric.class
 		};
 	}
 
-	@Override
+	@Override																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													
 	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		try {
