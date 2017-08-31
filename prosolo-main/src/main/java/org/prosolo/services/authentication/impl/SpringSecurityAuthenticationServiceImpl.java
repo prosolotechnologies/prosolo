@@ -168,8 +168,8 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			//grantedAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 			//logger.debug("Granted authority ROLE USER");
 			if(!existingUser){
-				System.out.println("NOT EXISTING USER> CREATE NEW ONE");
-				
+				logger.debug("NOT EXISTING USER");
+				return false;
 			// authenticate = new UsernamePasswordAuthenticationToken(email, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
 			}else{
 				System.out.println("w2Existing user");

@@ -181,4 +181,14 @@ public class ResourceBundleUtil {
 	public static String getLabel(String resource) {
     	return getLabel(resource, new Locale("en", "US"));
 	}
+
+	public static String getSpringMessage(String key) {
+		try {
+			return getString("org.prosolo.web.spring-messages", key, new Locale("en", "US"), null);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
+	}
 }

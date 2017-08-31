@@ -21,11 +21,15 @@ import java.util.List;
 
 public interface UserManager extends AbstractManager {
 
-	User getUser(String email);
+	User getUser(String email) throws DbConnectionException;
+
+	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
 	User getUser(long organizationId, String email) throws DbConnectionException;
 
-	boolean checkIfUserExists(String email);
+	boolean checkIfUserExists(String email) throws DbConnectionException;
+
+	boolean checkIfUserExistsAndNotDeleted(String email) throws DbConnectionException;
 
 	Collection<User> getAllUsers();
 	
