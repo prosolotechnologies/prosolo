@@ -252,14 +252,20 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"compObjectActor.lastname AS compObjectActorLastname, " +
 				"compObject.description AS compObjectDescription, " +
 				
-				"IF (annotation.id > 0, true, false) AS liked, \n " +
-				"COUNT(comment.id) AS commentsNumber ";
+				"annotation.id is NOT NULL AS liked, \n " +
+				" (SELECT COUNT(comm.id) FROM comment1 comm \n" +
+						" WHERE comm.commented_resource_id = sa.id \n" +
+						" AND comm.resource_type = :commentResourceType \n " +
+						" AND comm.parent_comment IS NULL) AS commentsNumber ";
 	}
 	
 	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate,
 			boolean queryById, boolean shouldReturnHidden, List<Long> credentialIds) {
+		//straight join is used for actor to force table order because after analyzing query, it appears that MySQL optimizer chooses wrong table order
 		String q =
 				"FROM social_activity1 sa \n" +
+				"	STRAIGHT_JOIN user AS actor \n" +
+				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
 				"		ON config.social_activity = sa.id \n" +
 				"       AND config.user = :userId " +
@@ -311,18 +317,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       ON tActObject.target_competence = tComp.id " +
 				"   LEFT JOIN user AS actObjectActor " +
 				"       ON actObject.created_by = actObjectActor.id " +
-				
-				"	INNER JOIN user AS actor \n" +
-				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
 				"       AND annotation.annotated_resource = :annotatedResource " +
 				"		AND annotation.annotation_type = :annotationType " +
 				"		AND annotation.maker = :userId " +
-				"   LEFT JOIN comment1 AS comment \n" +
-				"       ON sa.id = comment.commented_resource_id " +
-				"       AND comment.resource_type = :commentResourceType " +
-				"       AND comment.parent_comment IS NULL " +
 						
 				"WHERE sa.deleted = :saDeleted \n";
 			
@@ -346,81 +345,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			}
 		}
 		
-		return q + specificPartOfTheCondition +	
-			"GROUP BY sa.id, compActivity.competence, annotation.id, " +
-			"sa.dtype, " +
-			"sa.created, " +
-			"sa.last_action, " +
-			"sa.comments_disabled, " +
-			"sa.text, " +
-			"sa.like_count, " +
-			"sa.actor, " +
-			"actor.name, " +
-			"actor.lastname, " +
-			"actor.avatar_url, " +
-			"sa.twitter_poster_name, " +
-			"sa.twitter_poster_nickname, " +
-			"sa.twitter_poster_profile_url, " +
-			"sa.twitter_poster_avatar_url, " +
-			"sa.twitter_post_url, " +
-			"sa.twitter_user_type, " +
-			"sa.rich_content_title, " +
-			"sa.rich_content_description, " +
-			"sa.rich_content_content_type, " +
-			"sa.rich_content_image_url, " +
-			"sa.rich_content_link, " +
-			"sa.rich_content_embed_id, " +
-			"sa.rich_content_image_size, " +
-			"sa.post_object, " +
-			"postObject.text, " +
-			"postObject.rich_content_title, " +
-			"postObject.rich_content_description, " +
-			"postObject.rich_content_content_type, " +
-			"postObject.rich_content_image_url, " +
-			"postObject.rich_content_link, " +
-			"postObject.rich_content_embed_id, " +
-			"postObject.rich_content_image_size, " +
-			"postObject.actor, " +
-			"postObjectActor.name, " +
-			"postObjectActor.lastname, " +
-			"postObjectActor.avatar_url, " +
-			"postObject.created, " +
-			"sa.credential_object, " +
-			"credObject.title, " +
-			"credObject.duration, " +
-			"credObject.created_by, " +
-			"credObjectActor.name, " +
-			"credObjectActor.lastname, " +
-			"credObject.description, " +
-			"sa.comment_object, " +
-			"commentObject.description, " +
-			"sa.competence_target, " +
-			"compTarget.title, " +
-			"sa.activity_target, " +
-			"actTarget.title, " +
-			"compActivity.competence, " +
-			"actTarget.dtype, " +
-			"actTarget.url_type, " +
-			"tActObject.activity, " +
-			"actObject.title, " +
-			"actObject.duration, " +
-			"actObject.type, " +
-			"actObject.created_by, " +
-			"actObjectActor.name, " +
-			"actObjectActor.lastname, " +
-			"actObject.description, " +
-			"actObject.dtype, " +
-			"actObject.url_type, " +
-			"tComp.competence, " +
-			//"tCred.credential, " +
-			"tCompObject.competence, " +
-			"compObject.title, " +
-			"compObject.duration, " +
-			"compObject.type, " +
-			"compObject.created_by, " +
-			"compObjectActor.name, " +
-			"compObjectActor.lastname, " +
-			"compObject.description " +
+		return q + specificPartOfTheCondition +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +
@@ -461,6 +386,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
+				//Sometimes Integer is returned and sometimes BigInteger
+				boolean liked = 1 == Integer.valueOf(tuple[73].toString());
+
 				return socialActivityFactory.getSocialActivityData(
 						(BigInteger) tuple[0],
 						(String) tuple[1],
@@ -535,7 +463,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						(String) tuple[70],
 						(String) tuple[71],
 						(String) tuple[72],
-						(Integer) tuple[73],
+						liked,
 						(BigInteger) tuple[74],
 						locale);
 			}
