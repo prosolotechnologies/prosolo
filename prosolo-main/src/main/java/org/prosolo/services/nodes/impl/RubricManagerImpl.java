@@ -2,7 +2,6 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -73,8 +72,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             Result<Rubric> res = new Result<>();
 
             res.addEvent(eventFactory.generateEventData(
-                    EventType.Create, context.getActorId(), context.getOrganizationId(),
-                    context.getSessionId(), rubric, null, context.getContext(), null));
+                    EventType.Create, context, rubric, null, null, null));
 
             res.setResult(rubric);
             return res;

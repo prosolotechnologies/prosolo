@@ -9,6 +9,8 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -101,14 +103,12 @@ public class Profile {
 					idEncoder.decodeId(studentId) != loggedUserBean.getUserId()) {
 				
 				String page = FacesContext.getCurrentInstance().getViewRoot().getClientId();
-				
+				String context = "name:profile|id:" + currentStudent.getId();
+				UserContextData userContext = loggedUserBean.getUserContext(new PageContextData(page, context, null));
 				taskExecutor.execute(() -> {
 					try {
-						String context = "name:profile|id:" + currentStudent.getId();
-						
-						eventFactory.generateEvent(EventType.View_Profile, loggedUserBean.getUserId(),
-								loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
-								currentStudent, null, page, context, null, null, null);
+						eventFactory.generateEvent(EventType.View_Profile, userContext, currentStudent,
+								null, null, null);
 					} catch (EventException e) {
 						logger.error(e);
 					}
@@ -135,7 +135,7 @@ public class Profile {
 			if (Long.valueOf(studentId) != loggedUserBean.getUserId()) {
 				try {
 					long decodedRecieverId = Long.valueOf(studentId);
-					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedRecieverId, this.message);
+					Message message = messagingManager.sendMessage(loggedUserBean.getUserContext(), decodedRecieverId, this.message);
 					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedRecieverId+" with content: '"+message+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();
@@ -143,22 +143,18 @@ public class Profile {
 					participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
 					
 					final Message message1 = message;
-					
-					taskExecutor.execute(new Runnable() {
-			            @Override
-			            public void run() {
-			            	try {
-			            		Map<String, String> parameters = new HashMap<String, String>();
-			            		parameters.put("context", createContext());
-			            		parameters.put("user", String.valueOf(decodedRecieverId));
-			            		parameters.put("message", String.valueOf(message1.getId()));
-			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(),
-										loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
-										message1, null, null, null, null, null, parameters);
-			            	} catch (EventException e) {
-			            		logger.error(e);
-			            	}
-			            }
+
+					UserContextData userContext = loggedUserBean.getUserContext();
+					taskExecutor.execute(() -> {
+						try {
+							Map<String, String> parameters = new HashMap<String, String>();
+							parameters.put("user", String.valueOf(decodedRecieverId));
+							parameters.put("message", String.valueOf(message1.getId()));
+							eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
+									null, null, parameters);
+						} catch (EventException e) {
+							logger.error(e);
+						}
 					});
 					this.message = "";
 					
@@ -296,10 +292,6 @@ public class Profile {
 		} else {
 			return "N/A";
 		}
-	}
-	
-	private String createContext() {
-		return null;
 	}
 	
 	/*

@@ -1,22 +1,5 @@
 package org.prosolo.web.messaging;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -25,6 +8,8 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
@@ -42,6 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author "Nikola Milikic"
@@ -176,18 +170,16 @@ public class MessagesBean implements Serializable {
 		
 		String page = PageUtil.getPostParameter("page");
 		String context = PageUtil.getPostParameter("context");
-		
+		page = (page != null) ? page : "messages";
+		context = (context != null) ? context : "name:messages";
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 		taskExecutor.execute(() -> {
 			try {
-				String page1 = (page == null) ? page : "messages";
-				String context1 = (context == null) ? context : "name:messages";
-
 				Map<String, String> parameters = new HashMap<String, String>();
-        		parameters.put("context", context1);
         		parameters.put("threadId", String.valueOf(threadData.getId()));
         		
-        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(),
-						loggedUser.getOrganizationId(), loggedUser.getSessionId(), thread, null, page1, context1, null, null, parameters);
+        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD,
+						userContext, thread, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}
@@ -284,7 +276,7 @@ public class MessagesBean implements Serializable {
 			Message message = null;
 			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
 				//new recipients have been set, send message to them (and create or re-use existing thread)
-				message = messagingManager.sendMessage(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
+				message = messagingManager.sendMessage(loggedUser.getUserContext(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
 				initializeThreadData(message.getMessageThread());
 			}
 			else {
@@ -320,9 +312,8 @@ public class MessagesBean implements Serializable {
 	}
 	
 	private void publishSentMessage(long senderId, List<UserData> participants, Message message) {
-		taskExecutor.execute(new Runnable() {
-        @Override
-        public void run() {
+		UserContextData userContext = loggedUser.getUserContext();
+		taskExecutor.execute(() -> {
         	try {
         		Map<String, String> parameters = new HashMap<String, String>();
         		parameters.put("context", context);
@@ -330,15 +321,12 @@ public class MessagesBean implements Serializable {
         		//DirectMessageDialog uses recipient as user param
         		parameters.put("user", String.valueOf(participants.get(0).getId()));
         		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId,
-						loggedUser.getOrganizationId(), loggedUser.getSessionId(), message, null,
-						null, null, null, null, parameters);
+        		eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
+						message, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}
-        }
-	});
-		
+		});
 	}
 	
 	private List<Long> getRecieverIdsFromParameters(String ids) {

@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -572,7 +571,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
 	private SocialActivity1 getPostSocialActivity(long id, Session session) throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -591,8 +589,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 
-	@Transactional(readOnly = true)
-	private SocialActivity1 getTwitterPostSocialActivity(long id, Session session) 
+	private SocialActivity1 getTwitterPostSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -611,8 +608,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getPostReshareSocialActivity(long id, Session session) 
+	private SocialActivity1 getPostReshareSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -633,8 +629,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCredentialEnrollSocialActivity(long id, Session session) 
+	private SocialActivity1 getCredentialEnrollSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -655,8 +650,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCompetenceCommentSocialActivity(long id, Session session) 
+	private SocialActivity1 getCompetenceCommentSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -678,8 +672,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getActivityCommentSocialActivity(long id, Session session) 
+	private SocialActivity1 getActivityCommentSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -701,8 +694,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCredentialCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getCredentialCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -724,8 +716,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCompetenceCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getCompetenceCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -748,8 +739,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getActivityCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getActivityCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -812,15 +802,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 createNewPost(long userId, SocialActivityData1 postData,
-			LearningContextData context) throws DbConnectionException {
+	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
+			UserContextData context) throws DbConnectionException {
 		try {
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
 			
-			PostSocialActivity1 post = resourceFactory.createNewPost(userId, postData.getText(), richContent);
-			
-			User user = new User();
-			user.setId(userId);
+			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
+
 			// generate events related to the content
 			//TODO richcontent1 is not a baseentity so event can't be generated
 			
@@ -828,14 +816,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				Session session = this.getPersistence().openSession();
 				try {
 					
-					generateEventForContent(user, postData.getText(), post);
+					generateEventForContent(context, postData.getText(), post);
 					
 					// generate Post event
-					String page = context != null ? context.getPage() : null;
-					String lContext = context != null ? context.getLearningContext() : null;
-					String service = context != null ? context.getService() : null;
-					eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
-							lContext, service, null);
+					eventFactory.generateEvent(EventType.Post, context, post, null, null, null);
 					
 					// generate MENTIONED event
 					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
@@ -844,8 +828,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						for (long mentionedUserId : mentionedUsers) {
 							User mentionedUser = (User) session.load(User.class, mentionedUserId);
 							
-							eventFactory.generateEvent(EventType.MENTIONED, userId, mentionedUser, post, page, 
-									lContext, service, null);
+							eventFactory.generateEvent(EventType.MENTIONED, context, mentionedUser, post, null, null);
 						}
 					}
 				} catch (Exception e) {
@@ -880,18 +863,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
-			LearningContextData context) throws DbConnectionException {
+	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
+			throws DbConnectionException {
 		try {
-			PostReshareSocialActivity postShare = resourceFactory.sharePost(userId, text, originalPostId);
-			
-			User user = new User();
-			user.setId(userId);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.PostShare, user.getId(), postShare, null, page, 
-					lContext, service, null);
+			PostReshareSocialActivity postShare = resourceFactory.sharePost(context.getActorId(), text, originalPostId);
+
+			eventFactory.generateEvent(EventType.PostShare, context, postShare, null, null, null);
 			
 			return postShare;
 		} catch(Exception e) {
@@ -903,23 +880,16 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 updatePost(long userId, long postId, String newText, 
+	public PostSocialActivity1 updatePost(long postId, String newText,
 			UserContextData context) throws DbConnectionException {
 		try {
 			PostSocialActivity1 post = resourceFactory.updatePost(postId, newText);
-			
-			User user = new User();
-			user.setId(userId);
+
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
 			try {
-				LearningContextData lcd = context.getContext();
-				String page = lcd != null ? lcd.getPage() : null;
-				String lContext = lcd != null ? lcd.getLearningContext() : null;
-				String service = lcd != null ? lcd.getService() : null;
-				eventFactory.generateEvent(EventType.PostUpdate, context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), post, null, page, lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
 			} catch (EventException e) {
 				logger.error(e);
 			}
@@ -933,11 +903,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	/**
-	 * @param user
+	 * @param context
 	 * @param text
 	 * @param post
 	 */
-	private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
+	private void generateEventForContent(final UserContextData context, final String text, final PostSocialActivity1 post) {
 		String addedLink = null;
 	
 		RichContent1 richContent = post.getRichContent();
@@ -945,13 +915,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			try {
 				switch (richContent.getContentType()) {
 				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
 					addedLink = richContent.getLink();
 					break;
 				case FILE:
-					eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.FileUploaded, context, post, null, null, null);
 					break;
 				default:
 					break;
@@ -970,10 +938,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional(readOnly = false)
 	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
-			long userId, CommentedResourceType resource, LearningContextData context) 
+			CommentedResourceType resource, UserContextData context)
 					throws DbConnectionException {
 		try {
-			Comment1 comment = commentManager.saveNewComment(data, userId, resource, context);
+			Comment1 comment = commentManager.saveNewComment(data, resource, context);
 			updateLastActionDate(socialActivityId, comment.getPostDate());
 			return comment;
 		} catch(Exception e) {
@@ -984,7 +952,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		
 	}
 	
-	@Transactional(readOnly = false)
 	private void updateLastActionDate(long socialActivityId, Date newDate) throws DbConnectionException {
 		SocialActivity1 sa = (SocialActivity1) persistence.currentManager()
 				.load(SocialActivity1.class, socialActivityId);
@@ -993,10 +960,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateSocialActivityComment(long id, CommentData data, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void updateSocialActivityComment(long id, CommentData data, UserContextData context)
+			throws DbConnectionException {
 		try {
-			commentManager.updateComment(data, userId, context);
+			commentManager.updateComment(data, context);
 			updateLastActionDate(id, new Date());
 		} catch(Exception e) {
 			logger.error(e);
@@ -1007,10 +974,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void likeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void likeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.createAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.createAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 						   "SET sa.likeCount = sa.likeCount + 1 " +
@@ -1024,8 +991,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.Like, userId, sa, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Like, context, sa, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1035,10 +1001,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void unlikeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.deleteAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.deleteAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 					   "SET sa.likeCount = sa.likeCount - 1 " +
@@ -1052,8 +1018,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, userId, sa, null, context.getPage(), 
-					context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.RemoveLike, context, sa, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

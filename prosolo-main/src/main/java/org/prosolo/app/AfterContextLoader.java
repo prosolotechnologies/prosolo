@@ -1,22 +1,16 @@
 package org.prosolo.app;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.prosolo.app.bc.BusinessCase;
-import org.prosolo.app.bc.BusinessCase0_Blank;
-import org.prosolo.app.bc.BusinessCase2_AU;
-import org.prosolo.app.bc.BusinessCase3_Statistics;
-import org.prosolo.app.bc.BusinessCase4_EDX;
+import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -34,6 +28,9 @@ import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -196,7 +193,8 @@ public class AfterContextLoader implements ServletContextListener {
 							adminRole, 
 							adminUser);
 			
-			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, adminUser.getId(), adminUser);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+					EventType.Edit_Profile, UserContextData.ofActor(adminUser.getId()), adminUser, null, null, null);
 	
 //			// instantiate badges
 //			ServiceLocator.getInstance().getService(BadgeManager.class)

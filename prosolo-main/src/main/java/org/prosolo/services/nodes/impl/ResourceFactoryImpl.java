@@ -23,7 +23,6 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -495,8 +494,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 c = new Competence1();
             c.setId(competence.getId());
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    c, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
 
             List<CompetenceActivity1> activities = comp.getActivities();
 

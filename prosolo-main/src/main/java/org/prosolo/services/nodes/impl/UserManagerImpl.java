@@ -2,8 +2,6 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -13,7 +11,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
@@ -200,7 +197,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				avatarFilename,
 				roles);
 
-		eventFactory.generateEvent(EventType.Registered, newUser.getId());
+		eventFactory.generateEvent(
+				EventType.Registered, UserContextData.ofActor(newUser.getId()),null, null, null, null);
 
 		return newUser;
 	}
@@ -330,17 +328,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, roles, rolesToUpdate);
 
-		String page = null;
-		String lContext = null;
-		String service = null;
-		LearningContextData lcd = context.getContext();
-		if (lcd != null) {
-			page = lcd.getPage();
-			lContext = lcd.getLearningContext();
-			service = lcd.getService();
-		}
-		eventFactory.generateEvent(EventType.Edit_Profile, context.getActorId(), context.getOrganizationId(),
-				context.getSessionId(), user, null, page, lContext, service, null, null);
+		eventFactory.generateEvent(EventType.Edit_Profile, context, user, null, null, null);
 		return user;
 	}
 
@@ -477,8 +465,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				User u = new User(oldCreatorId);
 				//actor not passed
 				result.addEvent(eventFactory.generateEventData(EventType.Delete,
-						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-						u, null, null, null));
+						context, u, null, null, null));
 				//TODO check if line below is needed
 				//userEntityESService.deleteNodeFromES(user);
 				return result;
@@ -936,8 +923,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			TODO i don't know if we rely somewhere on event actor being new user that is just created
 			so I used new user id as an actor in event, but this is probably not semantically correct
 			 */
-			res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
-					context.getOrganizationId(), context.getSessionId(), user, null, context.getContext(), null));
+			res.addEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
 			return res;
 		} catch (UserAlreadyRegisteredException e) {
@@ -1021,8 +1007,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 										(Role) persistence.currentManager().load(Role.class, roleId));
 								User us = new User(user.getId());
 								res.addEvent(eventFactory.generateEventData(
-										EventType.USER_ROLES_UPDATED, context.getActorId(), context.getOrganizationId(),
-										context.getSessionId(), us, null, context.getContext(), null));
+										EventType.USER_ROLES_UPDATED, context, us, null, null, null));
 							}
 						}
 					}
@@ -1070,10 +1055,28 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		User u = new User(user.getId());
 		Result<Void> res = new Result<>();
-		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), u, null, context.getContext(), null));
+		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context, u, null, null, null));
 
 		return res;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserOrganizationId(long userId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT user.organization.id FROM User user " +
+					"WHERE user.id = :userId";
+
+			Long orgId = (Long) persistence.currentManager()
+					.createQuery(q)
+					.setLong("userId", userId)
+					.uniqueResult();
+
+			return orgId != null ? orgId : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user organization");
+		}
+	}
 }

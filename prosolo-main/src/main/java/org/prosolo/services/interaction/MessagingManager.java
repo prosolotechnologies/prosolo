@@ -1,16 +1,17 @@
 package org.prosolo.services.interaction;
 
-import java.util.Date;
-import java.util.List;
-
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessagesThreadData;
+
+import java.util.Date;
+import java.util.List;
 
 public interface MessagingManager extends AbstractManager {
 	
@@ -18,7 +19,7 @@ public interface MessagingManager extends AbstractManager {
 	
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 	
-	public MessageThread createNewMessagesThread(long creatorId, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
+	MessageThread createNewMessagesThread(UserContextData context, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
 
 	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, long userId);
 
@@ -31,7 +32,7 @@ public interface MessagingManager extends AbstractManager {
 
 	MessageThread getLatestMessageThread(long userId, boolean archived);
 	
-	public Message sendMessage(long senderId,  long recieverId, String msg) throws DbConnectionException;
+	public Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException;
 	
 	public ThreadParticipant findParticipation(long threadId, long userId);
 	

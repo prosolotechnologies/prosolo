@@ -10,10 +10,10 @@ public class UserContextData {
     private long actorId;
     private long organizationId;
     private String sessionId;
-    private LearningContextData context;
+    private PageContextData context;
 
     private UserContextData(long actorId, long organizationId, String sessionId,
-                            LearningContextData context) {
+                            PageContextData context) {
         this.actorId = actorId;
         this.organizationId = organizationId;
         this.sessionId = sessionId;
@@ -25,7 +25,7 @@ public class UserContextData {
     }
 
     public static UserContextData of(long actorId, long organizationId, String sessionId,
-                                     LearningContextData context) {
+                                     PageContextData context) {
         return new UserContextData(actorId, organizationId, sessionId, context);
     }
 
@@ -37,7 +37,7 @@ public class UserContextData {
         return new UserContextData(0, organizationId, null, null);
     }
 
-    public static UserContextData ofLearningContext(LearningContextData lcd) {
+    public static UserContextData ofLearningContext(PageContextData lcd) {
         return new UserContextData(0, 0, null, lcd);
     }
 
@@ -53,7 +53,7 @@ public class UserContextData {
         return sessionId;
     }
 
-    public LearningContextData getContext() {
+    public PageContextData getContext() {
         return context;
     }
 }

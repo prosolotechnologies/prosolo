@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
@@ -213,13 +214,9 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 			addNewCommentToAssessmentData(newComment);
 
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-
 			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
 					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
-					page, lContext, service, activityAssessmentData.getCredentialId());
+					activityAssessmentData.getCredentialId());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -235,7 +232,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 	}
 
 	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId, long assessmentCommentId,
-			String page, String lContext, String service, long credentialId) {
+			long credentialId) {
+		UserContextData context = loggedUserBean.getUserContext();
 		taskExecutor.execute(() -> {
 			// User recipient = new User();
 			// recipient.setId(recepientId);
@@ -247,9 +245,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 			parameters.put("credentialId", credentialId + "");
 			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(),
-						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(), adm, aa, page,
-						lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.AssessmentComment, context,
+						adm, aa, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

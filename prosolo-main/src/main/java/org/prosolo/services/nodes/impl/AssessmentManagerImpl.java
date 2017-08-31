@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -531,8 +530,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				aa.setId(activityDiscussion.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", grade + "");
-				result.addEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), aa, null, context.getContext(), params));
+				result.addEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context, aa, null, null, params));
 			}
 
 			result.setResult(activityDiscussion);
@@ -877,8 +875,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Map<String, String> params = new HashMap<>();
 			params.put("grade", points + "");
 			result.addEvent(eventFactory.generateEventData(
-					EventType.GRADE_ADDED, context.getActorId(), context.getOrganizationId(), context.getSessionId(), aa,
-					null, context.getContext(), params));
+					EventType.GRADE_ADDED, context, aa,null, null, params));
 			return result;
 		} catch(Exception e) {
 			logger.error(e);
