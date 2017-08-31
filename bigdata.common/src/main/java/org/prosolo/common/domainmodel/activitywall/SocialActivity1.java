@@ -5,14 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -20,6 +13,10 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(indexes = {
+		@Index(columnList = "last_action,id", name = "index_social_activity1_last_action_id"),
+		@Index(columnList = "actor,last_action,id", name = "index_social_activity1_actor_last_action_id")
+})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(length=100)
 public class SocialActivity1 extends BaseEntity {
@@ -73,7 +70,8 @@ public class SocialActivity1 extends BaseEntity {
 		}
 		return false;
 	}
-	
+
+	@Column(name = "last_action")
 	public Date getLastAction() {
 		return lastAction;
 	}
