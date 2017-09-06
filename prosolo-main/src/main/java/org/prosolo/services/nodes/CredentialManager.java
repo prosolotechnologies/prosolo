@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -417,12 +418,9 @@ public interface CredentialManager extends AbstractManager {
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 	
 	void restoreArchivedCredential(long credId, UserContextData context) throws DbConnectionException;
-	
-	long countNumberOfCredentials(CredentialSearchFilterManager searchFilter, long userId, UserGroupPrivilege priv) 
-			throws DbConnectionException, NullPointerException;
-	
-	List<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page, 
-			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+
+	PaginatedResult<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page,
+																LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
 	UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) throws DbConnectionException;
 	
@@ -466,5 +464,15 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
 			throws DbConnectionException;
+
+	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
+												   int page, LearningResourceSortOption sortOption)
+			throws DbConnectionException, NullPointerException;
+
+	void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
+			throws StaleDataException, IllegalDataStateException, DbConnectionException, EventException;
+
+	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
+			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 }

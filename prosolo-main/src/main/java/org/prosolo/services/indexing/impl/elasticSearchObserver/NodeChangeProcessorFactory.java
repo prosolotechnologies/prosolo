@@ -175,6 +175,8 @@ public class NodeChangeProcessorFactory {
 			case REMOVE_COMPETENCE_FROM_UNIT:
 				return new CompetenceNodeChangeProcessor(event, competenceESService,
 						NodeOperation.Update, session);
+			case UPDATE_DELIVERY_TIMES:
+				return new CredentialNodeChangeProcessor(event, credentialESService, credManager, NodeOperation.Update, session);
 			default:
 				return null;
 		}

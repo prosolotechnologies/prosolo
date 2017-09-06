@@ -35,4 +35,8 @@ public interface CredentialTextSearch extends AbstractManager {
 			long organizationId, String searchTerm, int page, int limit, long userId,
 			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption);
 
+	PaginatedResult<CredentialData> searchCredentialsForAdmin(
+			long organizationId, long unitId, String searchTerm, int page, int limit,
+			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption);
+
 }
