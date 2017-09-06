@@ -75,23 +75,41 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
-	public User getUser(String email) {
-		email = email.toLowerCase();
+	public User getUser(String email) throws DbConnectionException {
+		return getUser(email, false);
+	}
 
-		String query =
-			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.email = :email " +
-				"AND user.verified = :verifiedEmail";
+	@Override
+	@Transactional (readOnly = true)
+	public User getUserIfNotDeleted(String email) throws DbConnectionException {
+		return getUser(email, true);
+	}
 
-		User result = (User) persistence.currentManager().createQuery(query).
-			setString("email", email).
-		 	setBoolean("verifiedEmail",true).
-			uniqueResult();
-		if (result != null) {
-			return result;
+	private User getUser(String email, boolean onlyNotDeleted) {
+		try {
+			email = email.toLowerCase();
+
+			String query =
+					"SELECT user " +
+							"FROM User user " +
+							"WHERE user.email = :email " +
+							"AND user.verified = :verifiedEmail ";
+			if (onlyNotDeleted) {
+				query += "AND user.deleted IS FALSE";
+			}
+
+			User result = (User) persistence.currentManager().createQuery(query).
+					setString("email", email).
+					setBoolean("verifiedEmail", true).
+					uniqueResult();
+			if (result != null) {
+				return result;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving user data");
 		}
-		return null;
 	}
 
 	@Override
@@ -128,22 +146,41 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
-	public boolean checkIfUserExists(String email) {
-		email = email.toLowerCase();
+	public boolean checkIfUserExists(String email) throws DbConnectionException {
+		return checkIfUserExists(email, false);
+	}
 
-		String query =
-			"SELECT user.id " +
-			"FROM User user " +
-			"WHERE user.email = :email ";
+	@Override
+	@Transactional (readOnly = true)
+	public boolean checkIfUserExistsAndNotDeleted(String email) throws DbConnectionException {
+		return checkIfUserExists(email, true);
+	}
 
-		Long result = (Long) persistence.currentManager().createQuery(query).
-				setString("email", email).
-				uniqueResult();
+	public boolean checkIfUserExists(String email, boolean excludeIfDeleted) throws DbConnectionException {
+		try {
+			email = email.toLowerCase();
 
-		if (result != null && result > 0) {
-			return true;
+			String query =
+					"SELECT user.id " +
+							"FROM User user " +
+							"WHERE user.email = :email ";
+
+			if (excludeIfDeleted) {
+				query += "AND user.deleted IS FALSE";
+			}
+
+			Long result = (Long) persistence.currentManager().createQuery(query).
+					setString("email", email).
+					uniqueResult();
+
+			if (result != null && result > 0) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if user account exists");
 		}
-		return false;
 	}
 
 	@Override
