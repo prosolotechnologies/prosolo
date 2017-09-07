@@ -58,6 +58,8 @@
 
 		<logs-index>logs</logs-index>
 
+		<rubrics-index>rubrics</rubrics-index>
+
 	</elastic-search-config>
 	<mysql-config>
 		<host>localhost</host>

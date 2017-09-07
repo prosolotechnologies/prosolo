@@ -1,6 +1,8 @@
 package org.prosolo.services.indexing;
 
 
+import org.prosolo.common.domainmodel.rubric.Rubric;
+
 /**
  * @author Bojan Trifkovic
  * @date 2017-08-25
@@ -8,7 +10,7 @@ package org.prosolo.services.indexing;
  */
 public interface RubricsESService extends AbstractBaseEntityESService {
 
-    void saveRubric(long orgId, long rubricId);
+    void saveRubric(long orgId, Rubric rubric);
 
     void deleteRubric(long orgId, long rubricId);
 }

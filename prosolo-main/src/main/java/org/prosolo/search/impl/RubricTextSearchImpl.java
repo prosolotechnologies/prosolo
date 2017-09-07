@@ -69,10 +69,7 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
                 for(SearchHit sh : sResponse.getHits()){
                     logger.info("ID: " + sh.getSource().get("id"));
                     long id = Long.parseLong(sh.getSource().get("id").toString());
-                    String name = (String) sh.getSource().get("name");
                     RubricData rubricData =rubricManager.getOrganizationRubric(id);
-                    rubricData.setId(id);
-                    rubricData.setName(name);
                     response.addFoundNode(rubricData);
                 }
             }
@@ -103,7 +100,7 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
                 .useDisMax(true).field("name");
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.should(queryBuilder);
+        boolQueryBuilder.filter(queryBuilder);
 
         SearchRequestBuilder srb = client.prepareSearch(fullIndexName)
                 .setTypes(ESIndexTypes.RUBRIC)

@@ -44,7 +44,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getSystemIndexes() {
-		return Arrays.asList(INDEX_USERS, INDEX_LOGS,INDEX_RUBRIC_NAME);
+		return Arrays.asList(INDEX_USERS, INDEX_LOGS);
 	}
 
 	public static List<String> getOrganizationIndexes() {

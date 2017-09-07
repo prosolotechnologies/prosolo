@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.common.event.context.LearningContextUtil;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -32,12 +33,12 @@ public class RubricNodeChangeProcessor implements NodeChangeProcessor {
 
     @Override
     public void process() {
-        long rubricId = event.getObject().getId();
+        Rubric rubric = (Rubric) event.getObject();
         long orgId = event.getOrganizationId();
         if (event.getAction() == EventType.Create) {
-            rubricsESService.saveRubric(orgId, rubricId);
+            rubricsESService.saveRubric(orgId, rubric);
         } else if (event.getAction() == EventType.Delete) {
-            rubricsESService.deleteRubric(orgId, rubricId);
+            rubricsESService.deleteRubric(orgId, rubric.getId());
         }
     }
 }

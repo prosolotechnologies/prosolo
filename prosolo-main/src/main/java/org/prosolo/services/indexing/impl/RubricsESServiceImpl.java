@@ -5,6 +5,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.RubricsESService;
@@ -31,11 +32,11 @@ public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implem
 
     @Override
     @Transactional
-    public void saveRubric(long orgId, long rubricId) {
+    public void saveRubric(long orgId, Rubric rubric) {
         try {
             XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-            builder.field("id", rubricId);
-            builder.field("name", rubricManager.getRubricName(rubricId));
+            builder.field("id", rubric.getId());
+            builder.field("name", rubric.getTitle());
             builder.endObject();
 
             System.out.println("JSON: " + builder.prettyPrint().string());
@@ -43,7 +44,7 @@ public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implem
             String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME +
                     ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
 
-            indexNode(builder, String.valueOf(rubricId), fullIndexName,
+            indexNode(builder, String.valueOf(rubric.getId()), fullIndexName,
                     ESIndexTypes.RUBRIC);
         } catch (IOException e) {
             logger.error(e);

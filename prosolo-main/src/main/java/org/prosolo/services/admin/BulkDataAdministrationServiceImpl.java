@@ -133,7 +133,7 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
             //index rubrics
             List<Rubric> rubrics = rubricManager.getAllRubrics(session);
             for (Rubric r : rubrics) {
-                rubricsESService.saveRubric(r.getOrganization().getId(),r.getId());
+                rubricsESService.saveRubric(r.getOrganization().getId(), r);
             }
         } catch (Exception e) {
             logger.error("Exception in handling message", e);

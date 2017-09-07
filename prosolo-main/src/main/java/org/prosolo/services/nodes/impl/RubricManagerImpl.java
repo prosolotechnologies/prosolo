@@ -98,10 +98,11 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             String query =
                     "SELECT  rubric " +
-                            "FROM Rubric rubric " +
-                            "LEFT JOIN FETCH rubric.creator " +
-                            "WHERE rubric.organization =:organizationId " +
-                            "AND rubric.deleted is FALSE";
+                    "FROM Rubric rubric " +
+                    "LEFT JOIN FETCH rubric.creator " +
+                    "WHERE rubric.organization =:organizationId " +
+                    "AND rubric.deleted is FALSE " +
+                    "ORDER BY rubric.title ASC";
 
             long rubricNumber = getOrganizationRubricsCount(organizationId);
 
@@ -133,8 +134,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         try {
             String query =
                     "SELECT rubric " +
-                            "FROM Rubric rubric " +
-                            "WHERE rubric.deleted = :deleted";
+                    "FROM Rubric rubric " +
+                    "WHERE rubric.deleted = :deleted";
 
             @SuppressWarnings("unchecked")
             List<Rubric> result = session.createQuery(query).setBoolean("deleted", false).list();
@@ -157,7 +158,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             try {
                 eventFactory.generateEvent(ev);
             } catch (EventException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
     }
@@ -201,8 +202,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public RubricData getOrganizationRubric(long rubricId) {
         String query =
                 "SELECT rubric " +
-                        "FROM Rubric rubric " +
-                        "WHERE rubric.id = :rubricId";
+                "FROM Rubric rubric " +
+                "INNER JOIN FETCH rubric.creator " +
+                "WHERE rubric.id = :rubricId";
 
         Rubric rubric = (Rubric) persistence.currentManager()
                 .createQuery(query)

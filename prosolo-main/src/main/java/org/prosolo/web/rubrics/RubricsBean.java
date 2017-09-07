@@ -58,6 +58,7 @@ public class RubricsBean implements Serializable, Paginable {
                     paginationData.getLimit(), loggedUser.getOrganizationId());
             rubrics = res.getFoundNodes();
             this.paginationData.update((int) res.getHitsNumber());
+            extractResult(res);
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
@@ -68,7 +69,7 @@ public class RubricsBean implements Serializable, Paginable {
     public void changePage(int page) {
         if (this.paginationData.getPage() != page) {
             this.paginationData.setPage(page);
-            loadRubrics();
+            searchRubrics();
         }
     }
 
@@ -82,12 +83,8 @@ public class RubricsBean implements Serializable, Paginable {
             try {
                 rubricManager.deleteRubric(this.rubricToDelete.getId(), loggedUser.getUserContext());
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric " + rubricToDelete.getName() + " is deleted.");
-                rubricToDelete = null;
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric " + rubricToDelete.getName() + " has been deleted");
                 PageUtil.redirect("/manage/rubrics");
-            } catch (IllegalStateException ise) {
-                logger.error(ise);
-                PageUtil.fireErrorMessage(ise.getMessage());
             } catch (Exception ex) {
                 logger.error(ex);
                 PageUtil.fireErrorMessage("Error while trying to delete rubric");
@@ -106,9 +103,15 @@ public class RubricsBean implements Serializable, Paginable {
                     searchTerm, paginationData.getPage() - 1, paginationData.getLimit());
 
             rubrics = res.getFoundNodes();
+            extractResult(res);
         } catch (Exception e) {
             logger.error(e);
         }
+    }
+
+    private void extractResult(PaginatedResult<RubricData> result) {
+        rubrics = result.getFoundNodes();
+        this.paginationData.update((int) result.getHitsNumber());
     }
 
 
