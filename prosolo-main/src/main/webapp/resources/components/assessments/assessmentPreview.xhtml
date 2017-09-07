@@ -318,7 +318,7 @@
 																	title="#{(not cc.attrs.bean.isCurrentUserAssessor())
 																			? 'Only assessor can update the grade'
 																			: not activityAssessment.completed
-																				? 'Not completed activity can not be graded'
+																				? 'Uncompleted activity can not be graded'
 																				: 'Points are not set for this activity'}">
 																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
 																#{activityAssessment.grade.maxGrade}
