@@ -559,7 +559,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public long getOrganizationId() {
-		return getSessionData() == null ? null : getSessionData().getOrganizationId();
+		return getSessionData() == null ? 0 : getSessionData().getOrganizationId();
 	}
 
 	public String getSessionId() {
