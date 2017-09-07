@@ -3,317 +3,320 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout1.xhtml">
 
-<ui:define name="windowTitle">
-	Admin Dashboard
-</ui:define>
+	<ui:define name="metadata">
+		<f:metadata>
+		</f:metadata>
+	</ui:define>
 
-<ui:define name="metadata">
-	<f:metadata>
-	</f:metadata>
-</ui:define>
+	<ui:define name="windowTitle">
+		Dashboard
+	</ui:define>
 
-<ui:define name="content">
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
-  
-	<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-callbacks.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-chart.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-datepicker.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-disabled-hashtags-table.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-most-active-hashtags-table.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-paging.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-service.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-statistics.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-table.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-main.js"></script>
-	
-	<div id="dashboard" data-api="#{socialInteractionBean.servicesDomain}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
-		<section class="heading">
-			<header>
-				<i class="fa fa-tachometer headIcon"></i>
-				<div class="headerTitle">
-					<h1>Dashboard</h1>
-					<p>Statistics about application usage, user activity and Twitter hashtags.</p>
-				</div>
-				
-				<ul class="basicStats pull-right">
-					<li>
-						<div class="statContLeft">
-							<div class="users">Total Users</div>
-							<div id="total-users-count-percent" class="uPercentage green">
-								<i id="total-users-trend" class="fa fa-arrow-up"></i> <span> 0%</span>
-							</div>
-						</div>
-						<div id="total-users-count" class="statContRight">0</div>
-					</li>
-					<li>
-						<div class="statContLeft">
-							<div class="users">Active Users</div>
-							<div id="active-users-count-percent" class="uPercentage green">
-								<i id="active-users-trend" class="fa fa-arrow-down"></i><span>0%</span>
-							</div>
-						</div>
-						<div id="active-users-count" class="statContRight">0</div>
-					</li>
-					<li>
-						<div class="statContLeft">
-							<div class="users">
-								Currently <br />logged In
-							</div>
-						</div>
-						<div id="currently-logged-in-count" class="statContRight">0</div>
-					</li>
-				</ul>
+	<ui:define name="resourceTitle">
+		<h1>Dashboard</h1>
+	</ui:define>
 
-			</header>
-		</section>
-		<section class="container-fluid mainArea">
-			<div class="row">
-				<div id="activityGraph" class="panel panel-default">
-					<div class="panel-heading">
-         				<h3 class="panel-title">Activity graph</h3>
+	<ui:define name="content">
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/tauCharts.min.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/dashboard.css" />
+
+		<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/tauCharts.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/readmore.custom.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-callbacks.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-chart.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-datepicker.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-disabled-hashtags-table.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-most-active-hashtags-table.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-paging.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-service.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-statistics.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-table.js"></script>
+		<script src="#{request.contextPath}/resources/javascript/dashboard/dashboard-main.js"></script>
+
+		<div id="dashboard" data-api="#{socialInteractionBean.servicesDomain}" data-no-results-found-message="#{dashboardBean.noResultsFoundMessage}">
+			<section class="heading">
+				<header>
+					<i class="fa fa-tachometer headIcon"></i>
+					<div class="headerTitle">
+						<h1>Dashboard</h1>
+						<p>Statistics about application usage, user activity and Twitter hashtags.</p>
 					</div>
-					<div class="panel-body">
-						<div class="row">
-							<div class="col-md-12">
+
+					<ul class="basicStats pull-right">
+						<li>
+							<div class="statContLeft">
+								<div class="users">Total Users</div>
+								<div id="total-users-count-percent" class="uPercentage green">
+									<i id="total-users-trend" class="fa fa-arrow-up"></i> <span> 0%</span>
+								</div>
+							</div>
+							<div id="total-users-count" class="statContRight">0</div>
+						</li>
+						<li>
+							<div class="statContLeft">
+								<div class="users">Active Users</div>
+								<div id="active-users-count-percent" class="uPercentage green">
+									<i id="active-users-trend" class="fa fa-arrow-down"></i><span>0%</span>
+								</div>
+							</div>
+							<div id="active-users-count" class="statContRight">0</div>
+						</li>
+						<li>
+							<div class="statContLeft">
+								<div class="users">
+									Currently <br />logged In
+								</div>
+							</div>
+							<div id="currently-logged-in-count" class="statContRight">0</div>
+						</li>
+					</ul>
+
+				</header>
+			</section>
+			<section class="container-fluid mainArea">
+				<div class="row">
+					<div id="activityGraph" class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Activity graph</h3>
+						</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="timeRange form-inline">
+										<p>Choose date range:</p>
+										<div class="form-group">
+											<label for="ag-date-from">From:</label>
+											<div class="input-group">
+												<h:inputText name="ag-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
+													<f:convertDateTime pattern="dd.MM.yyyy" />
+												</h:inputText>
+												<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="ag-date-to">To:</label>
+											<div class="input-group">
+												<h:inputText name="ag-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
+													<f:convertDateTime pattern="dd.MM.yyyy" />
+												</h:inputText>
+												<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+											</div>
+										</div>
+										<div class="btn-group period" data-toggle="buttons">
+											<label class="btn btn-primary active" for="day">
+												<input type="radio" value="DAY" name="periods" id="day" autocomplete="off" checked="checked" /> Day
+											</label>
+											<label class="btn btn-primary" for="week">
+												<input type="radio" name="periods" value="WEEK" id="week" autocomplete="off" /> Week
+											</label>
+										</div>
+									</div>
+									<div class="graph chart-block">
+										<div class="messages"></div>
+										<div class="loader"></div>
+										<div class="chart" id="activityGraphChart"></div>
+										<div class="legend" id="activityGraphChartLegend"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div id="mostActiveHashtags" class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Twitter hashtags</h3>
+						</div>
+						<div class="panel-body">
+							<h2>Most active hashtags <span id="statisticsPeriod"></span></h2>
+							<div class="tableToolbar">
+								<div class="row">
+									<div class="col-md-6">
+										<div class="checkbox checkbox-success">
+											<input name="include-hashtags-without-followers" type="checkbox" id="include-hashtags-without-followers" />
+											<label for="include-hashtags-without-followers">Without followers</label>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="filterCont">
+											<label>Filter</label>
+											<input name="hashtags-term" type="text" placeholder="" class="form-control" />
+											<button id="filter-most-active-hashtags" type="submit" class="btn btn-default fSearch">Search</button>
+										</div>
+										<div class="messages"></div>
+										<!--
+										<div class="form-group selectCont">
+											<label>Show hashtags</label>
+											<select class="form-control selectpicker">
+												<option>All</option>
+												<option>Enabled</option>
+												<option>Disabled</option>
+											</select>
+										</div>
+										 -->
+									</div>
+								</div>
+							</div>
+							<table id="mostActiveHashtagsTable" class="dashboard-table table admin table-bordered">
+								<tr>
+									<th align="right" scope="col">No.</th>
+									<th scope="col">Hashtag</th>
+									<th scope="col">Daily avg. (last week)</th>
+									<th scope="col">Users using it</th>
+									<th align="center" scope="col">Action</th>
+								</tr>
+								<tr>
+									<td align="right">1</td>
+									<td>Education</td>
+									<td align="right">25.249</td>
+									<td align="center">3</td>
+									<td align="center">
+										<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+									</td>
+								</tr>
+								<tr>
+									<td align="right">2</td>
+									<td>Canada</td>
+									<td align="right">19.857</td>
+									<td align="center">1</td>
+									<td align="center"><button type="button" class="btn btn-success"><i class="fa fa-check"></i> Enable</button></td>
+								</tr>
+								<tr>
+									<td align="right">3</td>
+									<td>Analytics</td>
+									<td align="right">11.714</td>
+									<td align="center">3</td>
+									<td align="center">
+										<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+									</td>
+								</tr>
+								<tr>
+									<td align="right">4</td>
+									<td>Android</td>
+									<td align="right">10.322</td>
+									<td align="center">2</td>
+									<td align="center">
+										<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+									</td>
+								</tr>
+								<tr>
+									<td align="right">5</td>
+									<td>School</td>
+									<td align="right">0.459</td>
+									<td align="center">1</td>
+									<td align="center">
+										<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
+									</td>
+								</tr>
+							</table>
+							<div class="navigation tablePagination" data-current="1" data-pages="0" data-paging="5">
+								<label>Paging:
+									<!-- <select class="paging selectpicker"> -->
+									<select class="paging">
+										<option value="5" selected="selected">5</option>
+										<option value="10">10</option>
+										<option value="15">15</option>
+										<option value="20">20</option>
+										<option value="50">50</option>
+									</select>
+								</label>
+								<span class="pagingNumbers">
+									<a href="#mostActiveHashtags" class="first">First</a>
+									<a href="#mostActiveHashtags" class="previous">Previous</a>
+									<span class="page">0/0</span>
+									<a href="#mostActiveHashtags" class="next">Next</a>
+									<a href="#mostActiveHashtags" class="last">Last</a>
+								</span>
+							</div>
+							<div class="clearfix"></div>
+
+							<div id="twitterHashtagsGraph" class="hashtagGraph">
+								<h2>Hashtags graph</h2>
 								<div class="timeRange form-inline">
-									<p>Choose date range:</p>              
+									<p>Choose date range:</p>
 									<div class="form-group">
-										<label for="ag-date-from">From:</label>
+										<label for="thg-date-from">From:</label>
 										<div class="input-group">
-											<h:inputText name="ag-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
+											<h:inputText name="thg-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
 												<f:convertDateTime pattern="dd.MM.yyyy" />
 											</h:inputText>
 											<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
 										</div>
 									</div>
 									<div class="form-group">
-				                        <label for="ag-date-to">To:</label>
-				                        <div class="input-group">
-				                        	<h:inputText name="ag-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
-										    	<f:convertDateTime pattern="dd.MM.yyyy" />
+										<label for="thg-date-to">To:</label>
+										<div class="input-group">
+											<h:inputText name="thg-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
+												<f:convertDateTime pattern="dd.MM.yyyy" />
 											</h:inputText>
 											<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-										</div>  
-									</div>                  
+										</div>
+									</div>
 									<div class="btn-group period" data-toggle="buttons">
 										<label class="btn btn-primary active" for="day">
-											<input type="radio" value="DAY" name="periods" id="day" autocomplete="off" checked="checked" /> Day
+											<input type="radio" value="DAY" name="thperiods" id="day" autocomplete="off" checked="checked" /> Day
 										</label>
 										<label class="btn btn-primary" for="week">
-											<input type="radio" name="periods" value="WEEK" id="week" autocomplete="off" /> Week
+											<input type="radio" name="thperiods" value="WEEK" id="week" autocomplete="off" /> Week
 										</label>
 									</div>
 								</div>
 								<div class="graph chart-block">
 									<div class="messages"></div>
 									<div class="loader"></div>
-									<div class="chart" id="activityGraphChart"></div>
-									<div class="legend" id="activityGraphChartLegend"></div>
-								</div>     
+									<div class="chart" id="twitterHashtagsChart"></div>
+									<div class="legend" id="twitterHashtagsChartLegend"></div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="row">
-				<div id="mostActiveHashtags" class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">Twitter hashtags</h3>
-					</div>
-					<div class="panel-body">
-						<h2>Most active hashtags <span id="statisticsPeriod"></span></h2>
-						<div class="tableToolbar">
-							<div class="row">
-								<div class="col-md-6">
-									<div class="checkbox checkbox-success">
-										<input name="include-hashtags-without-followers" type="checkbox" id="include-hashtags-without-followers" />
-										<label for="include-hashtags-without-followers">Without followers</label>
-									</div>
-								</div>
-                				<div class="col-md-6">
-                    				<div class="filterCont">
-										<label>Filter</label>
-										<input name="hashtags-term" type="text" placeholder="" class="form-control" />
-										<button id="filter-most-active-hashtags" type="submit" class="btn btn-default fSearch">Search</button>
-									</div>
-									<div class="messages"></div>
-									<!-- 
-									<div class="form-group selectCont">
-										<label>Show hashtags</label>
-										<select class="form-control selectpicker">
-											<option>All</option>
-											<option>Enabled</option>
-											<option>Disabled</option>
-										</select>
-									</div>
-									 -->                     
-								</div>
-							</div>
+				<div class="row">
+					<div id="disabled-twitter-hashtags" class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Disabled hashtags</h3>
 						</div>
-						<table id="mostActiveHashtagsTable" class="dashboard-table table admin table-bordered">
-							<tr>
-								<th align="right" scope="col">No.</th>
-								<th scope="col">Hashtag</th>
-								<th scope="col">Daily avg. (last week)</th>
-								<th scope="col">Users using it</th>
-								<th align="center" scope="col">Action</th>
-							</tr>
-							<tr>
-								<td align="right">1</td>
-								<td>Education</td>
-								<td align="right">25.249</td>
-								<td align="center">3</td>
-								<td align="center">
-									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-								</td>
-							</tr>
-							<tr>
-								<td align="right">2</td>
-								<td>Canada</td>
-								<td align="right">19.857</td>
-								<td align="center">1</td>
-								<td align="center"><button type="button" class="btn btn-success"><i class="fa fa-check"></i> Enable</button></td>
-							</tr>
-							<tr>
-								<td align="right">3</td>
-								<td>Analytics</td>
-								<td align="right">11.714</td>
-								<td align="center">3</td>
-								<td align="center">
-									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-								</td>
-							</tr>
-							<tr>
-								<td align="right">4</td>
-								<td>Android</td>
-								<td align="right">10.322</td>
-								<td align="center">2</td>
-								<td align="center">
-									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-								</td>
-							</tr>
-							<tr>
-								<td align="right">5</td>               
-								<td>School</td>
-								<td align="right">0.459</td>
-								<td align="center">1</td>
-								<td align="center">
-									<button type="button" class="btn btn-warning"><i class="fa fa-ban"></i> Disable</button>
-								</td>
-							</tr>               
-						</table>
-						<div class="navigation tablePagination" data-current="1" data-pages="0" data-paging="5">
-							<label>Paging:
-								<!-- <select class="paging selectpicker"> -->
-								<select class="paging">
-									<option value="5" selected="selected">5</option>
-									<option value="10">10</option>
-									<option value="15">15</option>
-									<option value="20">20</option>
-									<option value="50">50</option>
-								</select>
-							</label>
-							<span class="pagingNumbers">
-								<a href="#mostActiveHashtags" class="first">First</a>
-								<a href="#mostActiveHashtags" class="previous">Previous</a>
+						<div class="panel-body">
+							<h2>There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.</h2>
+							<table class="dashboard-table table admin table-bordered" id="disabled-hashtags-table">
+								<thead>
+									<tr>
+										<th>Hashtag</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+							<div class="navigation">
+								<a href="#disabled-twitter-hashtags" class="previous">Previous</a>
 								<span class="page">0/0</span>
-								<a href="#mostActiveHashtags" class="next">Next</a>
-								<a href="#mostActiveHashtags" class="last">Last</a>
-							</span>
-						</div>
-						<div class="clearfix"></div>
-            
-						<div id="twitterHashtagsGraph" class="hashtagGraph">
-							<h2>Hashtags graph</h2>
-							<div class="timeRange form-inline">
-								<p>Choose date range:</p>
-								<div class="form-group">
-									<label for="thg-date-from">From:</label>
-									<div class="input-group">
-										<h:inputText name="thg-date-from" class="dateField dateFrom form-control" required="false" onfocus="blur();">
-											<f:convertDateTime pattern="dd.MM.yyyy" />
-										</h:inputText>
-										<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-									</div>
-								</div>
-								<div class="form-group">
-			                        <label for="thg-date-to">To:</label>
-			                        <div class="input-group">
-			                        	<h:inputText name="thg-date-to" class="dateField dateTo form-control" required="false" onfocus="blur();">
-									    	<f:convertDateTime pattern="dd.MM.yyyy" />
-										</h:inputText>
-										<div class="input-group-addon"><i class="fa fa-calendar"></i></div>
-									</div>  
-								</div>
-								<div class="btn-group period" data-toggle="buttons">
-									<label class="btn btn-primary active" for="day">
-										<input type="radio" value="DAY" name="thperiods" id="day" autocomplete="off" checked="checked" /> Day
-									</label>
-									<label class="btn btn-primary" for="week">
-										<input type="radio" name="thperiods" value="WEEK" id="week" autocomplete="off" /> Week
-									</label>
-								</div>
+								<a href="#disabled-twitter-hashtags" class="next">Next</a>
 							</div>
-							<div class="graph chart-block">
-								<div class="messages"></div>
-								<div class="loader"></div>
-								<div class="chart" id="twitterHashtagsChart"></div>
-								<div class="legend" id="twitterHashtagsChartLegend"></div>
-							</div> 
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div id="disabled-twitter-hashtags" class="panel panel-default">
-					<div class="panel-heading">
-						<h3 class="panel-title">Disabled hashtags</h3>
-					</div>
-					<div class="panel-body">
-						<h2>There are total <span id="disabled-hashtags-count">0</span> disabled Twitter hashtags.</h2>
-						<table class="dashboard-table table admin table-bordered" id="disabled-hashtags-table">
-							<thead>
-								<tr>
-									<th>Hashtag</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-						<div class="navigation">
-							<a href="#disabled-twitter-hashtags" class="previous">Previous</a>
-							<span class="page">0/0</span>
-							<a href="#disabled-twitter-hashtags" class="next">Next</a>
-						</div>
+					<h:form id="disable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-disable" />
+						<h:commandButton id="disable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<h:form id="enable-form" style="display: none;">
+						<h:inputHidden id="hashtag-to-enable" />
+						<h:commandButton id="enable-form-submit">
+							<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
+						</h:commandButton>
+					</h:form>
+					<div id="system-not-available-notification">
+						<p>
+							#{dashboardBean.systemNotAvailableMessage}
+						</p>
 					</div>
 				</div>
-				<h:form id="disable-form" style="display: none;">
-					<h:inputHidden id="hashtag-to-disable" />
-					<h:commandButton id="disable-form-submit">
-						<f:ajax execute="@form" listener="#{dashboardBean.disableHashtag()}" />
-					</h:commandButton>
-				</h:form>
-				<h:form id="enable-form" style="display: none;">
-					<h:inputHidden id="hashtag-to-enable" />
-					<h:commandButton id="enable-form-submit">
-						<f:ajax execute="@form" listener="#{dashboardBean.enableHashtag()}" />
-					</h:commandButton>
-				</h:form>
-				<div id="system-not-available-notification">
-					<p>
-						#{dashboardBean.systemNotAvailableMessage}
-					</p>
-				</div>					
-			</div>
-		</section>	
-	</div>
-</ui:define>
+			</section>
+		</div>
+	</ui:define>
 </ui:composition>

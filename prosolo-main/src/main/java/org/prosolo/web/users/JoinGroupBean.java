@@ -1,19 +1,28 @@
 package org.prosolo.web.users;
 
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @ManagedBean(name = "joinGroupBean")
 @Component("joinGroupBean")
@@ -27,6 +36,9 @@ public class JoinGroupBean implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UserGroupManager userGroupManager;
+	@Inject private UnitManager unitManager;
+	@Inject private RoleManager roleManager;
+	@Inject private EventFactory eventFactory;
 
 	private String id;
 	private long decodedId;
@@ -42,12 +54,20 @@ public class JoinGroupBean implements Serializable {
 		if (groupData != null && groupData.isJoinUrlActive()) {
 			
 			try {
-				// check if this user is already a member of the group
-				if (userGroupManager.isUserInGroup(decodedId, loggedUserBean.getUserId())) {
-					PageUtil.fireErrorMessage("You are already a member of this group");
-					this.joinButtonDisabled = true;
-				} else {
-					this.joinButtonDisabled = false;
+//				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+//				//check if user is added as a student to unit
+//				if (!unitManager.isUserAddedToUnitWithRole(
+//						groupData.getUnitId(), loggedUserBean.getUserId(), roleId))  {
+//					PageUtil.fireErrorMessage("You are not allowed to join this group " +
+//							"because you are not added to the unit group belongs to");
+//					this.joinButtonDisabled = true;
+//				}
+				if (!this.joinButtonDisabled) {
+					// check if this user is already a member of the group
+					if (userGroupManager.isUserInGroup(decodedId, loggedUserBean.getUserId())) {
+						PageUtil.fireErrorMessage("You are already a member of this group");
+						this.joinButtonDisabled = true;
+					}
 				}
 			} catch (DbConnectionException e) {
 				logger.warn(e);
@@ -55,7 +75,7 @@ public class JoinGroupBean implements Serializable {
 				this.joinButtonDisabled = true;
 			}
 		} else {
-			PageUtil.showNotFoundPage();
+			PageUtil.notFound();
 		}
 	}
 	
@@ -66,9 +86,17 @@ public class JoinGroupBean implements Serializable {
 				this.password.equals(groupData.getJoinUrlPassword())) {
 			
 			try {
-				userGroupManager.addUserToTheGroup(decodedId, loggedUserBean.getUserId());
-				
-				PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
+				//TODO generate events here
+				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+
+				try {
+					unitManager.addUserToUnitAndGroupWithRole(loggedUserBean.getUserId(), groupData.getUnitId(), roleId, decodedId, loggedUserBean.getUserContext());
+
+					PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
+				} catch (EventException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("joinForm:join", "There was a problem adding you to the group");
+				}
 			} catch (DbConnectionException e) {
 				logger.warn(e);
 				PageUtil.fireErrorMessage("growlJoinSuccess", "Error joining the group.");

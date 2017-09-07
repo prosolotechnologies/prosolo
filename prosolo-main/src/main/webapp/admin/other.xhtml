@@ -7,14 +7,18 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
-	<ui:define name="windowTitle">
-	ProSolo - Admin | Other
-	</ui:define>
-
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewAction action="#{otherSettingsBean.init()}" />
 		</f:metadata>
+	</ui:define>
+
+	<ui:define name="windowTitle">
+		Other
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h1>Other</h1>
 	</ui:define>
 
 	<ui:define name="content">
@@ -30,13 +34,20 @@
 						<p:commandLink value="Reindex Users"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexUsers}"
-						/>
+									   action="#{bulkDataAdministration.deleteAndReindexUsers}"	/>
 						<p:commandLink value="Reindex Everything"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
-						/>
+									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}" />
+
+						<ui:remove>
+							<p:commandLink value="Migrate UTA to 0.7"
+										   pt:role="button"
+										   styleClass="btn btn-green"
+										   onclick=""
+										   action="#{otherSettingsBean.migrateUtaCredentialsTo07()}"
+										   oncomplete="" />
+						</ui:remove>
 						<div class="clear top30"></div>
 					</div>
 				</div>
@@ -62,7 +73,10 @@
 									actionListener="#{otherSettingsBean.saveSymptom()}" value="Add"
 									update="@form :symptomForm :newSymptomForm"
 									id="addSymptomBtn">
-								</p:commandLink>
+								</p:commandLink><br/>
+
+								<small class="redText"><h:message for="newSymptomDesc"></h:message></small>
+
 								<p:defaultCommand target="addSymptomBtn"></p:defaultCommand>
 							</h:form>
 						</div>
@@ -128,7 +142,10 @@
 									actionListener="#{otherSettingsBean.saveSuggestion()}"
 									value="Add" update="@form :suggestionForm :newSuggestionForm"
 									id="addSuggestionBtn">
-								</p:commandLink>
+								</p:commandLink><br/>
+
+								<small class="redText"><h:message for="newSuggestionDesc"></h:message></small>
+
 								<p:defaultCommand target="addSuggestionBtn"></p:defaultCommand>
 							</h:form>
 						</div>
@@ -194,11 +211,9 @@
 								<h:inputText id="inputSymptomName"
 									value="#{otherSettingsBean.symptomForEdit.description}"
 									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
-								<h:panelGroup layout="block"
-									rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}"
-									styleClass="alert alert-danger" pt:role="alert">
-									<h:message for="inputSymptomName"></h:message>
-								</h:panelGroup>
+
+								<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputSymptomName"></h:message></small>
+
 							</div>
 							<div class="modal-footer alignLeft">
 								<p:commandLink id="saveSymptom" styleClass="btn btn-green" value="Save"
@@ -238,11 +253,9 @@
 								<h:inputText id="inputSuggestionName"
 									value="#{otherSettingsBean.suggestionForEdit.description}"
 									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
-								<h:panelGroup layout="block"
-									rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}"
-									styleClass="alert alert-danger" pt:role="alert">
-									<h:message for="inputSuggestionName"></h:message>
-								</h:panelGroup>
+
+								<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputSuggestionName"></h:message></small>
+
 							</div>
 							<div class="modal-footer alignLeft">
 								<p:commandLink id="saveSuggestion" styleClass="btn btn-green" value="Save"

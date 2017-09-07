@@ -1,14 +1,8 @@
 package org.prosolo.services.externalIntegration.impl;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-
+import com.jcabi.xml.XMLDocument;
+import net.oauth.OAuth.Parameter;
+import net.oauth.*;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -18,7 +12,8 @@ import org.jdom2.JDOMException;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
@@ -35,14 +30,13 @@ import org.prosolo.util.XMLUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jcabi.xml.XMLDocument;
-
-import net.oauth.OAuth.Parameter;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthException;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthServiceProvider;
+import javax.inject.Inject;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zoran Jeremic Dec 26, 2014
@@ -164,13 +158,14 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							ta.setCommonScore(calculatedScore);
 							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
 							if(calculatedScore != prevScore) {
-								LearningContextData lcd = new LearningContextData();
+								PageContextData lcd = new PageContextData();
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
+								//TODO how to include organization id in event here
 								res.addEvents(assessmentManager
 									.updateActivityGradeInAllAssessmentsAndGetEvents(
 											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
 											ta.getTargetCompetence().getId(), ta.getId(),
-											calculatedScore, session, lcd).getEvents());
+											calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEvents());
 							}
 						}
 					}

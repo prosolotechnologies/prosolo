@@ -65,37 +65,45 @@ public class UserSessionDataLoader implements Serializable{
 			Map<String, Object> sessionData = new HashMap<>();
 			
 			User user = userManager.getUser(email);
-			String avatar = initializeAvatar(user.getAvatarUrl());
-			
-			registerNewUserSession(user, session);
+			if (user != null) {
+				String avatar = initializeAvatar(user.getAvatarUrl());
 
-			
-			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
-	
-			FilterType chosenFilterType = userSettings.getActivityWallSettings().getChosenFilter();
-			
-			Filter selectedFilter = loadStatusWallFilter(user.getId(), chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
-	
-			String ipAddress = accessResolver.findRemoteIPAddress(request);
-			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-			
-			UserNotificationsSettings notificationsSettings  = notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId());
-			
-			sessionData.put("userId", user.getId());
-			sessionData.put("name", user.getName());
-			sessionData.put("lastname", user.getLastname());
-			sessionData.put("avatar", avatar);
-			sessionData.put("position", user.getPosition());
-			sessionData.put("ipAddress", ipAddress);
-			sessionData.put("statusWallFilter", selectedFilter);
-			sessionData.put("userSettings", userSettings);
-			sessionData.put("email", email);
-			sessionData.put("notificationsSettings", notificationsSettings);
-			sessionData.put("password", user.getPassword());
-			sessionData.put("sessionId",session.getId());
-			
-			logger.info("init finished");
-			return sessionData;
+				registerNewUserSession(user, session);
+
+
+				UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
+
+				FilterType chosenFilterType = userSettings.getActivityWallSettings().getChosenFilter();
+
+				Filter selectedFilter = loadStatusWallFilter(user.getId(), chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
+
+				String ipAddress = accessResolver.findRemoteIPAddress(request);
+				logger.debug("User \"" + email + "\" IP address:" + ipAddress);
+
+				UserNotificationsSettings notificationsSettings = notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId());
+
+				sessionData.put("userId", user.getId());
+				long orgId = 0;
+				if (user.getOrganization() != null) {
+					orgId = user.getOrganization().getId();
+				}
+				sessionData.put("organizationId", orgId);
+				sessionData.put("name", user.getName());
+				sessionData.put("lastname", user.getLastname());
+				sessionData.put("avatar", avatar);
+				sessionData.put("position", user.getPosition());
+				sessionData.put("ipAddress", ipAddress);
+				sessionData.put("statusWallFilter", selectedFilter);
+				sessionData.put("userSettings", userSettings);
+				sessionData.put("email", email);
+				sessionData.put("notificationsSettings", notificationsSettings);
+				sessionData.put("password", user.getPassword());
+				sessionData.put("sessionId", session.getId());
+
+				logger.info("init finished");
+				return sessionData;
+			}
+			return null;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

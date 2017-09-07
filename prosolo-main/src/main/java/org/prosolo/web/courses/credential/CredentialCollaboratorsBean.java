@@ -3,15 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
@@ -32,6 +23,14 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialCollaboratorsBean")
 @Component("credentialCollaboratorsBean")
@@ -89,11 +88,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 
@@ -122,12 +117,12 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		try {
 			peopleActionBean.followUserById(user.getId());
 			user.setFollowedByCurrentUser(true);
-			PageUtil.fireSuccessfulInfoMessage("Started following " + user.getFullName() + ".");
+			PageUtil.fireSuccessfulInfoMessage("You are following " + user.getFullName());
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getFullName());
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error occured. Please try again");
+			PageUtil.fireErrorMessage("Error following " + user.getFullName() + ". Please try again");
 		}
 	}
 
@@ -139,7 +134,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 			logger.error(e);
 		}
 
-		PageUtil.fireSuccessfulInfoMessage("Stopped following " + user.getFullName() + ".");
+		PageUtil.fireSuccessfulInfoMessage("You are not following " + user.getFullName());
 	}
 	
 	public void resetAndSearch() {
@@ -150,6 +145,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 	public void getCredentialMembers() {
 		PaginatedResult<StudentData> searchResponse = userTextSearch
 				.searchCredentialMembersWithLearningStatusFilter(
+						loggedUserBean.getOrganizationId(),
 						searchTerm, 
 						learningStatusFilter.getStatus(), 
 						paginationData.getPage() - 1, 

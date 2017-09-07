@@ -5,7 +5,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -308,7 +308,7 @@ public class CredentialKeywordsBean {
 				}
 
 				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
-						peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
+						loggedUser.getOrganizationId(), peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -355,18 +355,11 @@ public class CredentialKeywordsBean {
 				populateAssessmentRequestFields();
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-				LearningContextData lcd = new LearningContextData();
-				lcd.setPage(PageUtil.getPostParameter("page"));
-				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-				lcd.setService(PageUtil.getPostParameter("service"));
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-						service);
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, loggedUser.getUserContext());
 
-				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
+
+				PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
 
 				if (peersToExcludeFromSearch != null) {
 					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
@@ -390,8 +383,8 @@ public class CredentialKeywordsBean {
 		assessmentRequestData.setCredentialId(credentialData.getId());
 		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
-	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
-			String service) {
+	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
+		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
 			User assessor = new User();
 			assessor.setId(assessorId);
@@ -400,8 +393,8 @@ public class CredentialKeywordsBean {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", idEncoder.decodeId(id) + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), assessment, assessor,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
+						null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

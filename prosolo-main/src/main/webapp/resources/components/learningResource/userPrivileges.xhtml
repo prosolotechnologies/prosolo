@@ -4,17 +4,19 @@
 			  xmlns:composite="http://java.sun.com/jsf/composite"
 			  xmlns:p="http://primefaces.org/ui"
 			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
->
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="makeOwnerModalId" />
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="process" default="" />
 		<composite:attribute name="learningContext" default="" />
 	</composite:interface>
 
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 
 		<div class="searchInstructors">
@@ -26,7 +28,7 @@
 
 			<h:inputText id="inputGroupSearch" type="search"
 						 styleClass="groupSearchFieldSelector"
-						 placeholder="Search Users or Groups"
+						 placeholder="Search users or groups"
 						 value="#{cc.attrs.bean.searchTerm}" onclick="$(this).select();"
 						 onkeyup="searchIfNeeded('.groupSearchFieldSelector', execSearchGroups, '.panelGroupSearchResultsSelector'); return false;" />
 
@@ -44,11 +46,11 @@
 										<ui:fragment rendered="#{member.type eq 'User'}">
 											<utilcomp:userAvatar
 													avatar="#{member.avatar}"
-													fullName="#{member.name}"
+													fullName="#{member.commaSeparatedFullName}"
 													width="48" height="48" />
 
 											<div class="infoWrap">
-												<h3>#{member.name}</h3>
+												<h3>#{member.commaSeparatedFullName}</h3>
 												<span>#{member.position}</span>
 											</div>
 										</ui:fragment>
@@ -87,7 +89,7 @@
 									Close
 								</p:commandLink>
 							</h:panelGroup>
-							<h:panelGroup layout="block" rendered="#{group.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user group has been given Edit privilege on a credential referencing this competency">
+							<h:panelGroup layout="block" rendered="#{group.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user group has been given Edit privilege on a #{msg['label.credential'].toLowerCase()} referencing this #{msg['label.competence'].toLowerCase()}">
 								Inherited
 							</h:panelGroup>
 						</li>
@@ -100,11 +102,11 @@
 							<div class="instructorInfo">
 								<utilcomp:userAvatar
 										avatar="#{user.avatar}"
-										fullName="#{user.name}"
+										fullName="#{user.commaSeparatedFullName}"
 										width="48" height="48" />
 
 								<div class="infoWrap">
-									<h3>#{user.name}</h3>
+									<h3>#{user.commaSeparatedFullName}</h3>
 									<span>#{user.position}</span>
 								</div>
 							</div>
@@ -112,10 +114,25 @@
 							<h:panelGroup layout="block" rendered="#{cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId}" styleClass="assignOpt">
 								Owner
 							</h:panelGroup>
-							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a credential referencing this competency">
+							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a credential referencing this #{msg['label.competence'].toLowerCase()}">
+								<p:commandLink styleClass="makeOwner" rendered="#{cc.attrs.bean.privilege eq 'Edit' and user.id gt 0}"
+											   pt:data-toggle="modal"
+											   action="#{cc.attrs.bean.prepareOwnerChange(user.userId)}"
+											   oncomplete="$('##{cc.attrs.makeOwnerModalId}').modal('show')"
+								>
+									Make Owner
+								</p:commandLink>
+								&#160;
 								Inherited
 							</h:panelGroup>
 							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and not user.inherited}" styleClass="assignOpt">
+								<p:commandLink styleClass="makeOwner" rendered="#{cc.attrs.bean.privilege eq 'Edit' and user.id gt 0}"
+											   pt:data-toggle="modal"
+											   action="#{cc.attrs.bean.prepareOwnerChange(user.userId)}"
+											   oncomplete="$('##{cc.attrs.makeOwnerModalId}').modal('show')"
+								>
+									Make Owner
+								</p:commandLink>
 								<p:commandLink styleClass="removeX" process="@this"
 											   action="#{cc.attrs.bean.removeMember(user)}"
 											   update=":#{cc.clientId}:panelExistingMembers">

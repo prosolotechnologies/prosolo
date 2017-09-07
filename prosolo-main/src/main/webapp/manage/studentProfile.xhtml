@@ -3,15 +3,9 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout2.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:actions="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:comphistory="http://java.sun.com/jsf/composite/components/studentProfile"
 	xmlns:communications="http://java.sun.com/jsf/composite/components/communications">
 
 	<ui:define name="windowTitle">
@@ -280,7 +274,7 @@
 													</f:selectItems>
 											</h:selectManyCheckbox>
 
-											<h:message id="msgValidationSymptom" for="selectSymptoms" style="color: red" />                                            
+											<small class="redText"><h:message id="msgValidationSymptom" for="selectSymptoms"/></small>
                                         </div>
                                     </div>
                                 </div>
@@ -300,7 +294,7 @@
 													<f:selectItems
 														value="#{observationBean.allSuggestions}" />
 											</h:selectManyCheckbox>
-											<h:message id="msgValidationSuggestion" for="selectSuggestions" style="color: red" />
+											<small class="redText"><h:message id="msgValidationSuggestion" for="selectSuggestions" /></small>
                                         </div>
                                     </div>
                                 </div>

@@ -3,36 +3,12 @@
  */
 package org.prosolo.services.activityWall.impl;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialEnrollSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.*;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -40,7 +16,7 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -54,11 +30,18 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service("org.prosolo.services.activitywall.SocialActivityManager")
@@ -78,6 +61,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private CommentManager commentManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private CredentialManager credentialManager;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -116,12 +100,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.actor = :userId \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 		
 	private List<SocialActivityData1> getMyNetworkSocialActivities(long user, int offset, int limit,
@@ -133,12 +117,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"				) \n";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit,
@@ -146,13 +130,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.dtype = :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
 				previousDate, false, false, locale);
-		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private List<SocialActivityData1> getAllProSoloSocialActivities(long user, int offset, int limit,
@@ -160,25 +144,25 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		String specificCondition = "AND sa.dtype != :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
 				previousDate, false, false, locale);
-		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 
 	private List<SocialActivityData1> getAllSocialActivities(long user, int offset, int limit,
 			long previousId, Date previousDate, Locale locale) {
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, "", previousId, 
 				previousDate, false, false, locale);
-		@SuppressWarnings("unchecked")
-		List<SocialActivityData1> res = q.list();
-		if(res == null) {
-			return new ArrayList<>();
+		if (q != null) {
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			return res;
 		}
-		return res;
+		return new ArrayList<>();
 	}
 	
 	private String getSelectPart() {
@@ -268,14 +252,20 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"compObjectActor.lastname AS compObjectActorLastname, " +
 				"compObject.description AS compObjectDescription, " +
 				
-				"IF (annotation.id > 0, true, false) AS liked, \n " +
-				"COUNT(comment.id) AS commentsNumber ";
+				"annotation.id is NOT NULL AS liked, \n " +
+				" (SELECT COUNT(comm.id) FROM comment1 comm \n" +
+						" WHERE comm.commented_resource_id = sa.id \n" +
+						" AND comm.resource_type = :commentResourceType \n " +
+						" AND comm.parent_comment IS NULL) AS commentsNumber ";
 	}
 	
 	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate,
-			boolean queryById, boolean shouldReturnHidden) {
+			boolean queryById, boolean shouldReturnHidden, List<Long> credentialIds) {
+		//straight join is used for actor to force table order because after analyzing query, it appears that MySQL optimizer chooses wrong table order
 		String q =
 				"FROM social_activity1 sa \n" +
+				"	STRAIGHT_JOIN user AS actor \n" +
+				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
 				"		ON config.social_activity = sa.id \n" +
 				"       AND config.user = :userId " +
@@ -327,106 +317,35 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       ON tActObject.target_competence = tComp.id " +
 				"   LEFT JOIN user AS actObjectActor " +
 				"       ON actObject.created_by = actObjectActor.id " +
-				
-				"	LEFT JOIN user AS actor \n" +
-				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
 				"       AND annotation.annotated_resource = :annotatedResource " +
 				"		AND annotation.annotation_type = :annotationType " +
 				"		AND annotation.maker = :userId " +
-				"   LEFT JOIN comment1 AS comment \n" +
-				"       ON sa.id = comment.commented_resource_id " +
-				"       AND comment.resource_type = :commentResourceType " +
-				"       AND comment.parent_comment IS NULL " +
 						
 				"WHERE sa.deleted = :saDeleted \n";
 			
-		if(!shouldReturnHidden) {
-			q += "	AND config.id IS NULL \n";
+		if (!shouldReturnHidden) {
+			q += " AND config.id IS NULL \n";
 		}
-		if(!queryById) {
+
+		if (!queryById) {
+			if (!credentialIds.isEmpty()) {
+				q += "AND (actor.id = :userId OR EXISTS " +
+						"(SELECT cred.id from target_credential1 cred WHERE cred.user = actor.id AND cred.credential IN (:credentialIds))) ";
+			} else {
+				q += "AND actor.id = :userId ";
+			}
+		}
+
+		if (!queryById) {
 			if(previousDate != null && previousId > 0) {
 				q += "AND sa.last_action <= :date \n " +
 					 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
 			}
 		}
 		
-		return q + specificPartOfTheCondition +	
-			"GROUP BY sa.id, compActivity.competence, annotation.id, " +
-			"sa.dtype, " +
-			"sa.created, " +
-			"sa.last_action, " +
-			"sa.comments_disabled, " +
-			"sa.text, " +
-			"sa.like_count, " +
-			"sa.actor, " +
-			"actor.name, " +
-			"actor.lastname, " +
-			"actor.avatar_url, " +
-			"sa.twitter_poster_name, " +
-			"sa.twitter_poster_nickname, " +
-			"sa.twitter_poster_profile_url, " +
-			"sa.twitter_poster_avatar_url, " +
-			"sa.twitter_post_url, " +
-			"sa.twitter_user_type, " +
-			"sa.rich_content_title, " +
-			"sa.rich_content_description, " +
-			"sa.rich_content_content_type, " +
-			"sa.rich_content_image_url, " +
-			"sa.rich_content_link, " +
-			"sa.rich_content_embed_id, " +
-			"sa.rich_content_image_size, " +
-			"sa.post_object, " +
-			"postObject.text, " +
-			"postObject.rich_content_title, " +
-			"postObject.rich_content_description, " +
-			"postObject.rich_content_content_type, " +
-			"postObject.rich_content_image_url, " +
-			"postObject.rich_content_link, " +
-			"postObject.rich_content_embed_id, " +
-			"postObject.rich_content_image_size, " +
-			"postObject.actor, " +
-			"postObjectActor.name, " +
-			"postObjectActor.lastname, " +
-			"postObjectActor.avatar_url, " +
-			"postObject.created, " +
-			"sa.credential_object, " +
-			"credObject.title, " +
-			"credObject.duration, " +
-			"credObject.created_by, " +
-			"credObjectActor.name, " +
-			"credObjectActor.lastname, " +
-			"credObject.description, " +
-			"sa.comment_object, " +
-			"commentObject.description, " +
-			"sa.competence_target, " +
-			"compTarget.title, " +
-			"sa.activity_target, " +
-			"actTarget.title, " +
-			"compActivity.competence, " +
-			"actTarget.dtype, " +
-			"actTarget.url_type, " +
-			"tActObject.activity, " +
-			"actObject.title, " +
-			"actObject.duration, " +
-			"actObject.type, " +
-			"actObject.created_by, " +
-			"actObjectActor.name, " +
-			"actObjectActor.lastname, " +
-			"actObject.description, " +
-			"actObject.dtype, " +
-			"actObject.url_type, " +
-			"tComp.competence, " +
-			//"tCred.credential, " +
-			"tCompObject.competence, " +
-			"compObject.title, " +
-			"compObject.duration, " +
-			"compObject.type, " +
-			"compObject.created_by, " +
-			"compObjectActor.name, " +
-			"compObjectActor.lastname, " +
-			"compObject.description " +
+		return q + specificPartOfTheCondition +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +
@@ -436,9 +355,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
 			String specificCondition, long previousId, Date previousDate, boolean queryById, 
 			boolean shouldReturnHidden, Locale locale) {
+		List<Long> deliveriesUserIsLearning = null;
+		if (!queryById) {
+			deliveriesUserIsLearning = credentialManager.getIdsOfUncompletedDeliveries(userId);
+		}
 		String query = getSelectPart() + getTablesString(specificCondition, previousId, previousDate,
-				queryById, shouldReturnHidden);
-		
+				queryById, shouldReturnHidden, deliveriesUserIsLearning);
+
 		Query q = persistence.currentManager().createSQLQuery(query)
 			.setLong("userId", userId)
 			.setString("postReshareDType", PostReshareSocialActivity.class.getSimpleName())
@@ -452,95 +375,103 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("annotationType", AnnotationType.Like.name())
 			//.setBoolean("boolFalse", false)
 			.setCharacter("saDeleted", 'F')
-			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
-			.setResultTransformer(new ResultTransformer() {
-				private static final long serialVersionUID = 3421375509302043275L;
+			.setString("commentResourceType", CommentedResourceType.SocialActivity.name());
 
-				@Override
-				public Object transformTuple(Object[] tuple, String[] aliases) {
-					return socialActivityFactory.getSocialActivityData(
-							(BigInteger) tuple[0],
-							(String) tuple[1],
-							(Date) tuple[2], 
-							(Date) tuple[3], 
-							(Character) tuple[4], 
-							(String) tuple[5], 
-							(Integer) tuple[6], 
-							(BigInteger) tuple[7], 
-							(String) tuple[8], 
-							(String) tuple[9], 
-							(String) tuple[10], 
-							(String) tuple[11], 
-							(String) tuple[12], 
-							(String) tuple[13], 
-							(String) tuple[14], 
-							(String) tuple[15], 
-							(Integer) tuple[16],
-							(String) tuple[17], 
-							(String) tuple[18], 
-							(String) tuple[19], 
-							(String) tuple[20], 
-							(String) tuple[21],
-							(String) tuple[22],
-							(String) tuple[23],
-							(BigInteger) tuple[24], 
-							(String) tuple[25], 
-							(String) tuple[26], 
-							(String) tuple[27], 
-							(String) tuple[28], 
-							(String) tuple[29], 
-							(String) tuple[30], 
-							(String) tuple[31],
-							(String) tuple[32],
-							(BigInteger) tuple[33], 
-							(String) tuple[34], 
-							(String) tuple[35], 
-							(String) tuple[36],
-							(Date) tuple[37],
-							(BigInteger) tuple[38], 
-							(String) tuple[39], 
-							(BigInteger) tuple[40],
-							(BigInteger) tuple[41],
-							(String) tuple[42],
-							(String) tuple[43],
-							(String) tuple[44],
-							(BigInteger) tuple[45],
-							(String) tuple[46],
-							(BigInteger) tuple[47],
-							(String) tuple[48],
-							(BigInteger) tuple[49],
-							(String) tuple[50],
-							(BigInteger) tuple[51],
-							(String) tuple[52],
-							(String) tuple [53],
-							(BigInteger) tuple[54],
-							(String) tuple[55],
-							(BigInteger) tuple[56],
-							(String) tuple[57],
-							(BigInteger) tuple[58],
-							(String) tuple[59],
-							(String) tuple[60],
-							(String) tuple[61],
-							(String) tuple[62],
-							(String) tuple[63],
-							(BigInteger) tuple[64],
-							(BigInteger) tuple[65],
-							(String) tuple[66],
-							(BigInteger) tuple[67],
-							(String) tuple[68],
-							(BigInteger) tuple[69],
-							(String) tuple[70],
-							(String) tuple[71],
-							(String) tuple[72],
-							(Integer) tuple[73],
-							(BigInteger) tuple[74],
-							locale);
-				}
-				
-				@SuppressWarnings("rawtypes")
-				@Override
-				public List transformList(List collection) {return collection;}
-			});
+		if (!queryById && !deliveriesUserIsLearning.isEmpty()) {
+			q.setParameterList("credentialIds", deliveriesUserIsLearning);
+		}
+
+		q.setResultTransformer(new ResultTransformer() {
+			private static final long serialVersionUID = 3421375509302043275L;
+
+			@Override
+			public Object transformTuple(Object[] tuple, String[] aliases) {
+				//Sometimes Integer is returned and sometimes BigInteger
+				boolean liked = 1 == Integer.valueOf(tuple[73].toString());
+
+				return socialActivityFactory.getSocialActivityData(
+						(BigInteger) tuple[0],
+						(String) tuple[1],
+						(Date) tuple[2],
+						(Date) tuple[3],
+						(Character) tuple[4],
+						(String) tuple[5],
+						(Integer) tuple[6],
+						(BigInteger) tuple[7],
+						(String) tuple[8],
+						(String) tuple[9],
+						(String) tuple[10],
+						(String) tuple[11],
+						(String) tuple[12],
+						(String) tuple[13],
+						(String) tuple[14],
+						(String) tuple[15],
+						(Integer) tuple[16],
+						(String) tuple[17],
+						(String) tuple[18],
+						(String) tuple[19],
+						(String) tuple[20],
+						(String) tuple[21],
+						(String) tuple[22],
+						(String) tuple[23],
+						(BigInteger) tuple[24],
+						(String) tuple[25],
+						(String) tuple[26],
+						(String) tuple[27],
+						(String) tuple[28],
+						(String) tuple[29],
+						(String) tuple[30],
+						(String) tuple[31],
+						(String) tuple[32],
+						(BigInteger) tuple[33],
+						(String) tuple[34],
+						(String) tuple[35],
+						(String) tuple[36],
+						(Date) tuple[37],
+						(BigInteger) tuple[38],
+						(String) tuple[39],
+						(BigInteger) tuple[40],
+						(BigInteger) tuple[41],
+						(String) tuple[42],
+						(String) tuple[43],
+						(String) tuple[44],
+						(BigInteger) tuple[45],
+						(String) tuple[46],
+						(BigInteger) tuple[47],
+						(String) tuple[48],
+						(BigInteger) tuple[49],
+						(String) tuple[50],
+						(BigInteger) tuple[51],
+						(String) tuple[52],
+						(String) tuple [53],
+						(BigInteger) tuple[54],
+						(String) tuple[55],
+						(BigInteger) tuple[56],
+						(String) tuple[57],
+						(BigInteger) tuple[58],
+						(String) tuple[59],
+						(String) tuple[60],
+						(String) tuple[61],
+						(String) tuple[62],
+						(String) tuple[63],
+						(BigInteger) tuple[64],
+						(BigInteger) tuple[65],
+						(String) tuple[66],
+						(BigInteger) tuple[67],
+						(String) tuple[68],
+						(BigInteger) tuple[69],
+						(String) tuple[70],
+						(String) tuple[71],
+						(String) tuple[72],
+						liked,
+						(BigInteger) tuple[74],
+						locale);
+			}
+
+			@SuppressWarnings("rawtypes")
+			@Override
+			public List transformList(List collection) {return collection;}
+		});
 		
 		if(!queryById && previousDate != null && previousId > 0) {
 			q.setTimestamp("date", previousDate);
@@ -568,7 +499,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
 	private SocialActivity1 getPostSocialActivity(long id, Session session) throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -587,8 +517,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 
-	@Transactional(readOnly = true)
-	private SocialActivity1 getTwitterPostSocialActivity(long id, Session session) 
+	private SocialActivity1 getTwitterPostSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -607,8 +536,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getPostReshareSocialActivity(long id, Session session) 
+	private SocialActivity1 getPostReshareSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -629,8 +557,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCredentialEnrollSocialActivity(long id, Session session) 
+	private SocialActivity1 getCredentialEnrollSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -651,8 +578,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCompetenceCommentSocialActivity(long id, Session session) 
+	private SocialActivity1 getCompetenceCommentSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -674,8 +600,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getActivityCommentSocialActivity(long id, Session session) 
+	private SocialActivity1 getActivityCommentSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -697,8 +622,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCredentialCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getCredentialCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -720,8 +644,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getCompetenceCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getCompetenceCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -744,8 +667,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private SocialActivity1 getActivityCompleteSocialActivity(long id, Session session) 
+	private SocialActivity1 getActivityCompleteSocialActivity(long id, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -808,15 +730,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 createNewPost(long userId, SocialActivityData1 postData,
-			LearningContextData context) throws DbConnectionException {
+	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
+			UserContextData context) throws DbConnectionException {
 		try {
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
 			
-			PostSocialActivity1 post = resourceFactory.createNewPost(userId, postData.getText(), richContent);
-			
-			User user = new User();
-			user.setId(userId);
+			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
+
 			// generate events related to the content
 			//TODO richcontent1 is not a baseentity so event can't be generated
 			
@@ -824,14 +744,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				Session session = this.getPersistence().openSession();
 				try {
 					
-					generateEventForContent(user, postData.getText(), post);
+					generateEventForContent(context, postData.getText(), post);
 					
 					// generate Post event
-					String page = context != null ? context.getPage() : null;
-					String lContext = context != null ? context.getLearningContext() : null;
-					String service = context != null ? context.getService() : null;
-					eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
-							lContext, service, null);
+					eventFactory.generateEvent(EventType.Post, context, post, null, null, null);
 					
 					// generate MENTIONED event
 					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
@@ -840,8 +756,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						for (long mentionedUserId : mentionedUsers) {
 							User mentionedUser = (User) session.load(User.class, mentionedUserId);
 							
-							eventFactory.generateEvent(EventType.MENTIONED, userId, mentionedUser, post, page, 
-									lContext, service, null);
+							eventFactory.generateEvent(EventType.MENTIONED, context, mentionedUser, post, null, null);
 						}
 					}
 				} catch (Exception e) {
@@ -876,18 +791,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
-			LearningContextData context) throws DbConnectionException {
+	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
+			throws DbConnectionException {
 		try {
-			PostReshareSocialActivity postShare = resourceFactory.sharePost(userId, text, originalPostId);
-			
-			User user = new User();
-			user.setId(userId);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.PostShare, user.getId(), postShare, null, page, 
-					lContext, service, null);
+			PostReshareSocialActivity postShare = resourceFactory.sharePost(context.getActorId(), text, originalPostId);
+
+			eventFactory.generateEvent(EventType.PostShare, context, postShare, null, null, null);
 			
 			return postShare;
 		} catch(Exception e) {
@@ -899,22 +808,16 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 updatePost(long userId, long postId, String newText, 
-			LearningContextData context) throws DbConnectionException {
+	public PostSocialActivity1 updatePost(long postId, String newText,
+			UserContextData context) throws DbConnectionException {
 		try {
 			PostSocialActivity1 post = resourceFactory.updatePost(postId, newText);
-			
-			User user = new User();
-			user.setId(userId);
+
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
 			try {
-				String page = context != null ? context.getPage() : null;
-				String lContext = context != null ? context.getLearningContext() : null;
-				String service = context != null ? context.getService() : null;
-				eventFactory.generateEvent(EventType.PostUpdate, user.getId(), post, null,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
 			} catch (EventException e) {
 				logger.error(e);
 			}
@@ -928,11 +831,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	/**
-	 * @param user
+	 * @param context
 	 * @param text
 	 * @param post
 	 */
-	private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
+	private void generateEventForContent(final UserContextData context, final String text, final PostSocialActivity1 post) {
 		String addedLink = null;
 	
 		RichContent1 richContent = post.getRichContent();
@@ -940,13 +843,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			try {
 				switch (richContent.getContentType()) {
 				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
 					addedLink = richContent.getLink();
 					break;
 				case FILE:
-					eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.FileUploaded, context, post, null, null, null);
 					break;
 				default:
 					break;
@@ -965,10 +866,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional(readOnly = false)
 	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
-			long userId, CommentedResourceType resource, LearningContextData context) 
+			CommentedResourceType resource, UserContextData context)
 					throws DbConnectionException {
 		try {
-			Comment1 comment = commentManager.saveNewComment(data, userId, resource, context);
+			Comment1 comment = commentManager.saveNewComment(data, resource, context);
 			updateLastActionDate(socialActivityId, comment.getPostDate());
 			return comment;
 		} catch(Exception e) {
@@ -979,7 +880,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		
 	}
 	
-	@Transactional(readOnly = false)
 	private void updateLastActionDate(long socialActivityId, Date newDate) throws DbConnectionException {
 		SocialActivity1 sa = (SocialActivity1) persistence.currentManager()
 				.load(SocialActivity1.class, socialActivityId);
@@ -988,10 +888,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateSocialActivityComment(long id, CommentData data, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void updateSocialActivityComment(long id, CommentData data, UserContextData context)
+			throws DbConnectionException {
 		try {
-			commentManager.updateComment(data, userId, context);
+			commentManager.updateComment(data, context);
 			updateLastActionDate(id, new Date());
 		} catch(Exception e) {
 			logger.error(e);
@@ -1002,10 +902,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void likeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void likeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.createAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.createAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 						   "SET sa.likeCount = sa.likeCount + 1 " +
@@ -1019,8 +919,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.Like, userId, sa, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Like, context, sa, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1030,10 +929,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void unlikeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.deleteAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.deleteAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 					   "SET sa.likeCount = sa.likeCount - 1 " +
@@ -1047,8 +946,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, userId, sa, null, context.getPage(), 
-					context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.RemoveLike, context, sa, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

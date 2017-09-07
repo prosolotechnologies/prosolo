@@ -1,0 +1,88 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="userType" required="true" />
+		<composite:attribute name="addUserToResource" required="true" />
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="modalId" default="importUsersModal" />
+		<composite:attribute name="importUsersFormId" default="formImportUsers" />
+		<composite:attribute name="importUsersPanelId" default="panelImportUsers" />
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:form id="#{cc.attrs.importUsersFormId}" enctype="multipart/form-data">
+			<div class="modal fade importStudentsModal" id="#{cc.attrs.modalId}" tabindex="-1" role="dialog" aria-labelledby="importUsersModal">
+				<div class="modal-dialog">
+					<h:panelGroup layout="block" id="#{cc.attrs.importUsersPanelId}" styleClass="modal-content">
+						<div class="modal-header alignLeft">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+							<h2 class="modal-title">Import users</h2>
+						</div>
+						<div class="modal-body alignLeft">
+							<p>Upload a CSV file with #{cc.attrs.userType} data in order to add them to the #{cc.attrs.addUserToResource}. #{util:capitalizeWord(cc.attrs.userType)} data should be in the given format. Fields 'first_name', 'last_name' and 'email' are required fields, while 'position' is optional.<br></br><strong>email, first_name, last_name, position</strong></p>
+							<div class="uploadBtn">
+								<utilcomp:simpleFileUpload
+										id="simpleFileUpload"
+										fileUploadListenerMethodName="handleFileUpload"
+										fileUploadListenerMethod="#{importUsersBean.handleFileUpload}"
+										toUpdate=":#{cc.clientId}:#{cc.attrs.importUsersFormId}:fileValidationMsg :#{cc.clientId}:#{cc.attrs.importUsersFormId}:panelFileName :#{cc.clientId}:#{cc.attrs.importUsersFormId}:linkImportUsers"
+										uploadButtonStyle="btn btn-green btn-sm"
+								/>
+								<h:panelGroup id="fileValidationMsg">
+									<ui:fragment rendered="#{not empty importUsersBean.file and not importUsersBean.isFileValid()}">
+										<ui:fragment rendered="#{not importUsersBean.isFileTypeValid()}">
+											<small class="redText">Only CSV files allowed.</small>
+										</ui:fragment>
+										<ui:fragment rendered="#{importUsersBean.isFileTypeValid() and not importUsersBean.isFileContentValid()}">
+											<small class="redText">File contents not valid. Some of the lines do not follow specified format.</small>
+										</ui:fragment>
+									</ui:fragment>
+								</h:panelGroup>
+								<h:panelGroup id="panelFileName">
+									<ui:fragment rendered="#{not empty importUsersBean.file and importUsersBean.isFileValid()}">
+										#{importUsersBean.file.fileName}
+									</ui:fragment>
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="modal-footer alignLeft">
+							<p:commandLink styleClass="btn btn-green #{empty importUsersBean.file or not importUsersBean.isFileValid() ? 'disabled' : ''}" id="linkImportUsers"
+							    disabled="#{empty importUsersBean.file or not importUsersBean.isFileValid()}"
+								process="@this"
+								action="#{cc.attrs.bean.importUsers()}"
+								update="#{cc.attrs.toUpdate} :#{cc.clientId}:#{cc.attrs.importUsersFormId}:#{cc.attrs.importUsersPanelId}">
+								Import
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+								<f:param name="service" value="name:import_users_dialog"></f:param>
+							</p:commandLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							<br/>
+							<ui:fragment rendered="#{importUsersBean.importFinished}">
+								<small class="redText">
+									Number of users successfully imported: #{importUsersBean.numberOfUsersSuccessfullyImported}<br></br>
+									<ui:fragment rendered="#{importUsersBean.usersNotImported.size() gt 0}">
+										Users not imported:<br></br>
+										<ui:repeat value="#{importUsersBean.usersNotImported}" var="u">
+											#{u} <br></br>
+										</ui:repeat>
+									</ui:fragment>
+								</small>
+							</ui:fragment>
+						</div>
+					</h:panelGroup>
+				</div>
+			</div>
+		</h:form>
+	</composite:implementation>
+</ui:component>

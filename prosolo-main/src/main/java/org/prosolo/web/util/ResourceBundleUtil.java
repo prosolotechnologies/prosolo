@@ -22,7 +22,7 @@ import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 
 /**
- * class ResourceBundleUtil handles retrieving values from UIResources.properties file.
+ * Class ResourceBundleUtil handles retrieving values from UIResources.properties file.
  * Fixed bundle reference makes it easier using an always-used resource bundle.
  * This class also create a FacesMessage, return it, or add it to a desired UIComponent.
  * 
@@ -35,8 +35,6 @@ public class ResourceBundleUtil {
 	private static Logger logger = Logger.getLogger(ResourceBundleUtil.class);
 
     private static Map<String, ResourceBundle> bundles = null;
-
-   // private static final String UI_BUNDLE = "tdb.view.bundles.ui.UIResources";
 
     private ResourceBundleUtil() {
     	bundles = new HashMap<String, ResourceBundle>();
@@ -73,7 +71,17 @@ public class ResourceBundleUtil {
 			throw new KeyNotFoundInBundleException("Key '"+key+"' is not found in the bundle '"+path+"'");
 		}
 	}
-	
+
+	public static String getMessage(String key, Object... params) {
+		try {
+			return getMessage(key, new Locale("en", "US"), params);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
+	}
+
 	public static String getMessage(String key, Locale locale, Object... params) throws KeyNotFoundInBundleException {
 		String bcName = Settings.getInstance().config.init.bcName;
 		return getString("org.prosolo.web."+bcName+"_messages", key, locale, params);
@@ -97,85 +105,6 @@ public class ResourceBundleUtil {
     }
     
     /**
-     * Add a <code>FacesMessage</code> to the given <code>UIComponent</code>.
-     * The <code>Severity</code> status will be passed internally as <code>FacesMessage.SEVERITY_INFO</code>.
-     *
-     * @param component The <code>UIComoponent</code> required to add a <code>FacesMessage</code> to.
-     * @param key The string key in the loaded resource bundle.
-     * @throws KeyNotFoundInBundleException 
-     * @see ResourceBundleUtil#addFacesMessage(UIComponent, String, Severity)
-     */
-    public static void addSucessFacesMessage(String UI_BUNDLE, UIComponent component, String key) throws KeyNotFoundInBundleException {
-        addFacesMessage(UI_BUNDLE,component, key, FacesMessage.SEVERITY_INFO);
-    }
- 
-    /**
-     * Add a <code>FacesMessage</code> to the given <code>UIComponent</code>.
-     * The <code>Severity</code> status will be passed internally as <code>FacesMessage.SEVERITY_ERROR</code>.
-     *
-     * @param component The <code>UIComoponent</code> required to add a <code>FacesMessage</code> to.
-     * @param key The summary key of the <code>FacesMessage</code>.
-     * @throws KeyNotFoundInBundleException 
-     */
-    public static void addErrorFacesMessage(String UI_BUNDLE,UIComponent component, String key) throws KeyNotFoundInBundleException {
-        addFacesMessage(UI_BUNDLE,component, key, FacesMessage.SEVERITY_ERROR);
-    }
-    
-    /**
-     * Add a <code>FacesMessage</code> to the given <code>UIComponent</code>, with a defined severity.
-     *
-     * @param component The <code>UIComoponent</code> required to add a <code>FacesMessage</code> to.
-     * @param key The string key in the loaded resource bundle.
-     * @param severity <code>Severity</code> defines the <code>FacesMessage</code> status of four options,
-     * <code>FacesMessage.SEVERITY_INFO</code>, <code>FacesMessage.SEVERITY_FATAL</code>, 
-     * <code>FacesMessage.SEVERITY_WARN</code>, <code>FacesMessage.SEVERITY_ERROR</code>
-     * @throws KeyNotFoundInBundleException 
-     * @see ResourceBundleUtil#getFacesMessage(String, Severity)
-     */
-    public static void addFacesMessage(String UI_BUNDLE, UIComponent component, String key, Severity severity) throws KeyNotFoundInBundleException {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        facesContext.addMessage(component.getClientId(facesContext), getFacesMessage(UI_BUNDLE,key, severity));
-    }
-    
-    /**
-     * Get a <code>FacesMessage</code> object with the given summary.
-     * The <code>Severity</code> status will be passed internally as <code>FacesMessage.SEVERITY_INFO</code>.
-     *
-     * @param key The string key in the loaded resource bundle.
-     * @return <code>FacesMessage</code> object.
-     * @throws KeyNotFoundInBundleException 
-     */
-    public static FacesMessage getSuccessFacesMessage(String UI_BUNDLE, String key) throws KeyNotFoundInBundleException {
-        return getFacesMessage(UI_BUNDLE,key, FacesMessage.SEVERITY_INFO);
-    }
-    
-    /**
-     * Get a <code>FacesMessage</code> object with the given summary.
-     * The Severity status will be passed internally as <code>FacesMessage.SEVERITY_ERROR</code>.
-     *
-     * @param key The string key in the loaded resource bundle.
-     * @return <code>FacesMessage</code> object.
-     * @throws KeyNotFoundInBundleException 
-     */
-    public static FacesMessage getErrorFacesMessage(String UI_BUNDLE, String key) throws KeyNotFoundInBundleException {
-        return getFacesMessage(UI_BUNDLE,key, FacesMessage.SEVERITY_ERROR);
-    }
-    
-    /**
-     * Get a <code>FacesMessage</code> object with the given summary and passed severity status.
-     *
-     * @param key The string key in the loaded resource bundle.
-     * @param severity <code>Severity</code> defines the FacesMessage status of four options,
-     * <code>FacesMessage.SEVERITY_INFO</code>, <code>FacesMessage.SEVERITY_FATAL</code>, 
-     * <code>FacesMessage.SEVERITY_WARN</code>, <code>FacesMessage.SEVERITY_ERROR</code>
-     * @return <code>FacesMessage</code> object.
-     * @throws KeyNotFoundInBundleException 
-     */
-    public static FacesMessage getFacesMessage(String UI_BUNDLE, String key, Severity severity) throws KeyNotFoundInBundleException {
-        return new FacesMessage(severity, getString(UI_BUNDLE,key, getLocale(FacesContext.getCurrentInstance())), null);
-    }
-    
-    /**
      * Retrieve the set <code>Locale</code> in the <code>UIViewRoot</code> of the current <code>FacesContext</code>.
      *
      * @param context The current <code>FacesContext</code> object to reach the JSF pages <code>UIViewRoot</code>.
@@ -189,20 +118,6 @@ public class ResourceBundleUtil {
         if (locale == null)
             locale = Locale.getDefault();
         return locale;
-    }
-    
-    /**
-     * Set the Locale in the <code>UIViewRoot</code> of the current <code>FacesContext</code>.
-     *
-     * @param context The current <code>FacesContext</code> object to reach the JSF pages <code>UIViewRoot</code>.
-     * @param locale the required <code>Locale</code> value to set in the <code>UIViewRoot</code>.
-     */
-    public static void setLocale(FacesContext context, Locale locale) {
-        context.getViewRoot().setLocale(locale);
-    }
-    
-    public static String getResourceType(Class<?> clazz, Locale locale) {
-		return getResourceType(getClassName(clazz), locale);
     }
     
     public static String getResourceType(String resourceName, Locale locale) {
@@ -227,10 +142,6 @@ public class ResourceBundleUtil {
     	return name;
 	}
 
-	public static String getActionName(EventType action, Locale locale) {
-		return getActionName(action.toString(), locale);
-	}
-	
 	public static String getActionName(String action, Locale locale) {
 		try {
 			return ResourceBundleUtil.getMessage( 
@@ -242,22 +153,7 @@ public class ResourceBundleUtil {
 		return "";
 	}
     
-    public static String getRelationBetweenResources(Locale locale, EventType action, 
-    		Class<? extends BaseEntity> objectClass, Class<? extends BaseEntity> targetClass) {
-		String relationToTarget = "";
-		try {
-			relationToTarget = ResourceBundleUtil.getMessage( 
-					"activitywall.relationToTarget."+action.toString()+"."+
-						objectClass.getSimpleName()+"."+
-						targetClass.getSimpleName(), 
-					locale);
-		} catch (KeyNotFoundInBundleException e) {
-			logger.error(e);
-		}
-		return relationToTarget;
-	}
-    
-    public static String getRelationBetweenResources(Locale locale, SocialActivityType type, 
+    public static String getRelationBetweenResources(Locale locale, SocialActivityType type,
     		ResourceType objectType, ResourceType targetType) {
 		String relationToTarget = "";
 		try {
@@ -270,5 +166,29 @@ public class ResourceBundleUtil {
 			logger.error(e);
 		}
 		return relationToTarget;
+	}
+
+	public static String getLabel(String resource, Locale locale) {
+		try {
+			return ResourceBundleUtil.getMessage(
+					"label." + resource, locale);
+		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		}
+		return "";
+	}
+
+	public static String getLabel(String resource) {
+    	return getLabel(resource, new Locale("en", "US"));
+	}
+
+	public static String getSpringMessage(String key) {
+		try {
+			return getString("org.prosolo.web.spring-messages", key, new Locale("en", "US"), null);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
 	}
 }

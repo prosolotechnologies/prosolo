@@ -83,10 +83,22 @@ public enum ApplicationPage {
 	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
 	MANAGER_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
 	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-who-can-learn.xhtml"),
-	MANAGER_COMPETENCE_PRIVACY("/manage/competence-editors.xhtml"),
-	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-editors.xhtml"),
-	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml");
-	
+	MANAGER_COMPETENCE_EDITORS("/manage/competence-editors.xhtml"),
+	MANAGER_CREDENTIAL_EDITORS("/manage/credential-editors.xhtml"),
+	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml"),
+	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
+	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
+	MANAGER_RUBRIC_LIBRARY("/manage/rubricLibrary.xhtml"),
+	MANAGER_RUBRIC_EDIT("/manage/rubricEdit.xhtml"),
+	MANAGER_RUBRIC_NEW("/manage/newRubric.xhtml"),
+	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
+	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),
+	ADMIN_UNIT_TEACHERS("/admin/unit-teachers.xhtml"),
+	ADMIN_UNIT_STUDENTS("/admin/unit-students.xhtml"),
+	ADMIN_UNIT_INSTRUCTORS("/admin/unit-instructors.xhtml"),
+	ADMIN_UNIT_GROUPS("/admin/unit-groups.xhtml"),
+	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml");
+
     private String uri; 
     
     ApplicationPage(String uri) {

@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -127,7 +126,7 @@ public class UserEditBean implements Serializable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		initOrgTitle();
 		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager"});
+			init(new String[]{"User", "Instructor", "Manager", "Admin"});
 		}
 	}
 
@@ -201,7 +200,7 @@ public class UserEditBean implements Serializable {
 
 			sendNewPassword();
 
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("New user is created");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("A new user has been created");
 			if (decodedOrgId > 0) {
 				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
 			} else {
@@ -231,14 +230,14 @@ public class UserEditBean implements Serializable {
 					this.user.getPosition(),
 					getSelectedRoles(),
 					userRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
-					loggedUser.getUserId());
+					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User is updated");
+			PageUtil.fireSuccessfulInfoMessage("The user has been updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user data");
+			PageUtil.fireErrorMessage("Error updating the user");
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -324,24 +323,21 @@ public class UserEditBean implements Serializable {
 
 		final User user = userManager.getUser(this.user.getEmail());
 
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Session session = (Session) userManager.getPersistence().openSession();
-				try {
-					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-					session.flush();
-					if (resetLinkSent) {
-						logger.info("Password instructions have been sent");
-					} else {
-						logger.error("Error sending password instruction");
-					}
-				}catch (Exception e){
-					logger.error("Exception in handling mail sending", e);
-				}finally {
-					HibernateUtil.close(session);
+		taskExecutor.execute(() -> {
+			Session session = (Session) userManager.getPersistence().openSession();
+			try {
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+				session.flush();
+				if (resetLinkSent) {
+					logger.info("Password instructions have been sent");
+				} else {
+					logger.error("Error sending password instruction");
 				}
+			}catch (Exception e){
+				logger.error("Exception in handling mail sending", e);
+			}finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}
@@ -349,13 +345,16 @@ public class UserEditBean implements Serializable {
 	public void delete() {
 		if (userToDelete != null) {
 			try {
-				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
-				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
+				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId(), loggedUser.getUserContext(decodedOrgId));
+				PageUtil.fireSuccessfulInfoMessage("The user has been deleted");
 				userToDelete = null;
-				PageUtil.redirect("/user/users");
+				String url = decodedOrgId > 0
+						? "/admin/organizations/" + orgId + "/users"
+						: "/admin/admins";
+				PageUtil.redirect(url);
 			} catch (Exception ex) {
 				logger.error(ex);
-				PageUtil.fireErrorMessage("Error while trying to delete user");
+				PageUtil.fireErrorMessage("Error deleting the user");
 			}
 		}
 	}
@@ -366,7 +365,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				PaginatedResult<UserData> result = textSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
+				PaginatedResult<UserData> result = textSearch.searchUsers(decodedOrgId, searchTerm, 3, this.usersToExclude,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -391,7 +390,7 @@ public class UserEditBean implements Serializable {
 		}
 		try {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+			PageUtil.fireSuccessfulInfoMessage("The password has been updated");
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");

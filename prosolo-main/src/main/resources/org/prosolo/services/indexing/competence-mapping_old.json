@@ -1,0 +1,96 @@
+{
+    "competence":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"long"
+			},
+			"published":{
+				"store": false,
+				"type": "boolean"
+			},
+			"archived":{
+				"store": false,
+				"type": "boolean"
+			},
+			"title":{
+				"store": false,
+				"type":"string",
+				"fields": {
+			        "raw": { 
+			            "type":  "string",
+			            "index": "not_analyzed"
+			        }
+   	 			}
+			},
+			"description":{
+				"store": false,
+				"type":"string"
+			},
+			"dateCreated":{
+				"store": false,
+				"type":"date",
+				"format":"yyyy/MM/dd HH:mm:ss"
+			},
+			"datePublished":{
+				"store": false,
+				"type":"date",
+				"format":"yyyy/MM/dd HH:mm:ss"
+			},
+			"tags":{
+				"properties":{
+					"title":{
+						"store": false,
+						"type":"string"
+					} 
+				}
+			},
+			"type":{
+				"store": false,
+				"type":"string"
+			},
+			"creatorId":{
+				"store": false,
+				"type":"long"
+			},
+			"visibleToAll":{
+				"store": false,
+				"type":"boolean"
+			},
+			"usersWithEditPrivilege": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"usersWithViewPrivilege": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"bookmarkedBy":{
+				"properties":{
+					"id":{
+						"store": false,
+						"type":"long"
+					} 
+				}
+			},
+			"students": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			}
+		}
+			
+		}
+
+}

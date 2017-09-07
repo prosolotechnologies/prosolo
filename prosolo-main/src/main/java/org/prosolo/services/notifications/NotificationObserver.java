@@ -123,35 +123,32 @@ public class NotificationObserver extends EventObserver {
 								}
 								
 								final String urlPrefix = domain;
-								taskExecutor.execute(new Runnable() {
-									@Override
-									public void run() {
-										Session session = (Session) defaultManager.getPersistence().openSession();
-										try {
-											String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
-											logger.info("Sending notification via email to " + email);
-											
-											boolean sent = notificationManager.sendNotificationByEmail(
-													email, 
-													notificationData.getReceiver().getFullName(), 
-													notificationData.getActor().getFullName(), 
-													notificationData.getPredicate(),
-													notificationData.getObjectId(),
-													notificationData.getObjectType(),
-													notificationData.getObjectTitle(),
-													urlPrefix + notificationData.getLink(),
-													DateUtil.getTimeAgoFromNow(notificationData.getDate()),
-													notificationData.getNotificationType(),
-													session);
-											
-											if (sent) {
-												logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
-											} else {
-												logger.error("Error sending email notification to " + email);
-											}
-										} finally {
-											HibernateUtil.close(session);
+								taskExecutor.execute(() -> {
+									Session session1 = (Session) defaultManager.getPersistence().openSession();
+									try {
+										String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
+										logger.info("Sending notification via email to " + email);
+
+										boolean sent = notificationManager.sendNotificationByEmail(
+												email,
+												notificationData.getReceiver().getFullName(),
+												notificationData.getActor().getFullName(),
+												notificationData.getPredicate(),
+												notificationData.getObjectId(),
+												notificationData.getObjectType(),
+												notificationData.getObjectTitle(),
+												urlPrefix + notificationData.getLink(),
+												DateUtil.getTimeAgoFromNow(notificationData.getDate()),
+												notificationData.getNotificationType(),
+												session1);
+
+										if (sent) {
+											logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
+										} else {
+											logger.error("Error sending email notification to " + email);
 										}
+									} finally {
+										HibernateUtil.close(session1);
 									}
 								});
 							} catch (Exception e) {

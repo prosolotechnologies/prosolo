@@ -1,12 +1,8 @@
 <ui:composition
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:icon="http://java.sun.com/jsf/composite/components/resourceLinks/icons"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<div role="tabpanel" class="tab-pane fade" id="timeline">
 		<div class="whiteBox">
@@ -16,11 +12,11 @@
 			<div class="timelineGraphFilters">
 				<div class="checkbox">
 					<input id="timeline-credential-checkbox" event-type="Credentials" type="checkbox" checked="checked"/>
-					<label for="timeline-credential-checkbox">Credentials</label>
+					<label for="timeline-credential-checkbox">#{msg['label.credential.plural']}</label>
 				</div>
 				<div class="checkbox">
 					<input id="timeline-competence-checkbox" event-type="Competences" type="checkbox" checked="checked"/>
-					<label for="timeline-competence-checkbox">Competences</label>
+					<label for="timeline-competence-checkbox">#{msg['label.competence.plural']}</label>
 				</div>
 				<div class="checkbox">
 					<input id="timeline-activities-checkbox" event-type="Activities" type="checkbox" checked="checked"/>

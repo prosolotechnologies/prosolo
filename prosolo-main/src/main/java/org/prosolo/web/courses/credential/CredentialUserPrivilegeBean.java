@@ -4,27 +4,33 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("credentialUserPrivilegeBean")
@@ -42,6 +48,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	@Inject private ApplicationPagesBean appPagesBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
 	private String credId;
 	private long credentialId;
@@ -49,10 +56,14 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private String credentialTitle;
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
+
+	private List<Long> unitIds = new ArrayList<>();
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
 
 	private UserGroupPrivilege privilege;
+
+	private long newOwnerId;
 	
 	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -97,11 +108,17 @@ public class CredentialUserPrivilegeBean implements Serializable {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 						}
 						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
+								privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
 
 						if (roleIds.size() == 1) {
 							roleId = roleIds.get(0);
 						}
+
+						//units are connected to original credential so we need to work with original credential id
+						long origCredId = credType == CredentialType.Original
+								? credentialId
+								: credManager.getCredentialIdForDelivery(credentialId);
+						unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(origCredId);
 
 						logger.info("Manage visibility for credential with id " + credentialId);
 
@@ -120,7 +137,10 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	}
 	
 	private void loadData() {
-		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
+		//only Learn privilege can be added to user groups
+		if (privilege == UserGroupPrivilege.Learn) {
+			setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
+		}
 		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId, privilege));
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
@@ -135,10 +155,15 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		if(searchTerm == null) {
 			searchTerm = "";
 		}
-		PaginatedResult<ResourceVisibilityMember> res = null;
-
-		res = userGroupTextSearch.searchUsersAndGroups(searchTerm, getLimit(),
-				getUsersToExclude(), getGroupsToExclude(), roleId);
+		PaginatedResult<ResourceVisibilityMember> res;
+		if (privilege == UserGroupPrivilege.Learn) {
+			//groups are retrieved only for Learn privilege
+			res = userGroupTextSearch.searchUsersAndGroups(loggedUserBean.getOrganizationId(), searchTerm, getLimit(),
+					getUsersToExclude(), getGroupsToExclude(), roleId, unitIds);
+		} else {
+			res = userGroupTextSearch.searchUsersInUnitsWithRole(loggedUserBean.getOrganizationId(), searchTerm,
+					getLimit(), unitIds, getUsersToExclude(), roleId);
+		}
 		
 		setSearchMembers(res.getFoundNodes());
 	}
@@ -155,14 +180,13 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
-			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
-					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(),
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a credential");
+			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (EventException ee) {
 			logger.error(ee);
 		}
@@ -174,6 +198,23 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
 			}
+		}
+	}
+
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			credManager.changeOwner(credentialId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -251,5 +292,9 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	public long getCredentialId() {
 		return credentialId;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

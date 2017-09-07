@@ -1,23 +1,16 @@
 package org.prosolo.common.domainmodel.user;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 
 
 @Entity
@@ -49,6 +42,9 @@ public class User extends BaseEntity {
 	private String email;
 	private boolean verified;
 	private String verificationKey;
+
+	private List<UnitRoleMembership> unitMemberships;
+	private List<UserGroupUser> groups;
 	
 	public User() {
 		roles = new HashSet<Role>();
@@ -227,5 +223,22 @@ public class User extends BaseEntity {
 	public void setOrganization(Organization organization){
 		this.organization = organization;
 	}
-	
+
+	@OneToMany(mappedBy = "user")
+	public List<UnitRoleMembership> getUnitMemberships() {
+		return unitMemberships;
+	}
+
+	public void setUnitMemberships(List<UnitRoleMembership> unitMemberships) {
+		this.unitMemberships = unitMemberships;
+	}
+
+	@OneToMany(mappedBy = "user")
+	public List<UserGroupUser> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<UserGroupUser> groups) {
+		this.groups = groups;
+	}
 }

@@ -5,17 +5,15 @@ import java.util.Map;
 
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.context.data.UserContextData;
 
 public class EventData {
 
 	private EventType eventType; 
-	private long actorId; 
+	private UserContextData context;
 	private BaseEntity object; 
 	private BaseEntity target; 
-	private BaseEntity reason; 
-	private String page; 
-	private String context; 
-	private String service; 
+	private BaseEntity reason;
 	private Class<? extends EventObserver>[] observersToExclude;
 	private Map<String, String> parameters;
 	
@@ -27,12 +25,6 @@ public class EventData {
 	}
 	public void setEventType(EventType eventType) {
 		this.eventType = eventType;
-	}
-	public long getActorId() {
-		return actorId;
-	}
-	public void setActorId(long actorId) {
-		this.actorId = actorId;
 	}
 	public BaseEntity getObject() {
 		return object;
@@ -52,24 +44,6 @@ public class EventData {
 	public void setReason(BaseEntity reason) {
 		this.reason = reason;
 	}
-	public String getPage() {
-		return page;
-	}
-	public void setPage(String page) {
-		this.page = page;
-	}
-	public String getContext() {
-		return context;
-	}
-	public void setContext(String context) {
-		this.context = context;
-	}
-	public String getService() {
-		return service;
-	}
-	public void setService(String service) {
-		this.service = service;
-	}
 	public Class<? extends EventObserver>[] getObserversToExclude() {
 		return observersToExclude;
 	}
@@ -88,5 +62,12 @@ public class EventData {
 	public void setProgress(int progress) {
 		this.progress = progress;
 	}
-	
+
+	public void setContext(UserContextData context) {
+		this.context = context;
+	}
+
+	public UserContextData getContext() {
+		return context;
+	}
 }

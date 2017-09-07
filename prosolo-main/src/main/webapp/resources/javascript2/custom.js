@@ -18,14 +18,14 @@ var custom = {
 //comment form hide/show
 function displaySubmitButton(inputElem) {
     if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
-     		($(inputElem).is('div') && $(inputElem).html().length == 0)) {
+			($(inputElem).is('div') && $(inputElem).html().length == 0)) {
         $(inputElem).parent().find('.submitBtn').addClass('hidden');
      } else {
     	$(inputElem).parent().find('.submitBtn').removeClass('hidden');
      }
 }
 
-function toggleReplyInput(replyBtn) {
+function toggleReplyInput(replyBtn) {	
 	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');
 	$(replyBtn).parent().parent().next('.replyInput').get(0).focus();
     return false;

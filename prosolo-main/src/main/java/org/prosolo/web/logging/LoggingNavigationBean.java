@@ -1,20 +1,12 @@
 package org.prosolo.web.logging;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
@@ -25,6 +17,13 @@ import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 //import com.mongodb.BasicDBObject;
 //import com.mongodb.util.JSON;
@@ -63,47 +62,12 @@ public class LoggingNavigationBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void logEmailNavigation(User user, String link, LearningContextData lContext){
+	public void logEmailNavigation(UserContextData context, String link) {
 		try {
-			loggingService.logEmailNavigation(user.getId(), link, null, getIpAddress(), lContext);
+			loggingService.logEmailNavigation(context, link, null, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
-	}
-	
-//	public void logPageNavigationFromContext(User user, String link, String context){
-//		try {
-//			loggingService.logNavigationFromContext(user.getId(), link, context, page, learningContext,
-//					service, null, getIpAddress());
-//		} catch (LoggingException e) {
-//			logger.error(e);
-//		}
-//	}
-	
-//	public void logServiceUseWithIp(String ipAddress, ComponentName component, String... parms) {
-//		Map<String, String> parameters = new HashMap<String, String>();
-//		
-//		for (int i = 0; i < parms.length; i+=2) {
-//			if (parms[i] != null && parms[i+1] != null)
-//				parameters.put(parms[i], parms[i+1]);
-//		}
-//		
-//		try {
-//			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
-//		} catch (LoggingException e) {
-//			logger.error(e);
-//		}  
-//	}
-	
-	public void logServiceUse(ComponentName component, String parm1, String value1) {
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put(parm1, value1);
-		
-		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
-		} catch (LoggingException e) {
-			logger.error(e);
-		}  
 	}
 	
 	public void logServiceUse(ComponentName component, String parm1, String value1, String parm2, String value2) {
@@ -112,17 +76,17 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm2, value2);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserContext(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
 	}
 	
-	public void logServiceUse(ComponentName component, String query, LearningContextData lContext){
+	public void logServiceUse(ComponentName component, String query){
 		try {
 			Map<String, String> params = new HashMap<>();
 			params.put("query", query);
-			loggingService.logServiceUse(loggedUser.getUserId(), component, params, getIpAddress(), lContext);
+			loggingService.logServiceUse(loggedUser.getUserContext(), component, null, params, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -131,69 +95,34 @@ public class LoggingNavigationBean implements Serializable {
 	public void logServiceUse(ComponentName component, String parm1, String value1, String parm2, 
 			String value2, String parm3, String value3) {
 		
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put(parm1, value1);
 		parameters.put(parm2, value2);
 		parameters.put(parm3, value3);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
-		} catch (LoggingException e) {
-			logger.error(e);
-		}  
-	}
-	
-	public void logServiceUse(ComponentName component, String ipAddress, String parm1, String value1, String parm2, 
-			String value2, String parm3, String value3) {
-		
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put(parm1, value1);
-		parameters.put(parm2, value2);
-		parameters.put(parm3, value3);
-		
-		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
-		} catch (LoggingException e) {
-			logger.error(e);
-		}  
-	}
-	
-	public void logServiceUse(ComponentName component, String parm1, String value1, String parm2, 
-			String value2, String parm3, String value3, String parm4, String value4) {
-		
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put(parm1, value1);
-		parameters.put(parm2, value2);
-		parameters.put(parm3, value3);
-		parameters.put(parm4, value4);
-		
-		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserContext(), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
 	}
 	
 	public void logEventWithIp(EventType eventType, String ipAdress, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUserId(), null, 0, parameters, ipAdress);
+		logEventWithIp(eventType, loggedUser.getUserContext(), ipAdress, parameters);
 	}
-	
-	public void logEvent(EventType eventType, Map<String, String> parameters) {
-		logEventWithIp(eventType, getIpAddress(), parameters);
-	}
-	
-	public void logEvent(EventType eventType, String objectType, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUserId(), objectType, 0, parameters, getIpAddress());
-	}
-	
-	public void logEvent(EventType eventType, String objectType, long objectId, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUserId(), objectType, objectId, parameters, getIpAddress());
+
+	public void logEventWithIp(EventType eventType, UserContextData context, String ipAddress,
+							   Map<String, String> params) {
+		try {
+			loggingService.logEventObserved(eventType, context, null, 0, null, null, params, ipAddress);
+		} catch (LoggingException e) {
+			logger.error("Error", e);
+		}
 	}
 	
 	public void submitPageNavigation(){
 		try {
-			loggingService.logNavigationFromContext(loggedUser.getUserId(), link, context, page, 
-					learningContext, service, parameters, getIpAddress());
+			loggingService.logNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -201,7 +130,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitTabNavigation(){
 		try {
-			loggingService.logTabNavigationFromContext(loggedUser.getUserId(), link, context, parameters, getIpAddress());
+			loggingService.logTabNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -211,8 +140,8 @@ public class LoggingNavigationBean implements Serializable {
 		try {
 			Map<String, String> params = convertToMap(parameters);
 			params.put("objectType", component);
-			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserId(), null, null, page,
-					learningContext, service, params);
+			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
+					null, params);
 			//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
 		} catch (EventException e) {
 			logger.error(e);

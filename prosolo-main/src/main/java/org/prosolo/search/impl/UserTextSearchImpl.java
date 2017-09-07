@@ -39,7 +39,6 @@ import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +76,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	@Transactional
 	public TextSearchResponse searchUsers (
-			String searchString, int page, int limit, boolean loadOneMore,
+			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		
 		TextSearchResponse response = new TextSearchResponse();
@@ -85,9 +84,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
-			
+
+			String indexName = ESIndexNames.INDEX_USERS + (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "");
+			String indexType = orgId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, indexType);
 			
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
@@ -96,7 +98,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
-			bQueryBuilder.mustNot(termQuery("system", true));
+
+			if (orgId > 0) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
 			
 			if (excludeUserIds != null) {
 				for (Long exUserId : excludeUserIds) {
@@ -106,8 +111,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			SearchResponse sResponse = null;
 			
 			try {
-				SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder srb = client.prepareSearch(indexName)
+						.setTypes(indexType)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFrom(start).setSize(limit)
@@ -356,16 +361,18 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
-			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
+			long organizationId, String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId,
 			long instructorId, CredentialMembersSortOption sortOption) {
 		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> response = 
 				new TextSearchFilteredResponse<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-		
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
@@ -392,8 +399,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
@@ -557,12 +564,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	 */
 	@Override
 	public PaginatedResult<InstructorData> searchInstructors (
-			String searchTerm, int page, int limit, long credId, 
+			long organizationId, String searchTerm, int page, int limit, long credId,
 			InstructorSortOption sortOption, List<Long> excludedIds) {
 		PaginatedResult<InstructorData> response = new PaginatedResult<>();
 		try {
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -585,8 +595,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 			try {
 				String[] includes = {"id"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						//.setFrom(start).setSize(limit)
@@ -641,12 +651,19 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
-																	long credId, long roleId, List<Long> excludedUserIds) {
+	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
+																	long credId, long roleId, List<Long> unitIds,
+																	List<Long> excludedUserIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
+			if (unitIds == null || unitIds.isEmpty()) {
+				return response;
+			}
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -656,8 +673,19 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("name").field("lastname");
 				
-				bQueryBuilder.must(qb);
+				bQueryBuilder.filter(qb);
 			}
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("roles.units.id", unitId));
+			}
+			unitRoleFilter.filter(unitFilter);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
 			
 			for (Long id : excludedUserIds) {
 				bQueryBuilder.mustNot(termQuery("id", id));
@@ -665,13 +693,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			bQueryBuilder.mustNot(termQuery("coursesWithInstructorRole.id", credId));
-			bQueryBuilder.must(termQuery("roles.id", roleId));
+			bQueryBuilder.mustNot(termQuery("credentialsWithInstructorRole.id", credId));
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null)
@@ -710,66 +737,20 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		}
 		return response;
 	}
-		
-	@Override
-	public List<Long> getInstructorCourseIds (long userId) {
-		try {
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-	
-			
-//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-//			        "courses", termQuery("courses.id", 1)).innerHit(new QueryInnerHitBuilder().setFetchSource(new String[] {"id"}, null));
-//			bQueryBuilder.must(nestedQB);
-			
-			bQueryBuilder.must(termQuery("id", userId));
-
-			
-			String[] includes = {"coursesWithInstructorRole.id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null)
-					.setFrom(0).setSize(1000);
-			
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
-			if(sResponse != null) {
-				SearchHits searchHits = sResponse.getHits();
-				long numberOfResults = searchHits.getTotalHits();
-				
-				if(searchHits != null && numberOfResults == 1) {
-					List<Long> ids = new ArrayList<>();
-					SearchHit hit = searchHits.getAt(0);
-					Map<String, Object> source = hit.getSource();
-					@SuppressWarnings("unchecked")
-					List<Map<String, Object>> courses =  (List<Map<String, Object>>) source.get("coursesWithInstructorRole");	
-					for(Map<String, Object> courseMap : courses) {
-						ids.add(Long.parseLong(courseMap.get("id") + ""));
-					}
-					return ids;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		}
-		return null;
-	}
 	
 	@Override
 	public PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
+			long orgId, String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit) {
 		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-			
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -807,8 +788,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(qb)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
@@ -935,15 +916,17 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
-			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long orgId, String searchTerm, LearningStatus filter, int page, int limit, long credId,
 			long userId, CredentialMembersSortOption sortOption) {
 		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-		
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
@@ -970,8 +953,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
@@ -1092,14 +1075,21 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<StudentData> searchUnenrolledUsersWithUserRole (
-			String searchTerm, int page, int limit, long credId, long userRoleId) {
+			 long orgId, String searchTerm, int page, int limit, long credId, long userRoleId,
+			 List<Long> unitIds) {
 		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
+			if (unitIds == null || unitIds.isEmpty()) {
+				return response;
+			}
+
 			int start = 0;
 			start = setStart(page, limit);
-		
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -1114,6 +1104,17 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			bQueryBuilder.mustNot(termQuery("system", true));
 			
 			//bQueryBuilder.filter(termQuery("roles.id", userRoleId));
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", userRoleId));
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("roles.units.id", unitId));
+			}
+			unitRoleFilter.filter(unitFilter);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
 			
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
@@ -1126,8 +1127,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null);
@@ -1176,15 +1177,17 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<UserData> searchPeopleUserFollows(
-			String term, int page, int limit, long userId) {
+			long orgId, String term, int page, int limit, long userId) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int size = limit;
 			int start = setStart(page, limit);
-			
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
@@ -1198,8 +1201,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			SearchResponse sResponse = null;
 			
 			String[] includes = {"id", "name", "lastname", "avatar"};
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
+			SearchRequestBuilder srb = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
@@ -1232,33 +1235,38 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public PaginatedResult<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
-		PaginatedResult<UserSelectionData> response = new PaginatedResult<>();
+	public PaginatedResult<UserData> searchUsersInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId,
+			boolean includeSystemUsers) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 		
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("name").field("lastname");
 				
-				bQueryBuilder.must(qb);
+				bQueryBuilder.filter(qb);
 			}
 			
 			if (!includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			bQueryBuilder.filter(termQuery("groups.id", groupId));
+
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -1271,26 +1279,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(searchHits.getTotalHits());
 				
-				if(searchHits != null) {
-					for(SearchHit sh : searchHits) {
-						Map<String, Object> fields = sh.getSource();
-						User user = new User();
-						user.setId(Long.parseLong(fields.get("id") + ""));
-						user.setName((String) fields.get("name"));
-						user.setLastname((String) fields.get("lastname"));
-						user.setAvatarUrl((String) fields.get("avatar"));
-						user.setPosition((String) fields.get("position"));
-						UserData userData = new UserData(user);
-						
-						boolean isUserInGroup = userGroupManager.isUserInGroup(groupId, 
-								userData.getId());
-						UserSelectionData data = new UserSelectionData(userData, isUserInGroup);
-						
-						response.addFoundNode(data);			
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
 					}
 				}
 			}
@@ -1300,14 +1295,27 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		}
 		return response;
 	}
+
+	private UserData getUserDataFromSearchHit(SearchHit sh) {
+		Map<String, Object> fields = sh.getSource();
+		User user = new User();
+		user.setId(Long.parseLong(fields.get("id") + ""));
+		user.setName((String) fields.get("name"));
+		user.setLastname((String) fields.get("lastname"));
+		user.setAvatarUrl((String) fields.get("avatar"));
+		user.setPosition((String) fields.get("position"));
+		return new UserData(user);
+	}
 	
 	@Override
 	public PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
-			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
+			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
@@ -1333,8 +1341,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
 						.addSort("lastname", SortOrder.ASC)
@@ -1377,15 +1385,17 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchCompetenceStudents (
-			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
+			long orgId, String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter,
 			CompetenceStudentsSortOption sortOption, int page, int limit) {
 		TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> response = new TextSearchFilteredResponse<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-		
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
@@ -1410,8 +1420,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			studentsCompletedCompAggrFilter.filter(QueryBuilders.termQuery("competences.progress", 100));
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("competences")
@@ -1544,35 +1554,30 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public PaginatedResult<UserData> searchUsers(
-				String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles) {
+				long orgId, String searchTerm, int limit, List<UserData> usersToExcludeFromSearch, List<Long> userRoles) {
 
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
+			String indexName = ESIndexNames.INDEX_USERS + (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "");
+			String indexType = orgId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, indexType);
 
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			if (searchTerm != null && !searchTerm.isEmpty()) {
-				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("name").field("lastname");
-
-				bQueryBuilder.must(qb);
-			}
+			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
 
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
 					.must(bQueryBuilder);
 
-			if(usersToExcludeFromSearch != null){
-				for(UserData admin : usersToExcludeFromSearch){
+			if (usersToExcludeFromSearch != null) {
+				for (UserData admin : usersToExcludeFromSearch) {
 					bQueryBuilder.mustNot(termQuery("id", admin.getId()));
 				}
 			}
 
-			if(userRoles != null && !userRoles.isEmpty()){
+			if (userRoles != null && !userRoles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Long roleId : userRoles){
+				for (Long roleId : userRoles) {
 					bqb1.should(termQuery("roles.id", roleId));
 				}
 				bQueryBuilder.filter(bqb1);
@@ -1580,8 +1585,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar","position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(indexType)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
 						.addSort("lastname", SortOrder.ASC)
@@ -1597,16 +1602,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
-							User user = new User();
-							user.setId(Long.parseLong(fields.get("id") + ""));
-							user.setName((String) fields.get("name"));
-							user.setLastname((String) fields.get("lastname"));
-							user.setAvatarUrl((String) fields.get("avatar"));
-							user.setPosition((String) fields.get("position"));
-							UserData userData = new UserData(user);
-
-							response.addFoundNode(userData);
+							response.addFoundNode(getUserDataFromSearchHit(sh));
 						}
 
 						return response;
@@ -1620,6 +1616,180 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			logger.error(e1);
 		}
 		return null;
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers) {
+		return searchOrganizationUsersWithRole(orgId, unitId, roleId, searchTerm, page, limit,
+				includeSystemUsers, false);
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchUnitUsersInRole(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers) {
+		return searchOrganizationUsersWithRole(orgId, unitId, roleId, searchTerm, page, limit,
+				includeSystemUsers, true);
+	}
+
+	/**
+	 * Returns (paginated) users belonging to organization with {@code orgId} id that have role with {@code roleId} id
+	 *
+	 * If {@code searchUsersBelongingToUnit} flag is true, only users that are already added to unit in a role
+	 * with {@code roleId} id are returned. Otherwise, only users that are not already added to unit are returned.
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param includeSystemUsers
+	 * @param searchUsersBelongingToUnit
+	 * @return
+	 */
+	private PaginatedResult<UserData> searchOrganizationUsersWithRole(long orgId, long unitId,
+																	  long roleId, String searchTerm,
+																	  int page, int limit,
+																	  boolean includeSystemUsers,
+																	  boolean searchUsersBelongingToUnit) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			Client client = ElasticSearchFactory.getClient();
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
+
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			QueryBuilder qb = termQuery("roles.units.id", unitId);
+			if (searchUsersBelongingToUnit) {
+				unitRoleFilter.filter(qb);
+			} else {
+				unitRoleFilter.mustNot(qb);
+			}
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+
+			searchRequestBuilder.setFrom(start).setSize(limit);
+
+			//add sorting
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
+					}
+				}
+			}
+
+		} catch (Exception e1) {
+			logger.error(e1);
+		}
+		return response;
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchUnitUsersNotAddedToGroup(long orgId, long unitId, long roleId,
+																	 long groupId, String searchTerm,
+																	 int page, int limit, boolean includeSystemUsers) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			Client client = ElasticSearchFactory.getClient();
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
+
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			QueryBuilder qb = termQuery("roles.units.id", unitId);
+			unitRoleFilter.filter(qb);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
+
+			bQueryBuilder.mustNot(termQuery("groups.id", groupId));
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+
+			searchRequestBuilder.setFrom(start).setSize(limit);
+
+			//add sorting
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
+					}
+				}
+			}
+
+		} catch (Exception e1) {
+			logger.error(e1);
+		}
+		return response;
+	}
+
+	private BoolQueryBuilder getUserSearchQueryBuilder(String searchTerm) {
+		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+		if (searchTerm != null && !searchTerm.isEmpty()) {
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+
+			bQueryBuilder.filter(qb);
+		}
+
+		return bQueryBuilder;
 	}
 
 }

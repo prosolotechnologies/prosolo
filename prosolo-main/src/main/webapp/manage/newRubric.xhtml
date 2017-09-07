@@ -1,0 +1,84 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml">
+
+
+    <ui:define name="windowTitle" >
+        #{msg['label.rubric']}
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{rubricEditBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>
+            New Rubric
+        </h1>
+    </ui:define>
+
+    <ui:define name="content">
+        <p:growl id="growlMainNewRubric" showDetail="true" globalOnly="true" />
+
+        <div class="whiteBar">
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li>
+                            <h:link value="Rubrics" outcome="/manage/rubricLibrary"/>
+                        </li>
+                        <li class="active">
+                            New Rubric
+                        </li>
+                    </ol>
+                </div>
+                <div class="col-md-12">
+                    <div class="whiteBox">
+                        <h:form id="formMainNewRubric" class="formWrapper editOrgForm">
+                            <div class="formLine">
+                                <label>Name</label>
+                                <div class="formLineRight">
+                                    <h:inputText id="inputTextRubricName"
+                                                 value="#{rubricEditBean.rubric.name}"
+                                                 autocomplete="off"
+                                                 autofocus="true"
+                                                 required="true"
+                                                 requiredMessage="Rubric name is required"
+                                                 placeholder="Rubric Name">
+                                    </h:inputText>
+
+                                    <small class="redText"><h:message for="inputTextRubricName"></h:message></small>
+                                </div>
+                            </div>
+                            <div class="formLine">
+                                <label>&#160;</label>
+                                <div class="formLineRight">
+                                    <p:commandLink id="createBtn"
+                                                   styleClass="btn btn-green"
+                                                   value="Create"
+                                                   action="#{rubricEditBean.createRubric()}"
+                                                   update="growlMainNewRubric :formMainNewRubric">
+
+                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                        <f:param name="learningContext" value="name:rubric" />
+                                    </p:commandLink>
+                                    <p:defaultCommand target="createBtn" />
+                                </div>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </ui:define>
+</ui:composition>

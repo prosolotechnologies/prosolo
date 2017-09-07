@@ -8,8 +8,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
@@ -28,17 +27,16 @@ public interface Competence1Manager {
 	 * you don't want to add competence to credential, just pass
 	 * 0 for {@code credentialId}
 	 * @param data
-	 * @param userId
 	 * @param credentialId
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
-			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+	Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
+			UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 
-	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
-													  LearningContextData context) throws DbConnectionException,
+	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
+													  UserContextData context) throws DbConnectionException,
 			IllegalDataStateException;
 	
 	/**
@@ -55,8 +53,7 @@ public interface Competence1Manager {
 	 * @throws IllegalDataStateException
 	 * @throws StaleDataException
 	 */
-	Competence1 updateCompetence(CompetenceData1 data, long userId, 
-			LearningContextData context) 
+	Competence1 updateCompetence(CompetenceData1 data, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, StaleDataException;
 	
 	/**
@@ -165,17 +162,16 @@ public interface Competence1Manager {
 	 * 
 	 * @param compId
 	 * @param act
-	 * @param userId id of a user that created activity
 	 * @param context
 	 * @throws DbConnectionException, IllegalDataStateException
 	 */
-	EventData addActivityToCompetence(long compId, Activity1 act, long userId, LearningContextData context)
+	EventData addActivityToCompetence(long compId, Activity1 act, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Duration for competences with activity specified by {@code actId} are updated by adding/subtracting {@code duration} value.
 	 * One or two competences will be updated - draft and/or original version of one competence actually.
-	 * If original version of competence is updated, duration for all credentials that include 
+	 * If original version of competence is updated, duration for all credentials that include
 	 * this competence is also updated.
 	 * @param actId
 	 * @param duration
@@ -241,18 +237,18 @@ public interface Competence1Manager {
 
 	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
 							   List<ResourceVisibilityMember> users, boolean visibleToAll,
-							   boolean visibleToAllChanged, long actorId, LearningContextData lcd)
+							   boolean visibleToAllChanged, UserContextData context)
 			throws DbConnectionException, EventException;
 
 	List<EventData> updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
 														   List<ResourceVisibilityMember> users, boolean visibleToAll,
-														   boolean visibleToAllChanged, long actorId,
-														   LearningContextData lcd) throws DbConnectionException;
+														   boolean visibleToAllChanged, UserContextData context)
+			throws DbConnectionException;
 	
 	/**
 	 * Returns competence data without tags and activities and with user progress set if exists 
 	 * and bookmark from current user.
-	 * 
+	 *
 	 * @param compId
 	 * @param userId
 	 * @return
@@ -272,10 +268,10 @@ public interface Competence1Manager {
 	CompetenceData1 getBasicCompetenceData(long compId, long userId) 
 			throws DbConnectionException;
 	
-	void bookmarkCompetence(long compId, long userId, LearningContextData context) 
+	void bookmarkCompetence(long compId, UserContextData context)
 			throws DbConnectionException;
 	
-	void deleteCompetenceBookmark(long compId, long userId, LearningContextData context) 
+	void deleteCompetenceBookmark(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	List<CompetenceBookmark> getBookmarkedByIds(long compId, Session session) 
@@ -286,15 +282,16 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
 	
-	TargetCompetence1 enrollInCompetence(long compId, long userId, LearningContextData context) 
+	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
-	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, 
-			LearningContextData context) throws DbConnectionException;
+	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
+														   UserContextData context)
+			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
-	void archiveCompetence(long compId, long userId, LearningContextData context) throws DbConnectionException;
+	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
 	
 	/**
 	 * Returns number of competences for which user specified with {@code userId} has privilege specified by {@code priv}
@@ -311,7 +308,7 @@ public interface Competence1Manager {
 	List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
 			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
-	long duplicateCompetence(long compId, long userId, LearningContextData context) throws DbConnectionException,
+	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException,
 			EventException;
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
@@ -319,7 +316,7 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
 			throws DbConnectionException;
 	
-	void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
+	void restoreArchivedCompetence(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	RestrictedAccessResult<CompetenceData1> getCompetenceForEdit(long credId, long compId, long userId, 
@@ -327,10 +324,10 @@ public interface Competence1Manager {
 	
 	LearningInfo getCompetenceLearningInfo(long compId, long userId) throws DbConnectionException;
 	
-	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
+	List<EventData> updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
 	
-	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId)
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
@@ -347,7 +344,8 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
 			throws DbConnectionException;
 
-	Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+	Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId,
+										 UserContextData context) throws DbConnectionException;
 
 	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
 	
@@ -382,4 +380,7 @@ public interface Competence1Manager {
 	 */
 	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
+	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
+
+	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
 }

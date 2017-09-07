@@ -3,21 +3,15 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -25,6 +19,12 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "studentEnrollBean")
 @Component("studentEnrollBean")
@@ -39,6 +39,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	@Inject private CredentialManager credManager;
 	@Inject private RoleManager roleManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private UnitManager unitManager;
 
 	private long credId;
 
@@ -51,10 +52,17 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	private List<Long> studentsToEnroll;
 	
 	private long userRoleId;
+
+	private List<Long> unitIds;
 	
 	public void init(long credId, String context) {
 		this.credId = credId;
 		this.context = context;
+
+		if (unitIds == null) {
+			unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(
+					credManager.getCredentialIdForDelivery(credId));
+		}
 	}
 	
 	public void prepareStudentEnroll() {
@@ -72,8 +80,8 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	
 	public void searchStudents() {
 		PaginatedResult<StudentData> result = userTextSearch
-				.searchUnenrolledUsersWithUserRole(studentSearchTerm, paginationData.getPage() - 1, 
-						paginationData.getLimit(), credId, userRoleId);
+				.searchUnenrolledUsersWithUserRole(loggedUserBean.getOrganizationId(), studentSearchTerm,
+						paginationData.getPage() - 1, paginationData.getLimit(), credId, userRoleId, unitIds);
 		students = result.getFoundNodes();
 		setCurrentlyEnrolledStudents();
 		paginationData.update((int) result.getHitsNumber());
@@ -122,8 +130,8 @@ public class StudentEnrollBean implements Serializable, Paginable {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			credManager.enrollStudentsInCredential(credId, loggedUserBean.getUserId(), studentsToEnroll,
-					new LearningContextData(page, context, service));
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+					loggedUserBean.getUserContext(new PageContextData(page, context, service)));
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

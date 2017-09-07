@@ -5,7 +5,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -23,6 +22,7 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -117,20 +117,18 @@ public class OrganizationEditBean implements Serializable {
 
     public void createNewOrganization(){
         try {
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
             if(this.organization.getAdmins() != null && !this.organization.getAdmins().isEmpty()) {
                 Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),
-                        this.organization.getAdmins(),loggedUser.getUserId(),lcd);
+                        this.organization.getAdmins(),loggedUser.getUserContext(decodedId));
 
                 this.organization.setId(organization.getId());
 
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
                 PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/edit");
             }else{
-                PageUtil.fireErrorMessage("Error while trying to save organization data");
+                PageUtil.fireErrorMessage("Error creating the organization");
             }
         }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
@@ -139,22 +137,21 @@ public class OrganizationEditBean implements Serializable {
             PageUtil.fireErrorMessage("Organization with this name already exists");
         } catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save organization data");
+            PageUtil.fireErrorMessage("Error creating the organization");
         }
     }
 
     public void updateOrganization(){
         try {
-            LearningContextData lcd = PageUtil.extractLearningContextData();
             organizationManager.updateOrganization(this.organization.getId(), this.organization.getTitle(),
-                    this.organization.getAdmins(), loggedUser.getUserId(),lcd);
+                    this.organization.getAdmins(), loggedUser.getUserContext(decodedId));
 
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
-            PageUtil.fireSuccessfulInfoMessage("Organization updated");
+            PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
         } catch (DbConnectionException e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to update organization data");
+            PageUtil.fireErrorMessage("Error updating the organization");
         } catch (EventException e) {
             logger.error(e);
         }
@@ -170,7 +167,7 @@ public class OrganizationEditBean implements Serializable {
                         .filter(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED)
                         .collect(Collectors.toList());
 
-                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, usersToExclude, this.adminRolesIds);
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(0, searchTerm, 3, usersToExclude, this.adminRolesIds);
 
                 admins = result.getFoundNodes();
             } catch (Exception e) {

@@ -4,8 +4,9 @@
 package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
@@ -14,9 +15,13 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -26,10 +31,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component("competenceLibraryBean")
 @Scope("view")
@@ -44,6 +46,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	@Inject private LoggingService loggingService;
 	@Inject private Competence1Manager compManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
 	private List<CompetenceData1> competences;
 	
@@ -61,13 +65,27 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 	private String context = "name:library";
 
+	private List<Long> unitIds = new ArrayList<>();
+
 	public void init() {
 		sortOptions = LearningResourceSortOption.values();
 		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
 				f -> f != LearningResourceSearchFilter.BY_STUDENTS &&
 					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
 				.toArray(LearningResourceSearchFilter[]::new);
-		searchCompetences(false);
+
+		try {
+			List<Long> roleIds = roleManager.getRoleIdsForName(RoleNames.USER);
+			long roleId = 0;
+			if (roleIds.size() == 1) {
+				roleId = roleIds.get(0);
+			}
+			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), roleId);
+
+			searchCompetences(false);
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error while loading the page");
+		}
 	}
 
 	public void searchCompetences(boolean userSearch) {
@@ -76,13 +94,12 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_COMPETENCES, 
-							params, loggedUserBean.getIpAddress(), lcd);
+					loggingService.logServiceUse(loggedUserBean.getUserContext(lcd), ComponentName.SEARCH_COMPETENCES,
+							null, params, loggedUserBean.getIpAddress());
 				} catch(Exception e) {
 					logger.error(e);
 				}
@@ -100,8 +117,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetences(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption, config);
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
+				paginationData.getLimit(), loggedUserBean.getUserId(), unitIds, searchFilter, sortOption, config);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -138,14 +155,12 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), context);
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
 			PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

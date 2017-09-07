@@ -3,19 +3,10 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
@@ -25,11 +16,20 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialLibraryBeanManager")
 @Component("credentialLibraryBeanManager")
@@ -71,13 +71,12 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_CREDENTIALS, 
-							params, loggedUserBean.getIpAddress(), lcd);
+					loggingService.logServiceUse(loggedUserBean.getUserContext(lcd), ComponentName.SEARCH_CREDENTIALS,
+							null, params, loggedUserBean.getIpAddress());
 				} catch(Exception e) {
 					logger.error(e);
 				}
@@ -99,7 +98,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
-				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
+				loggedUserBean.getOrganizationId(), searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 				loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
 		this.paginationData.update((int) response.getHitsNumber());
@@ -134,7 +133,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 //			String page = PageUtil.getPostParameter("page");
 //			String lContext = PageUtil.getPostParameter("learningContext");
 //			String service = PageUtil.getPostParameter("service");
-//			LearningContextData context = new LearningContextData(page, lContext, service);
+//			PageContextData context = new PageContextData(page, lContext, service);
 //			if(cred.isBookmarkedByCurrentUser()) {
 //				credentialManager.deleteCredentialBookmark(cred.getId(), 
 //						loggedUserBean.getUserId(), context);
@@ -150,24 +149,23 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive credential");
+				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+					PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}
@@ -175,24 +173,23 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore credential");
+				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}

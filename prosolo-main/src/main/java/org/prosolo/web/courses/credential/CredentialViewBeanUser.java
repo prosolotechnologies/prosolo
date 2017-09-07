@@ -7,7 +7,8 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -25,6 +26,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -101,8 +103,7 @@ public class CredentialViewBeanUser implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if (justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage(
-								"You have enrolled in the credential " + credentialData.getTitle());
+						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
@@ -144,14 +145,13 @@ public class CredentialViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), context);
+
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 
@@ -170,11 +170,11 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void enrollInCredential() {
 		try {
-			LearningContextData lcd = new LearningContextData();
+			PageContextData lcd = new PageContextData();
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext(lcd));
 			//reload user credential data after enroll
 			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
@@ -229,7 +229,7 @@ public class CredentialViewBeanUser implements Serializable {
 				}
 
 				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
-						peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
+						loggedUser.getOrganizationId(), peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -261,18 +261,11 @@ public class CredentialViewBeanUser implements Serializable {
 				populateAssessmentRequestFields();
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-				LearningContextData lcd = new LearningContextData();
-				lcd.setPage(PageUtil.getPostParameter("page"));
-				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-				lcd.setService(PageUtil.getPostParameter("service"));
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-						service);
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, loggedUser.getUserContext());
 
-				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
+
+				PageUtil.fireSuccessfulInfoMessage("You assessment request is sent");
 
 				if (peersToExcludeFromSearch != null) {
 					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
@@ -291,8 +284,8 @@ public class CredentialViewBeanUser implements Serializable {
 		}
 	}
 
-	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
-			String service) {
+	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
+		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
 			User assessor = new User();
 			assessor.setId(assessorId);
@@ -301,8 +294,8 @@ public class CredentialViewBeanUser implements Serializable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", decodedId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), assessment, assessor,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
+						null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

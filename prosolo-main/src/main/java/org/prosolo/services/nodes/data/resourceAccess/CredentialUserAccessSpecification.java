@@ -22,7 +22,7 @@ public class CredentialUserAccessSpecification extends UserAccessSpecification {
 	 
 	/**
 	 * Returns {@link CredentialUserAccessSpecification} object based on provided data.
-	 * 
+	 *
 	 * @param privileges
 	 * @param resourceVisibleToAll
 	 * @param type
@@ -32,14 +32,13 @@ public class CredentialUserAccessSpecification extends UserAccessSpecification {
 	 * @throws IllegalArgumentException - when {@code privileges} collection is either null or empty, 
 	 * or when {@code type} is null
 	 */
-	public static CredentialUserAccessSpecification of(Collection<UserGroupPrivilege> privileges, 
+	public static CredentialUserAccessSpecification of(Collection<UserGroupPrivilege> privileges,
 			boolean resourceVisibleToAll, CredentialType type, Date deliveryStart,
 			Date deliveryEnd) {
 		if (privileges == null || privileges.isEmpty() || type == null) {
 			throw new IllegalArgumentException();
 		}
-		return new CredentialUserAccessSpecification(
-				privileges, resourceVisibleToAll, type, deliveryStart, deliveryEnd);
+		return new CredentialUserAccessSpecification(privileges, resourceVisibleToAll, type, deliveryStart, deliveryEnd);
 	}
 	
 	@Override

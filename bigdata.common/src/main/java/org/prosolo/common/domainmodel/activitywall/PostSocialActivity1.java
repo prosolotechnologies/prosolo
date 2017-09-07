@@ -47,7 +47,7 @@ public class PostSocialActivity1 extends SocialActivity1 {
 	}
 	
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "social_activity_hashtags")
+	@JoinTable(name = "social_activity1_hashtags")
 	public Set<Tag> getHashtags() {
 		return hashtags;
 	}

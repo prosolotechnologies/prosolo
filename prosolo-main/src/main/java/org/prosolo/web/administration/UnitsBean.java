@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.OrganizationData;
@@ -27,7 +26,7 @@ import java.util.List;
 /**
  * @author Bojan
  * @date 2017-07-04
- * @since 0.7
+ * @since 1.0.0
  */
 
 @ManagedBean(name = "unitsBean")
@@ -82,13 +81,11 @@ public class UnitsBean implements Serializable {
 
     public void createNewUnit() {
         try {
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
             UnitData unit = unitManager.createNewUnit(this.unit.getTitle(), this.organizationData.getId(),
-                    this.unit.getParentUnitId(), loggedUser.getUserId(), lcd);
+                    this.unit.getParentUnitId(), loggedUser.getUserContext(idEncoder.decodeId(organizationId)));
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
-            PageUtil.fireSuccessfulInfoMessage("New unit is created");
+            PageUtil.fireSuccessfulInfoMessage("New unit has been created");
 
             this.unit = new UnitData();
             loadUnits();
@@ -119,7 +116,7 @@ public class UnitsBean implements Serializable {
             try {
                 unitManager.deleteUnit(this.unitToDelete.getId());
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("The unit " + unitToDelete.getTitle() + " has been deleted");
                 this.unitToDelete = new UnitData();
                 loadUnits();
             } catch (IllegalStateException ise) {

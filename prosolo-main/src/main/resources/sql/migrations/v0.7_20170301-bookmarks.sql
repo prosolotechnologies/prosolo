@@ -6,13 +6,16 @@ CREATE TABLE `competence_bookmark` (
   `title` varchar(1000) DEFAULT NULL,
   `competence` bigint(20) NOT NULL,
   `user` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;	
+);
+
+ALTER TABLE `competence_bookmark`
+    ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `competence_bookmark`
 	ADD CONSTRAINT `FK_competence` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
 	ADD CONSTRAINT `FK_user` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
-	ADD UNIQUE KEY `UK_competence_user` (`competence`,`user`);
+	ADD UNIQUE KEY `UK_competence_bookmark_competence_user` (`competence`,`user`);
 	
 ALTER TABLE `credential_bookmark`
-	ADD UNIQUE KEY `UK_credential_user` (`credential`,`user`);
+	ADD UNIQUE KEY `UK_credential_bookmark_credential_user` (`credential`,`user`);
 

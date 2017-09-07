@@ -6,7 +6,7 @@ package org.prosolo.web.courses.competence;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -72,13 +73,12 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			
 			if (userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_COMPETENCES, 
-							params, loggedUserBean.getIpAddress(), lcd);
+					loggingService.logServiceUse(loggedUserBean.getUserContext(lcd), ComponentName.SEARCH_COMPETENCES,
+							null, params, loggedUserBean.getIpAddress());
 				} catch(Exception e) {
 					logger.error(e);
 				}
@@ -100,8 +100,8 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetencesForManager(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption);
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
+				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -138,24 +138,23 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive competence");
+				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been archived");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error archiving the data");
 				}
 			}
 		}
@@ -163,24 +162,23 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore competency");
+				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
+					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " is restored");
 				} catch(DbConnectionException e) {
 					logger.error(e);
-					PageUtil.fireErrorMessage("Error while refreshing data");
+					PageUtil.fireErrorMessage("Error refreshing the data");
 				}
 			}
 		}
@@ -195,10 +193,9 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void duplicate() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			try {
-				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(), 
-						loggedUserBean.getUserId(), ctx);
+				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(),
+						loggedUserBean.getUserContext());
 				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);

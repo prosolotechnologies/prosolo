@@ -7,7 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -15,6 +15,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -24,6 +25,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -51,6 +53,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private CredentialUserPrivilegeBean visibilityBean;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private long decodedId;
@@ -63,6 +66,8 @@ public class CredentialEditBean implements Serializable {
 	private List<Long> compsToExcludeFromSearch;
 	private int currentNumberOfComps;
 	private int competenceForRemovalIndex;
+
+	private List<Long> unitIds;
 
 	private String context;
 
@@ -153,6 +158,9 @@ public class CredentialEditBean implements Serializable {
 					compsToExcludeFromSearch.add(cd.getCompetenceId());
 				}
 				currentNumberOfComps = comps.size();
+
+				//load units credential is connected to
+				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(decodedId);
 				
 				logger.info("Loaded credential data for credential with id "+ id);
 			}
@@ -184,6 +192,7 @@ public class CredentialEditBean implements Serializable {
 	private void initializeValues() {
 		compsToRemove = new ArrayList<>();
 		compsToExcludeFromSearch = new ArrayList<>();
+		unitIds = new ArrayList<>();
 	}
 
 	public boolean hasMoreCompetences(int index) {
@@ -220,15 +229,13 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean saveCredentialData(boolean reloadData) {
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
-			
 			if (credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
-					credentialManager.updateCredential(credentialData, loggedUser.getUserId(), lcd);
+					credentialManager.updateCredential(credentialData, loggedUser.getUserContext());
 				}
 			} else {
-				Credential1 cred = credentialManager.saveNewCredential(credentialData, loggedUser.getUserId(), lcd);
+				Credential1 cred = credentialManager.saveNewCredential(credentialData, loggedUser.getUserContext());
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
@@ -239,7 +246,7 @@ public class CredentialEditBean implements Serializable {
 			if (reloadData && credentialData.hasObjectChanged()) {
 				reloadCredential();
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			return true;
 		} catch (StaleDataException sde) {
 			logger.error(sde);
@@ -271,26 +278,25 @@ public class CredentialEditBean implements Serializable {
 	
 	
 	public void archive() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserId(), ctx);
+			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(true);
-			PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
+			PageUtil.redirect("/manage/library/credentials");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to archive credential");
+			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 	
 	public void restore() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserId(), ctx);
+			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(false);
-			PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to restore credential");
+			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 	
@@ -319,14 +325,16 @@ public class CredentialEditBean implements Serializable {
 	public void delete() {
 		try {
 			if(credentialData.getId() > 0 && isDelivery()) {
-				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserId());
+				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserContext());
 				credentialData = new CredentialData(false);
-				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted");
+
+				String growlMessage = "The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been deleted";
+				PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
 				PageUtil.redirect("/manage/library");
 			}
 		} catch (StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Delete failed because credential is edited in the meantime. Please review changed credential and try again.");
+			PageUtil.fireErrorMessage("Delete failed because credential has been edited in the meantime. Please review those changes and try again");
 			//reload data
 			reloadCredential();
 		} catch (DbConnectionException e) {
@@ -360,7 +368,7 @@ public class CredentialEditBean implements Serializable {
 //				if (lContext != null && !lContext.isEmpty()) {
 //					learningContext = contextParser.addSubContext(context, lContext);
 //				}
-//				LearningContextData lcd = new LearningContextData(page, learningContext, service);
+//				PageContextData lcd = new PageContextData(page, learningContext, service);
 //				
 //        		HashMap<String, String> parameters = new HashMap<String, String>();
 //        		parameters.put("duplicate", "true");
@@ -382,7 +390,8 @@ public class CredentialEditBean implements Serializable {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
 			PaginatedResult<CompetenceData1> searchResponse = compTextSearch.searchCompetencesForAddingToCredential(
-					loggedUser.getUserId(), compSearchTerm, 0, 1000, false, toExclude, SortingOption.ASC);
+					loggedUser.getOrganizationId(), loggedUser.getUserId(), compSearchTerm, 0, 1000, false,
+					unitIds, toExclude, SortingOption.ASC);
 					
 			List<CompetenceData1> comps = searchResponse.getFoundNodes();
 			if(comps != null) {
@@ -390,13 +399,12 @@ public class CredentialEditBean implements Serializable {
 			}
 			
 			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-			LearningContextData lcd = new LearningContextData(page, context, null);
+			PageContextData lcd = new PageContextData(page, context, null);
 			Map<String, String> params = new HashMap<>();
 			params.put("query", compSearchTerm);
 			try {
-				loggingService.logServiceUse(loggedUser.getUserId(), 
-						ComponentName.SEARCH_COMPETENCES, 
-						params, loggedUser.getIpAddress(), lcd);
+				loggingService.logServiceUse(loggedUser.getUserContext(lcd),
+						ComponentName.SEARCH_COMPETENCES, null, params, loggedUser.getIpAddress());
 			} catch(Exception e) {
 				logger.error(e);
 			}

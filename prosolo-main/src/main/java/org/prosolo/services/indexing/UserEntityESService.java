@@ -15,36 +15,48 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void removeUserFromOrganization(User user, long organizationId);
 	
-	void addCredentialToUserIndex(long credId, long userId, long instructorId, int progress, String dateEnrolled);
+	void addCredentialToUserIndex(long orgId, long credId, long userId, long instructorId, int progress, String dateEnrolled);
 	
-	void assignInstructorToUserInCredential(long userId, long credId, long instructorId);
+	void assignInstructorToUserInCredential(long orgId, long userId, long credId, long instructorId);
 	
-	void addInstructorToCredential(long credId, long userId, String dateAssigned);
+	void addInstructorToCredential(long orgId, long credId, long userId, String dateAssigned);
 	
-	void removeInstructorFromCredential(long credId, long userId);
+	void removeInstructorFromCredential(long orgId, long credId, long userId);
 	
-	void changeCredentialProgress(long userId, long credId, int progress);
+	void changeCredentialProgress(long orgId, long userId, long credId, int progress);
 	
 	void updateBasicUserData(User user, Session session);
 	
 	/**
 	 * Adds new follower to the index of the followed user.
-	 * 
+	 *
+	 * @param orgId
 	 * @param followedUserId
 	 * @param followerId
 	 */
-	void addFollowerIndex(long followedUserId, long followerId);
+	void addFollowerIndex(long orgId, long followedUserId, long followerId);
 	
 	/**
 	 * Removes follower from the index of the followed user.
-	 * 
+	 *
+	 * @param orgId
 	 * @param followedUserId
 	 * @param followerId
 	 */
-	void removeFollowerIndex(long followedUserId, long followerId);
+	void removeFollowerIndex(long orgId, long followedUserId, long followerId);
 	
-	void addCompetenceToUserIndex(long compId, long userId, String dateEnrolled);
+	void addCompetenceToUserIndex(long orgId, long compId, long userId, String dateEnrolled);
 	
-	void updateCompetenceProgress(long userId, long compId, int progress, String completionDate);
+	void updateCompetenceProgress(long orgId, long userId, long compId, int progress, String completionDate);
+
+	void addUserToUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+
+	void removeUserFromUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+
+	void addGroup(long orgId, long userId, long groupId);
+
+	void removeGroup(long orgId, long userId, long groupId);
+
+	void removeUserFromIndex(User user);
 
 }

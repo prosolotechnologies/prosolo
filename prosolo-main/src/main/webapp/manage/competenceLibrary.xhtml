@@ -11,8 +11,10 @@
 				xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
 				xmlns:mng="http://java.sun.com/jsf/composite/components/manage">
 
+	<utilcomp:messagesBundle var="msg" />
+
 	<ui:define name="windowTitle">
-		Library - Competencies
+		 #{msg['label.competence']} Library
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -50,7 +52,7 @@
 								<h:inputText id="inputCompName"
 									type="search"
 									styleClass="competencesSearchField"
-									placeholder="Search Competencies"
+									placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
 									value="#{competenceLibraryBeanManager.searchTerm}"
 									onclick="$(this).select();"
 									onkeyup="searchListener(execSearchCompetences);">
@@ -115,7 +117,7 @@
 				<div class="container">
 					<ol class="breadcrumb">
 						<li class="active">
-							Competencies
+							#{msg['label.competence.plural']}
 						</li>
 					</ol>
 				</div>
@@ -123,7 +125,7 @@
 	            	<ui:fragment rendered="#{empty competenceLibraryBeanManager.competences}">
 						<div class="noContentMessage">
 		                    <p>
-		                        No competencies.
+		                        No #{msg['label.competence.plural'].toLowerCase()}.
 		                    </p>
 		                </div>
 	                </ui:fragment>
@@ -228,9 +230,9 @@
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="Competency" 
-				resourceType="competency"
-				resourceTypePlural="competencies"
+				title="#{msg['label.competence']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 		<dialogs:restoreResource
@@ -238,9 +240,9 @@
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceLibraryBeanManager.restore}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="Competency" 
-				resourceType="competency"
-				resourceTypePlural="competencies"
+				title="#{msg['label.competence.plural']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 	 	<compDialogs:duplicateCompetence   

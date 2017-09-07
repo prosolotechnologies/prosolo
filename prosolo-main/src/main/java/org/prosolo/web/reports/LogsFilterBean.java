@@ -66,7 +66,7 @@ public class LogsFilterBean implements Serializable {
 		}
 		
 		userSearchResults.clear();
-		TextSearchResponse usersResponse = userTextSearch.searchUsers(searchText, 0, 4, false, totalListToExclude);	
+		TextSearchResponse usersResponse = userTextSearch.searchUsers(0, searchText, 0, 4, false, totalListToExclude);
 		
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();

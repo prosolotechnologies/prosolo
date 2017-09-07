@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -74,7 +73,7 @@ public class ActivityResultsBeanUser implements Serializable {
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
 				if (competenceData == null) {
-					PageUtil.forward("/notfound.xhtml");
+					PageUtil.notFound();
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
@@ -216,15 +215,10 @@ public class ActivityResultsBeanUser implements Serializable {
 	
 	public void completeActivity() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
-					loggedUser.getUserId(), lcd);
+					competenceData.getActivityToShowWithDetails().getCompetenceId(),
+					loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
 			for (ActivityData ad : competenceData.getActivities()) {
@@ -245,7 +239,7 @@ public class ActivityResultsBeanUser implements Serializable {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
 		
-		PageUtil.fireSuccessfulInfoMessage("File uploaded");
+		PageUtil.fireSuccessfulInfoMessage("The file has been uploaded");
 	}
 	
 	/*

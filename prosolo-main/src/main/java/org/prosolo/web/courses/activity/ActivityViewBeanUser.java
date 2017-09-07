@@ -5,7 +5,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,13 +120,7 @@ public class ActivityViewBeanUser implements Serializable {
 				
 				//if user is enrolled he can always access the resource
 				if (!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/accessDenied.xhtml");
-					} catch (IOException e) {
-						e.printStackTrace();
-						logger.error(e);
-					}
+					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false, false);
@@ -153,23 +146,14 @@ public class ActivityViewBeanUser implements Serializable {
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
 			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 
@@ -232,11 +216,11 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			LearningContextData lcd = new LearningContextData();
+			PageContextData lcd = new PageContextData();
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), lcd);
+			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext(lcd));
 			//initializeActivityData();
 
 			if (decodedCredId > 0) {
@@ -269,15 +253,10 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void completeActivity() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					competenceData.getActivityToShowWithDetails().getCompetenceId(),  
-					loggedUser.getUserId(), lcd);
+					competenceData.getActivityToShowWithDetails().getCompetenceId(),
+					loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
 			boolean localNextToLearn = false;
@@ -294,7 +273,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			try {
 				/*
-				 * if all activities from current competence are completed and id of a credential is passed, 
+				 * if all activities from current competence are completed and id of a credential is passed,
 				 * we retrieve the next competence and activity to learn from credential
 				 */
 				//TODO for now we don't want to navigate to another competence so if competence is completed we don't show continue button
@@ -311,18 +290,15 @@ public class ActivityViewBeanUser implements Serializable {
 				logger.error(e);
 			}
 			
-			PageUtil.fireSuccessfulInfoMessage("Activity Completed");
+			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
+			PageUtil.fireErrorMessage("Error marking the activity as completed");
 		}
 	}
 	
 	public void saveTextResponse() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			Date postDate = new Date();
 			
 			// strip all tags except <br> and <a>
@@ -330,9 +306,7 @@ public class ActivityViewBeanUser implements Serializable {
 			//ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
 			
 			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					ard.getResult(), 
-					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
-					new LearningContextData(page, lContext, service));
+					ard.getResult(), postDate, ActivityResultType.TEXT, loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
 			
 			completeActivity();
@@ -352,12 +326,8 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void deleteAssignment() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), loggedUser.getUserId(), 
-					new LearningContextData(page, lContext, service));
+					.getTargetActivityId(), loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().getResultData().setAssignmentTitle(null);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
 		} catch(DbConnectionException e) {

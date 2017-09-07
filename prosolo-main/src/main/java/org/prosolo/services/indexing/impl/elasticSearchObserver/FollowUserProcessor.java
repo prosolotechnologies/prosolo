@@ -22,9 +22,9 @@ public class FollowUserProcessor implements NodeChangeProcessor {
 		long followedUserId = ((User) event.getObject()).getId();
 		
 		if (operation == NodeOperation.Save) {
-			userEntityESService.addFollowerIndex(followedUserId, followerId);
+			userEntityESService.addFollowerIndex(event.getOrganizationId(), followedUserId, followerId);
 		} else if (operation == NodeOperation.Delete) {
-			userEntityESService.removeFollowerIndex(followedUserId, followerId);
+			userEntityESService.removeFollowerIndex(event.getOrganizationId(), followedUserId, followerId);
 		}
 	}
 

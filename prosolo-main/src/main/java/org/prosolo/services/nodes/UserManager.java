@@ -1,16 +1,17 @@
 package org.prosolo.services.nodes;
 
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
@@ -20,9 +21,15 @@ import java.util.List;
 
 public interface UserManager extends AbstractManager {
 
-	User getUser(String email);
+	User getUser(String email) throws DbConnectionException;
 
-	boolean checkIfUserExists(String email);
+	User getUserIfNotDeleted(String email) throws DbConnectionException;
+
+	User getUser(long organizationId, String email) throws DbConnectionException;
+
+	boolean checkIfUserExists(String email) throws DbConnectionException;
+
+	boolean checkIfUserExistsAndNotDeleted(String email) throws DbConnectionException;
 
 	Collection<User> getAllUsers();
 	
@@ -51,7 +58,8 @@ public interface UserManager extends AbstractManager {
 
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate, long creatorId) throws DbConnectionException, EventException;
+			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+			throws DbConnectionException, EventException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 
@@ -67,9 +75,10 @@ public interface UserManager extends AbstractManager {
 	
 	String getUserEmail(long id) throws DbConnectionException;
 	
-	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException, EventException;
+	void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context) throws DbConnectionException, EventException;
 
-	Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException;
+	Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId, UserContextData context)
+			throws DbConnectionException;
 
 	void setUserOrganization(long userId,long organizationId);
 
@@ -89,4 +98,43 @@ public interface UserManager extends AbstractManager {
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
 	UserData getUserData(long id) throws DbConnectionException;
+
+	PaginatedResult<UserData> getPaginatedOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, int offset, int limit) throws DbConnectionException;
+
+	Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(
+															 String name, String lastname, String emailAddress,
+															 String password, String position, long unitId,
+															 long unitRoleId, long userGroupId,
+															 UserContextData context)
+			throws DbConnectionException;
+
+	/**
+	 * Creates account for a users if it does not exist, recreates deleted user account and if user exists
+	 * it only updates his roles (adds role with {@code unitRoleId} id if not already added.
+	 *
+	 * Also it adds user to the unit with {@code unitId} id with role ({@code unitRoleId}) if {@code unitId}
+	 * and {@code unitRoleId} are greater than 0; adds user to the user group ({@code userGroupId})
+	 * if {@code userGroupId} is greater than 0.
+	 *
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param password
+	 * @param position
+	 * @param unitId
+	 * @param unitRoleId
+	 * @param userGroupId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	boolean createNewUserAndConnectToResources(
+											String name, String lastname, String emailAddress,
+											String password, String position, long unitId,
+											long unitRoleId, long userGroupId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	long getUserOrganizationId(long userId) throws DbConnectionException;
 }

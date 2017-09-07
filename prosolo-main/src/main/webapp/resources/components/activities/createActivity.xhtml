@@ -17,14 +17,15 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 
-	    <div class="whiteBar">
-	    </div>
+	    <div class="whiteBar"></div>
 	    
 		<div id="#{cc.clientId}">
 			<script>
@@ -37,7 +38,7 @@
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
 				            <li>
-				            	<h:link value="Credentials" outcome="credentialLibrary"/>
+				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
@@ -64,7 +65,7 @@
 			        <ui:fragment rendered="#{empty param['credId']}">
 			    		<ol class="breadcrumb">	 
 			    			<li>
-				            	<h:link value="Competencies" outcome="competenceLibrary"/>
+				            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
 				            	<h:link 
@@ -87,7 +88,7 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{activityEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-			            		Activity is a part of a published competency... Only limited edits allowed.
+								Since #{msg['label.competence'].toLowerCase()} was published, only small edits are allowed for this activity.
 			            	</h:panelGroup>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade in active" id="info">
@@ -97,19 +98,16 @@
 			                                <div class="formLine">
 			                                    <label>Title</label>
 			                                    <div class="formLineRight">
-			                                    	<h:inputText 
+			                                    	<h:inputText
+														autocomplete="off"
+														autofocus="true"
 			                                    		id="inputTitle"
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.title}"
 			                                    		required="true"
 														requiredMessage="Title is required" />
-													<h:panelGroup 
-							                        	layout="block" 
-							                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}" 
-							                        	styleClass="alert alert-danger" 
-							                        	pt:role="alert">
-							                            <h:message for="inputTitle" />
-							                        </h:panelGroup>
+
+													<small class="redText"><h:message for="inputTitle" /></small>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -120,14 +118,8 @@
 			                                    		value="#{activityEditBean.activityData.description}"
 			                                    		required="true"
 			                                    		requiredMessage="Description is required"/>
-													<h:panelGroup 
-                    									layout="block" 
-                    									rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}" 
-                    									styleClass="alert alert-danger" 
-                    									pt:role="alert">
-                        								<h:message for="description"></h:message>
-                    								</h:panelGroup>
-			                                    		
+
+													<small class="redText"><h:message for="description"></h:message></small>
 			                                    	<script>
 			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
 			                                    	</script>
@@ -253,11 +245,7 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
-			                        <h:panelGroup layout="block"
-			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:estimatedTimeHours'))}" 
-										styleClass="alert alert-danger" pt:role="alert">
-										<h:message for="estimatedTimeHours"></h:message>
-									</h:panelGroup>
+									<small class="redText"><h:message for="estimatedTimeHours"></h:message></small>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">
@@ -273,11 +261,7 @@
 			                        		<f:selectItem itemValue="5"/>
 			                        	</h:selectOneMenu>
 			                        </div>
-			                        <h:panelGroup layout="block"
-			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:difficultyLevelSelect'))}" 
-										styleClass="alert alert-danger" pt:role="alert">
-										<h:message for="difficultyLevelSelect"></h:message>
-									</h:panelGroup>
+									<small class="redText"><h:message for="difficultyLevelSelect"></h:message></small>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			          
@@ -327,9 +311,14 @@
 		                    
 		                    <div class="modal-body alignLeft">
 		                        <h:inputText id="inputFileTitle"
+									autocomplete="off"
 		                        	placeholder="File title..."
 									value="#{activityEditBean.resLinkToAdd.linkName}">
 		                        </h:inputText>
+
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">File title must be entered</small>
+								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
 		                        	<utilcomp:simpleFileUpload
@@ -338,18 +327,15 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
-								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
-									 File title must be entered
-								</h:panelGroup>
-								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
-									  File must be uploaded
+
+								<h:panelGroup  id="fileUploadMessagePanel" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">File must be uploaded</small>
 								</h:panelGroup>
 		                    </div>
 		                    
@@ -382,16 +368,26 @@
 		                        	placeholder="URL title..."
 		                        	value="#{activityEditBean.resLinkToAdd.linkName}"
 		                        	required="true"
-		                        	requiredMessage="Url title must be entered">
+		                        	requiredMessage="Url title must be entered"
+									autocomplete="off">
 		                        </h:inputText>
-		                        
+
+								<h:panelGroup id="errorMessageUrlTitle">
+									<small class="redText bottom20 topMinus20 displayBlock"><h:message for="inputUrlTitle" /></small>
+								</h:panelGroup>
+
 		                        <h:inputText id="inputUrl"
 		                        	placeholder="http://..."
 		                        	value="#{activityEditBean.resLinkToAdd.url}"
 		                        	required="true"
 		                        	requiredMessage="Url must be entered"
-		                        	validator="urlValidator">
+		                        	validator="urlValidator"
+									autocomplete="off">
 		                        </h:inputText>
+
+								<h:panelGroup id="errorMessageUrl">
+									<small class="redText bottom2 0 topMinus20 displayBlock"><h:message for="inputUrl" /></small>
+								</h:panelGroup>
 		                        
 								<div class="checkbox checkLine">
 									<input type="checkbox" id="checkPassID" onchange="$('#addParameterContainer').fadeToggle();"/>
@@ -402,7 +398,8 @@
 									
 									<h:inputText id="idParameterName"
 			                        	placeholder="Variable name"
-			                        	value="#{activityEditBean.resLinkToAdd.idParamName}" />
+			                        	value="#{activityEditBean.resLinkToAdd.idParamName}"
+										autocomplete="off"/>
 									
 									<p class="linkPreview">Preview: <span class="url"></span><strong><span class="param"></span></strong></p>
 								
@@ -418,25 +415,8 @@
 			            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
-		                        
-		                        <h:panelGroup id="errorMessages">
-			                        <h:panelGroup 
-			                        	id="inputUrlTitleErrorMsg"
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}" 
-			                        	styleClass="alert alert-warning" 
-			                        	pt:role="alert">
-			                            <h:message for="inputUrlTitle" />
-			                        </h:panelGroup>
-			                        <h:panelGroup 
-			                        	id="inputUrlErrorMsg"
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}" 
-			                        	styleClass="alert alert-warning" 
-			                        	pt:role="alert">
-			                            <h:message for="inputUrl" />
-			                        </h:panelGroup>
-		                        </h:panelGroup>
+
+
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -445,10 +425,10 @@
 		                    		styleClass="btn btn-green"
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
-		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks"
-		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    		update="errorMessageUrlTitle errorMessageUrl :#{cc.clientId}:formMain:activityPanel:panelLinks"
+		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">
 		                    	</p:commandLink>
-		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>
 		                </h:panelGroup>
 		            </div>
@@ -467,9 +447,14 @@
 		                    
 		                    <div class="modal-body alignLeft">
 		                        <h:inputText id="inputFileTitle"
+									autocomplete="off"
 		                        	placeholder="Language"
 									value="#{activityEditBean.resLinkToAdd.linkName}">
 		                        </h:inputText>
+
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText bottom5 topMinus20 displayBlock">Language must be entered</small>
+								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
 		                        	<utilcomp:simpleFileUpload
@@ -478,24 +463,21 @@
 					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
 					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
 					            		uploadButtonStyle="btn btn-green btn-sm"
+										oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
 		                        	/>
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
-								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
-									 Language must be entered
-								</h:panelGroup>
-								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
-									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
-									  	Subtitles must be uploaded
-									  </ui:fragment>
+
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
+									  <h:panelGroup id="subtitleUploadMessagePanel" rendered="#{empty activityEditBean.resLinkToAdd.url}">
+										  <small class="redText bottom5 topMinus20 displayBlock">Subtitles must be uploaded</small>
+									  </h:panelGroup>
 									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
-									  	Invalid file. Only SRT format allowed.
+										  <small class="redText bottom5 topMinus20 displayBlock">Invalid file. Only SRT format allowed.</small>
 									  </ui:fragment>
-								</h:panelGroup>
+								</ui:fragment>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">

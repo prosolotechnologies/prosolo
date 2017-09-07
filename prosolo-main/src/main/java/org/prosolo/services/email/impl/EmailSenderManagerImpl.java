@@ -3,16 +3,8 @@
  */
 package org.prosolo.services.email.impl;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.UUID;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.app.ResetKey;
 import org.prosolo.common.domainmodel.user.User;
@@ -23,6 +15,14 @@ import org.prosolo.services.email.generators.AccountCreatedEmailGenerator;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author "Nikola Milikic"
@@ -38,14 +38,19 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 	@Autowired private EmailSender emailSender;
 
 	@Override
-	public boolean sendEmailAboutNewAccount(User user, String email) throws FileNotFoundException, IOException {
+	public boolean sendEmailAboutNewAccount(User user, String email) throws IOException {
+		return sendEmailAboutNewAccount(user, email, persistence.currentManager());
+	}
+
+	@Override
+	public boolean sendEmailAboutNewAccount(User user, String email, Session session) throws IOException {
 		email = email.toLowerCase();
 		
 		ResetKey resetKey = new ResetKey();
 		resetKey.setUser(user);
 		resetKey.setDateCreated(new Date());
 		resetKey.setUid(UUID.randomUUID().toString().replace("-", ""));
-		saveEntity(resetKey);
+		saveEntity(resetKey, session);
 		
 		String serverAddress = CommonSettings.getInstance().config.appConfig.domain + "recovery";
 		String resetAddress = serverAddress+"?key="+resetKey.getUid();

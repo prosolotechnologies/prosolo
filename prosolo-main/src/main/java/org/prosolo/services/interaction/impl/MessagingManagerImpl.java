@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
@@ -49,18 +50,18 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	
 	@Override
 	@Transactional
-	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException {
+	public Message sendMessage(UserContextData context, long receiverId, String msg) throws DbConnectionException {
 		try {
-			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId,receiverId));
+			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(context.getActorId(), receiverId));
 
 			User sender = new User();
-			sender.setId(senderId);
+			sender.setId(context.getActorId());
 
 			if (messagesThread == null) {
 				List<Long> participantsIds = new ArrayList<Long>();
 				participantsIds.add(receiverId);
-				participantsIds.add(senderId);
-				messagesThread = createNewMessagesThread(sender.getId(), participantsIds, msg);
+				participantsIds.add(context.getActorId());
+				messagesThread = createNewMessagesThread(context, participantsIds, msg);
 			}
 
 			Message message = sendSimpleOfflineMessage(sender, receiverId, msg, messagesThread, null);
@@ -189,10 +190,10 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional(readOnly = false)
-	public MessageThread createNewMessagesThread(long creatorId, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException {
+	public MessageThread createNewMessagesThread(UserContextData context, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException {
 		Date now = new Date();
 		MessageThread messagesThread = new MessageThread();
-		messagesThread.setCreator(loadResource(User.class, creatorId));
+		messagesThread.setCreator(loadResource(User.class, context.getActorId()));
 
 		List<User> participants = userManager.loadUsers(participantIds);
 		if(participants.size() < participantIds.size()) {
@@ -220,7 +221,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread = saveEntity(messagesThread);
 
 		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, creatorId, messagesThread);
+			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, context, messagesThread, null, null, null);
 		} catch (EventException e) {
 			logger.error(e);
 		}

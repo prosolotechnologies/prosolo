@@ -15,7 +15,7 @@ import org.prosolo.services.nodes.data.UserGroupData;
 public interface UserGroupTextSearch extends AbstractManager {
 
 	PaginatedResult<UserGroupData> searchUserGroups (
-			String searchString, int page, int limit);
+			long orgId, long unitId, String searchString, int page, int limit);
 	
 	PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit);
@@ -23,16 +23,25 @@ public interface UserGroupTextSearch extends AbstractManager {
 	/**
 	 * Returns combined top {@code limit} users and groups that are not currently assigned to
 	 * credential given by {@code credId}
+	 * @param orgId
 	 * @param searchTerm
 	 * @param limit
 	 * @param usersToExclude
+	 * @param groupsToExclude
 	 * @param roleId - role that users should have in order to be returned
+	 * @param unitIds
 	 * @return
 	 */
 	PaginatedResult<ResourceVisibilityMember> searchUsersAndGroups(
-			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId);
-	
-	PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
-                                                                    int limit, List<Long> usersToExclude);
+			long orgId, String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId,
+			List<Long> unitIds);
+
+	PaginatedResult<ResourceVisibilityMember> searchUsersInUnitsWithRole(long orgId, String searchTerm,
+																		 int limit, List<Long> unitIds,
+																		 List<Long> usersToExclude, long roleId);
+
+	PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(long orgId, String searchTerm,
+																	int limit, List<Long> unitIds,
+																	List<Long> usersToExclude);
 
 }

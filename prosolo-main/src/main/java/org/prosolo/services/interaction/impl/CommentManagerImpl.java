@@ -1,12 +1,5 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -14,15 +7,10 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -32,12 +20,21 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.interaction.data.CommentSortField;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserLearningProgress;
 import org.prosolo.services.util.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 
 @Service("org.prosolo.services.interaction.CommentManager")
@@ -55,31 +52,37 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	private Annotation1Manager annotationManager;
 	@Inject
 	private ResourceFactory resourceFactory;
+	@Inject
+	private CredentialManager credManager;
+	@Inject
+	private Activity1Manager actManager;
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
-			CommentSortData commentSortData, long userId) throws DbConnectionException {
+			CommentSortData commentSortData, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException {
 		return getAllComments(resourceType, resourceId, commentSortData, 
-				CommentReplyFetchMode.FetchReplies, userId);
+				CommentReplyFetchMode.FetchReplies, userId, loadOnlyCommentsFromUsersLearningSameDeliveries);
 	}
 	
 	private List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
-			CommentSortData commentSortData, CommentReplyFetchMode replyFetchMode, long userId) {
+			CommentSortData commentSortData, CommentReplyFetchMode replyFetchMode, long userId,
+		    boolean loadOnlyCommentsFromUsersLearningSameDeliveries) {
 		return getComments(resourceType, resourceId, false, 0, commentSortData, 
-				replyFetchMode, userId);
+				replyFetchMode, userId, loadOnlyCommentsFromUsersLearningSameDeliveries);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<CommentData> getComments(CommentedResourceType resourceType, long resourceId, 
 			boolean paginate, int maxResults, CommentSortData commentSortData, 
-			CommentReplyFetchMode replyFetchMode, long userId) throws DbConnectionException {
+			CommentReplyFetchMode replyFetchMode, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries)
+			throws DbConnectionException {
 	
 		if (replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
-			return getCommentsWithNumberOfReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId);
+			return getCommentsWithNumberOfReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId, loadOnlyCommentsFromUsersLearningSameDeliveries);
 		} else if (replyFetchMode == CommentReplyFetchMode.FetchReplies) {
-			return getCommentsWithReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId);
+			return getCommentsWithReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId, loadOnlyCommentsFromUsersLearningSameDeliveries);
 		} else {
 			logger.warn("Comment loading with mode " + replyFetchMode + " is not supported");
 			return new LinkedList<>();
@@ -90,8 +93,15 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Transactional(readOnly = true)
 	public List<CommentData> getCommentsWithNumberOfReplies(CommentedResourceType resourceType, long resourceId, 
 			boolean paginate, int maxResults, CommentSortData commentSortData, 
-			long userId) throws DbConnectionException {
+			long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException {
 		try {
+			List<Long> deliveries = null;
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				long compId = resourceType == CommentedResourceType.Competence
+						? resourceId
+						: actManager.getCompetenceIdForActivity(resourceId);
+				deliveries = credManager.getIdsOfDeliveriesUserIsLearningContainingCompetence(userId, compId);
+			}
 			CommentSortField sortField = commentSortData.getSortField();
 			SortingOption sortOption = commentSortData.getSortOption();
 			String order = sortOption == SortingOption.DESC ? "DESC" : "ASC";
@@ -104,8 +114,17 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					"INNER JOIN comment.user user " +
 					"LEFT JOIN comment.childComments child " +
 					"WHERE comment.resourceType = :resType " +
-					   "AND comment.commentedResourceId = :resourceId " +
-					   "AND comment.parentComment is NULL "); 
+				    "AND comment.commentedResourceId = :resourceId " +
+					"AND comment.parentComment is NULL ");
+
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				if (!deliveries.isEmpty()) {
+					query.append("AND (user.id = :userId OR EXISTS " +
+							"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
+				} else {
+					query.append("AND user.id = :userId ");
+				}
+			}
 			
 			if (paginate && commentSortData.getPreviousId() > 0) {
 				String sign = sortOption == SortingOption.ASC ? ">=" : "<=";
@@ -123,6 +142,13 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					.createQuery(query.toString())
 					.setParameter("resType", resourceType)
 					.setLong("resourceId", resourceId);
+
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				q.setLong("userId", userId);
+				if (!deliveries.isEmpty()) {
+					q.setParameterList("credentials", deliveries);
+				}
+			}
 			
 			if (paginate) {
 				if (commentSortData.getPreviousId() > 0) {
@@ -174,8 +200,16 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Override
 	@Transactional(readOnly = true)
 	public List<CommentData> getCommentsWithReplies(CommentedResourceType resourceType, long resourceId, 
-			boolean paginate, int maxResults, CommentSortData commentSortData, long userId) throws DbConnectionException {
+			boolean paginate, int maxResults, CommentSortData commentSortData, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException {
 		try {
+			List<Long> deliveries = null;
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				long compId = resourceType == CommentedResourceType.Competence
+						? resourceId
+						: actManager.getCompetenceIdForActivity(resourceId);
+				deliveries = credManager.getIdsOfDeliveriesUserIsLearningContainingCompetence(userId, compId);
+			}
+
 			CommentSortField sortField = commentSortData.getSortField();
 			SortingOption sortOption = commentSortData.getSortOption();
 			String order = sortOption == SortingOption.DESC ? "DESC" : "ASC";
@@ -187,7 +221,16 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					"LEFT JOIN fetch comment.childComments child " +
 					"WHERE comment.resourceType = :resType " +
 					"AND comment.commentedResourceId = :resourceId " +
-					"AND comment.parentComment is NULL "); 
+					"AND comment.parentComment is NULL ");
+
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				if (!deliveries.isEmpty()) {
+					query.append("AND (user.id = :userId OR EXISTS " +
+					"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
+				} else {
+					query.append("AND user.id = :userId ");
+				}
+			}
 			
 			if (paginate && commentSortData.getPreviousId() > 0) {
 				String sign = sortOption == SortingOption.ASC ? ">=" : "<=";
@@ -203,6 +246,13 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					.createQuery(query.toString())
 					.setParameter("resType", resourceType)
 					.setLong("resourceId", resourceId);
+
+			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
+				q.setLong("userId", userId);
+				if (!deliveries.isEmpty()) {
+					q.setParameterList("credentials", deliveries);
+				}
+			}
 			
 			if (paginate) {
 				if (commentSortData.getPreviousId() > 0) {
@@ -300,10 +350,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void likeComment(long userId, long commentId, LearningContextData context) 
+	public void likeComment(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.createAnnotation(userId, commentId, AnnotatedResource.Comment, 
+			annotationManager.createAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
 					AnnotationType.Like);
 			String query = "UPDATE Comment1 comment " +
 						   "SET comment.likeCount = comment.likeCount + 1 " +
@@ -313,14 +363,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				.setLong("commentId", commentId)
 				.executeUpdate();
 			
-			//to avoid retrieving data from database
-			User user = new User();
-			user.setId(userId);
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.Like, user.getId(), comment, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Like, context, comment, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -330,10 +376,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeComment(long userId, long commentId, LearningContextData context) 
+	public void unlikeComment(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.deleteAnnotation(userId, commentId, AnnotatedResource.Comment, 
+			annotationManager.deleteAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
 					AnnotationType.Like);
 			String query = "UPDATE Comment1 comment " +
 						   "SET comment.likeCount = comment.likeCount - 1 " +
@@ -343,14 +389,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				.setLong("commentId", commentId)
 				.executeUpdate();
 			
-			//to avoid retrieving data from database
-			User user = new User();
-			user.setId(userId);
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, user.getId(), comment, null, context.getPage(), 
-					context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.RemoveLike, context, comment, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -361,7 +403,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //	@Override
 //	@Transactional (readOnly = false)
 //	public Comment1 saveNewCompetenceComment(CommentData data, long userId, 
-//			LearningContextData context) throws DbConnectionException {
+//			PageContextData context) throws DbConnectionException {
 //		try {
 //			return saveNewComment(data, userId, CommentedResourceType.Competence, context);
 //		} catch(Exception e) {
@@ -373,14 +415,11 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 	@Override
 	@Transactional(readOnly = false)
-	public Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource,
-			LearningContextData context) throws DbConnectionException {
+	public Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
+			UserContextData context) throws DbConnectionException {
 		try {
-			Comment1 comment = resourceFactory.saveNewComment(data, userId, resource);
-			
-			//avoid queries to db
-			User actor = new User();
-			actor.setId(userId);
+			Comment1 comment = resourceFactory.saveNewComment(data, context.getActorId(), resource);
+
 			BaseEntity target = null;
 			switch(resource) {
 				case Activity:
@@ -399,8 +438,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			target.setId(data.getCommentedResourceId());
 			
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
-			eventFactory.generateEvent(eventType, actor.getId(), comment, target, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(eventType, context, comment, target, null, null);
 			
 			return comment;
 		} catch(Exception e) {
@@ -413,19 +451,14 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateComment(CommentData data, long userId, LearningContextData context) 
+	public void updateComment(CommentData data, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Comment1 comment = (Comment1) persistence.currentManager().load(Comment1.class, 
 					data.getCommentId());
 			comment.setDescription(data.getComment());
 			
-			//avoid queries to db
-			User actor = new User();
-			actor.setId(userId);
-			
-			eventFactory.generateEvent(EventType.Edit, actor.getId(), comment, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Edit, context, comment, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -600,10 +633,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Transactional(readOnly = true)
 	public List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
-			long commentId, long userId) throws DbConnectionException {
+			long commentId, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException {
 		try {
 			List<CommentData> comments = getAllComments(resourceType, resourceId, commentSortData, 
-					CommentReplyFetchMode.FetchNumberOfReplies, userId);
+					CommentReplyFetchMode.FetchNumberOfReplies, userId, loadOnlyCommentsFromUsersLearningSameDeliveries);
 			long parentCommentId = getParentCommentId(commentId, resourceType, resourceId);
 	
 			for(CommentData comment : comments) {

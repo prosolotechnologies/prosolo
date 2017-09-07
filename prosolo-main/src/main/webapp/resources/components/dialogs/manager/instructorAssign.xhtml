@@ -3,11 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="title" required="true" />
@@ -33,7 +29,7 @@
 								action="#{cc.attrs.bean.loadCredentialInstructors()}" />							
 							<h:inputText id="inputInstructorSearch"
 								type="search"
-								placeholder="Search Instructors"
+								placeholder="Search instructors"
 								value="#{cc.attrs.bean.instructorSearchTerm}"
 								onclick="$(this).select();"
 								onkeyup="searchListener(execSearchInstructors);">
@@ -46,12 +42,12 @@
 		                          <div class="instructorInfo">
 		                          	  <utilcomp:userAvatar
 											avatar="#{instructor.user.avatarUrl}"
-											fullName="#{instructor.user.fullName}"	
+											fullName="#{instructor.user.commaSeparatedFullName}"
 											width="48"
 											height="48"
 									  />
 		                              <div class="infoWrap">
-		                                  <h3>#{instructor.user.fullName}</h3>
+		                                  <h3>#{instructor.user.commaSeparatedFullName}</h3>
 		                                  <span>#{instructor.user.position}</span>
 		                              </div>
 		                          </div>

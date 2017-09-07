@@ -10,7 +10,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -84,12 +84,7 @@ public class ActivityEditBean implements Serializable {
 		decodedCredId = idEncoder.decodeId(credId);
 		try {
 			if(compId == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					logger.error(ioe);
-				}
+				PageUtil.notFound();
 			} else {
 				decodedCompId = idEncoder.decodeId(compId);
 				if(id == null) {
@@ -157,11 +152,7 @@ public class ActivityEditBean implements Serializable {
 			unpackResult(res);
 			
 			if(!access.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} else {
 				logger.info("Loaded activity data for activity with id "+ id);
 			}
@@ -365,13 +356,13 @@ public class ActivityEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, loggedUser.getUserId(), lcd);
+					activityManager.updateActivity(activityData, loggedUser.getUserContext(lcd));
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserId(), lcd);
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserContext(lcd));
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -384,7 +375,7 @@ public class ActivityEditBean implements Serializable {
 				loadActivityData(decodedCredId, decodedCompId, decodedId);
 				activityData.setCompetenceName(competenceName);
 			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			return true;
 		} catch(EventException ee) {
 			logger.error(ee);
@@ -404,7 +395,7 @@ public class ActivityEditBean implements Serializable {
 	public void delete() {
 		try {
 			if (activityData.getActivityId() > 0) {
-				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
+				activityManager.deleteActivity(decodedId, loggedUser.getUserContext());
 				//activityData = new ActivityData(false);
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 				/*

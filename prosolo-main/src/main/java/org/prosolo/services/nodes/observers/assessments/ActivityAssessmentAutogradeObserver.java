@@ -8,7 +8,8 @@ import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.*;
@@ -52,11 +53,12 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 			TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, tActId);
 			//if autograde option equals true maximum grade for all activity assessments is set
 			if(ta.getActivity().isAutograde()) {
-				LearningContextData lcd = new LearningContextData();
+				PageContextData lcd = new PageContextData();
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
 				result = assessmentManager.updateActivityGradeInAllAssessmentsAndGetEvents(
 						userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-						ta.getTargetCompetence().getId(), ta.getId(), ta.getActivity().getMaxPoints(), session, lcd);
+						ta.getTargetCompetence().getId(), ta.getId(), ta.getActivity().getMaxPoints(), session,
+						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
 			}
 			transaction.commit();
 		} catch (Exception e) {

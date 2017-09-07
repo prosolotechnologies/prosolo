@@ -1,19 +1,5 @@
 package org.prosolo.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.*;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -23,6 +9,9 @@ import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -33,7 +22,6 @@ import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
@@ -51,6 +39,19 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
@@ -118,6 +119,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (!initialized && userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
+			sessionData.setOrganizationId((long) userData.get("organizationId"));
 			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
@@ -140,6 +142,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (user != null) {
 //			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			long orgId = 0;
+			if (user.getOrganization() != null) {
+				orgId = user.getOrganization().getId();
+			}
+			sessionData.setOrganizationId(orgId);
 			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
@@ -216,7 +223,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				//ipAddress = accessResolver.findRemoteIPAddress();
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserId(), getIpAddress());
+				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
@@ -258,7 +265,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(), null, null, parameters);
+					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+							getUserId(), getOrganizationId(), event.getSession().getId(), null),
+							null, null, null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
 				}
@@ -291,19 +300,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (playButtonPressed || isDoNotShowTutorial()) {
 			getSessionData().getPagesTutorialPlayed().add(page);
 
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Session session = (Session) userManager.getPersistence().openSession();
+			taskExecutor.execute(() -> {
+				Session session = (Session) userManager.getPersistence().openSession();
 
-					try {
-						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
-						session.flush();
-					} catch (Exception e) {
-						logger.error("Exception in handling message", e);
-					} finally {
-						HibernateUtil.close(session);
-					}
+				try {
+					setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
+					session.flush();
+				} catch (Exception e) {
+					logger.error("Exception in handling message", e);
+				} finally {
+					HibernateUtil.close(session);
 				}
 			});
 		}
@@ -349,7 +355,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
@@ -370,7 +376,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void forceUserLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
 		} catch (Exception e) {
 			logger.error(e);
@@ -395,6 +401,21 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());
 		}
 	}
+
+	public UserContextData getUserContext() {
+		return getUserContext(PageUtil.extractLearningContextData());
+	}
+
+	public UserContextData getUserContext(PageContextData context) {
+		return UserContextData.of(getUserId(), getOrganizationId(), getSessionId(),
+				context);
+	}
+
+	public UserContextData getUserContext(long organizationId) {
+		return UserContextData.of(getUserId(), organizationId, getSessionId(), PageUtil.extractLearningContextData());
+	}
+
+
 
 	/*
 	 * GETTERS / SETTERS
@@ -535,5 +556,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	public UserData getLoginAsUser() {
 		return loginAsUser;
+	}
+
+	public long getOrganizationId() {
+		return getSessionData() == null ? 0 : getSessionData().getOrganizationId();
+	}
+
+	public String getSessionId() {
+		return getSessionData() == null ? null : getSessionData().getSessionId();
 	}
 }

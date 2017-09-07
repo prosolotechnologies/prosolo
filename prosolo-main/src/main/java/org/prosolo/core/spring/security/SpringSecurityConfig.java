@@ -3,15 +3,6 @@
  */
 package org.prosolo.core.spring.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-
-import javax.inject.Inject;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -25,7 +16,6 @@ import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +31,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.saml.SAMLAuthenticationProvider;
 import org.springframework.security.saml.SAMLBootstrap;
 import org.springframework.security.saml.SAMLEntryPoint;
@@ -56,28 +48,12 @@ import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
 import org.springframework.security.saml.metadata.MetadataDisplayFilter;
 import org.springframework.security.saml.parser.ParserPoolHolder;
-import org.springframework.security.saml.processor.HTTPArtifactBinding;
-import org.springframework.security.saml.processor.HTTPPAOS11Binding;
-import org.springframework.security.saml.processor.HTTPPostBinding;
-import org.springframework.security.saml.processor.HTTPRedirectDeflateBinding;
-import org.springframework.security.saml.processor.HTTPSOAP11Binding;
-import org.springframework.security.saml.processor.SAMLBinding;
-import org.springframework.security.saml.processor.SAMLProcessorImpl;
+import org.springframework.security.saml.processor.*;
 import org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer;
 import org.springframework.security.saml.trust.httpclient.TLSProtocolSocketFactory;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.security.saml.util.VelocityFactory;
-import org.springframework.security.saml.websso.ArtifactResolutionProfile;
-import org.springframework.security.saml.websso.ArtifactResolutionProfileImpl;
-import org.springframework.security.saml.websso.SingleLogoutProfile;
-import org.springframework.security.saml.websso.SingleLogoutProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfile;
-import org.springframework.security.saml.websso.WebSSOProfileConsumer;
-import org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl;
-import org.springframework.security.saml.websso.WebSSOProfileConsumerImpl;
-import org.springframework.security.saml.websso.WebSSOProfileECPImpl;
-import org.springframework.security.saml.websso.WebSSOProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
+import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -91,6 +67,9 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.inject.Inject;
+import java.util.*;
+
 /**
  * @author "Nikola Milikic"
  *
@@ -103,8 +82,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Inject
 	private UserDetailsService userDetailsService;
-	@Inject
-	private PasswordEncrypter passwordEncrypter;
     @Inject
     private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
@@ -205,7 +182,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/editors").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/competences/*/students").hasAnyAuthority("COURSE.CREATE")
-		   //.antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+		   .antMatchers("/manage/competences/*/privacy").hasAnyAuthority("COURSE.CREATE")
+			//.antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
 		   //.antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
@@ -213,6 +191,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/students/*").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/edit").hasAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/*/editors").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/privacy").hasAnyAuthority("COURSE.CREATE")
            .antMatchers("/manage/credentials/*/who-can-learn").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/new").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?
@@ -245,6 +224,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/library/credentials").hasAuthority("MANAGE.LIBRARY.VIEW")
 		   .antMatchers("/manage/library/competencies").hasAuthority("MANAGE.LIBRARY.VIEW")
 		   .antMatchers("/manage/library/instructor/credentials").hasAuthority("INSTRUCTOR.LIBRARY.VIEW")
+
+		   .antMatchers("/manage/rubrics").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/new").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/edit").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -263,10 +246,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/").hasAuthority("BASIC.ADMIN.ACCESS")
-		   .antMatchers("/admin/users/*/edit").hasAuthority("USERS.VIEW")
-		   .antMatchers("/admin/users/*/edit/password").hasAuthority("USERS.VIEW")
-		   .antMatchers("/admin/users/new").hasAuthority("USERS.VIEW")
-		   .antMatchers("/admin/users").hasAuthority("USERS.VIEW")
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
 		   .antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
@@ -287,8 +266,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
            .antMatchers("/admin/admins/*/edit/password").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/teachers").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/students").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/instructors").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units/*/edit").hasAuthority("ADMINS.VIEW")
-
+		   .antMatchers("/admin/organizations/*/units/*/groups").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/groups/*/users").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/manage/**").denyAll()
 		   .antMatchers("/admin/**").denyAll()
 		   .antMatchers("/**").hasAnyAuthority("BASIC.USER.ACCESS")
@@ -298,7 +281,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .passwordParameter("password")
 		   .permitAll()
 		   .successHandler(authenticationSuccessHandler)
-		   .failureUrl("/login")
+		   .failureUrl("/login?err=1")
            .and().csrf().disable()
            .rememberMe()
            .rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
@@ -323,7 +306,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		to be present (at least anonymous)*/
 		web.ignoring()
 			.antMatchers("/email.xhtml")
-			.antMatchers("/notfound");
+			.antMatchers("/notfound")
+			.antMatchers("/manage/notfound")
+			.antMatchers("/admin/notfound");
 	}
 	
 	@Inject
@@ -337,7 +322,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
 		DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
 		dao.setUserDetailsService(userDetailsService);
-		dao.setPasswordEncoder(passwordEncrypter);
+		dao.setPasswordEncoder(passwordEncoder());
+		dao.setHideUserNotFoundExceptions(false);
 		return dao;
 	}
 
@@ -352,11 +338,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	
-	/*@Override
+	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncrypter);
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
-	
+
+	/*
 	@Bean 
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -373,7 +360,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler(){
-		AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
+		CustomAccessDeniedHandler adh = new CustomAccessDeniedHandler();
 		adh.setErrorPage("/accessDenied");
 		return adh;
 	}
@@ -566,21 +553,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //	        //return idpDiscovery;
 //	    }
     
-	/*@Bean
-	@Qualifier("idp-ssocircle")
-	public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "https://idp.ssocircle.com/idp-meta.xml";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}*/
+//	@Bean
+//	@Qualifier("idp-ssocircle")
+//	public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "https://idp.ssocircle.com/idp-meta.xml";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate =
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
 
 	@Bean
 	@Qualifier("idp-testutaedu")
@@ -713,7 +700,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     	SimpleUrlAuthenticationFailureHandler failureHandler =
     			new SimpleUrlAuthenticationFailureHandler();
     	failureHandler.setUseForward(true);
-    	failureHandler.setDefaultFailureUrl("/login");
+    	failureHandler.setDefaultFailureUrl("/login?err=1");
     	return failureHandler;
     }
      
@@ -868,15 +855,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
  
     /**
      * Sets a custom authentication provider.
-     * 
+     *
      * @param   auth SecurityBuilder used to create an AuthenticationManager.
-     * @throws  Exception 
+     * @throws  Exception
      */
 //	    @Override
 //	    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //	        auth
 //	            .authenticationProvider(samlAuthenticationProvider());
-//	    }   
+//	    }
 //
-	
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+
 }

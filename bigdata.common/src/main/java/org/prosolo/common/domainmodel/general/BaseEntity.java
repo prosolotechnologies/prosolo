@@ -22,7 +22,7 @@ public class BaseEntity implements Serializable {
 	private Date dateCreated;
 	private boolean deleted;
 	
-	@Column(name = "title", nullable = true, length=1000)
+	@Column(name = "title", nullable = true, length=255)
 	public String getTitle() {
 		return title;
 	}
