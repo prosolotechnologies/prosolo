@@ -87,7 +87,7 @@ public class RubricsBean implements Serializable, Paginable {
                 PageUtil.redirect("/manage/rubrics");
             } catch (Exception ex) {
                 logger.error(ex);
-                PageUtil.fireErrorMessage("Error while trying to delete rubric");
+                PageUtil.fireErrorMessage("Error deleting the rubric");
             }
         }
     }
