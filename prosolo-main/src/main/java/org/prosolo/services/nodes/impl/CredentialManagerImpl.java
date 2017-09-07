@@ -311,24 +311,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId,
-																						  long userId) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
-		CredentialData credData = null;
+	public CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
+			throws ResourceNotFoundException, DbConnectionException {
+		CredentialData credData;
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
-				ResourceAccessRequirements req = ResourceAccessRequirements
-						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn);
-				return getCredentialData(credentialId, true, true, userId, req);
+				return getCredentialData(credentialId, true, true, userId, AccessMode.USER);
 			}
-			
-			/* if user is aleardy learning credential, he doesn't need any of the privileges;
-			 * we just need to determine which privileges he has (can he edit or instruct a competence)
-			 */
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-			ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
-			return RestrictedAccessResult.of(credData, access);
+
+			return credData;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -398,29 +390,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId,
-																				  long userId) throws ResourceNotFoundException, DbConnectionException {
-		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
-				.addPrivilege(UserGroupPrivilege.Edit)
-				.addPrivilege(UserGroupPrivilege.Instruct);
-		return getCredentialDataForView(credentialId, userId, req);
-	}
-
-	private RestrictedAccessResult<CredentialData> getCredentialDataForView(long credentialId,
-																			long userId, ResourceAccessRequirements req) throws ResourceNotFoundException, DbConnectionException {
-		return getCredentialData(credentialId, true, true, userId, req);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
-																	boolean loadCompetences, long userId, ResourceAccessRequirements req)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+																	boolean loadCompetences, long userId,
+																	AccessMode accessMode)
+			throws ResourceNotFoundException, DbConnectionException {
 		try {
-			if (req == null) {
-				throw new IllegalArgumentException();
-			}
-			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
+			Credential1 cred = getCredential(credentialId, loadCreatorData);
 
 			if (cred == null) {
 				throw new ResourceNotFoundException();
@@ -432,7 +407,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
-				if (req.getAccessMode() == AccessMode.USER) {
+				if (accessMode == AccessMode.USER) {
 					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
 				} else {
 					/*
@@ -443,9 +418,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 
-			ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
-			return RestrictedAccessResult.of(credData, access);
-		} catch (ResourceNotFoundException | IllegalArgumentException e) {
+			return credData;
+		} catch (ResourceNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
 			logger.error(e);
@@ -454,37 +428,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getCredentialForEdit(long credId, long userId)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
-		try {
-			//credential can be edited only from manage section
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
-					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CredentialData> res = getCredentialData(credId, true, true, userId,
-					req);
-
-			return res;
-		} catch (ResourceNotFoundException | IllegalArgumentException | DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
-
 	/**
 	 * Returns credential with specified id.
 	 *
 	 * @param credentialId
 	 * @param loadCreatorData
-	 * @param userId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData, long userId)
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData)
 			throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -724,7 +676,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			User user = (User) persistence.currentManager().load(User.class, userId);
 
-			Credential1 cred = getCredential(credentialId, false, 0);
+			Credential1 cred = getCredential(credentialId, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 
 			long instructorId = 0;

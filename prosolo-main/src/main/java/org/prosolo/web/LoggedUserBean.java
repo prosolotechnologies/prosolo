@@ -559,7 +559,25 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public long getOrganizationId() {
-		return getSessionData() == null ? 0 : getSessionData().getOrganizationId();
+		/*
+		if organization id is 0 (which can happen for super admins who are not associated with organization)
+		we try to retrieve organization id from url query param
+		 */
+		return getSessionData() == null
+				? 0
+				: getSessionData().getOrganizationId() > 0
+					? getSessionData().getOrganizationId()
+					: getOrganizationIdFromUrlQueryParam();
+	}
+
+	/**
+	 * Query param name should be 'orgId' in order to be extracted
+	 *
+	 * @return
+	 */
+	private long getOrganizationIdFromUrlQueryParam() {
+		String orgId = PageUtil.getGetParameter("orgId");
+		return idEncoder.decodeId(orgId);
 	}
 
 	public String getSessionId() {

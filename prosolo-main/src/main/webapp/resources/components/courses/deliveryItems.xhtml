@@ -17,6 +17,8 @@
 		<composite:attribute name="bean" />
 		<composite:attribute name="onDeliveryEditComplete" default=""/>
 		<composite:attribute name="onDeliveryEditUpdate" default="" />
+		<composite:attribute name="encodedOrgId" default="" />
+		<composite:attribute name="encodedUnitId" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -81,8 +83,14 @@
 									   update="#{cc.attrs.onDeliveryEditUpdate}">
 							Edit Start/End
 						</p:commandLink>
-	                    <h:link outcome="/manage/credential">
-							#{cc.attrs.isAdmin ? 'View' : 'Preview'}
+						<h:link rendered="#{cc.attrs.isAdmin}" outcome="/admin/credential">
+							View
+							<f:param name="orgId" value="#{cc.attrs.encodedOrgId}"></f:param>
+							<f:param name="unitId" value="#{cc.attrs.encodedUnitId}"></f:param>
+							<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
+						</h:link>
+	                    <h:link rendered="#{not cc.attrs.isAdmin}" outcome="/manage/credential">
+							Preview
 	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
 	                    </h:link>
 	                </div>

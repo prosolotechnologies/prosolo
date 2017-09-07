@@ -75,7 +75,7 @@
 									<div class="liContent">
 										<div class="adminUnitsListLeft">
 											<h2>
-												<h:link outcome="/admin/unitEdit">
+												<h:link outcome="/admin/unit-credentials">
 													#{unit.title}
 													<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 													<f:param name="unitId" value="#{util:encodeId(unit.id)}"></f:param>
@@ -122,7 +122,7 @@
 												<div class="liContent">
 													<div class="adminUnitsListLeft">
 														<h3>
-															<h:link outcome="/admin/unitEdit">
+															<h:link outcome="/admin/unit-credentials">
 																#{child.title}
 																<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 																<f:param name="unitId" value="#{util:encodeId(child.id)}"></f:param>
@@ -168,7 +168,7 @@
 														<li>
 															<div class="liContent">
 																<div class="adminUnitsListLeft">
-																	<h:link outcome="/admin/unitEdit">
+																	<h:link outcome="/admin/unit-credentials">
 																		#{child2.title}
 																		<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 																		<f:param name="unitId" value="#{util:encodeId(child2.id)}"></f:param>

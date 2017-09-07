@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -261,7 +262,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     }
 
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
-        CredentialData lastDeliveryData = credManager.getCredentialForEdit(deliveryId, 0).getResource();
+        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
         Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential

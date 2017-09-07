@@ -8,7 +8,6 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -19,10 +18,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -57,10 +53,10 @@ public interface CredentialManager extends AbstractManager {
 	 * if that is not the case.
 	 * @param credentialId
 	 * @param userId
-	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
+	 * @throws ResourceNotFoundException, DbConnectionException
 	 */
-	RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
+			throws ResourceNotFoundException, DbConnectionException;
 	
 	/**
 	 * Returns credential data with specified id.
@@ -73,21 +69,14 @@ public interface CredentialManager extends AbstractManager {
 	 * @param loadCreatorData
 	 * @param loadCompetences
 	 * @param userId
-	 * @param req
+	 * @param accessMode
 	 * @return
 	 * @throws ResourceNotFoundException
-	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences, long userId, ResourceAccessRequirements req) 
-					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
-	
-	RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
-			long userId) throws ResourceNotFoundException, DbConnectionException;
-	
-	RestrictedAccessResult<CredentialData> getCredentialForEdit(long credId, long userId) 
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId, AccessMode accessMode)
+					throws ResourceNotFoundException, DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
