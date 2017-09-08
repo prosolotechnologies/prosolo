@@ -53,9 +53,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		try {
 			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
 
-			User sender = new User();
-			sender.setId(senderId);
-
 			if (messagesThread == null) {
 				List<Long> participantsIds = new ArrayList<Long>();
 				participantsIds.add(receiverId);
@@ -70,7 +67,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				}
 			}
 
-			Message message = sendSimpleOfflineMessage(sender.getId(), receiverId, msg, messagesThread.getId(), null);
+			Message message = sendSimpleOfflineMessage(senderId, receiverId, msg, messagesThread.getId(), null);
 
 			messagesThread.addMessage(message);
 			messagesThread.setLastUpdated(new Date());
@@ -85,12 +82,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			e.printStackTrace();
 			throw new DbConnectionException("Error while sending the message");
 		}
-	}
-
-	private Message sendSimpleOfflineMessage(User sender, long receiverId, String content, MessageThread messagesThread,
-			String context) throws ResourceCouldNotBeLoadedException {
-		User receiver = loadResource(User.class, receiverId);
-		return sendSimpleOfflineMessage(sender.getId(), receiver.getId(), content, messagesThread.getId(), context);
 	}
 
 	private Message sendSimpleOfflineMessage(long senderId, long receiverId, String content, long threadId,
