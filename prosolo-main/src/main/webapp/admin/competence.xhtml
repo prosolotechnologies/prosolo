@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="templates/masterLayout2.xhtml"
+				xmlns:util="http://www.prosolo.com/util"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
+				xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
+
+	<ui:define name="windowTitle">
+		#{msg['label.competence']} - #{competenceViewBeanAdmin.competenceData.title}
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="orgId" value="#{competenceViewBeanAdmin.orgId}" />
+			<f:viewParam name="unitId" value="#{competenceViewBeanAdmin.unitId}" />
+			<f:viewParam name="credId" value="#{competenceViewBeanAdmin.credId}" default="null"/>
+			<f:viewParam name="compId" value="#{competenceViewBeanAdmin.compId}" default="null"/>
+			<f:viewAction action="#{competenceViewBeanAdmin.init()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>#{competenceViewBeanAdmin.competenceData.title}
+    		<span>#{competenceViewBeanAdmin.getLabelForCompetence()}</span></h1>
+    </ui:define>
+    
+    <ui:define name="navLinks">
+
+	</ui:define>
+    
+	<ui:define name="content">
+
+		<c:choose>
+			<c:when test="#{competenceViewBeanAdmin.decodedCredId ne 0}">
+				<c:set var="learningContext" value="name:ORGANIZATION|id:#{util:decodeId(param.orgId)}|context:/name:UNIT|id:#{util:decodeId(param.unitId)}|context:/name:credential|id:#{competenceViewBeanAdmin.decodedCredId}|context:/name:competence|id:#{competenceViewBeanAdmin.decodedCompId}///"/>
+			</c:when>
+			<c:otherwise>
+				<c:set var="learningContext" value="name:ORGANIZATION|id:#{util:decodeId(param.orgId)}|context:/name:UNIT|id:#{util:decodeId(param.unitId)}|context:/name:competence|id:#{competenceViewBeanAdmin.decodedCompId}//"/>
+			</c:otherwise>
+		</c:choose>
+
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft"></div>
+					<div class="whiteBarRight">
+						<div class="duration item">#{competenceViewBeanAdmin.competenceData.durationString}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+				<li>
+					<h:link outcome="/admin/organizationNew">
+						#{competenceViewBeanAdmin.organizationTitle}
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/units">
+						Units
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/unit-credentials">
+						#{competenceViewBeanAdmin.unitTitle}
+						<f:param name="id" value="#{param.orgId}" />
+						<f:param name="unitId" value="#{param.unitId}" />
+					</h:link>
+				</li>
+				<ui:fragment rendered="#{competenceViewBeanAdmin.decodedCredId gt 0}">
+					<li>
+						<h:link outcome="/admin/unit-credentials">
+							#{msg['label.credential.plural']}
+							<f:param name="id" value="#{param.orgId}"/>
+							<f:param name="unitId" value="#{param.unitId}"/>
+						</h:link>
+					</li>
+					<li>
+						<h:link outcome="/admin/credential">
+							#{competenceViewBeanAdmin.competenceData.credentialTitle}
+							<f:param name="orgId" value="#{param.orgId}"/>
+							<f:param name="unitId" value="#{param.unitId}" />
+							<f:param name="id" value="#{param.credId}" />
+						</h:link>
+					</li>
+				</ui:fragment>
+				<li class="active">#{competenceViewBeanAdmin.competenceData.title}</li>
+			</ol>
+		</div>
+
+		<competence:competenceContent
+				readOnly="false"
+				bean="#{competenceViewBeanAdmin}"
+				learningContext="#{learningContext}"
+				role="ADMIN"
+		/>
+	</ui:define>
+</ui:composition>

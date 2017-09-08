@@ -1003,4 +1003,26 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return id != null;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCompetenceConnectedToUnit(long compId, long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cu.id FROM CompetenceUnit cu " +
+                    "WHERE cu.competence.id = :compId " +
+                    "AND cu.unit.id = :unitId";
+
+            Long id = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("compId", compId)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            return id != null;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving competency info");
+        }
+    }
+
 }

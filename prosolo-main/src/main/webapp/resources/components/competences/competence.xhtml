@@ -8,7 +8,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -158,65 +159,14 @@
 			        </ol>
 		    	</ui:fragment>
 		    </div>
-		
-		    <div class="container">
-		        <div class="row">
-		            <div class="col-md-8">
-		                <h2>About #{msg['label.competence']}</h2>
-		                <p><h:outputText escape="false" value="#{cc.attrs.bean.competenceData.description}"/></p>
-		                <div class="whiteBox activitiesList">
-			                <courses:activityList
-			                    		activities="#{cc.attrs.bean.competenceData.activities}"
-			                    		encodedCredentialId="#{param['credId']}"
-			                    		encodedCompetenceId="#{param['compId']}"
-			                    		bean="#{cc.attrs.bean}"
-			                    		isEdit="false"
-			                    		showMarkedIfCompleted="true"
-			                    		readOnly="#{!cc.attrs.bean.access.canAccess}"
-			                />
-		               </div>
-		               <post:comments 
-		               		id="comments"
-		               		comments="#{cc.attrs.bean.commentsData}"
-		               		commentsContainerDivId="commentsContainerDiv"
-		               		growlToUpdate=":#{cc.clientId}:growlMain"
-		               		learningContext="#{learningContext}"
-		               		readOnly="#{!cc.attrs.bean.access.canAccess}"
-		               		rendered="#{startedLearning or cc.attrs.role eq 'MANAGER'}"
-		               />
-		            </div>
-		            <div class="col-md-4">
-						<ui:fragment rendered="#{not empty cc.attrs.bean.competenceData.tags}">
-							<div class="sidebarBlock">
-								<h2>Keywords</h2>
-								<ul class="tags">
-									<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.tags}">
-										<li>#{tag.title}</li>
-									</ui:repeat>
-								</ul>
-							</div>
-						</ui:fragment>
-		                
-		                <div class="sidebarBlock">
-			                <h2>Created by</h2>
-			                <div class="user32">
-			                    <a href="#">
-									<utilcomp:userAvatar
-										avatar="#{cc.attrs.bean.competenceData.creator.avatar}"
-										fullName="#{cc.attrs.bean.competenceData.creator.name}" />
-			                    </a>
-			                    <h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
-			                </div>
-		                </div>
-		            </div>
-		        </div>
-			
-		    </div>
-		    <ui:fragment rendered="#{not empty param['comment']}">
-		    	<script>
-			    	scrollTo('comment_' + #{util:decodeId(param['comment'])});
-			    </script>
-		    </ui:fragment>
+
+			<competence:competenceContent
+					readOnly="#{!cc.attrs.bean.access.canAccess}"
+					bean="#{cc.attrs.bean}"
+					learningContext="#{learningContext}"
+					role="#{cc.attrs.role}"
+					growlToUpdate=":#{cc.clientId}:growlMain"
+			/>
 		</div>
 	</composite:implementation>
 </ui:component>
