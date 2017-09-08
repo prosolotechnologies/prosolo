@@ -64,6 +64,10 @@ public class CredentialViewBeanAdmin implements Serializable {
 
 					credentialData = credentialManager
 							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+					if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
+						//if credential is not connected to the unit this page is for show the not found page
+						PageUtil.notFound();
+					}
 				} else {
 					PageUtil.notFound();
 				}

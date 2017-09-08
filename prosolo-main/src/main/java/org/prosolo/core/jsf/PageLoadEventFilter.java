@@ -59,7 +59,7 @@ public class PageLoadEventFilter implements Filter {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) session.getAttribute("loggeduser");
 				if(loggedUserBean != null) {
 					userId = loggedUserBean.getUserId();
-					organizationId = loggedUserBean.getOrganizationId();
+					organizationId = loggedUserBean.getOrganizationId(request);
 				}
 			}
 			if(page == null) {
