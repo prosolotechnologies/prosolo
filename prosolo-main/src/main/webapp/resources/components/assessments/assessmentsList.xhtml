@@ -28,7 +28,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-md-9">
-						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData}">
+						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData or (cc.attrs.bean.searchForApproved == false and cc.attrs.bean.searchForPending == false)}">
 							<div class="noContentMessage">
 								<p>
 									No assessments.
@@ -37,54 +37,56 @@
 						</ui:fragment>
 					
 						<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
-							<article class="whiteBox assessmentItem">
-								<h2>
-									<ui:fragment rendered="#{cc.attrs.assessor}">
-										<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
-											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
-											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
-										</h:link>
+							<ui:fragment rendered="#{cc.attrs.bean.searchForApproved == true or cc.attrs.bean.searchForPending == true}">
+								<article class="whiteBox assessmentItem">
+									<h2>
+										<ui:fragment rendered="#{cc.attrs.assessor}">
+											<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
+												<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+												<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
+											</h:link>
+										</ui:fragment>
+
+										<ui:fragment rendered="#{not cc.attrs.assessor}">
+											<h:link outcome="/credential-assessment">#{assessmentData.title}
+												<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+												<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
+											</h:link>
+										</ui:fragment>
+									</h2>
+
+									<ui:fragment rendered="#{assessmentData.approved}">
+										<div class="tagApproved">Approved</div>
 									</ui:fragment>
-									
-									<ui:fragment rendered="#{not cc.attrs.assessor}">
-										<h:link outcome="/credential-assessment">#{assessmentData.title}
-											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
-											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
-										</h:link>
+
+									<ui:fragment rendered="#{not assessmentData.approved}">
+										<div class="tagPending">Pending</div>
 									</ui:fragment>
-								</h2>
-								
-								<ui:fragment rendered="#{assessmentData.approved}">
-									<div class="tagApproved">Approved</div>
-								</ui:fragment>
-								
-								<ui:fragment rendered="#{not assessmentData.approved}">
-									<div class="tagPending">Pending</div>
-								</ui:fragment>
-								<div class="clear"></div>
-								
-								<div class="user32">
-									Assessor:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
-									<!-- when avatar is null, display initials div -->
-									<ui:fragment rendered="#{assessmentData.assessorFullName != null}">
-										<utilcomp:userAvatar avatar="#{assessmentData.assessorAvatarUrl}"
-											fullName="#{assessmentData.assessorFullName}"/>
-										<h3>#{assessmentData.assessorFullName}</h3>
-									</ui:fragment>
-									<ui:fragment rendered="#{assessmentData.assessorFullName == null}">
-										<h3>Instructor Assessment</h3>
-									</ui:fragment>
-								</div>
-								
-								<div class="commentsNumber">
-									Comments: #{assessmentData.totalNumberOfMessages}
-								</div>
-								<div class="clear"></div>
-								
-								<div class="date">
-									Requested: #{assessmentData.dateValue}
-								</div>
-							</article>
+									<div class="clear"></div>
+
+									<div class="user32">
+										Assessor:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+										<!-- when avatar is null, display initials div -->
+										<ui:fragment rendered="#{assessmentData.assessorFullName != null}">
+											<utilcomp:userAvatar avatar="#{assessmentData.assessorAvatarUrl}"
+												fullName="#{assessmentData.assessorFullName}"/>
+											<h3>#{assessmentData.assessorFullName}</h3>
+										</ui:fragment>
+										<ui:fragment rendered="#{assessmentData.assessorFullName == null}">
+											<h3>Instructor Assessment</h3>
+										</ui:fragment>
+									</div>
+
+									<div class="commentsNumber">
+										Comments: #{assessmentData.totalNumberOfMessages}
+									</div>
+									<div class="clear"></div>
+
+									<div class="date">
+										Requested: #{assessmentData.dateValue}
+									</div>
+								</article>
+							</ui:fragment>
 						</ui:repeat>
 						
 						<utilcomp:pagination
