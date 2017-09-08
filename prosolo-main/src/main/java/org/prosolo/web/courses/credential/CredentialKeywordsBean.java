@@ -61,7 +61,6 @@ public class CredentialKeywordsBean {
 	private List<CompetenceData1> filteredCompetences;
 	private List<ActivityData> filteredActivities;
 	private CredentialData credentialData;
-	private long numberOfUsersLearningCred;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
 	// used for search in the Ask for Assessment modal
@@ -125,20 +124,8 @@ public class CredentialKeywordsBean {
 		return id;
 	}
 
-	public CredentialData getcredentialData() {
+	public CredentialData getCredentialData() {
 		return credentialData;
-	}
-
-	public void setcredentialData(CredentialData credentialData) {
-		this.credentialData = credentialData;
-	}
-
-	public long getNumberOfUsersLearningCred() {
-		return numberOfUsersLearningCred;
-	}
-
-	public void setNumberOfUsersLearningCred(long numberOfUsersLearningCred) {
-		this.numberOfUsersLearningCred = numberOfUsersLearningCred;
 	}
 
 	public AssessmentManager getAssessmentManager() {
