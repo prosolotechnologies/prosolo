@@ -130,4 +130,6 @@ public interface UnitManager extends AbstractManager{
     boolean isCredentialConnectedToUnit(long credId, long unitId, CredentialType type) throws DbConnectionException;
 
     boolean isCompetenceConnectedToUnit(long compId, long unitId) throws DbConnectionException;
+
+    boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException;
 }

@@ -161,11 +161,12 @@
 		    </div>
 
 			<competence:competenceContent
-					readOnly="#{!cc.attrs.bean.access.canAccess}"
+					readOnly="#{!cc.attrs.bean.access.canAccess and not startedLearning}"
 					bean="#{cc.attrs.bean}"
 					learningContext="#{learningContext}"
 					role="#{cc.attrs.role}"
 					growlToUpdate=":#{cc.clientId}:growlMain"
+					startedLearning="#{startedLearning}"
 			/>
 		</div>
 	</composite:implementation>

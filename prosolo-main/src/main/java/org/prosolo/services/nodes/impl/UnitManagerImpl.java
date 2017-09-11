@@ -964,14 +964,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Transactional(readOnly = true)
     public boolean isCredentialConnectedToUnit(long credId, long unitId, CredentialType type) throws DbConnectionException {
         try {
-            return type == CredentialType.Original ? isCredentialConnectedToUnit(credId, unitId) : isCredentialDeliveryConnectedToUnit(credId, unitId);
+            return type == CredentialType.Original ? isOriginalCredentialConnectedToUnit(credId, unitId) : isCredentialDeliveryConnectedToUnit(credId, unitId);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving credential info");
         }
     }
 
-    private boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException {
+    private boolean isOriginalCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException {
         String query =
                 "SELECT cu.id FROM CredentialUnit cu " +
                 "WHERE cu.credential.id = :credId " +
@@ -1001,6 +1001,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 .uniqueResult();
 
         return id != null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT c.type FROM Credential1 c " +
+                            "WHERE c.id = :credId";
+
+            CredentialType type = (CredentialType) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credId", credId)
+                    .uniqueResult();
+
+            return type != null ? isCredentialConnectedToUnit(credId, unitId, type) : false;
+        } catch (DbConnectionException e) {
+                throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving credential info");
+        }
+
+
     }
 
     @Override

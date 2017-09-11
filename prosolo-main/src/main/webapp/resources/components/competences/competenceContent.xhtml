@@ -13,6 +13,7 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="readOnly" required="true" />
 		<composite:attribute name="growlToUpdate" default="" />
+		<composite:attribute name="startedLearning" default="false" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -38,9 +39,9 @@
 							comments="#{cc.attrs.bean.commentsData}"
 							commentsContainerDivId="commentsContainerDiv"
 							growlToUpdate="#{cc.attrs.growlToUpdate}"
-							learningContext="#{learningContext}"
+							learningContext="#{cc.attrs.learningContext}"
 							readOnly="#{cc.attrs.readOnly}"
-							rendered="#{startedLearning or cc.attrs.role eq 'MANAGER'}"
+							rendered="#{cc.attrs.startedLearning or cc.attrs.role eq 'MANAGER'}"
 					   />
 				   </c:if>
 				</div>
