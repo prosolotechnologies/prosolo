@@ -39,10 +39,10 @@ public class HomePageResolver {
                 case "admin.advanced":
                     return "/admin";
                 case "basic.admin.access":
-                    String decodedId = ServiceLocator.getInstance()
-                            .getService(UrlIdEncoder.class)
-                            .encodeId(organizationId);
-                    return "/admin/organizations/" + decodedId + "/edit";
+                    if (organizationId != 0) {
+                        String decodedId = ServiceLocator.getInstance().getService(UrlIdEncoder.class).encodeId(organizationId);
+                        return "/admin/organizations/" + decodedId + "/units";
+                    }
                 case "basic.manager.access":
                 case "basic.instructor.access":
                     return "/manage";
