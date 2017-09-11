@@ -57,7 +57,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	}
 
 	private String getNotificationLink() {
-		//assessment can be requested only by regular users
+		//assessment request can be made only to regular users - students - peers
 		return "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +

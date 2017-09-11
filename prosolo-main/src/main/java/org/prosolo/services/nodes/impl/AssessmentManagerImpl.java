@@ -1530,4 +1530,32 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT credAssessment.defaultAssessment, credAssessment.assessedStudent.id, credAssessment.assessor.id " +
+					"FROM ActivityAssessment aas " +
+					"INNER JOIN aas.assessment compAssessment " +
+					"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+					"WHERE aas.id = :actAssessmentId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("actAssessmentId", activityAssessmentId)
+					.uniqueResult();
+
+			if (res != null) {
+				return AssessmentBasicData.of((long) res[1], (long) res[2], (boolean) res[0]);
+			}
+
+			return AssessmentBasicData.empty();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving assessment data");
+		}
+	}
+
 }

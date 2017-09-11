@@ -85,7 +85,7 @@ public class EventFactory {
 		genericEvent.setObject(object);
 		genericEvent.setTarget(target);
 		PageContextData lcd = context.getContext();
-		if (context != null) {
+		if (lcd != null) {
 			genericEvent.setPage(lcd.getPage());
 			genericEvent.setContext(lcd.getLearningContext());
 			genericEvent.setService(lcd.getService());

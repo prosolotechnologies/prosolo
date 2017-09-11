@@ -8,6 +8,7 @@ public class AssessmentBasicData {
     private final long credentialAssessmentId;
     private final long competenceAssessmentId;
     private final long activityAssessmentId;
+    private final long studentId;
     private final long assessorId;
     private final boolean isDefault;
 
@@ -15,6 +16,7 @@ public class AssessmentBasicData {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
+        this.studentId = 0;
         this.assessorId = 0;
         this.isDefault = false;
     }
@@ -24,6 +26,16 @@ public class AssessmentBasicData {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
+        this.studentId = 0;
+        this.assessorId = assessorId;
+        this.isDefault = isDefault;
+    }
+
+    private AssessmentBasicData(long studentId, long assessorId, boolean isDefault) {
+        this.credentialAssessmentId = 0;
+        this.competenceAssessmentId = 0;
+        this.activityAssessmentId = 0;
+        this.studentId = studentId;
         this.assessorId = assessorId;
         this.isDefault = isDefault;
     }
@@ -37,6 +49,10 @@ public class AssessmentBasicData {
                                          long activityAssessmentId, long assessorId, boolean isDefault) {
         return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId,
                 assessorId, isDefault);
+    }
+
+    public static AssessmentBasicData of(long studentId, long assessorId, boolean isDefault) {
+        return new AssessmentBasicData(studentId, assessorId, isDefault);
     }
 
     public static AssessmentBasicData empty() {
@@ -61,5 +77,9 @@ public class AssessmentBasicData {
 
     public boolean isDefault() {
         return isDefault;
+    }
+
+    public long getStudentId() {
+        return studentId;
     }
 }

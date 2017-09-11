@@ -288,7 +288,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .passwordParameter("password")
 		   .permitAll()
 		   .successHandler(authenticationSuccessHandler)
-		   .failureUrl("/login")
+		   .failureUrl("/login?err=1")
            .and().csrf().disable()
            .rememberMe()
            .rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
@@ -330,6 +330,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
 		dao.setUserDetailsService(userDetailsService);
 		dao.setPasswordEncoder(passwordEncoder());
+		dao.setHideUserNotFoundExceptions(false);
 		return dao;
 	}
 
@@ -559,21 +560,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //	        //return idpDiscovery;
 //	    }
     
-	/*@Bean
-	@Qualifier("idp-ssocircle")
-	public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "https://idp.ssocircle.com/idp-meta.xml";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}*/
+//	@Bean
+//	@Qualifier("idp-ssocircle")
+//	public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "https://idp.ssocircle.com/idp-meta.xml";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate =
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
 
 	@Bean
 	@Qualifier("idp-testutaedu")
@@ -706,7 +707,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     	SimpleUrlAuthenticationFailureHandler failureHandler =
     			new SimpleUrlAuthenticationFailureHandler();
     	failureHandler.setUseForward(true);
-    	failureHandler.setDefaultFailureUrl("/login");
+    	failureHandler.setDefaultFailureUrl("/login?err=1");
     	return failureHandler;
     }
      

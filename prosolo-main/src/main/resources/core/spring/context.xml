@@ -213,4 +213,13 @@
 		<bean id="retryAdvice"
 			class="org.springframework.retry.interceptor.RetryOperationsInterceptor" />
 
+		<bean id="messageSource"
+			  class="org.springframework.context.support.ResourceBundleMessageSource">
+			<property name="basenames">
+				<list>
+					<value>org.prosolo.web.spring-messages</value>
+				</list>
+			</property>
+		</bean>
+
 	</beans>
