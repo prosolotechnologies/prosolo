@@ -401,7 +401,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY)
 					.setLong("studentId", studentId);
 		}
-		query.setFirstResult(limit * page).setMaxResults(limit);
+		if(query != null) {
+			query.setFirstResult(limit * page).setMaxResults(limit);
+		}
 		return query;
 	}
 
