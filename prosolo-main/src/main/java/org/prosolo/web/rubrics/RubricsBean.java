@@ -56,8 +56,7 @@ public class RubricsBean implements Serializable, Paginable {
         try {
             PaginatedResult<RubricData> res = rubricManager.getRubrics(paginationData.getPage() - 1,
                     paginationData.getLimit(), loggedUser.getOrganizationId());
-            rubrics = res.getFoundNodes();
-            this.paginationData.update((int) res.getHitsNumber());
+
             extractResult(res);
         } catch (Exception e) {
             logger.error(e);
@@ -102,7 +101,6 @@ public class RubricsBean implements Serializable, Paginable {
             PaginatedResult<RubricData> res = rubricTextSearch.searchRubrics(loggedUser.getUserContext().getOrganizationId(),
                     searchTerm, paginationData.getPage() - 1, paginationData.getLimit());
 
-            rubrics = res.getFoundNodes();
             extractResult(res);
         } catch (Exception e) {
             logger.error(e);
