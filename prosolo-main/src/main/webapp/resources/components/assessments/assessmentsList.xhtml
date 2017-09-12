@@ -28,7 +28,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-md-9">
-						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData or (cc.attrs.bean.searchForApproved == false and cc.attrs.bean.searchForPending == false)}">
+						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData}">
 							<div class="noContentMessage">
 								<p>
 									No assessments.
@@ -37,58 +37,54 @@
 						</ui:fragment>
 					
 						<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
-							<ui:fragment rendered="#{cc.attrs.bean.searchForApproved == true or cc.attrs.bean.searchForPending == true}">
-								<article class="whiteBox assessmentItem">
-									<h2>
-										<ui:fragment rendered="#{cc.attrs.assessor}">
-											<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
-												<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
-												<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
-											</h:link>
-										</ui:fragment>
-
-										<ui:fragment rendered="#{not cc.attrs.assessor}">
-											<h:link outcome="/credential-assessment">#{assessmentData.title}
-												<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
-												<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
-											</h:link>
-										</ui:fragment>
-									</h2>
-
-									<ui:fragment rendered="#{assessmentData.approved}">
-										<div class="tagApproved">Approved</div>
+							<article class="whiteBox assessmentItem">
+								<h2>
+									<ui:fragment rendered="#{cc.attrs.assessor}">
+										<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
+										</h:link>
 									</ui:fragment>
 
-									<ui:fragment rendered="#{not assessmentData.approved}">
-										<div class="tagPending">Pending</div>
+									<ui:fragment rendered="#{not cc.attrs.assessor}">
+										<h:link outcome="/credential-assessment">#{assessmentData.title}
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
+										</h:link>
 									</ui:fragment>
-									<div class="clear"></div>
+								</h2>
 
-									<div class="user32">
-										Assessor:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
-										<!-- when avatar is null, display initials div -->
-										<ui:fragment rendered="#{assessmentData.assessorFullName != null}">
-											<utilcomp:userAvatar avatar="#{assessmentData.assessorAvatarUrl}"
-												fullName="#{assessmentData.assessorFullName}"/>
+								<ui:fragment rendered="#{assessmentData.approved}">
+									<div class="tagApproved">Approved</div>
+								</ui:fragment>
+
+								<ui:fragment rendered="#{not assessmentData.approved}">
+									<div class="tagPending">Pending</div>
+								</ui:fragment>
+								<div class="clear"></div>
+
+								<div class="user32">
+									Assessor:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+									<!-- when avatar is null, display initials div -->
+									<ui:fragment rendered="#{assessmentData.assessorFullName != null}">
+										<utilcomp:userAvatar avatar="#{assessmentData.assessorAvatarUrl}" fullName="#{assessmentData.assessorFullName}"/>
 											<h3>#{assessmentData.assessorFullName}</h3>
-										</ui:fragment>
-										<ui:fragment rendered="#{assessmentData.assessorFullName == null}">
-											<h3>Instructor Assessment</h3>
-										</ui:fragment>
-									</div>
+									</ui:fragment>
+									<ui:fragment rendered="#{assessmentData.assessorFullName == null}">
+										<h3>Instructor Assessment</h3>
+									</ui:fragment>
+								</div>
 
-									<div class="commentsNumber">
-										Comments: #{assessmentData.totalNumberOfMessages}
-									</div>
-									<div class="clear"></div>
+								<div class="commentsNumber">
+									Comments: #{assessmentData.totalNumberOfMessages}
+								</div>
+								<div class="clear"></div>
 
-									<div class="date">
-										Requested: #{assessmentData.dateValue}
-									</div>
-								</article>
-							</ui:fragment>
+								<div class="date">
+									Requested: #{assessmentData.dateValue}
+								</div>
+							</article>
 						</ui:repeat>
-						
 						<utilcomp:pagination
 							id="pagination" 
 							bean="#{cc.attrs.bean}"
@@ -102,14 +98,14 @@
 							
 							<div class="checkbox checkLine">
 								<h:selectBooleanCheckbox id="searchForPendingCheckbox"  value="#{cc.attrs.bean.searchForPending}">
-									<f:ajax execute="@this" event="change" update=":form"/>
+									<f:ajax execute="@this" event="change" render="filterAssessmentsForm"/>
 								</h:selectBooleanCheckbox>
 								<label for="checkPending">Pending</label>
 							</div>
 							
 							<div class="checkbox checkLine">
 								<h:selectBooleanCheckbox id="searchForApprovedCheckbox" value="#{cc.attrs.bean.searchForApproved}">
-									<f:ajax execute="@this" event="change" update=":form"/>
+									<f:ajax execute="@this" event="change" render="filterAssessmentsForm"/>
 								</h:selectBooleanCheckbox>
 								<label for="checkApproved">Approved</label>
 							</div>
