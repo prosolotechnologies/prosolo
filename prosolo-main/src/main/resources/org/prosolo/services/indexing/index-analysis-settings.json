@@ -1,0 +1,10 @@
+{
+	"analysis": {
+		"analyzer": {
+			"ci_analyzer": {
+				"tokenizer": "keyword",
+				"filter":  [ "lowercase" ]
+			}
+		}
+	}
+}

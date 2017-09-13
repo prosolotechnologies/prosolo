@@ -5,6 +5,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
+import org.elasticsearch.common.io.Streams;
 import org.elasticsearch.common.settings.Settings;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -67,10 +68,12 @@ public class ESAdministrationImpl implements ESAdministration {
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
+					.loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"))
 					.put("http.enabled", "false")
 					.put("cluster.name", elasticSearchConfig.clusterName)
 					.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
 					.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+
 			client.admin()
 					.indices()
 					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
