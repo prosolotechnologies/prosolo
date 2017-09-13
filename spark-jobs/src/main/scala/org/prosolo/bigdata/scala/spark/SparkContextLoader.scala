@@ -95,7 +95,7 @@ val sc=sparkSession.sparkContext
 
 
       val hosts=new util.LinkedList[String]
-        hosts.add("52.202.81.232:"+"9200")
+        hosts.add(SparkApplicationConfig.conf.getString("elasticsearch.host")+":"+SparkApplicationConfig.conf.getString("elasticsearch.port"))
 
 
       sparkConf.set("es.nodes", StringUtils.join(hosts, ","))

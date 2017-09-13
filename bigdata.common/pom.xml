@@ -207,11 +207,11 @@
 				</exclusion-->
 			</exclusions>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch-mapper-attachments</artifactId>
 			<version>3.1.2</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.elasticsearch.plugin</groupId>
 			<artifactId>delete-by-query</artifactId>
