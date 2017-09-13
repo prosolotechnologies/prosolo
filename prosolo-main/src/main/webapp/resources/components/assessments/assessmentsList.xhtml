@@ -26,19 +26,6 @@
 
 		<h:form id="filterAssessmentsForm">
 			<div class="container">
-				<div class="container">
-					<ol class="breadcrumb">
-						<li>
-							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-						</li>
-						<li>
-							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
-								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
-							</h:link>
-						</li>
-						<li class="active">Assessments</li>
-					</ol>
-				</div>
 				<div class="row">
 					<div class="col-md-9">
 						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData}">

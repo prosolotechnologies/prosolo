@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -35,23 +34,17 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private AssessmentManager assessmentManager;
 	@Inject
 	private LoggedUserBean loggedUserBean;
-	@Inject
-	private CredentialManager credentialManager;
 
 	private String context;
 	private List<AssessmentData> assessmentData;
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
-	private String credentialTitle;
-	private String id;
-	private long decodedId;
 
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
 
 		try {
-			decodedId = idEncoder.decodeId(id);
 			if (!searchForApproved && !searchForPending) {
 				paginationData.update(0);
 				assessmentData = new ArrayList<>();
@@ -137,23 +130,4 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 		}
 	}
 
-	public String getCredentialTitle() {
-		return credentialTitle;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public long getDecodedId() {
-		return decodedId;
-	}
-
-	public void setDecodedId(long decodedId) {
-		this.decodedId = decodedId;
-	}
 }

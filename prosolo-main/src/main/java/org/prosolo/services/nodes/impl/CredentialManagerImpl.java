@@ -1459,29 +1459,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new DbConnectionException("Error while retrieving credential title");
 			}
 	}
-
-	@Override
-	public String getTargetCredentialTitle(long userId) throws DbConnectionException {
-		try {
-			String query = "SELECT cred.credential.id " +
-					"FROM TargetCredential1 cred " +
-					"WHERE cred.user=:userId";
-
-			long id = (long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId",userId)
-					.uniqueResult();
-
-			return  getCredentialTitle(id);
-
-		}catch (Exception e){
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving target credential title");
-		}
-
-	}
-
+	
 //	@Override
 //	@Transactional(readOnly = true)
 //	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
