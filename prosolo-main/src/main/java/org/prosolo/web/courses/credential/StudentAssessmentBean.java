@@ -2,6 +2,7 @@ package org.prosolo.web.courses.credential;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -51,12 +52,17 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 
 		try {
 			decodedId = idEncoder.decodeId(id);
-			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-					searchForPending, searchForApproved));
-			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"), paginationData.getPage() - 1,
-					paginationData.getLimit());
-			credentialTitle = credentialManager.getTargetCredentialTitle(loggedUserBean.getUserId());
+			if (!searchForApproved && !searchForPending) {
+				paginationData.update(0);
+				assessmentData = new ArrayList<>();
+			} else {
+				paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
+						searchForPending, searchForApproved));
+				assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
+						searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
+						paginationData.getPage() - 1,
+						paginationData.getLimit());
+			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
 			PageUtil.fireErrorMessage("Error while loading assessment data");
@@ -107,7 +113,6 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 		this.searchForPending = searchForPending;
 		paginationData.setPage(1);
 		init();
-		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
 
 	public boolean isSearchForApproved() {
@@ -118,7 +123,6 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 		this.searchForApproved = searchForApproved;
 		paginationData.setPage(1);
 		init();
-		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
 
 	public PaginationData getPaginationData() {
