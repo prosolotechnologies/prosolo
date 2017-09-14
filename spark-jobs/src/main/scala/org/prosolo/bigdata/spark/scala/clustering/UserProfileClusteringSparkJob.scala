@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
 import org.prosolo.bigdata.scala.clustering.userprofiling.{HmmClustering, UsersClustering}
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
 import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
 
 import scala.collection.parallel.mutable
@@ -26,11 +26,14 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, days: IndexedSeq[DateTime],
                   numClusters: Int, numFeatures: Int): Unit = {
-    credentialsIds.add(1l)
-    credentialsIds.add(2l)
 
+   if(credentialsIds.size()==0){
+     submitTaskProblem("NO CREDENTIALS FOUND",0,"runSparkJob",ProblemSeverity.MAJOR)
+   }
     val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
     println("ALL CREDENTIALS:" + credentialsIdsScala.mkString(","))
+
+
 
 
     val credentialsRDD: RDD[Long] = sc.parallelize(credentialsIdsScala.map {
@@ -45,9 +48,7 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
         val userCourseKMeansProfiles: Iterator[Iterable[Tuple5[Long, String, Long, Long, String]]] = credentials._1.map { credentialId =>
           println("RUNNING USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialId)
           val usersClustering: UsersClustering = new UsersClustering(dbName, numClusters, numFeatures)
-         // val userscourseprofiles = usersClustering.performKMeansClusteringForPeriod(days, credentialId)
          val userCourseProfile: Iterable[Tuple5[Long, String, Long, Long, String]] = usersClustering.performKMeansClusteringForPeriod(days, credentialId)
-          //runPeriodicalKMeansClustering(dbName, days, numClusters, numFeatures, credentialId)
           userCourseProfile
         }
        userCourseKMeansProfiles.foreach(userProfile => {
@@ -57,7 +58,6 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
 
 
         })
-        println("FOREACH PARTITION KT-2")
         credentials._2.foreach {
           credentialid =>
             println("RUNNING HMM USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialid)

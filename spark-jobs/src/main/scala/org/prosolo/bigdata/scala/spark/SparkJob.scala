@@ -1,24 +1,16 @@
 package org.prosolo.bigdata.scala.spark
 
 import org.apache.spark.sql.SparkSession
-import org.prosolo.bigdata.dal.cassandra.impl.LogSeverity.Value
-import org.prosolo.bigdata.dal.cassandra.impl.{JobLoggerDAO, LogSeverity, LogType}
-import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
 
 
 /**
   * Created by zoran on 26/07/17.
   */
-private[spark] sealed trait TaskResult{
- def message:String
-  def objectId:Long
-  def taskType:String
-}
-private[spark] case class FailedTask (message:String, objectId:Long, taskType:String)
-  extends TaskResult with Serializable
-private[spark] case class TaskProblem(message:String, objectId:Long, taskType:String, severity: ProblemSeverity.Value)
-  extends TaskResult with Serializable
+
+case class TaskSummary(var jobId:String,var jobName:String, var jobStarted:Long,var jobFinished:Long)
+case class FailedTask (jobId:String,jobName:String, message:String, objectId:Long, taskType:String)
+case class TaskProblem(jobId:String,jobName:String,message:String, objectId:Long, taskType:String, severity: String)
 object ProblemSeverity extends Enumeration{
   val CRITICAL=Value("CRITICAL")
   val MAJOR=Value("MAJOR")
@@ -27,8 +19,8 @@ object ProblemSeverity extends Enumeration{
 }
 trait SparkJob extends Serializable{
   def keyspaceName:String
-  def jobName=this.getClass.getSimpleName
-  def jobId=java.util.UUID.randomUUID().toString
+  val jobName=this.getClass.getSimpleName
+  val jobId=java.util.UUID.randomUUID().toString
   println("RUNNING JOB:"+jobName+" WITH UUID:"+jobId)
  // val sc = SparkContextLoader.getSC
  // sc.setLogLevel("WARN")
@@ -45,6 +37,12 @@ trait SparkJob extends Serializable{
   println("JOB STARTED..."+jobName)
   summaryAccu.add(new TaskSummary(jobId, jobName, System.currentTimeMillis(),0))
 
+  def submitFailedTask(message:String, objectId:Long, taskType:String): Unit ={
+    failedTasksAccu.add(new FailedTask(jobId,jobName,message,objectId,taskType))
+  }
+  def submitTaskProblem(message:String, objectId:Long, taskType:String, severity: ProblemSeverity.Value): Unit ={
+    taskProblemsAccu.add(new TaskProblem(jobId,jobName,message,objectId,taskType, severity.toString))
+  }
 
   def finishJob()={
     println("FINISH JOB INSERT LOG")
@@ -60,7 +58,7 @@ trait SparkJob extends Serializable{
     val rddSummary= sparkSession.sparkContext.makeRDD(Seq(summaryAccu.value))
      val mapping=Map("es.mapping.id"->"jobId")
       EsSpark.saveToEs(rddFailed,resource+"/failed")
-    EsSpark.saveToEs(rddProblems,resource+"/problems")
-   EsSpark.saveToEs(rddSummary,resource+"/summary")
+    EsSpark.saveToEs(rddProblems,resource+"/problems", mapping)
+   EsSpark.saveToEs(rddSummary,resource+"/summary", mapping)
   }
 }
