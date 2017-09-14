@@ -49,7 +49,7 @@
 
 <h:body id="admin">
 	<utilcomp:messagesBundle var="msg" />
-
+	<div class="bigWrapper">
 	<header>
 		<div class="container">
 			<div class="headerTop">
@@ -245,5 +245,15 @@
 			</p:idleMonitor>
 		</h:form>
 	</c:if>
+	</div>
+	<footer>
+		<div class="container">
+			<ul>
+				<li><h:link value="About" outcome="/about" /></li>
+				<li><h:link value="Terms of Use" outcome="/terms" /></li>
+			</ul>
+		</div>
+	</footer>
+
 </h:body>
 </html>
