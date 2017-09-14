@@ -4,6 +4,10 @@
 			"ci_analyzer": {
 				"tokenizer": "keyword",
 				"filter":  [ "lowercase" ]
+			},
+			"whitespace_lowercase_analyzer": {
+				"tokenizer": "whitespace",
+				"filter":  [ "lowercase" ]
 			}
 		}
 	}
