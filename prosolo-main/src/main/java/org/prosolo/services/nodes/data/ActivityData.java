@@ -166,8 +166,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 	}
 	
 	public void calculateDurationString() {
-		durationString = TimeUtil.getHoursAndMinutesInString(
-				this.durationHours * 60 + this.durationMinutes);
+		if(durationMinutes == 0 && durationHours == 0) {
+			durationString = null;
+		}else {
+			durationString = TimeUtil.getHoursAndMinutesInString(
+					this.durationHours * 60 + this.durationMinutes);
+		}
 	}
 
 	public long getActivityId() {
