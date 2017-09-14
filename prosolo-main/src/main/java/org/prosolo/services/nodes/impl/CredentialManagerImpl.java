@@ -1460,28 +1460,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 	}
 
-	@Override
-	public String getTargetCredentialTitle(long userId) throws DbConnectionException {
-		try {
-			String query = "SELECT cred.credential.id " +
-					"FROM TargetCredential1 cred " +
-					"WHERE cred.user=:userId";
-
-			long id = (long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId",userId)
-					.uniqueResult();
-
-			return  getCredentialTitle(id);
-
-		}catch (Exception e){
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving target credential title");
-		}
-
-	}
-
 //	@Override
 //	@Transactional(readOnly = true)
 //	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
@@ -2084,7 +2062,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				"FROM TargetCredential1 tCred " +
 				"INNER JOIN tCred.user user " +
 				"WHERE tCred.credential.id = :credId " + 
-					"AND user.id != :userId " + 
+					"AND user.id != :userId " +
 					"AND user.id NOT IN ( " +
 						"SELECT assessment.assessor.id " +
 						"FROM CredentialAssessment assessment " +

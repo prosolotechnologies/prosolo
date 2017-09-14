@@ -49,19 +49,19 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
-
 		try {
 			decodedId = idEncoder.decodeId(id);
+			credentialTitle = credentialManager.getCredentialTitle(decodedId);
 			if (!searchForApproved && !searchForPending) {
 				paginationData.update(0);
 				assessmentData = new ArrayList<>();
 			} else {
 				paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-						searchForPending, searchForApproved));
+						searchForPending, searchForApproved, decodedId));
 				assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
 						searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
 						paginationData.getPage() - 1,
-						paginationData.getLimit());
+						paginationData.getLimit(), decodedId);
 			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
@@ -153,7 +153,4 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 		return decodedId;
 	}
 
-	public void setDecodedId(long decodedId) {
-		this.decodedId = decodedId;
-	}
 }
