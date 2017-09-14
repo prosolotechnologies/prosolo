@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
@@ -29,17 +30,32 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     protected static Logger logger = Logger.getLogger(BulkDataAdministrationServiceImpl.class);
 
-    @Inject private UserManager userManager;
-    @Inject private DefaultManager defaultManager;
-    @Inject private UserEntityESService userEntityESService;
-    @Inject private CredentialManager credManager;
-    @Inject private Competence1Manager compManager;
-    @Inject private CredentialESService credESService;
-    @Inject private CompetenceESService compESService;
-    @Inject private UserGroupManager userGroupManager;
-    @Inject private UserGroupESService userGroupESService;
-    @Inject private ESAdministration esAdministration;
-    @Inject private OrganizationManager orgManager;
+    @Inject
+    private UserManager userManager;
+    @Inject
+    private DefaultManager defaultManager;
+    @Inject
+    private UserEntityESService userEntityESService;
+    @Inject
+    private CredentialManager credManager;
+    @Inject
+    private Competence1Manager compManager;
+    @Inject
+    private CredentialESService credESService;
+    @Inject
+    private CompetenceESService compESService;
+    @Inject
+    private UserGroupManager userGroupManager;
+    @Inject
+    private UserGroupESService userGroupESService;
+    @Inject
+    private ESAdministration esAdministration;
+    @Inject
+    private OrganizationManager orgManager;
+    @Inject
+    private RubricManager rubricManager;
+    @Inject
+    private RubricsESService rubricsESService;
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -104,14 +120,20 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
             }
             //index competences
             List<Competence1> comps = compManager.getAllCompetences(session);
-            for(Competence1 comp : comps) {
+            for (Competence1 comp : comps) {
                 compESService.saveCompetenceNode(comp, session);
             }
 
             //index user groups
             List<UserGroup> groups = userGroupManager.getAllGroups(false, session);
-            for(UserGroup group : groups) {
+            for (UserGroup group : groups) {
                 userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
+            }
+
+            //index rubrics
+            List<Rubric> rubrics = rubricManager.getAllRubrics(session);
+            for (Rubric r : rubrics) {
+                rubricsESService.saveRubric(r.getOrganization().getId(), r);
             }
         } catch (Exception e) {
             logger.error("Exception in handling message", e);

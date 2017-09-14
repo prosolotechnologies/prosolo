@@ -94,8 +94,10 @@ public class ESAdministrationImpl implements ESAdministration {
 					//index has organization suffix so it is organization user index
 					this.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 				}
-			} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
+			} else if(indexName.startsWith(ESIndexNames.INDEX_USER_GROUP)) {
 				this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
+			} else if(indexName.startsWith(ESIndexNames.INDEX_RUBRIC_NAME)) {
+				this.addMapping(client, indexName, ESIndexTypes.RUBRIC);
 			}
 		}
 	}

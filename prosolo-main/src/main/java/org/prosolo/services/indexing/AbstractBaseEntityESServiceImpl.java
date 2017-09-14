@@ -20,6 +20,7 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 
@@ -94,6 +95,8 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			indexName = ESIndexNames.INDEX_USERS;
 		} else if(node instanceof UserGroup) {
 			indexName = ESIndexNames.INDEX_USER_GROUP;
+		} else if(node instanceof Rubric){
+			indexName = ESIndexNames.INDEX_RUBRIC_NAME;
 		} else {
 			indexName = ESIndexNames.INDEX_NODES;
 		}

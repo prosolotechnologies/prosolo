@@ -17,6 +17,7 @@ public class ESIndexNames {
 	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"users";
 	public static String INDEX_RECOMMENDATION_DATA=CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static String INDEX_USER_GROUP = CommonSettings.getInstance().config.elasticSearch.userGroupIndex + CommonSettings.getInstance().config.getNamespaceSufix();
+	public static String INDEX_RUBRIC_NAME = CommonSettings.getInstance().config.elasticSearch.rubricsIndex + CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_RECOMMENDATIONDATA = CommonSettings
 			//.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex
@@ -47,7 +48,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getOrganizationIndexes() {
-		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP);
+		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
 	}
 	
 	private static boolean isRightName(String name) {
