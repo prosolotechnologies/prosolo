@@ -58,7 +58,7 @@ public class JSOUPParser implements HTMLParser {
 	public AttachmentPreview1 extractAttachmentPreview1(String url) {
 		boolean withImage = true;
 		
-		if (url.contains("www.slideshare.net/")) {
+		if (URLUtil.checkIfSlidesharePresentationLink(url)) {
 			withImage = false;
 		}
 		
