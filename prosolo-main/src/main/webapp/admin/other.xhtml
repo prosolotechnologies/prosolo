@@ -34,11 +34,15 @@
 						<p:commandLink value="Reindex Users"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexUsers}"	/>
-						<p:commandLink value="Reindex Everything"
+									   action="#{bulkDataAdministration.deleteAndReindexUsers(0)}"	/>
+						<p:commandLink value="Reindex #{msg['label.credential.plural']} and #{msg['label.competence.plural']}"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}" />
+									   action="#{bulkDataAdministration.deleteAndReindexNodes(0)}"	/>
+						<p:commandLink value="Reindex #{msg['label.rubric.plural']}"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   action="#{bulkDataAdministration.deleteAndReindexRubrics(0)}"	/>
 
 						<ui:remove>
 							<p:commandLink value="Migrate UTA to 0.7"

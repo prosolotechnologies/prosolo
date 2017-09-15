@@ -39,7 +39,7 @@ public class TestHashTagsGenerator extends TestContext {
 
 	@Test
 	public void addRandomTwitterAccountTest(){
-		Collection<User> allUsers=userManager.getAllUsers();
+		Collection<User> allUsers=userManager.getAllUsers(0);
 		long initial=295349086;
 		Random generator = new Random();
 		for(int i=0;i<100;i++){

@@ -6,6 +6,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
@@ -134,16 +135,26 @@ public class ESAdministrationImpl implements ESAdministration {
 
 	@Override
 	public boolean deleteIndexByName(String name) {
-		Client client = ElasticSearchFactory.getClient();
-		client.admin().indices().delete(new DeleteIndexRequest(name)).actionGet();
-		return true;
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			client.admin().indices().delete(new DeleteIndexRequest(name)).actionGet();
+			return true;
+		} catch (IndexNotFoundException e) {
+			logger.debug("Index does not exist so it can't be deleted");
+			return false;
+		}
 	}
 
 	@Override
 	public boolean deleteIndexesByName(String[] indexNames) {
-		Client client = ElasticSearchFactory.getClient();
-		client.admin().indices().delete(new DeleteIndexRequest(indexNames)).actionGet();
-		return true;
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			client.admin().indices().delete(new DeleteIndexRequest(indexNames)).actionGet();
+			return true;
+		} catch (IndexNotFoundException e) {
+			logger.debug("Index does not exist so it can't be deleted");
+			return false;
+		}
 	}
 	
 	@Override

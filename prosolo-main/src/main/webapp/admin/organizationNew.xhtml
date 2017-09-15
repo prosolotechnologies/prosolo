@@ -167,6 +167,24 @@
                             </div>
                         </div>
                         </h:form>
+
+                        <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
+                            <p>Reindex the following resources:</p>
+                            <p:commandLink value="Users"
+                                           pt:role="button"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
+                            &#160;&#160;
+                            <p:commandLink value="#{msg['label.credential.plural']} and #{msg['label.competence.plural']}"
+                                           pt:role="button"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexNodes(organizationEditBean.decodedId)}"	/>
+                            &#160;&#160;
+                            <p:commandLink value="#{msg['label.rubric.plural']}"
+                                           pt:role="button"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}"	/>
+                        </ui:fragment>
                     </div>
                 </div>
             </div>

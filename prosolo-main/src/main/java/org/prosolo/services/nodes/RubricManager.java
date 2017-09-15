@@ -30,7 +30,7 @@ public interface RubricManager extends AbstractManager {
     PaginatedResult<RubricData> getRubrics(int page, int limit,long organizationId)
             throws DbConnectionException;
 
-    List<Rubric> getAllRubrics (Session session) throws DbConnectionException;
+    List<Rubric> getAllRubrics (long orgId, Session session) throws DbConnectionException;
 
     void deleteRubric(long rubricId,UserContextData context) throws DbConnectionException, EventException;
 
