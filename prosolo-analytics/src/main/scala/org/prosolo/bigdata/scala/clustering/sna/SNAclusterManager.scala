@@ -33,9 +33,9 @@ object SNAclusterManager{
   def runClustering()={
     println("INITIALIZE USER PROFILE CLUSTERING ")
     val timestamp=System.currentTimeMillis()
-    val credentialsIds=clusteringDAOManager.getAllCredentialsIds
+    val deliveriesIds=clusteringDAOManager.getAllActiveDeliveriesIds
     val sNAClusteringSparkJob=new SNAClusteringSparkJob(dbName)
-    sNAClusteringSparkJob.runSparkJob(credentialsIds,dbName, timestamp)
+    sNAClusteringSparkJob.runSparkJob(deliveriesIds,dbName, timestamp)
     updateTimestamp(timestamp)
   }
 

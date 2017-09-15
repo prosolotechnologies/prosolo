@@ -2,16 +2,16 @@ package org.prosolo.bigdata.spark.scala.clustering
 
 import java.util.{Calendar, Date}
 
+
+import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
-import org.prosolo.bigdata.scala.clustering.userprofiling.{HmmClustering, UsersClustering}
+import org.prosolo.bigdata.scala.clustering.userprofiling._
 import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
 import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
-
-import scala.collection.parallel.mutable
-
+import scala.collection.mutable.{ArrayBuffer, Buffer, HashMap, Iterable, ListBuffer, Map}
 
 
 /**
@@ -20,8 +20,16 @@ import scala.collection.parallel.mutable
 /**
   * zoran 20/02/17
   */
-class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
+case class CourseClusterConfiguration(courseId: Long,
+                                      clustersDir:String,
+                                      vectorsDir:String,
+                                      outputDir:String,
+                                      output:Path,
+                                      datapath:Path) extends Serializable
+class UserProfileClusteringSparkJob(kName:String, numFeatures:Int, numClusters:Int) extends SparkJob with Serializable{
   val keyspaceName=kName
+  val profilesDAO = new ProfilesDAO(keyspaceName)
+  //val profilesDAO=new ProfilesDAO(keyspaceName)
  // val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, days: IndexedSeq[DateTime],
@@ -45,20 +53,23 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
       credentialsIt => {
     val credentials = credentialsIt.duplicate
 
-        val userCourseKMeansProfiles: Iterator[Iterable[Tuple5[Long, String, Long, Long, String]]] = credentials._1.map { credentialId =>
+         val userCourseKMeansProfiles: Iterator[Iterable[Tuple5[Long, String, Long, Long, String]]] = credentials._1.map { credentialId =>
+       // val userCourseKMeansProfiles = credentials._1.map { credentialId =>
           println("RUNNING USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialId)
-          val usersClustering: UsersClustering = new UsersClustering(dbName, numClusters, numFeatures)
-         val userCourseProfile: Iterable[Tuple5[Long, String, Long, Long, String]] = usersClustering.performKMeansClusteringForPeriod(days, credentialId)
+        // val usersClustering: UsersClustering = new UsersClustering(this, dbName, numClusters, numFeatures)
+         //val userCourseProfile: Iterable[Tuple5[Long, String, Long, Long, String]] = performKMeansClusteringForPeriod(days, credentialId)
+         val userCourseProfile: Iterable[Tuple5[Long, String, Long, Long, String]] = KMeansClusteringUtility.performKMeansClusteringForPeriod (days, credentialId,dbName,numFeatures,numClusters)
+         // val userCourseProfile=""
           userCourseProfile
         }
-       userCourseKMeansProfiles.foreach(userProfile => {
+        userCourseKMeansProfiles.foreach(userProfile => {
           println("INSERTING FOR EACH USER PROFILE")
           profilesDAO.insertUserQuartileFeaturesByProfile(userProfile)
           profilesDAO.insertUserQuartileFeaturesByDate(userProfile)
 
 
         })
-        credentials._2.foreach {
+       credentials._2.foreach {
           credentialid =>
             println("RUNNING HMM USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialid)
             val hmmClustering: HmmClustering = new HmmClustering(dbName)
@@ -70,17 +81,7 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
     }
 
   }
-  /**
-    * For the specific period of time e.g. course, runs clustering in specific intervals, e.g. week
-    *
-    * @param startDate
-    * @param endDate
-    */
- /* def runPeriodicalKMeansClustering(dbName: String, days: IndexedSeq[DateTime], numClusters: Int, numFeatures: Int, credentialId: Long): Iterable[Tuple5[Long, String, Long, Long, String]] = {
-    val usersClustering: UsersClustering = new UsersClustering(dbName, numClusters, numFeatures)
-    val userscourseprofiles = usersClustering.performKMeansClusteringForPeriod(days, credentialId)
-    userscourseprofiles
-  }*/
+
 
 
 
@@ -91,6 +92,15 @@ class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
     val newDate: Date = cal.getTime
     newDate
   }
+
+
+
+
+
+
+
+
+
 
 }
 
