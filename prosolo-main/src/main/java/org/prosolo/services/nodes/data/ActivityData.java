@@ -164,14 +164,11 @@ public class ActivityData extends StandardObservable implements Serializable {
 			setObjectStatus(ObjectStatus.UP_TO_DATE);
 		}
 	}
-	
+
 	public void calculateDurationString() {
-		if(durationMinutes == 0 && durationHours == 0) {
-			durationString = null;
-		}else {
-			durationString = TimeUtil.getHoursAndMinutesInString(
-					this.durationHours * 60 + this.durationMinutes);
-		}
+		durationString = TimeUtil.getHoursAndMinutesInString(
+				this.durationHours * 60 + this.durationMinutes);
+
 	}
 
 	public long getActivityId() {
