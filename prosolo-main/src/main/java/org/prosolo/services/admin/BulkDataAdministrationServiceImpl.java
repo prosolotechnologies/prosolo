@@ -59,8 +59,8 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
-        esAdministration.deleteIndexes();
-        esAdministration.createIndexes();
+        esAdministration.deleteDBIndexes();
+        esAdministration.createDBIndexes();
     }
 
     @Override
