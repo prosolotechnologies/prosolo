@@ -183,4 +183,7 @@ public interface AssessmentManager {
 	AssessmentBasicData getCompetenceAndActivityAssessmentIds(long targetCompetenceId, long targetActivityId,
 															  long credAssessmentId) throws  DbConnectionException;
 
+	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
+			throws DbConnectionException;
+
 }

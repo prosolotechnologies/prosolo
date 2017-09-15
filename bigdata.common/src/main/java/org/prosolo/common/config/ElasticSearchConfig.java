@@ -52,6 +52,9 @@ public class ElasticSearchConfig {
 	
 	@Element(name = "userGroup-index")
 	public String userGroupIndex;
+
+	@Element(name = "rubrics-index")
+	public String rubricsIndex;
 	
 	
 }

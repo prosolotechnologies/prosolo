@@ -83,14 +83,14 @@
 			   
 	        <c:if test="#{applicationbean.config.application.registration.selfRegistration}">
 				<form method="POST" action='loginspring'>
-					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
+					<c:if test="${not empty param.err and not empty SPRING_SECURITY_LAST_EXCEPTION and empty param.error}">
 						<div class="alert alert-danger" role="alert">
-							Wrong email or password! Please try again.
+							#{SPRING_SECURITY_LAST_EXCEPTION.message}
 						</div>
 					</c:if>
 					<c:if test="${not empty param.error}">
 						<div class="alert alert-danger" role="alert">
-							#{param.error}}
+							#{param.error}
 						</div>
 					</c:if>
 					<c:if test="${not empty param.success}">

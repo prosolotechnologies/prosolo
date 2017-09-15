@@ -20,24 +20,6 @@ public class RegistrationManagerImpl extends AbstractManagerImpl implements Regi
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(RegistrationManager.class);
-
-	@Override
-	@Transactional
-	public boolean isEmailAlreadyExists(String email) {
-		String query = 
-				"SELECT count(user) " + 
-				"FROM User user " + 
-				"WHERE user.email = :email ";
-		
-		Long userCount = (Long) persistence.currentManager().createQuery(query)
-				.setString("email", email)
-				.uniqueResult();
-		
-		if (userCount != null) {
-			return userCount > 0;
-		}
-		return false;
-	}
 	
 	@Override
 	@Transactional
