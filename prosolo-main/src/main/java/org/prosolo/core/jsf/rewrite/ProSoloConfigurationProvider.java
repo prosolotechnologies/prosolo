@@ -55,6 +55,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/credentials/{id}/students").to("/credential-students.xhtml"))
 				.addRule(Join.path("/credentials/{id}/keywords").to("/credential-keywords.xhtml"))
 				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
+				.addRule(Join.path("/credentials/{id}/assessments").to("/assessments.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}/{id}/edit").to("/create-activity.xhtml"))
@@ -89,7 +90,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
-				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
+				//.addRule(Join.path("/assessments").to("/assessments.xhtml"))
+
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
 				

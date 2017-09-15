@@ -46,22 +46,30 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private String id;
 	private long decodedId;
 
-	private PaginationData paginationData = new PaginationData(5);
+	private PaginationData paginationData = new PaginationData(2);
 
 	public void init() {
 		try {
 			decodedId = idEncoder.decodeId(id);
-			credentialTitle = credentialManager.getCredentialTitle(decodedId);
-			if (!searchForApproved && !searchForPending) {
-				paginationData.update(0);
-				assessmentData = new ArrayList<>();
+			if (decodedId > 0) {
+				credentialTitle = credentialManager.getCredentialTitle(decodedId);
+				if (credentialTitle != null) {
+					if (!searchForApproved && !searchForPending) {
+						paginationData.update(0);
+						assessmentData = new ArrayList<>();
+					} else {
+						paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
+								searchForPending, searchForApproved, decodedId));
+						assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
+								searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
+								paginationData.getPage() - 1,
+								paginationData.getLimit(), decodedId);
+					}
+				}else {
+					PageUtil.notFound();
+				}
 			} else {
-				paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-						searchForPending, searchForApproved, decodedId));
-				assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-						searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
-						paginationData.getPage() - 1,
-						paginationData.getLimit(), decodedId);
+				PageUtil.notFound();
 			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);

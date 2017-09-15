@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.opensaml.xml.signature.P;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.*;
@@ -15,7 +14,6 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -388,37 +386,28 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	private Query getAssessmentForCredentialQuery(long studentId, boolean searchForPending, boolean searchForApproved,
 			int page, int limit, long credId) {
-		Query query = null;
-		String additionalQuery = "AND credentialAssessment.targetCredential.credential.id = :credId ";
-		String orderQuery = "ORDER BY credentialAssessment.dateCreated DESC";
+		Query query;
+		String queryString = null;
+		String additionalQueryString = "AND credentialAssessment.targetCredential.credential.id = :credId " +
+				"ORDER BY credentialAssessment.dateCreated DESC";
 		if (searchForApproved && searchForPending) {
-			if(credId != 0) {
-				query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_QUERY + additionalQuery + orderQuery)
-						.setLong("studentId", studentId)
-						.setLong("credId",credId);
-			}else{
-				query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_QUERY + orderQuery)
-						.setLong("studentId", studentId);
-			}
+			queryString = ALL_ASSESSMENTS_FOR_USER_QUERY;
 		} else if (searchForApproved && !searchForPending) {
-			if(credId != 0) {
-				query = persistence.currentManager().createQuery(ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY + additionalQuery + orderQuery)
-						.setLong("studentId", studentId)
-						.setLong("credId",credId);
-			}else{
-				query = persistence.currentManager().createQuery(ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY + orderQuery)
-						.setLong("studentId", studentId);
-			}
+			queryString = ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY;
 		} else if (!searchForApproved && searchForPending) {
-			if(credId != 0) {
-				query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY + additionalQuery + orderQuery)
-						.setLong("studentId", studentId)
-						.setLong("credId",credId);
-			}else {
-				query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY + orderQuery)
-						.setLong("studentId", studentId);
-			}
+			queryString = ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY;
 		}
+
+		if(credId > 0){
+			queryString = queryString + additionalQueryString;
+			query =  persistence.currentManager().createQuery(queryString)
+					.setLong("studentId", studentId)
+					.setLong("credId",credId);
+		}else{
+			query =  persistence.currentManager().createQuery(queryString)
+					.setLong("studentId", studentId);
+		}
+
 		if(query != null) {
 			query.setFirstResult(limit * page).setMaxResults(limit);
 		}
@@ -682,33 +671,28 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	private Query getAssessmentNumberForUserQuery(long studentId, boolean searchForPending,
 			boolean searchForApproved, long credId) {
-		Query query = null;
+		Query query;
+		String queryString = null;
 		String additionalQuery = "AND credentialAssessment.targetCredential.credential.id = :credId ";
+
 		if (searchForApproved && searchForPending) {
-			if (credId != 0) {
-				query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_NUMBER + additionalQuery)
-						.setLong("assessedStudentId", studentId).setLong("credId",credId);
-			}else{
-				query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_NUMBER)
-						.setLong("assessedStudentId", studentId);
-			}
+			queryString = ALL_ASSESSMENTS_FOR_USER_NUMBER;
 		} else if (searchForApproved && !searchForPending) {
-			if (credId != 0) {
-				query = persistence.currentManager().createQuery(APPROVED_ASSESSMENTS_FOR_USER_NUMBER + additionalQuery)
-						.setLong("assessedStudentId", studentId).setLong("credId",credId);
-			} else {
-				query = persistence.currentManager().createQuery(APPROVED_ASSESSMENTS_FOR_USER_NUMBER)
-						.setLong("assessedStudentId", studentId);
-			}
+			queryString = APPROVED_ASSESSMENTS_FOR_USER_NUMBER;
 		} else if (!searchForApproved && searchForPending) {
-			if (credId != 0) {
-				query = persistence.currentManager().createQuery(PENDING_ASSESSMENTS_FOR_USER_NUMBER + additionalQuery)
-						.setLong("assessedStudentId", studentId).setLong("credId",credId);
-			} else {
-				query = persistence.currentManager().createQuery(PENDING_ASSESSMENTS_FOR_USER_NUMBER)
-						.setLong("assessedStudentId", studentId);
-			}
+			queryString = PENDING_ASSESSMENTS_FOR_USER_NUMBER;
 		}
+
+		if(credId > 0){
+			queryString = queryString + additionalQuery;
+			query = persistence.currentManager().createQuery(queryString)
+					.setLong("assessedStudentId", studentId)
+					.setLong("credId",credId);
+		}else{
+			query = persistence.currentManager().createQuery(queryString)
+					.setLong("assessedStudentId", studentId);
+		}
+
 		return query;
 	}
 
