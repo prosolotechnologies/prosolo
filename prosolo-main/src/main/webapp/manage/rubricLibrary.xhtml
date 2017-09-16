@@ -34,9 +34,11 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:link outcome="/manage/newRubric"
-                                styleClass="btn btn-green btn-sm item">
-                            New #{msg['label.rubric']}</h:link>
+                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New Rubric"
+                                        oncomplete="$('#newRubricModal\\:formNewRubricModal\\:inputTextRubricName').val('');
+                                        $('#newRubricModal').modal('show');"
+                                        update="newRubricModal:formNewRubricModal">
+                        </p:commandLink>
 
                         <div class="searchBox">
                             <h:form id="searchForm">
@@ -85,7 +87,13 @@
                         <ui:repeat value="#{rubricsBean.rubrics}" var="rubric">
                             <li>
                                 <div class="manageRubricsListLeft">
-                                    <h2><a href="manage-rubric.html">#{rubric.name}</a></h2>
+                                    <h2>
+                                        <h:link outcome="/manage/rubricEdit">
+                                            #{rubric.name}
+                                            <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
+                                        </h:link>
+                                    </h2>
+
                                     <div class="rubricsInfo">
                                         <div class="creator">
                                             Creator: <span>#{rubric.creatorFullName}</span>
@@ -140,6 +148,11 @@
                     updateUrl="true"
                     toUpdate=":panelRubrics" />
         </div>
+
+        <courses:newRubricModal
+                id="newRubricModal"
+                toUpdate=":panelRubrics" />
+
 
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"

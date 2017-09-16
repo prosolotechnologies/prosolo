@@ -216,6 +216,65 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         return rubricData;
     }
 
+    @Override
+    public RubricData getRubricData(long rubricId) throws DbConnectionException {
+        try {
+            Rubric rubric = loadResource(Rubric.class, rubricId);
+
+            return new RubricData(rubric);
+        } catch (ResourceCouldNotBeLoadedException e) {
+            throw new DbConnectionException("Error while loading rubric");
+        }
+    }
+
+    @Override
+    public Rubric updateRubric(long rubricId, String name, UserContextData context) throws
+            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<Rubric> result = self.updateRubricAndGetEvents(rubricId, name, context);
+        for(EventData eventData : result.getEvents()){
+            eventFactory.generateEvent(eventData);
+        }
+        return result.getResult();
+    }
+
+    @Override
+    public Result<Rubric> updateRubricAndGetEvents(long rubricId, String name, UserContextData context) throws
+            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
+            Result<Rubric> result = new Result<>();
+            Rubric rubric = new Rubric();
+            rubric.setId(rubricId);
+            rubric.setTitle(name);
+            Organization organization = (Organization) persistence.currentManager().load(Organization.class,
+                    context.getOrganizationId());
+            rubric.setOrganization(organization);
+
+            String query =
+                    "UPDATE Rubric rubric " +
+                    "SET rubric.title = :name " +
+                    "WHERE rubric.id = :rubricId ";
+
+            persistence.currentManager()
+                    .createQuery(query)
+                    .setString("name", name)
+                    .setLong("rubricId", rubricId)
+                    .executeUpdate();
+
+            result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
+            result.setResult(rubric);
+
+            return result;
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while saving rubric");
+        }
+    }
+
     private Long getOrganizationRubricsCount(long organizationId) {
         String countQuery =
                 "SELECT COUNT (rubric) " +
