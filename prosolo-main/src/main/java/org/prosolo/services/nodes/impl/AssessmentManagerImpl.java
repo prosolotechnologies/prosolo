@@ -386,10 +386,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	private Query getAssessmentForCredentialQuery(long studentId, boolean searchForPending, boolean searchForApproved,
 			int page, int limit, long credId) {
+
+		if (!searchForApproved && !searchForPending) {
+			return null;
+		}
 		Query query;
 		String queryString = null;
-		String additionalQueryString = "AND credentialAssessment.targetCredential.credential.id = :credId " +
-				"ORDER BY credentialAssessment.dateCreated DESC";
+		String credentialCondition = "AND credentialAssessment.targetCredential.credential.id = :credId ";
+		String orderByClause = "ORDER BY credentialAssessment.dateCreated DESC";
+
 		if (searchForApproved && searchForPending) {
 			queryString = ALL_ASSESSMENTS_FOR_USER_QUERY;
 		} else if (searchForApproved && !searchForPending) {
@@ -399,18 +404,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 
 		if(credId > 0){
-			queryString = queryString + additionalQueryString;
+			queryString = queryString + credentialCondition + orderByClause;
 			query =  persistence.currentManager().createQuery(queryString)
 					.setLong("studentId", studentId)
 					.setLong("credId",credId);
 		}else{
-			query =  persistence.currentManager().createQuery(queryString)
+			query =  persistence.currentManager().createQuery(queryString + orderByClause)
 					.setLong("studentId", studentId);
 		}
 
-		if(query != null) {
-			query.setFirstResult(limit * page).setMaxResults(limit);
-		}
+		query.setFirstResult(limit * page).setMaxResults(limit);
+
 		return query;
 	}
 
@@ -671,9 +675,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	private Query getAssessmentNumberForUserQuery(long studentId, boolean searchForPending,
 			boolean searchForApproved, long credId) {
+
+		if(!searchForApproved && !searchForPending){
+			return null;
+		}
 		Query query;
 		String queryString = null;
-		String additionalQuery = "AND credentialAssessment.targetCredential.credential.id = :credId ";
+		String credentialCondition = "AND credentialAssessment.targetCredential.credential.id = :credId ";
 
 		if (searchForApproved && searchForPending) {
 			queryString = ALL_ASSESSMENTS_FOR_USER_NUMBER;
@@ -684,7 +692,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 
 		if(credId > 0){
-			queryString = queryString + additionalQuery;
+			queryString = queryString + credentialCondition;
 			query = persistence.currentManager().createQuery(queryString)
 					.setLong("assessedStudentId", studentId)
 					.setLong("credId",credId);

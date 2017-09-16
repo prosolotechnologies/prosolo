@@ -54,17 +54,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			if (decodedId > 0) {
 				credentialTitle = credentialManager.getCredentialTitle(decodedId);
 				if (credentialTitle != null) {
-					if (!searchForApproved && !searchForPending) {
-						paginationData.update(0);
-						assessmentData = new ArrayList<>();
-					} else {
-						paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-								searchForPending, searchForApproved, decodedId));
-						assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-								searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
-								paginationData.getPage() - 1,
-								paginationData.getLimit(), decodedId);
-					}
+					getAssessments();
 				}else {
 					PageUtil.notFound();
 				}
@@ -83,6 +73,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = true;
 			searchForPending = true;
 			paginationData.setPage(1);
+			getAssessments();
 			init();
 		}
 	}
@@ -93,7 +84,22 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = false;
 			searchForPending = false;
 			paginationData.setPage(1);
+			getAssessments();
 			init();
+		}
+	}
+
+	private void getAssessments() {
+		if (!searchForApproved && !searchForPending) {
+			paginationData.update(0);
+			assessmentData = new ArrayList<>();
+		} else {
+			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
+					searchForPending, searchForApproved, decodedId));
+			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
+					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
+					paginationData.getPage() - 1,
+					paginationData.getLimit(), decodedId);
 		}
 	}
 
@@ -120,6 +126,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
 		paginationData.setPage(1);
+		getAssessments();
 		init();
 	}
 
@@ -130,6 +137,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
 		paginationData.setPage(1);
+		getAssessments();
 		init();
 	}
 
@@ -141,6 +149,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
+			getAssessments();
 			init();
 		}
 	}
