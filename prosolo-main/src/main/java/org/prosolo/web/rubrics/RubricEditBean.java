@@ -13,7 +13,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -40,37 +42,48 @@ public class RubricEditBean implements Serializable {
     private RubricManager rubricManager;
 
     private RubricData rubric;
+    private String id;
+    private long decodedId;
 
     public void init() {
         try {
-            this.rubric = new RubricData();
+            this.decodedId = idEncoder.decodeId(id);
+            this.rubric = rubricManager.getRubricData(decodedId);
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
         }
     }
 
-    public void createRubric() {
+    public void updateRubric(){
         try {
-            Rubric rubric = rubricManager.createNewRubric(this.rubric.getName(), loggedUser.getUserContext());
+            rubricManager.updateRubric(this.rubric.getId(),this.rubric.getName(), loggedUser.getUserContext());
 
-            this.rubric.setId(rubric.getId());
-
-            logger.debug("New Rubric (" + rubric.getTitle() + ")");
-
-            PageUtil.fireSuccessfulInfoMessageAcrossPages( "Rubric has been created");
-            PageUtil.redirect("/manage/rubrics");
-        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.debug("Rubric (" + this.rubric.getId() + ") updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The rubric has been updated");
+        }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
-            FacesContext.getCurrentInstance().validationFailed();
-            PageUtil.fireErrorMessage("Rubric with this name already exists");
-        } catch (Exception e) {
+
+            FacesContext context = FacesContext.getCurrentInstance();
+            UIInput input = (UIInput) context.getViewRoot().findComponent(
+                    "formMainEditRubric:inputTextRubricName");
+            input.setValid(false);
+            context.addMessage("formMainEditRubric:inputTextRubricName",
+                    new FacesMessage("Rubric with this name already exists") );
+        }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error creating a rubric");
+            PageUtil.fireErrorMessage("Error updating the rubric");
         }
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public RubricData getRubric() {
         return rubric;
