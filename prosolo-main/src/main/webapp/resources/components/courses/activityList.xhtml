@@ -129,7 +129,7 @@
                 <h:panelGroup
                 	layout="block"
                 	styleClass="duration"
-                	rendered="#{!cc.attrs.isEdit}">
+                	rendered="#{!cc.attrs.isEdit and act.durationString ne null}">
                 	#{act.durationString}
                 </h:panelGroup>
             </div>
