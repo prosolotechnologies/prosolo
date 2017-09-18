@@ -39,10 +39,10 @@
 					 <h:link rendered="#{page ne 'organizationNew'}"
 							 outcome="/admin/organizationNew">
 						 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
-						 Organization Details
+						 Settings
 					 </h:link>
 					 <ui:fragment rendered="#{page eq 'organizationNew'}">
-						 <a href="javascript:void(0);">Organization Details</a>
+						 <a href="javascript:void(0);">Settings</a>
 					 </ui:fragment>
 				 </li>
 			 </ul>
