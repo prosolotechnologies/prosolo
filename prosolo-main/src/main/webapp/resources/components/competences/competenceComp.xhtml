@@ -50,7 +50,9 @@
                     		<a href="" class="madeByUniversity" data-toggle="tooltip"
             					title="Made by University">made by university</a>
                     	</ui:fragment>
-                        <div class="duration">#{cc.attrs.competence.durationString}</div>
+						<ui:fragment rendered="#{cc.attrs.competence.durationString ne null}">
+                        	<div class="duration">#{cc.attrs.competence.durationString}</div>
+						</ui:fragment>
                     </div>
                 </div>
                 <p:commandLink
