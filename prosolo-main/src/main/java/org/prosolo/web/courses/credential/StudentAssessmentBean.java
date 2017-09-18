@@ -46,7 +46,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private String id;
 	private long decodedId;
 
-	private PaginationData paginationData = new PaginationData(2);
+	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
 		try {
@@ -73,8 +73,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = true;
 			searchForPending = true;
 			paginationData.setPage(1);
-			getAssessments();
-			init();
+			getAssessmentsWithExceptionHandling();
 		}
 	}
 
@@ -84,8 +83,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = false;
 			searchForPending = false;
 			paginationData.setPage(1);
-			getAssessments();
-			init();
+			getAssessmentsWithExceptionHandling();
 		}
 	}
 
@@ -100,6 +98,15 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
 					paginationData.getPage() - 1,
 					paginationData.getLimit(), decodedId);
+		}
+	}
+
+	private void getAssessmentsWithExceptionHandling() {
+		try {
+			getAssessments();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
 
@@ -126,8 +133,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
 		paginationData.setPage(1);
-		getAssessments();
-		init();
+		getAssessmentsWithExceptionHandling();
 	}
 
 	public boolean isSearchForApproved() {
@@ -137,8 +143,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
 		paginationData.setPage(1);
-		getAssessments();
-		init();
+		getAssessmentsWithExceptionHandling();
 	}
 
 	public PaginationData getPaginationData() {
@@ -149,8 +154,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			getAssessments();
-			init();
+			getAssessmentsWithExceptionHandling();
 		}
 	}
 
