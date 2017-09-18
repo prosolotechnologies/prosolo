@@ -419,6 +419,10 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 
+	public boolean isResponseTypeSet(){
+		return activityData.getResultData().getResultType() != ActivityResultType.NONE;
+	}
+
 	 
 	public String getPageHeaderTitle() {
 		return activityData.getActivityId() > 0 ? activityData.getTitle() : "New Activity";
