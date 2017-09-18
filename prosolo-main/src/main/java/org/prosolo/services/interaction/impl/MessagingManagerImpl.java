@@ -217,7 +217,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread = saveEntity(messagesThread);
 
 		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, creatorId, messagesThread);
+			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
+					null, null, null);
 		} catch (EventException e) {
 			logger.error(e);
 		}

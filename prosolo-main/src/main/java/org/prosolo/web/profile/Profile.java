@@ -135,7 +135,7 @@ public class Profile {
 			if (Long.valueOf(studentId) != loggedUserBean.getUserId()) {
 				try {
 					long decodedRecieverId = Long.valueOf(studentId);
-					Message message = messagingManager.sendMessage(loggedUserBean.getUserContext(), decodedRecieverId, this.message);
+					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedRecieverId, this.message);
 					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedRecieverId+" with content: '"+message+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();

@@ -276,7 +276,7 @@ public class MessagesBean implements Serializable {
 			Message message = null;
 			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
 				//new recipients have been set, send message to them (and create or re-use existing thread)
-				message = messagingManager.sendMessage(loggedUser.getUserContext(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
+				message = messagingManager.sendMessage(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
 				initializeThreadData(message.getMessageThread());
 			}
 			else {

@@ -71,7 +71,7 @@ public class DirectMessagesDialog implements Serializable {
 	
 	public void sendMessage() {
 		try {
-			Message message = messagingManager.sendMessage(loggedUser.getUserContext(), receiver.getId(), this.messageContent);
+			Message message = messagingManager.sendMessage(loggedUser.getUserId(), receiver.getId(), this.messageContent);
 			logger.debug("User "+loggedUser.getUserId()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();

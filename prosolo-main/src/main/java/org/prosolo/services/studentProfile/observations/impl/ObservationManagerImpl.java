@@ -107,7 +107,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			result.put("observationId", observation.getId());
 			
 			if (insert && message != null && !message.isEmpty() && context.getActorId() != studentId) {
-				Message msg = msgManager.sendMessage(context, studentId, message);
+				Message msg = msgManager.sendMessage(context.getActorId(), studentId, message);
 				result.put("message", msg);
 			}
 

@@ -723,19 +723,19 @@ public class BusinessCase4_EDX extends BusinessCase {
 			/*
 			 * Sending private messages
 			 */
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userRichardAnderson.getId(), "Hi Richard");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userRichardAnderson.getId(), "Can you help me with a task");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userRichardAnderson.getId()), userKevinHall.getId(), "Sure. What's the problem?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Hi Richard");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Can you help me with a task");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userRichardAnderson.getId(), userKevinHall.getId(), "Sure. What's the problem?");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userAnnaHallowell.getId(), "Hi Anna");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userKevinHall.getId()), userAnnaHallowell.getId(), "Do you have time to help me with something?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Hi Anna");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Do you have time to help me with something?");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userIdaFritz.getId()), userGeorgeYoung.getId(), "Hi George");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userIdaFritz.getId()), userGeorgeYoung.getId(), "Hi Ida");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi George");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi Ida");
 
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userAnnaHallowell.getId()), userPhillAmstrong.getId(), "Hello Phill");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userPhillAmstrong.getId()), userAnnaHallowell.getId(), "Hi");
-			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(UserContextData.ofActor(userPhillAmstrong.getId()), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userAnnaHallowell.getId(), userPhillAmstrong.getId(), "Hello Phill");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Hi");
+			ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
 
 			/*
 			 * User following
