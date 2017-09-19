@@ -92,6 +92,7 @@ public enum ApplicationPage {
 	MANAGER_RUBRIC_EDIT("/manage/rubricEdit.xhtml"),
 	MANAGER_RUBRIC_NEW("/manage/newRubric.xhtml"),
 	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
+	MANAGER_RUBRIC_CATEGORIES("/manage/rubric-categories.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

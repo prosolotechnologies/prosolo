@@ -3,7 +3,6 @@
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:composite="http://java.sun.com/jsf/composite"
-		xmlns:utilcomp="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
@@ -25,7 +24,6 @@
 				 </ui:fragment>
 			 </li>
 			 </ui:remove>
-			 <ui:remove>
 			 <li role="presentation" class="#{page eq 'rubric-categories' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'rubric-categories'}"
 						 outcome="/manage/rubric-categories">
@@ -36,7 +34,6 @@
 					 <a href="javascript:void(0);">Categories &amp; Levels</a>
 				 </ui:fragment>
 			 </li>
-			 </ui:remove>
 			 <li role="presentation" class="#{page eq 'rubric-privacy' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'rubric-privacy'}"
 						 outcome="/manage/rubric-privacy">
