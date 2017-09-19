@@ -8,6 +8,8 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.*;
+import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricUnit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -957,6 +959,119 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user units");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnitData> getUnitsWithRubricSelectionInfo(long organizationId, long rubricId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT u, CASE WHEN r IS NULL THEN false ELSE true END FROM Unit u " +
+                            "LEFT JOIN u.rubricUnits r " +
+                            "WITH r.rubric.id = :rubricId " +
+                            "WHERE u.organization.id = :orgId";
+
+            List<Object[]> res = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setLong("rubricId", rubricId)
+                    .list();
+
+            List<UnitData> units = new ArrayList<>();
+
+            for (Object[] row : res) {
+                Unit u = (Unit) row[0];
+                boolean selected = (boolean) row[1];
+                units.add(new UnitData(u, selected));
+            }
+
+            return getRootUnitsWithSubunits(units);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit data");
+        }
+    }
+
+    @Override
+    //nt
+    public void addRubricToUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addRubricToUnitAndGetEvents(rubricId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addRubricToUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            RubricUnit ru = new RubricUnit();
+            ru.setRubric((Rubric) persistence.currentManager().load(Rubric.class, rubricId));
+            ru.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            saveEntity(ru);
+
+            Rubric rubric = new Rubric();
+            rubric.setId(rubricId);
+            Unit un = new Unit();
+            un.setId(unitId);
+            res.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_RUBRIC_TO_UNIT, context, rubric, un, null, null));
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("Rubric (" + rubricId + ") already added to the unit (" + unitId + ") so it can't be added again");
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error adding the rubric to unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    //nt
+    public void removeRubricFromUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeRubricFromUnitAndGetEvents(rubricId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeRubricFromUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            String query = "DELETE FROM RubricUnit ru " +
+                    "WHERE ru.unit.id = :unitId " +
+                    "AND ru.rubric.id = :rubricId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("rubricId", rubricId)
+                    .executeUpdate();
+
+            logger.info("Number of removed rubrics from a unit: " + affected);
+
+            if (affected > 0) {
+                Rubric rubric = new Rubric();
+                rubric.setId(rubricId);
+                Unit un = new Unit();
+                un.setId(unitId);
+                res.addEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_RUBRIC_FROM_UNIT, context, rubric, un,null, null));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error removing the rubric from unit");
+        }
+
+        return res;
     }
 
 }

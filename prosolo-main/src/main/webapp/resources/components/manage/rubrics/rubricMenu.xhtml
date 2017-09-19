@@ -1,0 +1,52 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+	</composite:interface>
+	
+	<composite:implementation>
+
+		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+		 <ul class="nav nav-tabs headerSubmenu">
+			 <ui:remove>
+			 <li role="presentation" class="#{page eq 'rubricEdit' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'rubricEdit'}"
+						 outcome="/manage/rubricEdit">
+					 <f:param name="id" value="#{param.id}" />
+					 Basic Info
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'rubricEdit'}">
+					 <a href="javascript:void(0);">Basic Info</a>
+				 </ui:fragment>
+			 </li>
+			 </ui:remove>
+			 <ui:remove>
+			 <li role="presentation" class="#{page eq 'rubric-categories' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'rubric-categories'}"
+						 outcome="/manage/rubric-categories">
+					 <f:param name="id" value="#{param.id}" />
+					 Categories &amp; Levels
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'rubric-categories'}">
+					 <a href="javascript:void(0);">Categories &amp; Levels</a>
+				 </ui:fragment>
+			 </li>
+			 </ui:remove>
+			 <li role="presentation" class="#{page eq 'rubric-privacy' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'rubric-privacy'}"
+						 outcome="/manage/rubric-privacy">
+					 <f:param name="id" value="#{param.id}" />
+					 Privacy
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'rubric-privacy'}">
+					 <a href="javascript:void(0);">Privacy</a>
+				 </ui:fragment>
+			 </li>
+		 </ul>
+	</composite:implementation>
+</ui:component>

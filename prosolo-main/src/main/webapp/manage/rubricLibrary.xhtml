@@ -85,7 +85,12 @@
                         <ui:repeat value="#{rubricsBean.rubrics}" var="rubric">
                             <li>
                                 <div class="manageRubricsListLeft">
-                                    <h2><a href="manage-rubric.html">#{rubric.name}</a></h2>
+                                    <h2>
+                                        <h:link outcome="/manage/rubric-privacy">
+                                            #{rubric.name}
+                                            <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
+                                        </h:link>
+                                    </h2>
                                     <div class="rubricsInfo">
                                         <div class="creator">
                                             Creator: <span>#{rubric.creatorFullName}</span>

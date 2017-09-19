@@ -228,6 +228,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/rubrics").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   .antMatchers("/manage/rubrics/new").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   .antMatchers("/manage/rubrics/*/edit").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/privacy").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
