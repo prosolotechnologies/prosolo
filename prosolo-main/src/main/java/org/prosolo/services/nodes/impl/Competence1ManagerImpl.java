@@ -33,6 +33,7 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private ResourceAccessFactory resourceAccessFactory;
 	@Inject private UserDataFactory userDataFactory;
 	@Inject private Competence1Manager self;
+	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
 	@Override
 	//nt
@@ -141,6 +144,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					context.getActorId(), comp.getId(),
 					UserGroupPrivilege.Edit,true, context).getEvents());
 
+			//add competence to all units where competence creator is manager
+			/*
+			TODO observer refactor - when these events are generated exceptions will occur
+			because competence index does not exist yet. This is ok for now, because when competence
+			is indexed units collection in a competence will be indexed too. Also, event generation will
+			be refactored soon to handle these cases.
+			 */
+			result.addEvents(addCompetenceToDefaultUnits(comp.getId(), context));
+
 			logger.info("New competence is created with id " + comp.getId());
 			result.setResult(comp);
 			return result;
@@ -153,6 +165,23 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving competence");
 		}
+	}
+
+	/**
+	 * Connects competence to all units competence creator (context actor) is manager in.
+	 *
+	 * @param compId
+	 * @param context
+	 * @return
+	 */
+	private List<EventData> addCompetenceToDefaultUnits(long compId, UserContextData context) {
+		long roleId = roleManager.getRoleIdsForName(RoleNames.MANAGER).get(0);
+		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), roleId);
+		List<EventData> events = new ArrayList<>();
+		for (long unitId : unitsWithManagerRole) {
+			events.addAll(unitManager.addCompetenceToUnitAndGetEvents(compId, unitId, context).getEvents());
+		}
+		return events;
 	}
 
 	@Override

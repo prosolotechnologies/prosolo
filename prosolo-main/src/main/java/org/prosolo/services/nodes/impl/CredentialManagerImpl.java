@@ -41,6 +41,7 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private UserDataFactory userDataFactory;
 	@Inject
 	private ActivityDataFactory activityDataFactory;
+	@Inject
+	private RoleManager roleManager;
+	@Inject
+	private UnitManager unitManager;
 
 	@Override
 	//nt
@@ -143,6 +148,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					context.getActorId(), cred.getId(),
 					UserGroupPrivilege.Edit, true, context).getEvents());
 
+			//add credential to all units where credential creator is manager
+			/*
+			TODO observer refactor - when these events are generated exceptions will occur
+			because credential index does not exist yet. This is ok for now, because when credential
+			is indexed units collection in a credential will be indexed too. Also, event generation will
+			be refactored soon to handle these cases.
+			 */
+			res.addEvents(addCredentialToDefaultUnits(cred.getId(), context));
+
 			res.setResult(cred);
 
 			logger.info("New credential is created with id " + cred.getId());
@@ -153,6 +167,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
 		}
+	}
+
+	/**
+	 * Connects credential to all units credential creator (context actor) is manager in.
+	 *
+	 * @param credId
+	 * @param context
+	 * @return
+	 */
+	private List<EventData> addCredentialToDefaultUnits(long credId, UserContextData context) {
+		long roleId = roleManager.getRoleIdsForName(RoleNames.MANAGER).get(0);
+		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), roleId);
+		List<EventData> events = new ArrayList<>();
+		for (long unitId : unitsWithManagerRole) {
+			events.addAll(unitManager.addCredentialToUnitAndGetEvents(credId, unitId, context).getEvents());
+		}
+		return events;
 	}
 
 	//non transactional
