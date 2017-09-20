@@ -63,7 +63,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
-			PageUtil.fireErrorMessage("Error while loading assessment data");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
