@@ -1459,7 +1459,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new DbConnectionException("Error while retrieving credential title");
 			}
 	}
-	
+
 //	@Override
 //	@Transactional(readOnly = true)
 //	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
@@ -2062,7 +2062,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				"FROM TargetCredential1 tCred " +
 				"INNER JOIN tCred.user user " +
 				"WHERE tCred.credential.id = :credId " + 
-					"AND user.id != :userId " + 
+					"AND user.id != :userId " +
 					"AND user.id NOT IN ( " +
 						"SELECT assessment.assessor.id " +
 						"FROM CredentialAssessment assessment " +
