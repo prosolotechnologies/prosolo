@@ -34,7 +34,7 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New Rubric"
+                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New #{msg['label.rubric']}"
                                         oncomplete="$('#newRubricModal\\:formNewRubricModal\\:inputTextRubricName').val('');
                                         $('#newRubricModal').modal('show');"
                                         update="newRubricModal:formNewRubricModal">
@@ -119,7 +119,7 @@
                                             <li>
                                                 <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId}">
                                                     <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                                   action="#{rubricsBean.setRubricForDelete(rubric)}"
+                                                                   action="#{deleteRubricBean.setRubricForDelete(rubric)}"
                                                                    oncomplete="$('#deleteModal').modal('show');">
                                                         Delete
                                                     </p:commandLink>
@@ -156,7 +156,7 @@
 
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
-                deleteAction="#{rubricsBean.delete()}"
+                deleteAction="#{deleteRubricBean.delete()}"
                 toUpdate=":panelRubrics"
                 modalDeleteTitle="#{msg['label.rubric']}"
                 modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>

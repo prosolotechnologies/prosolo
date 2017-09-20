@@ -10,6 +10,7 @@ import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.RubricData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -39,6 +40,8 @@ public class RubricsBean implements Serializable, Paginable {
 
     protected static Logger logger = Logger.getLogger(RubricsBean.class);
 
+    private static final String rubricNameTextFieldId = "newRubricModal:formNewRubricModal:inputTextRubricName";
+
     @Inject
     private UrlIdEncoder idEncoder;
     @Inject
@@ -52,7 +55,7 @@ public class RubricsBean implements Serializable, Paginable {
     private PaginationData paginationData = new PaginationData();
     private RubricData rubricToDelete;
     private String searchTerm = "";
-    private RubricData rubricData;
+    private String rubricName = "";
 
     public void init() {
         loadRubrics();
@@ -60,7 +63,6 @@ public class RubricsBean implements Serializable, Paginable {
 
     public void loadRubrics() {
         this.rubrics = new ArrayList<>();
-        this.rubricData = new RubricData();
         try {
             PaginatedResult<RubricData> res = rubricManager.getRubrics(paginationData.getPage() - 1,
                     paginationData.getLimit(), loggedUser.getOrganizationId());
@@ -74,24 +76,21 @@ public class RubricsBean implements Serializable, Paginable {
 
     public void createRubric() {
         try {
-            Rubric rubric = rubricManager.createNewRubric(this.rubricData.getName(), loggedUser.getUserContext());
-
-            this.rubricData.setId(rubric.getId());
+            Rubric rubric = rubricManager.createNewRubric(rubricName, loggedUser.getUserContext());
 
             logger.debug("New Rubric (" + rubric.getTitle() + ")");
 
-            PageUtil.fireSuccessfulInfoMessageAcrossPages( "Rubric has been created");
-            PageUtil.redirect("/manage/rubrics");
+            PageUtil.fireSuccessfulInfoMessageAcrossPages(ResourceBundleUtil.getMessage("label.rubric") + " has been created");
+            loadRubrics();
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();
 
             FacesContext context = FacesContext.getCurrentInstance();
-            UIInput input = (UIInput) context.getViewRoot().findComponent(
-                    "newRubricModal:formNewRubricModal:inputTextRubricName");
+            UIInput input = (UIInput) context.getViewRoot().findComponent(rubricNameTextFieldId);
             input.setValid(false);
             context.addMessage("newRubricModal:formNewRubricModal:inputTextRubricName",
-                    new FacesMessage("Rubric with this name already exists"));
+                    new FacesMessage(ResourceBundleUtil.getMessage("label.rubric") + " with this name already exists"));
             context.validationFailed();
         } catch (Exception e) {
             logger.error(e);
@@ -147,18 +146,17 @@ public class RubricsBean implements Serializable, Paginable {
         this.paginationData.update((int) result.getHitsNumber());
     }
 
+    public String getRubricName() {
+        return rubricName;
+    }
+
+    public void setRubricName(String rubricName) {
+        this.rubricName = rubricName;
+    }
 
     @Override
     public PaginationData getPaginationData() {
         return this.paginationData;
-    }
-
-    public RubricData getRubricData() {
-        return rubricData;
-    }
-
-    public void setRubricData(RubricData rubricData) {
-        this.rubricData = rubricData;
     }
 
     public List<RubricData> getRubrics() {

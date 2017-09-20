@@ -37,15 +37,13 @@ public interface RubricManager extends AbstractManager {
     Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context)
             throws DbConnectionException;
 
-    String getRubricName(long id);
-
     RubricData getOrganizationRubric(long rubricId);
 
     RubricData getRubricData(long rubricId) throws DbConnectionException;
 
-    Rubric updateRubric(long rubricId,String name, UserContextData context) throws
+    void updateRubric(long rubricId,String name, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Rubric> updateRubricAndGetEvents(long rubricId,String name, UserContextData context) throws
-            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
+    Result<Void> updateRubricAndGetEvents(long rubricId,String name, UserContextData context) throws
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 }

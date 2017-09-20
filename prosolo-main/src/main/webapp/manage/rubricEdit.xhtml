@@ -39,17 +39,17 @@
 
         </div>
         <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link outcome="/manage/rubricLibrary" value="#{msg['label.rubric.plural']}"></h:link>
+                </li>
+                <li class="active">
+                    #{rubricEditBean.rubric.name}
+                </li>
+            </ol>
+        </div>
+        <div class="container">
             <div class="row">
-                <div class="container">
-                    <ol class="breadcrumb">
-                        <li>
-                            <h:link outcome="/manage/rubricLibrary" value="Rubrics"></h:link>
-                        </li>
-                        <li class="active">
-                            #{rubricEditBean.rubric.name}
-                        </li>
-                    </ol>
-                </div>
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <h:form id="formMainEditRubric">
@@ -63,7 +63,7 @@
                                                      autocomplete="off"
                                                      autofocus="true"
                                                      required="true"
-                                                     requiredMessage="Rubric name is required"
+                                                     requiredMessage="#{msg['label.rubric']} name is required"
                                                      value="#{rubricEditBean.rubric.name}"
                                                      placeholder="Unit Name">
                                         </h:inputText>
@@ -88,11 +88,11 @@
                                                        value="Save Changes"
                                                        action="#{rubricEditBean.updateRubric()}" update=":formMainEditRubric">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                            <f:param name="learningContext" value="name:update_rubric" />
+                                            <f:param name="learningContext" value="name:rubric|id:#{param.id}" />
                                         </p:commandLink>
                                         <p:defaultCommand target="saveBtn" />
                                         <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                       action="#{rubricsBean.setRubricForDelete(rubricEditBean.rubric)}"
+                                                       action="#{deleteRubricBean.setRubricForDelete(rubricEditBean.rubric)}"
                                                        oncomplete="$('#deleteModal').modal('show');">
                                             Delete
                                         </p:commandLink>
@@ -107,7 +107,7 @@
 
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
-                deleteAction="#{rubricsBean.delete()}"
+                deleteAction="#{deleteRubricBean.delete()}"
                 toUpdate=""
                 modalDeleteTitle="#{msg['label.rubric']}"
                 modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>

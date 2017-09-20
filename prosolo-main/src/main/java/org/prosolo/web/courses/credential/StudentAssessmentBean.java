@@ -42,7 +42,6 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
-
 		try {
 			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
 					searchForPending, searchForApproved));

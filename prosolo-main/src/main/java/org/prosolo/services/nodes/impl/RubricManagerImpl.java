@@ -185,19 +185,6 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    @Transactional
-    public String getRubricName(long id) {
-        Rubric rubric = null;
-        try {
-            rubric = loadResource(Rubric.class, id);
-            return rubric.getTitle();
-        } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public RubricData getOrganizationRubric(long rubricId) {
         String query =
@@ -217,6 +204,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
+    @Transactional
     public RubricData getRubricData(long rubricId) throws DbConnectionException {
         try {
             Rubric rubric = loadResource(Rubric.class, rubricId);
@@ -228,23 +216,23 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public Rubric updateRubric(long rubricId, String name, UserContextData context) throws
+    public void updateRubric(long rubricId, String name, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
-        Result<Rubric> result = self.updateRubricAndGetEvents(rubricId, name, context);
+        Result<Void> result = self.updateRubricAndGetEvents(rubricId, name, context);
         for(EventData eventData : result.getEvents()){
             eventFactory.generateEvent(eventData);
         }
-        return result.getResult();
     }
 
     @Override
-    public Result<Rubric> updateRubricAndGetEvents(long rubricId, String name, UserContextData context) throws
-            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+    @Transactional
+    public Result<Void> updateRubricAndGetEvents(long rubricId, String name, UserContextData context) throws
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
-            Result<Rubric> result = new Result<>();
+            Result<Void> result = new Result<>();
             Rubric rubric = new Rubric();
             rubric.setId(rubricId);
-            rubric.setTitle(name);
+
             Organization organization = (Organization) persistence.currentManager().load(Organization.class,
                     context.getOrganizationId());
             rubric.setOrganization(organization);
@@ -261,7 +249,6 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .executeUpdate();
 
             result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
-            result.setResult(rubric);
 
             return result;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {

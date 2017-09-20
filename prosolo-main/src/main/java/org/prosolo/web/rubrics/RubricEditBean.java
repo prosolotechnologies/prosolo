@@ -8,6 +8,7 @@ import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.RubricData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Bojan Trifkovic
@@ -33,6 +35,8 @@ import java.util.List;
 public class RubricEditBean implements Serializable {
 
     protected static Logger logger = Logger.getLogger(RubricEditBean.class);
+
+    private static final String rubricNameTextFieldId = "formMainEditRubric:inputTextRubricName";
 
     @Inject
     private LoggedUserBean loggedUser;
@@ -48,30 +52,33 @@ public class RubricEditBean implements Serializable {
     public void init() {
         try {
             this.decodedId = idEncoder.decodeId(id);
-            this.rubric = rubricManager.getRubricData(decodedId);
+            if (decodedId > 0) {
+                this.rubric = rubricManager.getRubricData(decodedId);
+                if (this.rubric == null) {
+                    PageUtil.notFound();
+                }
+            } else {
+                PageUtil.notFound();
+            }
         } catch (Exception e) {
             logger.error(e);
-            e.printStackTrace();
+            PageUtil.fireErrorMessage("Error loading the page");
         }
     }
 
-    public void updateRubric(){
+    public void updateRubric() {
         try {
-            rubricManager.updateRubric(this.rubric.getId(),this.rubric.getName(), loggedUser.getUserContext());
+            rubricManager.updateRubric(this.rubric.getId(), this.rubric.getName(), loggedUser.getUserContext());
 
             logger.debug("Rubric (" + this.rubric.getId() + ") updated by the user " + loggedUser.getUserId());
-            PageUtil.fireSuccessfulInfoMessage("The rubric has been updated");
-        }catch (ConstraintViolationException | DataIntegrityViolationException e){
+            PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase() + " has been updated");
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
-            e.printStackTrace();
-
             FacesContext context = FacesContext.getCurrentInstance();
-            UIInput input = (UIInput) context.getViewRoot().findComponent(
-                    "formMainEditRubric:inputTextRubricName");
+            UIInput input = (UIInput) context.getViewRoot().findComponent(rubricNameTextFieldId);
             input.setValid(false);
-            context.addMessage("formMainEditRubric:inputTextRubricName",
-                    new FacesMessage("Rubric with this name already exists") );
-        }catch (Exception e){
+            context.addMessage(rubricNameTextFieldId, new FacesMessage(ResourceBundleUtil.getMessage("label.rubric") + " with this name already exists"));
+        } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error updating the rubric");
         }
