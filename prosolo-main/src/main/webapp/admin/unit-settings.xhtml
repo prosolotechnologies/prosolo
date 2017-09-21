@@ -2,11 +2,11 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
+                xmlns:p="http://primefaces.org/ui" xmlns:utilcomp="http://www.prosolo.com/util"
                 template="templates/masterLayout2.xhtml"
                 xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
 
-    <ui:define name="windowTitle" >Unit details</ui:define>
+    <ui:define name="windowTitle" >Settings</ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
@@ -47,8 +47,14 @@
                                 <f:param name="id" value="#{param.orgId}" />
                             </h:link>
                         </li>
+                        <li>
+                            <h:link outcome="/admin/unit-teachers" value="#{unitEditBean.unit.title}">
+                                <f:param name="orgId" value="#{param.id}" />
+                                <f:param name="id" value="#{param.unitId}" />
+                            </h:link>
+                        </li>
                         <li class="active">
-                            #{unitEditBean.unit.title}
+                            Settings
                         </li>
                     </ol>
                 </div>
@@ -56,7 +62,7 @@
                     <div class="whiteBox">
                         <h:form id="formMainEditUnit">
                             <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-                            <h2>Unit Details</h2>
+                            <h2>Settings</h2>
                             <div class="formWrapper editOrgForm">
                                 <div class="formLine">
                                     <label>Name</label>

@@ -35,13 +35,13 @@
 						 <a href="javascript:void(0);">People</a>
 					 </ui:fragment>
 				 </li>
-				 <li role="presentation" class="#{page eq 'organizationNew' ? 'active' : ''}">
-					 <h:link rendered="#{page ne 'organizationNew'}"
-							 outcome="/admin/organizationNew">
+				 <li role="presentation" class="#{page eq 'organization-settings' ? 'active' : ''}">
+					 <h:link rendered="#{page ne 'organization-settings'}"
+							 outcome="/admin/organization-settings">
 						 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 						 Settings
 					 </h:link>
-					 <ui:fragment rendered="#{page eq 'organizationNew'}">
+					 <ui:fragment rendered="#{page eq 'organization-settings'}">
 						 <a href="javascript:void(0);">Settings</a>
 					 </ui:fragment>
 				 </li>
