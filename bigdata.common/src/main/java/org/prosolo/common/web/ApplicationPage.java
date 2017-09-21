@@ -37,7 +37,7 @@ public enum ApplicationPage {
 	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
 	ADMIN_MESSAGES("/admin/messages.xhtml"),
 	ADMIN_OTHER("/admin/other.xhtml"),
-	ADMIN_UNIT_EDIT("/admin/unitEdit.xhtml"),
+	ADMIN_UNIT_EDIT("/admin/unit-settings.xhtml"),
 	ADMIN_UNITS("/admin/units.xhtml"),
 
 	ROLES1("/admin/roles1.xhtml"),
