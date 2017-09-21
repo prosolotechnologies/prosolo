@@ -13,14 +13,8 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -69,7 +63,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private EventFactory eventFactory;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
-	
+	@Inject private AnnouncementManager announcementManager;
 
 	private String id;
 	private long decodedId;
@@ -87,6 +81,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private List<UserData> peersForAssessment;
 	private String peerSearchTerm;
 	private List<Long> peersToExcludeFromSearch;
+	private int numberOfAnnouncements;
 	
 	private int numberOfTags;
 
@@ -95,7 +90,7 @@ public class CredentialViewBeanUser implements Serializable {
 		if (decodedId > 0) {
 			try {
 				retrieveUserCredentialData();
-				
+				numberOfAnnouncements = announcementManager.numberOfAnnouncementsForCredential(decodedId);
 				/*
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
 				 */
@@ -422,4 +417,7 @@ public class CredentialViewBeanUser implements Serializable {
 		return access;
 	}
 
+	public int getNumberOfAnnouncements() {
+		return numberOfAnnouncements;
+	}
 }

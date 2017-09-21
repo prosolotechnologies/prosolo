@@ -463,4 +463,5 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
 			throws DbConnectionException;
 
+	boolean isUserEnrolled(long credId, long userId);
 }
