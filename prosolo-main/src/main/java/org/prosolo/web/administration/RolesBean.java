@@ -17,8 +17,12 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.CapabilityData;
 import org.prosolo.web.administration.data.RoleData;
@@ -48,11 +52,16 @@ public class RolesBean implements Serializable {
 	private RoleData roleToDelete;
 	
 	private List<CapabilityData> capabilities;
+	private ResourceAccessData access;
 
 	@PostConstruct
 	public void init() {
-		loadRoles();
-		loadCapabilities();
+		if (loggedUser.hasCapability("admin.advanced")) {
+			loadRoles();
+			loadCapabilities();
+		} else {
+			PageUtil.accessDenied();
+		}
 	}
 	
 	public void loadRoles() {

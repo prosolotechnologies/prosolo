@@ -13,16 +13,19 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.services.migration.UTACustomMigrationService;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
 import org.prosolo.web.manage.students.data.observantions.SymptomData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name="otherSettingsBean")
@@ -40,7 +43,9 @@ public class OtherSettingsBean implements Serializable {
 	private SuggestionManager suggestionManager;
 	@Inject
 	private UTACustomMigrationService utaCustomMigrationService;
-	
+	@Inject
+	private LoggedUserBean loggedUser;
+
 	private List<SymptomData> symptoms;
 	private List<SuggestionData> suggestions;
 	
@@ -51,10 +56,14 @@ public class OtherSettingsBean implements Serializable {
 	
 	public void init() {
 		try {
-			newSymptom = new SymptomData();
-			newSuggestion = new SuggestionData();
-			loadSymptoms();
-			loadSuggestions();
+			if (loggedUser.hasCapability("admin.advanced")) {
+				newSymptom = new SymptomData();
+				newSuggestion = new SuggestionData();
+				loadSymptoms();
+				loadSuggestions();
+			} else {
+				PageUtil.accessDenied();
+			}
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

@@ -77,7 +77,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 		return new ArrayList<Role>();
 	}
-	
+
 	@Override
 	public Role createNewRole(String name, String description, boolean systemDefined) {
 		return resourceFactory.createNewRole(
