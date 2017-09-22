@@ -46,6 +46,7 @@ public class CompetenceUserGroup extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public UserGroupPrivilege getPrivilege() {
 		return privilege;
 	}

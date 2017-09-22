@@ -73,7 +73,7 @@ public class Comment1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "resource_type")
+	@Column(name = "resource_type", nullable = false)
 	public CommentedResourceType getResourceType() {
 		return resourceType;
 	}

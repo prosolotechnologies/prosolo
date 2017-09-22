@@ -91,6 +91,7 @@ public class RichContent1 implements Serializable {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public ImageSize getImageSize() {
 		return imageSize;
 	}

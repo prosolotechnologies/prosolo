@@ -1,13 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
@@ -43,6 +36,7 @@ public class CredentialUserGroup extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public UserGroupPrivilege getPrivilege() {
 		return privilege;
 	}
