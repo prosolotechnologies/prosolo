@@ -7,6 +7,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Category;
+import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -19,6 +21,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Bojan Trifkovic
@@ -43,6 +47,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     private EventFactory eventFactory;
     @Inject
     private RubricManager self;
+    @Inject private RubricDataFactory rubricDataFactory;
 
     @Override
     public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
@@ -144,7 +149,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 return new ArrayList<>();
             }
             return result;
-        } catch (DbConnectionException e) {
+        } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while retrieving rubrics");
@@ -228,6 +233,40 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 .setLong("organizationId", organizationId);
 
         return (Long) result.uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, boolean trackChanges)
+            throws DbConnectionException {
+        try {
+            StringBuilder query = new StringBuilder("SELECT r FROM Rubric r ");
+            if (loadCreator) {
+                query.append("INNER JOIN fetch r.creator ");
+            }
+            if (loadItems) {
+                query.append("LEFT JOIN fetch r.categories cat " +
+                             "LEFT JOIN fetch cat.levels " +
+                             "LEFT JOIN fetch r.levels ");
+            }
+            query.append("WHERE r.id = :rubricId");
+
+            Rubric rubric = (Rubric) persistence.currentManager()
+                    .createQuery(query.toString())
+                    .setLong("rubricId", rubricId)
+                    .uniqueResult();
+
+            if (rubric != null) {
+                User creator = loadCreator ? rubric.getCreator() : null;
+                Set<Category> categories = loadItems ? rubric.getCategories() : null;
+                Set<Level> levels = loadItems ? rubric.getLevels() : null;
+                return rubricDataFactory.getRubricData(rubric, creator, categories, levels, trackChanges);
+            }
+            return null;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the rubric data");
+        }
     }
 
 }

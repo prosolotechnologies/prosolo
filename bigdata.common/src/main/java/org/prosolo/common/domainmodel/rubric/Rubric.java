@@ -7,7 +7,9 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Bojan Trifkovic
@@ -21,8 +23,13 @@ public class Rubric extends BaseEntity {
 
     private User creator;
     private Organization organization;
-    private List<Category> categories;
-    private List<Level> levels;
+    private Set<Category> categories;
+    private Set<Level> levels;
+
+    public Rubric() {
+        categories = new HashSet<>();
+        levels = new HashSet<>();
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -44,20 +51,20 @@ public class Rubric extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "rubric", cascade = CascadeType.REMOVE)
-    public List<Level> getLevels() {
+    public Set<Level> getLevels() {
         return levels;
     }
 
-    public void setLevels(List<Level> levels) {
+    public void setLevels(Set<Level> levels) {
         this.levels = levels;
     }
 
     @OneToMany(mappedBy = "rubric", cascade = CascadeType.REMOVE)
-    public List<Category> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 

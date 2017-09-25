@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.rubric;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * @author Bojan Trifkovic
@@ -16,6 +17,8 @@ public class Category extends BaseEntity {
 
     private double points;
     private Rubric rubric;
+    private int order;
+    private Set<CategoryLevel> levels;
 
     @Column(name = "points", nullable = false)
     public double getPoints() {
@@ -33,5 +36,23 @@ public class Category extends BaseEntity {
 
     public void setRubric(Rubric rubric) {
         this.rubric = rubric;
+    }
+
+    @Column(name = "category_order", nullable = false)
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    public Set<CategoryLevel> getLevels() {
+        return levels;
+    }
+
+    public void setLevels(Set<CategoryLevel> levels) {
+        this.levels = levels;
     }
 }

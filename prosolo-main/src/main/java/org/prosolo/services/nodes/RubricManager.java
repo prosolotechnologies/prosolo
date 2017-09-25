@@ -40,4 +40,7 @@ public interface RubricManager extends AbstractManager {
     String getRubricName(long id);
 
     RubricData getOrganizationRubric(long rubricId);
+
+    RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, boolean trackChanges)
+            throws DbConnectionException;
 }

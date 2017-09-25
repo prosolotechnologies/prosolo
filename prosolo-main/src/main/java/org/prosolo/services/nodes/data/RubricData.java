@@ -2,6 +2,13 @@ package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.common.observable.StandardObservable;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Bojan Trifkovic
@@ -9,7 +16,9 @@ import org.prosolo.common.domainmodel.user.User;
  * @since 1.0.0
  */
 
-public class RubricData {
+public class RubricData extends StandardObservable implements Serializable {
+
+    private static final long serialVersionUID = -2193264157221724975L;
 
     private long id;
     private String name;
@@ -17,7 +26,12 @@ public class RubricData {
     private String creatorFullName;
     private long creatorId;
 
+    private List<RubricCategoryData> categories;
+    private List<RubricItemData> levels;
+
     public RubricData() {
+        categories = new ArrayList<>();
+        levels = new ArrayList<>();
     }
 
     public RubricData(Rubric rubric, User creator) {
@@ -28,6 +42,51 @@ public class RubricData {
             this.creatorFullName = creator.getFullName();
         }
         this.creatorId = rubric.getCreator().getId();
+    }
+
+    public void syncLevel(RubricItemData level) {
+        if (!level.isItemSynced()) {
+            for (RubricCategoryData category : categories) {
+                category.addLevel(level,null);
+            }
+            level.setItemSynced(true);
+        }
+    }
+
+    public void syncCategory(RubricCategoryData category) {
+        if (!category.isItemSynced()) {
+            for (RubricItemData level : levels) {
+                category.addLevel(level, null);
+            }
+            category.setItemSynced(true);
+        }
+    }
+
+    public void syncCategoryWithExistingDescriptions(RubricCategoryData category, Map<RubricItemData, String> descriptions) {
+        if (!category.isItemSynced()) {
+            descriptions.forEach((lvl, desc) -> category.addLevel(lvl, desc));
+            category.setItemSynced(true);
+        }
+    }
+
+    public void sortCategories() {
+        sortItems(categories);
+    }
+
+    public void sortLevels() {
+        sortItems(levels);
+    }
+
+    private <T extends RubricItemData> void sortItems(List<T> items) {
+        items.sort(Comparator.comparing(RubricItemData::getOrder));
+    }
+
+    public void addCategory(RubricCategoryData category) {
+        getCategories().add(category);
+    }
+
+    public void addLevel(RubricItemData level) {
+        getLevels().add(level);
     }
 
     public long getId() {
@@ -70,4 +129,11 @@ public class RubricData {
         this.creatorId = creatorId;
     }
 
+    public List<RubricCategoryData> getCategories() {
+        return categories;
+    }
+
+    public List<RubricItemData> getLevels() {
+        return levels;
+    }
 }
