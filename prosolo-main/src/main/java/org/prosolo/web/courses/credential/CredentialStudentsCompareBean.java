@@ -63,16 +63,15 @@ public class CredentialStudentsCompareBean implements Serializable {
                 if (credentialTitle == null || userData == null) {
                     PageUtil.notFound();
                 } else {
-                    ResourceAccessRequirements req = ResourceAccessRequirements
-                            .of(AccessMode.USER);
+                    if (!credentialManager.canUserAccessPage(loggedUser.getUserId(), decodedId).isCanAccess()) {
+                        PageUtil.accessDenied();
+                    } else {
+                        this.credentialData = credentialManager
+                                .getTargetCredentialData(decodedId, loggedUser.getUserId(), true);
 
-                    RestrictedAccessResult<CredentialData> res = credentialManager
-                            .getCredentialData(decodedId, false, true, loggedUser.getUserId(), req);
-                    this.credentialData = res.getResource();
-
-                    RestrictedAccessResult<CredentialData> res1 = credentialManager
-                            .getCredentialData(decodedId, false, true, decodedStudentId, req);
-                    this.credentialDataStudent = res1.getResource();
+                        this.credentialDataStudent = credentialManager
+                                .getTargetCredentialData(decodedId, decodedStudentId, true);
+                    }
                 }
             } catch (Exception e) {
                 PageUtil.fireErrorMessage(e.getMessage());

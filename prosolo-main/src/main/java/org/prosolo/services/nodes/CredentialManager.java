@@ -297,6 +297,8 @@ public interface CredentialManager extends AbstractManager {
 //			boolean loadCompetences, Mode mode) throws DbConnectionException;
 	
 	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
+
+	ResourceAccessData canUserAccessPage(long userId, long credentialId);
 	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
 	
