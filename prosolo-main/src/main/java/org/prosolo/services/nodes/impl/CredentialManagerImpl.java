@@ -325,14 +325,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			/* if user is aleardy learning credential, he doesn't need any of the privileges;
 			 * we just need to determine which privileges he has (can he edit or instruct a competence)
 			 */
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-			ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
-			return RestrictedAccessResult.of(credData, access);
+
+			return RestrictedAccessResult.of(credData, canUserAccessPage(userId, credentialId));
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential data");
 		}
+	}
+
+	private ResourceAccessData canUserAccessPage(long userId, long credentialId) {
+		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
+		ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
+		return access;
 	}
 
 	@Override
@@ -432,7 +437,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (req.getAccessMode() == AccessMode.USER) {
-					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
+					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, true));
 				} else {
 					/*
 					 * always include not published competences
