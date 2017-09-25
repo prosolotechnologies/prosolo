@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:util="http://www.prosolo.com/util"
                 template="templates/masterLayout2.xhtml"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
@@ -23,7 +24,7 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>Rubric Name</h1>
+        <h1>#{rubricEditBean.rubric.name}</h1>
     </ui:define>
 
     <ui:define name="navLinks">
@@ -88,7 +89,7 @@
                                                        value="Save Changes"
                                                        action="#{rubricEditBean.updateRubric()}" update=":formMainEditRubric">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                            <f:param name="learningContext" value="name:rubric|id:#{param.id}" />
+                                            <f:param name="learningContext" value="name:rubric|id:#{util:decodeId(param.unitId)}" />
                                         </p:commandLink>
                                         <p:defaultCommand target="saveBtn" />
                                         <p:commandLink styleClass="linkRed" pt:data-toggle="modal"

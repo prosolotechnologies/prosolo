@@ -80,7 +80,7 @@ public class RubricEditBean implements Serializable {
             context.addMessage(rubricNameTextFieldId, new FacesMessage(ResourceBundleUtil.getMessage("label.rubric") + " with this name already exists"));
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error updating the rubric");
+            PageUtil.fireErrorMessage("Error updating the " + ResourceBundleUtil.getMessage("label.rubric"));
         }
     }
 

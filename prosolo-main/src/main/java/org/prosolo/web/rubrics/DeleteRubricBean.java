@@ -29,13 +29,9 @@ public class DeleteRubricBean implements Serializable {
     protected static Logger logger = Logger.getLogger(DeleteRubricBean.class);
 
     @Inject
-    private UrlIdEncoder idEncoder;
-    @Inject
     private RubricManager rubricManager;
     @Inject
     private LoggedUserBean loggedUser;
-    @Inject
-    private RubricTextSearch rubricTextSearch;
 
     private RubricData rubricToDelete;
 

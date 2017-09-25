@@ -53,7 +53,6 @@ public class RubricsBean implements Serializable, Paginable {
 
     private List<RubricData> rubrics;
     private PaginationData paginationData = new PaginationData();
-    private RubricData rubricToDelete;
     private String searchTerm = "";
     private String rubricName = "";
 
@@ -80,7 +79,7 @@ public class RubricsBean implements Serializable, Paginable {
 
             logger.debug("New Rubric (" + rubric.getTitle() + ")");
 
-            PageUtil.fireSuccessfulInfoMessageAcrossPages(ResourceBundleUtil.getMessage("label.rubric") + " has been created");
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.rubric") + " has been created");
             loadRubrics();
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
@@ -89,12 +88,12 @@ public class RubricsBean implements Serializable, Paginable {
             FacesContext context = FacesContext.getCurrentInstance();
             UIInput input = (UIInput) context.getViewRoot().findComponent(rubricNameTextFieldId);
             input.setValid(false);
-            context.addMessage("newRubricModal:formNewRubricModal:inputTextRubricName",
+            context.addMessage(rubricNameTextFieldId,
                     new FacesMessage(ResourceBundleUtil.getMessage("label.rubric") + " with this name already exists"));
             context.validationFailed();
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error creating a rubric");
+            PageUtil.fireErrorMessage("Error creating a " + ResourceBundleUtil.getMessage("label.rubric"));
         }
     }
 
@@ -103,25 +102,6 @@ public class RubricsBean implements Serializable, Paginable {
         if (this.paginationData.getPage() != page) {
             this.paginationData.setPage(page);
             searchRubrics();
-        }
-    }
-
-    public void setRubricForDelete(RubricData rubric) {
-        this.rubricToDelete = rubric;
-        searchTerm = "";
-    }
-
-    public void delete() {
-        if (rubricToDelete != null) {
-            try {
-                rubricManager.deleteRubric(this.rubricToDelete.getId(), loggedUser.getUserContext());
-
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric " + rubricToDelete.getName() + " has been deleted");
-                PageUtil.redirect("/manage/rubrics");
-            } catch (Exception ex) {
-                logger.error(ex);
-                PageUtil.fireErrorMessage("Error deleting the rubric");
-            }
         }
     }
 

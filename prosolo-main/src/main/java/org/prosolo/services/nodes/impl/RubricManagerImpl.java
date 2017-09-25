@@ -204,7 +204,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public RubricData getRubricData(long rubricId) throws DbConnectionException {
         try {
             Rubric rubric = loadResource(Rubric.class, rubricId);
@@ -230,12 +230,6 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Void> result = new Result<>();
-            Rubric rubric = new Rubric();
-            rubric.setId(rubricId);
-
-            Organization organization = (Organization) persistence.currentManager().load(Organization.class,
-                    context.getOrganizationId());
-            rubric.setOrganization(organization);
 
             String query =
                     "UPDATE Rubric rubric " +
@@ -248,6 +242,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .setLong("rubricId", rubricId)
                     .executeUpdate();
 
+            Rubric rubric = new Rubric();
+            rubric.setId(rubricId);
             result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
 
             return result;
