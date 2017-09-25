@@ -29,7 +29,7 @@ public enum ApplicationPage {
 	USER_ADMINISTRATION("/admin/users.xhtml"),
 	USER_ADMINISTRATION1("/admin/users1.xhtml"),
 	ADMIN_ADMINISTRATION("/admin/adminAdmins.xhtml"),
-	ADMIN_EDIT_ORGANIZATION("/admin/adminOrganizationNew.xhtml"),
+	ADMIN_EDIT_ORGANIZATION("/admin/organization-settings.xhtml"),
 	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
 	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
 	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
