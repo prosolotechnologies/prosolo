@@ -21,6 +21,7 @@ import scala.collection.JavaConverters._
   * zoran 15/12/15
   */
 object UserProfileClusteringManager {
+
   val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
   val endDate: Date=new Date

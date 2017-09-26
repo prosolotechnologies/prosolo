@@ -9,9 +9,9 @@ import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
 import org.prosolo.bigdata.scala.clustering.userprofiling._
-import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.{ProblemSeverity,  SparkJob}
 import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
-import scala.collection.mutable.{ArrayBuffer, Buffer, HashMap, Iterable, ListBuffer, Map}
+import scala.collection.mutable.{ Iterable}
 
 
 /**

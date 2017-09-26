@@ -1,18 +1,22 @@
 package org.prosolo.bigdata.scala.feeds
 
-import java.util.{Calendar,Date}
+import java.util.{Calendar, Date}
+
 import org.slf4j.LoggerFactory
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 import org.prosolo.bigdata.feeds.impl.FeedsAgregatorImpl
 import org.prosolo.bigdata.feeds.FeedsAgregator
+
 import scala.collection.mutable.Buffer
 import org.apache.spark.rdd.RDD
+
 import scala.collection.JavaConverters._
 import org.hibernate.Session
 import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl
 import java.time.LocalDateTime
 import java.time.DayOfWeek
+
 import org.apache.spark.Accumulator
 import org.prosolo.common.util.date.DateUtil
 
@@ -27,7 +31,7 @@ object DigestManager1 {
     val createWeeklyDigest = ldt.getDayOfWeek == DayOfWeek.MONDAY
     val diggestGeneratorDAO=new DiggestGeneratorDAOImpl
     val courseDAO = new CourseDAOImpl(false)
-    val sc=SparkContextLoader.getSC
+    val sc=SparkManager.sparkContextLoader.getSC
      
     val credIds:java.util.List[java.lang.Long] = courseDAO.getAllCredentialIds
     val credIdsScala:Seq[java.lang.Long]=credIds.asScala.toSeq
