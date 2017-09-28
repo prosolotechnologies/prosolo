@@ -112,19 +112,6 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
 			throws DbConnectionException;
 	
-//	/** Returns credential data for edit. If there is a draft version for a credential
-//	 *  that version data will be returned
-//	 *  
-//	 *  @param credentialId id of a credential
-//	 *  @param creatorId id of a user that will get credential data so
-//	 *  we can check if he is a creator of a credential and he can
-//	 *  edit it
-//	 *  @param loadCompetences if true credential competences data will be 
-//	 *  loaded too
-//	 */
-//	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
-//			throws DbConnectionException;
-	
 	Credential1 updateCredential(CredentialData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
@@ -214,17 +201,6 @@ public interface CredentialManager extends AbstractManager {
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
 	
 	/**
-	 * Returns draft version of credential if exists, otherwise original version is returned.
-	 * @param credentialId
-	 * @param loadCreator
-	 * @param loadCompetences
-	 * @return
-	 * @throws DbConnectionException
-	 */
-//	CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
-//			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
-	
-	/**
 	 * Method for getting all credentials (nevertheless the progress)
 	 * 
 	 * @param userId
@@ -270,21 +246,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
 			throws DbConnectionException;
-	
-//	/**
-//	 * Returns current version of credential for edit if edit mode - draft version if exists
-//	 * but only if credential is university based, otherwise null is returned.
-//	 * If view mode, again draft version is returned if exists and credential is university based, 
-//	 * otherwise published version is returned.
-//	 * @param credentialId
-//	 * @param loadCreator
-//	 * @param loadCompetences
-//	 * @param mode
-//	 * @return
-//	 * @throws DbConnectionException
-//	 */
-//	CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
-//			boolean loadCompetences, Mode mode) throws DbConnectionException;
 	
 	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
