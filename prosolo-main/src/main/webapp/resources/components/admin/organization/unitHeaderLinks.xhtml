@@ -27,17 +27,6 @@
 					 <a href="javascript:void(0);">#{msg['label.credential.plural']}</a>
 				 </ui:fragment>
 			 </li>
-			 <li role="presentation" class="#{page eq 'unitEdit' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'unitEdit'}"
-						 outcome="/admin/unitEdit">
-					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
-					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Unit Details
-				 </h:link>
-				 <ui:fragment rendered="#{page eq 'unitEdit'}">
-					 <a href="javascript:void(0);">Unit Details</a>
-				 </ui:fragment>
-			 </li>
 			 <li role="presentation" class="#{page eq 'unit-teachers' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'unit-teachers'}"
 					 outcome="/admin/unit-teachers">
