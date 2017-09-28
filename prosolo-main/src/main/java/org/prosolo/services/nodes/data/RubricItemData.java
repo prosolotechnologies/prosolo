@@ -49,11 +49,13 @@ public class RubricItemData extends StandardObservable implements Serializable {
 
 	public void setName(String name) {
 		observeAttributeChange("name", this.name, name);
-		this.name = name;
-		if (isNameChanged()) {
-			setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
-		} else if (!hasObjectChanged()) {
-			setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+		this.name = name.trim();
+		if (listenChanges) {
+			if (isNameChanged()) {
+				setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
+			} else if (!hasObjectChanged()) {
+				setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+			}
 		}
 	}
 
@@ -64,10 +66,12 @@ public class RubricItemData extends StandardObservable implements Serializable {
 	public void setPoints(double points) {
 		observeAttributeChange("points", this.points, points);
 		this.points = points;
-		if (arePointsChanged()) {
-			setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
-		} else if (!hasObjectChanged()) {
-			setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+		if (listenChanges) {
+			if (arePointsChanged()) {
+				setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
+			} else if (!hasObjectChanged()) {
+				setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+			}
 		}
 	}
 
@@ -78,10 +82,12 @@ public class RubricItemData extends StandardObservable implements Serializable {
 	public void setOrder(int order) {
 		observeAttributeChange("order", this.order, order);
 		this.order = order;
-		if (isOrderChanged()) {
-			setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
-		} else if (!hasObjectChanged()) {
-			setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+		if (listenChanges) {
+			if (isOrderChanged()) {
+				setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
+			} else if (!hasObjectChanged()) {
+				setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+			}
 		}
 	}
 

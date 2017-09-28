@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.Category;
+import org.prosolo.common.domainmodel.rubric.CategoryLevel;
 import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
@@ -20,7 +21,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -237,7 +238,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, boolean trackChanges)
+    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
             throws DbConnectionException {
         try {
             StringBuilder query = new StringBuilder("SELECT r FROM Rubric r ");
@@ -249,12 +250,21 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                              "LEFT JOIN fetch cat.levels " +
                              "LEFT JOIN fetch r.levels ");
             }
-            query.append("WHERE r.id = :rubricId");
+            query.append("WHERE r.id = :rubricId ");
 
-            Rubric rubric = (Rubric) persistence.currentManager()
+            if (userId > 0) {
+                query.append("AND r.creator.id = :userId");
+            }
+
+            Query q = persistence.currentManager()
                     .createQuery(query.toString())
-                    .setLong("rubricId", rubricId)
-                    .uniqueResult();
+                    .setLong("rubricId", rubricId);
+
+            if (userId > 0) {
+                q.setLong("userId", userId);
+            }
+
+            Rubric rubric = (Rubric) q.uniqueResult();
 
             if (rubric != null) {
                 User creator = loadCreator ? rubric.getCreator() : null;
@@ -266,6 +276,119 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void saveRubricCategoriesAndLevels(RubricData rubric) throws DbConnectionException {
+        try {
+            //TODO add check here if rubric can be fully edited or limited edit only is allowed
+            /*
+            that means we should hold the exclusive lock for rubric here and in activity create and
+            activity update methods where rubric is added to activity and then after lock is acquired,
+            we can safely check if there is an activity connected to rubric and determine which edit
+            mode we have
+             */
+            Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId());
+            Level lvl;
+            for (RubricItemData level : rubric.getLevels()) {
+                switch (level.getStatus()) {
+                    case CREATED:
+                        lvl = new Level();
+                        lvl.setTitle(level.getName());
+                        lvl.setPoints(level.getPoints());
+                        lvl.setOrder(level.getOrder());
+                        lvl.setRubric(rub);
+                        saveEntity(lvl);
+                        level.setId(lvl.getId());
+                        break;
+                    case CHANGED:
+                       lvl = (Level) persistence.currentManager().load(Level.class, level.getId());
+                       lvl.setTitle(level.getName());
+                       lvl.setPoints(level.getPoints());
+                       lvl.setOrder(level.getOrder());
+                       break;
+                    case REMOVED:
+                        deleteById(Level.class, level.getId(), persistence.currentManager());
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            Category cat;
+            for (RubricCategoryData category : rubric.getCategories()) {
+                switch (category.getStatus()) {
+                    case CREATED:
+                        cat = new Category();
+                        cat.setTitle(category.getName());
+                        cat.setPoints(category.getPoints());
+                        cat.setOrder(category.getOrder());
+                        cat.setRubric(rub);
+                        saveEntity(cat);
+                        category.setId(cat.getId());
+                        break;
+                    case CHANGED:
+                        cat = (Category) persistence.currentManager().load(Category.class, category.getId());
+                        cat.setTitle(category.getName());
+                        cat.setPoints(category.getPoints());
+                        cat.setOrder(category.getOrder());
+                        break;
+                    case REMOVED:
+                        deleteById(Category.class, category.getId(), persistence.currentManager());
+                        break;
+                    default:
+                        break;
+                }
+
+                if (category.getStatus() != ObjectStatus.REMOVED) {
+                    rubric.getLevels().stream()
+                            .filter(level -> level.getStatus() != ObjectStatus.REMOVED)
+                            .forEach(level -> {
+                                /*
+                                if either category or level is just created, the description should be created,
+                                otherwise it exists and it should be updated if it is changed except when category
+                                or level is removed in which case description should not be touched.
+                                 */
+                                //if level or category is new, create description
+                                if (category.getStatus() == ObjectStatus.CREATED || level.getStatus() == ObjectStatus.CREATED) {
+                                    CategoryLevel cl = new CategoryLevel();
+                                    cl.setCategory((Category) persistence.currentManager().load(Category.class, category.getId()));
+                                    cl.setLevel((Level) persistence.currentManager().load(Level.class, level.getId()));
+                                    cl.setDescription(category.getLevels().get(level).getDescription());
+                                    saveEntity(cl);
+                                } else {
+                                    //if category and level are not new nor deleted update description if it has changed
+                                    RubricItemDescriptionData desc = category.getLevels().get(level);
+                                    if (desc.hasObjectChanged()) {
+                                        String query = "UPDATE CategoryLevel cl SET cl.description = :description " +
+                                                       "WHERE cl.category.id = :categoryId AND cl.level.id = :levelId";
+                                        persistence.currentManager()
+                                                .createQuery(query)
+                                                .setLong("categoryId", category.getId())
+                                                .setLong("levelId", level.getId())
+                                                .setString("description", category.getLevels().get(level).getDescription())
+                                                .executeUpdate();
+                                    }
+                                }
+                            });
+                }
+            }
+            /*
+            flush and clear are called to first flush all changes and than clear session cache so other queries
+            after this one (in the same request) do not return stale data - which in our use case happens
+             */
+            /*
+            TODO see if this is needed after OSIV is no longer used - that will depend on implementation that replaces OSIV
+            if session per transaction is used, these two lines can be removed, but if session per client request is used
+            these two lines would still be necessary
+             */
+            persistence.currentManager().flush();
+            persistence.currentManager().clear();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error saving the rubric data");
         }
     }
 

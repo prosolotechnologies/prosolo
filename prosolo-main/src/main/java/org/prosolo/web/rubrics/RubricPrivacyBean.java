@@ -8,6 +8,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.data.RubricData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -49,8 +50,10 @@ public class RubricPrivacyBean implements Serializable {
 		decodedRubricId = idEncoder.decodeId(rubricId);
 		if (decodedRubricId > 0) {
 			try {
-				rubricName = rubricManager.getRubricName(decodedRubricId);
-				if (rubricName != null) {
+				RubricData rd = rubricManager.getRubricData(decodedRubricId, false, false,
+						loggedUserBean.getUserId(), false);
+				if (rd != null) {
+					rubricName = rd.getName();
 					loadData();
 				} else {
 					PageUtil.notFound();

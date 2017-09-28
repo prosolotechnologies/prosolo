@@ -15,10 +15,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @ManagedBean(name = "rubricCategoriesBean")
 @Component("rubricCategoriesBean")
@@ -37,22 +34,14 @@ public class RubricCategoriesBean implements Serializable {
 	private long decodedRubricId;
 
 	private RubricData rubric;
-	private List<RubricCategoryData> categories;
-	private List<RubricItemData> levels;
-
-	private UIInput inputCategoryPoints;
+	private List<RubricCategoryData> categoriesToRemove;
+	private List<RubricItemData> levelsToRemove;
 
 	public void init() {
 		decodedRubricId = idEncoder.decodeId(rubricId);
 		if (decodedRubricId > 0) {
 			try {
-				rubric = rubricManager.getRubricData(decodedRubricId, false, true, true);
-				if (rubric == null) {
-					PageUtil.notFound();
-				} else {
-					categories = new ArrayList<>(rubric.getCategories());
-					levels = new ArrayList<>(rubric.getLevels());
-				}
+				initData();
 			} catch (Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the page");
@@ -62,124 +51,138 @@ public class RubricCategoriesBean implements Serializable {
 		}
 	}
 
-	public void saveCategories() {
-		/*
-		equality check for doubles would not always work because of the way doubles are stored.
-		Instead, error tolearance is used and it is 0.01 because user is allowed to enter two decimals
-		so if he makes a mistake it will be by at least 0.01
-		 */
-		double tolerance = 0.01;
-		double sum = categories
-				.stream().filter(c -> c.getStatus() != ObjectStatus.REMOVED)
-				.mapToDouble(c -> c.getPoints())
-				.sum();
-		if (Math.abs(sum - 100) > tolerance) {
-			inputCategoryPoints.setValid(false);
-			FacesContext.getCurrentInstance().addMessage(inputCategoryPoints.getClientId(),
-					new FacesMessage("Sum of category points must always be 100"));
-		} else {
-			rubric.getCategories().clear();
-			int order = 1;
-			for (RubricCategoryData cat : categories) {
-				if (cat.getStatus() != ObjectStatus.REMOVED) {
-					cat.setOrder(order);
-					order++;
-					//sync category with levels if not already synced
-					rubric.syncCategory(cat);
-				}
-				rubric.getCategories().add(cat);
-			}
+	private void initData() {
+		categoriesToRemove = new ArrayList<>();
+		levelsToRemove = new ArrayList<>();
+		rubric = rubricManager.getRubricData(decodedRubricId, false, true, loggedUserBean.getUserId(),true);
+		if (rubric == null) {
+			PageUtil.notFound();
 		}
 	}
 
-	public void saveLevels() {
-		rubric.getLevels().clear();
-		int order = 1;
-		for (RubricItemData lvl : levels) {
-			if (lvl.getStatus() != ObjectStatus.REMOVED) {
-				lvl.setOrder(order);
-				order++;
-				//sync level with categories if not already synced
-				rubric.syncLevel(lvl);
-			}
-			rubric.getLevels().add(lvl);
-		}
+	public boolean isLimitedEdit() {
+		//TODO when rubric is connected to activity return to this
+		return false;
 	}
 
 	public void moveCategoryDown(int index) {
-		Collections.swap(categories, index, index + 1);
+		moveItemDown(index, rubric.getCategories());
 	}
 
 	public void moveCategoryUp(int index) {
-		Collections.swap(categories,index -1, index);
+		moveItemDown(index - 1, rubric.getCategories());
 	}
 
 	public void moveLevelDown(int index) {
-		Collections.swap(levels, index, index + 1);
+		moveItemDown(index, rubric.getLevels());
 	}
 
 	public void moveLevelUp(int index) {
-		Collections.swap(levels,index -1, index);
+		moveItemDown(index - 1, rubric.getLevels());
 	}
 
-	public void removeCategory(RubricCategoryData category) {
-		removeItem(category, categories);
+	public <T extends RubricItemData> void moveItemDown(int i, List<T> items) {
+		T it1 = items.get(i);
+		it1.setOrder(it1.getOrder() + 1);
+		T it2 = items.get(i + 1);
+		it2.setOrder(it2.getOrder() - 1);
+		Collections.swap(items, i, i + 1);
 	}
 
-	public void removeLevel(RubricItemData level) {
-		removeItem(level, levels);
+	public void removeCategory(int index) {
+		removeItem(index, rubric.getCategories(), categoriesToRemove);
 	}
 
-	private <T extends RubricItemData> void removeItem(T item, List<T> items) {
+	public void removeLevel(int index) {
+		removeItem(index, rubric.getLevels(), levelsToRemove);
+	}
+
+	private <T extends RubricItemData> void removeItem(int index, List<T> items, List<T> itemsToRemove) {
+		T item = items.remove(index);
 		item.setStatus(ObjectStatusTransitions.removeTransition(item.getStatus()));
-		//if status is not ObjectStatus.REMOVED this item was not persisted so it can be removed from collection
-		if(item.getStatus() != ObjectStatus.REMOVED) {
-			items.remove(item);
+		if (item.getStatus() == ObjectStatus.REMOVED) {
+			itemsToRemove.add(item);
+		}
+		shiftOrderOfItemsUp(index, items);
+	}
+
+	private <T extends RubricItemData> void shiftOrderOfItemsUp(int index, List<T> items) {
+		int size = items.size();
+		for(int i = index; i < size; i++) {
+			T item = items.get(i);
+			item.setOrder(item.getOrder() - 1);
 		}
 	}
 
 	public void addEmptyCategory() {
-		categories.add(new RubricCategoryData(ObjectStatus.CREATED));
+		RubricCategoryData category = new RubricCategoryData(ObjectStatus.CREATED);
+		addEmptyItem(category, rubric.getCategories());
+		rubric.syncCategory(category);
 	}
 
 	public void addEmptyLevel() {
-		levels.add(new RubricItemData(ObjectStatus.CREATED));
+		RubricItemData level = new RubricItemData(ObjectStatus.CREATED);
+		addEmptyItem(level, rubric.getLevels());
+		rubric.syncLevel(level);
 	}
 
-	public boolean isFirstCategory(RubricCategoryData category) {
-		return isFirstItem(category, categories);
+	public <T extends RubricItemData> void addEmptyItem(T item, List<T> items) {
+		item.setOrder(items.size() + 1);
+		items.add(item);
 	}
 
-	public boolean isLastCategory(RubricCategoryData category) {
-		return isLastItem(category, categories);
+	public boolean isLastCategory(int index) {
+		return isLastItem(index, rubric.getCategories());
 	}
 
-	public boolean isFirstLevel(RubricItemData level) {
-		return isFirstItem(level, levels);
+	public boolean isLastLevel(int index) {
+		return isLastItem(index, rubric.getLevels());
 	}
 
-	public boolean isLastLevel(RubricItemData level) {
-		return isLastItem(level, levels);
+
+	private <T extends RubricItemData> boolean isLastItem(int index, List<T> items) {
+		return items.size() == index + 1;
 	}
 
-	private <T extends RubricItemData> boolean isFirstItem(T item, List<T> items) {
-		//find first not removed item
-		Optional<T> it = items.stream().filter(i -> i.getStatus() != ObjectStatus.REMOVED).findFirst();
-		if (it.isPresent()) {
-			return it.get().equals(item);
-		}
-		return false;
-	}
+	/*
+	ACTIONS
+	 */
 
-	private <T extends RubricItemData> boolean isLastItem(T item, List<T> items) {
-		//find last not removed item
-		for (int i = items.size() - 1; i >= 0; i--) {
-			T it = items.get(i);
-			if (it.getStatus() != ObjectStatus.REMOVED) {
-				return it.equals(item);
+	public void saveRubric() {
+		//add removed categories and levels
+		rubric.getCategories().addAll(categoriesToRemove);
+		rubric.getLevels().addAll(levelsToRemove);
+
+		//save rubric data
+		try {
+			rubricManager.saveRubricCategoriesAndLevels(rubric);
+			PageUtil.fireSuccessfulInfoMessage("Rubric saved");
+			try {
+				initData();
+			} catch (Exception e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error reloading the rubric data. Please refresh the page.");
 			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			//remove previously added removed categories and levels to avoid errors if user tries to save again
+			Iterator<RubricCategoryData> categoryIt = rubric.getCategories().iterator();
+			while (categoryIt.hasNext()) {
+				RubricCategoryData cat = categoryIt.next();
+				if (cat.getStatus() == ObjectStatus.REMOVED) {
+					categoryIt.remove();
+				}
+			}
+
+			Iterator<RubricItemData> levelIt = rubric.getLevels().iterator();
+			while (levelIt.hasNext()) {
+				RubricItemData lvl = levelIt.next();
+				if (lvl.getStatus() == ObjectStatus.REMOVED) {
+					levelIt.remove();
+				}
+			}
+			PageUtil.fireErrorMessage("Error saving the rubric");
 		}
-		return false;
 	}
 
 	public String getRubricId() {
@@ -194,19 +197,5 @@ public class RubricCategoriesBean implements Serializable {
 		return rubric;
 	}
 
-	public List<RubricCategoryData> getCategories() {
-		return categories;
-	}
 
-	public List<RubricItemData> getLevels() {
-		return levels;
-	}
-
-	public UIInput getInputCategoryPoints() {
-		return inputCategoryPoints;
-	}
-
-	public void setInputCategoryPoints(UIInput inputCategoryPoints) {
-		this.inputCategoryPoints = inputCategoryPoints;
-	}
 }

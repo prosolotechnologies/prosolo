@@ -41,6 +41,20 @@ public interface RubricManager extends AbstractManager {
 
     RubricData getOrganizationRubric(long rubricId);
 
-    RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, boolean trackChanges)
+    /**
+     * Returns rubric data.
+     *
+     *
+     * @param rubricId
+     * @param loadCreator
+     * @param loadItems
+     * @param userId - if greater than 0, rubric data is returned only if id of a rubric creator equals this parameter value
+     * @param trackChanges
+     * @return
+     * @throws DbConnectionException
+     */
+    RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
             throws DbConnectionException;
+
+    void saveRubricCategoriesAndLevels(RubricData rubric) throws DbConnectionException;
 }
