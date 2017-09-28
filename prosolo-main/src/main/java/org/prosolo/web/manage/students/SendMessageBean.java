@@ -47,7 +47,7 @@ public class SendMessageBean implements Serializable {
 	public void sendMessage(long receiverId, String receiverFullName) {
 		if(receiverId != loggedUserBean.getUserId()) {
 			try {
-				Message message = messagingManager.sendMessage(loggedUserBean.getUserContext(),
+				Message message = messagingManager.sendMessage(loggedUserBean.getUserId(),
 						receiverId, this.message);
 				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to " + receiverId +
 						" with content: '"+message+"'");

@@ -314,7 +314,8 @@
 									onkeyup="searchListener(execSearchUsers);"
 									value="#{searchPeopleBean.query}" 
 									id="messageRecievingUserName"
-									name="messageRecievingUserName" />
+									name="messageRecievingUserName"
+									autocomplete="off"/>
 								
 								<p:remoteCommand 
 									name="execSearchUsers" 
@@ -342,7 +343,7 @@
 															value="#{user.avatarUrl}"
 															styleClass="img-circle media-object" width="32"
 															height="32" alt="#{user.commaSeparatedFullName}" />
-														<h3>#{user.commaSeparatedFullName}</h3>
+														<h3>#{user.name}</h3>
 													</a>
 												</li>
 											</ui:repeat>

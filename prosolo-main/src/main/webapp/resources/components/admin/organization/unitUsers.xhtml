@@ -55,7 +55,7 @@
 			<ol class="breadcrumb">
 				<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 				<li>
-					<h:link outcome="/admin/organizationNew">
+					<h:link outcome="/admin/units">
 						#{unitUsersBean.organizationTitle}
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
@@ -69,8 +69,8 @@
 				<li>
 					<h:link outcome="/admin/unit-credentials">
 						#{unitUsersBean.unitTitle}
-						<f:param name="id" value="#{param.orgId}" />
-						<f:param name="unitId" value="#{param.id}" />
+						<f:param name="orgId" value="#{param.orgId}" />
+						<f:param name="id" value="#{param.id}" />
 					</h:link>
 				</li>
 				<li class="active">#{util:capitalizeWord(cc.attrs.resourcePlural)}</li>

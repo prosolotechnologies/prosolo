@@ -153,7 +153,9 @@
 
 					<div class="whiteBarRight">
 						<h:panelGroup rendered="#{cc.attrs.bean.fullAssessmentData.mandatoryFlow}" styleClass="mandatoryTag item" layout="block"/>
-						<div class="duration item">#{cc.attrs.bean.fullAssessmentData.durationString}</div>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.durationString ne null}">
+							<div class="duration item">#{cc.attrs.bean.fullAssessmentData.durationString}</div>
+						</ui:fragment>
 					</div>
 				</div>
 			</div>
@@ -318,7 +320,7 @@
 																	title="#{(not cc.attrs.bean.isCurrentUserAssessor())
 																			? 'Only assessor can update the grade'
 																			: not activityAssessment.completed
-																				? 'Not completed activity can not be graded'
+																				? 'Uncompleted activity can not be graded'
 																				: 'Points are not set for this activity'}">
 																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
 																#{activityAssessment.grade.maxGrade}

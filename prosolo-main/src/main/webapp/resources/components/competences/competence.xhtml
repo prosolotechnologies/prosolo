@@ -115,7 +115,9 @@
 
 						</div>
 						<div class="whiteBarRight">
-							<div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
+							<ui:fragment rendered="#{cc.attrs.bean.competenceData.durationString ne null}">
+								<div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
+							</ui:fragment>
 							<h:link
 									rendered="#{canEdit}"
 									value="Edit #{msg['label.competence']}"

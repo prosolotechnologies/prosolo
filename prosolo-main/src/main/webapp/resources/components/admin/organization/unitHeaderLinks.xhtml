@@ -82,6 +82,17 @@
 					 <a href="javascript:void(0);">Student Groups</a>
 				 </ui:fragment>
 			 </li>
+			 <li role="presentation" class="#{page eq 'unit-settings' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-settings'}"
+						 outcome="/admin/unit-settings">
+					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Settings
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'unit-settings'}">
+					 <a href="javascript:void(0);">Settings</a>
+				 </ui:fragment>
+			 </li>
 		 </ul>
      </div>
 	</composite:implementation>

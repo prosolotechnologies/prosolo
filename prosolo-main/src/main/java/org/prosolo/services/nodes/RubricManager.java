@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes;
 
+import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
@@ -29,5 +30,14 @@ public interface RubricManager extends AbstractManager {
     PaginatedResult<RubricData> getRubrics(int page, int limit,long organizationId)
             throws DbConnectionException;
 
-    void deleteRubric(long rubricId) throws DbConnectionException, EventException;
+    List<Rubric> getAllRubrics (Session session) throws DbConnectionException;
+
+    void deleteRubric(long rubricId,UserContextData context) throws DbConnectionException, EventException;
+
+    Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context)
+            throws DbConnectionException;
+
+    String getRubricName(long id);
+
+    RubricData getOrganizationRubric(long rubricId);
 }

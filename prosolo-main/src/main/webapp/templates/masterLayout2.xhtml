@@ -51,6 +51,7 @@
 
 <h:body>
 	<utilcomp:messagesBundle var="msg" />
+	<div class="bigWrapper">
 	<header>
 		<div class="container">
 			<div class="headerTop">
@@ -219,5 +220,15 @@
 	</c:if>
 	
     <a href="mailto:#{applicationbean.commonConfig.appConfig.supportEmail}" id="supportLink" data-toggle="tooltip" data-placement="left" title="Contact Support">Support</a>
+	</div>
+	<footer>
+		<div class="container">
+			<ul>
+				<li><h:link value="About" outcome="/about" /></li>
+				<li><h:link value="Terms of Use" outcome="/terms" /></li>
+			</ul>
+		</div>
+	</footer>
+
 </h:body>
 </html>

@@ -18,12 +18,16 @@ var custom = {
 //comment form hide/show
 function displaySubmitButton(inputElem) {
     if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
-			($(inputElem).is('div') && $(inputElem).html().length == 0)) {
+			($(inputElem).is('div') && !stripTags($(inputElem).html()).trim())) {
         $(inputElem).parent().find('.submitBtn').addClass('hidden');
      } else {
     	$(inputElem).parent().find('.submitBtn').removeClass('hidden');
      }
 }
+
+function stripTags(text) {
+    return text.replace(/<\/?[^>]+>|&nbsp;/gi, '');
+};
 
 function toggleReplyInput(replyBtn) {	
 	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');

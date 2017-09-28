@@ -151,10 +151,12 @@
 									</h:panelGroup>
 								</c:if>
 							</div>
-                            
-							<div class="metaRight">
-								<div class="duration">#{comp.durationString}</div>
-							</div>
+
+							<ui:fragment rendered="#{comp.durationString ne null}">
+								<div class="metaRight">
+									<div class="duration">#{comp.durationString}</div>
+								</div>
+							</ui:fragment>
 						</div>
 					</div>
 	                   
