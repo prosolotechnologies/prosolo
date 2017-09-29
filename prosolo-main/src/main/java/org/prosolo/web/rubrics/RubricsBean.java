@@ -93,7 +93,7 @@ public class RubricsBean implements Serializable, Paginable {
             context.validationFailed();
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error creating a " + ResourceBundleUtil.getMessage("label.rubric"));
+            PageUtil.fireErrorMessage("Error creating a " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase());
         }
     }
 

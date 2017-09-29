@@ -89,7 +89,7 @@
                                                        value="Save Changes"
                                                        action="#{rubricEditBean.updateRubric()}" update=":formMainEditRubric">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                            <f:param name="learningContext" value="name:rubric|id:#{util:decodeId(param.unitId)}" />
+                                            <f:param name="learningContext" value="name:rubric|id:#{util:decodeId(param.id)}" />
                                         </p:commandLink>
                                         <p:defaultCommand target="saveBtn" />
                                         <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
