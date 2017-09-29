@@ -15,9 +15,7 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -26,6 +24,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +56,8 @@ public class ActivityEditBean implements Serializable {
 	@Inject private HTMLParser htmlParser;
 	@Inject private CredentialManager credManager;
 	@Inject private ContextJsonParserService contextParser;
+	@Inject private RubricManager rubricManager;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private String compId;
@@ -73,6 +75,9 @@ public class ActivityEditBean implements Serializable {
 	private ActivityType[] activityTypes;
 	
 	private ActivityResultType[] resultTypes;
+
+	private List<RubricData> rubrics;
+	private ActivityRubricVisibilityDescription[] rubricVisibilityTypes;
 	
 	private String context;
 	
@@ -97,6 +102,7 @@ public class ActivityEditBean implements Serializable {
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
+				loadRubricData();
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -105,7 +111,25 @@ public class ActivityEditBean implements Serializable {
 		}
 		
 	}
-	
+
+	private void loadRubricData() {
+		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
+		if (isLimitedEdit()) {
+			if (activityData.getRubricId() > 0) {
+				activityData.setRubricName(rubricManager.getRubricName(activityData.getRubricId()));
+			} else {
+				activityData.setRubricName("-");
+			}
+		} else {
+			List<Long> unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
+			if (unitIds.isEmpty()) {
+				rubrics = new ArrayList<>();
+			} else {
+				rubrics = rubricManager.getPreparedRubricsFromUnits(unitIds);
+			}
+		}
+	}
+
 	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
 		activityData = res.getResource();
 		access = res.getAccess();
@@ -496,4 +520,11 @@ public class ActivityEditBean implements Serializable {
 		this.resultTypes = resultTypes;
 	}
 
+	public List<RubricData> getRubrics() {
+		return rubrics;
+	}
+
+	public ActivityRubricVisibilityDescription[] getRubricVisibilityTypes() {
+		return rubricVisibilityTypes;
+	}
 }

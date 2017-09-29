@@ -6,7 +6,8 @@
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+    xmlns:jsf="http://xmlns.jcp.org/jsf">
 
 	<composite:interface>
 		<composite:attribute name="activity" required="true" />
@@ -240,14 +241,50 @@
 					</div>
 				</div>
 
+				 <div class="formLine">
+					 <label>Rubric</label>
+					 <div class="formLineRight">
+						 <ui:fragment rendered="#{cc.attrs.limitedEdit}">
+							 <span>#{cc.attrs.activity.rubricName}</span>
+						 </ui:fragment>
+						 <ui:fragment rendered="#{not cc.attrs.limitedEdit}">
+							 <h:selectOneMenu value="#{cc.attrs.activity.rubricId}" styleClass="selectpicker"
+											  onchange="showOrHideRubricVisibilityRadioButtons(this,'.radioGroup')">
+								 <f:selectItem itemValue="0" itemLabel="Choose"/>
+								 <f:selectItems value="#{cc.attrs.bean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" />
+							 </h:selectOneMenu>
+							 <script>
+								 $('.selectpicker').selectpicker('refresh');
+							 </script>
+						 </ui:fragment>
+
+						 <div class="radioGroup" style="#{cc.attrs.activity.rubricId > 0 ? '' : 'display: none;'}">
+							 <ui:repeat value="#{cc.attrs.bean.rubricVisibilityTypes}" var="vis">
+								 <div class="radio">
+									 <input type="radio" jsf:id="visType"
+											name="#{hiddenVisType.clientId}"
+											jsf:disabled="#{cc.attrs.limitedEdit}"
+											value="#{vis.visibility}"
+											jsf:checked="#{vis.visibility eq cc.attrs.activity.rubricVisibility ? true : false}" />
+									 <h:outputLabel for="visType" value="#{vis.description}" />
+								 </div>
+							 </ui:repeat>
+							 <h:inputHidden id="rubricVisibilityType" binding="#{hiddenVisType}" value="#{cc.attrs.activity.rubricVisibility}"
+											rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
+						 </div>
+					 </div>
+				 </div>
+
 				<div class="formLine">
 					<label>Max points</label>
 					<div class="formLineRight">
+
 						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPoints"
-							value="#{cc.attrs.activity.maxPointsString}"
-							placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
+									 value="#{cc.attrs.activity.maxPointsString}"
+									 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
 							<f:convertNumber integerOnly="true" />
 						</h:inputText>
+
 						<small class="redText"><h:message for="maxPoints" /></small>
 						<div class="checkbox checkLine">
 							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
@@ -324,6 +361,39 @@
 					<div class="formLineRight">
 						<h:inputText styleClass="pasteable"
 							value="#{cc.attrs.activity.consumerKey}" autocomplete="off"/>
+					</div>
+				</div>
+
+				<div class="formLine">
+					<label>Rubric</label>
+					<div class="formLineRight">
+						<ui:fragment rendered="#{cc.attrs.limitedEdit}">
+							#{cc.attrs.activity.rubricName}
+						</ui:fragment>
+						<ui:fragment rendered="#{not cc.attrs.limitedEdit}">
+							<h:selectOneMenu value="#{cc.attrs.activity.rubricId}" styleClass="selectpicker"
+											 onchange="showOrHideRubricVisibilityRadioButtons(this,'.radioGroup')">
+								<f:selectItem itemValue="0" itemLabel="Choose"/>
+								<f:selectItems value="#{cc.attrs.bean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" />
+							</h:selectOneMenu>
+							<script>
+								$('.selectpicker').selectpicker('refresh');
+							</script>
+						</ui:fragment>
+
+						<div class="radioGroup" style="#{cc.attrs.activity.rubricId > 0 ? '' : 'display: none;'}">
+							<ui:repeat value="#{cc.attrs.bean.rubricVisibilityTypes}" var="vis">
+								<div class="radio">
+									<input type="radio" jsf:id="visTypeExt" name="#{hiddenVisTypeExt.clientId}"
+										   jsf:disabled="#{cc.attrs.limitedEdit}"
+										   value="#{vis.visibility}"
+										   jsf:checked="#{vis.visibility eq cc.attrs.activity.rubricVisibility ? true : false}" />
+									<h:outputLabel for="visTypeExt" value="#{vis.description}" />
+								</div>
+							</ui:repeat>
+							<h:inputHidden id="rubricVisibilityTypeExt" binding="#{hiddenVisTypeExt}" value="#{cc.attrs.activity.rubricVisibility}"
+										   rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
+						</div>
 					</div>
 				</div>
 

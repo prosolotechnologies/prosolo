@@ -97,6 +97,12 @@ public class ActivityDataFactory {
 			}
 			data.setFiles(activityFiles);
 		}
+
+		//set rubric data
+		if (activity.getRubric() != null) {
+			data.setRubricId(activity.getRubric().getId());
+			data.setRubricVisibility(activity.getRubricVisibility());
+		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
 		

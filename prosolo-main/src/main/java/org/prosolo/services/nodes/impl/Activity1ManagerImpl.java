@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -149,6 +150,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
+
+			//set rubric data if set
+			if (data.getRubricId() > 0) {
+				activity.setRubric((Rubric) persistence.currentManager().load(Rubric.class, data.getRubricId()));
+				activity.setRubricVisibility(data.getRubricVisibility());
+			}
 
 			activity.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 
@@ -641,6 +648,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						: Integer.parseInt(data.getMaxPointsString()));
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 				actToUpdate.setAutograde(data.isAutograde());
+
+				//set rubric data
+				Rubric rubric = data.getRubricId() > 0
+						? (Rubric) persistence.currentManager().load(Rubric.class, data.getRubricId())
+						: null;
+				actToUpdate.setRubric(rubric);
+				actToUpdate.setRubricVisibility(data.getRubricVisibility());
 			}
 			
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());

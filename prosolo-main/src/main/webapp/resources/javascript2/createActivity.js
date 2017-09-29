@@ -103,3 +103,14 @@ function showOrHideSubmissionCheckBoxes(selectedResponseType,
 	}
 }
 
+function showOrHideRubricVisibilityRadioButtons(rubricElem, visibilityContainerSelector){
+    var rubric = $(rubricElem).val() * 1;
+
+    if (rubric > 0) {
+        $(visibilityContainerSelector).show();
+    } else {
+        $(visibilityContainerSelector).hide();
+        $(visibilityContainerSelector + " input:radio:first").click();
+    }
+}
+

@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
@@ -55,6 +56,11 @@ public class Activity1 extends BaseEntity {
 	private List<CompetenceActivity1> competenceActivities;
 
 	private Set<Tag> tags;
+
+	//rubric
+	private Rubric rubric;
+	private ActivityRubricVisibility rubricVisibility = ActivityRubricVisibility.NEVER;
+
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -210,5 +216,23 @@ public class Activity1 extends BaseEntity {
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
 	}
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Rubric getRubric() {
+		return rubric;
+	}
+
+	public void setRubric(Rubric rubric) {
+		this.rubric = rubric;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public ActivityRubricVisibility getRubricVisibility() {
+		return rubricVisibility;
+	}
+
+	public void setRubricVisibility(ActivityRubricVisibility rubricVisibility) {
+		this.rubricVisibility = rubricVisibility;
+	}
 }

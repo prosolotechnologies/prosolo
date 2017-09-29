@@ -1,21 +1,24 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 @ManagedBean(name = "rubricCategoriesBean")
 @Component("rubricCategoriesBean")
@@ -37,17 +40,20 @@ public class RubricCategoriesBean implements Serializable {
 	private List<RubricCategoryData> categoriesToRemove;
 	private List<RubricItemData> levelsToRemove;
 
+	private EditMode editMode = EditMode.LIMITED;
+
 	public void init() {
 		decodedRubricId = idEncoder.decodeId(rubricId);
-		if (decodedRubricId > 0) {
-			try {
+		try {
+			if (decodedRubricId > 0) {
 				initData();
-			} catch (Exception e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error loading the page");
+			} else {
+				PageUtil.notFound();
 			}
-		} else {
-			PageUtil.notFound();
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error loading the page");
+			rubric = new RubricData();
 		}
 	}
 
@@ -57,12 +63,14 @@ public class RubricCategoriesBean implements Serializable {
 		rubric = rubricManager.getRubricData(decodedRubricId, false, true, loggedUserBean.getUserId(),true);
 		if (rubric == null) {
 			PageUtil.notFound();
+		} else {
+			boolean rubricUsedInActivity = rubricManager.isRubricUsed(decodedRubricId);
+			editMode = rubricUsedInActivity ? EditMode.LIMITED : EditMode.FULL;
 		}
 	}
 
 	public boolean isLimitedEdit() {
-		//TODO when rubric is connected to activity return to this
-		return false;
+		return editMode == EditMode.LIMITED;
 	}
 
 	public void moveCategoryDown(int index) {
@@ -155,14 +163,17 @@ public class RubricCategoriesBean implements Serializable {
 
 		//save rubric data
 		try {
-			rubricManager.saveRubricCategoriesAndLevels(rubric);
-			PageUtil.fireSuccessfulInfoMessage("Rubric saved");
+			rubricManager.saveRubricCategoriesAndLevels(rubric, editMode);
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("rubric") + " has been saved");
 			try {
 				initData();
 			} catch (Exception e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error reloading the rubric data. Please refresh the page.");
+				PageUtil.fireErrorMessage("Error reloading the " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " data. Please refresh the page.");
 			}
+		} catch (OperationForbiddenException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("This operation is not allowed. Please refresh the page to review the most recent changes and try again.");
 		} catch (Exception e) {
 			logger.error("Error", e);
 			//remove previously added removed categories and levels to avoid errors if user tries to save again
@@ -181,7 +192,7 @@ public class RubricCategoriesBean implements Serializable {
 					levelIt.remove();
 				}
 			}
-			PageUtil.fireErrorMessage("Error saving the rubric");
+			PageUtil.fireErrorMessage("Error saving the " + ResourceBundleUtil.getLabel("rubric").toLowerCase());
 		}
 	}
 

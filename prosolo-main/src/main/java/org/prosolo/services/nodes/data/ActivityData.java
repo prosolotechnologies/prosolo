@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -83,6 +84,11 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean autograde;
 	
 	private int difficulty;
+
+	//rubric
+	private long rubricId;
+	private String rubricName;
+	private ActivityRubricVisibility rubricVisibility;
 	
 	//indicates that competence was once published
 	private boolean oncePublished;
@@ -96,6 +102,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
 		tags = new HashSet<>();
+		rubricVisibility = ActivityRubricVisibility.NEVER;
 	}
 	
 	@Override
@@ -717,4 +724,29 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.targetCompetenceId = targetCompetenceId;
 	}
 
+	public long getRubricId() {
+		return rubricId;
+	}
+
+	public void setRubricId(long rubricId) {
+		observeAttributeChange("rubricId", this.rubricId, rubricId);
+		this.rubricId = rubricId;
+	}
+
+	public ActivityRubricVisibility getRubricVisibility() {
+		return rubricVisibility;
+	}
+
+	public void setRubricVisibility(ActivityRubricVisibility rubricVisibility) {
+		observeAttributeChange("rubricVisibility", this.rubricVisibility, rubricVisibility);
+		this.rubricVisibility = rubricVisibility;
+	}
+
+	public void setRubricName(String rubricName) {
+		this.rubricName = rubricName;
+	}
+
+	public String getRubricName() {
+		return rubricName;
+	}
 }
