@@ -88,7 +88,9 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{activityEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-								Since #{msg['label.competence'].toLowerCase()} was published, only small edits are allowed for this activity.
+								Since #{msg['label.competence'].toLowerCase()} was published, only small edits are allowed
+								for this activity. These include changing the title, description, and text.
+								Also, specific settings (check boxes), that are not disabled, can be updated.
 			            	</h:panelGroup>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade in active" id="info">
@@ -212,7 +214,7 @@
 			                        <p>Estimated time to complete:</p>
 			                        <div class="selectRow">
 			                        	<h:selectOneMenu id="estimatedTimeHours" styleClass="selectpicker pickHours"
-			                        		value="#{activityEditBean.activityData.durationHours}" validator="estimatedTimeValidator">
+			                        		value="#{activityEditBean.activityData.durationHours}" >
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
@@ -245,7 +247,6 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
-									<small class="redText"><h:message for="estimatedTimeHours"></h:message></small>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">

@@ -49,7 +49,7 @@
 
 <h:body id="admin">
 	<utilcomp:messagesBundle var="msg" />
-
+	<div class="bigWrapper">
 	<header>
 		<div class="container">
 			<div class="headerTop">
@@ -70,7 +70,7 @@
 							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'organizations'
-									or util:getPagePath(view.viewId)  == 'organizationNew'
+									or util:getPagePath(view.viewId)  == 'organization-settings'
 									or util:getPagePath(view.viewId)  == 'organizationUsers'
 									or util:getPagePath(view.viewId)  == 'organizationUserEdit'
 									or util:getPagePath(view.viewId)  == 'userEditPassword'
@@ -214,5 +214,15 @@
 			</p:idleMonitor>
 		</h:form>
 	</c:if>
+	</div>
+	<footer>
+		<div class="container">
+			<ul>
+				<li><h:link value="About" outcome="/about" /></li>
+				<li><h:link value="Terms of Use" outcome="/terms" /></li>
+			</ul>
+		</div>
+	</footer>
+
 </h:body>
 </html>

@@ -7,6 +7,8 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 
@@ -14,12 +16,12 @@ import java.util.Date;
 import java.util.List;
 
 public interface MessagingManager extends AbstractManager {
-	
+
 	Message sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context) throws ResourceCouldNotBeLoadedException;
-	
+
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
-	
-	MessageThread createNewMessagesThread(UserContextData context, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
+
+	MessageThread createNewMessagesThread(long creatorId, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
 
 	List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads, long userId);
 
@@ -31,16 +33,20 @@ public interface MessagingManager extends AbstractManager {
 	boolean markThreadAsRead(long threadId, long userId);
 
 	MessageThread getLatestMessageThread(long userId, boolean archived);
-	
-	public Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException;
-	
-	public ThreadParticipant findParticipation(long threadId, long userId);
-	
-	public List<Message> getUnreadMessages(long threadId, Message lastReadMessage, Date fromTime);
-	
-	public List<Message> getMessagesBeforeMessage(long threadId, Message message, int numberOfMessages, Date fromTime);
-	
-	public void archiveThread(long threadId, long userId);
+
+	//Result<Message> sendMessageAndGetEvents(UserContextData context, long recieverId, String msg) throws DbConnectionException;
+
+	//Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException, EventException;
+
+	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException, EventException;
+
+	ThreadParticipant findParticipation(long threadId, long userId);
+
+	List<Message> getUnreadMessages(long threadId, Message lastReadMessage, Date fromTime);
+
+	List<Message> getMessagesBeforeMessage(long threadId, Message message, int numberOfMessages, Date fromTime);
+
+	void archiveThread(long threadId, long userId);
 
 	void markThreadDeleted(long threadId, long userId);
 

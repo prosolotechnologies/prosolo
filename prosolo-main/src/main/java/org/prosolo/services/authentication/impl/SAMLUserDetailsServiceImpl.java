@@ -16,14 +16,17 @@
 
 package org.prosolo.services.authentication.impl;
 
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.authentication.UserAuthenticationService;
+import org.prosolo.services.nodes.RoleManager;
+import java.util.*;
+import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSString;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.authentication.UserAuthenticationService;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.util.roles.RoleNames;
@@ -32,24 +35,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
-	
+
 	private static Logger logger = Logger.getLogger(SAMLUserDetailsServiceImpl.class);
-	
+
 	@Inject
 	private UserManager userManager;
 	@Inject
 	private UnitManager unitManager;
 	@Inject private RoleManager roleManager;
 	@Inject private UserAuthenticationService authService;
-	
+
 	@Override
 	public Object loadUserBySAML(SAMLCredential credential)
 			throws UsernameNotFoundException {
@@ -85,24 +85,26 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			logger.info("SAML RETURNED:email:" + email + " firstname:" + firstname + " lastname:" + lastname + " nameID:" + credential.getNameID().getValue());
 
 			//try to log in as regular user
-			org.prosolo.common.domainmodel.user.User user = userManager.getUser(email);
+			User user = userManager.getUser(email);
 
 			if (user == null) {
 				//if email does not exist, create new user account;
-				Role role = roleManager.getRoleByName("User");
-				List<Long> roles = new ArrayList<>();
-				roles.add(role.getId());
+				Role role = roleManager.getRoleByName(RoleNames.USER);
 				//String firstname = credential.getAttributeAsString("givenName");
 				//String lastname = credential.getAttributeAsString("sn");
 				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
 				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
 				user = userManager.createNewUser(1, fName,
-						lName, email, true, UUID.randomUUID().toString(), null, null, null, roles);
+						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()));
 
-				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ie) {
+					logger.error("Error", ie);
+				}
 
-				unitManager.addUserToUnitWithRole(user.getId(), 1, roleId, UserContextData.empty());
+				unitManager.addUserToUnitWithRole(user.getId(), 1, role.getId(), UserContextData.empty());
 
 				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
 			}
@@ -114,5 +116,5 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			throw new UsernameNotFoundException("Error occurred while logging. Please try again.");
 		}
 	}
-	
+
 }

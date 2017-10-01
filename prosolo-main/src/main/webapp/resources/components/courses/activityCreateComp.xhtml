@@ -210,8 +210,10 @@
 				<div class="formLine">
 					<label>Response Type</label>
 					<div class="formLineRight">
-						<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
+						<h:selectOneMenu id="selectResponseType" disabled="#{cc.attrs.limitedEdit}"
 							styleClass="selectpicker"
+							onchange="showOrHideSubmissionCheckBoxes(this,'#createActivity\\:formMain\\:activityPanel\\:checkStudentCanSeeOtherResponses',
+							'#createActivity\\:formMain\\:activityPanel\\:checkStudentCanEditResponse')"
 							value="#{cc.attrs.activity.resultData.resultType}">
 							<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
 								itemValue="#{resType}" itemLabel="#{resType.label}" />
@@ -219,7 +221,7 @@
 						<script>
 							$('.selectpicker').selectpicker('refresh');
 						</script>
-						<div class="checkbox checkLine">
+						<div class="checkbox checkLine" style="#{not cc.attrs.bean.isResponseTypeSet() ? 'display:none;': ''}">
 							<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
 								value="#{cc.attrs.activity.studentCanSeeOtherResponses}">
 							</h:selectBooleanCheckbox>
@@ -227,7 +229,7 @@
 								After submission, student can see other responses </label>
 							<div class="infoIcon">info</div>
 						</div>
-						<div class="checkbox checkLine">
+						<div class="checkbox checkLine" style="#{not cc.attrs.bean.isResponseTypeSet() ? 'display:none;': ''}">
 							<h:selectBooleanCheckbox id="checkStudentCanEditResponse"
 								value="#{cc.attrs.activity.studentCanEditResponse}">
 							</h:selectBooleanCheckbox>
@@ -388,7 +390,7 @@
 								activity should be available to unenrolled students</label>
 						</div>
 
-						<div id="scoreCalcPanel" style="">
+						<div id="scoreCalcPanel" style="#{not cc.attrs.activity.acceptGrades ? 'display:none;': ''}" >
 							<label>In case of multiple responses:</label>
 							<div class="formLineRight">
 								<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
