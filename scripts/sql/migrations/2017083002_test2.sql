@@ -1,0 +1,1 @@
+INSERT INTO sample (name) values("samplename1");
