@@ -3,11 +3,9 @@ package org.prosolo.common.util;/**
  */
 
 
-
 import com.google.common.base.Charsets;
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.io.Streams;
-import org.elasticsearch.common.io.stream.BytesStreamOutput;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -62,6 +60,13 @@ public class ElasticsearchUtil {
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         return df;
+    }
+
+    public static String escapeSpecialChars(String query) {
+        //special characters lucene uses so they need to be escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+        String specialChars = "\\+|-|&|\\||!|\\(|\\)|\\{|}|\\[|]|\\^|\"|~|\\*|\\?|:|\\\\";
+        String escapedSearchTerm = query.replaceAll("(" + specialChars + ")", "\\\\$1");
+        return escapedSearchTerm;
     }
 
 }

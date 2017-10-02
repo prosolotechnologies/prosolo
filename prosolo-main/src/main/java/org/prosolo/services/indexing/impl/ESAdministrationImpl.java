@@ -5,7 +5,9 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
+import org.elasticsearch.common.io.Streams;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
@@ -37,19 +39,25 @@ public class ESAdministrationImpl implements ESAdministration {
 	@Inject private OrganizationManager orgManager;
 	private static final long serialVersionUID = 830150223713546004L;
 	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
-	
+
 	@Override
-	public boolean createIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getSystemIndexes();
-		
-		for (String index : indexes) {
+	public boolean createAllIndexes() throws IndexingServiceNotAvailable {
+		return createIndexes(ESIndexNames.getSystemIndexes(), ESIndexNames.getOrganizationIndexes());
+	}
+
+	@Override
+	public boolean createDBIndexes() throws IndexingServiceNotAvailable {
+		return createIndexes(ESIndexNames.getRecreatableSystemIndexes(), ESIndexNames.getRecreatableOrganizationIndexes());
+	}
+
+	private boolean createIndexes(List<String> systemIndexes, List<String> organizationIndexes) throws IndexingServiceNotAvailable {
+		for (String index : systemIndexes) {
 			createIndex(index);
 		}
 
-		List<String> orgIndexes = ESIndexNames.getOrganizationIndexes();
 		List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
 				.getFoundNodes();
-		for (String ind : orgIndexes) {
+		for (String ind : organizationIndexes) {
 			for (OrganizationData o : organizations) {
 				createIndex(ind + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
 			}
@@ -67,10 +75,12 @@ public class ESAdministrationImpl implements ESAdministration {
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
+					.loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"))
 					.put("http.enabled", "false")
 					.put("cluster.name", elasticSearchConfig.clusterName)
 					.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
 					.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+
 			client.admin()
 					.indices()
 					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
@@ -114,18 +124,40 @@ public class ESAdministrationImpl implements ESAdministration {
 		}
 		client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
 	}
- 
 
 	@Override
-	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
+	public boolean deleteAllIndexes() throws IndexingServiceNotAvailable {
 		return deleteIndexByName("*" + CommonSettings.getInstance().config.getNamespaceSufix() + "*");
 	}
 
 	@Override
+	public boolean deleteDBIndexes() throws IndexingServiceNotAvailable {
+		//delete only indexes that can be recreated from db
+		return deleteIndexesByName(ESIndexNames.getRecreatableIndexes().stream().map(ind -> ind + "*").toArray(String[]::new));
+	}
+
+	@Override
 	public boolean deleteIndexByName(String name) {
-		Client client = ElasticSearchFactory.getClient();
-		client.admin().indices().delete(new DeleteIndexRequest(name)).actionGet();
-		return true;
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			client.admin().indices().delete(new DeleteIndexRequest(name)).actionGet();
+			return true;
+		} catch (IndexNotFoundException e) {
+			logger.debug("Index does not exist so it can't be deleted");
+			return false;
+		}
+	}
+
+	@Override
+	public boolean deleteIndexesByName(String[] indexNames) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			client.admin().indices().delete(new DeleteIndexRequest(indexNames)).actionGet();
+			return true;
+		} catch (IndexNotFoundException e) {
+			logger.debug("Index does not exist so it can't be deleted");
+			return false;
+		}
 	}
 	
 	@Override

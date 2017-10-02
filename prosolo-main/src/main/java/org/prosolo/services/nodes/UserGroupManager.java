@@ -19,7 +19,7 @@ import java.util.List;
 
 public interface UserGroupManager extends AbstractManager {
 
-	List<UserGroup> getAllGroups(boolean returnDefaultGroups, Session session) throws DbConnectionException;
+	List<UserGroup> getAllGroups(long orgId, boolean returnDefaultGroups, Session session) throws DbConnectionException;
 
 	UserGroupData getGroup(long groupgId) throws DbConnectionException;
 

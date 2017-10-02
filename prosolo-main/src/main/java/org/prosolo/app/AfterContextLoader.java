@@ -132,8 +132,8 @@ public class AfterContextLoader implements ServletContextListener {
 
 	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
 		ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
-		esAdmin.deleteIndexes();
-		esAdmin.createIndexes();
+		esAdmin.deleteAllIndexes();
+		esAdmin.createAllIndexes();
 	}
 	
 	private void initApplicationServices(){

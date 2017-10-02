@@ -11,11 +11,13 @@
 			},
 			"name": {
 				"store": false,
-				"type": "string"
+				"type": "string",
+				"analyzer": "whitespace_lowercase_analyzer"
 			},
 			"lastname": {
 				"store": false,
-				"type": "string"
+				"type": "string",
+				"analyzer": "whitespace_lowercase_analyzer"
 			},
 			"system": {
 				"store": false,

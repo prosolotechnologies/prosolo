@@ -111,7 +111,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
 
             // loading all users from the db
-            Collection<User> allUsers = userManager.getAllUsers();
+            Collection<User> allUsers = userManager.getAllUsers(0);
             Role roleUser = roleManager.getRoleByName(RoleNames.USER);
 
             for (User user : allUsers) {

@@ -44,18 +44,28 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroup> getAllGroups(boolean returnDefaultGroups, Session session) throws DbConnectionException {
+	public List<UserGroup> getAllGroups(long orgId, boolean returnDefaultGroups, Session session) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT g " +
 				"FROM UserGroup g ";
 
 			if (!returnDefaultGroups) {
-				query += "WHERE g.defaultGroup IS FALSE";
+				query += "WHERE g.defaultGroup IS FALSE ";
+			}
+
+			if (orgId > 0) {
+				query += "AND g.unit.organization.id = :orgId";
 			}
 			
+			Query q = session.createQuery(query);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
+
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = session.createQuery(query).list();
+			List<UserGroup> result = q.list();
 			
 			return result == null ? new ArrayList<>() : result; 
 		} catch(Exception e) {
