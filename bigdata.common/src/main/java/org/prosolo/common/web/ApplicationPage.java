@@ -100,7 +100,7 @@ public enum ApplicationPage {
 	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml"),
 	ADMIN_UNIT_CREDENTIALS("/admin/unit-credentials.xhtml"),
 	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
-	ADMIN_WHO_CAN_LEARN("/admin/who-can-learn.xhtml"),
+	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
 	ADMIN_ACTIVITY("/admin/activity.xhtml");
 

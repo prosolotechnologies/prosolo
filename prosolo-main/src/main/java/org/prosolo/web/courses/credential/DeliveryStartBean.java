@@ -9,6 +9,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,8 +42,15 @@ public class DeliveryStartBean implements Serializable {
 		try {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserContext()).getId();
-
-			PageUtil.redirect("/manage/credentials/" + idEncoder.encodeId(deliveryId) + "/edit");
+			//TODO it would probably be better to move redirection login to the appropriate beans that know which section to redirect to
+			//find out which section we are currently in and redirect there
+			PageSection section = PageUtil.getSectionForView();
+			if (section == PageSection.MANAGE) {
+				PageUtil.redirect("/manage/credentials/" + idEncoder.encodeId(deliveryId) + "/edit");
+			} else if (section == PageSection.ADMIN) {
+				PageUtil.redirect("/admin/organizations/" + PageUtil.getGetParameter("orgId") + "/units/"
+						+ PageUtil.getGetParameter("unitId") + "/credentials");
+			}
 		} catch (EventException ee) {
 			logger.error(ee);
 		} catch (DbConnectionException dce) {
