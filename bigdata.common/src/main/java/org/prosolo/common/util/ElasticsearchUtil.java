@@ -66,7 +66,6 @@ public class ElasticsearchUtil {
         //special characters lucene uses so they need to be escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \
         String specialChars = "\\+|-|&|\\||!|\\(|\\)|\\{|}|\\[|]|\\^|\"|~|\\*|\\?|:|\\\\";
         String escapedSearchTerm = query.replaceAll("(" + specialChars + ")", "\\\\$1");
-        logger.debug("ESCAPED SEARCH TERM: " + escapedSearchTerm);
         return escapedSearchTerm;
     }
 
