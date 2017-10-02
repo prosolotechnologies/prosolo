@@ -1056,12 +1056,22 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Competence1> getAllCompetences(Session session) throws DbConnectionException {
+	public List<Competence1> getAllCompetences(long orgId, Session session) throws DbConnectionException {
 		try {
-			String query = "SELECT comp " + "FROM Competence1 comp " + "WHERE comp.deleted = :deleted";
+			String query = "SELECT comp " + "FROM Competence1 comp " + "WHERE comp.deleted = :deleted ";
+
+			if (orgId > 0) {
+				query += "AND comp.organization.id = :orgId";
+			}
+
+			Query q = session.createQuery(query).setBoolean("deleted", false);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
 
 			@SuppressWarnings("unchecked")
-			List<Competence1> result = session.createQuery(query).setBoolean("deleted", false).list();
+			List<Competence1> result = q.list();
 
 			if (result == null) {
 				return new ArrayList<>();

@@ -170,7 +170,7 @@ public class TestDataGenerator extends TestContext{
 //	}
 	@Test
 	public  void listAllUsers(){
-		Collection<User> users=userManager.getAllUsers();
+		Collection<User> users=userManager.getAllUsers(0);
 		for(User user:users){
 			System.out.println("USER:"+user.getId()+" "+user.getName()+" "+user.getLastname()+" "+user.getPassword());
 		}

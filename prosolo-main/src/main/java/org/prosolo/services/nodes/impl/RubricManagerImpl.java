@@ -130,15 +130,25 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<Rubric> getAllRubrics(Session session) throws DbConnectionException {
+    public List<Rubric> getAllRubrics(long orgId, Session session) throws DbConnectionException {
         try {
             String query =
                     "SELECT rubric " +
                     "FROM Rubric rubric " +
-                    "WHERE rubric.deleted = :deleted";
+                    "WHERE rubric.deleted = :deleted ";
+
+            if (orgId > 0) {
+                query += "AND rubric.organization.id = :orgId";
+            }
+
+            Query q = session.createQuery(query).setBoolean("deleted", false);
+
+            if (orgId > 0) {
+                q.setLong("orgId", orgId);
+            }
 
             @SuppressWarnings("unchecked")
-            List<Rubric> result = session.createQuery(query).setBoolean("deleted", false).list();
+            List<Rubric> result = q.list();
 
             if (result == null) {
                 return new ArrayList<>();

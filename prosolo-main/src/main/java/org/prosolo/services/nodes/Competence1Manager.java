@@ -194,7 +194,7 @@ public interface Competence1Manager {
 	RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId,
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
-	List<Competence1> getAllCompetences(Session session) 
+	List<Competence1> getAllCompetences(long orgId, Session session)
 			throws DbConnectionException;
 	
 //	/**

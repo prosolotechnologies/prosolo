@@ -2299,18 +2299,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Credential1> getAllCredentials(Session session) throws DbConnectionException {
+	public List<Credential1> getAllCredentials(long orgId, Session session) throws DbConnectionException {
 		try {
 			String query =
 					"SELECT cred " +
 							"FROM Credential1 cred " +
-							"WHERE cred.deleted = :deleted";
+							"WHERE cred.deleted = :deleted ";
+
+			if (orgId > 0) {
+				query += "AND cred.organization.id = :orgId";
+			}
+
+			Query q = session
+					.createQuery(query)
+					.setBoolean("deleted", false);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
 
 			@SuppressWarnings("unchecked")
-			List<Credential1> result = session
-					.createQuery(query)
-					.setBoolean("deleted", false)
-					.list();
+			List<Credential1> result = q.list();
 
 			if (result == null) {
 				return new ArrayList<>();
