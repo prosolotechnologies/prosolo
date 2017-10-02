@@ -550,7 +550,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
-			query += "ORDER BY user.name,user.lastname ASC ";
+			query += "ORDER BY user.lastname, user.name ASC ";
 
 			Query q = persistence.currentManager().createQuery(query);
 
