@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -68,14 +69,16 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				if (date != null) {
 					builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
 				}
+				String deliveryStart = null;
 				if (cred.getDeliveryStart() != null) {
-					builder.field("deliveryStart", ElasticsearchUtil.getDateStringRepresentation(
-							cred.getDeliveryStart()));
+					deliveryStart = ElasticsearchUtil.getDateStringRepresentation(cred.getDeliveryStart());
 				}
+				builder.field("deliveryStart", deliveryStart);
+				String deliveryEnd = null;
 				if (cred.getDeliveryEnd() != null) {
-					builder.field("deliveryEnd", ElasticsearchUtil.getDateStringRepresentation(
-							cred.getDeliveryEnd()));
+					deliveryEnd = ElasticsearchUtil.getDateStringRepresentation(cred.getDeliveryEnd());
 				}
+				builder.field("deliveryEnd", deliveryEnd);
 
 				builder.startArray("tags");
 				List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);
@@ -488,6 +491,34 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			partialUpdateByScript(
 					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
 					ESIndexTypes.CREDENTIAL,credId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void updateDeliveryTimes(long organizationId, long deliveryId, long deliveryStartTime, long deliveryEndTime) {
+		try {
+			Date deliveryStart = DateUtil.getDateFromMillis(deliveryStartTime);
+			Date deliveryEnd = DateUtil.getDateFromMillis(deliveryEndTime);
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			String deliveryStartStr = null;
+			if (deliveryStart != null) {
+				deliveryStartStr = ElasticsearchUtil.getDateStringRepresentation(deliveryStart);
+			}
+			builder.field("deliveryStart", deliveryStartStr);
+			String deliveryEndStr = null;
+			if (deliveryEnd != null) {
+				deliveryEndStr = ElasticsearchUtil.getDateStringRepresentation(deliveryEnd);
+			}
+			builder.field("deliveryEnd", deliveryEndStr);
+			builder.endObject();
+
+			partialUpdate(
+					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ESIndexTypes.CREDENTIAL, deliveryId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

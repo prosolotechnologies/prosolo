@@ -16,6 +16,17 @@
 	 <div id="#{cc.clientId}">
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
 		 <ul class="nav nav-tabs headerSubmenu">
+			 <li role="presentation" class="#{page eq 'unit-credentials' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-credentials'}"
+						 outcome="/admin/unit-credentials">
+					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 #{msg['label.credential.plural']}
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'unit-credentials'}">
+					 <a href="javascript:void(0);">#{msg['label.credential.plural']}</a>
+				 </ui:fragment>
+			 </li>
 			 <li role="presentation" class="#{page eq 'unit-teachers' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'unit-teachers'}"
 					 outcome="/admin/unit-teachers">

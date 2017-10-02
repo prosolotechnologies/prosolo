@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,8 +90,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             User userAdminAdmin = userManager.getUser("zoran.jeremic@gmail.com");
             User userNikolaMilikic = userManager.getUser("zoran.jeremic@uta.edu");
             Role roleSuperAdmin = roleManager.getRoleByName(RoleNames.SUPER_ADMIN);
-            roleManager.assignRoleToUser(roleSuperAdmin, userAdminAdmin);
-            roleManager.assignRoleToUser(roleSuperAdmin, userNikolaMilikic);
+            roleManager.assignRoleToUser(roleSuperAdmin, userAdminAdmin.getId());
+            roleManager.assignRoleToUser(roleSuperAdmin, userNikolaMilikic.getId());
 
             // loading user Justin Dellinger to be a creator of the organization and unit
             User userJustinDellinger = userManager.getUser("jdelling@uta.edu");
@@ -101,7 +102,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
             // Giving Justin Dellinger an admin role in UTA
             Role roleAdmin = roleManager.getRoleByName(RoleNames.ADMIN);
-            userJustinDellinger = roleManager.assignRoleToUser(roleAdmin, userJustinDellinger);
+            userJustinDellinger = roleManager.assignRoleToUser(roleAdmin, userJustinDellinger.getId());
 
 
             // Create History Department unit
@@ -120,7 +121,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                     userManager.setUserOrganization(user.getId(), orgUta.getId());
 
                     // giving user a 'User' role
-                    roleManager.assignRoleToUser(roleUser, user);
+                    roleManager.assignRoleToUser(roleUser, user.getId());
 
                     // adding user to the History Department unit as a student
                     unitManager.addUserToUnitWithRoleAndGetEvents(user.getId(), unitHistoryDepartment.getId(), roleUser.getId(), UserContextData.empty());
@@ -133,11 +134,11 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             User userMattCrosslin = userManager.getUser("matt@uta.edu");
             Role roleManage = roleManager.getRoleByName(RoleNames.MANAGER);
             Role roleInstructor = roleManager.getRoleByName(RoleNames.INSTRUCTOR);
-            userKimberlyBreuer = roleManager.assignRoleToUser(roleManage, userKimberlyBreuer);
+            userKimberlyBreuer = roleManager.assignRoleToUser(roleManage, userKimberlyBreuer.getId());
             unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
             unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleInstructor.getId(), UserContextData.empty());
 
-            userMattCrosslin = roleManager.assignRoleToUser(roleManage, userMattCrosslin);
+            userMattCrosslin = roleManager.assignRoleToUser(roleManage, userMattCrosslin.getId());
             unitManager.addUserToUnitWithRoleAndGetEvents(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
             unitManager.addUserToUnitWithRoleAndGetEvents(userMattCrosslin.getId(), unitHistoryDepartment.getId(), roleInstructor.getId(), UserContextData.empty());
 
@@ -261,7 +262,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     }
 
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
-        CredentialData lastDeliveryData = credManager.getCredentialForEdit(deliveryId, 0).getResource();
+        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
         Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential

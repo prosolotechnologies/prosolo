@@ -28,7 +28,7 @@ import java.util.List;
 
 public interface ResourceFactory extends AbstractManager {
 
-    public Role createNewRole(String name, String description, boolean systemDefined);
+    Role createNewRole(String name, String description, boolean systemDefined);
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 

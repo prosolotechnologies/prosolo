@@ -2,17 +2,18 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -22,55 +23,68 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
 
-@ManagedBean(name = "credentialViewBeanManager")
-@Component("credentialViewBeanManager")
+@ManagedBean(name = "credentialViewBeanAdmin")
+@Component("credentialViewBeanAdmin")
 @Scope("view")
-public class CredentialViewBeanManager implements Serializable {
+public class CredentialViewBeanAdmin implements Serializable {
 
-	private static final long serialVersionUID = -8080252106493765017L;
+	private static final long serialVersionUID = -8249064694363873554L;
 
-	private static Logger logger = Logger.getLogger(CredentialViewBeanManager.class);
+	private static Logger logger = Logger.getLogger(CredentialViewBeanAdmin.class);
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private UnitManager unitManager;
 
+	private String orgId;
+	private long decodedOrgId;
+	private String unitId;
+	private long decodedUnitId;
 	private String id;
 	private long decodedId;
 	
 	private CredentialData credentialData;
-	private ResourceAccessData access;
+
+	private String organizationTitle;
+	private String unitTitle;
 
 	public void init() {	
+		decodedOrgId = idEncoder.decodeId(orgId);
+		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedId = idEncoder.decodeId(id);
-		if (decodedId > 0) {
+
+		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
 			try {
-				access = credentialManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
-						ResourceAccessRequirements.of(AccessMode.MANAGER)
-								.addPrivilege(UserGroupPrivilege.Edit)
-								.addPrivilege(UserGroupPrivilege.Instruct));
-				if (!access.isCanAccess()) {
-					PageUtil.accessDenied();
-				} else {
+				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+				if (td != null) {
+					organizationTitle = td.getOrganizationTitle();
+					unitTitle = td.getUnitTitle();
+
 					credentialData = credentialManager
 							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+					if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
+						//if credential is not connected to the unit this page is for show the not found page
+						PageUtil.notFound();
+					}
+				} else {
+					PageUtil.notFound();
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
+				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 			}
 		} else {
 			PageUtil.notFound();
 		}
 	}
-	
-//	public boolean isCurrentUserCreator() {
-//		return credentialData == null || credentialData.getCreator() == null ? false : 
-//			credentialData.getCreator().getId() == loggedUser.getUserId();
-//	}
+
+	public boolean isOriginal() {
+		return credentialData != null ? credentialData.getType() == CredentialType.Original : false;
+	}
 	
 	/*
 	 * ACTIONS
@@ -117,8 +131,27 @@ public class CredentialViewBeanManager implements Serializable {
 		this.decodedId = decodedId;
 	}
 
-	public ResourceAccessData getAccess() {
-		return access;
+	public String getOrgId() {
+		return orgId;
 	}
 
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getUnitId() {
+		return unitId;
+	}
+
+	public void setUnitId(String unitId) {
+		this.unitId = unitId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public String getUnitTitle() {
+		return unitTitle;
+	}
 }

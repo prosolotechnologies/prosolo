@@ -8,11 +8,14 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
@@ -24,74 +27,77 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
 
-@ManagedBean(name = "activityViewBeanManager")
-@Component("activityViewBeanManager")
+@ManagedBean(name = "activityViewBeanAdmin")
+@Component("activityViewBeanAdmin")
 @Scope("view")
-public class ActivityViewBeanManager implements Serializable {
+public class ActivityViewBeanAdmin implements Serializable {
 
-	private static final long serialVersionUID = -4768101723720055132L;
+	private static final long serialVersionUID = 1362049703707672076L;
 
-	private static Logger logger = Logger.getLogger(ActivityViewBeanManager.class);
+	private static Logger logger = Logger.getLogger(ActivityViewBeanAdmin.class);
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private CommentBean commentBean;
 	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager compManager;
+	@Inject private UnitManager unitManager;
 
+	private String orgId;
+	private long decodedOrgId;
+	private String unitId;
+	private long decodedUnitId;
 	private String actId;
 	private long decodedActId;
 	private String compId;
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
-	private String commentId;
-	
-	private CompetenceData1 competenceData;
-	private ResourceAccessData access;
-	private CommentsData commentsData;
 
-	public void init() {	
+	private CompetenceData1 competenceData;
+
+	private String organizationTitle;
+	private String unitTitle;
+
+	public void init() {
+		decodedOrgId = idEncoder.decodeId(orgId);
+		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedActId > 0 && decodedCompId > 0) {
-			if(credId != null) {
+		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
+			if (credId != null) {
 				decodedCredId = idEncoder.decodeId(credId);
 			}
 			try {
-				ResourceAccessRequirements req = ResourceAccessRequirements
-						.of(AccessMode.MANAGER)
-						.addPrivilege(UserGroupPrivilege.Edit)
-						.addPrivilege(UserGroupPrivilege.Instruct);
-				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), req);
-				
+				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 				/*
-				 * if user does not have at least access to resource in read only mode show access denied page.
+				if credential id is passed we check if credential is connected to unit because if admin
+				comes to this page from credential page he should always see competency and activity details - not found
+				page would be confusing for him.
 				 */
-				if (!access.isCanRead()) {
-					PageUtil.accessDenied();
-				} else {
+				boolean connectedToUnit = decodedCredId > 0
+						? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
+						: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+				if (td != null && connectedToUnit) {
+					organizationTitle = td.getOrganizationTitle();
+					unitTitle = td.getUnitTitle();
+
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 									decodedCredId, decodedCompId, decodedActId);
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							access.isCanInstruct(), true);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
-					
+
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
 							competenceData.getActivityToShowWithDetails().getCaptions(),
 							loggedUser.getUserId());
 
 					loadCompetenceAndCredentialTitle();
+				} else {
+					PageUtil.notFound();
 				}
-			} catch(ResourceNotFoundException rnfe) {
+			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the page");
@@ -104,7 +110,7 @@ public class ActivityViewBeanManager implements Serializable {
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
-		if(decodedCredId > 0) {
+		if (decodedCredId > 0) {
 			String credTitle = credManager.getCredentialTitle(decodedCredId);
 			competenceData.setCredentialId(decodedCredId);
 			competenceData.setCredentialTitle(credTitle);
@@ -180,24 +186,27 @@ public class ActivityViewBeanManager implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public CommentsData getCommentsData() {
-		return commentsData;
+	public String getOrgId() {
+		return orgId;
 	}
 
-	public void setCommentsData(CommentsData commentsData) {
-		this.commentsData = commentsData;
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
 	}
 
-	public String getCommentId() {
-		return commentId;
+	public String getUnitId() {
+		return unitId;
 	}
 
-	public void setCommentId(String commentId) {
-		this.commentId = commentId;
+	public void setUnitId(String unitId) {
+		this.unitId = unitId;
 	}
 
-	public ResourceAccessData getAccess() {
-		return access;
+	public String getOrganizationTitle() {
+		return organizationTitle;
 	}
 
+	public String getUnitTitle() {
+		return unitTitle;
+	}
 }

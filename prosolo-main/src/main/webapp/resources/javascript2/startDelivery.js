@@ -45,3 +45,11 @@ function setEndMinDate() {
 		}
 	}
 }
+
+function disableInputAfterSpecifiedTime(inputClass, time) {
+    if(time > 0) {
+        setTimeout(function() {
+            $("." + inputClass).prop('disabled', true);
+        }, time);
+    }
+}

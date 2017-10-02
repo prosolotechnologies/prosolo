@@ -1,16 +1,24 @@
 <ui:component
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util">
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
 		<composite:attribute name="deliveries" required="true" />
 		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
+		<composite:attribute name="isAdmin" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="bean" />
+		<composite:attribute name="onDeliveryEditComplete" default=""/>
+		<composite:attribute name="onDeliveryEditUpdate" default="" />
+		<composite:attribute name="encodedOrgId" default="" />
+		<composite:attribute name="encodedUnitId" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -60,14 +68,29 @@
 	                    </div>
 	                </div>
 	                <div class="deliveryItemRight">
-	                    <h:link rendered="#{cc.attrs.canEdit}" 
+	                    <h:link rendered="#{not cc.attrs.isAdmin and cc.attrs.canEdit}"
 	                    	outcome="/manage/create-credential" 
 	                    	styleClass="btn btn-green-stroke btn-sm">
 	                    	Edit
 	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
 	                    </h:link>
-	                    <h:link outcome="/manage/credential">
-	                    	Preview
+						<p:commandLink rendered="#{cc.attrs.isAdmin}"
+									   styleClass="btn btn-green-stroke btn-sm"
+									   pt:data-toggle="modal"
+									   process="@this"
+									   action="#{cc.attrs.bean.select(delivery)}"
+									   oncomplete="#{cc.attrs.onDeliveryEditComplete}"
+									   update="#{cc.attrs.onDeliveryEditUpdate}">
+							Edit Start/End
+						</p:commandLink>
+						<h:link rendered="#{cc.attrs.isAdmin}" outcome="/admin/credential">
+							View
+							<f:param name="orgId" value="#{cc.attrs.encodedOrgId}"></f:param>
+							<f:param name="unitId" value="#{cc.attrs.encodedUnitId}"></f:param>
+							<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
+						</h:link>
+	                    <h:link rendered="#{not cc.attrs.isAdmin}" outcome="/manage/credential">
+							Preview
 	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
 	                    </h:link>
 	                </div>

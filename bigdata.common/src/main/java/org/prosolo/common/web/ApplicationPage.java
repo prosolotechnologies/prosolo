@@ -97,7 +97,12 @@ public enum ApplicationPage {
 	ADMIN_UNIT_STUDENTS("/admin/unit-students.xhtml"),
 	ADMIN_UNIT_INSTRUCTORS("/admin/unit-instructors.xhtml"),
 	ADMIN_UNIT_GROUPS("/admin/unit-groups.xhtml"),
-	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml");
+	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml"),
+	ADMIN_UNIT_CREDENTIALS("/admin/unit-credentials.xhtml"),
+	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
+	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
+	ADMIN_COMPETENCE("/admin/competence.xhtml"),
+	ADMIN_ACTIVITY("/admin/activity.xhtml");
 
     private String uri; 
     

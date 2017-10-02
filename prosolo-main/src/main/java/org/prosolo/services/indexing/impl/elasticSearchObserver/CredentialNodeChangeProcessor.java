@@ -32,7 +32,13 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	public void process() {
 		Credential1 cred = (Credential1) session.load(Credential1.class, event.getObject().getId());
 		if (operation == NodeOperation.Update) {
-			if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT) {
+			if (event.getAction() == EventType.UPDATE_DELIVERY_TIMES) {
+				Map<String, String> params = event.getParameters();
+				long delStart = Long.parseLong(params.get("deliveryStart"));
+				long delEnd = Long.parseLong(params.get("deliveryEnd"));
+				credentialESService.updateDeliveryTimes(event.getOrganizationId(), event.getObject().getId(),
+						delStart, delEnd);
+			} else if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT) {
 				credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
 						event.getTarget().getId());
 				List<Long> deliveries = credManager.getDeliveryIdsForCredential(event.getObject().getId());

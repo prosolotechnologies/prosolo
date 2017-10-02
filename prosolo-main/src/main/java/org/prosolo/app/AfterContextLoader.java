@@ -191,7 +191,7 @@ public class AfterContextLoader implements ServletContextListener {
 			adminUser = ServiceLocator.getInstance().getService(RoleManager.class)
 					.assignRoleToUser(
 							adminRole, 
-							adminUser);
+							adminUser.getId());
 			
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
 					EventType.Edit_Profile, UserContextData.ofActor(adminUser.getId()), adminUser, null, null, null);

@@ -45,21 +45,19 @@ public class NodeChangeProcessorFactory {
     private CredentialManager credManager;
     @Inject
     private RubricsESService rubricsESService;
-    @Inject
-    private RubricManager rubricManager;
 
     public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
         EventType type = event.getAction();
         BaseEntity node = event.getObject();
         switch (type) {
-            case Registered:
-            case Account_Activated:
-            case Edit_Profile:
-            case ENROLL_COURSE:
-            case ENROLL_COMPETENCE:
-            case COURSE_WITHDRAWN:
-            case ACTIVATE_COURSE:
-            case ChangeProgress:
+			case Registered:
+			case Account_Activated:
+			case Edit_Profile:
+			case ENROLL_COURSE:
+			case ENROLL_COMPETENCE:
+			case COURSE_WITHDRAWN:
+			case ACTIVATE_COURSE:
+			case ChangeProgress:
                 return new UserNodeChangeProcessor(event, session, userEntityESService,
                         credentialESService, competenceESService, EventUserRole.Subject);
             case Create:
@@ -185,10 +183,11 @@ public class NodeChangeProcessorFactory {
             case REMOVE_COMPETENCE_FROM_UNIT:
                 return new CompetenceNodeChangeProcessor(event, competenceESService,
                         NodeOperation.Update, session);
+			case UPDATE_DELIVERY_TIMES:
+				return new CredentialNodeChangeProcessor(event, credentialESService, credManager, NodeOperation.Update, session);
             default:
                 return null;
         }
         return null;
     }
-
 }
