@@ -77,6 +77,10 @@
 									or util:getPagePath(view.viewId)  == 'units'
 									or util:getPagePath(view.viewId)  == 'unit-credentials'
 									or util:getPagePath(view.viewId)  == 'unit-settings'
+									or util:getPagePath(view.viewId) == 'credential'
+									or util:getPagePath(view.viewId) == 'competence'
+									or util:getPagePath(view.viewId) == 'activity'
+									or util:getPagePath(view.viewId) == 'credential-who-can-learn'
 									? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('organizations','mainmenu');"
 										value="Organizations" outcome="/admin/organizations" />
