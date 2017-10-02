@@ -137,7 +137,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
 		
 		QueryBuilder qb = QueryBuilders
-				.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -248,7 +248,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("name").field("lastname");
 				
@@ -317,9 +317,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
-			
+
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("name");
 			
