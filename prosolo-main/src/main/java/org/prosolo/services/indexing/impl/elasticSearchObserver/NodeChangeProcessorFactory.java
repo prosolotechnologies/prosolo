@@ -14,7 +14,6 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class NodeChangeProcessorFactory {
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
                 return new UserNodeChangeProcessor(event, session, userEntityESService,
-                        credentialESService, competenceESService, EventUserRole.Subject);
+                        credentialESService, competenceESService, credManager, EventUserRole.Subject);
             case Create:
             case Create_Draft:
             case Edit:
@@ -80,7 +79,7 @@ public class NodeChangeProcessorFactory {
             case REMOVE_USER_FROM_UNIT:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     NodeOperation operation = null;
                     if (type == EventType.Create || type == EventType.Create_Draft) {
@@ -113,7 +112,7 @@ public class NodeChangeProcessorFactory {
             case Delete_Draft:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     return new CredentialNodeChangeProcessor(event, credentialESService,
                             credManager, NodeOperation.Delete, session);
@@ -134,11 +133,8 @@ public class NodeChangeProcessorFactory {
                 //}
                 return null;
             case Bookmark:
-                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService,
-                        NodeOperation.Save);
             case RemoveBookmark:
-                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService,
-                        NodeOperation.Delete);
+                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, session);
             case Follow:
                 return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
             case Unfollow:

@@ -256,14 +256,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
+
 	@Override
-	@Transactional(readOnly = false)
 	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<CompetenceData1> res = self.enrollInCompetenceGetCompetenceDataAndGetEvents(compId, userId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			TargetCompetence1 targetComp = enrollInCompetence(compId, userId, context);
-			
+			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
+			TargetCompetence1 targetComp = res.getResult();
 			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
 					targetComp, 0, targetComp.getCompetence().getTags(), null, false);
 			
@@ -274,17 +284,29 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 			
-			return cd;
+			Result<CompetenceData1> result = new Result<>();
+			result.setResult(cd);
+			result.addEvents(res.getEvents());
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while enrolling a competence");
 		}
 	}
-	
+
 	@Override
-	@Transactional(readOnly = false)
-	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	public void enrollInCompetence(long compId, long userId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Date now = new Date();
@@ -312,9 +334,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Map<String, String> params = new HashMap<>();
 			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
 
-			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, context, competence, null, null, params);
+			Result<TargetCompetence1> res = new Result<>();
+			res.setResult(targetComp);
+			res.addEvent(eventFactory.generateEventData(EventType.ENROLL_COMPETENCE, context, competence, null, null, params));
 
-			return targetComp;
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1481,10 +1505,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
+
 	@Override
-	@Transactional(readOnly = false)
 	public void bookmarkCompetence(long compId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.bookmarkCompetenceAndGetEvents(compId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> bookmarkCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
@@ -1499,17 +1532,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			eventFactory.generateEvent(EventType.Bookmark, context, bookmark, competence, null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.Bookmark, context, bookmark, competence, null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while bookmarking competence");
 		}
 	}
+
+	@Override
+	public void deleteCompetenceBookmark(long compId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.deleteCompetenceBookmarkAndGetEvents(compId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void deleteCompetenceBookmark(long compId, UserContextData context)
+	@Transactional
+	public Result<Void> deleteCompetenceBookmarkAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(
@@ -1536,8 +1580,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			eventFactory.generateEvent(EventType.RemoveBookmark, context, cb, competence, null, null);
-			
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.RemoveBookmark, context, cb, competence, null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1629,10 +1674,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while counting number of users learning competence");
 		}
 	}
-	
+
 	@Override
-	@Transactional(readOnly = false)
 	public void archiveCompetence(long compId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.archiveCompetenceAndGetEvents(compId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> archiveCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -1641,8 +1695,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			eventFactory.generateEvent(EventType.ARCHIVE, context,
-					competence, null,null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.ARCHIVE, context,
+					competence, null,null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1875,10 +1931,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while retrieving user competences");
 		}
 	}
+
+	@Override
+	public void restoreArchivedCompetence(long compId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.restoreArchivedCompetenceAndGetEvents(compId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void restoreArchivedCompetence(long compId, UserContextData context)
+	@Transactional
+	public Result<Void> restoreArchivedCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -1887,7 +1952,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 
-			eventFactory.generateEvent(EventType.RESTORE, context, competence, null,null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.RESTORE, context, competence, null,null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2022,7 +2089,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			.setLong("nextActToLearnId", nextActivityToLearnId);
 		
 		if (finalCompProgress == 100) {
-			q.setDate("dateCompleted", now);
+			q.setTimestamp("dateCompleted", now);
 		}
 		q.executeUpdate();
 		

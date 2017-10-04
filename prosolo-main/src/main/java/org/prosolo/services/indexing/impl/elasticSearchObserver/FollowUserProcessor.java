@@ -18,14 +18,7 @@ public class FollowUserProcessor implements NodeChangeProcessor {
 
 	@Override
 	public void process() {
-		long followerId = event.getActorId();
-		long followedUserId = ((User) event.getObject()).getId();
-		
-		if (operation == NodeOperation.Save) {
-			userEntityESService.addFollowerIndex(event.getOrganizationId(), followedUserId, followerId);
-		} else if (operation == NodeOperation.Delete) {
-			userEntityESService.removeFollowerIndex(event.getOrganizationId(), followedUserId, followerId);
-		}
+		userEntityESService.updateFollowers(event.getOrganizationId(), event.getObject().getId());
 	}
 
 }

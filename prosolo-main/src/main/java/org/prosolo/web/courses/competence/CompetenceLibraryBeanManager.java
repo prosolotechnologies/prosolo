@@ -144,9 +144,11 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
-			} catch(DbConnectionException e) {
+			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			} catch (EventException e) {
+				logger.error("Error", e);
 			}
 			if(archived) {
 				try {
@@ -168,9 +170,11 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
-			} catch(DbConnectionException e) {
+			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			} catch (EventException e) {
+				logger.error("Error", e);
 			}
 			if(success) {
 				try {

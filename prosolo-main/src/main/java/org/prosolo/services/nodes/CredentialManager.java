@@ -171,15 +171,15 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	void bookmarkCredential(long credId, UserContextData context)
-			throws DbConnectionException;
-	
-	CredentialBookmark bookmarkCredential(long credId, long userId) 
+			throws DbConnectionException, EventException;
+
+	Result<Void> bookmarkCredentialAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException;
 	
 	void deleteCredentialBookmark(long credId, UserContextData context)
-			throws DbConnectionException;
-	
-	long deleteCredentialBookmark(long credId, long userId) 
+			throws DbConnectionException, EventException;
+
+	Result<Void> deleteCredentialBookmarkAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -365,9 +365,16 @@ public interface CredentialManager extends AbstractManager {
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
 			long userId) throws DbConnectionException;
 	
-	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
+	void archiveCredential(long credId, UserContextData context) throws DbConnectionException, EventException;
+
+	Result<Void> archiveCredentialAndGetEvents(long credId, UserContextData context)
+			throws DbConnectionException;
 	
-	void restoreArchivedCredential(long credId, UserContextData context) throws DbConnectionException;
+	void restoreArchivedCredential(long credId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> restoreArchivedCredentialAndGetEvents(long credId, UserContextData context)
+			throws DbConnectionException;
 
 	PaginatedResult<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page,
 																LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
@@ -424,5 +431,7 @@ public interface CredentialManager extends AbstractManager {
 
 	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
+
+	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
 
 }

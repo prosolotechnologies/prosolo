@@ -2,8 +2,10 @@ package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -137,15 +139,16 @@ public class CompetenceViewBeanUser implements Serializable {
 	 */
 	
 	public void enrollInCompetence() {
-
 		try {
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch(Exception e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

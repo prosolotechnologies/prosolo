@@ -281,9 +281,11 @@ public class CredentialEditBean implements Serializable {
 			credentialData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
 			PageUtil.redirect("/manage/library/credentials");
-		} catch(DbConnectionException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -292,9 +294,11 @@ public class CredentialEditBean implements Serializable {
 			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
-		} catch(DbConnectionException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

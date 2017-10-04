@@ -2,19 +2,16 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.event.ChangeProgressEvent;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.nodes.CredentialManager;
 
 import java.util.Map;
 
@@ -29,14 +26,16 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private CredentialESService credESService;
 	private CompetenceESService compESService;
 	private EventUserRole userRole;
+	private CredentialManager credManager;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			CredentialESService credESService, CompetenceESService compESService, EventUserRole userRole) {
+			CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;
 		this.credESService = credESService;
 		this.compESService = compESService;
+		this.credManager = credManager;
 		this.userRole = userRole;
 	}
 	
@@ -48,16 +47,8 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 
 		if (eventType == EventType.Delete) {
 			userEntityESService.removeUserFromIndex((User) session.load(User.class, event.getObject().getId()));
-		} else if (eventType == EventType.ADD_USER_TO_UNIT) {
-			String roleIdStr = params.get("roleId");
-			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
-			userEntityESService.addUserToUnitWithRole(unit.getOrganization().getId(),
-					event.getObject().getId(), unit.getId(), Long.parseLong(roleIdStr));
-		} else if (eventType == EventType.REMOVE_USER_FROM_UNIT) {
-			String roleIdStr = params.get("roleId");
-			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
-			userEntityESService.removeUserFromUnitWithRole(unit.getOrganization().getId(),
-					event.getObject().getId(), unit.getId(), Long.parseLong(roleIdStr));
+		} else if (eventType == EventType.ADD_USER_TO_UNIT || eventType == EventType.REMOVE_USER_FROM_UNIT) {
+			userEntityESService.updateRoles(event.getObject().getId(), session);
 		} else if (eventType == EventType.USER_ASSIGNED_TO_ORGANIZATION) {
 			userEntityESService.addUserToOrganization(
 					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId(), session);
@@ -65,75 +56,41 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.removeUserFromOrganization(
 					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId());
 		} else if (eventType == EventType.ENROLL_COURSE) {
-			Credential1 cred = (Credential1) event.getObject();
-			long instructorId = Long.parseLong(params.get("instructorId"));
-			String dateEnrolledString = params.get("dateEnrolled");
-			String prog = params.get("progress");
-			int progress = prog != null ? Integer.parseInt(prog) : 0;
-			userEntityESService.addCredentialToUserIndex(
-					event.getOrganizationId(),
-					cred.getId(), 
-					event.getActorId(), 
-					instructorId,
-					progress,
-					dateEnrolledString);
-			//add student to credential index
-			credESService.addStudentToCredentialIndex(event.getOrganizationId(), cred.getId(), event.getActorId());
+			//reindex user credentials collection
+			userEntityESService.updateCredentials(event.getOrganizationId(), event.getActorId(), session);
+			//reindex credential students collection
+			credESService.updateStudents(event.getOrganizationId(), event.getObject().getId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {
-			Competence1 comp = (Competence1) event.getObject();
-			String date = params.get("dateEnrolled");
-			userEntityESService.addCompetenceToUserIndex(
-					event.getOrganizationId(),
-					comp.getId(), 
-					event.getActorId(),  
-					date);
-			compESService.addStudentToCompetenceIndex(event.getOrganizationId(), comp.getId(), event.getActorId());
+			//reindex user competences collection
+			userEntityESService.updateCompetences(event.getOrganizationId(), event.getActorId(), session);
+			//reindex competence students index
+			compESService.updateStudents(event.getOrganizationId(), event.getObject().getId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 			
 			long credId = Long.parseLong(params.get("credId"));
-			/*
-			 * if unassigned, we should set instructorId to 0 in user index for this credential,
-			 * if assigned, we should set id of instructor that is assigned
-			 */
-			long instructorId = 0;
-			if (eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
-					|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
-				instructorId = event.getTarget().getId();
-			}
-			userEntityESService.assignInstructorToUserInCredential(event.getOrganizationId(), event.getObject().getId(),
+			long userId = event.getObject().getId();
+
+			Long instId = credManager.getInstructorUserId(userId, credId, session);
+			long instructorId = instId != null ? instId.longValue() : 0;
+
+			userEntityESService.assignInstructorToUserInCredential(event.getOrganizationId(), userId,
 					credId, instructorId);
-		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL) {
-			String dateAssigned = params.get("dateAssigned");
-			userEntityESService.addInstructorToCredential(event.getOrganizationId(), event.getTarget().getId(),
-					event.getObject().getId(), dateAssigned);
-			credESService.addInstructorToCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
-		} else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
-			userEntityESService.removeInstructorFromCredential(event.getOrganizationId(), event.getTarget().getId(),
-					event.getObject().getId());
-			credESService.removeInstructorFromCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
+		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL || eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
+			userEntityESService.updateCredentialsWithInstructorRole(event.getOrganizationId(), event.getObject().getId());
+			credESService.updateInstructors(event.getOrganizationId(), event.getTarget().getId(), session);
 		} else if(eventType == EventType.ChangeProgress) {
-	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
-	    	BaseEntity object = cpe.getObject();
+	    	BaseEntity object = event.getObject();
 	    	if (object instanceof TargetCredential1) {
-		    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
-		    	Credential1 cr = tc.getCredential();
-		    	
-				if (cr != null) {
-			    	userEntityESService.changeCredentialProgress(event.getOrganizationId(), cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
-		    	}
+		    	TargetCredential1 tc = (TargetCredential1) session.load(TargetCredential1.class, object.getId());
+		    	if (tc != null) {
+					userEntityESService.changeCredentialProgress(event.getOrganizationId(), event.getActorId(), tc.getCredential().getId(), tc.getProgress());
+				}
 	    	} else if (object instanceof TargetCompetence1) {
-	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
-		    	Competence1 c = tc.getCompetence();
-		    	
-				if (c != null) {
-					String dateCompleted = null;
-					if (params != null) {
-						dateCompleted = params.get("dateCompleted");
-					}
-			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), cpe.getActorId(),
-							c.getId(), cpe.getNewProgressValue(), dateCompleted);
+	    		TargetCompetence1 tc = (TargetCompetence1) session.load(TargetCompetence1.class, event.getObject().getId());
+				if (tc != null) {
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), event.getActorId(), tc);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {

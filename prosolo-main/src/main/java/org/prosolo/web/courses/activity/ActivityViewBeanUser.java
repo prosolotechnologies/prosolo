@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -230,9 +231,10 @@ public class ActivityViewBeanUser implements Serializable {
 				PageUtil.redirect("/competences/" + compId + "/" + actId);
 			}
 		} catch(DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -292,9 +294,11 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error marking the activity as completed");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

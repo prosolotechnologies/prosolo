@@ -843,10 +843,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while editing response");
 		}
 	}
+
+	@Override
+	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+	@Transactional
+	public Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -860,17 +869,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setBoolean("completed", true)
 				.setDate("date", new Date())
 				.executeUpdate();
-			
-			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, context);
+
+			Result<Void> res = new Result<>();
+			res.addEvents(compManager.updateCompetenceProgress(targetCompId, context));
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			eventFactory.generateEvent(EventType.Completion, context, tAct, null, null, null);
-			
-			for(EventData ev : events) {
-				eventFactory.generateEvent(ev);
-			}
+			res.addEvent(eventFactory.generateEventData(EventType.Completion, context, tAct, null, null, null));
+			return res;
 		} catch (DbConnectionException dce) {
 			throw dce;
 		} catch (Exception e) {
