@@ -444,7 +444,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			fireCompEditEvent(data, updatedComp, context);
 			
 			/* 
-			 * flushing to force lock timeout exception so it can be catched here. 
+			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
 			 */
 			persistence.currentManager().flush();

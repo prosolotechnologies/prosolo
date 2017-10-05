@@ -733,6 +733,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.rubricId = rubricId;
 	}
 
+	public boolean isRubricChanged() {
+		return changedAttributes.containsKey("rubricId");
+	}
+
 	public ActivityRubricVisibility getRubricVisibility() {
 		return rubricVisibility;
 	}

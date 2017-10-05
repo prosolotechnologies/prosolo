@@ -289,6 +289,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public void saveRubricCategoriesAndLevels(RubricData rubric, EditMode editMode)
             throws DbConnectionException, OperationForbiddenException {
         try {
+            /*
+            set a lock on a rubric so we can be sure that 'isUsed' status does not change between read
+			and update
+             */
             Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId(), LockOptions.UPGRADE);
 
             checkIfRequestIsValid(rubric, editMode);
@@ -463,6 +467,23 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
+    public boolean isRubricReadyToUse(long rubricId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT r.readyToUse FROM Rubric r " +
+                    "WHERE r.id = :id";
+
+            return persistence.currentManager().createQuery(query)
+                    .setLong("id", rubricId)
+                    .uniqueResult() != null;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving rubric data");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<RubricData> getPreparedRubricsFromUnits(List<Long> unitIds) throws DbConnectionException {
         try {
             if (unitIds.isEmpty()) {
@@ -471,8 +492,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             String query = "SELECT DISTINCT r FROM RubricUnit ru " +
                            "INNER JOIN ru.rubric r " +
-                           "INNER JOIN r.categories " +
-                           "WHERE ru.unit.id IN (:unitIds)";
+                           "WHERE r.readyToUse IS TRUE AND ru.unit.id IN (:unitIds)";
 
             List<Rubric> rubrics = persistence.currentManager()
                     .createQuery(query)

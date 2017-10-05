@@ -37,6 +37,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,6 +93,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Result<Activity1> result = new Result<>();
 			Activity1 activity = activityFactory.getActivityFromActivityData(data);
+
+			activity.setRubric(getRubricToSet(data));
+			activity.setRubricVisibility(data.getRubricVisibility());
 
 			if (data.getLinks() != null) {
 				Set<ResourceLink> activityLinks = new HashSet<>();
@@ -151,12 +155,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 
-			//set rubric data if set
-			if (data.getRubricId() > 0) {
-				activity.setRubric((Rubric) persistence.currentManager().load(Rubric.class, data.getRubricId()));
-				activity.setRubricVisibility(data.getRubricVisibility());
-			}
-
 			activity.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 
 			saveEntity(activity);
@@ -183,6 +181,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving activity");
 		}
+	}
+
+	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
+		//set rubric data
+		Rubric rubric = null;
+		if (activityData.getRubricId() > 0) {
+			/*
+			set a lock on a rubric so we can be sure that status will not change between read
+			and update
+			 */
+			rubric = (Rubric) persistence.currentManager().load(
+					Rubric.class, activityData.getRubricId(), LockOptions.UPGRADE);
+			if (!rubric.isReadyToUse()) {
+				throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
+			}
+		}
+		return rubric;
 	}
 
 	@Override
@@ -535,7 +550,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 updateActivity(ActivityData data, UserContextData context)
-			throws DbConnectionException, StaleDataException {
+			throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data);
 
@@ -573,7 +588,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException {
+	public Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
 			/*
 			 * Lock the competence record so we can avoid integrity rule violation with concurrent updates.
@@ -581,9 +596,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 * This way, exclusive lock on a competence is acquired and publish date is retrieved.
 			 */
 			String query = "SELECT comp.datePublished " +
-						   "FROM Competence1 comp " +
-						   "WHERE comp.id = :compId";
-			
+					"FROM Competence1 comp " +
+					"WHERE comp.id = :compId";
+
 			Date datePublished = (Date) persistence.currentManager()
 					.createQuery(query)
 					.setLong("compId", data.getCompetenceId())
@@ -596,7 +611,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 * be possible that some changes are made and others not.
 			 */
 			boolean compOncePublished = datePublished != null;
-			if(compOncePublished != data.isOncePublished()) {
+			if (compOncePublished != data.isOncePublished()) {
 				throw new StaleDataException("Data changed in the meantime. Please review changes and try again.");
 			}
 			
@@ -607,29 +622,29 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			final ActivityType actType = compOncePublished && data.isActivityTypeChanged()
 					? data.getActivityTypeBeforeUpdate().get()
 					: data.getActivityType();
-			
+
 			//if competence is published activity type can't be changed
-			if(!compOncePublished && data.isActivityTypeChanged()) {
+			if (!compOncePublished && data.isActivityTypeChanged()) {
 				updateActivityType(data.getActivityId(), data.getActivityType());
 			}
-			
-			Activity1 actToUpdate = (Activity1) persistence.currentManager().load(Activity1.class, 
+
+			Activity1 actToUpdate = (Activity1) persistence.currentManager().load(Activity1.class,
 					data.getActivityId());
 			
 			/* this check is needed to find out if activity is changed from the moment activity data
 			 * is loaded for edit to the moment update request is sent
 			 */
-			if(actToUpdate.getVersion() != data.getVersion()) {
+			if (actToUpdate.getVersion() != data.getVersion()) {
 				throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
 			}
-			
+
 			long oldDuration = getActivityDurationBeforeUpdate(data);
 			long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			
-			if(oldDuration != newDuration) {
+
+			if (oldDuration != newDuration) {
 				updateCompDuration(actToUpdate.getId(), newDuration, oldDuration);
 			}
-		
+
 			actToUpdate.setTitle(data.getTitle());
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
@@ -641,45 +656,44 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				actToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
 						data.getTagsString())));
 			}
-			
+
 			//changes which are not allowed if competence is once published
-			if(!compOncePublished) {
-				actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 
+			if (!compOncePublished) {
+				actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0
 						: Integer.parseInt(data.getMaxPointsString()));
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 				actToUpdate.setAutograde(data.isAutograde());
 
 				//set rubric data
-				Rubric rubric = data.getRubricId() > 0
-						? (Rubric) persistence.currentManager().load(Rubric.class, data.getRubricId())
-						: null;
-				actToUpdate.setRubric(rubric);
-				actToUpdate.setRubricVisibility(data.getRubricVisibility());
+				if (data.isRubricChanged()) {
+					actToUpdate.setRubric(getRubricToSet(data));
+					actToUpdate.setRubricVisibility(data.getRubricVisibility());
+				}
 			}
-			
+
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
-			
+
 			updateResourceLinks(data.getFiles(), actToUpdate.getFiles());
-			
+
 			actToUpdate.accept(new ActivityVisitor() {
-				
+
 				@Override
 				public void visit(ExternalToolActivity1 activity) {
 					activity.setLaunchUrl(data.getLaunchUrl());
 					activity.setSharedSecret(data.getSharedSecret());
 					activity.setConsumerKey(data.getConsumerKey());
 					activity.setOpenInNewWindow(data.isOpenInNewWindow());
-					
+
 					//changes which are not allowed if competence is published
-					if(!compOncePublished) {
+					if (!compOncePublished) {
 						activity.setAcceptGrades(data.isAcceptGrades());
 						activity.setScoreCalculation(data.getScoreCalculation());
 					}
 				}
-				
+
 				@Override
 				public void visit(UrlActivity1 activity) {
-					if(actType == ActivityType.VIDEO) {
+					if (actType == ActivityType.VIDEO) {
 						activity.setUrlType(UrlActivityType.Video);
 						activity.setUrl(data.getVideoLink());
 						updateResourceLinks(data.getCaptions(), activity.getCaptions());
@@ -689,20 +703,20 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					}
 					activity.setLinkName(data.getLinkName());
 				}
-				
+
 				@Override
 				public void visit(TextActivity1 activity) {
 					activity.setText(data.getText());
 				}
 			});
-	
-		    persistence.flush();
-		    return actToUpdate;
+
+			persistence.flush();
+			return actToUpdate;
 		} catch(HibernateOptimisticLockingFailureException e) {
 			e.printStackTrace();
 			logger.error(e);
 			throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
-		} catch (StaleDataException ex) {
+		} catch (StaleDataException|IllegalDataStateException ex) {
 			logger.error(ex);
 			ex.printStackTrace();
 			throw ex;

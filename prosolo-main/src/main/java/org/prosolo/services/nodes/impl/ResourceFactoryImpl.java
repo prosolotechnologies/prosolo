@@ -255,7 +255,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
-            throws DbConnectionException, StaleDataException {
+            throws DbConnectionException, StaleDataException, IllegalDataStateException {
         return activityManager.updateActivityData(data);
     }
 

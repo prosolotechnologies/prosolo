@@ -65,4 +65,6 @@ public interface RubricManager extends AbstractManager {
     List<RubricData> getPreparedRubricsFromUnits(List<Long> unitIds) throws DbConnectionException;
 
     boolean isRubricUsed(long rubricId) throws DbConnectionException;
+
+    boolean isRubricReadyToUse(long rubricId) throws DbConnectionException;
 }
