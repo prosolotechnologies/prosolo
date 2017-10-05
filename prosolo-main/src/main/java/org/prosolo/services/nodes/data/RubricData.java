@@ -29,6 +29,8 @@ public class RubricData extends StandardObservable implements Serializable {
     private List<RubricCategoryData> categories;
     private List<RubricItemData> levels;
 
+    private boolean readyToUse;
+
     public RubricData() {
         categories = new ArrayList<>();
         levels = new ArrayList<>();
@@ -135,5 +137,18 @@ public class RubricData extends StandardObservable implements Serializable {
 
     public List<RubricItemData> getLevels() {
         return levels;
+    }
+
+    public boolean isReadyToUse() {
+        return readyToUse;
+    }
+
+    public void setReadyToUse(boolean readyToUse) {
+        observeAttributeChange("readyToUse", this.readyToUse, readyToUse);
+        this.readyToUse = readyToUse;
+    }
+
+    public boolean isReadyToUseChanged() {
+        return changedAttributes.containsKey("readyToUse");
     }
 }

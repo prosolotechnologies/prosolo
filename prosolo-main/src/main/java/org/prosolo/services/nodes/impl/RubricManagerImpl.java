@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -290,7 +291,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             we can safely check if there is an activity connected to rubric and determine which edit
             mode we have
              */
-            Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId());
+            Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId(), LockOptions.UPGRADE);
+
+            //there should also be a check whether rubric is connected to activity and update should fail in some cases
+            if (rubric.isReadyToUseChanged()) {
+                rub.setReadyToUse(rubric.isReadyToUse());
+            }
             Level lvl;
             for (RubricItemData level : rubric.getLevels()) {
                 switch (level.getStatus()) {

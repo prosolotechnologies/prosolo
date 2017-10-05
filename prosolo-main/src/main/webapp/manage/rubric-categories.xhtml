@@ -38,7 +38,7 @@
                 <div class="col-md-12">
                     <h:panelGroup layout="block" rendered="#{rubricCategoriesBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
                         Since the #{msg['label.rubric'].toLowerCase()} is being used in at least one activity, some changes can't be performed.
-                        These include changing the percentage weights, adding or removing categories and levels.
+                        These include changing the percentage weights, adding or removing categories and levels, changing the 'ready' status for the #{msg['label.rubric'].toLowerCase()}.
                     </h:panelGroup>
                     <h:form id="formMain">
                         <p:growl id="growlMain" globalOnly="true" showDetail="true" />
@@ -250,6 +250,11 @@
                                         </ui:repeat>
                                     </table>
                                 </ui:repeat>
+
+                                <div class="checkbox checkLine bottom30">
+                                    <h:selectBooleanCheckbox id="checkReady" value="#{rubricCategoriesBean.rubric.readyToUse}" disabled="#{rubricCategoriesBean.limitedEdit}"/>
+                                    <h:outputLabel for="checkReady">Ready to use (the #{msg['label.rubric'].toLowerCase()} can be used for grading an activity)</h:outputLabel>
+                                </div>
 
                                 <p:commandLink id="btnSaveRubricDoValidate"
                                     styleClass="btn btn-green"
