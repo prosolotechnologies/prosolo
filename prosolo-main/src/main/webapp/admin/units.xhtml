@@ -47,9 +47,11 @@
 			<div class="row">
 				<div class="container">
 					<ol class="breadcrumb">
-						<li>
-							<h:link value="Organizations" outcome="/admin/organizations"/>
-						</li>
+						<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+							<li>
+								<h:link value="Organizations" outcome="/admin/organizations"/>
+							</li>
+						</ui:fragment>
 						<li>
 							<h:link value="#{unitsBean.organizationData.title}" outcome="/admin/units">
 								<f:param name="id" value="#{unitsBean.organizationId}" /></h:link>

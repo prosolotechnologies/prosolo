@@ -58,6 +58,7 @@
 						<ui:param name="section" value="ADMIN" />
 					</ui:include>
 
+					<ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
 					<nav>
 						<ul class="nav nav-pills">
 							<ui:remove>
@@ -100,7 +101,7 @@
 							<ui:remove>
 								<li role="presentation"
 									class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
-									<h:link onclick="sendLogPageNavigation('twitter','mainmenu');"
+									<h:link onclick="sendLogPageNavigation('twitter','mainmenu');	"
 											value="Twitter" outcome="/admin/users" />
 								</li>
 							</ui:remove>
@@ -111,6 +112,53 @@
 							</li>
 						</ul>
 					</nav>
+					</ui:fragment>
+
+					<ui:fragment rendered="#{!request.isUserInRole('ADMIN.ADVANCED')}">
+						<nav>
+							<ul class="nav nav-pills">
+								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'units'
+									 or util:getPagePath(view.viewId)  == 'unitEdit'
+									 or util:getPagePath(view.viewId)  == 'unit-students'
+									 or util:getPagePath(view.viewId)  == 'unit-instructors'
+									 or util:getPagePath(view.viewId)  == 'unit-group-users'
+									 or util:getPagePath(view.viewId)  == 'unit-groups'
+									 or util:getPagePath(view.viewId)  == 'unit-teachers'? 'active' : ''}">
+									<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
+										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+										Units
+									</h:link>
+									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'units'}">
+										<a href="javascript:void(0);">Units</a>
+									</ui:fragment>
+								</li>
+								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationUsers'
+									or util:getPagePath(view.viewId) eq 'userEditPassword'
+									or util:getPagePath(view.viewId) eq 'organizationUserEdit' ? 'active' : ''}">
+									<h:link rendered="#{not (util:getPagePath(view.viewId) eq 'organizationUsers')}"
+											outcome="/admin/organizationUsers">
+										<f:param name="orgId" value="#{util:encodeId(loggeduser.organizationId)}" />
+										People
+									</h:link>
+									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationUsers'}">
+										<a href="javascript:void(0);">People</a>
+									</ui:fragment>
+								</li>
+								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationNew' ? 'active' : ''}">
+									<h:link rendered="#{util:getPagePath(view.viewId) ne 'organizationNew'}"
+											outcome="/admin/organizationNew">
+										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+										Organization Details
+									</h:link>
+									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationNew'}">
+										<a href="javascript:void(0);">Organization Details</a>
+									</ui:fragment>
+								</li>
+							</ul>
+						</nav>
+					</ui:fragment>
+
+
 				</div>
 				<div class="headerTopRight">
 					<h:form id="messagePollingForm">

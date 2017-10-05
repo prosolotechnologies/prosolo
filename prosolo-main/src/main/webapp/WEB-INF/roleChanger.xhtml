@@ -2,6 +2,8 @@
               xmlns:h="http://java.sun.com/jsf/html"
               xmlns:ui="http://java.sun.com/jsf/facelets"
               xmlns:c="http://java.sun.com/jsp/jstl/core"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:util="http://www.prosolo.com/util"
 >
         <c:if test="#{section eq 'STUDENT' and (loggeduser.hasCapability('basic.manager.access')  or loggeduser.hasCapability('basic.instructor.access') or loggeduser.hasCapability('basic.admin.access'))
             or section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access'))
@@ -24,9 +26,15 @@
                         </h:link>
                     </li>
                     <li class="#{section eq 'ADMIN' ? 'selected' : ''}">
-                        <h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+                        <h:link rendered="#{loggeduser.hasCapability('admin.advanced')}"
                                 onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
                                 outcome="/admin/organizations">
+                            <span></span>Admin
+                        </h:link>
+                        <h:link rendered="#{!loggeduser.hasCapability('admin.advanced')}"
+                                onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
+                                outcome="/admin/organizationNew">
+                            <f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
                             <span></span>Admin
                         </h:link>
                     </li>

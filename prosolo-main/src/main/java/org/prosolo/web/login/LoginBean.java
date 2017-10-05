@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.prosolo.core.spring.security.HomePageResolver;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.OpenIDBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -29,8 +30,8 @@ public class LoginBean implements Serializable{
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(LoginBean.class);
 	
-	//@Inject
-	//private LoggedUserBean loggedUserBean;
+	@Inject
+	private LoggedUserBean loggedUserBean;
 	@Inject
 	private OpenIDBean openIdBean;
 	
@@ -45,7 +46,7 @@ public class LoginBean implements Serializable{
 	
 	public void checkIfLoggedIn(){
 		if (isUserLoggedIn()) {
-			PageUtil.redirect(new HomePageResolver().getHomeUrl());
+			PageUtil.redirect(new HomePageResolver().getHomeUrl(loggedUserBean.getOrganizationId()));
 		}
 	}
 	

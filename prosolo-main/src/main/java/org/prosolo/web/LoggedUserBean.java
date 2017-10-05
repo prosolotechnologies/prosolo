@@ -230,7 +230,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 						.getExternalContext().getRequest();
 				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl());
+				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
 				return;
 			}
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
