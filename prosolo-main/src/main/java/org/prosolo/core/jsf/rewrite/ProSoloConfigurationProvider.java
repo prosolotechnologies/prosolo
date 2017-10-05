@@ -99,7 +99,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/rubrics").to("/manage/rubricLibrary.xhtml"))
 				.addRule(Join.path("/manage/rubrics/{id}/edit").to("/manage/rubricEdit.xhtml"))
-				.addRule(Join.path("/manage/rubrics/new").to("/manage/newRubric.xhtml"))
 				.addRule(Join.path("/manage/notifications").to("/manage/notifications.xhtml"))
 				.addRule(Join.path("/manage/messages/{id}").to("/manage/messages.xhtml"))
 				.addRule(Join.path("/manage/messages").to("/manage/messages.xhtml"))

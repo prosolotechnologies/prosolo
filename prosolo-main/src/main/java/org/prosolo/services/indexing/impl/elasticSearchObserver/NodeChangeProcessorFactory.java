@@ -105,7 +105,7 @@ public class NodeChangeProcessorFactory {
                     return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
                             organizationManager, event, session);
                 } else if (node instanceof Rubric) {
-                    return new RubricNodeChangeProcessor(event, rubricsESService);
+                    return new RubricNodeChangeProcessor(event, rubricsESService, session);
                 } else {
                     return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
                 }
@@ -125,7 +125,7 @@ public class NodeChangeProcessorFactory {
                             credentialESService, userGroupManager, competenceESService,
                             userEntityESService, ctxJsonParserService, session);
                 } else if (node instanceof Rubric) {
-                    return new RubricNodeChangeProcessor(event, rubricsESService);
+                    return new RubricNodeChangeProcessor(event, rubricsESService, session);
                 }
                 return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
             case Attach:
