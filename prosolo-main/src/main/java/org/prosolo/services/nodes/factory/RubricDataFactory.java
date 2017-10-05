@@ -27,6 +27,7 @@ public class RubricDataFactory {
 		rd.setId(rubric.getId());
 		rd.setName(rubric.getTitle());
 		rd.setOrganizationId(rubric.getOrganization().getId());
+		rd.setReadyToUse(rubric.isReadyToUse());
 
 		if (creator != null) {
 			rd.setCreatorFullName(creator.getFullName());

@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -288,42 +289,14 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public void saveRubricCategoriesAndLevels(RubricData rubric, EditMode editMode)
             throws DbConnectionException, OperationForbiddenException {
         try {
-            boolean rubricUsed = isRubricUsed(rubric.getId());
-            /*
-            if edit mode is full but rubric is used in at least one activity it means we have the stale data
-            and rubric is added to at least one activity in the meantime
-             */
-            if (rubricUsed && editMode == EditMode.FULL) {
-                throw new OperationForbiddenException("Rubric can't be saved because it is connected to at least one activity");
+            Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId(), LockOptions.UPGRADE);
+
+            checkIfRequestIsValid(rubric, editMode);
+
+            if (rubric.isReadyToUseChanged()) {
+                rub.setReadyToUse(rubric.isReadyToUse());
             }
 
-            /**
-             * if edit mode is limited but changes are made that are not allowed in limited edit mode
-             * OperationForbiddenException is thrown
-             */
-            if (editMode == EditMode.LIMITED) {
-                /*
-                following changes are allowed only in full edit mode:
-                - creating new categories and levels
-                - removing existing categories and levels
-                - changing category and level weights/points
-                 */
-                boolean notAllowedChangesMade = rubric.getCategories()
-                        .stream()
-                        .anyMatch(c -> c.getStatus() == ObjectStatus.CREATED || c.getStatus() == ObjectStatus.REMOVED || c.arePointsChanged());
-
-                if (!notAllowedChangesMade) {
-                    notAllowedChangesMade = rubric.getLevels()
-                            .stream()
-                            .anyMatch(l -> l.getStatus() == ObjectStatus.CREATED || l.getStatus() == ObjectStatus.REMOVED || l.arePointsChanged());
-                }
-
-                if (notAllowedChangesMade) {
-                    throw new OperationForbiddenException("Limited edit is requested but changes are made that are not allowed in this edit mode");
-                }
-            }
-
-            Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, rubric.getId());
             Level lvl;
             for (RubricItemData level : rubric.getLevels()) {
                 switch (level.getStatus()) {
@@ -424,6 +397,49 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error saving the rubric data");
+        }
+    }
+
+    private void checkIfRequestIsValid(RubricData rubric, EditMode editMode) throws OperationForbiddenException{
+        boolean rubricUsed = isRubricUsed(rubric.getId());
+            /*
+            if edit mode is full but rubric is used in at least one activity it means we have the stale data
+            and rubric is added to at least one activity in the meantime
+             */
+        if (rubricUsed && editMode == EditMode.FULL) {
+            throw new OperationForbiddenException("Rubric can't be saved because it is connected to at least one activity");
+        }
+
+        /**
+         * if edit mode is limited but changes are made that are not allowed in limited edit mode
+         * OperationForbiddenException is thrown
+         */
+        if (editMode == EditMode.LIMITED) {
+                /*
+                following changes are allowed only in full edit mode:
+                - changing the 'ready' status for the rubric
+                - creating new categories and levels
+                - removing existing categories and levels
+                - changing category and level weights/points
+                 */
+
+            boolean notAllowedChangesMade = rubric.isReadyToUseChanged();
+
+            if (!notAllowedChangesMade) {
+                notAllowedChangesMade = rubric.getCategories()
+                        .stream()
+                        .anyMatch(c -> c.getStatus() == ObjectStatus.CREATED || c.getStatus() == ObjectStatus.REMOVED || c.arePointsChanged());
+
+                if (!notAllowedChangesMade) {
+                    notAllowedChangesMade = rubric.getLevels()
+                            .stream()
+                            .anyMatch(l -> l.getStatus() == ObjectStatus.CREATED || l.getStatus() == ObjectStatus.REMOVED || l.arePointsChanged());
+                }
+            }
+
+            if (notAllowedChangesMade) {
+                throw new OperationForbiddenException("Limited edit is requested but changes are made that are not allowed in this edit mode");
+            }
         }
     }
 

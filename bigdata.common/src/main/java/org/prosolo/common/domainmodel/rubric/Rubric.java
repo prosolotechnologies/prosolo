@@ -2,6 +2,7 @@ package org.prosolo.common.domainmodel.rubric;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
@@ -25,6 +26,7 @@ public class Rubric extends BaseEntity {
     private Organization organization;
     private Set<Category> categories;
     private Set<Level> levels;
+    private boolean readyToUse;
 
     public Rubric() {
         categories = new HashSet<>();
@@ -68,4 +70,13 @@ public class Rubric extends BaseEntity {
         this.categories = categories;
     }
 
+    @Type(type = "true_false")
+    @Column(columnDefinition = "char(1) DEFAULT 'F'", nullable = false)
+    public boolean isReadyToUse() {
+        return readyToUse;
+    }
+
+    public void setReadyToUse(boolean readyToUse) {
+        this.readyToUse = readyToUse;
+    }
 }
