@@ -144,13 +144,13 @@
 										<a href="javascript:void(0);">People</a>
 									</ui:fragment>
 								</li>
-								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationNew' ? 'active' : ''}">
-									<h:link rendered="#{util:getPagePath(view.viewId) ne 'organizationNew'}"
-											outcome="/admin/organizationNew">
+								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organization-settings' ? 'active' : ''}">
+									<h:link rendered="#{util:getPagePath(view.viewId) ne 'organization-settings'}"
+											outcome="/admin/organization-settings">
 										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
 										Organization Details
 									</h:link>
-									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationNew'}">
+									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organization-settings'}">
 										<a href="javascript:void(0);">Organization Details</a>
 									</ui:fragment>
 								</li>
