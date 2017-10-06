@@ -94,7 +94,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional (readOnly = true)
     public OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException {
-
         try{
             String query = "SELECT organization " +
                 "FROM Organization organization " +

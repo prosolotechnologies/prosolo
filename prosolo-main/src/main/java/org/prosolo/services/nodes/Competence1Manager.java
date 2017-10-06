@@ -16,6 +16,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
 
 import java.util.List;
 
@@ -111,7 +112,9 @@ public interface Competence1Manager {
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
-	
+
+	CompetenceData1 getCompetenceData(long id) throws DbConnectionException;
+
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
 					throws DbConnectionException;
@@ -358,7 +361,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all unfinished competences (competences that has progress != 100)
@@ -369,7 +372,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Update whether a competence should be visible on the profile or not.

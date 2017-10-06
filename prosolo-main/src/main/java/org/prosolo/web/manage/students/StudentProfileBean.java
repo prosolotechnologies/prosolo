@@ -16,12 +16,14 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -66,7 +68,7 @@ public class StudentProfileBean implements Serializable {
 
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
-	
+
 	private UserSocialNetworks userSocialNetworks;
 
 	private List<CredentialProgressData> credentials;
@@ -134,10 +136,10 @@ public class StudentProfileBean implements Serializable {
 	private void initCredentials() {
 		try {
 			credentials = new ArrayList<>();
-			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId, false);
+			List<TargetCredentialData> userCredentials = credentialManager.getAllCredentials(decodedId, false);
 			boolean first = true;
 
-			for (TargetCredential1 targetCred : userCredentials) {
+			for (TargetCredentialData targetCred : userCredentials) {
 				CredentialProgressData credProgressData = new CredentialProgressData(targetCred);
 				credentials.add(credProgressData);
 

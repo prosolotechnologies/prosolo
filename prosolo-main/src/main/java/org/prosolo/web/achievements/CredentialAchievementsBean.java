@@ -41,7 +41,7 @@ public class CredentialAchievementsBean implements Serializable {
 
 	public void initCompletedCredentials() {
 		try {
-			List<TargetCredential1> targetCredential1List = credentialManager.getAllCompletedCredentials(
+			List<TargetCredentialData> targetCredential1List = credentialManager.getAllCompletedCredentials(
 					loggedUser.getUserId(), 
 					false);
 			
@@ -55,7 +55,7 @@ public class CredentialAchievementsBean implements Serializable {
 
 	public void initInProgressCredentials() {
 		try {
-			List<TargetCredential1> targetCredential1List = credentialManager
+			List<TargetCredentialData> targetCredential1List = credentialManager
 					.getAllInProgressCredentials(loggedUser.getUserId(), false);
 			
 			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()

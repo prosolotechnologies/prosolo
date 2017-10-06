@@ -1,6 +1,7 @@
 package org.prosolo.web.achievements.data;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.services.nodes.data.CompetenceData1;
 
 import java.io.Serializable;
 

@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -71,6 +72,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		tags = new HashSet<>();
 		this.listenChanges = listenChanges;
+	}
+
+	public CompetenceData1(Competence1 competence1){
+		this.competenceId = competence1.getId();
+		this.description = competence1.getDescription();
+		this.title = competence1.getTitle();
+		this.duration = competence1.getDuration();
+		this.type = competence1.getType();
 	}
 	
 	@Override

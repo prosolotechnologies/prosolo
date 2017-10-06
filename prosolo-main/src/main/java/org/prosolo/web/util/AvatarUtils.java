@@ -10,6 +10,7 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.services.FileStoreConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.StringUtils;
@@ -32,6 +33,31 @@ public class AvatarUtils {
 	public static String getAvatarUrlInFormat(User user, ImageFormat format) {
 		
 		String avatarUrl = null;
+
+		if (user != null) {
+			// check if avatar is already full URL
+			if (user.getAvatarUrl() != null && user.getAvatarUrl().startsWith("http")) {
+				return user.getAvatarUrl();
+			}
+
+			if (!Hibernate.isInitialized(user)) {
+				user = ServiceLocator.getInstance().getService(DefaultManager.class).merge(user);
+			}
+			avatarUrl = user.getAvatarUrl();
+			return getAvatarUrlInFormat(avatarUrl, format);
+//		} else {
+//			avatarUrl = getDefaultAvatarUrl();
+		}
+		return null;
+	}
+
+	public static String getAvatarUrlInFormat(UserData userData, ImageFormat format) {
+
+		String avatarUrl = null;
+		User user = new User();
+		user.setId(userData.getId());
+		user.setName(userData.getName());
+		user.setAvatarUrl(userData.getAvatarUrl());
 
 		if (user != null) {
 			// check if avatar is already full URL

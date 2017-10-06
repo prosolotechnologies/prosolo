@@ -41,6 +41,7 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -1414,15 +1415,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.ANY);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<TargetCredential1> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
+	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList<>();
+		List<TargetCredentialData> result = new ArrayList<>();
 		try {
 			String query =
 					"SELECT targetCredential1 " +
@@ -1461,14 +1462,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 

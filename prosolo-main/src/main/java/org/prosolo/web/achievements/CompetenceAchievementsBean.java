@@ -43,7 +43,7 @@ public class CompetenceAchievementsBean implements Serializable {
 
 	public void init() {
 		try {
-			List<TargetCompetence1> targetCompetence1List = competenceManager.getAllCompletedCompetences(
+			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					loggedUser.getUserId(),
 					false);
 

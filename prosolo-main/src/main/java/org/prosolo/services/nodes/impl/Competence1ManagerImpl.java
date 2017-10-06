@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -33,6 +34,7 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -352,6 +354,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading competence data");
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceData(long id) throws DbConnectionException {
+		CompetenceData1 competenceData1 = null;
+		try {
+			Competence1 competence1 = loadResource(Competence1.class,id);
+			competenceData1 = new CompetenceData1(competence1);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			e.printStackTrace();
+		}
+		return competenceData1;
 	}
 
 	/**
@@ -2208,19 +2223,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional (readOnly = true)
-	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCompetences(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	@Transactional (readOnly = true)
-	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCompetences(userId, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<TargetCompetence1> getTargetCompetences(long userId, boolean onlyPubliclyVisible,
+	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {
 		try {

@@ -18,4 +18,14 @@ public class UserDataFactory {
 		
 		return userData;
 	}
+
+	public static User createUser(UserData userData){
+		User user = new User();
+		user.setId(userData.getId());
+		user.setName(userData.getName());
+		user.setLastname(userData.getLastName());
+		user.setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(userData.getAvatarUrl(), ImageFormat.size120x120));
+
+		return user;
+	}
 }

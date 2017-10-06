@@ -2,8 +2,6 @@ package org.prosolo.web.profile;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
@@ -14,6 +12,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
@@ -25,10 +24,13 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -87,12 +89,13 @@ public class Profile {
 	private String studentAffiliation;
 	private String studentLocation;
 	private boolean personalProfile;
-	private User currentStudent;
+	private UserData currentStudent;
 
 	public void init() {
 		
 		try {
 			currentStudent = getUser();
+			User user = UserDataFactory.createUser(currentStudent);
 
 			// fire event here so we know whether another students profile has
 			// been opened or user opened his profile. In the following step
@@ -107,7 +110,7 @@ public class Profile {
 				UserContextData userContext = loggedUserBean.getUserContext(new PageContextData(page, context, null));
 				taskExecutor.execute(() -> {
 					try {
-						eventFactory.generateEvent(EventType.View_Profile, userContext, currentStudent,
+						eventFactory.generateEvent(EventType.View_Profile, userContext, user,
 								null, null, null);
 					} catch (EventException e) {
 						logger.error(e);
@@ -198,18 +201,18 @@ public class Profile {
 		
 	}
 
-	private void initializeStudentData(User student) {
+	private void initializeStudentData(UserData student) {
 		studentId = String.valueOf(student.getId());
 		avatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
 		//smallAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
 		studentInitials = getInitials(student);
-		studentFullName = student.getName()+" "+student.getLastname();
+		studentFullName = student.getFirstName()+" "+student.getLastName();
 		studentLocation = student.getLocationName();
 		personalProfile = student.getId() == loggedUserBean.getUserId();
 	}
 
-	private void initializeTargetCredentialData(User student) {
-		List<TargetCredential1> targetCredential1List = credentialManager.getAllCompletedCredentials(
+	private void initializeTargetCredentialData(UserData student) {
+		List<TargetCredentialData> targetCredential1List = credentialManager.getAllCompletedCredentials(
 				student.getId(), 
 				true);
 		
@@ -217,9 +220,9 @@ public class Profile {
 				.mapDataToPageObject(targetCredential1List);
 	}
 	
-	private void initializeTargetCompetenceData(User student) {
+	private void initializeTargetCompetenceData(UserData student) {
 		try {
-			List<TargetCompetence1> targetCompetence1List = competenceManager.getAllCompletedCompetences(
+			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					student.getId(), 
 					true);
 			
@@ -243,9 +246,9 @@ public class Profile {
 //		}
 //	}
 	
-	private void initializeInProgressCredentials(User student) {
+	private void initializeInProgressCredentials(UserData student) {
 		try {
-			List<TargetCredential1> targetCompetence1List = credentialManager.getAllInProgressCredentials(
+			List<TargetCredentialData> targetCompetence1List = credentialManager.getAllInProgressCredentials(
 					student.getId(), 
 					true);
 			
@@ -256,7 +259,7 @@ public class Profile {
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
 		}
 	}
-	
+
 	private void initializeSocialNetworkData(User student) {
 		try {
 			UserSocialNetworks userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
@@ -277,18 +280,19 @@ public class Profile {
 	}
 	
 
-	private User getUser() throws ResourceCouldNotBeLoadedException {
-		return StringUtils.isNotBlank(studentId)
-				? userManager.get(User.class, idEncoder.decodeId(studentId)) 
-				: userManager.loadResource(User.class, loggedUserBean.getUserId());
+	private UserData getUser() throws ResourceCouldNotBeLoadedException {
+		return userManager.getActivityWallUserData(loggedUserBean.getUserId());
+		/*return StringUtils.isNotBlank(studentId)
+				? userManager.getActivityWallUserData(idEncoder.decodeId(studentId))
+				: userManager.loadResource(User.class, loggedUserBean.getUserId());*/
 	}
 	
-	private String getInitials(User student) {
-		if (StringUtils.isNotBlank(student.getName())) {
-			if (StringUtils.isNotBlank(student.getLastname())) {
-				return (student.getName().charAt(0) + "" + student.getLastname().charAt(0)).toUpperCase();
+	private String getInitials(UserData student) {
+		if (StringUtils.isNotBlank(student.getFirstName())) {
+			if (StringUtils.isNotBlank(student.getLastName())) {
+				return (student.getFirstName().charAt(0) + "" + student.getLastName().charAt(0)).toUpperCase();
 			} else
-				return student.getName().toUpperCase().charAt(0) + "";
+				return student.getFirstName().toUpperCase().charAt(0) + "";
 		} else {
 			return "N/A";
 		}

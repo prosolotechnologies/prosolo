@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -22,6 +23,10 @@ import java.util.List;
 public interface UserManager extends AbstractManager {
 
 	User getUser(String email) throws DbConnectionException;
+
+	User getUser(long userId) throws DbConnectionException;
+
+	org.prosolo.common.web.activitywall.data.UserData getActivityWallUserData(long userId) throws DbConnectionException;
 
 	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
