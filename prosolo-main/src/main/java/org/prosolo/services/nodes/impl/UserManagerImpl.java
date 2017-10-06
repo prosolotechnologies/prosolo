@@ -80,6 +80,19 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public org.prosolo.common.web.activitywall.data.UserData getActivityWallUserData(long userId) throws DbConnectionException {
+		org.prosolo.common.web.activitywall.data.UserData userData = null;
+		try {
+			User user = loadResource(User.class,userId);
+			userData = new org.prosolo.common.web.activitywall.data.UserData(userId,user.getName(),user.getLastname(),user.getAvatarUrl());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			e.printStackTrace();
+		}
+		return userData;
+	}
+
+	@Override
 	@Transactional (readOnly = true)
 	public User getUserIfNotDeleted(String email) throws DbConnectionException {
 		return getUser(email, true);

@@ -30,7 +30,6 @@ import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -119,7 +118,7 @@ public class Profile {
 			}
 			
 			initializeStudentData(currentStudent);
-			initializeSocialNetworkData(currentStudent);
+			initializeSocialNetworkData(user);
 			initializeTargetCredentialData(currentStudent);
 			initializeSocialNetworkNameMap();
 		} catch (ResourceCouldNotBeLoadedException e) {
