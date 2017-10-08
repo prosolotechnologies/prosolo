@@ -10,7 +10,11 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 public interface BulkDataAdministrationService {
     void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable;
 
-    void deleteAndReindexUsers() throws IndexingServiceNotAvailable;
+    void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable;
+
+    void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable;
+
+    void deleteAndReindexUsersAndGroups(long orgId) throws IndexingServiceNotAvailable;
 
     void indexDBData();
 }

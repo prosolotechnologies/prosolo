@@ -73,7 +73,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.REMOVE_CREDENTIAL_FROM_UNIT,
 			EventType.ADD_COMPETENCE_TO_UNIT,
 			EventType.REMOVE_COMPETENCE_FROM_UNIT,
-			EventType.Account_Activated
+			EventType.Account_Activated,
+			EventType.UPDATE_DELIVERY_TIMES
 		};
 	}
 

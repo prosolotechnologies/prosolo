@@ -36,10 +36,10 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			
 		User user = (User) authentication.getPrincipal();
 		HttpSession session = request.getSession(true);
-	
+		Map<String, Object> sessionData = null;
 		boolean success;
 		try {
-			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
+			sessionData = sessionDataLoader.init(user.getUsername(), request, session);
 			session.setAttribute("user", sessionData);
 			try {
 				UserContextData context = UserContextData.of((long) sessionData.get("userId"),
@@ -61,7 +61,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				uri = uri.substring(request.getContextPath().length());
 				setDefaultTargetUrl(uri);
 			} else {
-				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());
+				Long orgId = (Long)sessionData.get("organizationId");
+				long organizationId = orgId == null ? 0 : orgId;
+				setDefaultTargetUrl(new HomePageResolver().getHomeUrl(organizationId));
 			}
 			super.onAuthenticationSuccess(request, response, authentication);
 		} else {

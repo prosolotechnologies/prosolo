@@ -51,4 +51,6 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 
 	void removeUnitFromCredentialIndex(long organizationId, long credId, long unitId);
 
+	void updateDeliveryTimes(long organizationId, long deliveryId, long deliveryStartTime, long deliveryEndTime);
+
 }

@@ -53,7 +53,9 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+				<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+				</ui:fragment>
 				<li>
 					<h:link outcome="/admin/units">
 						#{unitUsersBean.organizationTitle}
@@ -67,7 +69,7 @@
 					</h:link>
 				</li>
 				<li>
-					<h:link outcome="/admin/unit-teachers">
+					<h:link outcome="/admin/unit-credentials">
 						#{unitUsersBean.unitTitle}
 						<f:param name="orgId" value="#{param.orgId}" />
 						<f:param name="id" value="#{param.id}" />
@@ -107,7 +109,7 @@
 																	 fullName="#{user.fullName}" width="48" height="48" />
 
 												<div class="infoWrap">
-													<h3>#{user.fullName}</h3>
+													<h3>#{user.commaSeparatedFullName}</h3>
 													<span>#{user.position}</span>
 												</div>
 											</div>
