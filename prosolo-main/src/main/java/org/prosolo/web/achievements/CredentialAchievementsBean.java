@@ -2,7 +2,6 @@ package org.prosolo.web.achievements;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;

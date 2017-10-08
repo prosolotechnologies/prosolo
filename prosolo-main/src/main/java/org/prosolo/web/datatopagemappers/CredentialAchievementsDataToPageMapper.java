@@ -1,8 +1,6 @@
 package org.prosolo.web.datatopagemappers;
 
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 

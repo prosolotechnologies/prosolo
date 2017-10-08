@@ -2,6 +2,7 @@ package org.prosolo.web.profile.data;
 
 import java.io.Serializable;
 
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.web.data.IData;
 
@@ -17,6 +18,12 @@ public class SocialNetworkAccountData implements Serializable, IData {
 
 	public SocialNetworkAccountData() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public SocialNetworkAccountData(SocialNetworkAccount socialNetworkAccount){
+		this.id = socialNetworkAccount.getId();
+		this.link = socialNetworkAccount.getLink();
+		this.socialNetworkName = socialNetworkAccount.getSocialNetwork();
 	}
 
 	public SocialNetworkAccountData(SocialNetworkName socialNetworkName) {

@@ -8,8 +8,14 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service("org.prosolo.services.nodes.SocialNetworksManager")
 public class SocialNetworksManagerImpl extends AbstractManagerImpl implements SocialNetworksManager {
@@ -35,6 +41,28 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 			userSocialNetworks.setUser(loadResource(User.class, userId));
 			return saveEntity(userSocialNetworks);
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public UserSocialNetworksData getSocialNetworksData(long userId) throws DbConnectionException {
+		UserSocialNetworksData result = null;
+		try {
+			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
+			Set<SocialNetworkAccount> socialNetworkAccounts = userSocialNetworks.getSocialNetworkAccounts();
+			Set<SocialNetworkAccountData> listAccountsData = new HashSet<>();
+
+			for (SocialNetworkAccount s : socialNetworkAccounts) {
+				SocialNetworkAccountData socialNetworkAccountData = new SocialNetworkAccountData(s);
+				listAccountsData.add(socialNetworkAccountData);
+			}
+
+			result = new UserSocialNetworksData(userSocialNetworks, listAccountsData);
+
+		} catch (ResourceCouldNotBeLoadedException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	@Override

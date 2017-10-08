@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -30,6 +29,7 @@ import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -260,13 +260,13 @@ public class Profile {
 	}
 
 	private void initializeSocialNetworkData(User student) {
-		try {
-			UserSocialNetworks userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
+		/*try {*/
+			UserSocialNetworksData userSocialNetworks = socialNetworksManager.getSocialNetworksData(student.getId());
 			socialNetworksData = new SocialNetworksDataToPageMapper()
-					.mapDataToPageObject(userSocialNetworks);
-		} catch (ResourceCouldNotBeLoadedException e) {
+					.mapDataToPageObjectData(userSocialNetworks);
+		/*} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
-		}
+		}*/
 	}
 
 

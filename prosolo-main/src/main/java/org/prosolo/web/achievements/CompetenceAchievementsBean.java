@@ -2,9 +2,6 @@ package org.prosolo.web.achievements;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;

@@ -60,6 +60,15 @@ public class SocialNetworksData implements Serializable, IData {
 		socialNetworkAccountData.setId(account.getId());
 	}
 
+	public void setAccount(SocialNetworkAccountData account) {
+		SocialNetworkAccountData socialNetworkAccountData = socialNetworkAccountsData
+				.get(account.getSocialNetworkName().toString());
+		//String prefixUrl = getPrefixUrlForSocialNetwork(account.getSocialNetwork());
+		socialNetworkAccountData.setLink(account.getLink());
+		socialNetworkAccountData.setLinkEdit(account.getLink());
+		socialNetworkAccountData.setId(account.getId());
+	}
+
 	private String getPrefixUrlForSocialNetwork(SocialNetworkName name) {
 		switch(name) {
 			case BLOG:
