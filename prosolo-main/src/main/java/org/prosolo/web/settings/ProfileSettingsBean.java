@@ -228,7 +228,8 @@ public class ProfileSettingsBean implements Serializable {
 			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
 				if (socialNetowrkAccountData.isChanged()) {
 					SocialNetworkAccount account;
-					if (socialNetowrkAccountData.getId() == 0) {
+					SocialNetworkAccount userAccount = socialNetworksManager.getSocialNetworkAccount(loggedUser.getUserId(),socialNetowrkAccountData.getSocialNetworkName());
+					if (socialNetowrkAccountData.getId() == 0 && userAccount == null) {
 						account = socialNetworksManager.createSocialNetworkAccount(
 								socialNetowrkAccountData.getSocialNetworkName(),
 								socialNetowrkAccountData.getLinkEdit());
@@ -236,7 +237,7 @@ public class ProfileSettingsBean implements Serializable {
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
-							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLinkEdit());
+							socialNetworksManager.updateSocialNetworkAccount(userAccount.getId(), socialNetowrkAccountData.getLinkEdit());
 							socialNetowrkAccountData.setLink(socialNetowrkAccountData.getLinkEdit());
 							socialNetowrkAccountData.setChanged(false);
 						} catch (ResourceCouldNotBeLoadedException e) {
