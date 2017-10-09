@@ -67,7 +67,11 @@ public class HomePageResolver {
                 case "admin.advanced":
                     return ga.getAuthority().toLowerCase();
                 case "basic.admin.access":
-                    return ga.getAuthority().toLowerCase();
+                    if (isHigherPriority(current, ADMIN, priority)) {
+                        current = ga.getAuthority().toLowerCase();
+                        priority = ADMIN;
+                    }
+                    break;
                 case "basic.manager.access":
                 case "basic.instructor.access":
                     if (isHigherPriority(current, MANAGE, priority)) {

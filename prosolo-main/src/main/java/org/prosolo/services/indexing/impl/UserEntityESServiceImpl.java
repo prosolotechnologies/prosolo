@@ -49,7 +49,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void saveUserNode(User user, Session session) {
 		//if user has admin role, add it to system user index
 		if (RoleUtil.hasAdminRole(user)) {
-			saveSystemUser(user, session);
+			saveSystemUser(user);
 		}
 		//if user has organization set, add it to organization user index
 		if (user.getOrganization() != null) {
@@ -76,7 +76,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 
-	private void saveSystemUser(User user, Session session) {
+	private void saveSystemUser(User user) {
 		if (user != null) {
 			try {
 				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
@@ -118,7 +118,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void updateBasicUserData(User user, Session session) {
 		//if user has admin role, add it to system user index
 		if (RoleUtil.hasAdminRole(user)) {
-			saveSystemUser(user, session);
+			saveSystemUser(user);
 		}
 		//if user has organization set, add it to organization user index
 		if (user.getOrganization() != null) {
