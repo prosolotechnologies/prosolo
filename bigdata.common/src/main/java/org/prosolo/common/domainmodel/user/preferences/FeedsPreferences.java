@@ -52,6 +52,7 @@ public class FeedsPreferences extends UserPreference {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public TimeFrame getUpdatePeriod() {
 		return updatePeriod;
 	}

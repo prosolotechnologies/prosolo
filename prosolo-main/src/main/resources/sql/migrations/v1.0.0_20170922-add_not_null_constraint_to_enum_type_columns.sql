@@ -16,3 +16,8 @@ ALTER TABLE `notification1` MODIFY `target_type` VARCHAR(255) NOT NULL;
 ALTER TABLE `oauth_access_token` MODIFY `service` VARCHAR(255) NOT NULL;
 ALTER TABLE `openidaccount` MODIFY `openidprovider` VARCHAR(255) NOT NULL;
 ALTER TABLE `social_network_account` MODIFY `social_network` VARCHAR(255) NOT NULL;
+ALTER TABLE `url_type` MODIFY `activity1` VARCHAR(255) NOT NULL;
+ALTER TABLE `score_calculation` MODIFY `activity1` VARCHAR(255) NOT NULL;
+ALTER TABLE `update_period` MODIFY `user_preference` VARCHAR(255) NOT NULL;
+ALTER TABLE `time_frame` MODIFY `feeds_digest` VARCHAR(255) NOT NULL;
+ALTER TABLE `tool_type` MODIFY `lti_tool` VARCHAR(255) NOT NULL;
