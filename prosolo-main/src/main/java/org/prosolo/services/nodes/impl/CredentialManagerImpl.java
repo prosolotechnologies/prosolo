@@ -1331,6 +1331,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	public CredentialData getCredentialDataAndCompetenceData(long credentialId, long userId) throws DbConnectionException {
+		CredentialData credentialData = getFullTargetCredentialOrCredentialData(credentialId,userId);
+		if(credentialData.isEnrolled()){
+			credentialData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, false, false, true));
+			return credentialData;
+		}
+		return null;
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id, CredentialType type) throws DbConnectionException {
 		try {

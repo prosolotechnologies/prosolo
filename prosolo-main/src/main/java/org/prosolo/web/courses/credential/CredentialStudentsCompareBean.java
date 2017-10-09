@@ -59,6 +59,8 @@ public class CredentialStudentsCompareBean implements Serializable {
             try {
                 this.credentialTitle = credentialManager.getCredentialTitle(decodedId);
                 this.userData = userManager.getUserData(decodedStudentId);
+                this.credentialData = credentialManager.getCredentialDataAndCompetenceData(decodedId,loggedUser.getUserId());
+                this.credentialDataStudent = credentialManager.getCredentialDataAndCompetenceData(decodedId,decodedStudentId);
 
                 if (credentialTitle == null || userData == null) {
                     PageUtil.notFound();
@@ -66,11 +68,9 @@ public class CredentialStudentsCompareBean implements Serializable {
                     if (!credentialManager.canUserAccessPage(loggedUser.getUserId(), decodedId).isCanAccess()) {
                         PageUtil.accessDenied();
                     } else {
-                        this.credentialData = credentialManager
-                                .getTargetCredentialData(decodedId, loggedUser.getUserId(), true);
-
-                        this.credentialDataStudent = credentialManager
-                                .getTargetCredentialData(decodedId, decodedStudentId, true);
+                        if (this.credentialData == null) {
+                            PageUtil.accessDenied();
+                        }
                     }
                 }
             } catch (Exception e) {
