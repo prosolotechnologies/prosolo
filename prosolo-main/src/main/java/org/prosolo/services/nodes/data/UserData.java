@@ -29,6 +29,9 @@ public class UserData implements Serializable {
 	private List<RoleData> roles = new ArrayList<>();
 	private List<Long> roleIds = new ArrayList<>();
 	private ObjectStatus objectStatus;
+	private String locationName;
+	private Double longitude;
+	private Double latitude;
 
 	public UserData() {
 		this.roles = new LinkedList<RoleData>();
@@ -44,6 +47,9 @@ public class UserData implements Serializable {
 		setName(user.getName());
 		setLastName(user.getLastname());
 		this.password = user.getPassword();
+		this.locationName = user.getLocationName();
+		this.latitude = user.getLatitude();
+		this.longitude = user.getLongitude();
 		this.objectStatus = ObjectStatus.UP_TO_DATE;
 	}
 
@@ -115,6 +121,30 @@ public class UserData implements Serializable {
 
 	public String getFullName() {
 		return fullName;
+	}
+
+	public String getLocationName() {
+		return locationName;
+	}
+
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
 	}
 
 	public void setFullName(String fullName) {

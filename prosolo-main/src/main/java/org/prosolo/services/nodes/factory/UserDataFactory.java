@@ -1,8 +1,10 @@
 package org.prosolo.services.nodes.factory;
 
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
@@ -24,4 +26,19 @@ public class UserDataFactory {
         return name + (lastName != null ? " " + lastName : "");
     }
 
+    public User getUser(UserData userData, Organization organization){
+        User user = new User();
+        user.setId(userData.getId());
+        user.setName(userData.getName());
+        user.setLastname(userData.getLastName());
+        user.setAvatarUrl(userData.getAvatarUrl());
+        user.setOrganization(organization);
+        user.setPosition(userData.getPosition());
+        user.setEmail(userData.getEmail());
+        user.setPassword(userData.getPassword());
+        user.setLocationName(userData.getLocationName());
+        user.setLatitude(userData.getLatitude());
+        user.setLongitude(userData.getLongitude());
+        return user;
+    }
 }

@@ -1,20 +1,20 @@
 package org.prosolo.web.datatopagemappers;
 
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
 
-public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, User> {
+public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, UserData> {
 
 	@Override
-	public AccountData mapDataToPageObject(User user) {
+	public AccountData mapDataToPageObject(UserData user) {
 		AccountData accountData = new AccountData();
 		accountData.setId(user.getId());
 		accountData.setEmail(user.getEmail());
 		accountData.setAvatarPath(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 		accountData.setFirstName(user.getName());
-		accountData.setLastName(user.getLastname());
+		accountData.setLastName(user.getLastName());
 
 		// position
 		accountData.setPosition(user.getPosition());

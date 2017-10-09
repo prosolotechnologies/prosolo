@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -22,6 +23,8 @@ public interface OrganizationManager extends AbstractManager {
 
     PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
             throws DbConnectionException;
+
+    Organization getOrganization(long orgId) throws ResourceCouldNotBeLoadedException;
 
     void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
 

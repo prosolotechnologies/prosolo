@@ -222,6 +222,22 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Organization getOrganization(long orgId) throws ResourceCouldNotBeLoadedException {
+        String query =
+                "SELECT organization " +
+                        "FROM Organization organization " +
+                        "WHERE organization.id =:orgId ";
+
+        Organization result = (Organization)persistence.currentManager()
+                .createQuery(query)
+                .setLong("orgId",orgId)
+                .uniqueResult();
+
+        return result;
+    }
+
     private Long getOrganizationsCount(){
         String countQuery =
                 "SELECT COUNT (organization) " +

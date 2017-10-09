@@ -45,7 +45,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public UserSocialNetworksData getSocialNetworksData(long userId) throws DbConnectionException {
+	public UserSocialNetworksData getSocialNetworksData(long userId) throws ResourceCouldNotBeLoadedException {
 		UserSocialNetworksData result = null;
 		try {
 			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
@@ -127,6 +127,16 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		
 		if (result != null) {
 			return result;
+		}
+		return null;
+	}
+
+	@Override
+	public SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName) {
+		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId,socialNetworkName);
+
+		if(socialNetworkAccount != null){
+			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;
 	}

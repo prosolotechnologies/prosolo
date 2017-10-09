@@ -17,8 +17,11 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
@@ -68,6 +71,10 @@ public class ProfileSettingsBean implements Serializable {
 	private SocialNetworksManager socialNetworksManager;
 	@Inject
 	private UserOauthTokensManager oauthAccessTokenManager;
+	@Inject
+	private UserDataFactory userDataFactory;
+	@Inject
+	private OrganizationManager organizationManager;
 
 	//URL PARAMS
 	private boolean twitterConnected;
@@ -103,12 +110,8 @@ public class ProfileSettingsBean implements Serializable {
 	}
 
 	private void initAccountData() {
-		try {
-			User user = userManager.loadResource(User.class, loggedUser.getUserId());
-			accountData = new AccountDataToPageMapper().mapDataToPageObject(user);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
+		UserData user = userManager.getUserData(loggedUser.getUserId());
+		accountData = new AccountDataToPageMapper().mapDataToPageObject(user);
 	}
 
 	/*
@@ -116,7 +119,7 @@ public class ProfileSettingsBean implements Serializable {
 	 */
 	public void saveAccountChanges() {
 		try {
-			User user = userManager.loadResource(User.class, loggedUser.getUserId());
+			UserData user = userManager.getUserData(loggedUser.getUserId());
 		
 			boolean changed = false;
 	
@@ -125,8 +128,8 @@ public class ProfileSettingsBean implements Serializable {
 				changed = true;
 			}
 	
-			if (!accountData.getLastName().equals(user.getLastname())) {
-				user.setLastname(accountData.getLastName());
+			if (!accountData.getLastName().equals(user.getLastName())) {
+				user.setLastName(accountData.getLastName());
 				changed = true;
 			}
 	
@@ -148,8 +151,9 @@ public class ProfileSettingsBean implements Serializable {
 			}
 	
 			if (changed) {
-				userManager.saveEntity(user);
-				loggedUser.reinitializeSessionData(user);
+				User userToSave = userDataFactory.getUser(user,organizationManager.getOrganization(loggedUser.getOrganizationId()));
+				userManager.saveEntity(userToSave);
+				loggedUser.reinitializeSessionData(userToSave);
 				
 				try {
 					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserContext(),
@@ -228,7 +232,7 @@ public class ProfileSettingsBean implements Serializable {
 			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
 				if (socialNetowrkAccountData.isChanged()) {
 					SocialNetworkAccount account;
-					SocialNetworkAccount userAccount = socialNetworksManager.getSocialNetworkAccount(loggedUser.getUserId(),socialNetowrkAccountData.getSocialNetworkName());
+					SocialNetworkAccountData userAccount = socialNetworksManager.getSocialNetworkAccountData(loggedUser.getUserId(),socialNetowrkAccountData.getSocialNetworkName());
 					if (socialNetowrkAccountData.getId() == 0 && userAccount == null) {
 						account = socialNetworksManager.createSocialNetworkAccount(
 								socialNetowrkAccountData.getSocialNetworkName(),

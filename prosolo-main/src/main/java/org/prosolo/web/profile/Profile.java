@@ -260,13 +260,13 @@ public class Profile {
 	}
 
 	private void initializeSocialNetworkData(User student) {
-		/*try {*/
+		try {
 			UserSocialNetworksData userSocialNetworks = socialNetworksManager.getSocialNetworksData(student.getId());
 			socialNetworksData = new SocialNetworksDataToPageMapper()
 					.mapDataToPageObjectData(userSocialNetworks);
-		/*} catch (ResourceCouldNotBeLoadedException e) {
+		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
-		}*/
+		}
 	}
 
 
@@ -281,9 +281,6 @@ public class Profile {
 
 	private UserData getUser() throws ResourceCouldNotBeLoadedException {
 		return userManager.getActivityWallUserData(loggedUserBean.getUserId());
-		/*return StringUtils.isNotBlank(studentId)
-				? userManager.getActivityWallUserData(idEncoder.decodeId(studentId))
-				: userManager.loadResource(User.class, loggedUserBean.getUserId());*/
 	}
 	
 	private String getInitials(UserData student) {
@@ -343,10 +340,6 @@ public class Profile {
 	public CompetenceAchievementsData getCompetenceAchievementsData() {
 		return competenceAchievementsData;
 	}
-
-//	public String getSmallAvatarUrl() {
-//		return smallAvatarUrl;
-//	}
 
 	public String getMessage() {
 		return message;
