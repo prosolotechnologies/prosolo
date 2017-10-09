@@ -76,12 +76,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 				.toArray(LearningResourceSearchFilter[]::new);
 
 		try {
-			List<Long> roleIds = roleManager.getRoleIdsForName(RoleNames.USER);
-			long roleId = 0;
-			if (roleIds.size() == 1) {
-				roleId = roleIds.get(0);
-			}
-			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), roleId);
+			Long userRoleId = roleManager.getRoleIdByName(RoleNames.USER);
+			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), userRoleId);
 
 			searchCompetences(false);
 		} catch (DbConnectionException e) {

@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -103,12 +104,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 						} else {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
 						}
-						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
-
-						if (roleIds.size() == 1) {
-							roleId = roleIds.get(0);
-						}
+						roleId = roleManager.getRoleIdByName(
+								privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
 
 						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(compId);
 

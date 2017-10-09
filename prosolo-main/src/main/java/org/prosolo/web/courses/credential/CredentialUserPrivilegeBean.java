@@ -5,10 +5,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -16,7 +14,6 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -163,12 +160,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			} else {
 				resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 			}
-			List<Long> roleIds = roleManager.getRoleIdsForName(
+			this.roleId = roleManager.getRoleIdByName(
 					privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
-
-			if (roleIds.size() == 1) {
-				roleId = roleIds.get(0);
-			}
 
 			//units are connected to original credential so we need to work with original credential id
 			long origCredId = credType == CredentialType.Original

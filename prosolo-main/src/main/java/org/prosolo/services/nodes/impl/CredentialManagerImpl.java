@@ -178,8 +178,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @return
 	 */
 	private List<EventData> addCredentialToDefaultUnits(long credId, UserContextData context) {
-		long roleId = roleManager.getRoleIdsForName(RoleNames.MANAGER).get(0);
-		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), roleId);
+		long managerRoleId = roleManager.getRoleIdByName(RoleNames.MANAGER);
+		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
 		List<EventData> events = new ArrayList<>();
 		for (long unitId : unitsWithManagerRole) {
 			events.addAll(unitManager.addCredentialToUnitAndGetEvents(credId, unitId, context).getEvents());

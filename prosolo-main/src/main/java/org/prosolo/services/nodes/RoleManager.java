@@ -1,15 +1,14 @@
 package org.prosolo.services.nodes;
 
-import java.util.List;
-import java.util.Map;
-
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.web.administration.data.RoleData;
+
+import java.util.List;
+import java.util.Map;
 
 public interface RoleManager extends AbstractManager {
 	
@@ -17,7 +16,7 @@ public interface RoleManager extends AbstractManager {
 	
 	List<Role> getRolesByNames(String[] names);
 
-	List<Long> getRoleIdsForName(String name);
+	Long getRoleIdByName(String name);
 	
 	Role createNewRole(String name, String description, boolean systemDefined);
 	

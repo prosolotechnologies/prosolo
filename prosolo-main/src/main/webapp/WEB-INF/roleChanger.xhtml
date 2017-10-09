@@ -6,8 +6,8 @@
               xmlns:util="http://www.prosolo.com/util"
 >
         <c:if test="#{section eq 'STUDENT' and (loggeduser.hasCapability('basic.manager.access')  or loggeduser.hasCapability('basic.instructor.access') or loggeduser.hasCapability('basic.admin.access'))
-            or section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access'))
-            or section eq 'ADMIN' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access'))}">
+            or (section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')))
+            or (section eq 'ADMIN' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')))}">
             <div class="dropdown roleChanger">
                 <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
                 <ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">

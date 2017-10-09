@@ -80,7 +80,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 					if (page > 0) {
 						paginationData.setPage(page);
 					}
-					roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+					roleId = roleManager.getRoleIdByName(RoleNames.USER);
 					loadUsersFromDB();
 				} else {
 					PageUtil.notFound();
