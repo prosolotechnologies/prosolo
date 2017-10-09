@@ -49,7 +49,9 @@ public class PeopleActionBean implements Serializable {
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -64,7 +66,7 @@ public class PeopleActionBean implements Serializable {
 	}
 	
 	public void followUserById(long userToFollowId) 
-			throws EntityAlreadyExistsException, DbConnectionException {
+			throws EntityAlreadyExistsException, DbConnectionException, EventException {
 		followResourceManager.followUser(userToFollowId, loggedUser.getUserContext());
 	}
 
@@ -80,8 +82,10 @@ public class PeopleActionBean implements Serializable {
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getName());
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("An error has occurred. Please try again");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 

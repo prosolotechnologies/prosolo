@@ -12,6 +12,8 @@ import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,10 +41,21 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	private static Logger logger = Logger.getLogger(FollowResourceManagerImpl.class);
 	
 	@Autowired private EventFactory eventFactory;
-	
+	@Inject private FollowResourceManager self;
+
+	@Override
+	public User followUser(long userToFollowId, UserContextData context)
+			throws DbConnectionException, EntityAlreadyExistsException, EventException {
+		Result<User> res = self.followUserAndGetEvents(userToFollowId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+		return res.getResult();
+	}
+
 	@Override
 	@Transactional
-	public User followUser(long userToFollowId, UserContextData context)
+	public Result<User> followUserAndGetEvents(long userToFollowId, UserContextData context)
 			throws DbConnectionException, EntityAlreadyExistsException {
 		try {
 			if (userToFollowId > 0 && context.getActorId() > 0) {
@@ -56,12 +70,14 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				
 				persistence.currentManager().flush();
 
-				eventFactory.generateEvent(EventType.Follow, context, userToFollow, null, null, null);
+				Result<User> res = new Result<>();
+				res.setResult(follower);
+				res.addEvent(eventFactory.generateEventData(EventType.Follow, context, userToFollow, null, null, null));
 				
 				logger.debug(follower.getName() + " started following user " + userToFollow.getId());
-				return follower;
+				return res;
 			}
-			return null;
+			return new Result<>();
 		} catch(ConstraintViolationException ex) {
 			throw new EntityAlreadyExistsException();
 		} catch(Exception e) {
@@ -142,29 +158,42 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		
  		return followedEntNo == 1;
 	}
-	
+
+	@Override
+	public boolean unfollowUser(long userToUnfollowId, UserContextData context) throws DbConnectionException, EventException {
+		Result<Boolean> res = self.unfollowUserAndGetEvents(userToUnfollowId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+		return res.getResult();
+	}
+
 	@Override
 	@Transactional 
-	public boolean unfollowUser(long userToUnfollowId, UserContextData context) throws EventException {
-		String query = 
-				"DELETE FROM FollowedUserEntity fEnt " +
-						"WHERE fEnt.user.id = :followerId " +
-						"AND fEnt.followedUser.id = :userToUnfollowId";
-		
-		int deleted = persistence.currentManager().createQuery(query)
-				.setLong("followerId", context.getActorId())
-				.setLong("userToUnfollowId", userToUnfollowId)
-				.executeUpdate();
-		
+	public Result<Boolean> unfollowUserAndGetEvents(long userToUnfollowId, UserContextData context) throws DbConnectionException {
 		try {
+			String query =
+					"DELETE FROM FollowedUserEntity fEnt " +
+					"WHERE fEnt.user.id = :followerId " +
+					"AND fEnt.followedUser.id = :userToUnfollowId";
+
+			int deleted = persistence.currentManager().createQuery(query)
+					.setLong("followerId", context.getActorId())
+					.setLong("userToUnfollowId", userToUnfollowId)
+					.executeUpdate();
+
 			User userToUnfollow = loadResource(User.class, userToUnfollowId);
 
-			eventFactory.generateEvent(EventType.Unfollow, context, userToUnfollow, null, null,null);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+			Result<Boolean> res = new Result<>();
+			res.setResult(deleted > 0);
+			if (deleted > 0) {
+				res.addEvent(eventFactory.generateEventData(EventType.Unfollow, context, userToUnfollow, null, null, null));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error unfollowing the user");
 		}
-		
-		return deleted > 0;
 	}
 	
 	@SuppressWarnings("unchecked")

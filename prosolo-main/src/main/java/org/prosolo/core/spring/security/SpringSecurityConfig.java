@@ -43,6 +43,7 @@ import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.log.SAMLDefaultLogger;
+import org.springframework.security.saml.log.SAMLLogger;
 import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
@@ -439,12 +440,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
  
     // Logger for SAML messages and events
-    @Bean
-    public SAMLDefaultLogger samlLogger() {
-        return new SAMLDefaultLogger();
-    }
- 
-    // SAML 2.0 WebSSO Assertion Consumer
+	@Bean
+	public SAMLLogger samlLogger() {
+		SAMLDefaultLogger samlLogger = new SAMLDefaultLogger();
+		samlLogger.setLogMessages(true);
+		return samlLogger;
+	}
+
+	// SAML 2.0 WebSSO Assertion Consumer
     @Bean
     public WebSSOProfileConsumer webSSOprofileConsumer() {
     	WebSSOProfileConsumerImpl consumer = new WebSSOProfileConsumerImpl();
@@ -846,7 +849,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 //samlIDPDiscovery()));
         return new FilterChainProxy(chains);
     }
-     
+
 //	    /**
 //	     * Returns the authentication manager currently used by Spring.
 //	     * It represents a bean definition with the aim allow wiring from

@@ -175,27 +175,29 @@
                             </div>
                         </div>
                         </h:form>
-
-                        <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
-                            <p>Reindex the following resources:</p>
-                            <p:commandLink value="Users"
-                                           pt:role="button"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
-                            &#160;&#160;
-                            <p:commandLink value="#{msg['label.credential.plural']} and #{msg['label.competence.plural']}"
-                                           pt:role="button"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexNodes(organizationEditBean.decodedId)}"	/>
-                            &#160;&#160;
-                            <p:commandLink value="#{msg['label.rubric.plural']}"
-                                           pt:role="button"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}"	/>
-                        </ui:fragment>
                     </div>
                 </div>
             </div>
+
+            <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="whiteBox adminIndexesBox">
+                            <h3>Reindex the following resources:</h3>
+                            <p:commandLink value="Users"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
+                            <p:commandLink value="Content"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexNodes(organizationEditBean.decodedId)}"	/>
+                            <p:commandLink value="#{msg['label.rubric.plural']}"
+                                           styleClass="btn btn-green"
+                                           action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
+                            <div class="clear top30"></div>
+                        </div>
+                    </div>
+                </div>
+            </ui:fragment>
         </div>
     </ui:define>
 
