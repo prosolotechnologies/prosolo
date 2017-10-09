@@ -22,6 +22,7 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.services.nodes.factory.UserSocialNetworksDataFactory;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
@@ -29,6 +30,7 @@ import org.prosolo.web.datatopagemappers.AccountDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
@@ -75,6 +77,8 @@ public class ProfileSettingsBean implements Serializable {
 	private UserDataFactory userDataFactory;
 	@Inject
 	private OrganizationManager organizationManager;
+	@Inject
+	private UserSocialNetworksDataFactory userSocialNetworksDataFactory;
 
 	//URL PARAMS
 	private boolean twitterConnected;
@@ -84,6 +88,7 @@ public class ProfileSettingsBean implements Serializable {
 	private boolean connectedToTwitter;
 
 	private UserSocialNetworks userSocialNetworks;
+	private UserSocialNetworksData userSocialNetworksData;
 
 	public void init() {
 		initAccountData();
@@ -97,9 +102,9 @@ public class ProfileSettingsBean implements Serializable {
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
 			try {
-				userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUserId());
+				userSocialNetworksData = socialNetworksManager.getSocialNetworksData(loggedUser.getUserId());
 				socialNetworksData = new SocialNetworksDataToPageMapper()
-						.mapDataToPageObject(userSocialNetworks);
+						.mapDataToPageObjectData(userSocialNetworksData);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the data");
@@ -237,7 +242,8 @@ public class ProfileSettingsBean implements Serializable {
 						account = socialNetworksManager.createSocialNetworkAccount(
 								socialNetowrkAccountData.getSocialNetworkName(),
 								socialNetowrkAccountData.getLinkEdit());
-						userSocialNetworks.getSocialNetworkAccounts().add(account);
+						userAccount = new SocialNetworkAccountData(account);
+						userSocialNetworksData.getSocialNetworkAccounts().add(userAccount);
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
@@ -252,6 +258,7 @@ public class ProfileSettingsBean implements Serializable {
 			}
 			
 			if (newSocialNetworkAccountIsAdded) {
+				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(userSocialNetworksData);
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
 					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),

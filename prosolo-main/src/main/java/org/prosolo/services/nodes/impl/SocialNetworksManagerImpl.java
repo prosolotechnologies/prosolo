@@ -73,7 +73,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		account.setLink(link);
 		return saveEntity(account);
 	}
-	
+
 	@Override
 	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link) throws ResourceCouldNotBeLoadedException {
 		UserSocialNetworks socialNetworks = getSocialNetworks(userId);

@@ -25,6 +25,7 @@ public interface UserManager extends AbstractManager {
 
 	User getUser(String email) throws DbConnectionException;
 
+	User getUserById(long id) throws DbConnectionException;
 
 	org.prosolo.common.web.activitywall.data.UserData getActivityWallUserData(long userId) throws DbConnectionException;
 
