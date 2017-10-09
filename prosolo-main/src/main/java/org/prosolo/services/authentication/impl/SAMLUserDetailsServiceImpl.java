@@ -55,7 +55,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			throws UsernameNotFoundException {
 
 		try {
-			logger.info("Authentication throught SAML requested");
+			logger.info("Authentication through SAML requested; SAML Credential Name Id: " + credential.getNameID());
 			//Gson g=new Gson();
 			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
 			List<Attribute> attributes = credential.getAttributes();
