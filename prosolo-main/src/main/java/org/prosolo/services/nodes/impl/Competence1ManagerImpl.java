@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
@@ -332,7 +333,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 			Map<String, String> params = new HashMap<>();
-			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
+			params.put("dateEnrolled", DateUtil.getMillisFromDate(now) + "");
 
 			Result<TargetCompetence1> res = new Result<>();
 			res.setResult(targetComp);
@@ -2104,7 +2105,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Map<String, String> params = new HashMap<>();
 
 		if (finalCompProgress == 100) {
-			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
+			params.put("dateCompleted", DateUtil.getMillisFromDate(now) + "");
 
 			events.add(eventFactory.generateEventData(
 					EventType.Completion, context, tComp, null,null, params));

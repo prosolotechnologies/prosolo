@@ -731,12 +731,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Map<String, String> params = new HashMap<>();
 			params.put("instructorId", instructorId + "");
-			String dateString = null;
-			Date date = targetCred.getDateCreated();
-			if (date != null) {
-				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
-			}
-			params.put("dateEnrolled", dateString);
+			params.put("dateEnrolled", DateUtil.getMillisFromDate(targetCred.getDateCreated()) + "");
 			if (instructorThatForcedEnrollId > 0) {
 				params.put("forcedEnroll", "true");
 				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
