@@ -414,34 +414,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Transactional(readOnly = true)
 	@Override
-	public RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
+	public ActivityData getActivityData(long credId, long competenceId, long activityId, boolean loadLinks, boolean loadTags)
+					throws DbConnectionException, ResourceNotFoundException {
 		try {
-			if(req == null) {
-				throw new IllegalArgumentException();
-			}
-			
 			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, 
 					loadLinks, loadTags, true);
 
-			if(res == null) {
+			if (res == null) {
 				throw new ResourceNotFoundException();
 			}
 
 			Set<ResourceLink> links = loadLinks ? res.getActivity().getLinks() : null;
 			Set<ResourceLink> files = loadLinks ? res.getActivity().getFiles() : null;
 			Set<Tag> tags = loadTags ? res.getActivity().getTags() : null;
-			ActivityData actData = activityFactory.getActivityData(
+			return activityFactory.getActivityData(
 					res, links, files, tags, true);
-			//we need user privilege for competence on which activity is dependent
-			ResourceAccessData access = compManager.getResourceAccessData(competenceId, userId, req);
-			
-			return RestrictedAccessResult.of(actData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -778,20 +767,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, long compId, long activityId)
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
-			RestrictedAccessResult<ActivityData> activityWithDetails = getActivityData(credId, compId, activityId, 
-					creatorId, true, true, req);
+			ActivityData activityWithDetails = getActivityData(credId, compId, activityId,
+					true, true);
 			compData = new CompetenceData1(false);
-			compData.setActivityToShowWithDetails(activityWithDetails.getResource());
+			compData.setActivityToShowWithDetails(activityWithDetails);
 			
 			List<ActivityData> activities = getCompetenceActivitiesData(compId);
 			compData.setActivities(activities);
-			return RestrictedAccessResult.of(compData, activityWithDetails.getAccess());
-		} catch (ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+			return compData;
+		} catch (ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -894,29 +882,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,
 			long actId, long userId, boolean isManager) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId, isManager);
 			if (compData == null) {
-				ResourceAccessRequirements req = ResourceAccessRequirements
-						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn)
-						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
-						userId, req);
+				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId);
 			}
-				
-			/* if user is aleardy learning activity, he doesn't need any of the privileges;
-			 * we just need to determine which privileges he has (can he edit or instruct an activity)
-			 */
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-			ResourceAccessData access = compManager.getResourceAccessData(compId, userId, req);
-			return RestrictedAccessResult.of(compData, access);
-		} catch(ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+
+			return compData;
+		} catch(ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -938,7 +916,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
-		CompetenceData1 compData = null;
+		CompetenceData1 compData;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
 					true, true, isManager);

@@ -1,14 +1,14 @@
 package org.prosolo.services.nodes.data;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class CompetenceData1 extends StandardObservable implements Serializable {
 
@@ -64,7 +64,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	//by default competence can be unpublished
 	private boolean canUnpublish = true;
-	
+
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();

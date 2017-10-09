@@ -126,7 +126,7 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
-                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/edit");
+                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
             }else{
                 PageUtil.fireErrorMessage("Error creating the organization");
             }

@@ -27,7 +27,9 @@
 					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : userEditBean.user.fullName}</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+					<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+						<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+					</ui:fragment>
 					<li>
 						<h:link outcome="/admin/units">
 							#{userEditBean.organizationTitle}

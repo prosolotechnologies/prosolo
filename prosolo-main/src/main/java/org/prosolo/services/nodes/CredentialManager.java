@@ -8,8 +8,8 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -18,10 +18,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -56,10 +53,10 @@ public interface CredentialManager extends AbstractManager {
 	 * if that is not the case.
 	 * @param credentialId
 	 * @param userId
-	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
+	 * @throws ResourceNotFoundException, DbConnectionException
 	 */
-	RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
+			throws ResourceNotFoundException, DbConnectionException;
 	
 	/**
 	 * Returns credential data with specified id.
@@ -72,21 +69,14 @@ public interface CredentialManager extends AbstractManager {
 	 * @param loadCreatorData
 	 * @param loadCompetences
 	 * @param userId
-	 * @param req
+	 * @param accessMode
 	 * @return
 	 * @throws ResourceNotFoundException
-	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences, long userId, ResourceAccessRequirements req) 
-					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
-	
-	RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
-			long userId) throws ResourceNotFoundException, DbConnectionException;
-	
-	RestrictedAccessResult<CredentialData> getCredentialForEdit(long credId, long userId) 
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId, AccessMode accessMode)
+					throws ResourceNotFoundException, DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -121,19 +111,6 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
 			throws DbConnectionException;
-	
-//	/** Returns credential data for edit. If there is a draft version for a credential
-//	 *  that version data will be returned
-//	 *  
-//	 *  @param credentialId id of a credential
-//	 *  @param creatorId id of a user that will get credential data so
-//	 *  we can check if he is a creator of a credential and he can
-//	 *  edit it
-//	 *  @param loadCompetences if true credential competences data will be 
-//	 *  loaded too
-//	 */
-//	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
-//			throws DbConnectionException;
 	
 	Credential1 updateCredential(CredentialData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
@@ -224,17 +201,6 @@ public interface CredentialManager extends AbstractManager {
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
 	
 	/**
-	 * Returns draft version of credential if exists, otherwise original version is returned.
-	 * @param credentialId
-	 * @param loadCreator
-	 * @param loadCompetences
-	 * @return
-	 * @throws DbConnectionException
-	 */
-//	CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
-//			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
-	
-	/**
 	 * Method for getting all credentials (nevertheless the progress)
 	 * 
 	 * @param userId
@@ -281,21 +247,6 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
 			throws DbConnectionException;
 	
-//	/**
-//	 * Returns current version of credential for edit if edit mode - draft version if exists
-//	 * but only if credential is university based, otherwise null is returned.
-//	 * If view mode, again draft version is returned if exists and credential is university based, 
-//	 * otherwise published version is returned.
-//	 * @param credentialId
-//	 * @param loadCreator
-//	 * @param loadCompetences
-//	 * @param mode
-//	 * @return
-//	 * @throws DbConnectionException
-//	 */
-//	CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
-//			boolean loadCompetences, Mode mode) throws DbConnectionException;
-	
 	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 
 	ResourceAccessData canUserAccessPage(long userId, long credentialId);
@@ -334,7 +285,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException;
 	
-	List<Credential1> getAllCredentials(Session session) throws DbConnectionException;
+	List<Credential1> getAllCredentials(long orgId, Session session) throws DbConnectionException;
 	
 	List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
 			boolean justUncompleted) throws DbConnectionException;
@@ -419,12 +370,9 @@ public interface CredentialManager extends AbstractManager {
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 	
 	void restoreArchivedCredential(long credId, UserContextData context) throws DbConnectionException;
-	
-	long countNumberOfCredentials(CredentialSearchFilterManager searchFilter, long userId, UserGroupPrivilege priv) 
-			throws DbConnectionException, NullPointerException;
-	
-	List<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page, 
-			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+
+	PaginatedResult<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page,
+																LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
 	UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) throws DbConnectionException;
 	
@@ -468,5 +416,15 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
 			throws DbConnectionException;
+
+	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
+												   int page, LearningResourceSortOption sortOption)
+			throws DbConnectionException, NullPointerException;
+
+	void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
+			throws StaleDataException, IllegalDataStateException, DbConnectionException, EventException;
+
+	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
+			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 }
