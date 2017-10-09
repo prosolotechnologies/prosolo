@@ -360,13 +360,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	public ResourceAccessData canUserAccessPage(long userId, long credentialId) {
-		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-		ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
-		return access;
-	}
-
-	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId,
 												  boolean loadCompetences) throws DbConnectionException {
@@ -1332,8 +1325,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	public CredentialData getCredentialDataAndCompetenceData(long credentialId, long userId) throws DbConnectionException {
-		CredentialData credentialData = getFullTargetCredentialOrCredentialData(credentialId,userId);
-		if(credentialData.isEnrolled()){
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		if (credentialData != null && credentialData.isEnrolled()) {
 			credentialData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, false, false, true));
 			return credentialData;
 		}

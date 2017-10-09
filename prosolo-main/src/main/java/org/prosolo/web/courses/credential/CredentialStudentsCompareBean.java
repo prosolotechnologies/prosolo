@@ -47,7 +47,6 @@ public class CredentialStudentsCompareBean implements Serializable {
     private long decodedId;
     private String studentId;
     private long decodedStudentId;
-    private String credentialTitle;
     private CredentialData credentialData;
     private CredentialData credentialDataStudent;
     private UserData userData;
@@ -57,20 +56,15 @@ public class CredentialStudentsCompareBean implements Serializable {
         decodedStudentId = idEncoder.decodeId(studentId);
         if (decodedId > 0 && decodedStudentId > 0) {
             try {
-                this.credentialTitle = credentialManager.getCredentialTitle(decodedId);
                 this.userData = userManager.getUserData(decodedStudentId);
-                this.credentialData = credentialManager.getCredentialDataAndCompetenceData(decodedId,loggedUser.getUserId());
-                this.credentialDataStudent = credentialManager.getCredentialDataAndCompetenceData(decodedId,decodedStudentId);
-
-                if (credentialTitle == null || userData == null) {
+                this.credentialData = credentialManager.getCredentialDataAndCompetenceData(decodedId, loggedUser.getUserId());
+                if (userData == null) {
                     PageUtil.notFound();
                 } else {
-                    if (!credentialManager.canUserAccessPage(loggedUser.getUserId(), decodedId).isCanAccess()) {
+                    if (this.credentialData == null) {
                         PageUtil.accessDenied();
-                    } else {
-                        if (this.credentialData == null) {
-                            PageUtil.accessDenied();
-                        }
+                    }else {
+                        this.credentialDataStudent = credentialManager.getCredentialDataAndCompetenceData(decodedId, decodedStudentId);
                     }
                 }
             } catch (Exception e) {
@@ -119,14 +113,6 @@ public class CredentialStudentsCompareBean implements Serializable {
 
     public void setDecodedId(long decodedId) {
         this.decodedId = decodedId;
-    }
-
-    public String getCredentialTitle() {
-        return credentialTitle;
-    }
-
-    public void setCredentialTitle(String credentialTitle) {
-        this.credentialTitle = credentialTitle;
     }
 
 }
