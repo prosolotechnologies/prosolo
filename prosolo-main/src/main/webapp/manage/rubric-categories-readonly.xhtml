@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="whiteBox">
+                        <div class="rubricsPreview">
+                            <p><strong>Creator:</strong> #{rubricCategoriesBean.rubric.creatorFullName}</p>
+                            <ui:fragment rendered="#{empty rubricCategoriesBean.rubric.categories}">
+                                <div class="noContentMessage">
+                                    <p>
+                                        No categories and levels defined.
+                                    </p>
+                                </div>
+                            </ui:fragment>
+                            <ui:repeat value="#{rubricCategoriesBean.rubric.categories}" var="cat">
+                                <h2>#{cat.name} -
+                                    <h:outputLabel value="#{cat.points}">
+                                        <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                                    </h:outputLabel>%
+                                </h2>
+                                <table class="rubricsTable readOnly">
+                                    <ui:repeat value="#{rubricCategoriesBean.rubric.levels}" var="lvl">
+                                        <tr>
+                                            <td class="col01">#{lvl.name}</td>
+                                            <td class="col02">
+                                                <h:outputLabel value="#{lvl.points}">
+                                                    <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                                                </h:outputLabel>%
+                                            </td>
+                                            <td class="col03">#{cat.levels[lvl].description}</td>
+                                        </tr>
+                                    </ui:repeat>
+                                </table>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</ui:composition>

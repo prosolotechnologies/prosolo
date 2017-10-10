@@ -54,16 +54,19 @@ public class RubricCategoriesBean implements Serializable {
 	private void initData() {
 		categoriesToRemove = new ArrayList<>();
 		levelsToRemove = new ArrayList<>();
-		rubric = rubricManager.getRubricData(decodedRubricId, false, true, loggedUserBean.getUserId(),true);
+		rubric = rubricManager.getRubricData(decodedRubricId, true, true, 0,true);
 		if (rubric == null) {
 			PageUtil.notFound();
 		} else {
-			//if categories and levels are not defined add one empty category and level
-			if (rubric.getCategories().isEmpty()) {
-				addEmptyCategory();
-			}
-			if (rubric.getLevels().isEmpty()) {
-				addEmptyLevel();
+			//edit mode
+			if (isCurrentUserCreator()) {
+				//if categories and levels are not defined add one empty category and level
+				if (rubric.getCategories().isEmpty()) {
+					addEmptyCategory();
+				}
+				if (rubric.getLevels().isEmpty()) {
+					addEmptyLevel();
+				}
 			}
 		}
 	}
@@ -71,6 +74,10 @@ public class RubricCategoriesBean implements Serializable {
 	public boolean isLimitedEdit() {
 		//TODO when rubric is connected to activity return to this
 		return false;
+	}
+
+	public boolean isCurrentUserCreator() {
+		return rubric.getCreatorId() == loggedUserBean.getUserId();
 	}
 
 	public void moveCategoryDown(int index) {

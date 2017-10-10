@@ -48,7 +48,7 @@ public interface RubricManager extends AbstractManager {
      * @param rubricId
      * @param loadCreator
      * @param loadItems
-     * @param userId - if greater than 0, rubric data is returned only if id of a rubric creator equals this parameter value
+     * @param userId if greater than 0, rubric data is returned only if id of a rubric creator equals this parameter value
      * @param trackChanges
      * @return
      * @throws DbConnectionException
