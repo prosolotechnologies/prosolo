@@ -57,6 +57,7 @@
                                                                      autocomplete="off"
                                                                      pt:data-unique-name="true"
                                                                      pt:data-category-order="#{c.order}"
+                                                                     pt:data-field="name"
                                                                      placeholder="Category Name"
                                                                      value="#{c.name}"
                                                                      required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
@@ -65,6 +66,8 @@
                                                                      type="number"
                                                                      autocomplete="off"
                                                                      pt:data-percent="true"
+                                                                     pt:data-field="weight"
+                                                                     pt:data-category-order="#{c.order}"
                                                                      value="#{c.points}" min="0" max="100" step="0.01"
                                                                      required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
                                                                      requiredMessage="Category weight is required"
@@ -237,7 +240,7 @@
                                 <h2>Rubrics Preview</h2>
                                 <ui:repeat value="#{rubricCategoriesBean.rubric.categories}" var="cat">
                                     <h3 data-category-order="#{cat.order}"></h3>
-                                    <script>copyCategoryName(#{cat.order});</script>
+                                    <script>copyCategoryNameAndWeight(#{cat.order});</script>
                                     <table class="rubricsTable">
                                         <ui:repeat value="#{rubricCategoriesBean.rubric.levels}" var="lvl">
                                             <tr>

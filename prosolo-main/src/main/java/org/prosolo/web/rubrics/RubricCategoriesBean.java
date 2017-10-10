@@ -62,7 +62,7 @@ public class RubricCategoriesBean implements Serializable {
 
 	public boolean isLimitedEdit() {
 		//TODO when rubric is connected to activity return to this
-		return true;
+		return false;
 	}
 
 	public void moveCategoryDown(int index) {
