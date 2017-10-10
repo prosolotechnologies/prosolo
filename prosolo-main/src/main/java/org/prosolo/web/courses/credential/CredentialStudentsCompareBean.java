@@ -45,26 +45,29 @@ public class CredentialStudentsCompareBean implements Serializable {
 
     private String id;
     private long decodedId;
-    private String studentId;
-    private long decodedStudentId;
+    private String studentToCompareId;
+    private long decodedStudentToCompareId;
     private CredentialData credentialData;
-    private CredentialData credentialDataStudent;
+    private CredentialData studentToCompareCredentialData;
     private UserData userData;
 
     public void init() {
         decodedId = idEncoder.decodeId(id);
-        decodedStudentId = idEncoder.decodeId(studentId);
-        if (decodedId > 0 && decodedStudentId > 0) {
+        decodedStudentToCompareId = idEncoder.decodeId(studentToCompareId);
+        if (decodedId > 0 && decodedStudentToCompareId > 0) {
             try {
-                this.userData = userManager.getUserData(decodedStudentId);
-                this.credentialData = credentialManager.getCredentialDataAndCompetenceData(decodedId, loggedUser.getUserId());
+                this.userData = userManager.getUserData(decodedStudentToCompareId);
                 if (userData == null) {
                     PageUtil.notFound();
                 } else {
+                    this.credentialData = credentialManager
+                            .getTargetCredentialDataAndTargetCompetencesData(decodedId, loggedUser.getUserId());
+                    
                     if (this.credentialData == null) {
                         PageUtil.accessDenied();
-                    }else {
-                        this.credentialDataStudent = credentialManager.getCredentialDataAndCompetenceData(decodedId, decodedStudentId);
+                    } else {
+                        this.studentToCompareCredentialData = credentialManager
+                                .getTargetCredentialDataAndTargetCompetencesData(decodedId, decodedStudentToCompareId);
                     }
                 }
             } catch (Exception e) {
@@ -83,16 +86,16 @@ public class CredentialStudentsCompareBean implements Serializable {
         this.userData = userData;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public String getStudentToCompareId() {
+        return studentToCompareId;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public void setStudentToCompareId(String studentToCompareId) {
+        this.studentToCompareId = studentToCompareId;
     }
 
-    public CredentialData getCredentialDataStudent() {
-        return credentialDataStudent;
+    public CredentialData getStudentToCompareCredentialData() {
+        return studentToCompareCredentialData;
     }
 
     public CredentialData getCredentialData() {

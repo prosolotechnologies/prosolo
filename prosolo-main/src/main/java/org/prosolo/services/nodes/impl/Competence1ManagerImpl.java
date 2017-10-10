@@ -187,7 +187,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator,
+	public List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator,
 		 boolean loadTags, boolean loadActivities)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
