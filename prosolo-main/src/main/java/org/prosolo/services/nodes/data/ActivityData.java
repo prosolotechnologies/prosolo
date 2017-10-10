@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -81,11 +82,11 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private boolean canEdit;
 	private boolean canAccess;
-	private boolean autograde;
-	
+
 	private int difficulty;
 
-	//rubric
+	//assessment
+	private GradingMode gradingMode;
 	private long rubricId;
 	private String rubricName;
 	private ActivityRubricVisibility rubricVisibility;
@@ -103,6 +104,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		gradeOptions = new GradeData();
 		tags = new HashSet<>();
 		rubricVisibility = ActivityRubricVisibility.NEVER;
+		gradingMode = GradingMode.MANUAL;
 	}
 	
 	@Override
@@ -675,15 +677,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.difficulty = difficulty;
 	}
 	
-	public boolean isAutograde() {
-		return autograde;
-	}
-
-	public void setAutograde(boolean autograde) {
-		observeAttributeChange("autograde", this.autograde, autograde);
-		this.autograde = autograde;
-	}
-	
 	public long getVersion() {
 		return version;
 	}
@@ -752,5 +745,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public String getRubricName() {
 		return rubricName;
+	}
+
+	public GradingMode getGradingMode() {
+		return gradingMode;
+	}
+
+	public void setGradingMode(GradingMode gradingMode) {
+		observeAttributeChange("gradingMode", this.gradingMode, gradingMode);
+		this.gradingMode = gradingMode;
 	}
 }

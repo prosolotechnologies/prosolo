@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -25,6 +26,7 @@ import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
+import org.prosolo.web.courses.activity.util.GradingModeDescription;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -35,9 +37,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ManagedBean(name = "activityEditBean")
 @Component("activityEditBean")
@@ -76,6 +76,7 @@ public class ActivityEditBean implements Serializable {
 	
 	private ActivityResultType[] resultTypes;
 
+	private GradingModeDescription[] gradingModes;
 	private List<RubricData> rubrics;
 	private ActivityRubricVisibilityDescription[] rubricVisibilityTypes;
 	
@@ -102,7 +103,7 @@ public class ActivityEditBean implements Serializable {
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
-				loadRubricData();
+				loadAssessmentData();
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -112,15 +113,16 @@ public class ActivityEditBean implements Serializable {
 		
 	}
 
-	private void loadRubricData() {
+	private void loadAssessmentData() {
 		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
 		if (isLimitedEdit()) {
+			Optional<GradingModeDescription> gradingMode = Arrays.stream(GradingModeDescription.values()).filter(gm -> activityData.getGradingMode() == gm.getGradingMode()).findFirst();
+			gradingModes = new GradingModeDescription[] {gradingMode.get()};
 			if (activityData.getRubricId() > 0) {
 				activityData.setRubricName(rubricManager.getRubricName(activityData.getRubricId()));
-			} else {
-				activityData.setRubricName("-");
 			}
 		} else {
+			gradingModes = GradingModeDescription.values();
 			List<Long> unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
 			if (unitIds.isEmpty()) {
 				rubrics = new ArrayList<>();
@@ -526,5 +528,9 @@ public class ActivityEditBean implements Serializable {
 
 	public ActivityRubricVisibilityDescription[] getRubricVisibilityTypes() {
 		return rubricVisibilityTypes;
+	}
+
+	public GradingModeDescription[] getGradingModes() {
+		return gradingModes;
 	}
 }

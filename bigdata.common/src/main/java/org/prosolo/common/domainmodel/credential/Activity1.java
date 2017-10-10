@@ -51,13 +51,13 @@ public class Activity1 extends BaseEntity {
 	private boolean visibleForUnenrolledStudents = false;
 	
 	private int difficulty;
-	private boolean autograde;
-	
+
 	private List<CompetenceActivity1> competenceActivities;
 
 	private Set<Tag> tags;
 
-	//rubric
+	//assessment
+	private GradingMode gradingMode = GradingMode.MANUAL;
 	private Rubric rubric;
 	private ActivityRubricVisibility rubricVisibility = ActivityRubricVisibility.NEVER;
 
@@ -180,16 +180,6 @@ public class Activity1 extends BaseEntity {
 		this.difficulty = difficulty;
 	}
 	
-	@Type(type = "true_false")
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isAutograde() {
-		return autograde;
-	}
-
-	public void setAutograde(boolean autograde) {
-		this.autograde = autograde;
-	}
-	
 	@Version
 	public long getVersion() {
 		return version;
@@ -234,5 +224,15 @@ public class Activity1 extends BaseEntity {
 
 	public void setRubricVisibility(ActivityRubricVisibility rubricVisibility) {
 		this.rubricVisibility = rubricVisibility;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public GradingMode getGradingMode() {
+		return gradingMode;
+	}
+
+	public void setGradingMode(GradingMode gradingMode) {
+		this.gradingMode = gradingMode;
 	}
 }

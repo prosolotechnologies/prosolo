@@ -94,8 +94,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Result<Activity1> result = new Result<>();
 			Activity1 activity = activityFactory.getActivityFromActivityData(data);
 
-			activity.setRubric(getRubricToSet(data));
-			activity.setRubricVisibility(data.getRubricVisibility());
+			setAssessmentRelatedData(activity, data, true);
 
 			if (data.getLinks() != null) {
 				Set<ResourceLink> activityLinks = new HashSet<>();
@@ -144,13 +143,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			User creator = (User) persistence.currentManager().load(User.class, context.getActorId());
 			activity.setCreatedBy(creator);
 
-			//GradingOptions go = new GradingOptions();
-			//go.setMinGrade(0);
-			//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-			//saveEntity(go);
-			//activity.setGradingOptions(go);
-			activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-
 			activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
@@ -180,6 +172,57 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving activity");
+		}
+	}
+
+	private void setAssessmentRelatedData(Activity1 activity, ActivityData data, boolean updateRubric) throws IllegalDataStateException {
+		class ExternalActivityVisitor implements ActivityVisitor {
+
+			boolean acceptGrades;
+
+			ExternalActivityVisitor(boolean acceptGrades) {
+				this.acceptGrades = acceptGrades;
+			}
+
+			@Override
+			public void visit(TextActivity1 activity) {}
+
+			@Override
+			public void visit(UrlActivity1 activity) {}
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				activity.setAcceptGrades(acceptGrades);
+			}
+		}
+
+		activity.setGradingMode(data.getGradingMode());
+		switch (data.getGradingMode()) {
+			case AUTOMATIC:
+				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
+				activity.setRubric(null);
+				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				break;
+			case MANUAL:
+				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+				if (updateRubric) {
+					activity.setRubric(getRubricToSet(data));
+				}
+				if (data.getRubricId() > 0) {
+					activity.setRubricVisibility(data.getRubricVisibility());
+				} else {
+					activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				}
+
+				activity.accept(new ExternalActivityVisitor(false));
+				break;
+			case NONGRADED:
+				activity.setMaxPoints(0);
+				activity.setRubric(null);
+				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				activity.accept(new ExternalActivityVisitor(false));
+				break;
 		}
 	}
 
@@ -659,16 +702,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			//changes which are not allowed if competence is once published
 			if (!compOncePublished) {
-				actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0
-						: Integer.parseInt(data.getMaxPointsString()));
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
-				actToUpdate.setAutograde(data.isAutograde());
 
-				//set rubric data
-				if (data.isRubricChanged()) {
-					actToUpdate.setRubric(getRubricToSet(data));
-					actToUpdate.setRubricVisibility(data.getRubricVisibility());
-				}
+				setAssessmentRelatedData(actToUpdate, data, data.isRubricChanged());
 			}
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
@@ -1884,6 +1920,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setFiles(cloneLinks(original.getFiles()));
 			activity.setResultType(original.getResultType());
 			activity.setType(original.getType());
+			activity.setGradingMode(original.getGradingMode());
+			activity.setRubric(original.getRubric());
+			activity.setRubricVisibility(original.getRubricVisibility());
 			activity.setMaxPoints(original.getMaxPoints());
 			activity.setStudentCanSeeOtherResponses(original.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(original.isStudentCanEditResponse());
@@ -1891,7 +1930,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setCreatedBy(user);
 			activity.setVisibleForUnenrolledStudents(original.isVisibleForUnenrolledStudents());
 			activity.setDifficulty(original.getDifficulty());
-			activity.setAutograde(original.isAutograde());
 			saveEntity(activity);
 			Result<Activity1> res = new Result<>();
 			res.setResult(activity);

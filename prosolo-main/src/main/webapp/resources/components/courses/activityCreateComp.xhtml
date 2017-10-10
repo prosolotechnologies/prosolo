@@ -29,18 +29,6 @@
 
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-			<script>
-				$(function() {
-					disableAutogradeIfAcceptGradesChecked(
-							'#{cc.clientId}:checkAcceptGrades',
-							'#{cc.clientId}:checkAutograding',
-							'#{cc.clientId}:checkAutogradeLabel');
-					disableAcceptGradesIfAutogradeChecked(
-							'#{cc.clientId}:checkAutograding',
-							'#{cc.clientId}:checkAcceptGrades',
-							'#{cc.clientId}:checkAcceptGradesLabel');
-				});
-			</script>
 			<!-- video activity start -->
 			<h:panelGroup layout="block"
 				rendered="#{cc.attrs.activity.activityType == 'VIDEO'}"
@@ -242,62 +230,6 @@
 				</div>
 
 				 <div class="formLine">
-					 <label>Rubric</label>
-					 <div class="formLineRight">
-						 <ui:fragment rendered="#{cc.attrs.limitedEdit}">
-							 <span>#{cc.attrs.activity.rubricName}</span>
-						 </ui:fragment>
-						 <ui:fragment rendered="#{not cc.attrs.limitedEdit}">
-							 <h:selectOneMenu value="#{cc.attrs.activity.rubricId}" styleClass="selectpicker"
-											  onchange="showOrHideRubricVisibilityRadioButtons(this,'.radioGroup')">
-								 <f:selectItem itemValue="0" itemLabel="Choose"/>
-								 <f:selectItems value="#{cc.attrs.bean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" />
-							 </h:selectOneMenu>
-							 <script>
-								 $('.selectpicker').selectpicker('refresh');
-							 </script>
-						 </ui:fragment>
-
-						 <div class="radioGroup" style="#{cc.attrs.activity.rubricId > 0 ? '' : 'display: none;'}">
-							 <ui:repeat value="#{cc.attrs.bean.rubricVisibilityTypes}" var="vis">
-								 <div class="radio">
-									 <input type="radio" jsf:id="visType"
-											name="#{hiddenVisType.clientId}"
-											jsf:disabled="#{cc.attrs.limitedEdit}"
-											value="#{vis.visibility}"
-											jsf:checked="#{vis.visibility eq cc.attrs.activity.rubricVisibility ? true : false}" />
-									 <h:outputLabel for="visType" value="#{vis.description}" />
-								 </div>
-							 </ui:repeat>
-							 <h:inputHidden id="rubricVisibilityType" binding="#{hiddenVisType}" value="#{cc.attrs.activity.rubricVisibility}"
-											rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
-						 </div>
-					 </div>
-				 </div>
-
-				<div class="formLine">
-					<label>Max points</label>
-					<div class="formLineRight">
-
-						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPoints"
-									 value="#{cc.attrs.activity.maxPointsString}"
-									 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
-							<f:convertNumber integerOnly="true" />
-						</h:inputText>
-
-						<small class="redText"><h:message for="maxPoints" /></small>
-						<div class="checkbox checkLine">
-							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
-								id="checkAutograding1" value="#{cc.attrs.activity.autograde}">
-							</h:selectBooleanCheckbox>
-							<h:outputLabel for="checkAutograding1">
-                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
-                        </h:outputLabel>
-						</div>
-					</div>
-				</div>
-
-				 <div class="formLine">
 					 <label>Keywords</label>
 					 <div class="formLineRight">
 						 <h:inputText styleClass="tagsInputActTag"
@@ -365,51 +297,6 @@
 				</div>
 
 				<div class="formLine">
-					<label>Rubric</label>
-					<div class="formLineRight">
-						<ui:fragment rendered="#{cc.attrs.limitedEdit}">
-							#{cc.attrs.activity.rubricName}
-						</ui:fragment>
-						<ui:fragment rendered="#{not cc.attrs.limitedEdit}">
-							<h:selectOneMenu value="#{cc.attrs.activity.rubricId}" styleClass="selectpicker"
-											 onchange="showOrHideRubricVisibilityRadioButtons(this,'.radioGroup')">
-								<f:selectItem itemValue="0" itemLabel="Choose"/>
-								<f:selectItems value="#{cc.attrs.bean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" />
-							</h:selectOneMenu>
-							<script>
-								$('.selectpicker').selectpicker('refresh');
-							</script>
-						</ui:fragment>
-
-						<div class="radioGroup" style="#{cc.attrs.activity.rubricId > 0 ? '' : 'display: none;'}">
-							<ui:repeat value="#{cc.attrs.bean.rubricVisibilityTypes}" var="vis">
-								<div class="radio">
-									<input type="radio" jsf:id="visTypeExt" name="#{hiddenVisTypeExt.clientId}"
-										   jsf:disabled="#{cc.attrs.limitedEdit}"
-										   value="#{vis.visibility}"
-										   jsf:checked="#{vis.visibility eq cc.attrs.activity.rubricVisibility ? true : false}" />
-									<h:outputLabel for="visTypeExt" value="#{vis.description}" />
-								</div>
-							</ui:repeat>
-							<h:inputHidden id="rubricVisibilityTypeExt" binding="#{hiddenVisTypeExt}" value="#{cc.attrs.activity.rubricVisibility}"
-										   rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
-						</div>
-					</div>
-				</div>
-
-				<div class="formLine">
-					<label>Max points</label>
-					<div class="formLineRight">
-						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPointsExt"
-							value="#{cc.attrs.activity.maxPointsString}"
-							placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
-							<f:convertNumber integerOnly="true" />
-						</h:inputText>
-						<small class="redText"><h:message for="maxPoints"/></small>
-					</div>
-				</div>
-
-				<div class="formLine">
 					<label>Keywords</label>
 					<div class="formLineRight">
 						<h:inputText styleClass="tagsInputActTag"
@@ -427,29 +314,10 @@
 					<label>Other</label>
 					<div class="formLineRight">
 						<div class="checkbox checkLine">
-							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
-								id="checkAutograding" value="#{cc.attrs.activity.autograde}"
-								onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');">
-							</h:selectBooleanCheckbox>
-							<h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
-                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
-                        </h:outputLabel>
-						</div>
-						<div class="checkbox checkLine">
 							<h:selectBooleanCheckbox id="checkOpenInNewWindow"
 								value="#{cc.attrs.activity.openInNewWindow}">
 							</h:selectBooleanCheckbox>
 							<h:outputLabel for="checkOpenInNewWindow">Open in new window</h:outputLabel>
-						</div>
-						<div class="checkbox checkLine">
-							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
-								id="checkAcceptGrades" value="#{cc.attrs.activity.acceptGrades}"
-								onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');">
-							</h:selectBooleanCheckbox>
-							<h:outputLabel for="checkAcceptGrades"
-								id="checkAcceptGradesLabel">
-                        	Accept grades
-                        </h:outputLabel>
 						</div>
 
 						<div class="checkbox checkLine">

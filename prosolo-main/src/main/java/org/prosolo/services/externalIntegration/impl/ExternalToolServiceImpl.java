@@ -147,7 +147,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
 							ExternalToolActivity1.class, activityId);
 					
-					if(act.isAcceptGrades()) {
+					if (act.isAcceptGrades()) {
 						int maxPoints = act.getMaxPoints();
 						int scaledGrade = (int) Math.round(score * maxPoints);
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
