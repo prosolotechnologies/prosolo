@@ -544,8 +544,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				aa.setId(activityDiscussion.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", grade + "");
-				result.addEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), aa, null, context.getContext(), params));
+				result.addEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context, aa, null, null, params));
 			}
 
 			result.setResult(activityDiscussion);
@@ -905,8 +904,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Map<String, String> params = new HashMap<>();
 			params.put("grade", points + "");
 			result.addEvent(eventFactory.generateEventData(
-					EventType.GRADE_ADDED, context.getActorId(), context.getOrganizationId(), context.getSessionId(), aa,
-					null, context.getContext(), params));
+					EventType.GRADE_ADDED, context, aa,null, null, params));
 			return result;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1558,6 +1556,34 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving assessment info");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT credAssessment.defaultAssessment, credAssessment.assessedStudent.id, credAssessment.assessor.id " +
+					"FROM ActivityAssessment aas " +
+					"INNER JOIN aas.assessment compAssessment " +
+					"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+					"WHERE aas.id = :actAssessmentId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("actAssessmentId", activityAssessmentId)
+					.uniqueResult();
+
+			if (res != null) {
+				return AssessmentBasicData.of((long) res[1], (long) res[2], (boolean) res[0]);
+			}
+
+			return AssessmentBasicData.empty();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving assessment data");
 		}
 	}
 

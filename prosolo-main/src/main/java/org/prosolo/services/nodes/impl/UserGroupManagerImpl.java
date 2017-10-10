@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -45,18 +44,28 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroup> getAllGroups(boolean returnDefaultGroups, Session session) throws DbConnectionException {
+	public List<UserGroup> getAllGroups(long orgId, boolean returnDefaultGroups, Session session) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT g " +
 				"FROM UserGroup g ";
 
 			if (!returnDefaultGroups) {
-				query += "WHERE g.defaultGroup IS FALSE";
+				query += "WHERE g.defaultGroup IS FALSE ";
+			}
+
+			if (orgId > 0) {
+				query += "AND g.unit.organization.id = :orgId";
 			}
 			
+			Query q = session.createQuery(query);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
+
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = session.createQuery(query).list();
+			List<UserGroup> result = q.list();
 			
 			return result == null ? new ArrayList<>() : result; 
 		} catch(Exception e) {
@@ -164,13 +173,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 								  UserContextData context) throws DbConnectionException {
 		try {
 			UserGroup group = resourceFactory.saveNewGroup(unitId, name, isDefault);
-			LearningContextData lContext = context.getContext();
-			String page = lContext != null ? lContext.getPage() : null;
-			String learningContext = lContext != null ? lContext.getLearningContext() : null;
-			String service = lContext != null ? lContext.getService() : null;
-			eventFactory.generateEvent(EventType.Create, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), group,
-					null, page, learningContext, service, null, null);
+
+			eventFactory.generateEvent(EventType.Create, context, group, null, null, null);
 			return group;
 		} catch(DbConnectionException dbce) {
 			throw dbce;
@@ -188,13 +192,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		try {
 			UserGroup group = resourceFactory.updateGroupName(groupId, newName);
 
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), group, null, page, lContext,
-					service, null, null);
+			eventFactory.generateEvent(EventType.Edit, context, group, null, null, null);
 			return group;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -209,13 +207,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			UserContextData context) {
 		try {
 			UserGroup group = resourceFactory.updateGroupJoinUrl(groupId, joinUrlActive, joinUrlPassword);
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), group, null, page,
-					lContext, service, null, null);
+
+			eventFactory.generateEvent(EventType.Edit, context, group, null, null, null);
 			return group;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -236,13 +229,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			UserGroup deletedGroup = new UserGroup();
 			deletedGroup.setId(id);
 
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Delete, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), deletedGroup,
-					null, page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.Delete, context, deletedGroup,null, null, null);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -664,9 +651,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		
     		if (visibilityChanged) {
     			events.add(eventFactory.generateEventData(
-        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), cred,
-						null, context.getContext(), null));
+        				EventType.RESOURCE_VISIBILITY_CHANGE, context, cred,null, null, null));
     		}
     		
     		Result<Void> res = new Result<>();
@@ -762,10 +747,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		if(userGroupsChangedEvents.get(userGroupId) == null) {
 			userGroupsChangedEvents.put(userGroupId,
 					eventFactory.generateEventData(
-							EventType.USER_GROUP_CHANGE,
-							context.getActorId(), context.getOrganizationId(),
-							context.getSessionId(), ug, null,
-							context.getContext(), null));
+							EventType.USER_GROUP_CHANGE, context, ug, null, null, null));
 		}
 	}
 	
@@ -790,9 +772,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				UserGroup target = new UserGroup();
 				target.setId(credGroup.getResult().getUserGroup().getId());
 				res.addEvent(eventFactory.generateEventData(
-						EventType.ADD_USER_TO_GROUP, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), object, target,
-						context.getContext(), null));
+						EventType.ADD_USER_TO_GROUP, context, object, target, null, null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -844,9 +824,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				UserGroup target = new UserGroup();
 				target.setId(compGroup.getResult().getUserGroup().getId());
 				res.addEvent(eventFactory.generateEventData(
-						EventType.ADD_USER_TO_GROUP, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), object, target,
-						context.getContext(), null));
+						EventType.ADD_USER_TO_GROUP, context, object, target, null, null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -948,8 +926,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			User u = new User();
 			u.setId(userId);
 			res.addEvent(eventFactory.generateEventData(
-					EventType.ADD_USER_TO_GROUP, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), u, ug, context.getContext(), null));
+					EventType.ADD_USER_TO_GROUP, context, u, ug, null, null));
 			return res;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -981,9 +958,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		UserGroup target = new UserGroup();
 		target.setId(userGroupUser.getGroup().getId());
 		res.addEvent(eventFactory.generateEventData(
-				EventType.REMOVE_USER_FROM_GROUP, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), object, target,
-				context.getContext(), null));
+				EventType.REMOVE_USER_FROM_GROUP, context, object, target,null, null));
 		delete(userGroupUser);
 		return res;
 	}
@@ -1060,8 +1035,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("credentialUserGroupId", credGroup.getId() + "");
 		params.put("privilege", credGroup.getPrivilege().name());
-		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, context.getActorId(), context.getOrganizationId(),
-				context.getSessionId(), userGroup, cred, context.getContext(), params));
+		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, context, userGroup, cred, null, params));
 
 		delete(credGroup);
 		
@@ -1069,7 +1043,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 //	private Result<Void> changeCredentialUserGroupPrivilege(long credId, long credUserGroupId, UserGroupPrivilege priv,
-//			long userId, LearningContextData lcd) {
+//			long userId, PageContextData lcd) {
 //		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
 //				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
 //		credGroup.setPrivilege(priv);
@@ -1135,8 +1109,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		params.put("default", isDefault + "");
 		params.put("credentialUserGroupId", credGroup.getId() + "");
 		params.put("privilege", priv.name());
-		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context.getActorId(), context.getOrganizationId(),
-				context.getSessionId(), ug, credential, context.getContext(), params);
+		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context, ug, credential, null, params);
 		
 		Result<CredentialUserGroup> res = new Result<>();
 		res.setResult(credGroup);
@@ -1340,8 +1313,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 			if (visibilityChanged) {
 				events.add(eventFactory.generateEventData(
-						EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-						comp, null, context.getContext(), null));
+						EventType.RESOURCE_VISIBILITY_CHANGE, context, comp, null, null, null));
 			}
 
 			Result<Void> res = new Result<>();
@@ -1459,8 +1431,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("competenceUserGroupId", compGroup.getId() + "");
 		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
-				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-				userGroup, comp, context.getContext(), params));
+				context, userGroup, comp, null, params));
 
 		return res;
 	}
@@ -1523,8 +1494,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("default", isDefault + "");
 		params.put("competenceUserGroupId", compGroup.getId() + "");
-		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), ug, competence, context.getContext(), params);
+		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context, ug, competence, null, params);
 
 		Result<CompetenceUserGroup> res = new Result<>();
 		res.setResult(compGroup);
@@ -1612,8 +1582,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	        		Competence1 comp = new Competence1();
 	        		comp.setId(compId);
 	        		res.addEvent(eventFactory.generateEventData(
-	        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(),
-							context.getSessionId(), comp, null, context.getContext(), null));
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, context, comp, null, null, null));
 	    		}
     		}
     		return res;
@@ -1653,9 +1622,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	        		Credential1 del = new Credential1();
 	        		del.setId(delId);
 	        		res.addEvent(eventFactory.generateEventData(
-	        				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
-							context.getOrganizationId(), context.getSessionId(), del, null, context.getContext(),
-							null));
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, context, del, null, null,null));
 	    		}
     		}
     		return res;
@@ -1692,9 +1659,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		comp.setId(compId);
     		Result<Void> res = new Result<>();
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), comp, null,
-					context.getContext(), null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context, comp, null, null, null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1806,9 +1771,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		Result<Void> res = new Result<>();
 
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), competence, null,
-					context.getContext(), null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context, competence, null, null, null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1856,8 +1819,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		delivery.setId(deliveryId);
     		Result<Void> res = new Result<>();
     		res.addEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), delivery, null, context.getContext(), null));
+    				EventType.RESOURCE_VISIBILITY_CHANGE, context, delivery, null, null, null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -1919,9 +1881,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 				Competence1 comp = new Competence1();
 				comp.setId(compId);
-				res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_VISIBILITY_CHANGE, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), comp, null, context.getContext(),
-						null));
+				res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_VISIBILITY_CHANGE, context, comp, null, null,null));
 			}
 			return res;
 		} catch (Exception e) {

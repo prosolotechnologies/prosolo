@@ -15,6 +15,7 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="learningContext" required="true" />
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
+		<composite:attribute name="updateProgress" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -23,7 +24,7 @@
 		<div id="#{cc.clientId}">
 			<p:growl id="growlDetails" globalOnly="true" showDetail="true" />
 		    
-		    <ui:fragment rendered="#{!(cc.attrs.role eq 'MANAGER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents)}">
+		    <ui:fragment rendered="#{!(cc.attrs.role ne 'USER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents)}">
 				<div class="whiteBox activityTextBox activityExternalEnroll">
 	                   <p>Content available only to enrolled students.</p>
 	                   <p:commandLink
@@ -36,7 +37,7 @@
 	            </div>
             </ui:fragment>
             
-            <ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents}">
+            <ui:fragment rendered="#{cc.attrs.role ne 'USER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents}">
             	<ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
 					<div class="activityMain">
 						<video width="731" height="413" id="player1">
@@ -234,7 +235,7 @@
 				            		uploadFileInfo="Upload Response"
 				            		fileUploadListenerMethodName="handleFileUpload"
 				            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-				            		toUpdate=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
+				            		toUpdate=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
 				            		learningContext="#{cc.attrs.learningContext}"
 				            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
 				            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
@@ -272,7 +273,7 @@
 				                    	styleClass="btn btn-sm btn-green"
 				                    	onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
 				                    	action="#{cc.attrs.bean.saveTextResponse()}"
-				                    	update=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
+				                    	update=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
 				                    	value="Submit">
 				                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 										<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>

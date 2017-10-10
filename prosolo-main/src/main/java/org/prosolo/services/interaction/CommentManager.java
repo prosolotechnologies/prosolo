@@ -1,15 +1,15 @@
 package org.prosolo.services.interaction;
 
-import java.util.List;
-
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.nodes.data.Role;
+
+import java.util.List;
 
 public interface CommentManager {
 
@@ -52,16 +52,16 @@ public interface CommentManager {
 	List<CommentData> getAllCommentReplies(CommentData parent, CommentSortData commentSortData, 
 			long userId) throws DbConnectionException;
 	
-	void likeComment(long userId, long commentId, LearningContextData context) 
+	void likeComment(long commentId, UserContextData context)
 			throws DbConnectionException;
 	
-	void unlikeComment(long userId, long commentId, LearningContextData context) 
+	void unlikeComment(long commentId, UserContextData context)
 			throws DbConnectionException;
 	
-	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource,
-			LearningContextData context) throws DbConnectionException;
+	Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
+			UserContextData context) throws DbConnectionException;
 	
-	void updateComment(CommentData data, long userId, LearningContextData context) 
+	void updateComment(CommentData data, UserContextData context)
 			throws DbConnectionException;
 	
 	/**

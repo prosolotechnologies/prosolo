@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
@@ -29,54 +30,128 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     protected static Logger logger = Logger.getLogger(BulkDataAdministrationServiceImpl.class);
 
-    @Inject private UserManager userManager;
-    @Inject private DefaultManager defaultManager;
-    @Inject private UserEntityESService userEntityESService;
-    @Inject private CredentialManager credManager;
-    @Inject private Competence1Manager compManager;
-    @Inject private CredentialESService credESService;
-    @Inject private CompetenceESService compESService;
-    @Inject private UserGroupManager userGroupManager;
-    @Inject private UserGroupESService userGroupESService;
-    @Inject private ESAdministration esAdministration;
-    @Inject private OrganizationManager orgManager;
+    @Inject
+    private UserManager userManager;
+    @Inject
+    private DefaultManager defaultManager;
+    @Inject
+    private UserEntityESService userEntityESService;
+    @Inject
+    private CredentialManager credManager;
+    @Inject
+    private Competence1Manager compManager;
+    @Inject
+    private CredentialESService credESService;
+    @Inject
+    private CompetenceESService compESService;
+    @Inject
+    private UserGroupManager userGroupManager;
+    @Inject
+    private UserGroupESService userGroupESService;
+    @Inject
+    private ESAdministration esAdministration;
+    @Inject
+    private OrganizationManager orgManager;
+    @Inject
+    private RubricManager rubricManager;
+    @Inject
+    private RubricsESService rubricsESService;
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
-        esAdministration.deleteIndexes();
-        esAdministration.createIndexes();
+        esAdministration.deleteDBIndexes();
+        esAdministration.createDBIndexes();
     }
 
     @Override
-    public void deleteAndReindexUsers() throws IndexingServiceNotAvailable {
-        //delete all user indexes
-        esAdministration.deleteIndexByName(ESIndexNames.INDEX_USERS + "*");
+    public void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
+        //delete nodes indexes
+        esAdministration.deleteIndexByName(ESIndexNames.INDEX_NODES +
+                (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*"));
 
-        //create system user index
-        esAdministration.createIndex(ESIndexNames.INDEX_USERS);
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_NODES});
 
-        List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
-                .getFoundNodes();
-        for (OrganizationData o : organizations) {
-            //create user index for each organization
-            esAdministration.createIndex(ESIndexNames.INDEX_USERS
-                    + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
-        }
-        indexUsers();
+        indexNodes(orgId);
     }
 
-    private void indexUsers() {
-        Session session = (Session) defaultManager.getPersistence().openSession();
-        Collection<User> users = userManager.getAllUsers();
+    @Override
+    public void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable {
+        //delete rubrics indexes
+        esAdministration.deleteIndexByName(ESIndexNames.INDEX_RUBRIC_NAME +
+                (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*"));
 
-        try {
-            for (User user : users) {
-                //if (!user.isSystem()) {
-                user = (User) session.merge(user);
-                logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-                userEntityESService.saveUserNode(user, session);
-                //}
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_RUBRIC_NAME});
+
+        indexRubrics(orgId);
+    }
+
+    @Override
+    public void deleteAndReindexUsersAndGroups(long orgId) throws IndexingServiceNotAvailable {
+        //delete all user and user group indexes
+        String suffix =  orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*";
+        esAdministration.deleteIndexesByName(
+                new String[] {ESIndexNames.INDEX_USERS + suffix, ESIndexNames.INDEX_USER_GROUP + suffix});
+
+        if (orgId <= 0) {
+            /*
+                create system user index but only if general reindex of all users is done. If reindex is done
+                for specific organization system level user index should not be created.
+             */
+            esAdministration.createIndex(ESIndexNames.INDEX_USERS);
+        }
+
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_USERS, ESIndexNames.INDEX_USER_GROUP});
+
+        indexUsersAndUserGroups(orgId);
+    }
+
+    private void createOrganizationsIndexes(long orgId, String[] indexes) throws IndexingServiceNotAvailable {
+        if (orgId > 0) {
+            createOrgIndexes(orgId, indexes);
+        } else {
+            List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+                    .getFoundNodes();
+            for (OrganizationData o : organizations) {
+                //create indexes for each organization
+                createOrgIndexes(o.getId(), indexes);
             }
+        }
+    }
+
+    private void createOrgIndexes(long orgId, String[] indexes) throws IndexingServiceNotAvailable {
+        for (String index : indexes) {
+            esAdministration.createIndex(index
+                    + ElasticsearchUtil.getOrganizationIndexSuffix(orgId));
+        }
+    }
+
+    private void indexUsersAndUserGroups(long orgId) {
+        Session session = (Session) defaultManager.getPersistence().openSession();
+        try {
+            indexUsers(orgId, session);
+            indexUserGroups(orgId, session);
+        } catch (Exception e) {
+            logger.error("Exception in handling message", e);
+        } finally {
+            HibernateUtil.close(session);
+        }
+    }
+
+    private void indexNodes(long orgId) {
+        Session session = (Session) defaultManager.getPersistence().openSession();
+        try {
+            indexNodes(orgId, session);
+        } catch (Exception e) {
+            logger.error("Exception in handling message", e);
+        } finally {
+            HibernateUtil.close(session);
+        }
+    }
+
+    private void indexRubrics(long orgId) {
+        Session session = (Session) defaultManager.getPersistence().openSession();
+        try {
+            indexRubrics(orgId, session);
         } catch (Exception e) {
             logger.error("Exception in handling message", e);
         } finally {
@@ -88,35 +163,49 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     public void indexDBData() {
         Session session = (Session) defaultManager.getPersistence().openSession();
         try {
-            Collection<User> users = userManager.getAllUsers();
-            for (User user : users) {
-                //if (!user.isSystem()) {
-                user = (User) session.merge(user);
-                logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-                userEntityESService.saveUserNode(user, session);
-                //}
-            }
-
-            //index credentials
-            List<Credential1> credentials = credManager.getAllCredentials(session);
-            for (Credential1 cred : credentials) {
-                credESService.saveCredentialNode(cred, session);
-            }
-            //index competences
-            List<Competence1> comps = compManager.getAllCompetences(session);
-            for(Competence1 comp : comps) {
-                compESService.saveCompetenceNode(comp, session);
-            }
-
-            //index user groups
-            List<UserGroup> groups = userGroupManager.getAllGroups(false, session);
-            for(UserGroup group : groups) {
-                userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
-            }
+            indexUsers(0, session);
+            indexNodes(0, session);
+            indexUserGroups(0, session);
+            indexRubrics(0, session);
         } catch (Exception e) {
             logger.error("Exception in handling message", e);
         } finally {
             HibernateUtil.close(session);
+        }
+    }
+
+    private void indexUsers(long orgId, Session session) {
+        Collection<User> users = userManager.getAllUsers(orgId, session);
+        for (User user : users) {
+            logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
+            userEntityESService.saveUserNode(user, session);
+        }
+    }
+
+    private void indexUserGroups(long orgId, Session session) {
+        List<UserGroup> groups = userGroupManager.getAllGroups(orgId,false, session);
+        for (UserGroup group : groups) {
+            userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
+        }
+    }
+
+    private void indexNodes(long orgId, Session session) {
+        //index credentials
+        List<Credential1> credentials = credManager.getAllCredentials(orgId, session);
+        for (Credential1 cred : credentials) {
+            credESService.saveCredentialNode(cred, session);
+        }
+        //index competences
+        List<Competence1> comps = compManager.getAllCompetences(orgId, session);
+        for (Competence1 comp : comps) {
+            compESService.saveCompetenceNode(comp, session);
+        }
+    }
+
+    private void indexRubrics(long orgId, Session session) {
+        List<Rubric> rubrics = rubricManager.getAllRubrics(orgId, session);
+        for (Rubric r : rubrics) {
+            rubricsESService.saveRubric(r.getOrganization().getId(), r);
         }
     }
 }

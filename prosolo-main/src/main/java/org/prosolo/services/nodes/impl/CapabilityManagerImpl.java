@@ -45,20 +45,20 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public Capability getCapabilityWithRoles(long id) throws DbConnectionException {
-		try {
-			String query = "SELECT cap " + "FROM Capability cap " + 
-						   "LEFT JOIN fetch cap.roles roles " +
-				           "WHERE cap.id = :capId";
-
-			return (Capability) persistence.currentManager().createQuery(query).setLong("capId", id).uniqueResult();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capability");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public Capability getCapabilityWithRoles(long id) throws DbConnectionException {
+//		try {
+//			String query = "SELECT cap " + "FROM Capability cap " +
+//						   "LEFT JOIN fetch cap.roles roles " +
+//				           "WHERE cap.id = :capId";
+//
+//			return (Capability) persistence.currentManager().createQuery(query).setLong("capId", id).uniqueResult();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading capability");
+//		}
+//	}
 
 	@Override
 	@Transactional
@@ -81,20 +81,20 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public Capability getCapabilityByName(String capName) throws DbConnectionException {
-		try {
-			String query = "SELECT c " + 
-					       "FROM Capability c " + 
-					       "WHERE c.name = :name";
-
-			return (Capability) persistence.currentManager().createQuery(query).setParameter("name", capName)
-					.uniqueResult();
-		} catch (Exception e) {
-			throw new DbConnectionException("Error while loading capability");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public Capability getCapabilityByName(String capName) throws DbConnectionException {
+//		try {
+//			String query = "SELECT c " +
+//					       "FROM Capability c " +
+//					       "WHERE c.name = :name";
+//
+//			return (Capability) persistence.currentManager().createQuery(query).setParameter("name", capName)
+//					.uniqueResult();
+//		} catch (Exception e) {
+//			throw new DbConnectionException("Error while loading capability");
+//		}
+//	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -130,30 +130,30 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 
 	}
 	
-	@Override
-	@Transactional(readOnly = true)
-	public Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds2() throws DbConnectionException {
-		try {
-			String query = "SELECT cap " + 
-						   "FROM Capability cap";
-
-			List<Capability> caps = persistence.currentManager().createQuery(query).list();
-			Map<Capability, List<Long>> map = new HashMap<>();
-			for(Capability c:caps){
-				String q = "SELECT role.id "+
-						   "FROM Role role "+
-						   "INNER JOIN role.capabilities cap "+
-						   "WHERE cap.id = :id";
-				List<Long> ids = persistence.currentManager().createQuery(q)
-						.setLong("id", c.getId())
-						.list();
-				map.put(c, ids);
-			}
-			return map;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capabilities");
-		}
-
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds2() throws DbConnectionException {
+//		try {
+//			String query = "SELECT cap " +
+//						   "FROM Capability cap";
+//
+//			List<Capability> caps = persistence.currentManager().createQuery(query).list();
+//			Map<Capability, List<Long>> map = new HashMap<>();
+//			for(Capability c:caps){
+//				String q = "SELECT role.id "+
+//						   "FROM Role role "+
+//						   "INNER JOIN role.capabilities cap "+
+//						   "WHERE cap.id = :id";
+//				List<Long> ids = persistence.currentManager().createQuery(q)
+//						.setLong("id", c.getId())
+//						.list();
+//				map.put(c, ids);
+//			}
+//			return map;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading capabilities");
+//		}
+//
+//	}
 }

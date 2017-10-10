@@ -1,16 +1,8 @@
 package org.prosolo.web.activitywall;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.interaction.data.CommentsData;
@@ -22,6 +14,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
 
 @ManagedBean(name = "saViewBean")
 @Component("saViewBean")
@@ -51,22 +50,12 @@ public class SocialActivityViewBean implements Serializable {
 		if(decodedId > 0) {
 			initializeActivity();
 			if(socialActivity == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					logger.error(ioe);
-				}
+				PageUtil.notFound();
 			} else {
 				initializeCommentsIfNotInitialized(socialActivity);
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	
@@ -97,12 +86,8 @@ public class SocialActivityViewBean implements Serializable {
 	
 	public void sharePost() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			socialActivityManger.sharePost(loggedUser.getUserId(), 
-					postShareText, socialActivity.getId(), lcd);
+			socialActivityManger.sharePost(
+					postShareText, socialActivity.getId(), loggedUser.getUserContext());
 			
 			PageUtil.fireSuccessfulInfoMessage("The post is shared");
 			postShareText = null;
@@ -113,9 +98,7 @@ public class SocialActivityViewBean implements Serializable {
 	}
 	
 	public void likeAction(SocialActivityData1 data) {
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
+		UserContextData context = loggedUser.getUserContext();
 		
 		//we can trade off accuracy for performance here
 		boolean liked = !data.isLiked();
@@ -126,25 +109,18 @@ public class SocialActivityViewBean implements Serializable {
 			data.setLikeCount(data.getLikeCount() - 1);
 		}
 		
-		taskExecutor.execute(new Runnable() {
-            @Override
-            public void run() {	
-            	try {
-            		LearningContextData context = new LearningContextData(page, lContext, service);
-            		if(liked) {
-	            		socialActivityManger.likeSocialActivity(loggedUser.getUserId(), 
-	            				data.getId(), 
-	            				context);
-            		} else {
-            			socialActivityManger.unlikeSocialActivity(loggedUser.getUserId(), 
-            					data.getId(), 
-	            				context);
-            		}
-	            	
-            	} catch (DbConnectionException e) {
-            		logger.error(e);
-            	}
-            }
+		taskExecutor.execute(() -> {
+			try {
+				if(liked) {
+					socialActivityManger.likeSocialActivity(data.getId(), context);
+				} else {
+					socialActivityManger.unlikeSocialActivity(data.getId(), context);
+				}
+
+			} catch (DbConnectionException e) {
+				logger.error(e);
+			}
+
         });
 	}
 	

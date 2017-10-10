@@ -1,5 +1,6 @@
 package org.prosolo.services.activityWall.factory;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.*;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.ContentType1;
@@ -20,7 +21,6 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.stereotype.Component;
-import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
@@ -110,7 +110,7 @@ public class SocialActivityDataFactory {
 			String compObjectActorName,
 			String compObjectActorLastname,
 			String compObjectDescription,
-			Integer liked,
+			boolean liked,
 			BigInteger commentsNumber,
 			Locale locale) {
 		SocialActivityData1 sad = new SocialActivityData1();
@@ -122,7 +122,7 @@ public class SocialActivityDataFactory {
 			sad.setText(text);
 		}
 		sad.setLikeCount(likeCount);
-		sad.setLiked(liked == 1);
+		sad.setLiked(liked);
 		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, id.longValue());
 		cd.setNumberOfComments(commentsNumber.intValue());
 		sad.setComments(cd);

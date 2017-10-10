@@ -88,11 +88,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 
@@ -125,8 +121,10 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getFullName());
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error following " + user.getFullName() + ". Please try again");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 

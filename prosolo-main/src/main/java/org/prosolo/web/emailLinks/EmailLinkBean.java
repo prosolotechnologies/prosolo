@@ -1,25 +1,28 @@
 package org.prosolo.web.emailLinks;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Optional;
+import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParser;
+import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
+import org.prosolo.services.email.emailLinks.data.LinkObjectData;
+import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.logging.LoggingNavigationBean;
+import org.prosolo.web.util.page.PageUtil;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-
-import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParser;
-import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
-import org.prosolo.services.email.emailLinks.data.LinkObjectData;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.logging.LoggingNavigationBean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.Optional;
 
 
 @ManagedBean(name = "emailLinkBean")
@@ -35,7 +38,8 @@ public class EmailLinkBean implements Serializable {
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private LoggingNavigationBean loggingBean;
 	@Inject private EmailLinkContextParser emailLinkContextParser;
-	
+    @Inject private UserManager userManager;
+
 	private String userId;
 	private String context;
 	
@@ -54,24 +58,29 @@ public class EmailLinkBean implements Serializable {
 							linkObjData.getInfo().getLinkField());
 					
 					String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-					LearningContextData lContextData = new LearningContextData(page, context, null);
-					
-					User user = new User();
-					user.setId(decodedUserId);
-					loggingBean.logEmailNavigation(user, link, lContextData);
+					PageContextData lContextData = new PageContextData(page, context, null);
+
+					long organizationId = 0;
+					try {
+						organizationId = userManager.getUserOrganizationId(decodedUserId);
+					} catch (DbConnectionException e) {
+						logger.error("Error", e);
+					}
+					String sessionId = null;
+					HttpSession session = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getSession(false);
+					if (session != null) {
+						sessionId = session.getId();
+					}
+
+					loggingBean.logEmailNavigation(UserContextData.of(decodedUserId, organizationId, sessionId, lContextData), link);
 					
 					ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 				    externalContext.redirect(link);
 				    return;
 				}
 			}
-			
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+
+			PageUtil.notFound();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

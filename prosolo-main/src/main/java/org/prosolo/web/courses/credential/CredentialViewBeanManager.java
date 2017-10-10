@@ -1,27 +1,26 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 @ManagedBean(name = "credentialViewBeanManager")
 @Component("credentialViewBeanManager")
@@ -47,32 +46,25 @@ public class CredentialViewBeanManager implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				RestrictedAccessResult<CredentialData> res = credentialManager
-						.getCredentialDataForManagerView(decodedId, loggedUser.getUserId());
-				unpackResult(res);
-				if(!access.isCanAccess()) {
+				access = credentialManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit)
+								.addPrivilege(UserGroupPrivilege.Instruct));
+				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
+				} else {
+					credentialData = credentialManager
+							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();
 			} catch (Exception e) {
-				logger.error(e);
-				e.printStackTrace();
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
-	}
-	
-	private void unpackResult(RestrictedAccessResult<CredentialData> res) {
-		credentialData = res.getResource();
-		access = res.getAccess();
 	}
 	
 //	public boolean isCurrentUserCreator() {

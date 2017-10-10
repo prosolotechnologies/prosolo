@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class RichContentDataFactory {
 
 	@Inject private UrlIdEncoder idEncoder;
-	
+
 	public AttachmentPreview1 getAttachmentPreview(RichContent1 richContent) throws MediaDataException {
 		if(richContent == null) {
 			return null;
@@ -46,30 +46,30 @@ public class RichContentDataFactory {
 //			attachPreview.getImages().add(imageUrl);
 //			attachPreview.setSelectedImageIndex(0);
 		}
-		
+
 		MediaData md = getMediaData(attachPreview);
 		attachPreview.setMediaType(md.getMediaType());
 		attachPreview.setEmbedingLink(md.getEmbedLink());
 		attachPreview.setEmbedId(md.getEmbedId());
 		attachPreview.setInitialized(true);
-		
+
 		return attachPreview;
 	}
-	
+
 	public AttachmentPreview1 getAttachmentPreviewForCredential(long id, long duration,
-			String title, String description, LearningResourceType type, String creatorName, 
+			String title, String description, LearningResourceType type, String creatorName,
 			String creatorLastname) {
-		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
+		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description,
 				type, creatorName, creatorLastname, MediaType1.Credential);
 		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Credential);
 		ap.setLink(page + "?id=" + idEncoder.encodeId(id));
 		return ap;
 	}
-	
+
 	public AttachmentPreview1 getAttachmentPreviewForCompetence(long id, long duration,
-			String title, String description, LearningResourceType type, 
+			String title, String description, LearningResourceType type,
 			String creatorName, String creatorLastname, long credId) {
-		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
+		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description,
 				type, creatorName, creatorLastname, MediaType1.Competence);
 		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Competence);
 		StringBuilder url = new StringBuilder(page);
@@ -80,11 +80,11 @@ public class RichContentDataFactory {
 		ap.setLink(url.toString());
 		return ap;
 	}
-	
+
 	public AttachmentPreview1 getAttachmentPreviewForActivity(long id, long duration,
 			String title, String description, LearningResourceType type, ActivityType activityType,
 			String creatorName, String creatorLastname, long compId, long credId) {
-		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
+		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description,
 				type, creatorName, creatorLastname, MediaType1.Activity);
 		ap.setActivityType(activityType);
 		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Activity);
@@ -99,9 +99,9 @@ public class RichContentDataFactory {
 		ap.setLink(url.toString());
 		return ap;
 	}
-	
+
 	public AttachmentPreview1 getAttachmentPreviewForLearningResource(long id, long duration,
-			String title, String description, LearningResourceType type, 
+			String title, String description, LearningResourceType type,
 			String creatorName, String creatorLastname, MediaType1 mediaType) {
 		AttachmentPreview1 ap = new AttachmentPreview1();
 		ap.setMediaType(mediaType);
@@ -114,7 +114,7 @@ public class RichContentDataFactory {
 		ap.setInitialized(true);
 		return ap;
 	}
-	
+
 	/**
 	 * Returns attachment preview for comment
 	 * @param id
@@ -152,7 +152,7 @@ public class RichContentDataFactory {
 		ap.setInitialized(true);
 		return ap;
 	}
-	
+
 	public AttachmentPreview1 getAttachmentPreviewForTwitterPost(String nick, String profileUrl,
 			String text, String postUrl) {
 		AttachmentPreview1 ap = new AttachmentPreview1();
@@ -164,16 +164,19 @@ public class RichContentDataFactory {
 		ap.setInitialized(true);
 		return ap;
 	}
-	
+
 	public MediaData getMediaData(AttachmentPreview1 attachPreview) throws MediaDataException {
 		MediaType1 mediaType = MediaType1.Link_Other;
 		String embedLink = null;
 		String embedId = null;
 		if(attachPreview.getContentType() == ContentType1.LINK) {
 			String link = attachPreview.getLink();
-			if(URLUtil.checkIfSlideshareLink(link)) {
-				return URLUtil.getSlideshareEmbedLink(link, attachPreview.getEmbedId());
-			} else if(URLUtil.checkIfYoutubeLink(link)) {
+			if(URLUtil.checkIfSlidesharePresentationLink(link)) {
+				MediaData mediaData = URLUtil.getSlideshareEmbedLink(link, attachPreview.getEmbedId());
+                if (mediaData != null) {
+                    return mediaData;
+                }
+            } else if(URLUtil.checkIfYoutubeLink(link)) {
 				mediaType = MediaType1.Youtube;
 				embedId = URLUtil.getYoutubeEmbedId(link);
 				//return URLUtil.getYoutubeMediaData(link);
@@ -184,7 +187,7 @@ public class RichContentDataFactory {
 		//TODO if it is needed to differentiate file types do that here before setting media type
 		return new MediaData(mediaType, embedLink, embedId);
 	}
-	
+
 	private String getFullName(String name, String lastName) {
 		return name + (lastName != null ? " " + lastName : "");
 	}

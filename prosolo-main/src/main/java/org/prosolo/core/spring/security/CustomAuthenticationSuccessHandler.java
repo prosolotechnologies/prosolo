@@ -1,16 +1,8 @@
 package org.prosolo.core.spring.security;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
 import org.prosolo.services.event.EventFactory;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -20,6 +12,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Map;
 
 @Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
@@ -35,13 +36,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			
 		User user = (User) authentication.getPrincipal();
 		HttpSession session = request.getSession(true);
-	
+		Map<String, Object> sessionData = null;
 		boolean success;
 		try {
-			Map<String, Object> sessionData = sessionDataLoader.init(user.getUsername(), request, session);
+			sessionData = sessionDataLoader.init(user.getUsername(), request, session);
 			session.setAttribute("user", sessionData);
 			try {
-				eventFactory.generateEvent(EventType.LOGIN, (long) sessionData.get("userId"));
+				UserContextData context = UserContextData.of((long) sessionData.get("userId"),
+						(long) sessionData.get("organizationId"), (String) sessionData.get("sessionId"),
+						new PageContextData());
+				eventFactory.generateEvent(EventType.LOGIN, context, null, null, null, null);
 			} catch (Exception e) {
 				logger.error(e);
 			}
@@ -57,7 +61,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				uri = uri.substring(request.getContextPath().length());
 				setDefaultTargetUrl(uri);
 			} else {
-				setDefaultTargetUrl(new HomePageResolver().getHomeUrl());
+				Long orgId = (Long)sessionData.get("organizationId");
+				long organizationId = orgId == null ? 0 : orgId;
+				setDefaultTargetUrl(new HomePageResolver().getHomeUrl(organizationId));
 			}
 			super.onAuthenticationSuccess(request, response, authentication);
 		} else {

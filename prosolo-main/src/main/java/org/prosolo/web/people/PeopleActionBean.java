@@ -1,18 +1,15 @@
 package org.prosolo.web.people;
 
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
@@ -20,6 +17,10 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import java.io.Serializable;
 
 /**
  * @author Zoran Jeremic
@@ -48,7 +49,9 @@ public class PeopleActionBean implements Serializable {
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -63,12 +66,12 @@ public class PeopleActionBean implements Serializable {
 	}
 	
 	public void followUserById(long userToFollowId) 
-			throws EntityAlreadyExistsException, DbConnectionException {
-		followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, loggedUser.getUserContext());
+			throws EntityAlreadyExistsException, DbConnectionException, EventException {
+		followResourceManager.followUser(userToFollowId, loggedUser.getUserContext());
 	}
 
 	public void unfollowUserById(long userToUnfollowId) throws EventException {
-		followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, loggedUser.getUserContext());
+		followResourceManager.unfollowUser(userToUnfollowId, loggedUser.getUserContext());
 	}
 	
 	public void followCollegue(UserData user) {
@@ -79,8 +82,10 @@ public class PeopleActionBean implements Serializable {
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + user.getName());
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("An error has occurred. Please try again");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -109,8 +114,9 @@ public class PeopleActionBean implements Serializable {
 	@Deprecated
 	public void followCollegue(User userToFollow, String context) {
 		logger.debug("User '" + loggedUser.getUserId() + "' is following user " + userToFollow);
-
-		followResourceAsyncManager.asyncFollowUser(loggedUser.getUserId(), userToFollow, context);
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(
+				FacesContext.getCurrentInstance().getViewRoot().getViewId(), context, null));
+		followResourceAsyncManager.asyncFollowUser(userToFollow, userContext);
 //		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
 		PageUtil.fireSuccessfulInfoMessage(
 				"You are now following " + userToFollow.getName() + " " + userToFollow.getLastname());
@@ -131,7 +137,9 @@ public class PeopleActionBean implements Serializable {
 	public void unfollowCollegue(User userToUnfollow, String context) {
 		logger.debug("User '" + loggedUser.getUserId() + "' is unfollowing user " + userToUnfollow);
 
-		followResourceAsyncManager.asyncUnfollowUser(loggedUser.getUserId(), userToUnfollow, context);
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(
+				FacesContext.getCurrentInstance().getViewRoot().getViewId(), context, null));
+		followResourceAsyncManager.asyncUnfollowUser(userToUnfollow, userContext);
 //		peopleBean.removeFollowingUserById(userToUnfollow.getId());
 
 		PageUtil.fireSuccessfulInfoMessage(

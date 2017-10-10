@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
@@ -63,7 +64,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 	@Override
 	@Transactional
 	public Map<String, Object> saveObservation(long id, Date date, String message, String note, List<Long> symptomIds,
-			List<Long> suggestionIds, long creatorId, long studentId) 
+											   List<Long> suggestionIds, UserContextData context, long studentId)
 					throws DbConnectionException {
 		try {
 			boolean insert = true;
@@ -77,7 +78,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			observation.setMessage(message);
 			observation.setNote(note);
 		    User creator = new User();
-		    creator.setId(creatorId);
+		    creator.setId(context.getActorId());
 		    User student = new User();
 		    student.setId(studentId);
 		    observation.setCreatedBy(creator);
@@ -105,8 +106,8 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			Map<String, Object> result = new HashMap<>();
 			result.put("observationId", observation.getId());
 			
-			if (insert && message != null && !message.isEmpty() && creatorId != studentId) {
-				Message msg = msgManager.sendMessage(creatorId, studentId, message);
+			if (insert && message != null && !message.isEmpty() && context.getActorId() != studentId) {
+				Message msg = msgManager.sendMessage(context.getActorId(), studentId, message);
 				result.put("message", msg);
 			}
 

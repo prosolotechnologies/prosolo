@@ -3,7 +3,6 @@ package org.prosolo.services.nodes.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -13,7 +12,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
@@ -78,23 +76,41 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
-	public User getUser(String email) {
-		email = email.toLowerCase();
+	public User getUser(String email) throws DbConnectionException {
+		return getUser(email, false);
+	}
 
-		String query =
-			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.email = :email " +
-				"AND user.verified = :verifiedEmail";
+	@Override
+	@Transactional (readOnly = true)
+	public User getUserIfNotDeleted(String email) throws DbConnectionException {
+		return getUser(email, true);
+	}
 
-		User result = (User) persistence.currentManager().createQuery(query).
-			setString("email", email).
-		 	setBoolean("verifiedEmail",true).
-			uniqueResult();
-		if (result != null) {
-			return result;
+	private User getUser(String email, boolean onlyNotDeleted) {
+		try {
+			email = email.toLowerCase();
+
+			String query =
+					"SELECT user " +
+							"FROM User user " +
+							"WHERE user.email = :email " +
+							"AND user.verified = :verifiedEmail ";
+			if (onlyNotDeleted) {
+				query += "AND user.deleted IS FALSE";
+			}
+
+			User result = (User) persistence.currentManager().createQuery(query).
+					setString("email", email).
+					setBoolean("verifiedEmail", true).
+					uniqueResult();
+			if (result != null) {
+				return result;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving user data");
 		}
-		return null;
 	}
 
 	@Override
@@ -131,42 +147,81 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
-	public boolean checkIfUserExists(String email) {
-		email = email.toLowerCase();
+	public boolean checkIfUserExists(String email) throws DbConnectionException {
+		return checkIfUserExists(email, false);
+	}
 
-		String query =
-			"SELECT user.id " +
-			"FROM User user " +
-			"WHERE user.email = :email ";
+	@Override
+	@Transactional (readOnly = true)
+	public boolean checkIfUserExistsAndNotDeleted(String email) throws DbConnectionException {
+		return checkIfUserExists(email, true);
+	}
 
-		Long result = (Long) persistence.currentManager().createQuery(query).
-				setString("email", email).
-				uniqueResult();
+	public boolean checkIfUserExists(String email, boolean excludeIfDeleted) throws DbConnectionException {
+		try {
+			email = email.toLowerCase();
 
-		if (result != null && result > 0) {
-			return true;
+			String query =
+					"SELECT user.id " +
+							"FROM User user " +
+							"WHERE user.email = :email ";
+
+			if (excludeIfDeleted) {
+				query += "AND user.deleted IS FALSE";
+			}
+
+			Long result = (Long) persistence.currentManager().createQuery(query).
+					setString("email", email).
+					uniqueResult();
+
+			if (result != null && result > 0) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if user account exists");
 		}
-		return false;
 	}
 
 	@Override
 	@Transactional
-	public Collection<User> getAllUsers() {
-		String query =
-			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.deleted = :deleted ";
+	public Collection<User> getAllUsers(long orgId) {
+		return getAllUsers(orgId, persistence.currentManager());
+	}
 
-		@SuppressWarnings("unchecked")
-		List<User> result = persistence.currentManager().createQuery(query).
-				setBoolean("deleted", false).
-				list();
+	@Override
+	@Transactional
+	public Collection<User> getAllUsers(long orgId, Session session) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT user " +
+							"FROM User user " +
+							"WHERE user.deleted = :deleted ";
 
-		if (result != null) {
-  			return result;
+			if (orgId > 0) {
+				query += "AND user.organization.id = :orgId";
+			}
+
+			Query q = session.createQuery(query).
+					setBoolean("deleted", false);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<User> result = q.list();
+
+			if (result != null) {
+				return result;
+			}
+
+			return new ArrayList<>();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving users");
 		}
-
-		return new ArrayList<User>();
 	}
 
 	@Override
@@ -200,7 +255,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				avatarFilename,
 				roles);
 
-		eventFactory.generateEvent(EventType.Registered, newUser.getId());
+		eventFactory.generateEvent(
+				EventType.Registered, UserContextData.ofActor(newUser.getId()),null, null, null, null);
 
 		return newUser;
 	}
@@ -330,17 +386,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, roles, rolesToUpdate);
 
-		String page = null;
-		String lContext = null;
-		String service = null;
-		LearningContextData lcd = context.getContext();
-		if (lcd != null) {
-			page = lcd.getPage();
-			lContext = lcd.getLearningContext();
-			service = lcd.getService();
-		}
-		eventFactory.generateEvent(EventType.Edit_Profile, context.getActorId(), context.getOrganizationId(),
-				context.getSessionId(), user, null, page, lContext, service, null, null);
+		eventFactory.generateEvent(EventType.Edit_Profile, context, user, null, null, null);
 		return user;
 	}
 
@@ -477,8 +523,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				User u = new User(oldCreatorId);
 				//actor not passed
 				result.addEvent(eventFactory.generateEventData(EventType.Delete,
-						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-						u, null, null, null));
+						context, u, null, null, null));
 				//TODO check if line below is needed
 				//userEntityESService.deleteNodeFromES(user);
 				return result;
@@ -526,7 +571,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
-			query += "ORDER BY user.name,user.lastname ASC ";
+			query += "ORDER BY user.lastname, user.name ASC ";
 
 			Query q = persistence.currentManager().createQuery(query);
 
@@ -932,12 +977,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			Result<User> res = new Result<>();
 			res.setResult(user);
-			/*
-			TODO i don't know if we rely somewhere on event actor being new user that is just created
-			so I used new user id as an actor in event, but this is probably not semantically correct
-			 */
-			res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
-					context.getOrganizationId(), context.getSessionId(), user, null, context.getContext(), null));
+
+			res.addEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
 			return res;
 		} catch (UserAlreadyRegisteredException e) {
@@ -1021,8 +1062,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 										(Role) persistence.currentManager().load(Role.class, roleId));
 								User us = new User(user.getId());
 								res.addEvent(eventFactory.generateEventData(
-										EventType.USER_ROLES_UPDATED, context.getActorId(), context.getOrganizationId(),
-										context.getSessionId(), us, null, context.getContext(), null));
+										EventType.USER_ROLES_UPDATED, context, us, null, null, null));
 							}
 						}
 					}
@@ -1070,10 +1110,28 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		User u = new User(user.getId());
 		Result<Void> res = new Result<>();
-		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context.getActorId(),
-				context.getOrganizationId(), context.getSessionId(), u, null, context.getContext(), null));
+		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context, u, null, null, null));
 
 		return res;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public long getUserOrganizationId(long userId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT user.organization.id FROM User user " +
+					"WHERE user.id = :userId";
+
+			Long orgId = (Long) persistence.currentManager()
+					.createQuery(q)
+					.setLong("userId", userId)
+					.uniqueResult();
+
+			return orgId != null ? orgId : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user organization");
+		}
+	}
 }

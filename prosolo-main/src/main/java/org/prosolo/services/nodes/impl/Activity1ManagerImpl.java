@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
@@ -164,8 +163,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 
 			result.addEvent(eventFactory.generateEventData(
-					EventType.Create, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), activity, null, context.getContext(), null));
+					EventType.Create, context, activity, null, null, null));
 
 			result.setResult(activity);
 			return result;
@@ -190,20 +188,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				
 				deleteCompetenceActivity(act.getId());
 
-				LearningContextData lcd = context.getContext();
-				String page = null;
-				String lContext = null;
-				String service = null;
-				if (lcd != null) {
-					page = lcd.getPage();
-					lContext = lcd.getLearningContext();
-					service = lcd.getService();
-				}
 				Activity1 activity = new Activity1();
 				activity.setId(activityId);
-				eventFactory.generateEvent(EventType.Delete, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), activity,
-						null, page, lContext, service, null, null);
+				eventFactory.generateEvent(EventType.Delete, context, activity,
+						null, null, null);
 				
 				return act;
 			}
@@ -426,34 +414,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Transactional(readOnly = true)
 	@Override
-	public RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
+	public ActivityData getActivityData(long credId, long competenceId, long activityId, boolean loadLinks, boolean loadTags)
+					throws DbConnectionException, ResourceNotFoundException {
 		try {
-			if(req == null) {
-				throw new IllegalArgumentException();
-			}
-			
 			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, 
 					loadLinks, loadTags, true);
 
-			if(res == null) {
+			if (res == null) {
 				throw new ResourceNotFoundException();
 			}
 
 			Set<ResourceLink> links = loadLinks ? res.getActivity().getLinks() : null;
 			Set<ResourceLink> files = loadLinks ? res.getActivity().getFiles() : null;
 			Set<Tag> tags = loadTags ? res.getActivity().getTags() : null;
-			ActivityData actData = activityFactory.getActivityData(
+			return activityFactory.getActivityData(
 					res, links, files, tags, true);
-			//we need user privilege for competence on which activity is dependent
-			ResourceAccessData access = compManager.getResourceAccessData(competenceId, userId, req);
-			
-			return RestrictedAccessResult.of(actData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -544,13 +521,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Activity1 act = resourceFactory.updateActivity(data);
 
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), act,
-					null, page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.Edit, context, act,
+					null, null, null);
 
 		    return act;
 		} catch (EventException e) {
@@ -795,20 +767,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, long compId, long activityId)
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
-			RestrictedAccessResult<ActivityData> activityWithDetails = getActivityData(credId, compId, activityId, 
-					creatorId, true, true, req);
+			ActivityData activityWithDetails = getActivityData(credId, compId, activityId,
+					true, true);
 			compData = new CompetenceData1(false);
-			compData.setActivityToShowWithDetails(activityWithDetails.getResource());
+			compData.setActivityToShowWithDetails(activityWithDetails);
 			
 			List<ActivityData> activities = getCompetenceActivitiesData(compId);
 			compData.setActivities(activities);
-			return RestrictedAccessResult.of(compData, activityWithDetails.getAccess());
-		} catch (ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+			return compData;
+		} catch (ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -837,15 +808,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd!= null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
 			EventType evType = resType == ActivityResultType.FILE_UPLOAD
 					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
-			eventFactory.generateEvent(evType, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(evType, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -871,23 +836,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd != null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Typed_Response_Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(EventType.Typed_Response_Edit, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while editing response");
 		}
 	}
+
+	@Override
+	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+	@Transactional
+	public Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -901,22 +869,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setBoolean("completed", true)
 				.setDate("date", new Date())
 				.executeUpdate();
-			
-			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, context);
+
+			Result<Void> res = new Result<>();
+			res.addEvents(compManager.updateCompetenceProgress(targetCompId, context));
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-			LearningContextData contextData = context.getContext();
-			String lcPage = contextData != null ? contextData.getPage() : null; 
-			String lcContext = contextData != null ? contextData.getLearningContext() : null; 
-			String lcService = contextData != null ? contextData.getService() : null;
-			eventFactory.generateEvent(EventType.Completion, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
-			
-			for(EventData ev : events) {
-				eventFactory.generateEvent(ev);
-			}
+
+			res.addEvent(eventFactory.generateEventData(EventType.Completion, context, tAct, null, null, null));
+			return res;
 		} catch (DbConnectionException dce) {
 			throw dce;
 		} catch (Exception e) {
@@ -928,29 +889,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,
 			long actId, long userId, boolean isManager) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId, isManager);
 			if (compData == null) {
-				ResourceAccessRequirements req = ResourceAccessRequirements
-						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn)
-						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
-						userId, req);
+				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId);
 			}
-				
-			/* if user is aleardy learning activity, he doesn't need any of the privileges;
-			 * we just need to determine which privileges he has (can he edit or instruct an activity)
-			 */
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-			ResourceAccessData access = compManager.getResourceAccessData(compId, userId, req);
-			return RestrictedAccessResult.of(compData, access);
-		} catch(ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+
+			return compData;
+		} catch(ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -972,7 +923,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
-		CompetenceData1 compData = null;
+		CompetenceData1 compData;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
 					true, true, isManager);
@@ -1070,13 +1021,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActivityId);
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd != null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.AssignmentRemoved, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(EventType.AssignmentRemoved, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1909,15 +1854,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			res.setResult(activity);
 			EventData ev = new EventData();
 			ev.setEventType(EventType.Create);
-			ev.setActorId(context.getActorId());
-			ev.setOrganizationId(context.getOrganizationId());
-			ev.setSessionId(context.getSessionId());
-			LearningContextData lcd = context.getContext();
-			if(lcd != null) {
-				ev.setPage(lcd.getPage());
-				ev.setContext(lcd.getLearningContext());
-				ev.setService(lcd.getService());
-			}
+			ev.setContext(context);
 			Activity1 act = new Activity1();
 			act.setId(activity.getId());
 			ev.setObject(act);

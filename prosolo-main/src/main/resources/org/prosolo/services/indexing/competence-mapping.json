@@ -25,10 +25,10 @@
 				"store": false,
 				"type":"string",
 				"fields": {
-			        "raw": { 
-			            "type":  "string",
-			            "index": "not_analyzed"
-			        }
+					"sort": {
+						"type":  "string",
+						"analyzer": "ci_analyzer"
+					}
    	 			}
 			},
 			"description":{

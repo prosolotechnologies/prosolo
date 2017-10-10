@@ -167,4 +167,28 @@ public class ResourceBundleUtil {
 		}
 		return relationToTarget;
 	}
+
+	public static String getLabel(String resource, Locale locale) {
+		try {
+			return ResourceBundleUtil.getMessage(
+					"label." + resource, locale);
+		} catch (KeyNotFoundInBundleException e) {
+			logger.error(e);
+		}
+		return "";
+	}
+
+	public static String getLabel(String resource) {
+    	return getLabel(resource, new Locale("en", "US"));
+	}
+
+	public static String getSpringMessage(String key) {
+		try {
+			return getString("org.prosolo.web.spring-messages", key, new Locale("en", "US"), null);
+		} catch (KeyNotFoundInBundleException e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return "";
+	}
 }

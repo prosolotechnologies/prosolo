@@ -7,10 +7,9 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -259,7 +258,7 @@ public class CompetenceEditBean implements Serializable {
 			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if (competenceData.hasObjectChanged()) {
@@ -345,9 +344,11 @@ public class CompetenceEditBean implements Serializable {
 			compManager.archiveCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been archived");
-		} catch(DbConnectionException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -356,9 +357,11 @@ public class CompetenceEditBean implements Serializable {
 			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " has been restored");
-		} catch(DbConnectionException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

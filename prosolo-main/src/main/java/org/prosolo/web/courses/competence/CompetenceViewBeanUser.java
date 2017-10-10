@@ -2,10 +2,10 @@ package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -21,9 +21,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 
 @ManagedBean(name = "competenceViewBean")
@@ -98,28 +96,15 @@ public class CompetenceViewBeanUser implements Serializable {
 							"You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " " + competenceData.getTitle());
 				}
 			} catch (AccessDeniedException ade) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	
@@ -154,15 +139,16 @@ public class CompetenceViewBeanUser implements Serializable {
 	 */
 	
 	public void enrollInCompetence() {
-
 		try {
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch(Exception e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

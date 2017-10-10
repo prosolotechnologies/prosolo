@@ -6,7 +6,7 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
@@ -130,7 +130,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			credManager.enrollStudentsInCredential(credId, loggedUserBean.getUserId(), studentsToEnroll,
-					loggedUserBean.getUserContext(new LearningContextData(page, context, service)));
+					loggedUserBean.getUserContext(new PageContextData(page, context, service)));
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);

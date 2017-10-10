@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 
 /**
@@ -14,48 +15,26 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	void addUserToOrganization(User user, long organizationId, Session session);
 
 	void removeUserFromOrganization(User user, long organizationId);
-	
-	void addCredentialToUserIndex(long orgId, long credId, long userId, long instructorId, int progress, String dateEnrolled);
-	
+
+	void updateCredentials(long orgId, long userId, Session session);
+
 	void assignInstructorToUserInCredential(long orgId, long userId, long credId, long instructorId);
-	
-	void addInstructorToCredential(long orgId, long credId, long userId, String dateAssigned);
-	
-	void removeInstructorFromCredential(long orgId, long credId, long userId);
+
+	void updateCredentialsWithInstructorRole(long orgId, long userId);
 	
 	void changeCredentialProgress(long orgId, long userId, long credId, int progress);
 	
 	void updateBasicUserData(User user, Session session);
-	
-	/**
-	 * Adds new follower to the index of the followed user.
-	 *
-	 * @param orgId
-	 * @param followedUserId
-	 * @param followerId
-	 */
-	void addFollowerIndex(long orgId, long followedUserId, long followerId);
-	
-	/**
-	 * Removes follower from the index of the followed user.
-	 *
-	 * @param orgId
-	 * @param followedUserId
-	 * @param followerId
-	 */
-	void removeFollowerIndex(long orgId, long followedUserId, long followerId);
-	
-	void addCompetenceToUserIndex(long orgId, long compId, long userId, String dateEnrolled);
-	
-	void updateCompetenceProgress(long orgId, long userId, long compId, int progress, String completionDate);
 
-	void addUserToUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+	void updateFollowers(long orgId, long userId);
 
-	void removeUserFromUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+	void updateCompetences(long orgId, long userId, Session session);
 
-	void addGroup(long orgId, long userId, long groupId);
+	void updateCompetenceProgress(long orgId, long userId, TargetCompetence1 tComp);
 
-	void removeGroup(long orgId, long userId, long groupId);
+	void updateRoles(long userId, Session session);
+
+	void updateGroups(long orgId, long userId);
 
 	void removeUserFromIndex(User user);
 

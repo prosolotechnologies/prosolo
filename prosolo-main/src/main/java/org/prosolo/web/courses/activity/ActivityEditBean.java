@@ -10,7 +10,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -84,12 +84,7 @@ public class ActivityEditBean implements Serializable {
 		decodedCredId = idEncoder.decodeId(credId);
 		try {
 			if(compId == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					logger.error(ioe);
-				}
+				PageUtil.notFound();
 			} else {
 				decodedCompId = idEncoder.decodeId(compId);
 				if(id == null) {
@@ -109,11 +104,6 @@ public class ActivityEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
-	}
-	
-	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
-		activityData = res.getResource();
-		access = res.getAccess();
 	}
 	
 	public boolean isLimitedEdit() {
@@ -142,7 +132,7 @@ public class ActivityEditBean implements Serializable {
 		competenceName = compManager.getCompetenceTitle(activityData.getCompetenceId());
 		activityData.setCompetenceName(competenceName);
 		
-		if(credId != null) {
+		if (credId != null) {
 			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId));
 		}
 	}
@@ -152,20 +142,15 @@ public class ActivityEditBean implements Serializable {
 			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(mode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<ActivityData> res = activityManager.getActivityData(credId, compId, actId, 
-					loggedUser.getUserId(), true, true, req);
-			unpackResult(res);
-			
-			if(!access.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+			access = compManager.getResourceAccessData(compId, loggedUser.getUserId(), req);
+
+			if (!access.isCanAccess()) {
+				PageUtil.accessDenied();
 			} else {
+				activityData = activityManager.getActivityData(credId, compId, actId,true, true);
 				logger.info("Loaded activity data for activity with id "+ id);
 			}
-		} catch(ResourceNotFoundException rnfe) {
+		} catch (ResourceNotFoundException rnfe) {
 			logger.error(rnfe);
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");
@@ -365,7 +350,7 @@ public class ActivityEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
 					activityManager.updateActivity(activityData, loggedUser.getUserContext(lcd));
@@ -426,6 +411,10 @@ public class ActivityEditBean implements Serializable {
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+	}
+
+	public boolean isResponseTypeSet(){
+		return activityData.getResultData().getResultType() != ActivityResultType.NONE;
 	}
 
 	 

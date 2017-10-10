@@ -85,7 +85,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	private Message sendSimpleOfflineMessage(long senderId, long receiverId, String content, long threadId,
-			String context) throws ResourceCouldNotBeLoadedException {
+											 String context) throws ResourceCouldNotBeLoadedException {
 		Date now = new Date();
 		// User sender = loadResource(User.class, senderId);
 		User receiver = loadResource(User.class, receiverId);
@@ -217,7 +217,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread = saveEntity(messagesThread);
 
 		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, creatorId, messagesThread);
+			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
+					null, null, null);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -250,12 +251,12 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public List<MessageThread> getLatestUserMessagesThreads(long userId, int page, int limit, boolean archived) {
 		String query =
 				"SELECT DISTINCT thread " +
-				"FROM MessageThread thread " +
-				"LEFT JOIN thread.participants participants " +
-				"WHERE :userId IN (participants.user.id) " +
-					"AND participants.archived = :archived " +
-					"AND participants.deleted = false "	+
-				"ORDER BY thread.lastUpdated DESC";
+						"FROM MessageThread thread " +
+						"LEFT JOIN thread.participants participants " +
+						"WHERE :userId IN (participants.user.id) " +
+						"AND participants.archived = :archived " +
+						"AND participants.deleted = false "	+
+						"ORDER BY thread.lastUpdated DESC";
 
 		Session session = this.persistence.openSession();
 		List<MessageThread> result = null;
@@ -308,12 +309,12 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public MessageThread getLatestMessageThread(long userId, boolean archived) {
 		String query =
 				"SELECT DISTINCT thread " +
-				"FROM MessageThread thread " +
-				"LEFT JOIN thread.participants participants " +
-				"WHERE :userId IN (participants.user.id) "  +
-					"AND participants.archived = :archived " +
-					"AND participants.deleted = false " +
-				"ORDER BY thread.lastUpdated DESC ";
+						"FROM MessageThread thread " +
+						"LEFT JOIN thread.participants participants " +
+						"WHERE :userId IN (participants.user.id) "  +
+						"AND participants.archived = :archived " +
+						"AND participants.deleted = false " +
+						"ORDER BY thread.lastUpdated DESC ";
 
 		@SuppressWarnings("unchecked")
 		List<MessageThread> result = persistence.currentManager().createQuery(query)
@@ -330,7 +331,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	public List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads,
-			long userId) {
+																			   long userId) {
 		List<MessagesThreadData> messagesThread = new LinkedList<MessagesThreadData>();
 
 		for (MessageThread mThread : mThreads) {
@@ -370,13 +371,13 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			mtData.setMessages(messagesData);
 
 			List<UserData> participantsWithoutLoggedUser = mThread.getParticipants().stream()
-					 .map(tp -> UserDataFactory.createUserData(tp.getUser()))
-					 .filter(ud -> ud.getId() != userId)
-					 .sorted().collect(Collectors.toList());
+					.map(tp -> UserDataFactory.createUserData(tp.getUser()))
+					.filter(ud -> ud.getId() != userId)
+					.sorted().collect(Collectors.toList());
 
 			String participantsWithoutLoggedUserNames = participantsWithoutLoggedUser.stream()
-													.map(UserData::getName)
-													.collect(Collectors.joining(", "));
+					.map(UserData::getName)
+					.collect(Collectors.joining(", "));
 
 			mtData.setParticipantsListWithoutLoggedUser(participantsWithoutLoggedUserNames);
 			mtData.setParticipantsWithoutLoggedUser(participantsWithoutLoggedUser);
@@ -391,7 +392,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	private String createParticipantsList(MessageThread thread) {
 		return thread.getParticipants().stream()
 				.map(tp -> tp.getUser().getName() + " " + tp.getUser().getLastname())
-			    .collect(Collectors.joining(", "));
+				.collect(Collectors.joining(", "));
 	}
 
 

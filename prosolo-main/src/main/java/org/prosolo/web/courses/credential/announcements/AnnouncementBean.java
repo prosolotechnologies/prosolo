@@ -1,16 +1,5 @@
 package org.prosolo.web.courses.credential.announcements;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
@@ -20,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -44,6 +34,16 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "announcementBean")
 @Component("announcementBean")
@@ -121,12 +121,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 													  .addPrivilege(UserGroupPrivilege.Instruct)
 													  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialAnnouncements = announcementManager
 								.getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
@@ -186,9 +181,11 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 
 	private void retrieveUserCredentialData(long decodedCredId) {
-		RestrictedAccessResult<CredentialData> res = credManager
+		/*RestrictedAccessResult<CredentialData> res = credManager
 				.getFullTargetCredentialOrCredentialData(decodedCredId, loggedUser.getUserId());
-		unpackResult(res);
+		unpackResult(res);*/
+		credentialData = credManager
+				.getFullTargetCredentialOrCredentialData(decodedCredId, loggedUser.getUserId());
 	}
 
 	private void unpackResult(RestrictedAccessResult<CredentialData> res) {
@@ -208,13 +205,9 @@ public class AnnouncementBean implements Serializable, Paginable {
 		
 		created.setCreatorAvatarUrl(loggedUser.getAvatar());
 		created.setCreatorFullName(loggedUser.getFullName());
-		
-		//TODO need to get theese parameters
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()), page, 
-				lContext, service, idEncoder.decodeId(credentialId));
+
+		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
+				idEncoder.decodeId(credentialId));
 		
 		PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
 		init();
@@ -231,8 +224,8 @@ public class AnnouncementBean implements Serializable, Paginable {
 		}
 	}
 	
-	private void notifyForAnnouncementAsync(long announcementId, String page, String lContext, String service,
-			long credentialId) {
+	private void notifyForAnnouncementAsync(long announcementId, long credentialId) {
+		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
 			Announcement announcement = new Announcement();
 			announcement.setId(announcementId);
@@ -243,9 +236,8 @@ public class AnnouncementBean implements Serializable, Paginable {
 				parameters.put("credentialId", credentialId + "");
 				parameters.put("publishMode", newAnouncementPublishMode.getText());
 				try {
-					eventFactory.generateEvent(EventType.AnnouncementPublished, loggedUser.getUserId(),
-							loggedUser.getOrganizationId(), loggedUser.getSessionId(), announcement, cred,
-							page, lContext, service, null, parameters);
+					eventFactory.generateEvent(EventType.AnnouncementPublished, context,
+							announcement, cred, null, parameters);
 				} catch (Exception e) {
 					logger.error("Eror sending notification for announcement", e);
 				}
@@ -362,9 +354,8 @@ public class AnnouncementBean implements Serializable, Paginable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", idEncoder.decodeId(credentialId) + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(),
-						loggedUser.getOrganizationId(), loggedUser.getSessionId(), assessment, assessor,
-						page, lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserContext(), assessment,
+						assessor,null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

@@ -47,6 +47,11 @@ public class ResourceAccessData implements Serializable {
 	 * Call this method when user enrolls in a resource and resource data object
 	 * should reflect that change.
 	 */
+	/*
+	TODO semantics changed for this object - if user is enrolled that does not mean canAccess should
+	be true - change in all places logic for checking if user has access - logic should be:
+	if canAccess == true or user is enrolled
+	 */
 	public void userEnrolled() {
 		this.canAccess = true;
 	}

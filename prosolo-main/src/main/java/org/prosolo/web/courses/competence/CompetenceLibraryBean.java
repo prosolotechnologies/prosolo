@@ -6,12 +6,13 @@ package org.prosolo.web.courses.competence;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -94,13 +95,12 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_COMPETENCES, 
-							params, loggedUserBean.getIpAddress(), lcd);
+					loggingService.logServiceUse(loggedUserBean.getUserContext(lcd), ComponentName.SEARCH_COMPETENCES,
+							null, params, loggedUserBean.getIpAddress());
 				} catch(Exception e) {
 					logger.error(e);
 				}
@@ -159,9 +159,11 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
 			PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-		} catch(Exception e) {
-			logger.error(e);
+		} catch(DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 

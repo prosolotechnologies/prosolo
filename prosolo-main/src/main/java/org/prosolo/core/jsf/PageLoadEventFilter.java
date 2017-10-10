@@ -1,22 +1,9 @@
 package org.prosolo.core.jsf;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.faces.application.ResourceHandler;
-import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventException;
@@ -25,6 +12,15 @@ import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.stereotype.Component;
+
+import javax.faces.application.ResourceHandler;
+import javax.inject.Inject;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component(value = "pageLoadEventFilter")
 public class PageLoadEventFilter implements Filter {
@@ -55,11 +51,15 @@ public class PageLoadEventFilter implements Filter {
 			ApplicationPage page = applicationPagesBean.getPageForURI(uri);
 			
 			long userId = 0;
+			long organizationId = 0;
+			String sessionId = null;
 			HttpSession session = request.getSession(false);
 			if(session != null) {
+				sessionId = session.getId();
 				LoggedUserBean loggedUserBean = (LoggedUserBean) session.getAttribute("loggeduser");
 				if(loggedUserBean != null) {
 					userId = loggedUserBean.getUserId();
+					organizationId = loggedUserBean.getOrganizationId(request);
 				}
 			}
 			if(page == null) {
@@ -78,9 +78,9 @@ public class PageLoadEventFilter implements Filter {
 			params.put("uri", uri);
 			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
 			try {
-				eventFactory.generateEvent(EventType.PAGE_OPENED, userId, 
-						null, null, uri, null,
-						null, params);
+				eventFactory.generateEvent(
+						EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new PageContextData(uri, null, null)),
+						null, null, null, params);
 			} catch (EventException e) {
 				logger.error("Error while generating page open event " + e);
 			}

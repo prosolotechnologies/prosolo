@@ -3,7 +3,7 @@ package org.prosolo.web.courses.activity;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.data.ActivityResultData;
@@ -70,7 +70,7 @@ public class ActivityResultBean implements Serializable {
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			Date postDate = new Date();
 			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate,
-					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(new LearningContextData(page, lContext, service)));
+					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(new PageContextData(page, lContext, service)));
 			result.setAssignmentTitle(fileName);
 			result.setResult(fullPath);
 			result.setResultPostDate(postDate);

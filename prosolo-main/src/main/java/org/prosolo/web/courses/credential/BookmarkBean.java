@@ -1,7 +1,8 @@
 package org.prosolo.web.courses.credential;
 
+import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -19,7 +20,8 @@ import java.io.Serializable;
 public class BookmarkBean implements Serializable {
 
 	private static final long serialVersionUID = -559017454498882337L;
-	
+	private static Logger logger = Logger.getLogger(BookmarkBean.class);
+
 	@Inject private CredentialManager credentialManager;
 	@Inject private Competence1Manager competenceManager;
 	@Inject private LoggedUserBean loggedUserBean;
@@ -32,8 +34,10 @@ public class BookmarkBean implements Serializable {
 				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserContext());
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -46,8 +50,10 @@ public class BookmarkBean implements Serializable {
 				competenceManager.bookmarkCompetence(comp.getCompetenceId(), loggedUserBean.getUserContext());
 			}
 			comp.setBookmarkedByCurrentUser(!comp.isBookmarkedByCurrentUser());
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 }

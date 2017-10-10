@@ -20,6 +20,16 @@ public class URLUtil {
 		}
 		return false;
 	}
+
+	public static boolean checkIfSlidesharePresentationLink(String link) {
+		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?slideshare\\.net\\/(?:.+)\\/(.+)",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(link);
+		if (matcher.matches()) {
+			return true;
+		}
+		return false;
+	}
 	
 	public static boolean checkIfYoutubeLink(String link) {
 		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
