@@ -14,6 +14,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author stefanvuckovic
@@ -33,6 +34,7 @@ public class PercentSumValidator implements Validator {
     public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
         if (ValidationUtil.shouldValidate(facesContext)) {
             AtomicDouble sum = new AtomicDouble();
+            AtomicInteger numberOfPercentFields = new AtomicInteger();
             uiComponent.getParent().visitTree(VisitContext.createVisitContext(facesContext),
                     (VisitContext visitContext, UIComponent uiComponent1) -> {
                         if (uiComponent1.getPassThroughAttributes().get("data-percent") != null) {
@@ -41,6 +43,7 @@ public class PercentSumValidator implements Validator {
                             if (input.isValid()) {
                                 percent = Double.parseDouble(input.getValue().toString());
                             }
+                            numberOfPercentFields.getAndIncrement();
                             sum.getAndAdd(percent);
                             return VisitResult.REJECT;
                         } else {
@@ -48,22 +51,25 @@ public class PercentSumValidator implements Validator {
                         }
                     });
 
-            /*
-            equality check for doubles would not always work because of the way doubles are stored.
-            Instead, error tolerance is used and it is 0.001 because user is allowed to enter two decimals
-            so if he makes a mistake it will be by at least 0.01 but our tolerance is one order smaller
-            because points sum being a double is approximated so in some cases tolerance of 0.01 would lead
-            to errors
-             */
-            double tolerance = 0.001;
-            if (Math.abs(sum.get() - 100) > tolerance) {
-                String message = uiComponent.getAttributes().get("msg").toString();
-                if (message == null || message.isEmpty()) {
-                    message = DEFAULT_MSG;
+            //if there are no fields, percent sum is not validated
+            if (numberOfPercentFields.get() > 0) {
+                /*
+                equality check for doubles would not always work because of the way doubles are stored.
+                Instead, error tolerance is used and it is 0.001 because user is allowed to enter two decimals
+                so if he makes a mistake it will be by at least 0.01 but our tolerance is one order smaller
+                because points sum being a double is approximated so in some cases tolerance of 0.01 would lead
+                to errors
+                 */
+                double tolerance = 0.001;
+                if (Math.abs(sum.get() - 100) > tolerance) {
+                    String message = uiComponent.getAttributes().get("msg").toString();
+                    if (message == null || message.isEmpty()) {
+                        message = DEFAULT_MSG;
+                    }
+                    FacesMessage msg = new FacesMessage(message);
+                    msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+                    throw new ValidatorException(msg);
                 }
-                FacesMessage msg = new FacesMessage(message);
-                msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-                throw new ValidatorException(msg);
             }
         }
     }

@@ -57,6 +57,14 @@ public class RubricCategoriesBean implements Serializable {
 		rubric = rubricManager.getRubricData(decodedRubricId, false, true, loggedUserBean.getUserId(),true);
 		if (rubric == null) {
 			PageUtil.notFound();
+		} else {
+			//if categories and levels are not defined add one empty category and level
+			if (rubric.getCategories().isEmpty()) {
+				addEmptyCategory();
+			}
+			if (rubric.getLevels().isEmpty()) {
+				addEmptyLevel();
+			}
 		}
 	}
 
