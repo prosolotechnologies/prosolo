@@ -56,9 +56,14 @@ public class UnitsBean implements Serializable {
 
     public void init() {
         try {
-            this.unit = new UnitData();
-            this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
-            loadUnits();
+            long orgId = idEncoder.decodeId(organizationId);
+            if (loggedUser.getOrganizationId() == orgId || loggedUser.hasCapability("admin.advanced")) {
+                this.unit = new UnitData();
+                this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
+                loadUnits();
+            } else {
+                PageUtil.accessDenied();
+            }
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");

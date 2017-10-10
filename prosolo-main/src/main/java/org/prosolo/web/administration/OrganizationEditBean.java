@@ -77,16 +77,21 @@ public class OrganizationEditBean implements Serializable {
                 adminRolesIds.add(r.getId());
             }
             decodedId = idEncoder.decodeId(id);
-            if (decodedId > 0) {
-                this.organization = organizationManager.getOrganizationDataById(decodedId,adminRoles);
 
-                if (organization == null) {
-                    this.organization = new OrganizationData();
-                    PageUtil.fireErrorMessage("Organization cannot be found");
+            if (loggedUser.getOrganizationId() == decodedId || loggedUser.hasCapability("admin.advanced")) {
+                if (decodedId > 0) {
+                    this.organization = organizationManager.getOrganizationDataById(decodedId, adminRoles);
+
+                    if (organization == null) {
+                        this.organization = new OrganizationData();
+                        PageUtil.fireErrorMessage("Organization cannot be found");
+                    }
+                } else {
+                    organization = new OrganizationData();
+                    this.organization.setAdmins(new ArrayList<>());
                 }
-            }else{
-                organization = new OrganizationData();
-                this.organization.setAdmins(new ArrayList<>());
+            } else {
+                PageUtil.accessDenied();
             }
         } catch (Exception e) {
             logger.error(e);

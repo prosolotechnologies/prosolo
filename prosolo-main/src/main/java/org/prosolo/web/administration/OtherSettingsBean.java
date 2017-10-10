@@ -56,14 +56,10 @@ public class OtherSettingsBean implements Serializable {
 	
 	public void init() {
 		try {
-			if (loggedUser.hasCapability("admin.advanced")) {
-				newSymptom = new SymptomData();
-				newSuggestion = new SuggestionData();
-				loadSymptoms();
-				loadSuggestions();
-			} else {
-				PageUtil.accessDenied();
-			}
+			newSymptom = new SymptomData();
+			newSuggestion = new SuggestionData();
+			loadSymptoms();
+			loadSuggestions();
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

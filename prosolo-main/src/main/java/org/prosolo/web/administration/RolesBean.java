@@ -56,12 +56,8 @@ public class RolesBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		if (loggedUser.hasCapability("admin.advanced")) {
-			loadRoles();
-			loadCapabilities();
-		} else {
-			PageUtil.accessDenied();
-		}
+		loadRoles();
+		loadCapabilities();
 	}
 	
 	public void loadRoles() {

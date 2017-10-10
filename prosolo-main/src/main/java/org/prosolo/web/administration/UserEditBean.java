@@ -99,7 +99,11 @@ public class UserEditBean implements Serializable {
 
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
-				initOrgTitle();
+				if(loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+					initOrgTitle();
+				} else {
+					PageUtil.accessDenied();
+				}
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -124,9 +128,13 @@ public class UserEditBean implements Serializable {
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
-		initOrgTitle();
-		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager", "Admin"});
+		if(loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			initOrgTitle();
+			if (organizationTitle != null) {
+				init(new String[]{"User", "Instructor", "Manager", "Admin"});
+			}
+		} else {
+			PageUtil.accessDenied();
 		}
 	}
 

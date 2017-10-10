@@ -88,17 +88,22 @@ public class UsersBean implements Serializable,Paginable{
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
-		if (decodedOrgId > 0) {
-			orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
-			if (orgTitle == null) {
-				PageUtil.notFound();
+
+		if(loggedUserBean.getOrganizationId() == decodedOrgId || loggedUserBean.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0) {
+				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
+				if (orgTitle == null) {
+					PageUtil.notFound();
+				} else {
+					long filterId = getFilterId();
+					filter = new RoleFilter(filterId, "All", 0);
+					loadUsers();
+				}
 			} else {
-				long filterId = getFilterId();
-				filter = new RoleFilter(filterId, "All", 0);
-				loadUsers();
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

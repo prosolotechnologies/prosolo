@@ -70,31 +70,35 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 
-		if (decodedOrgId > 0 && decodedUnitId >0) {
-			if (page > 0) {
-				paginationData = PaginationData.forPage(page);
-			} else {
-				paginationData = new PaginationData();
-			}
-
-			sortOptions = LearningResourceSortOption.values();
-			searchFilters = CredentialSearchFilterManager.values();
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-
-					loadDataFromDB();
+		if (loggedUserBean.getOrganizationId() == decodedOrgId || loggedUserBean.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0) {
+				if (page > 0) {
+					paginationData = PaginationData.forPage(page);
 				} else {
-					PageUtil.notFound();
+					paginationData = new PaginationData();
 				}
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error loading the page");
+
+				sortOptions = LearningResourceSortOption.values();
+				searchFilters = CredentialSearchFilterManager.values();
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+
+						loadDataFromDB();
+					} else {
+						PageUtil.notFound();
+					}
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error loading the page");
+				}
+			} else {
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

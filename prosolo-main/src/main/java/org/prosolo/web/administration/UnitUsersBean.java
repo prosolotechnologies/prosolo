@@ -1,6 +1,7 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -79,21 +80,25 @@ public class UnitUsersBean implements Serializable, Paginable {
 			decodedOrgId = idEncoder.decodeId(orgId);
 			decodedId = idEncoder.decodeId(id);
 
-			if (decodedOrgId > 0 && decodedId > 0) {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					roleId = roleManager.getRoleIdsForName(role).get(0);
-					if (page > 0) {
-						paginationData.setPage(page);
+			if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+				if (decodedOrgId > 0 && decodedId > 0) {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						roleId = roleManager.getRoleIdsForName(role).get(0);
+						if (page > 0) {
+							paginationData.setPage(page);
+						}
+						loadUsersFromDB();
+					} else {
+						PageUtil.notFound();
 					}
-					loadUsersFromDB();
 				} else {
 					PageUtil.notFound();
 				}
 			} else {
-				PageUtil.notFound();
+				PageUtil.accessDenied();
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);

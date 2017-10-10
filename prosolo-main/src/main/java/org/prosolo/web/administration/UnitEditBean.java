@@ -50,8 +50,14 @@ public class UnitEditBean implements Serializable {
     public void init(){
         try{
             this.decodedId = idEncoder.decodeId(id);
-            this.unit = unitManager.getUnitData(decodedId);
-            this.organizationTitle = organizationManager.getOrganizationTitle(idEncoder.decodeId(organizationId));
+            long decodedOrgId = idEncoder.decodeId(organizationId);
+
+            if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+                this.unit = unitManager.getUnitData(decodedId);
+                this.organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
+            } else {
+                PageUtil.accessDenied();
+            }
         }catch (Exception e){
             logger.error(e);
             e.printStackTrace();
