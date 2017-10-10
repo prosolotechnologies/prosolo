@@ -68,9 +68,11 @@
 	                            	#{cc.attrs.attachmentPreview.title}
 	                            </a>
 	                         </h2>
-		                     <p>
-		                         #{cc.attrs.attachmentPreview.description}
-		                     </p>
+							 <ui:fragment rendered="#{not empty cc.attrs.attachmentPreview.description}">
+								 <p>
+									 #{cc.attrs.attachmentPreview.description}
+								 </p>
+							 </ui:fragment>
 		                     <small>#{cc.attrs.attachmentPreview.domain}</small>
 		                 </div>
 		            </div>
@@ -94,9 +96,11 @@
 	                            	#{cc.attrs.attachmentPreview.title}
 	                            </a>
 	                         </h2>
-	                         <p>
-	                             #{cc.attrs.attachmentPreview.description}
-	                         </p>
+							 <ui:fragment rendered="#{not empty cc.attrs.attachmentPreview.description}">
+								 <p>
+									 #{cc.attrs.attachmentPreview.description}
+								 </p>
+							 </ui:fragment>
 	                     </div>
 	                </div>
 				</ui:fragment>

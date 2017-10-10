@@ -5,7 +5,9 @@ import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -13,8 +15,9 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -111,15 +114,19 @@ public class ActivityViewBeanUser implements Serializable {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
-			
-				RestrictedAccessResult<CompetenceData1> res = activityManager
+
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
+
+				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), req);
+
+				competenceData = activityManager
 						.getFullTargetActivityOrActivityData(decodedCredId,
 								decodedCompId, decodedActId, loggedUser.getUserId(), false);
-				
-				unpackResult(res);
-				
 				//if user is enrolled he can always access the resource
-				if (!access.isCanAccess()) {
+				if (!competenceData.getActivityToShowWithDetails().isEnrolled() && !access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
@@ -155,11 +162,6 @@ public class ActivityViewBeanUser implements Serializable {
 		} else {
 			PageUtil.notFound();
 		}
-	}
-
-	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
-		competenceData = res.getResource();
-		access = res.getAccess();
 	}
 	
 	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
@@ -229,9 +231,10 @@ public class ActivityViewBeanUser implements Serializable {
 				PageUtil.redirect("/competences/" + compId + "/" + actId);
 			}
 		} catch(DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -291,9 +294,11 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error marking the activity as completed");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

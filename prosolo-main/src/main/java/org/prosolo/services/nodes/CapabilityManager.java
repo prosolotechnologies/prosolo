@@ -8,17 +8,17 @@ import org.prosolo.common.domainmodel.organization.Capability;
 
 public interface CapabilityManager {
 
-	public Capability saveCapability(Capability capability) throws DbConnectionException;
+	Capability saveCapability(Capability capability) throws DbConnectionException;
 
-	public List<Capability> getAllCapabilities() throws DbConnectionException;
+	List<Capability> getAllCapabilities() throws DbConnectionException;
 	
-	public Capability getCapabilityWithRoles(long id) throws DbConnectionException;
+//	Capability getCapabilityWithRoles(long id) throws DbConnectionException;
 	
-	public Capability updateCapabilityRoles(long capId, List<Long> roleIds) throws DbConnectionException;
+	Capability updateCapabilityRoles(long capId, List<Long> roleIds) throws DbConnectionException;
 	
-	public Capability getCapabilityByName(String capName) throws DbConnectionException;
+//	Capability getCapabilityByName(String capName) throws DbConnectionException;
 	
-	public Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds() throws DbConnectionException;
+	Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds() throws DbConnectionException;
 	
-	public Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds2() throws DbConnectionException;
+//	Map<Capability, List<Long>> getAllCapabilitiesWithRoleIds2() throws DbConnectionException;
 }

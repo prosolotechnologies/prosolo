@@ -88,3 +88,18 @@ function disableAutogradeIfAcceptGradesChecked(acceptGradeCheckboxId,
 	}
 }
 
+function showOrHideSubmissionCheckBoxes(selectedResponseType,
+		studentCanSeeOtherResponsesCheckBoxId, studentCanEditTheirResponsesCheckBoxId){
+	var selected = $(selectedResponseType).val();
+
+	if(selected == 'NONE'){
+        $(studentCanSeeOtherResponsesCheckBoxId).parent().hide();
+        $(studentCanEditTheirResponsesCheckBoxId).parent().hide();
+        $(studentCanSeeOtherResponsesCheckBoxId).attr('checked',false);
+        $(studentCanEditTheirResponsesCheckBoxId).attr('checked',false);
+	}else{
+        $(studentCanSeeOtherResponsesCheckBoxId).parent().show();
+        $(studentCanEditTheirResponsesCheckBoxId).parent().show();
+	}
+}
+

@@ -147,6 +147,16 @@ public class UserData implements Serializable, Comparable<UserData> {
 		this.externalUser = externalUser;
 	}
 
+	public void setFullName(String name, String lastName) {
+		this.name = getFullName(name, lastName);
+	}
+
+	public String getFullName(String name, String lastName) {
+		String fName = name != null ? name + " " : "";
+		String lName = lastName != null ? lastName : "";
+		return fName + lName;
+	}
+
 	public String getCommaSeparatedFullName() {
 		String fName = firstName != null ? firstName : "";
 		String lName = lastName != null ? lastName : "";

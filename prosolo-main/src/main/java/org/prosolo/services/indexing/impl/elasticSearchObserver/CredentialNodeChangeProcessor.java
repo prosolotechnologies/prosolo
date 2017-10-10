@@ -7,9 +7,6 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialManager;
 
-import java.util.List;
-import java.util.Map;
-
 public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 
 	private Event event;
@@ -32,26 +29,13 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	public void process() {
 		Credential1 cred = (Credential1) session.load(Credential1.class, event.getObject().getId());
 		if (operation == NodeOperation.Update) {
-			if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT) {
-				credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
-						event.getTarget().getId());
-				List<Long> deliveries = credManager.getDeliveryIdsForCredential(event.getObject().getId());
-				//add unit to all deliveries indexes
-				for (long id : deliveries) {
-					credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), id, event.getTarget().getId());
-				}
-			} else if(event.getAction() == EventType.REMOVE_CREDENTIAL_FROM_UNIT) {
-				credentialESService.removeUnitFromCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
-						event.getTarget().getId());
-				List<Long> deliveries = credManager.getDeliveryIdsForCredential(event.getObject().getId());
-				//remove unit from all deliveries indexes
-				for (long id : deliveries) {
-					credentialESService.removeUnitFromCredentialIndex(event.getOrganizationId(), id, event.getTarget().getId());
-				}
+			if (event.getAction() == EventType.UPDATE_DELIVERY_TIMES) {
+				credentialESService.updateDeliveryTimes(event.getOrganizationId(), cred);
+			} else if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT || event.getAction() == EventType.REMOVE_CREDENTIAL_FROM_UNIT) {
+				credentialESService.updateUnitsForOriginalCredentialAndItsDeliveries(
+						event.getOrganizationId(), event.getObject().getId(), session);
 			} else if (event.getAction() == EventType.OWNER_CHANGE) {
-				Map<String, String> params = event.getParameters();
-				credentialESService.updateCredentialOwner(event.getOrganizationId(), cred.getId(),
-						Long.parseLong(params.get("newOwnerId")));
+				credentialESService.updateCredentialOwner(event.getOrganizationId(), cred.getId(), cred.getCreatedBy().getId());
 			} else if (event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
 				credentialESService.updateCredentialUsersWithPrivileges(event.getOrganizationId(), cred.getId(),
 						session);
@@ -64,10 +48,8 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 			credentialESService.saveCredentialNode(cred, session);
 		} else if (operation == NodeOperation.Delete) {
 			credentialESService.deleteNodeFromES(cred);
-		} else if (operation == NodeOperation.Archive) {
-			credentialESService.archiveCredential(event.getOrganizationId(), cred.getId());
-		} else if (operation == NodeOperation.Restore) {
-			credentialESService.restoreCredential(event.getOrganizationId(), cred.getId());
+		} else if (operation == NodeOperation.Archive || operation == NodeOperation.Restore) {
+			credentialESService.updateArchived(event.getOrganizationId(), cred.getId(), cred.isArchived());
 		}
 	}
 

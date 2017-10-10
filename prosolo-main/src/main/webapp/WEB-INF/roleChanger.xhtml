@@ -33,7 +33,7 @@
                         </h:link>
                         <h:link rendered="#{!loggeduser.hasCapability('admin.advanced')}"
                                 onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-                                outcome="/admin/organizationNew">
+                                outcome="/admin/organization-settings">
                             <f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
                             <span></span>Admin
                         </h:link>

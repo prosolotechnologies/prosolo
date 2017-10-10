@@ -71,7 +71,7 @@
                     <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
                 </ui:fragment>
                 <li>
-                    <h:link outcome="/admin/organizationNew">
+                    <h:link outcome="/admin/units">
                         #{groupUsersBean.organizationTitle}
                         <f:param name="id" value="#{param.orgId}" />
                     </h:link>
@@ -83,10 +83,10 @@
                     </h:link>
                 </li>
                 <li>
-                    <h:link outcome="/admin/unitEdit">
+                    <h:link outcome="/admin/unit-credentials">
                         #{groupUsersBean.unitTitle}
-                        <f:param name="id" value="#{param.orgId}" />
-                        <f:param name="unitId" value="#{param.unitId}" />
+                        <f:param name="orgId" value="#{param.orgId}" />
+                        <f:param name="id" value="#{param.unitId}" />
                     </h:link>
                 </li>
                 <li>
@@ -129,7 +129,7 @@
                                                                      fullName="#{user.fullName}" width="48" height="48" />
 
                                                 <div class="infoWrap">
-                                                    <h3>#{user.fullName}</h3>
+                                                    <h3>#{user.commaSeparatedFullName}</h3>
                                                     <span>#{user.position}</span>
                                                 </div>
                                             </div>

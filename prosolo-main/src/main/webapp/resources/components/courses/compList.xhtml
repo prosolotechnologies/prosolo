@@ -40,6 +40,8 @@
 								<h:link
 									value="#{comp.title}"
 									outcome="competence">
+									<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"/>
+									<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"/>
 									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
 								</h:link>
@@ -149,10 +151,12 @@
 									</h:panelGroup>
 								</c:if>
 							</div>
-                            
-							<div class="metaRight">
-								<div class="duration">#{comp.durationString}</div>
-							</div>
+
+							<ui:fragment rendered="#{comp.durationString ne null}">
+								<div class="metaRight">
+									<div class="duration">#{comp.durationString}</div>
+								</div>
+							</ui:fragment>
 						</div>
 					</div>
 	                   
@@ -178,6 +182,8 @@
 													<ui:fragment rendered="#{act.completed}">
 														<span class="check"></span>
 													</ui:fragment>
+													<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
+													<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
 													<f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
 													<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 													<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>

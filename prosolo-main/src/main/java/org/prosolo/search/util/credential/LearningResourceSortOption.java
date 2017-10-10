@@ -7,7 +7,7 @@ public enum LearningResourceSortOption {
 	NEWEST_FIRST("Newest first", "dateCreated", "dateCreated", SortingOption.DESC),
 	//add when implemented
 	//RELEVANCE("Relevance", "", SortingOption.ASC),
-	ALPHABETICALLY("Alphabetically", "title.raw", "title", SortingOption.ASC);
+	ALPHABETICALLY("Alphabetically", "title.sort", "title", SortingOption.ASC);
 	
 	//ui label
 	private String label;

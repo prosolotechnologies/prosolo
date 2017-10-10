@@ -30,6 +30,13 @@ public class RubricData {
         this.creatorId = rubric.getCreator().getId();
     }
 
+    public RubricData(Rubric rubric){
+        this();
+        this.id = rubric.getId();
+        this.name = rubric.getTitle();
+        this.creatorFullName = rubric.getCreator().getFullName();
+    }
+
     public long getId() {
         return id;
     }

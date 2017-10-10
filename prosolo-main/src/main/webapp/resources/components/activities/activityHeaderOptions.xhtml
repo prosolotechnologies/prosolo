@@ -78,8 +78,10 @@
 				</h:panelGroup>
 				
 				<div class="whiteBarRight">
-					<div class="duration item">#{cc.attrs.activity.durationString}</div>
-					
+					<ui:fragment rendered="#{cc.attrs.activity.durationString ne null}">
+						<div class="duration item">#{cc.attrs.activity.durationString}</div>
+					</ui:fragment>
+
 					<h:link 
 						rendered="#{cc.attrs.canEdit}"
 						value="Edit Activity"

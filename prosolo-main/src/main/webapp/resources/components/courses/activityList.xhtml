@@ -31,19 +31,21 @@
             			styleClass="iconType">
             		</h:panelGroup>
             		<h3>
-	            		<ui:fragment rendered="#{ cc.attrs.readOnly}">
+	            		<ui:fragment rendered="#{cc.attrs.readOnly}">
 	                   		#{act.title}
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{ !cc.attrs.isEdit and !cc.attrs.readOnly}">
+	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="activity">
+								<f:param name="orgId" value="#{param.orgId}" disable="#{empty param.orgId}"></f:param>
+								<f:param name="unitId" value="#{param.unitId}" disable="#{empty param.unitId}"></f:param>
 			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
             				</h:link>
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{ cc.attrs.isEdit and !cc.attrs.readOnly}">
+	                   	<ui:fragment rendered="#{cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="create-activity">
@@ -129,7 +131,7 @@
                 <h:panelGroup
                 	layout="block"
                 	styleClass="duration"
-                	rendered="#{!cc.attrs.isEdit}">
+                	rendered="#{!cc.attrs.isEdit and act.durationString ne null}">
                 	#{act.durationString}
                 </h:panelGroup>
             </div>

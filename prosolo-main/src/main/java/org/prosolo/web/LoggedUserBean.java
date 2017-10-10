@@ -559,7 +559,54 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public long getOrganizationId() {
-		return getSessionData() == null ? 0 : getSessionData().getOrganizationId();
+		/*
+		if organization id is 0 (which can happen for super admins who are not associated with organization)
+		we try to retrieve organization id from url query param
+		 */
+		return getSessionData() == null
+				? 0
+				: getSessionData().getOrganizationId() > 0
+					? getSessionData().getOrganizationId()
+					: getOrganizationIdFromUrlQueryParam();
+	}
+
+	public long getOrganizationId(HttpServletRequest req) {
+		/*
+		try to get organization id the standard way and if 0, try to retrieve it from reqest parameters
+		 */
+		return getSessionData() == null
+				? 0
+				: getSessionData().getOrganizationId() > 0
+					? getSessionData().getOrganizationId()
+					: getOrganizationIdFromRequestParameters(req);
+	}
+
+	/**
+	 * Query param name should be 'orgId' in order to be extracted
+	 *
+	 * @return
+	 */
+	private long getOrganizationIdFromUrlQueryParam() {
+		if (FacesContext.getCurrentInstance() != null) {
+			String orgId = PageUtil.getGetParameter("orgId");
+			return idEncoder.decodeId(orgId);
+		} else {
+			return 0L;
+		}
+	}
+
+	/**
+	 * Query param name should be 'orgId' in order to be extracted
+	 *
+	 * @return
+	 */
+	private long getOrganizationIdFromRequestParameters(HttpServletRequest req) {
+		if (req != null) {
+			String orgId = req.getParameter("orgId");
+			return idEncoder.decodeId(orgId);
+		} else {
+			return 0L;
+		}
 	}
 
 	public String getSessionId() {

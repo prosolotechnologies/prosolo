@@ -86,7 +86,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title");
 				
@@ -189,7 +189,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
@@ -320,7 +320,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
 				

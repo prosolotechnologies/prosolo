@@ -130,15 +130,25 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<Rubric> getAllRubrics(Session session) throws DbConnectionException {
+    public List<Rubric> getAllRubrics(long orgId, Session session) throws DbConnectionException {
         try {
             String query =
                     "SELECT rubric " +
                     "FROM Rubric rubric " +
-                    "WHERE rubric.deleted = :deleted";
+                    "WHERE rubric.deleted = :deleted ";
+
+            if (orgId > 0) {
+                query += "AND rubric.organization.id = :orgId";
+            }
+
+            Query q = session.createQuery(query).setBoolean("deleted", false);
+
+            if (orgId > 0) {
+                q.setLong("orgId", orgId);
+            }
 
             @SuppressWarnings("unchecked")
-            List<Rubric> result = session.createQuery(query).setBoolean("deleted", false).list();
+            List<Rubric> result = q.list();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -185,19 +195,6 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    @Transactional
-    public String getRubricName(long id) {
-        Rubric rubric = null;
-        try {
-            rubric = loadResource(Rubric.class, id);
-            return rubric.getTitle();
-        } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public RubricData getOrganizationRubric(long rubricId) {
         String query =
@@ -214,6 +211,61 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         RubricData rubricData = new RubricData(rubric, rubric.getCreator());
 
         return rubricData;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RubricData getRubricData(long rubricId) throws DbConnectionException {
+        try {
+            Rubric rubric = loadResource(Rubric.class, rubricId);
+
+            return new RubricData(rubric);
+        } catch (ResourceCouldNotBeLoadedException e) {
+            throw new DbConnectionException("Error while loading rubric");
+        }
+    }
+
+    @Override
+    public void updateRubric(long rubricId, String name, UserContextData context) throws
+            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<Void> result = self.updateRubricAndGetEvents(rubricId, name, context);
+        for(EventData eventData : result.getEvents()){
+            eventFactory.generateEvent(eventData);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> updateRubricAndGetEvents(long rubricId, String name, UserContextData context) throws
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
+            Result<Void> result = new Result<>();
+
+            String query =
+                    "UPDATE Rubric rubric " +
+                    "SET rubric.title = :name " +
+                    "WHERE rubric.id = :rubricId ";
+
+            persistence.currentManager()
+                    .createQuery(query)
+                    .setString("name", name)
+                    .setLong("rubricId", rubricId)
+                    .executeUpdate();
+
+            Rubric rubric = new Rubric();
+            rubric.setId(rubricId);
+            result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
+
+            return result;
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while saving rubric");
+        }
     }
 
     private Long getOrganizationRubricsCount(long organizationId) {
