@@ -49,15 +49,15 @@ public class CredentialStudentsCompareBean implements Serializable {
     private long decodedStudentToCompareId;
     private CredentialData credentialData;
     private CredentialData studentToCompareCredentialData;
-    private UserData userData;
+    private UserData studentToCompareUserData;
 
     public void init() {
         decodedId = idEncoder.decodeId(id);
         decodedStudentToCompareId = idEncoder.decodeId(studentToCompareId);
         if (decodedId > 0 && decodedStudentToCompareId > 0) {
             try {
-                this.userData = userManager.getUserData(decodedStudentToCompareId);
-                if (userData == null) {
+                this.studentToCompareUserData = userManager.getUserData(decodedStudentToCompareId);
+                if (studentToCompareUserData == null) {
                     PageUtil.notFound();
                 } else {
                     this.credentialData = credentialManager
@@ -78,12 +78,12 @@ public class CredentialStudentsCompareBean implements Serializable {
         }
     }
 
-    public UserData getUserData() {
-        return userData;
+    public UserData getStudentToCompareUserData() {
+        return studentToCompareUserData;
     }
 
-    public void setUserData(UserData userData) {
-        this.userData = userData;
+    public void setStudentToCompareUserData(UserData studentToCompareUserData) {
+        this.studentToCompareUserData = studentToCompareUserData;
     }
 
     public String getStudentToCompareId() {
