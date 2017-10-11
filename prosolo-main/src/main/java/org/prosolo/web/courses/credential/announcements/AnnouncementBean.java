@@ -122,11 +122,11 @@ public class AnnouncementBean implements Serializable, Paginable {
                 }
             } catch (ResourceCouldNotBeLoadedException e) {
                 logger.error("Could not initialize list of announcements", e);
-                PageUtil.fireErrorMessage("Could not initialize list of announcements");
+                PageUtil.fireErrorMessage("Error loading announcements");
             }
         } else {
             logger.error("Could not initialize list of announcements, credentialId is null");
-            PageUtil.fireErrorMessage("Could not initialize list of announcements");
+            PageUtil.fireErrorMessage("Error loading announcements");
         }
     }
 
