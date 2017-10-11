@@ -13,15 +13,29 @@ public class PaginationData {
 	private int numberOfLinksArroundCurrent = 1;
 	private String missingLinksOutput = "...";
 	private int numberOfPages;
-	
+
 	private List<PaginationLink> links;
+
+	private static final int DEFAULT_LIMIT = 10;
 	
 	public PaginationData() {
-		this.limit = 10;
-		this.page = 1;
+		this(DEFAULT_LIMIT);
+	}
+
+	public PaginationData(int limit) {
+		this(limit, 1);
+	}
+
+	public PaginationData(int limit, int page) {
+		this.limit = limit;
+		this.page = page;
 		this.generateAllLinks = false;
 		this.numberOfLinksArroundCurrent = 1;
 		update(numberOfResults);
+	}
+
+	public static PaginationData forPage(int page) {
+		return new PaginationData(DEFAULT_LIMIT, page);
 	}
 	
 	public PaginationData(int numberOfResults, int limit, int page,
@@ -31,12 +45,6 @@ public class PaginationData {
 		this.generateAllLinks = generateAllLinks;
 		this.numberOfLinksArroundCurrent = numberOfLinksArroundCurrent;
 		this.missingLinksOutput = missingLinksOutput;
-		update(numberOfResults);
-	}
-	
-	public PaginationData(int limit) {
-		this();
-		this.limit = limit;
 		update(numberOfResults);
 	}
 

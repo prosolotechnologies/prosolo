@@ -87,6 +87,13 @@
             ]
         },
         {
+            "name": "admin.advanced",
+            "description": "Set advanced options in the admin section that affect the whole application",
+            "roles": [
+                "Super Admin"
+            ]
+        },
+        {
             "name": "roles.view",
             "description": "Access the page for managing roles/capabilities",
             "roles": [
@@ -232,7 +239,7 @@
                 "Manager",
                 "Instructor"
             ]
-        
+
         },
         {
         	"name": "course.announcements.create",
@@ -241,7 +248,7 @@
                 "Manager",
                 "Instructor"
             ]
-        
+
         }
     ]
 }

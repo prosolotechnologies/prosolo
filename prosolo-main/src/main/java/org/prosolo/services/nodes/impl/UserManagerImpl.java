@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -185,22 +186,42 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public Collection<User> getAllUsers() {
-		String query =
-			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.deleted = :deleted ";
+	public Collection<User> getAllUsers(long orgId) {
+		return getAllUsers(orgId, persistence.currentManager());
+	}
 
-		@SuppressWarnings("unchecked")
-		List<User> result = persistence.currentManager().createQuery(query).
-				setBoolean("deleted", false).
-				list();
+	@Override
+	@Transactional
+	public Collection<User> getAllUsers(long orgId, Session session) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT user " +
+							"FROM User user " +
+							"WHERE user.deleted = :deleted ";
 
-		if (result != null) {
-  			return result;
+			if (orgId > 0) {
+				query += "AND user.organization.id = :orgId";
+			}
+
+			Query q = session.createQuery(query).
+					setBoolean("deleted", false);
+
+			if (orgId > 0) {
+				q.setLong("orgId", orgId);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<User> result = q.list();
+
+			if (result != null) {
+				return result;
+			}
+
+			return new ArrayList<>();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving users");
 		}
-
-		return new ArrayList<User>();
 	}
 
 	@Override
@@ -550,7 +571,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
-			query += "ORDER BY user.name,user.lastname ASC ";
+			query += "ORDER BY user.lastname, user.name ASC ";
 
 			Query q = persistence.currentManager().createQuery(query);
 
@@ -956,10 +977,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			Result<User> res = new Result<>();
 			res.setResult(user);
-			/*
-			TODO i don't know if we rely somewhere on event actor being new user that is just created
-			so I used new user id as an actor in event, but this is probably not semantically correct
-			 */
+
 			res.addEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
 			return res;

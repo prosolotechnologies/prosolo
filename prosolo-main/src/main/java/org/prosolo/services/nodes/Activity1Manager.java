@@ -11,8 +11,6 @@ import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 
 import java.util.Date;
 import java.util.List;
@@ -97,16 +95,12 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param credId
 	 * @param compId
 	 * @param activityId
-	 * @param creatorId
-	 * @param req
 	 * @return
 	 * @throws DbConnectionException
 	 * @throws ResourceNotFoundException
-	 * @throws IllegalArgumentException
 	 */
-	RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
+	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, long compId, long activityId)
+					throws DbConnectionException, ResourceNotFoundException;
 
 	 void saveResponse(long targetActId, String path, Date postDate, ActivityResultType resType,
 					   UserContextData context) throws DbConnectionException;
@@ -121,13 +115,16 @@ public interface Activity1Manager extends AbstractManager {
 	 * 
 	 * @param targetActId
 	 * @param targetCompId
-	 * @param userId
+	 * @param context
 	 * @throws DbConnectionException
 	 */
 	void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException;
 	
-	RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,
 			long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
@@ -214,9 +211,8 @@ public interface Activity1Manager extends AbstractManager {
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
 			boolean instructor, boolean isManager, long loggedUserId);
 
-	RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
+	ActivityData getActivityData(long credId, long competenceId, long activityId, boolean loadLinks, boolean loadTags)
+					throws DbConnectionException, ResourceNotFoundException;
 
 	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);
 

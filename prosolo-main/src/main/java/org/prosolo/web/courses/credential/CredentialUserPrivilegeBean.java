@@ -2,6 +2,7 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -14,6 +15,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -28,11 +30,13 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@ManagedBean(name = "credentialUserPrivilegeBean")
 @Component("credentialUserPrivilegeBean")
 @Scope("view")
 public class CredentialUserPrivilegeBean implements Serializable {
@@ -64,6 +68,15 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private UserGroupPrivilege privilege;
 
 	private long newOwnerId;
+
+	//for admin section
+	private String orgId;
+	private long decodedOrgId;
+	private String unitId;
+	private long decodedUnitId;
+
+	private String organizationTitle;
+	private String unitTitle;
 	
 	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
@@ -79,6 +92,37 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		init();
 	}
 
+	public void initWithLearnPrivilegeAdmin() {
+		this.privilege = UserGroupPrivilege.Learn;
+		initAdmin();
+	}
+
+	private void initAdmin() {
+		decodedOrgId = idEncoder.decodeId(orgId);
+		decodedUnitId = idEncoder.decodeId(unitId);
+		credentialId = idEncoder.decodeId(credId);
+
+		if (decodedOrgId > 0 && decodedUnitId > 0 && credentialId > 0) {
+			try {
+				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+				if (td != null && unitManager.isCredentialConnectedToUnit(credentialId, decodedUnitId, CredentialType.Delivery)) {
+					organizationTitle = td.getOrganizationTitle();
+					unitTitle = td.getUnitTitle();
+					initializeData();
+				} else {
+					PageUtil.notFound();
+				}
+			} catch (ResourceNotFoundException rnfe) {
+				PageUtil.notFound();
+			} catch (Exception e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
+			}
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
 	private void init() {
 		credentialId = idEncoder.decodeId(credId);
 		if (credentialId > 0) {
@@ -90,42 +134,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					/*
-					administration of edit privileges is performed for original credentials and administration of
-					learn privileges is performed for deliveries
-					 */
-					CredentialType credType = privilege == UserGroupPrivilege.Edit
-							? CredentialType.Original : CredentialType.Delivery;
-					credentialTitle = credManager.getCredentialTitle(credentialId, credType);
-					if (credentialTitle != null) {
-						if (privilege == UserGroupPrivilege.Edit) {
-							/*
-							we only need credential owner info in case we administer Edit privileges for a credential
-							*/
-							this.creatorId = credManager.getCredentialCreator(credentialId).getId();
-							resVisibilityUtil.initializeValuesForEditPrivilege();
-						} else {
-							resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
-						}
-						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
-
-						if (roleIds.size() == 1) {
-							roleId = roleIds.get(0);
-						}
-
-						//units are connected to original credential so we need to work with original credential id
-						long origCredId = credType == CredentialType.Original
-								? credentialId
-								: credManager.getCredentialIdForDelivery(credentialId);
-						unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(origCredId);
-
-						logger.info("Manage visibility for credential with id " + credentialId);
-
-						loadData();
-					} else {
-						PageUtil.notFound();
-					}
+					initializeData();
 				}
 			} catch (Exception e) {
 				logger.error(e);
@@ -135,7 +144,46 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			PageUtil.notFound();
 		}
 	}
-	
+
+	private void initializeData() {
+		/*
+		administration of edit privileges is performed for original credentials and administration of
+		learn privileges is performed for deliveries
+		 */
+		CredentialType credType = privilege == UserGroupPrivilege.Edit
+				? CredentialType.Original : CredentialType.Delivery;
+		credentialTitle = credManager.getCredentialTitle(credentialId, credType);
+		if (credentialTitle != null) {
+			if (privilege == UserGroupPrivilege.Edit) {
+							/*
+							we only need credential owner info in case we administer Edit privileges for a credential
+							*/
+				this.creatorId = credManager.getCredentialCreator(credentialId).getId();
+				resVisibilityUtil.initializeValuesForEditPrivilege();
+			} else {
+				resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
+			}
+			List<Long> roleIds = roleManager.getRoleIdsForName(
+					privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
+
+			if (roleIds.size() == 1) {
+				roleId = roleIds.get(0);
+			}
+
+			//units are connected to original credential so we need to work with original credential id
+			long origCredId = credType == CredentialType.Original
+					? credentialId
+					: credManager.getCredentialIdForDelivery(credentialId);
+			unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(origCredId);
+
+			logger.info("Manage visibility for credential with id " + credentialId);
+
+			loadData();
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
 	private void loadData() {
 		//only Learn privilege can be added to user groups
 		if (privilege == UserGroupPrivilege.Learn) {
@@ -296,5 +344,29 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	public UserGroupPrivilege getPrivilege() {
 		return privilege;
+	}
+
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getUnitId() {
+		return unitId;
+	}
+
+	public void setUnitId(String unitId) {
+		this.unitId = unitId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public String getUnitTitle() {
+		return unitTitle;
 	}
 }

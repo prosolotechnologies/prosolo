@@ -1,6 +1,8 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.RubricTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -8,13 +10,18 @@ import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.RubricData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,6 +40,8 @@ public class RubricsBean implements Serializable, Paginable {
 
     protected static Logger logger = Logger.getLogger(RubricsBean.class);
 
+    private static final String rubricNameTextFieldId = "newRubricModal:formNewRubricModal:inputTextRubricName";
+
     @Inject
     private UrlIdEncoder idEncoder;
     @Inject
@@ -44,8 +53,8 @@ public class RubricsBean implements Serializable, Paginable {
 
     private List<RubricData> rubrics;
     private PaginationData paginationData = new PaginationData();
-    private RubricData rubricToDelete;
     private String searchTerm = "";
+    private String rubricName = "";
 
     public void init() {
         loadRubrics();
@@ -64,30 +73,35 @@ public class RubricsBean implements Serializable, Paginable {
         }
     }
 
+    public void createRubric() {
+        try {
+            Rubric rubric = rubricManager.createNewRubric(rubricName, loggedUser.getUserContext());
+
+            logger.debug("New Rubric (" + rubric.getTitle() + ")");
+
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.rubric") + " has been created");
+            loadRubrics();
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error(e);
+            e.printStackTrace();
+
+            FacesContext context = FacesContext.getCurrentInstance();
+            UIInput input = (UIInput) context.getViewRoot().findComponent(rubricNameTextFieldId);
+            input.setValid(false);
+            context.addMessage(rubricNameTextFieldId,
+                    new FacesMessage(ResourceBundleUtil.getMessage("label.rubric") + " with this name already exists"));
+            context.validationFailed();
+        } catch (Exception e) {
+            logger.error(e);
+            PageUtil.fireErrorMessage("Error creating a " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase());
+        }
+    }
+
     @Override
     public void changePage(int page) {
         if (this.paginationData.getPage() != page) {
             this.paginationData.setPage(page);
             searchRubrics();
-        }
-    }
-
-    public void setRubricForDelete(RubricData rubric) {
-        this.rubricToDelete = rubric;
-        searchTerm = "";
-    }
-
-    public void delete() {
-        if (rubricToDelete != null) {
-            try {
-                rubricManager.deleteRubric(this.rubricToDelete.getId(), loggedUser.getUserContext());
-
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Rubric " + rubricToDelete.getName() + " has been deleted");
-                PageUtil.redirect("/manage/rubrics");
-            } catch (Exception ex) {
-                logger.error(ex);
-                PageUtil.fireErrorMessage("Error deleting the rubric");
-            }
         }
     }
 
@@ -112,6 +126,13 @@ public class RubricsBean implements Serializable, Paginable {
         this.paginationData.update((int) result.getHitsNumber());
     }
 
+    public String getRubricName() {
+        return rubricName;
+    }
+
+    public void setRubricName(String rubricName) {
+        this.rubricName = rubricName;
+    }
 
     @Override
     public PaginationData getPaginationData() {

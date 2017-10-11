@@ -43,7 +43,6 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
-
 		try {
 			if (!searchForApproved && !searchForPending) {
 				paginationData.update(0);

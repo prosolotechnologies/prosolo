@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.config.CommonSettings;
@@ -43,12 +44,49 @@ public class ESIndexNames {
 		return indexes;
 	}
 
+	/**
+	 * Returns all indexes that can be created from scratch based on database (SQL) data
+	 *
+	 * @return
+	 */
+	public static List<String> getRecreatableIndexes() {
+		return Arrays.asList(INDEX_USERS, INDEX_NODES, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+	}
+
 	public static List<String> getSystemIndexes() {
 		return Arrays.asList(INDEX_USERS, INDEX_LOGS);
 	}
 
+	/**
+	 * Returns all system level indexes that can be created from scratch based on database (SQL) data
+	 *
+	 * @return
+	 */
+	public static List<String> getRecreatableSystemIndexes() {
+		return getSystemIndexes()
+				.stream()
+				.filter(ind -> getRecreatableIndexes()
+						.stream()
+						.anyMatch(rInd -> ind == rInd))
+				.collect(Collectors.toList());
+	}
+
 	public static List<String> getOrganizationIndexes() {
 		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+	}
+
+	/**
+	 * Returns all organization level indexes that can be created from scratch based on database (SQL) data
+	 *
+	 * @return
+	 */
+	public static List<String> getRecreatableOrganizationIndexes() {
+		return getOrganizationIndexes()
+				.stream()
+				.filter(ind -> getRecreatableIndexes()
+						.stream()
+						.anyMatch(rInd -> ind == rInd))
+				.collect(Collectors.toList());
 	}
 	
 	private static boolean isRightName(String name) {

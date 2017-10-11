@@ -25,17 +25,21 @@ public class RubricNodeChangeProcessor implements NodeChangeProcessor {
 
     private RubricsESService rubricsESService;
     private Event event;
+    private Session session;
 
-    public RubricNodeChangeProcessor(Event event, RubricsESService rubricsESService) {
+    public RubricNodeChangeProcessor(Event event, RubricsESService rubricsESService, Session session) {
         this.rubricsESService = rubricsESService;
         this.event = event;
+        this.session = session;
     }
 
     @Override
     public void process() {
-        Rubric rubric = (Rubric) event.getObject();
-        long orgId = event.getOrganizationId();
-        if (event.getAction() == EventType.Create) {
+        long rubricId = event.getObject().getId();
+        Rubric rubric = (Rubric) session.get(Rubric.class, rubricId);
+        long orgId = rubric.getOrganization().getId();
+
+        if (event.getAction() == EventType.Create || event.getAction() == EventType.Edit) {
             rubricsESService.saveRubric(orgId, rubric);
         } else if (event.getAction() == EventType.Delete) {
             rubricsESService.deleteRubric(orgId, rubric.getId());

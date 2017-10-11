@@ -163,7 +163,7 @@ public class ActivityEditBean implements Serializable {
 		competenceName = compManager.getCompetenceTitle(activityData.getCompetenceId());
 		activityData.setCompetenceName(competenceName);
 		
-		if(credId != null) {
+		if (credId != null) {
 			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId));
 		}
 	}
@@ -173,16 +173,15 @@ public class ActivityEditBean implements Serializable {
 			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(mode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<ActivityData> res = activityManager.getActivityData(credId, compId, actId, 
-					loggedUser.getUserId(), true, true, req);
-			unpackResult(res);
-			
-			if(!access.isCanAccess()) {
+			access = compManager.getResourceAccessData(compId, loggedUser.getUserId(), req);
+
+			if (!access.isCanAccess()) {
 				PageUtil.accessDenied();
 			} else {
+				activityData = activityManager.getActivityData(credId, compId, actId,true, true);
 				logger.info("Loaded activity data for activity with id "+ id);
 			}
-		} catch(ResourceNotFoundException rnfe) {
+		} catch (ResourceNotFoundException rnfe) {
 			logger.error(rnfe);
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");

@@ -12,18 +12,6 @@
 
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
 		 <ul class="nav nav-tabs headerSubmenu">
-			 <ui:remove>
-			 <li role="presentation" class="#{page eq 'rubricEdit' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'rubricEdit'}"
-						 outcome="/manage/rubricEdit">
-					 <f:param name="id" value="#{param.id}" />
-					 Basic Info
-				 </h:link>
-				 <ui:fragment rendered="#{page eq 'rubricEdit'}">
-					 <a href="javascript:void(0);">Basic Info</a>
-				 </ui:fragment>
-			 </li>
-			 </ui:remove>
 			 <li role="presentation" class="#{page eq 'rubric-categories' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'rubric-categories'}"
 						 outcome="/manage/rubric-categories">
@@ -42,6 +30,16 @@
 				 </h:link>
 				 <ui:fragment rendered="#{page eq 'rubric-privacy'}">
 					 <a href="javascript:void(0);">Privacy</a>
+				 </ui:fragment>
+			 </li>
+			 <li role="presentation" class="#{page eq 'rubricEdit' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'rubricEdit'}"
+						 outcome="/manage/rubricEdit">
+					 <f:param name="id" value="#{param.id}" />
+					 Basic Info
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'rubricEdit'}">
+					 <a href="javascript:void(0);">Basic Info</a>
 				 </ui:fragment>
 			 </li>
 		 </ul>

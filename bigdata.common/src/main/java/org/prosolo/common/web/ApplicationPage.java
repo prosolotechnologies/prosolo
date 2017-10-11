@@ -29,7 +29,7 @@ public enum ApplicationPage {
 	USER_ADMINISTRATION("/admin/users.xhtml"),
 	USER_ADMINISTRATION1("/admin/users1.xhtml"),
 	ADMIN_ADMINISTRATION("/admin/adminAdmins.xhtml"),
-	ADMIN_EDIT_ORGANIZATION("/admin/adminOrganizationNew.xhtml"),
+	ADMIN_EDIT_ORGANIZATION("/admin/organization-settings.xhtml"),
 	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
 	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
 	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
@@ -37,7 +37,7 @@ public enum ApplicationPage {
 	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
 	ADMIN_MESSAGES("/admin/messages.xhtml"),
 	ADMIN_OTHER("/admin/other.xhtml"),
-	ADMIN_UNIT_EDIT("/admin/unitEdit.xhtml"),
+	ADMIN_UNIT_EDIT("/admin/unit-settings.xhtml"),
 	ADMIN_UNITS("/admin/units.xhtml"),
 
 	ROLES1("/admin/roles1.xhtml"),
@@ -100,7 +100,12 @@ public enum ApplicationPage {
 	ADMIN_UNIT_STUDENTS("/admin/unit-students.xhtml"),
 	ADMIN_UNIT_INSTRUCTORS("/admin/unit-instructors.xhtml"),
 	ADMIN_UNIT_GROUPS("/admin/unit-groups.xhtml"),
-	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml");
+	ADMIN_UNIT_GROUP_USERS("/admin/unit-group-users.xhtml"),
+	ADMIN_UNIT_CREDENTIALS("/admin/unit-credentials.xhtml"),
+	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
+	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
+	ADMIN_COMPETENCE("/admin/competence.xhtml"),
+	ADMIN_ACTIVITY("/admin/activity.xhtml");
 
     private String uri; 
     

@@ -94,7 +94,7 @@
                                 <h:selectBooleanCheckbox id="checkVisibleAll"
                                                          value="#{competenceUserPrivilegeBean.visibleToEveryone}">
                                 </h:selectBooleanCheckbox>
-                                <h:outputLabel for="checkVisibleAll">Enrollment open to everyone</h:outputLabel>
+                                <h:outputLabel for="checkVisibleAll">Enrollment open to all units having access to the #{msg['label.competence'].toLowerCase()}</h:outputLabel>
                             </div>
 
                             <ls:userPrivileges

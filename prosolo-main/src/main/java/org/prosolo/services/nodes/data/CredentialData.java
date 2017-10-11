@@ -384,9 +384,21 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean isDeliveryStartChanged() {
 		return changedAttributes.containsKey("deliveryStartTime");
 	}
+
+	public long getDeliveryStartBeforeUpdate() {
+		Long delStartTime = (Long) changedAttributes.get("deliveryStartTime");
+		//if not null return this value, if it is null it means it is not changed so original value can be returned
+		return delStartTime != null ? delStartTime : deliveryStartTime;
+	}
 	
 	public boolean isDeliveryEndChanged() {
 		return changedAttributes.containsKey("deliveryEndTime");
+	}
+
+	public long getDeliveryEndBeforeUpdate() {
+		Long delEndTime = (Long) changedAttributes.get("deliveryEndTime");
+		//if not null return this value, if it is null it means it is not changed so original value can be returned
+		return delEndTime != null ? delEndTime : deliveryEndTime;
 	}
 
 	public List<CredentialData> getDeliveries() {

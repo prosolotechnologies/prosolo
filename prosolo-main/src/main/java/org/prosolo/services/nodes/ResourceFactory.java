@@ -8,7 +8,10 @@ import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
@@ -28,7 +31,7 @@ import java.util.List;
 
 public interface ResourceFactory extends AbstractManager {
 
-    public Role createNewRole(String name, String description, boolean systemDefined);
+    Role createNewRole(String name, String description, boolean systemDefined);
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
@@ -44,11 +47,6 @@ public interface ResourceFactory extends AbstractManager {
 
 	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
-	
-	long deleteCredentialBookmark(long credId, long userId);
-	
-	CredentialBookmark bookmarkCredential(long credId, long userId) 
-			throws DbConnectionException;
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;

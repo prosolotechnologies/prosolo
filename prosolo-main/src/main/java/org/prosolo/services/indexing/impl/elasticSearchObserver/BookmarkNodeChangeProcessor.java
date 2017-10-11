@@ -1,5 +1,6 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -12,34 +13,25 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 	private Event event;
 	private CredentialESService credentialESService;
 	private CompetenceESService compESService;
-	private NodeOperation operation;
+	private Session session;
 	
 	
 	public BookmarkNodeChangeProcessor(Event event, CredentialESService credentialESService, 
-			CompetenceESService compESSerivce, NodeOperation operation) {
+			CompetenceESService compESSerivce, Session session) {
 		this.event = event;
 		this.credentialESService = credentialESService;
 		this.compESService = compESSerivce;
-		this.operation = operation;
+		this.session = session;
 	}
 	
 	@Override
 	public void process() {
 		BaseEntity target = event.getTarget();
-		long actorId = event.getActorId();
-		
+
 		if(target instanceof Credential1) {
-			if(operation == NodeOperation.Save) {
-				credentialESService.addBookmarkToCredentialIndex(event.getOrganizationId(), target.getId(), actorId);
-			} else if(operation == NodeOperation.Delete) {
-				credentialESService.removeBookmarkFromCredentialIndex(event.getOrganizationId(), target.getId(), actorId);
-			}
+			credentialESService.updateCredentialBookmarks(event.getOrganizationId(), target.getId(), session);
 		} else if(target instanceof Competence1) {
-			if(operation == NodeOperation.Save) {
-				compESService.addBookmarkToCompetenceIndex(event.getOrganizationId(), target.getId(), actorId);
-			} else if(operation == NodeOperation.Delete) {
-				compESService.removeBookmarkFromCompetenceIndex(event.getOrganizationId(), target.getId(), actorId);
-			}
+			compESService.updateCompetenceBookmarks(event.getOrganizationId(), target.getId(), session);
 		}
 	}
 

@@ -139,6 +139,10 @@ public class ImportUsersBean implements Serializable {
 		}
 	}
 
+	public void importUsersToOrganization(long organizationId) {
+		importUsers(organizationId, 0, 0, 0);
+	}
+
 	public void importUsersToGroup(long organizationId, long unitId, long roleId, long groupId) {
 		importUsers(organizationId, unitId, roleId, groupId);
 	}
