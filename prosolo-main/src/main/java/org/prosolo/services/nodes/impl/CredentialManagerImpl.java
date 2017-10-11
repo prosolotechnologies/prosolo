@@ -3087,6 +3087,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public boolean isUserEnrolled(long credId, long userId) {
 		String query =
 				"SELECT targetCredential.id " +

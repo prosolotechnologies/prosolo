@@ -16,7 +16,7 @@
         <f:metadata>
             <f:viewParam name="id" value="#{announcementBean.credentialId}" default="null" />
             <f:viewParam name="p" value="#{announcementBean.paginationData.pageString}" default="1" />
-            <f:viewAction action="#{announcementBean.initAllAssessments()}" />
+            <f:viewAction action="#{announcementBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -68,11 +68,18 @@
                                     <f:param name="id" value="#{param.id}" />
                                 </h:link>
 
-                                <a href="#" class="btn btn-green btn-sm item"
-                                   data-toggle="modal" data-target="#askAssessment"> Ask for
-                                    Assessment </a>
+                                <h:commandButton styleClass="btn btn-green btn-sm item"
+                                                 data-toggle="modal"
+                                                 value="Ask for Assessment"
+                                                 data-target="#askAssessment" onclick="$('#askAssessment').modal('show');"
+                                                 actionListener="#{askForAssessmentBean.initCredentialId(param['id'])}">
+                                    <f:ajax execute="@this" />
+                                </h:commandButton>
+
                                 <courses:askForAssessmentModal id='askForAssessmentModal'
-                                                               bean="#{announcementBean}" role="#{cc.attrs.role}" toUpdate=":formMain:growlMain"/>
+                                                               credentialTitle="#{announcementBean.credentialTitle}"
+                                                               role="#{cc.attrs.role}"
+                                                               toUpdate=":formMain:growlMain"/>
                             </ui:fragment>
                         </div>
                         <div class="whiteBarRight">

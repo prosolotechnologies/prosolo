@@ -7,7 +7,7 @@
 	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
-		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="credentialTitle" required="true" />
 		<composite:attribute name="role" required="true" />
 		<composite:attribute name="toUpdate" default=""/>
 	</composite:interface>
@@ -33,9 +33,9 @@
 		</script>
 
 		<ui:param name="baseContext"
-			value="name:credential|id:#{cc.attrs.bean.decodedId}"></ui:param>
+			value="name:credential|id:#{askForAssessmentBean.decodedId}"></ui:param>
 		<ui:param name="canEdit"
-			value="#{(cc.attrs.role == 'MANAGER' and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.credentialData.canEdit}"></ui:param>
+			value="#{(cc.attrs.role == 'MANAGER' and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and askForAssessmentBean.credentialData.canEdit}"></ui:param>
 
 		<div class="modal fade" id="askAssessment" tabindex="-1" role="dialog"
 			aria-labelledby="askForAssessment">
@@ -54,20 +54,20 @@
 						<div class="assessmentModalMetaLine">
 							<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
 							<div class="assessmentModalMetaRight">
-								<h3>#{cc.attrs.bean.credentialData.title}</h3>
+								<h3>#{cc.attrs.credentialTitle}</h3>
 							</div>
 						</div>
 
 						<ui:remove>
 							<div class="assessmentModalMetaLine" id="assessmentModalMetaLine">
 								<ui:fragment
-									rendered="#{cc.attrs.bean.credentialData.instructorPresent}">
+									rendered="#{askForAssessmentBean.credentialData.instructorPresent}">
 									<div class="assessmentModalMetaLeft">Instructor:</div>
 									<div class="assessmentModalMetaRight">
-										<img src="#{cc.attrs.bean.credentialData.instructorAvatarUrl}"
+										<img src="#{askForAssessmentBean.credentialData.instructorAvatarUrl}"
 											class="img-circle" width="32" height="32"
-											alt="#{cc.attrs.bean.credentialData.instructorFullName}" />
-										<h3>#{cc.attrs.bean.credentialData.instructorFullName}</h3>
+											alt="#{askForAssessmentBean.credentialData.instructorFullName}" />
+										<h3>#{askForAssessmentBean.credentialData.instructorFullName}</h3>
 									</div>
 								</ui:fragment>
 							</div>
@@ -78,40 +78,40 @@
 							<h:panelGroup layuot="block" id="selectAssessor"
 								class="assessmentModalMetaRight">
 								<h:panelGroup
-									rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
+									rendered="#{askForAssessmentBean.assessmentRequestData.assessorSet}">
 									<utilcomp:userAvatar
-										avatar="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
-										fullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}" />
-									<h3>#{cc.attrs.bean.assessmentRequestData.assessorFullName}</h3>
+										avatar="#{askForAssessmentBean.assessmentRequestData.assessorAvatarUrl}"
+										fullName="#{askForAssessmentBean.assessmentRequestData.assessorFullName}" />
+									<h3>#{askForAssessmentBean.assessmentRequestData.assessorFullName}</h3>
 								</h:panelGroup>
 
 								<h:inputText
-									rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
+									rendered="#{not askForAssessmentBean.assessmentRequestData.assessorSet}"
 									onkeyup="searchListener(execSearchUsers);"
-									value="#{cc.attrs.bean.peerSearchTerm}" id="newAssessorName"
+									value="#{askForAssessmentBean.peerSearchTerm}" id="newAssessorName"
 									placeholder="Type peer's name..." name="newAssessorName"
 									autocomplete="off" />
 
 								<p:remoteCommand name="execSearchUsers"
 									process="newAssessorName"
-									action="#{cc.attrs.bean.searchCredentialPeers()}"
+									action="#{askForAssessmentBean.searchCredentialPeers()}"
 									update="usersListPanel" />
 
 								<p:commandLink styleClass="btn btn-green-stroke btn-sm"
 									value="Choose random"
-									action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
+									action="#{askForAssessmentBean.chooseRandomPeerForAssessor()}"
 									update="selectAssessor randomUserErrorMessage" />
 
 								<h:panelGroup id="usersListPanel">
 									<h:panelGroup
-										rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.peersForAssessment != null and cc.attrs.bean.peersForAssessment.size() > 0}">
+										rendered="#{not askForAssessmentBean.assessmentRequestData.assessorSet and askForAssessmentBean.peersForAssessment != null and askForAssessmentBean.peersForAssessment.size() > 0}">
 										<ul id="usersList" class="dropdown-menu searchResultsDrop"
 											style="display: block;">
-											<ui:repeat value="#{cc.attrs.bean.peersForAssessment}"
+											<ui:repeat value="#{askForAssessmentBean.peersForAssessment}"
 												var="user" varStatus="iterator">
 												<li><p:commandLink style="cursor: pointer;"
 														id="userlink-#{user.id}"
-														action="#{cc.attrs.bean.setAssessor(user)}"
+														action="#{askForAssessmentBean.setAssessor(user)}"
 														update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:randomUserErrorMessage">
 														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 															fullName="#{user.fullName}" />
@@ -126,7 +126,7 @@
 					</div>
 
 					<h:panelGroup id="randomUserErrorMessage">
-						<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
+						<ui:fragment rendered="#{askForAssessmentBean.noRandomAssessor}">
 							<div class="alert alert-warning" role="alert">There is no
 								peer available to ask for assessment.</div>
 						</ui:fragment>
@@ -135,7 +135,7 @@
 					<div class="modal-body alignLeft">
 						<h:inputTextarea id="messageContentTextarea"
 							placeholder="Write message..."
-							value="#{cc.attrs.bean.assessmentRequestData.messageText}" />
+							value="#{askForAssessmentBean.assessmentRequestData.messageText}" />
 
 						<ui:remove>
 							<div class="assessmentMassageContent"
@@ -160,7 +160,7 @@
 					<div class="modal-footer alignLeft">
 						<p:commandLink process="messageContentTextarea"
 							update="#{cc.attrs.toUpdate}"
-							action="#{cc.attrs.bean.submitAssessment()}"
+							action="#{askForAssessmentBean.submitAssessment()}"
 							styleClass="btn btn-green"
 							oncomplete="hideAssesmentDialog('askAssessment')">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
@@ -173,7 +173,7 @@
 			</div>
 		</div>
 		<p:remoteCommand name="resetAskForAssessmentModal"
-			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
+			action="#{askForAssessmentBean.resetAskForAssessmentModal()}"
 			update="selectAssessor randomUserErrorMessage messageContentTextarea" />
 
 		<script>

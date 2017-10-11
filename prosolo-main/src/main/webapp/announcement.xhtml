@@ -44,6 +44,11 @@
 			                <f:param name="id" value="#{param['id']}"></f:param>
 			        </h:link>
 			    </li>
+				<li>
+					<h:link outcome="announcements" value="Announcements ">
+						<f:param name="id" value="#{param['id']}"></f:param>
+					</h:link>
+				</li>
 	            <li class="active">#{announcementStudentBean.announcementData.title}</li>
 	        </ol>
 	    </div>
@@ -57,7 +62,7 @@
 	                    	<h:outputText escape="false" value="#{announcementStudentBean.announcementData.text}" />
 	                    </p>
 	                    <p>
-	                        <h:link outcome="credential">Go Back to Credential
+	                        <h:link outcome="credential">Go Back to #{msg['label.competence.plural'].toLowerCase()}
 			                	<f:param name="id" value="#{param['id']}"></f:param>
 			        		</h:link>
 	                    </p>
