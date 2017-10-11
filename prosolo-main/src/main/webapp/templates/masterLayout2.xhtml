@@ -67,7 +67,23 @@
 									value="Home" outcome="/index" />
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
+									or util:getPagePath(view.viewId)  == 'competenceLibrary'
+									or util:getPagePath(view.viewId)  == 'credential'
+									or util:getPagePath(view.viewId)  == 'create-credential'
+									or util:getPagePath(view.viewId)  == 'credential-students'
+									or util:getPagePath(view.viewId)  == 'credential-students-compare'
+									or util:getPagePath(view.viewId)  == 'credential-keywords'
+									or util:getPagePath(view.viewId)  == 'credential-assessment'
+									or util:getPagePath(view.viewId)  == 'competence'
+									or util:getPagePath(view.viewId)  == 'create-competence'
+									or util:getPagePath(view.viewId)  == 'activity'
+									or util:getPagePath(view.viewId)  == 'create-activity'
+									or util:getPagePath(view.viewId)  == 'activity-response'
+									or util:getPagePath(view.viewId)  == 'activity-responses'
+									or util:getPagePath(view.viewId)  == 'assessments'
+									or util:getPagePath(view.viewId)  == 'announcement'
+									? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
 							</li>
