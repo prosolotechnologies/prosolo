@@ -1,7 +1,6 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
-import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;

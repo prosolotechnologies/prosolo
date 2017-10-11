@@ -71,14 +71,14 @@ public class OrganizationEditBean implements Serializable {
         logger.debug("initializing");
         admins = new ArrayList<UserData>();
         try {
-            rolesArray = new String[]{"Admin","Super Admin"};
-            adminRoles = roleManager.getRolesByNames(rolesArray);
-            for(Role r : adminRoles){
-                adminRolesIds.add(r.getId());
-            }
             decodedId = idEncoder.decodeId(id);
 
             if (loggedUser.getOrganizationId() == decodedId || loggedUser.hasCapability("admin.advanced")) {
+                rolesArray = new String[]{"Admin","Super Admin"};
+                adminRoles = roleManager.getRolesByNames(rolesArray);
+                for(Role r : adminRoles){
+                    adminRolesIds.add(r.getId());
+                }
                 if (decodedId > 0) {
                     this.organization = organizationManager.getOrganizationDataById(decodedId, adminRoles);
 

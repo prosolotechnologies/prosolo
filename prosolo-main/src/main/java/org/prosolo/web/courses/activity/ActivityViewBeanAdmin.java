@@ -65,45 +65,50 @@ public class ActivityViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
-			if (credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+
+		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
+				if (credId != null) {
+					decodedCredId = idEncoder.decodeId(credId);
+				}
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 				/*
 				if credential id is passed we check if credential is connected to unit because if admin
 				comes to this page from credential page he should always see competency and activity details - not found
 				page would be confusing for him.
 				 */
-				boolean connectedToUnit = decodedCredId > 0
-						? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-						: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
-				if (td != null && connectedToUnit) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+					boolean connectedToUnit = decodedCredId > 0
+							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
+							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+					if (td != null && connectedToUnit) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
-									decodedCredId, decodedCompId, decodedActId);
+						competenceData = activityManager
+								.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+										decodedCredId, decodedCompId, decodedActId);
 
-					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-							competenceData.getActivityToShowWithDetails().getCaptions(),
-							loggedUser.getUserId());
+						ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+								competenceData.getActivityToShowWithDetails().getCaptions(),
+								loggedUser.getUserId());
 
-					loadCompetenceAndCredentialTitle();
-				} else {
+						loadCompetenceAndCredentialTitle();
+					} else {
+						PageUtil.notFound();
+					}
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error loading the page");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 	

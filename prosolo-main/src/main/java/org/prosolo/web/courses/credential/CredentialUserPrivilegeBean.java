@@ -53,6 +53,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
+	@Inject private LoggedUserBean loggedUser;
 
 	private String credId;
 	private long credentialId;
@@ -102,24 +103,28 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		credentialId = idEncoder.decodeId(credId);
 
-		if (decodedOrgId > 0 && decodedUnitId > 0 && credentialId > 0) {
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				if (td != null && unitManager.isCredentialConnectedToUnit(credentialId, decodedUnitId, CredentialType.Delivery)) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					initializeData();
-				} else {
+		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && credentialId > 0) {
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+					if (td != null && unitManager.isCredentialConnectedToUnit(credentialId, decodedUnitId, CredentialType.Delivery)) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						initializeData();
+					} else {
+						PageUtil.notFound();
+					}
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

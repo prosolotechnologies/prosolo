@@ -44,6 +44,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private GroupUserAddBean groupUserAddBean;
 	@Inject private ImportUsersBean importUsersBean;
 	@Inject private RoleManager roleManager;
+	@Inject private LoggedUserBean loggedUser;
 	
 	private List<UserData> users;
 
@@ -69,28 +70,33 @@ public class GroupUsersBean implements Serializable, Paginable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedGroupId = idEncoder.decodeId(groupId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
-			try {
-				TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
-						decodedOrgId, decodedUnitId, decodedGroupId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					userGroupTitle = td.getUserGroupTitle();
-					if (page > 0) {
-						paginationData.setPage(page);
+
+		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
+				try {
+					TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
+							decodedOrgId, decodedUnitId, decodedGroupId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						userGroupTitle = td.getUserGroupTitle();
+						if (page > 0) {
+							paginationData.setPage(page);
+						}
+						roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+						loadUsersFromDB();
+					} else {
+						PageUtil.notFound();
 					}
-					roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
-					loadUsersFromDB();
-				} else {
-					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error while loading the page");
 				}
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading the page");
+			} else {
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

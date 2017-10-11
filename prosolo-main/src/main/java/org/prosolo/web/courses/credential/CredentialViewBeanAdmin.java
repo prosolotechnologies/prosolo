@@ -55,30 +55,34 @@ public class CredentialViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedId = idEncoder.decodeId(id);
 
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
-					if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
-						//if credential is not connected to the unit this page is for show the not found page
+						credentialData = credentialManager
+								.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+						if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
+							//if credential is not connected to the unit this page is for show the not found page
+							PageUtil.notFound();
+						}
+					} else {
 						PageUtil.notFound();
 					}
-				} else {
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

@@ -51,44 +51,49 @@ public class CompetenceViewBeanAdmin implements Serializable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
-			if (credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+
+		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
+				if (credId != null) {
+					decodedCredId = idEncoder.decodeId(credId);
+				}
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 				/*
 				if credential id is passed we check if credential is connected to unit because if admin
 				comes to this page from credential page he should always see competency details - not found
 				page would be confusing for him.
 				 */
-				boolean connectedToUnit = decodedCredId > 0
-						? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-						: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
-				if (td != null && connectedToUnit) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+					boolean connectedToUnit = decodedCredId > 0
+							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
+							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+					if (td != null && connectedToUnit) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					competenceData = competenceManager.getCompetenceData(
-							decodedCredId, decodedCompId, true, true, true,
-							false);
+						competenceData = competenceManager.getCompetenceData(
+								decodedCredId, decodedCompId, true, true, true,
+								false);
 
-					if (decodedCredId > 0) {
-						String credTitle = credManager.getCredentialTitle(decodedCredId);
-						competenceData.setCredentialId(decodedCredId);
-						competenceData.setCredentialTitle(credTitle);
+						if (decodedCredId > 0) {
+							String credTitle = credManager.getCredentialTitle(decodedCredId);
+							competenceData.setCredentialId(decodedCredId);
+							competenceData.setCredentialTitle(credTitle);
+						}
+					} else {
+						PageUtil.notFound();
 					}
-				} else {
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error loading the page");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 	
