@@ -1,21 +1,14 @@
 package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -63,12 +56,6 @@ public class CredentialKeywordsBean {
 	private List<ActivityData> filteredActivities;
 	private CredentialData credentialData;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
-
-	// used for search in the Ask for Assessment modal
-	private List<UserData> peersForAssessment;
-	private String peerSearchTerm;
-	private List<Long> peersToExcludeFromSearch;
-	private boolean noRandomAssessor = false;
 	
 	private long decodedId;
 
@@ -137,14 +124,6 @@ public class CredentialKeywordsBean {
 		this.assessmentManager = assessmentManager;
 	}
 
-	public String getPeerSearchTerm() {
-		return peerSearchTerm;
-	}
-
-	public void setPeerSearchTerm(String peerSearchTerm) {
-		this.peerSearchTerm = peerSearchTerm;
-	}
-
 	public Set<String> getSelectedKeywords() {
 		return selectedKeywords;
 	}
@@ -155,30 +134,6 @@ public class CredentialKeywordsBean {
 
 	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
 		this.assessmentRequestData = assessmentRequestData;
-	}
-
-	public List<UserData> getPeersForAssessment() {
-		return peersForAssessment;
-	}
-
-	public void setPeersForAssessment(List<UserData> peersForAssessment) {
-		this.peersForAssessment = peersForAssessment;
-	}
-
-	public List<Long> getPeersToExcludeFromSearch() {
-		return peersToExcludeFromSearch;
-	}
-
-	public void setPeersToExcludeFromSearch(List<Long> peersToExcludeFromSearch) {
-		this.peersToExcludeFromSearch = peersToExcludeFromSearch;
-	}
-
-	public boolean isNoRandomAssessor() {
-		return noRandomAssessor;
-	}
-
-	public void setNoRandomAssessor(boolean noRandomAssessor) {
-		this.noRandomAssessor = noRandomAssessor;
 	}
 
 	public ThreadPoolTaskExecutor getTaskExecutor() {

@@ -4,14 +4,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
@@ -35,7 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,12 +71,6 @@ public class CredentialViewBeanUser implements Serializable {
 	private ResourceAccessData access;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
-	private boolean noRandomAssessor = false;
-
-	// used for search in the Ask for Assessment modal
-	private List<UserData> peersForAssessment;
-	private String peerSearchTerm;
-	private List<Long> peersToExcludeFromSearch;
 	private int numberOfAnnouncements;
 	
 	private int numberOfTags;
@@ -278,31 +266,19 @@ public class CredentialViewBeanUser implements Serializable {
 		this.numberOfUsersLearningCred = numberOfUsersLearningCred;
 	}
 
-	public boolean isNoRandomAssessor() {
-		return noRandomAssessor;
-	}
-
-	public String getPeerSearchTerm() {
-		return peerSearchTerm;
-	}
-
-	public void setPeerSearchTerm(String peerSearchTerm) {
-		this.peerSearchTerm = peerSearchTerm;
-	}
-
-	public List<UserData> getPeersForAssessment() {
-		return peersForAssessment;
-	}
-
 	public int getNumberOfTags() {
 		return numberOfTags;
 	}
 
-	public ResourceAccessData getAccess() {
-		return access;
+	public void setNumberOfTags(int numberOfTags) {
+		this.numberOfTags = numberOfTags;
 	}
 
 	public int getNumberOfAnnouncements() {
 		return numberOfAnnouncements;
+	}
+
+	public void setNumberOfAnnouncements(int numberOfAnnouncements) {
+		this.numberOfAnnouncements = numberOfAnnouncements;
 	}
 }

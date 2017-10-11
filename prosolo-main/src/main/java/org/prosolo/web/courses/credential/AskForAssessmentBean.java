@@ -2,9 +2,9 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -23,7 +23,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -68,14 +67,14 @@ public class AskForAssessmentBean implements Serializable {
     private String credentialId;
     private long decodedId;
 
-    public void init(){
+    public void init() {
         decodedId = idEncoder.decodeId(credentialId);
 
         this.credentialData = credManager.getFullTargetCredentialOrCredentialData(
                 decodedId, loggedUser.getUserId());
     }
 
-    public void initCredentialId(String encodedId){
+    public void initCredentialId(String encodedId) {
         logger.info(encodedId);
         this.credentialId = encodedId;
         init();
@@ -133,18 +132,12 @@ public class AskForAssessmentBean implements Serializable {
 
     public void submitAssessment() {
         try {
-            // at this point, assessor should be set either from credential data or
-            // user-submitted peer id
             if (this.assessmentRequestData.isAssessorSet()) {
                 populateAssessmentRequestFields();
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
                 long assessmentId = assessmentManager.requestAssessment(this.assessmentRequestData, loggedUser.getUserContext());
-                String page = PageUtil.getPostParameter("page");
-                String lContext = PageUtil.getPostParameter("learningContext");
-                String service = PageUtil.getPostParameter("service");
-                notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-                        service);
+                notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
 
                 PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
 
@@ -172,8 +165,8 @@ public class AskForAssessmentBean implements Serializable {
         this.assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
     }
 
-    private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
-                                                String service) {
+    private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
+        UserContextData context = loggedUser.getUserContext();
         taskExecutor.execute(() -> {
             User assessor = new User();
             assessor.setId(assessorId);
@@ -182,8 +175,8 @@ public class AskForAssessmentBean implements Serializable {
             Map<String, String> parameters = new HashMap<>();
             parameters.put("credentialId", idEncoder.decodeId(credentialId) + "");
             try {
-                eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserContext(), assessment,
-                        assessor,null, parameters);
+                eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
+                        null, parameters);
             } catch (Exception e) {
                 logger.error("Eror sending notification for assessment request", e);
             }
