@@ -26,10 +26,7 @@
             "name": "basic.user.access",
             "description": "Basic user access",
             "roles": [
-                "User",
-                "Instructor",
-                "Manager",
-                "Admin"
+                "User"
             ]
         },
         {
