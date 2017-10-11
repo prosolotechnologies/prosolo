@@ -6,6 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.*;
 import org.prosolo.common.domainmodel.rubric.Rubric;
@@ -1064,7 +1065,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 Unit un = new Unit();
                 un.setId(unitId);
                 res.addEvent(eventFactory.generateEventData(
-                        EventType.REMOVE_RUBRIC_FROM_UNIT, context, rubric, un,null, null));
+                        EventType.REMOVE_RUBRIC_FROM_UNIT, context, rubric, un, null, null));
             }
         } catch (Exception e) {
             logger.error("Error", e);
@@ -1072,6 +1073,95 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
 
         return res;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCredentialConnectedToUnit(long credId, long unitId, CredentialType type) throws DbConnectionException {
+        try {
+            return type == CredentialType.Original ? isOriginalCredentialConnectedToUnit(credId, unitId) : isCredentialDeliveryConnectedToUnit(credId, unitId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving credential info");
+        }
+    }
+
+    private boolean isOriginalCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException {
+        String query =
+                "SELECT cu.id FROM CredentialUnit cu " +
+                "WHERE cu.credential.id = :credId " +
+                "AND cu.unit.id = :unitId";
+
+        Long id = (Long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("credId", credId)
+                .setLong("unitId", unitId)
+                .uniqueResult();
+
+        return id != null;
+    }
+
+    private boolean isCredentialDeliveryConnectedToUnit(long deliveryId, long unitId) throws DbConnectionException {
+        String query =
+                "SELECT u.id FROM Credential1 del " +
+                "INNER JOIN del.deliveryOf c " +
+                "INNER JOIN c.credentialUnits u " +
+                        "WITH u.unit.id = :unitId " +
+                "WHERE del.id = :deliveryId";
+
+        Long id = (Long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("deliveryId", deliveryId)
+                .setLong("unitId", unitId)
+                .uniqueResult();
+
+        return id != null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT c.type FROM Credential1 c " +
+                            "WHERE c.id = :credId";
+
+            CredentialType type = (CredentialType) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credId", credId)
+                    .uniqueResult();
+
+            return type != null ? isCredentialConnectedToUnit(credId, unitId, type) : false;
+        } catch (DbConnectionException e) {
+                throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving credential info");
+        }
+
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCompetenceConnectedToUnit(long compId, long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cu.id FROM CompetenceUnit cu " +
+                    "WHERE cu.competence.id = :compId " +
+                    "AND cu.unit.id = :unitId";
+
+            Long id = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("compId", compId)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            return id != null;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving competency info");
+        }
     }
 
 }

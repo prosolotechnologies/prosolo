@@ -55,6 +55,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			throws UsernameNotFoundException {
 
 		try {
+			logger.info("Authentication through SAML requested; SAML Credential Name Id: " + credential.getNameID());
 			//Gson g=new Gson();
 			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
 			List<Attribute> attributes = credential.getAttributes();
@@ -88,6 +89,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			User user = userManager.getUser(email);
 
 			if (user == null) {
+				logger.info("User with email: " + email + " does not exist so new account will be created");
 				//if email does not exist, create new user account;
 				Role role = roleManager.getRoleByName(RoleNames.USER);
 				//String firstname = credential.getAttributeAsString("givenName");

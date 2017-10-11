@@ -34,9 +34,11 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:link outcome="/manage/newRubric"
-                                styleClass="btn btn-green btn-sm item">
-                            New #{msg['label.rubric']}</h:link>
+                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New #{msg['label.rubric']}"
+                                        oncomplete="$('#newRubricModal\\:formNewRubricModal\\:inputTextRubricName').val('');
+                                        $('#newRubricModal').modal('show');"
+                                        update="newRubricModal:formNewRubricModal">
+                        </p:commandLink>
 
                         <div class="searchBox">
                             <h:form id="searchForm">
@@ -50,7 +52,7 @@
                                              autofocus="true"
                                              autocomplete="off"
                                              type="search"
-                                             placeholder="Filter by Keywords"
+                                             placeholder="Filter by Name"
                                              value="#{rubricsBean.searchTerm}"
                                              onclick="$(this).select();"
                                              onkeyup="searchListener(execSearchRubrics);"/>
@@ -91,6 +93,7 @@
                                             <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
                                         </h:link>
                                     </h2>
+
                                     <div class="rubricsInfo">
                                         <div class="creator">
                                             Creator: <span>#{rubric.creatorFullName}</span>
@@ -116,7 +119,7 @@
                                             <li>
                                                 <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId}">
                                                     <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                                   action="#{rubricsBean.setRubricForDelete(rubric)}"
+                                                                   action="#{deleteRubricBean.setRubricForDelete(rubric)}"
                                                                    oncomplete="$('#deleteModal').modal('show');">
                                                         Delete
                                                     </p:commandLink>
@@ -146,9 +149,14 @@
                     toUpdate=":panelRubrics" />
         </div>
 
+        <courses:newRubricModal
+                id="newRubricModal"
+                toUpdate=":panelRubrics" />
+
+
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
-                deleteAction="#{rubricsBean.delete()}"
+                deleteAction="#{deleteRubricBean.delete()}"
                 toUpdate=":panelRubrics"
                 modalDeleteTitle="#{msg['label.rubric']}"
                 modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>

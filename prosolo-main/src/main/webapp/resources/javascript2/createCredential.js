@@ -52,14 +52,6 @@ function initializeDeliveryDatePickers() {
     });
 }
 
-function disableInputAfterSpecifiedTime(inputClass, time) {
-	if(time > 0) {
-		setTimeout(function() {
-			$("." + inputClass).prop('disabled', true); 
-		}, time);
-	}
-}
-
 
 //function getFieldValue(label) {
 //	switch(label) {

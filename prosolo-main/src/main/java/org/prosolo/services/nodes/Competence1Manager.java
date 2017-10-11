@@ -194,7 +194,7 @@ public interface Competence1Manager {
 	RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId,
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
-	List<Competence1> getAllCompetences(Session session) 
+	List<Competence1> getAllCompetences(long orgId, Session session)
 			throws DbConnectionException;
 	
 //	/**
@@ -269,9 +269,15 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	void bookmarkCompetence(long compId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> bookmarkCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	void deleteCompetenceBookmark(long compId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> deleteCompetenceBookmarkAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	List<CompetenceBookmark> getBookmarkedByIds(long compId, Session session) 
@@ -282,16 +288,25 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
 	
-	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	void enrollInCompetence(long compId, long userId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
 														   UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
-	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
+	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException, EventException;
+
+	Result<Void> archiveCompetenceAndGetEvents(long compId, UserContextData context)
+			throws DbConnectionException;
 	
 	/**
 	 * Returns number of competences for which user specified with {@code userId} has privilege specified by {@code priv}
@@ -317,6 +332,9 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	void restoreArchivedCompetence(long compId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> restoreArchivedCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	RestrictedAccessResult<CompetenceData1> getCompetenceForEdit(long credId, long compId, long userId, 

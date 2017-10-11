@@ -36,6 +36,8 @@
 								'#{facesContext.viewRoot.viewId}', 
 								'#{util:addSubContext(cc.attrs.learningContext, &#34;name:competence_progress/&#34;)}', 
 								'#{cc.attrs.service}');">
+								<f:param name="orgId" value="#{param.orgId}" disable="#{empty param.orgId}"></f:param>
+								<f:param name="unitId" value="#{param.unitId}" disable="#{empty param.unitId}"></f:param>
 								<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 								<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
 								<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>

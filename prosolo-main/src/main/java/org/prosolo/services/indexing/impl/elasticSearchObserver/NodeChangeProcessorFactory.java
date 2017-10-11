@@ -14,7 +14,6 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 
@@ -45,23 +44,21 @@ public class NodeChangeProcessorFactory {
     private CredentialManager credManager;
     @Inject
     private RubricsESService rubricsESService;
-    @Inject
-    private RubricManager rubricManager;
 
     public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
         EventType type = event.getAction();
         BaseEntity node = event.getObject();
         switch (type) {
-            case Registered:
-            case Account_Activated:
-            case Edit_Profile:
-            case ENROLL_COURSE:
-            case ENROLL_COMPETENCE:
-            case COURSE_WITHDRAWN:
-            case ACTIVATE_COURSE:
-            case ChangeProgress:
+			case Registered:
+			case Account_Activated:
+			case Edit_Profile:
+			case ENROLL_COURSE:
+			case ENROLL_COMPETENCE:
+			case COURSE_WITHDRAWN:
+			case ACTIVATE_COURSE:
+			case ChangeProgress:
                 return new UserNodeChangeProcessor(event, session, userEntityESService,
-                        credentialESService, competenceESService, EventUserRole.Subject);
+                        credentialESService, competenceESService, credManager, EventUserRole.Subject);
             case Create:
             case Create_Draft:
             case Edit:
@@ -82,7 +79,7 @@ public class NodeChangeProcessorFactory {
             case REMOVE_USER_FROM_UNIT:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     NodeOperation operation = null;
                     if (type == EventType.Create || type == EventType.Create_Draft) {
@@ -107,7 +104,7 @@ public class NodeChangeProcessorFactory {
                     return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
                             organizationManager, event, session);
                 } else if (node instanceof Rubric) {
-                    return new RubricNodeChangeProcessor(event, rubricsESService);
+                    return new RubricNodeChangeProcessor(event, rubricsESService, session);
                 } else {
                     return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
                 }
@@ -115,7 +112,7 @@ public class NodeChangeProcessorFactory {
             case Delete_Draft:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     return new CredentialNodeChangeProcessor(event, credentialESService,
                             credManager, NodeOperation.Delete, session);
@@ -127,7 +124,7 @@ public class NodeChangeProcessorFactory {
                             credentialESService, userGroupManager, competenceESService,
                             userEntityESService, ctxJsonParserService, session);
                 } else if (node instanceof Rubric) {
-                    return new RubricNodeChangeProcessor(event, rubricsESService);
+                    return new RubricNodeChangeProcessor(event, rubricsESService, session);
                 }
                 return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
             case Attach:
@@ -136,11 +133,8 @@ public class NodeChangeProcessorFactory {
                 //}
                 return null;
             case Bookmark:
-                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService,
-                        NodeOperation.Save);
             case RemoveBookmark:
-                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService,
-                        NodeOperation.Delete);
+                return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, session);
             case Follow:
                 return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
             case Unfollow:
@@ -185,10 +179,11 @@ public class NodeChangeProcessorFactory {
             case REMOVE_COMPETENCE_FROM_UNIT:
                 return new CompetenceNodeChangeProcessor(event, competenceESService,
                         NodeOperation.Update, session);
+			case UPDATE_DELIVERY_TIMES:
+				return new CredentialNodeChangeProcessor(event, credentialESService, credManager, NodeOperation.Update, session);
             default:
                 return null;
         }
         return null;
     }
-
 }

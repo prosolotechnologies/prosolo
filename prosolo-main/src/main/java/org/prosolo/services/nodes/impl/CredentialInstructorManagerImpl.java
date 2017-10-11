@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -604,11 +605,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			User instr = new User();
 			instr.setId(userId);
 			Map<String, String> params = new HashMap<>();
-			String dateString = null;
-			if(instructor.getDateAssigned() != null) {
-				dateString = ElasticsearchUtil.getDateStringRepresentation(instructor.getDateAssigned());
-			}
-			params.put("dateAssigned", dateString);
+			params.put("dateAssigned", DateUtil.getMillisFromDate(instructor.getDateAssigned()) + "");
 			res.addEvent(eventFactory.generateEventData(
 					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context, instr, credential, null, params));
 				

@@ -10,9 +10,13 @@ import java.io.Serializable;
  */
 public interface ESAdministration  extends Serializable{
 
-	boolean deleteIndexes() throws IndexingServiceNotAvailable;
+	boolean deleteAllIndexes() throws IndexingServiceNotAvailable;
 
-	boolean createIndexes() throws IndexingServiceNotAvailable;
+	boolean deleteDBIndexes() throws IndexingServiceNotAvailable;
+
+	boolean createAllIndexes() throws IndexingServiceNotAvailable;
+
+	boolean createDBIndexes() throws IndexingServiceNotAvailable;
 
 	void indexTrainingSet();
 
@@ -30,5 +34,13 @@ public interface ESAdministration  extends Serializable{
 	 * @return
 	 */
 	boolean deleteIndexByName(String name);
+
+	/**
+	 * Deletes indexes from array matched by exact name or wildcard
+	 *
+	 * @param indexNames
+	 * @return
+	 */
+	boolean deleteIndexesByName(String[] indexNames);
 
 }

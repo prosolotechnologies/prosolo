@@ -27,7 +27,7 @@ public class DataGenerator {
 		//Collection<User> users=ServiceLocator.getInstance()
 		//.getService(UserManager.class).getAllUsers();
 		//UserManager userManager=new UserManagerImpl();
-		Collection<User> users=userManager.getAllUsers();
+		Collection<User> users=userManager.getAllUsers(0);
 		for(User user:users){
 			for(int i=0;i<100;i++){
 				 cloneUser(user,i);

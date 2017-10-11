@@ -1,7 +1,5 @@
 package org.prosolo.services.nodes.factory;
 
-import java.util.Set;
-
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -15,6 +13,8 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @Component
 public class CompetenceDataFactory {
