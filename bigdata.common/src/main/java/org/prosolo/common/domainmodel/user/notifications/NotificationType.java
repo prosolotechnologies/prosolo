@@ -1,7 +1,7 @@
 package org.prosolo.common.domainmodel.user.notifications;
 
 /**
- * When new notification type is added, appropriate label should be added to dd_messages.properties file.
+ * When new notification type is added, appropriate label should be added to all _prosolo_messages.properties files.
  * Format: settings.notifications.{Here goes the type}={String label}. 
  * 
  * @author stefanvuckovic
