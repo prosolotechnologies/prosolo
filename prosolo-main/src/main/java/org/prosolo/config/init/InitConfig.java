@@ -7,8 +7,8 @@ public class InitConfig {
 	@Element(name = "bc", required = false)
 	public int bc = 1;
 	
-	@Element(name = "bc-name", required = false)
-	public String bcName;
+	@Element(name = "localization", required = false)
+	public String localization;
 	
 	@Element(name = "formatDB", required = false)
 	public boolean formatDB = true;
@@ -25,8 +25,8 @@ public class InitConfig {
 	@Element(name = "default-user")
 	public DefaultUserConfig defaultUser;
 	
-	public String getBcName() {
-		return bcName;
+	public String getLocalization() {
+		return localization;
 	}
 
 }
