@@ -47,36 +47,16 @@ trait SparkJob extends Serializable{
   }
 
   def finishJob()={
-    println("FINISH JOB INSERT LOG")
-    submitTaskProblem("test",111,"type",ProblemSeverity.TRIVIAL)
-    submitFailedTask("test",222,"nnn")
-    //jobLoggerDAO.insertJobLog(jobId,LogType.STAGE,LogSeverity.END,"Job started")
     summaryAccu.add(new TaskSummary("","", 0,System.currentTimeMillis()))
-    println("SUMMARY:"+summaryAccu.value.toString)
-
     val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
-    //val resource=indexRecommendationDataName+"/"+similarUsersIndexType
-println("RESOURCE FAILED:"+failedTasksAccu.value.size())
-   // val failedTasks=failedTasksAccu.value.asScala.map(task=>(task.jobId,task)).toMap
-   //failedTasks.foreach(f=>println(f.toString))
-
-    import org.elasticsearch.spark._
-    //val mapping=Map("es.mapping.id"->"jobId")
-   // val numbers = Map("one" -> 1, "two" -> 2, "three" -> 3)
-   val airports = Map("arrival" -> "Otopeni", "SFO" -> "San Fran")
-    val upcomingTrip = org.prosolo.bigdata.scala.spark.Trip("OTP", "SFO")
-    val lastWeekTrip = org.prosolo.bigdata.scala.spark.Trip("MUC", "OTP")
-
-    val rdd = sc.makeRDD(Seq(upcomingTrip, lastWeekTrip))
-    EsSpark.saveToEs(rdd, resource+"spark/docs2")
-   // sc.makeRDD(Seq(numbers,airports)).saveToEs(resource+"/failed");
-    //val rddFailed= sparkSession.sparkContext.makeRDD(Seq(failedTasks)).saveToEs(resource+"/failed", mapping)
-   // val rddProblems= sparkSession.sparkContext.makeRDD(Seq(taskProblemsAccu.value))
-  //  val rddSummary= sparkSession.sparkContext.makeRDD(Seq(summaryAccu.value))
-
-   // rddFailed.foreach(n=>println("FAILED:"+n.toString))
-      //   rddFailed.saveToEs(rddFailed,resource+"/failed", mapping)
-   // EsSpark.saveToEs(rddProblems,resource+"/problems", mapping)
-  // EsSpark.saveToEs(rddSummary,resource+"/summary")
+    val failedTasks:Seq[FailedTask]=failedTasksAccu.value.asScala
+    val mapping=Map("es.mapping.id"->"jobId")
+   val rddFailed= sparkSession.sparkContext.makeRDD(failedTasks)
+  val tasks:Seq[TaskProblem]= taskProblemsAccu.value.asScala
+    val rddProblems= sparkSession.sparkContext.makeRDD(tasks)
+    val rddSummary=sc.makeRDD(Seq(summaryAccu.value))
+    EsSpark.saveToEs(rddFailed,resource+"/failed", mapping)
+    EsSpark.saveToEs(rddProblems,resource+"/problems", mapping)
+   EsSpark.saveToEs(rddSummary,resource+"/summary")
   }
 }
