@@ -373,7 +373,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
-							.getUserCompetencesForCredential(credentialId, userId, true, true, false);
+							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
 				}
 				return credData;
@@ -439,7 +439,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (accessMode == AccessMode.USER) {
-					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
+					credData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, true, false, false));
 				} else {
 					/*
 					 * always include not published competences
@@ -1321,6 +1321,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
 		return getCredentialTitle(id, null);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		if (credentialData != null && credentialData.isEnrolled()) {
+			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, false, false, true));
+			return credentialData;
+		}
+		return null;
 	}
 
 	@Override

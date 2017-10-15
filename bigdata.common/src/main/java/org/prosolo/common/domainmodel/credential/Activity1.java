@@ -118,6 +118,7 @@ public class Activity1 extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public LearningResourceType getType() {
 		return type;
 	}
@@ -127,6 +128,7 @@ public class Activity1 extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public ActivityResultType getResultType() {
 		return resultType;
 	}

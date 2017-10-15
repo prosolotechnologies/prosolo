@@ -3,6 +3,7 @@
  */
 package org.prosolo.common.domainmodel.interfacesettings;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,6 +24,7 @@ public class ActivityWallSettings extends BaseEntity {
 	private long courseId;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public FilterType getChosenFilter() {
 		return chosenFilter;
 	}

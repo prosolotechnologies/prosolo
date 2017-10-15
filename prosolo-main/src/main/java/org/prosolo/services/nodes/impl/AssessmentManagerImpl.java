@@ -338,7 +338,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
-		List<CompetenceData1> userComps = compManager.getUserCompetencesForCredential(
+		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
 				assessment.getTargetCredential().getUser().getId(), false, false, true);
 		return AssessmentDataFull.fromAssessment(assessment, userComps, encoder, userId, dateFormat);

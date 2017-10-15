@@ -28,7 +28,8 @@ public class RegistrationKey extends BaseEntity {
 	public void setUid(String uid) {
 		this.uid = uid;
 	}
-	
+
+	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	public RegistrationType getRegistrationType() {
 		return registrationType;

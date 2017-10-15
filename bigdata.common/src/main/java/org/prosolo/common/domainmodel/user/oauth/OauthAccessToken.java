@@ -73,6 +73,7 @@ public class OauthAccessToken extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public ServiceType getService() {
 		return service;
 	}
