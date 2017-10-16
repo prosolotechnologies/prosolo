@@ -94,11 +94,11 @@ public class UserEditBean implements Serializable {
 		try {
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
+				decodedId = idEncoder.decodeId(id);
+				user = userManager.getUserData(decodedId);
+				accountData = new AccountData();
+				usersToExclude.add(user);
 				if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
-					decodedId = idEncoder.decodeId(id);
-					user = userManager.getUserData(decodedId);
-					accountData = new AccountData();
-					usersToExclude.add(user);
 					initOrgTitle();
 				} else {
 					PageUtil.accessDenied();
