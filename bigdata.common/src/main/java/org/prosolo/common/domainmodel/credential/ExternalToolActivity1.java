@@ -71,7 +71,6 @@ public class ExternalToolActivity1 extends Activity1 {
 	}
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	public ScoreCalculation getScoreCalculation() {
 		return scoreCalculation;
 	}

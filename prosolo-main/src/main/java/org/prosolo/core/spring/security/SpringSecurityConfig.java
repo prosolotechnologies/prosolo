@@ -153,7 +153,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/competencies").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/posts/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
