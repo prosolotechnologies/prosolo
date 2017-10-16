@@ -44,7 +44,6 @@ public class UrlActivity1 extends Activity1 {
 	}
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	public UrlActivityType getUrlType() {
 		return urlType;
 	}
