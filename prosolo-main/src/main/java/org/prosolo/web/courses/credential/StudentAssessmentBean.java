@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -34,30 +35,35 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private AssessmentManager assessmentManager;
 	@Inject
 	private LoggedUserBean loggedUserBean;
+	@Inject
+	private CredentialManager credentialManager;
 
 	private String context;
 	private List<AssessmentData> assessmentData;
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
+	private String credentialTitle;
+	private String id;
+	private long decodedId;
 
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
 		try {
-			if (!searchForApproved && !searchForPending) {
-				paginationData.update(0);
-				assessmentData = new ArrayList<>();
+			decodedId = idEncoder.decodeId(id);
+			if (decodedId > 0) {
+				credentialTitle = credentialManager.getCredentialTitle(decodedId);
+				if (credentialTitle != null) {
+					getAssessments();
+				}else {
+					PageUtil.notFound();
+				}
 			} else {
-				paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-						searchForPending, searchForApproved));
-				assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-						searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
-						paginationData.getPage() - 1,
-						paginationData.getLimit());
+				PageUtil.notFound();
 			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
-			PageUtil.fireErrorMessage("Error while loading assessment data");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
@@ -67,7 +73,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = true;
 			searchForPending = true;
 			paginationData.setPage(1);
-			init();
+			getAssessmentsWithExceptionHandling();
 		}
 	}
 
@@ -77,7 +83,30 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			searchForApproved = false;
 			searchForPending = false;
 			paginationData.setPage(1);
-			init();
+			getAssessmentsWithExceptionHandling();
+		}
+	}
+
+	private void getAssessments() {
+		if (!searchForApproved && !searchForPending) {
+			paginationData.update(0);
+			assessmentData = new ArrayList<>();
+		} else {
+			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
+					searchForPending, searchForApproved, decodedId));
+			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
+					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
+					paginationData.getPage() - 1,
+					paginationData.getLimit(), decodedId);
+		}
+	}
+
+	private void getAssessmentsWithExceptionHandling() {
+		try {
+			getAssessments();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
 
@@ -104,7 +133,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
 		paginationData.setPage(1);
-		init();
+		getAssessmentsWithExceptionHandling();
 	}
 
 	public boolean isSearchForApproved() {
@@ -114,7 +143,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
 		paginationData.setPage(1);
-		init();
+		getAssessmentsWithExceptionHandling();
 	}
 
 	public PaginationData getPaginationData() {
@@ -125,8 +154,24 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			init();
+			getAssessmentsWithExceptionHandling();
 		}
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
 	}
 
 }
