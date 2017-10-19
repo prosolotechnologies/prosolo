@@ -179,22 +179,22 @@
             <div class="col-md-8">
             	<h:panelGroup id="panelUploadAssignment">
 	                <h2>Activity Response</h2>
-	                <activities:activityResult
-	               	 	bean="#{activityResultsBeanManager}"
-	           			resultData="#{activityResultsBeanManager.currentResult}"
-	           			resultType="#{activityResultsBeanManager.activityResultType}"
-	           			learningContext="#{learningContext}"
-	           			role="MANAGER"
-	           			assignmentUploadModalId=""
-	           			growlToUpdate=":growlMain"
-	           			regionToUpdate=""
-	           			privateConvModalId="assessmentCommentsModal1"
-	           			toUpdateConvModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
-	           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
-	           			assessmentGradeModalId="assessmentGradeModal1"
-	           			gradeLink="gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
-	           			toUpdateAssessmentGradeModal=":activityGradeModal:formGradeModal:panelGradeModal"
-	           		/>
+					<activities:activityResult
+							bean="#{activityResultsBeanManager}"
+							resultData="#{activityResultsBeanManager.currentResult}"
+							resultType="#{activityResultsBeanManager.activityResultType}"
+							learningContext="#{learningContext}"
+							role="MANAGER"
+							assignmentUploadModalId=""
+							growlToUpdate=":growlMain"
+							regionToUpdate=""
+							privateConvModalId="assessmentCommentsModal1"
+							toUpdateConvModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
+							privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
+							assessmentGradeLinkOnComplete="showPopupSidebar('#cbp-spmenu-s2');"
+							gradeLink="gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
+							toUpdateAssessmentGradeModal=":activityGradePanel:gradePanel"
+					/>
 	           	</h:panelGroup>
             </div>
         </div>
@@ -203,15 +203,15 @@
 	<activities:activityCommentModal 
     	id="commentModal"
 		toUpdate=":growlMain"/>
-    
-    <activities:activityGradeModal
-    	id="activityGradeModal"
-   	 	bean="#{activityResultsBeanManager}"
-		assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
-		toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
-		minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
-		maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
-		learningContext="#{learningContext}"
+
+	<activities:activityGradePanel
+			id="activityGradePanel"
+			bean="#{activityResultsBeanManager}"
+			assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
+			toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
+			minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
+			maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
+			learningContext="#{learningContext}"
 	/>
     
 </ui:define>

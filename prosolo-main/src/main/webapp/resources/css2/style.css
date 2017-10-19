@@ -5106,49 +5106,58 @@ header {
   width: 400px;
   height: 100%;
   top: 0;
-  z-index: 1000; }
+  z-index: 1000;
+  overflow: scroll; }
 
-/* line 4283, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4284, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .cbp-spmenu-right {
   right: -400px; }
 
-/* line 4287, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4288, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .cbp-spmenu-right.cbp-spmenu-open {
   right: 0px; }
 
-/* line 4291, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4292, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .rubricsSidebar {
   padding: 30px; }
-  /* line 4293, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4294, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .rubricsSidebar .removeX {
     position: absolute;
     top: 30px;
     right: 30px; }
-  /* line 4298, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4299, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .rubricsSidebar .levelsList {
     list-style: none;
     margin-bottom: 5px; }
-    /* line 4301, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4302, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .rubricsSidebar .levelsList li {
       padding-left: 30px;
       padding-bottom: 5px;
       opacity: .7; }
-      /* line 4305, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4306, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .rubricsSidebar .levelsList li.checked {
         opacity: 1;
         background: url("../images2/iconCheck20Green.svg") no-repeat left top; }
-  /* line 4311, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4312, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .rubricsSidebar h3 {
     margin-bottom: 10px; }
-  /* line 4314, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4315, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .rubricsSidebar textarea {
     width: 100%;
     margin-bottom: 20px; }
-  /* line 4318, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4319, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .rubricsSidebar .points {
     color: #AAB1B5; }
+  /* line 4322, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  .rubricsSidebar .iconInfo {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 3px;
+    text-indent: -10000px;
+    background: url("../images2/iconInfo16.svg") no-repeat center center; }
 
-/* line 4324, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4333, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .addToGroupModal .searchGroups {
   height: 46px;
   margin: 0;
@@ -5156,7 +5165,7 @@ header {
   border-top: 1px solid #EEEFF3;
   border-bottom: 1px solid #EEEFF3;
   background: #F8F9FB url("../images2/iconSearch20.svg") no-repeat 30px center; }
-  /* line 4331, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4340, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .addToGroupModal .searchGroups input {
     width: 500px;
     line-height: 32px;
@@ -5164,46 +5173,46 @@ header {
     border: none;
     background: none; }
 
-/* line 4339, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4348, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .addToGroupModal ul.list {
   max-height: 400px;
   padding-bottom: 30px;
   overflow: scroll;
   list-style: none; }
-  /* line 4344, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4353, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .addToGroupModal ul.list li {
     height: 50px;
     padding: 10px 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 4348, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4357, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .addToGroupModal ul.list li .checkbox {
       float: left;
       margin-top: 5px;
       margin-right: 10px; }
-      /* line 4352, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4361, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .addToGroupModal ul.list li .checkbox label {
         width: 0;
         padding: 0; }
-    /* line 4357, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4366, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .addToGroupModal ul.list li h3 {
       line-height: 30px;
       margin: 0; }
 
-/* line 4369, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4378, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .newFeedModal .checkLine,
 .newGroupModal .checkLine,
 .joinURLModal .checkLine,
 .deleteUserModal .checkLine {
   margin-bottom: 20px; }
 
-/* line 4372, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4381, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .newFeedModal p,
 .newGroupModal p,
 .joinURLModal p,
 .deleteUserModal p {
   margin-bottom: 10px; }
 
-/* line 4375, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4384, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .newFeedModal input[type="text"],
 .newGroupModal input[type="text"],
 .joinURLModal input[type="text"],
@@ -5211,103 +5220,103 @@ header {
   width: 540px;
   margin-bottom: 30px; }
 
-/* line 4382, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4391, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .importStudentsModal .uploadBtn {
   margin-bottom: 30px; }
 
-/* line 4389, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4398, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .deleteUserModal .inputWrapper,
 .editOrgForm .inputWrapper {
   position: relative; }
-  /* line 4391, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4400, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .deleteUserModal .inputWrapper .searchResultsDrop,
   .editOrgForm .inputWrapper .searchResultsDrop {
     top: 40px; }
-    /* line 4393, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4402, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .deleteUserModal .inputWrapper .searchResultsDrop li a,
     .editOrgForm .inputWrapper .searchResultsDrop li a {
       height: 52px; }
-      /* line 4395, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4404, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .deleteUserModal .inputWrapper .searchResultsDrop li a img,
       .deleteUserModal .inputWrapper .searchResultsDrop li a .letterAvatar,
       .editOrgForm .inputWrapper .searchResultsDrop li a img,
       .editOrgForm .inputWrapper .searchResultsDrop li a .letterAvatar {
         float: left;
         margin-right: 15px; }
-      /* line 4400, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4409, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .deleteUserModal .inputWrapper .searchResultsDrop li a h3,
       .editOrgForm .inputWrapper .searchResultsDrop li a h3 {
         margin: 7px 0 0 0; }
-  /* line 4405, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4414, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .deleteUserModal .inputWrapper .removeX,
   .editOrgForm .inputWrapper .removeX {
     position: absolute;
     top: 15px;
     right: 10px; }
 
-/* line 4411, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4420, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .deleteUserModal ul.list,
 .editOrgForm ul.list {
   overflow: visible;
   padding-bottom: 0; }
-  /* line 4414, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4423, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .deleteUserModal ul.list li,
   .editOrgForm ul.list li {
     padding: 10px 0;
     border-bottom: none; }
 
-/* line 4421, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4430, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .editOrgForm ul.list {
   margin: 20px 0 0 0; }
 
-/* line 4426, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4435, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .removeInstructorModal p {
   margin-bottom: 20px !important; }
 
-/* line 4429, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4438, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .removeInstructorModal .radioGroup {
   width: 350px;
   text-align: left;
   margin: 0 auto 30px auto; }
 
-/* line 4437, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4446, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessmentCommentsModal .discussion {
   padding: 0 30px 30px 30px; }
-  /* line 4439, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4448, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .assessmentCommentsModal .discussion .comments {
     padding-bottom: 30px; }
-    /* line 4441, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4450, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .assessmentCommentsModal .discussion .comments ul {
       margin: 0; }
-  /* line 4445, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4454, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .assessmentCommentsModal .discussion .addComment {
     margin: 0; }
 
-/* line 4452, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4461, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion h2 {
   display: inline-block; }
 
-/* line 4455, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4464, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .sortDrop {
   float: right;
   padding: 0; }
 
-/* line 4459, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4468, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion img,
 .discussion .letterAvatar {
   margin: 6px 20px 0 0; }
 
-/* line 4463, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4472, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .addComment {
   display: flex;
   margin-bottom: 30px;
   justify-content: space-between; }
 
-/* line 4468, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4477, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .commentForm,
 .discussion .editComment {
   flex-grow: 1; }
-  /* line 4471, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4480, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .commentForm .contentEditableComment,
   .discussion .editComment .contentEditableComment {
     float: left;
@@ -5327,7 +5336,7 @@ header {
     -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
     box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1); }
-    /* line 4487, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4496, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .discussion .commentForm .contentEditableComment:empty:before, .discussion .commentForm .contentEditableComment:empty:focus:before,
     .discussion .editComment .contentEditableComment:empty:before,
     .discussion .editComment .contentEditableComment:empty:focus:before {
@@ -5337,52 +5346,52 @@ header {
       height: 100%;
       cursor: text;
       color: #D5D8DA; }
-  /* line 4497, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4506, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .commentForm .btn,
   .discussion .editComment .btn {
     margin: 15px 10px 0 0; }
 
-/* line 4501, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4510, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .commentForm {
   min-height: 50px; }
 
-/* line 4504, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4513, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .editComment {
   padding-bottom: 20px; }
 
-/* line 4507, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4516, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .discussion .comments {
   padding-bottom: 30px; }
-  /* line 4509, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4518, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .comments > ul {
     margin-bottom: 0; }
-  /* line 4512, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4521, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .comments .loadReplies {
     margin-top: 15px;
     display: inline-block; }
-  /* line 4516, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4525, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .comments .repliesWrapper {
     padding-top: 15px; }
-  /* line 4519, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4528, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .comments .media-left, .discussion .comments .media > .pull-left {
     padding: 0; }
-  /* line 4522, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4531, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .discussion .comments .media-body {
     padding-top: 12px; }
-    /* line 4524, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4533, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .discussion .comments .media-body.replyComment {
       padding-top: 0; }
-    /* line 4527, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4536, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .discussion .comments .media-body .commentMain {
       position: relative; }
-      /* line 4529, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4538, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain.highlighted {
         background: rgba(255, 236, 0, 0.1); }
-      /* line 4532, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4541, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain h3 {
         margin-bottom: 10px;
         position: relative; }
-        /* line 4535, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4544, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .discussion .comments .media-body .commentMain h3 span {
           display: inline-block;
           margin-left: 10px;
@@ -5394,7 +5403,7 @@ header {
           -webkit-border-radius: 5px;
           -moz-border-radius: 5px;
           border-radius: 5px; }
-      /* line 4546, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4555, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain .commentTime {
         position: absolute;
         top: 0;
@@ -5402,16 +5411,16 @@ header {
         font-size: 12px;
         color: #AAB1B5;
         display: none; }
-      /* line 4554, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4563, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain:hover > .commentTime {
         display: block; }
-      /* line 4557, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4566, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain p {
         margin-bottom: 10px; }
-      /* line 4560, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4569, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .discussion .comments .media-body .commentMain .commentOptions {
         display: flex; }
-        /* line 4562, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4571, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .discussion .comments .media-body .commentMain .commentOptions a {
           display: flex;
           align-items: center;
@@ -5420,61 +5429,61 @@ header {
           font-weight: 400;
           font-size: 13px;
           margin-right: 20px; }
-          /* line 4570, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4579, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a .icon {
             display: inline-block;
             width: 12px;
             height: 12px;
             margin-right: 5px;
             margin-bottom: 2px; }
-            /* line 4576, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+            /* line 4585, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a .icon #triangle {
               transition: all 0.2s ease;
               -webkit-transition: all 0.2s ease; }
-          /* line 4582, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4591, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply .icon {
             background: url("../images2/iconReply12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 4588, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4597, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply:hover .icon {
             opacity: 1; }
-          /* line 4593, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4602, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit .icon {
             background: url("../images2/iconEdit12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 4599, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4608, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit:hover .icon {
             opacity: 1; }
-          /* line 4603, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4612, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a:hover {
             color: #363636; }
-            /* line 4605, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+            /* line 4614, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a:hover #triangle {
               fill: #FCA567; }
-          /* line 4610, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4619, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.liked #triangle {
             fill: #FCA567; }
 
-/* line 4621, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4630, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .twitterBtnBox {
   padding-top: 20px; }
-  /* line 4623, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4632, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .twitterBtnBox .btnTwitterConnect, .twitterBtnBox .btnTwitterConnect:focus {
     float: left;
     margin-right: 10px;
     color: #fff;
     background: #55ACEE;
     border: 1px solid #55ACEE; }
-    /* line 4629, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4638, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .twitterBtnBox .btnTwitterConnect:hover, .twitterBtnBox .btnTwitterConnect:focus:hover {
       color: #fff;
       background: #3ea1ec;
       border-color: #3ea1ec; }
-    /* line 4634, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4643, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .twitterBtnBox .btnTwitterConnect span, .twitterBtnBox .btnTwitterConnect:focus span {
       float: left;
       margin: 8px 10px 0 0;
@@ -5484,75 +5493,75 @@ header {
       background: url("../images2/iconTwitter.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 4644, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4653, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .twitterBtnBox .btnTwitterConnect.btnDisconnect, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus {
       color: #55ACEE;
       background: #fff; }
-      /* line 4647, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4656, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus span {
         background: url("../images2/iconTwitterBlue.svg") no-repeat; }
-      /* line 4650, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4659, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover {
         color: #fff;
         background: #3ea1ec;
         border-color: #3ea1ec; }
-        /* line 4654, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4663, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover span {
           background: url("../images2/iconTwitter.svg") no-repeat; }
-  /* line 4660, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4669, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .twitterBtnBox small {
     line-height: 16px;
     display: block; }
 
-/* line 4667, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4676, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .yourPhotoBox .yourPhotoContent {
   display: flex;
   padding-bottom: 30px; }
-  /* line 4670, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4679, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .yourPhotoBox .yourPhotoContent img,
   .yourPhotoBox .yourPhotoContent .letterAvatar {
     margin-right: 20px; }
-  /* line 4675, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4684, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .yourPhotoBox .yourPhotoContent .chooseBtnBox .btn {
     margin-bottom: 20px; }
 
-/* line 4680, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4689, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .yourPhotoBox .cropButtons {
   padding: 30px 0; }
-  /* line 4682, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4691, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .yourPhotoBox .cropButtons .btn-green {
     margin-right: 10px; }
 
-/* line 4688, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4697, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .settingsEmailNotifications .checkLine {
   margin-bottom: 20px; }
 
-/* line 4692, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4701, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .settingsChangePassword .formLine {
   width: 400px; }
 
-/* line 4696, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4705, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .messagesListHead {
   height: 50px; }
-  /* line 4698, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4707, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .messagesListHead .showDrop {
     float: left;
     padding: 10px 0; }
-    /* line 4701, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4710, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesListHead .showDrop > a {
       margin: 0;
       font-size: 13px; }
-    /* line 4705, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4714, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesListHead .showDrop .dropdown-menu {
       top: 40px; }
-  /* line 4709, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4718, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .messagesListHead .newMessageBtn {
     float: right;
     height: 30px;
     line-height: 30px;
     margin-top: 10px;
     font-size: 13px; }
-    /* line 4715, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4724, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesListHead .newMessageBtn span {
       width: 12px;
       height: 12px;
@@ -5563,47 +5572,47 @@ header {
       background: url("../images2/iconEdit12.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 4726, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4735, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesListHead .newMessageBtn:hover span {
       opacity: 1; }
 
-/* line 4733, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4742, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .messagesList ul {
   list-style: none;
   padding: 0;
   border-top: 1px solid #ECEDF1; }
-  /* line 4737, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4746, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .messagesList ul li {
     position: relative;
     height: 68px;
     padding: 16px 8px;
     border-bottom: 1px solid #ECEDF1;
     border-left: 2px solid #F8F9FB; }
-    /* line 4743, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4752, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesList ul li.active {
       border-left: 2px solid #FCA567; }
-    /* line 4746, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4755, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesList ul li .media {
       margin: 0; }
-      /* line 4749, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4758, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messagesList ul li .media .media-body h3 {
         float: left;
         margin-top: 0;
         margin-bottom: 0;
         line-height: 20px; }
-      /* line 4755, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4764, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messagesList ul li .media .media-body span {
         float: right;
         margin-top: 0;
         font-size: 12px;
         line-height: 20px;
         color: #AAB1B5; }
-      /* line 4762, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4771, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messagesList ul li .media .media-body p {
         font-size: 13px;
         margin: 0;
         line-height: 20px; }
-    /* line 4769, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4778, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesList ul li .unread {
       display: block;
       position: absolute;
@@ -5612,55 +5621,55 @@ header {
       background: url("../images2/unreadDot.svg") no-repeat;
       top: 42px;
       right: 8px; }
-    /* line 4778, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4787, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messagesList ul li.unreadMessage .unread {
       display: block !important; }
 
-/* line 4783, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4792, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .messagesList .noMessagesList {
   border-top: 1px solid #ECEDF1;
   text-align: center;
   padding-top: 30px;
   font-size: 13px; }
 
-/* line 4791, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4800, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
-  /* line 4794, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4803, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .messageColumn .messagesPane {
     width: 100%; }
-    /* line 4796, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4805, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane.noSelected {
       min-height: 300px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column; }
-      /* line 4802, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4811, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane.noSelected > h2 {
         color: #AAB1B5; }
-    /* line 4806, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4815, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .messagePaneHead {
       position: relative;
       display: flex;
       height: 60px;
       justify-content: space-between; }
-      /* line 4811, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4820, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .messagePaneHead > h2 {
         float: left;
         margin: 18px 0 0 30px; }
-      /* line 4815, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4824, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .messagePaneHead .messageMenu {
         float: right;
         margin: 20px 30px; }
-      /* line 4819, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4828, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .messagePaneHead .toBox {
         display: inline-block;
         line-height: 60px;
         width: 20px;
         margin: 0 10px 0 30px; }
-      /* line 4825, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4834, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .messagePaneHead input[type="text"] {
         width: 100%;
         border: none;
@@ -5670,63 +5679,63 @@ header {
         color: #363636;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 500; }
-      /* line 4835, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4844, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .messagePaneHead .searchResultsDrop {
         top: 60px; }
-        /* line 4837, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4846, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a {
           height: 52px; }
-          /* line 4839, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4848, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a img,
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
-          /* line 4844, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4853, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
-    /* line 4850, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4859, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .greyBar {
       padding: 1px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3;
       border-bottom: 1px solid #EEEFF3; }
-      /* line 4855, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4864, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .greyBar .assessmentModalMetaLine {
         display: flex;
         padding-top: 10px; }
-        /* line 4858, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4867, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine:last-child {
           padding-bottom: 10px; }
-        /* line 4861, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4870, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft,
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight {
           display: flex;
           line-height: 32px;
           align-items: center; }
-          /* line 4866, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+          /* line 4875, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft h3,
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight h3 {
             margin: 0; }
-        /* line 4870, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4879, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft {
           width: 80px; }
-        /* line 4873, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4882, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
-    /* line 4880, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4889, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }
-    /* line 4884, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4893, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .media .media-body span {
       float: right;
       margin-top: 7px;
       font-size: 12px;
       color: #AAB1B5; }
-    /* line 4890, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4899, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .media .media-body p {
       margin-bottom: 20px; }
-    /* line 4895, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4904, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .newMessagesSeparator {
       height: 20px;
       line-height: 20px;
@@ -5736,19 +5745,19 @@ header {
       text-transform: uppercase;
       color: #FCA567;
       background: url("../images2/newMessagesLine.svg") no-repeat 85px 9px; }
-    /* line 4905, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4914, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .messageColumn .messagesPane .typeBox {
       min-height: 32px;
       padding: 20px 30px; }
-      /* line 4908, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4917, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .messageColumn .messagesPane .typeBox .media-body > div {
         display: flex;
         justify-content: space-between; }
-        /* line 4911, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4920, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div .btn {
           height: 32px;
           margin-left: 10px; }
-        /* line 4915, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+        /* line 4924, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div textarea {
           width: 100%;
           height: 32px;
@@ -5758,23 +5767,23 @@ header {
           -moz-box-shadow: none;
           box-shadow: none; }
 
-/* line 4930, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4939, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .profileNotifications ul {
   list-style: none; }
-  /* line 4932, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4941, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .profileNotifications ul li {
     border-bottom: 1px solid #EEEFF3; }
-    /* line 4934, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4943, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li:last-child {
       border: none;
       flex-shrink: 0; }
-    /* line 4938, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4947, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li.noNotifications {
       display: flex;
       height: 90px;
       align-items: center;
       justify-content: center; }
-    /* line 4944, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4953, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li a {
       display: flex;
       height: 90px;
@@ -5783,29 +5792,29 @@ header {
       color: #859095;
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400; }
-      /* line 4952, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4961, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .profileNotifications ul li a:hover {
         background: #F8F9FB; }
-    /* line 4956, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4965, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li .icon {
       display: block;
       width: 16px;
       height: 16px;
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 4963, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4972, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li img, .profileNotifications ul li .letterAvatar {
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 4967, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4976, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li .notContent {
       margin: 0;
       flex-grow: 1; }
-      /* line 4970, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 4979, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .profileNotifications ul li .notContent h3 {
         display: inline;
         margin: 0; }
-    /* line 4975, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 4984, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .profileNotifications ul li .timestamp {
       font-size: 12px;
       color: #AAB1B5;
@@ -5813,53 +5822,53 @@ header {
       flex-shrink: 0;
       text-align: right; }
 
-/* line 4986, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 4995, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .checkLinks {
   padding-bottom: 30px; }
-  /* line 4988, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 4997, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .checkLinks span {
     margin: 0 7px; }
 
-/* line 4993, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5002, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifFollowed .icon {
   background: url("../images2/iconNotifFollow16.svg") no-repeat; }
 
-/* line 4997, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5006, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifComment .icon {
   background: url("../images2/iconNotifComment16.svg") no-repeat; }
 
-/* line 5001, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5010, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifLikeComment .icon {
   background: url("../images2/iconNotifLikeComment16.svg") no-repeat; }
 
-/* line 5005, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5014, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifLearning .icon {
   background: url("../images2/iconNotifLearning16.svg") no-repeat; }
 
-/* line 5009, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5018, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifMention .icon {
   background: url("../images2/iconNotifMention16.svg") no-repeat; }
 
-/* line 5013, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5022, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifAssessment .icon {
   background: url("../images2/iconNotifAssessment16.svg") no-repeat; }
 
-/* line 5017, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5026, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifAnnouncement .icon {
   background: url("../images2/iconNotifAnnouncement16.svg") no-repeat; }
 
-/* line 5021, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5030, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .notifInstructor .icon {
   background: url("../images2/iconNotifFollow16.svg") no-repeat; }
 
-/* line 5026, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5035, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 #termsPage header {
   background: none;
   height: 60px;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 5032, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5041, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #termsPage header #logo {
     float: left;
     display: block;
@@ -5869,7 +5878,7 @@ header {
     background: url("../images2/logo-black.svg") no-repeat;
     background-size: 86px 30px;
     text-indent: -10000px; }
-  /* line 5042, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5051, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #termsPage header .btn {
     float: right;
     margin-top: 14px; }
@@ -5877,120 +5886,120 @@ header {
 /*---------------------------------------------------------------------*/
 /*--- 04. MANAGER ---*/
 /*---------------------------------------------------------------------*/
-/* line 5054, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5063, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 #manage header {
   background: #3A3C3C; }
-  /* line 5056, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5065, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #manage header #logo {
     background: url("../images2/logo-manage.svg") no-repeat; }
 
 /*---------------------------------------------------------------------*/
 /*--- 05. ADMIN ---*/
 /*---------------------------------------------------------------------*/
-/* line 5067, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5076, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 #admin header {
   background: #4a3b5a; }
-  /* line 5069, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5078, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #admin header #logo {
     background: url("../images2/logo-admin.svg") no-repeat; }
 
-/* line 5075, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5084, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .tableRoles {
   width: 100%;
   margin-bottom: 30px; }
-  /* line 5078, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5087, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableRoles .col2,
   .tableRoles .col3 {
     width: 30%;
     text-align: center; }
-  /* line 5083, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5092, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableRoles td {
     text-align: center;
     padding: 10px; }
-    /* line 5086, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5095, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .tableRoles td.alignLeft {
       text-align: left; }
-    /* line 5089, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5098, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .tableRoles td > .btn {
       margin-right: 20px; }
-  /* line 5093, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5102, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableRoles .rowGrey {
     background: #F8F9FB; }
 
-/* line 5098, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5107, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .tableCapabilities {
   width: 100%;
   margin-bottom: 30px; }
-  /* line 5101, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5110, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableCapabilities .colCheck {
     width: 15%;
     text-align: center; }
-  /* line 5105, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5114, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableCapabilities th {
     padding: 10px 0; }
-  /* line 5108, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5117, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableCapabilities td {
     text-align: center;
     padding: 10px; }
-    /* line 5111, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5120, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .tableCapabilities td.alignLeft {
       text-align: left; }
-    /* line 5114, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5123, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .tableCapabilities td .checkbox {
       margin: 0; }
-      /* line 5116, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 5125, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .tableCapabilities td .checkbox label:before {
         margin-left: -16px; }
-      /* line 5119, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 5128, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .tableCapabilities td .checkbox label:after {
         margin-left: -17px; }
-  /* line 5124, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5133, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableCapabilities .rowGrey {
     background: #F8F9FB; }
 
-/* line 5129, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5138, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .tableSymptoms {
   width: 100%;
   margin-bottom: 30px; }
-  /* line 5132, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5141, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableSymptoms .col2 {
     width: 30%;
     text-align: center; }
-  /* line 5137, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5146, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .tableSymptoms td > .btn {
     margin-right: 20px; }
 
-/* line 5143, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5152, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .addSymtomForm,
 .addSuggestionForm {
   display: flex;
   margin-bottom: 20px; }
-  /* line 5147, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5156, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .addSymtomForm input[type="text"],
   .addSuggestionForm input[type="text"] {
     width: 250px;
     margin-right: 10px; }
 
-/* line 5154, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5163, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .adminUserEditButtons .btn {
   margin-right: 20px; }
 
 /* progression page blocks */
-/* line 5161, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5170, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .bgGreen {
   background: #64BFCD; }
 
-/* line 5165, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5174, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .bgBlue {
   background: #FCA567; }
 
-/* line 5169, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5178, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .blockRow {
   margin-bottom: 80px;
   padding: 0 46px;
   position: relative; }
 
-/* line 5175, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5184, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock {
   width: 180px;
   height: 210px;
@@ -6001,20 +6010,20 @@ header {
   margin-right: 40px;
   position: relative; }
 
-/* line 5186, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5195, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock:hover {
   text-decoration: none;
   cursor: pointer; }
 
-/* line 5191, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5200, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock.competence {
   height: 250px; }
 
-/* line 5196, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5205, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock.selected {
   background-color: #fff; }
 
-/* line 5200, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5209, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock h3 {
   color: #333333;
   font-size: 12px;
@@ -6023,7 +6032,7 @@ header {
   margin: 15px;
   margin-bottom: 0; }
 
-/* line 5209, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5218, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock .progress {
   position: relative;
   width: 100px;
@@ -6032,13 +6041,13 @@ header {
   border-radius: 0;
   margin: 20px auto 0; }
 
-/* line 5219, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5228, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock .progress .progression {
   position: absolute;
   bottom: 0;
   width: 100%; }
 
-/* line 5226, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5235, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock .progress .progressMask {
   background-image: url(../images2/progressMask.png);
   background-repeat: no-repeat;
@@ -6049,11 +6058,11 @@ header {
   top: 0;
   width: 100%; }
 
-/* line 5237, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5246, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock.selected .progress .progressMask {
   background-position: 0 0; }
 
-/* line 5241, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5250, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock .progress .percentage {
   position: absolute;
   top: 45px;
@@ -6065,7 +6074,7 @@ header {
   width: 100%;
   text-align: center; }
 
-/* line 5254, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5263, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .blockBar {
   background-color: #FFF;
   height: 32px;
@@ -6075,11 +6084,11 @@ header {
   width: 100%;
   line-height: 30px; }
 
-/* line 5264, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5273, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .blockBar:hover {
   cursor: auto; }
 
-/* line 5269, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5278, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .blockBar .assessments {
   width: 145px;
   border-right: 1px solid #f1f1f1;
@@ -6090,53 +6099,53 @@ header {
   padding-left: 10px;
   float: left; }
 
-/* line 5280, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5289, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .progressBlock .assessments .count {
   float: right;
   font-weight: 900;
   font-size: 12px; }
 
-/* line 5286, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5295, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .good {
   margin-right: 5px;
   color: #00ae0c; }
 
-/* line 5291, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5300, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .bad {
   margin-right: 10px;
   color: #ff0000; }
 
-/* line 5296, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5305, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessmentExpand {
   float: right;
   text-align: center;
   width: 33px; }
 
-/* line 5302, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5311, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .trophy.achieved {
   color: #ffcc00; }
 
-/* line 5306, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5315, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .icons {
   font-size: 14px; }
 
-/* line 5310, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5319, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .icons .trophy {
   position: inherit;
   color: #d8d8d8;
   font-size: 14px; }
 
-/* line 5316, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5325, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .icons .trophy.achieved {
   color: #ffcc00; }
 
-/* line 5322, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5331, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessmentExpand .dropdown-menu {
   border-radius: 3px;
   padding: 0;
   width: 390px; }
 
-/* line 5328, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5337, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .ddPanelHeader {
   background-color: #f7f7f7;
   height: 30px;
@@ -6144,7 +6153,7 @@ header {
   padding-top: 8px;
   padding-left: 10px; }
 
-/* line 5336, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5345, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .ddPanelHeader h4 {
   margin: 0;
   padding: 0;
@@ -6155,21 +6164,21 @@ header {
   font-size: 12px;
   float: left; }
 
-/* line 5346, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5355, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .ddPanelHeader .close {
   margin-top: -3px;
   margin-right: 10px; }
 
-/* line 5351, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5360, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessment {
   border-bottom: 1px solid #f1f1f1;
   padding: 10px; }
 
-/* line 5357, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5366, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessmentExpand .dropdown-menu .assessment:last-of-type {
   border-bottom: 0; }
 
-/* line 5362, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5371, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .assessment p {
   color: #212121;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -6178,39 +6187,39 @@ header {
   line-height: 14px;
   margin-bottom: 2px; }
 
-/* line 5371, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5380, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .userInfo {
   font-size: 12px;
   color: #999;
   margin-bottom: 7px; }
 
-/* line 5377, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5386, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .date {
   color: #212121; }
 
-/* line 5381, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5390, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .userInfo .icons {
   float: right; }
 
-/* line 5384, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5393, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .userInfo .icons .fa {
   margin-right: 5px; }
 
-/* line 5390, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5399, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fa-check-circle:hover,
 .fa-trophy:hover {
   cursor: pointer; }
 
-/* line 5397, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5406, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .activitiesBlock .activitiesBlockLeft {
   float: left;
   width: 50%;
   margin-bottom: 20px; }
-  /* line 5401, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5410, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .activitiesBlock .activitiesBlockLeft h3 {
     margin-right: 15px;
     margin-bottom: 10px; }
-    /* line 5404, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5413, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .activitiesBlock .activitiesBlockLeft h3 a {
       position: relative;
       display: block;
@@ -6221,26 +6230,26 @@ header {
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px; }
-      /* line 5412, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 5421, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .activitiesBlock .activitiesBlockLeft h3 a .iconType,
       .activitiesBlock .activitiesBlockLeft h3 a .check {
         position: absolute;
         left: 10px;
         top: 10px; }
-    /* line 5419, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5428, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .activitiesBlock .activitiesBlockLeft h3.selected a {
       background: #fff; }
 
-/* line 5424, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5433, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .activitiesBlock .activitiesBlockRight {
   float: right;
   width: 50%; }
-  /* line 5427, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5436, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .activitiesBlock .activitiesBlockRight .graph {
     margin-left: 15px; }
 
 /* Activities hexagon */
-/* line 5436, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5445, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon {
   position: relative;
   width: 22px;
@@ -6253,7 +6262,7 @@ header {
   left: 10px;
   top: 15px; }
 
-/* line 5449, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5458, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon:before,
 .hexagon:after {
   content: "";
@@ -6267,37 +6276,37 @@ header {
   background-color: inherit;
   left: 2.2218px; }
 
-/* line 5463, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5472, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e7e7e7;
   border-right: solid 1.4142px #e7e7e7; }
 
-/* line 5469, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5478, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e7e7e7;
   border-left: solid 1.4142px #e7e7e7; }
 
-/* line 5477, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5486, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon.done {
   background-color: #e45b68;
   border-left: solid 1px #e45b68;
   border-right: solid 1px #e45b68; }
 
-/* line 5483, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5492, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon.done:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e45b68;
   border-right: solid 1.4142px #e45b68; }
 
-/* line 5489, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5498, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .hexagon.done:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e45b68;
   border-left: solid 1.4142px #e45b68; }
 
-/* line 5495, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5504, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileContainer {
   border: 1px solid #eeeeee;
   background-color: #FFF;
@@ -6305,25 +6314,25 @@ header {
   font-size: 13px;
   color: #999999; }
 
-/* line 5503, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5512, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileUrl {
   margin-left: 52px; }
 
-/* line 5507, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5516, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileContainer .col-md-10 {
   padding-left: 0; }
 
-/* line 5511, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5520, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileContainer h5 {
   margin: 7px 0 1px 0; }
 
-/* line 5515, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5524, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileContainer h5 a {
   font-size: 14px;
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500; }
 
-/* line 5521, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5530, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileSizeTime {
   font-size: 18px;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -6332,24 +6341,24 @@ header {
   text-align: right;
   line-height: 48px; }
 
-/* line 5530, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5539, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileIcon {
   float: left;
   margin-right: 15px; }
 
-/* line 5535, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5544, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .fileIcon .fa {
   font-size: 48px; }
 
-/* line 5540, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5549, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .youtube {
   color: #E62117; }
 
-/* line 5544, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5553, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .pdf {
   color: #ed1b24; }
 
-/* line 5550, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5559, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconLeft {
   position: absolute;
   left: 0;
@@ -6360,11 +6369,11 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 5560, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5569, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconLeft:hover {
   opacity: 1; }
 
-/* line 5564, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5573, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconRight {
   position: absolute;
   right: 0;
@@ -6375,11 +6384,11 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 5574, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5583, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconRight:hover {
   opacity: 1; }
 
-/* line 5578, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5587, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconLeftCred {
   position: absolute;
   left: 0;
@@ -6390,15 +6399,15 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 5588, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5597, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconLeftCred:hover {
   opacity: 1; }
 
-/* line 5592, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5601, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconLeftCred .fa {
   font-size: 36px; }
 
-/* line 5596, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5605, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconRightCred {
   position: absolute;
   right: 0;
@@ -6409,68 +6418,68 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 5606, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5615, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .sliderIconRightCred:hover {
   opacity: 1; }
 
-/* line 5612, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5621, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .timelineGraph .timelineGraphFilters .checkbox {
   display: inline-block;
   margin-right: 20px; }
 
-/* line 5617, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5626, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .timelineGraph #timeline-graph {
   padding-bottom: 30px; }
 
-/* line 5620, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5629, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .timelineGraph .timeline-tooltip {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
-/* line 5625, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5634, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .socialGraph {
   padding-bottom: 30px; }
-  /* line 5627, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5636, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .socialGraph .socialLeft {
     width: 35%;
     float: left; }
-    /* line 5630, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5639, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .socialGraph .socialLeft h2 {
       margin-bottom: 10px; }
-    /* line 5633, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5642, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .socialGraph .socialLeft .user32 {
       margin-bottom: 30px; }
-    /* line 5636, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5645, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .socialGraph .socialLeft #social-interactions-bytype-table,
     .socialGraph .socialLeft #social-interactions-bypeer-table {
       margin-bottom: 30px; }
-      /* line 5639, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+      /* line 5648, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
       .socialGraph .socialLeft #social-interactions-bytype-table td,
       .socialGraph .socialLeft #social-interactions-bypeer-table td {
         padding: 0 10px; }
-  /* line 5644, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5653, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .socialGraph .socialRight {
     width: 65%;
     float: right; }
 
-/* line 5650, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5659, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationBox {
   position: relative; }
-  /* line 5652, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5661, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationBox .observationInfo {
     margin-bottom: 20px; }
-    /* line 5654, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5663, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .observationBox .observationInfo p {
       margin-bottom: 10px; }
-  /* line 5658, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5667, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationBox .subHead {
     margin-bottom: 10px; }
-  /* line 5661, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5670, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationBox .observationOpt {
     padding-top: 10px;
     border-top: 1px solid #ECEDF1; }
-    /* line 5664, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5673, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .observationBox .observationOpt .bullet {
       display: inline-block;
       width: 3px;
@@ -6478,72 +6487,72 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
-/* line 5676, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5685, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 #newObservation .panel,
 #editObservation .panel {
   border: 1px solid #EEEFF3;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 5681, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5690, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #newObservation .panel .panel-heading,
   #editObservation .panel .panel-heading {
     background: #F8F9FB; }
-    /* line 5683, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5692, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     #newObservation .panel .panel-heading .panel-title,
     #editObservation .panel .panel-heading .panel-title {
       font-size: 14px; }
-  /* line 5687, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5696, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #newObservation .panel .panel-body,
   #editObservation .panel .panel-body {
     border-top: none; }
-    /* line 5689, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5698, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     #newObservation .panel .panel-body textarea,
     #editObservation .panel .panel-body textarea {
       display: 100%;
       width: 100%; }
 
-/* line 5697, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5706, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationBtn {
   margin-bottom: 10px; }
 
-/* line 5701, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5710, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationBox .userInfo {
   margin: 0 auto;
   width: 165px;
   margin-bottom: 15px; }
 
-/* line 5707, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5716, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationBox .labels {
   margin-bottom: 10px; }
 
-/* line 5711, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5720, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .dottedDivider {
   border-top: 1px dotted #e8e8e8;
   margin-bottom: 15px; }
 
-/* line 5717, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5726, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationBox .labels span {
   width: 100%; }
 
-/* line 5722, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5731, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 .observationsList .observationLine {
   border-bottom: 1px solid #EEEFF3; }
-  /* line 5724, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5733, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationsList .observationLine:last-child {
     border: none; }
-  /* line 5727, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5736, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationsList .observationLine .user32 {
     padding-bottom: 20px; }
-  /* line 5730, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5739, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   .observationsList .observationLine .obsBlocks {
     float: left;
     width: 33%;
     display: inline-block; }
-    /* line 5734, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5743, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .observationsList .observationLine .obsBlocks h3 {
       margin-bottom: 10px; }
-    /* line 5737, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5746, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     .observationsList .observationLine .obsBlocks .bullet {
       display: inline-block;
       width: 3px;
@@ -6554,23 +6563,23 @@ header {
 /*---------------------------------------------------------------------*/
 /*--- 05. FOOTER ---*/
 /*---------------------------------------------------------------------*/
-/* line 5753, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5762, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 footer {
   padding-top: 30px;
   height: 44px;
   font-size: 12px; }
-  /* line 5757, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5766, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   footer ul {
     list-style: none;
     margin: 0;
     padding: 10px 0;
     border-top: 1px solid #EEEFF3; }
-    /* line 5762, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+    /* line 5771, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
     footer ul li {
       display: inline;
       margin-right: 20px; }
 
-/* line 5769, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+/* line 5778, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
 #supportLink {
   position: fixed;
   right: 15px;
@@ -6587,6 +6596,6 @@ footer {
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   opacity: .7; }
-  /* line 5783, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
+  /* line 5792, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #supportLink:hover {
     opacity: 1; }

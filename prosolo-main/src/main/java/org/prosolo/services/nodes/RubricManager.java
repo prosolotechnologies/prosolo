@@ -10,6 +10,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.ActivityRubricCategoryData;
 import org.prosolo.services.nodes.data.RubricData;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -72,5 +73,8 @@ public interface RubricManager extends AbstractManager {
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     String getRubricName(long id) throws DbConnectionException;
+
+    List<ActivityRubricCategoryData> getRubricDataForAssessment(long activityAssessmentId, long rubricId)
+            throws DbConnectionException;
 
 }

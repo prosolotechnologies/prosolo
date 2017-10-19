@@ -10,10 +10,7 @@ import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.rubric.Category;
-import org.prosolo.common.domainmodel.rubric.CategoryLevel;
-import org.prosolo.common.domainmodel.rubric.Level;
-import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -33,9 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -286,30 +281,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
             throws DbConnectionException {
         try {
-            StringBuilder query = new StringBuilder("SELECT r FROM Rubric r ");
-            if (loadCreator) {
-                query.append("INNER JOIN fetch r.creator ");
-            }
-            if (loadItems) {
-                query.append("LEFT JOIN fetch r.categories cat " +
-                             "LEFT JOIN fetch cat.levels " +
-                             "LEFT JOIN fetch r.levels ");
-            }
-            query.append("WHERE r.id = :rubricId ");
-
-            if (userId > 0) {
-                query.append("AND r.creator.id = :userId");
-            }
-
-            Query q = persistence.currentManager()
-                    .createQuery(query.toString())
-                    .setLong("rubricId", rubricId);
-
-            if (userId > 0) {
-                q.setLong("userId", userId);
-            }
-
-            Rubric rubric = (Rubric) q.uniqueResult();
+            Rubric rubric = getRubric(rubricId, loadCreator, loadItems, userId);
 
             if (rubric != null) {
                 User creator = loadCreator ? rubric.getCreator() : null;
@@ -322,6 +294,33 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");
         }
+    }
+
+    private Rubric getRubric(long rubricId, boolean loadCreator, boolean loadItems, long userId) {
+        StringBuilder query = new StringBuilder("SELECT r FROM Rubric r ");
+        if (loadCreator) {
+            query.append("INNER JOIN fetch r.creator ");
+        }
+        if (loadItems) {
+            query.append("LEFT JOIN fetch r.categories cat " +
+                    "LEFT JOIN fetch cat.levels " +
+                    "LEFT JOIN fetch r.levels ");
+        }
+        query.append("WHERE r.id = :rubricId ");
+
+        if (userId > 0) {
+            query.append("AND r.creator.id = :userId");
+        }
+
+        Query q = persistence.currentManager()
+                .createQuery(query.toString())
+                .setLong("rubricId", rubricId);
+
+        if (userId > 0) {
+            q.setLong("userId", userId);
+        }
+
+        return (Rubric) q.uniqueResult();
     }
 
     @Override
@@ -561,6 +560,79 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric name");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActivityRubricCategoryData> getRubricDataForAssessment(long activityAssessmentId, long actId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cat, catLvl, act.maxPoints ";
+            if (activityAssessmentId > 0) {
+                query += ", ass ";
+            }
+            query += "FROM Activity1 act " +
+                     "INNER JOIN act.rubric rubric " +
+                     "INNER JOIN rubric.categories cat " +
+                     "INNER JOIN cat.levels catLvl " +
+                     "INNER JOIN fetch catLvl.level lvl ";
+
+            if (activityAssessmentId > 0) {
+                query += "LEFT JOIN cat.assessments ass " +
+                         "WITH ass.assessment.id = :assessmentId ";
+            }
+            query += "WHERE act.id = :actId " +
+                     "ORDER BY cat.order, lvl.order";
+
+            Query q = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("actId", actId);
+
+            if (activityAssessmentId > 0) {
+                q.setLong("assessmentId", activityAssessmentId);
+            }
+
+            List<Object[]> res = q.list();
+
+            if (res.isEmpty()) {
+                return null;
+            }
+
+            //max points for activity
+            int maxPoints = (int) res.get(0)[2];
+
+            List<ActivityRubricCategoryData> categories = new ArrayList<>();
+            Category category = null;
+            CategoryAssessment assessment = null;
+            List<CategoryLevel> levels = new ArrayList<>();
+            for (Object[] row : res) {
+                Category cat = (Category) row[0];
+                if (category == null || category.getId() != cat.getId()) {
+                    if (category != null) {
+                        categories.add(rubricDataFactory.getActivityRubricData(category, assessment, levels));
+                    }
+                    category = cat;
+                    if (activityAssessmentId > 0) {
+                        assessment = (CategoryAssessment) row[3];
+                    }
+                    levels.clear();
+                }
+                levels.add((CategoryLevel) row[1]);
+            }
+            //add the last category
+            if (category != null) {
+                categories.add(rubricDataFactory.getActivityRubricData(category, assessment, levels));
+            }
+
+            //calculate absolute points based on activity maximum points set
+            rubricDataFactory.calculatePointsForCategoriesAndLevels(categories, maxPoints);
+
+            return categories;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the rubric data");
         }
     }
 
