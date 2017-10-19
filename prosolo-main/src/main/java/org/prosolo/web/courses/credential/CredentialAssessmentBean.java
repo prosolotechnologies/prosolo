@@ -130,9 +130,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private void initRubricIfNotInitialized() {
 		try {
 			if (currentActivityAssessment.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentActivityAssessment.getGrade().isRubricInitialized()) {
-				currentActivityAssessment.getGrade().setRubricCategories(rubricManager.getRubricDataForAssessment(
+				currentActivityAssessment.getGrade().setRubricCategories(rubricManager.getRubricDataForActivity(
+						currentActivityAssessment.getActivityId(),
 						idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId()),
-						currentActivityAssessment.getActivityId()));
+						true));
 				currentActivityAssessment.getGrade().setRubricInitialized(true);
 			}
 		} catch (DbConnectionException e) {

@@ -74,7 +74,7 @@ public interface RubricManager extends AbstractManager {
 
     String getRubricName(long id) throws DbConnectionException;
 
-    List<ActivityRubricCategoryData> getRubricDataForAssessment(long activityAssessmentId, long rubricId)
+    List<ActivityRubricCategoryData> getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException;
 
 }

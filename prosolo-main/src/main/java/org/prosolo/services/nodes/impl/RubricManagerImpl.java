@@ -565,12 +565,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActivityRubricCategoryData> getRubricDataForAssessment(long activityAssessmentId, long actId)
+    public List<ActivityRubricCategoryData> getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException {
         try {
             String query =
                     "SELECT cat, catLvl, act.maxPoints ";
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += ", ass ";
             }
             query += "FROM Activity1 act " +
@@ -579,7 +579,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                      "INNER JOIN cat.levels catLvl " +
                      "INNER JOIN fetch catLvl.level lvl ";
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += "LEFT JOIN cat.assessments ass " +
                          "WITH ass.assessment.id = :assessmentId ";
             }
@@ -590,7 +590,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .createQuery(query)
                     .setLong("actId", actId);
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 q.setLong("assessmentId", activityAssessmentId);
             }
 
@@ -614,7 +614,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                         categories.add(rubricDataFactory.getActivityRubricData(category, assessment, levels));
                     }
                     category = cat;
-                    if (activityAssessmentId > 0) {
+                    if (loadGrades && activityAssessmentId > 0) {
                         assessment = (CategoryAssessment) row[3];
                     }
                     levels.clear();
