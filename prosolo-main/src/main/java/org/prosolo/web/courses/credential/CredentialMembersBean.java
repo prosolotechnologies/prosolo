@@ -64,7 +64,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private long decodedId;
 
 	private String searchTerm = "";
-	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.DATE;
+	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.STUDENT_NAME;
 	private PaginationData paginationData = new PaginationData();
 	private CredentialMembersSearchFilter searchFilter;
 	

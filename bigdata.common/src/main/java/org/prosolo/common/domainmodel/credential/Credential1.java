@@ -267,6 +267,7 @@ public class Credential1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public CredentialType getType() {
 		return type;
 	}

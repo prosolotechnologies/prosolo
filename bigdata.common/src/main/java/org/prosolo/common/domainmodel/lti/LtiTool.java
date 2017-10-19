@@ -129,6 +129,7 @@ public class LtiTool extends BaseLtiEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public ResourceType getToolType() {
 		return toolType;
 	}
