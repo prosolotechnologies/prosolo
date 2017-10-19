@@ -71,7 +71,6 @@ public class AnnouncementBean implements Serializable, Paginable {
     private String credentialTitle;
     private boolean credentialMandatoryFlow;
     private String credentialDurationString;
-    private CredentialData basicCredentialData;
     private CredentialData credentialData;
 
     //new announcement related data
@@ -82,42 +81,47 @@ public class AnnouncementBean implements Serializable, Paginable {
     private PaginationData paginationData = new PaginationData();
 
     private ResourceAccessData access;
-    private boolean isAnnouncementCreated = false;
 
     public void init() {
         if (StringUtils.isNotBlank(credentialId)) {
             try {
                 boolean userEnrolled = false;
                 decodedId = idEncoder.decodeId(credentialId);
-                if (isAnnouncementCreated) {
-                    resetNewAnnouncementValues();
-                } else {
-                    retrieveUserCredentialData(decodedId);
-                    userEnrolled = credManager.isUserEnrolled(decodedId, loggedUser.getUserId());
-                }
 
-                this.basicCredentialData = credManager.getBasicCredentialData(
-                        idEncoder.decodeId(credentialId), loggedUser.getUserId(), CredentialType.Delivery);
-                if (basicCredentialData == null) {
+                this.credentialData = credManager
+                        .getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
+                userEnrolled = credManager.isUserEnrolled(decodedId, loggedUser.getUserId());
+
+                if (credentialData == null) {
                     PageUtil.notFound();
                 } else {
-                    credentialTitle = basicCredentialData.getTitle();
-                    credentialMandatoryFlow = basicCredentialData.isMandatoryFlow();
-                    credentialDurationString = basicCredentialData.getDurationString();
+                    credentialTitle = credentialData.getTitle();
+                    credentialMandatoryFlow = credentialData.isMandatoryFlow();
+                    credentialDurationString = credentialData.getDurationString();
 
-                    //user needs instruct or edit privilege to be able to access this page
                     access = credManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
                             ResourceAccessRequirements.of(AccessMode.MANAGER)
                                     .addPrivilege(UserGroupPrivilege.Instruct)
                                     .addPrivilege(UserGroupPrivilege.Edit));
 
-                    if (!userEnrolled) {
-                        PageUtil.accessDenied();
+                    if (loggedUser.hasCapability("course.announcements.view")) {
+                        if (!access.isCanAccess()) {
+                            PageUtil.accessDenied();
+                        } else {
+                            credentialAnnouncements = announcementManager
+                                    .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
+                            paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+                                    idEncoder.decodeId(credentialId)));
+                        }
                     } else {
-                        credentialAnnouncements = announcementManager
-                                .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
-                        paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-                                idEncoder.decodeId(credentialId)));
+                        if (!userEnrolled) {
+                            PageUtil.accessDenied();
+                        } else {
+                            credentialAnnouncements = announcementManager
+                                    .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
+                            paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+                                    idEncoder.decodeId(credentialId)));
+                        }
                     }
                 }
             } catch (ResourceCouldNotBeLoadedException e) {
@@ -128,11 +132,6 @@ public class AnnouncementBean implements Serializable, Paginable {
             logger.error("Could not initialize list of announcements, credentialId is null");
             PageUtil.fireErrorMessage("Error loading announcements");
         }
-    }
-
-    private void retrieveUserCredentialData(long decodedCredId) {
-        credentialData = credManager
-                .getFullTargetCredentialOrCredentialData(decodedCredId, loggedUser.getUserId());
     }
 
     private void resetNewAnnouncementValues() {
@@ -151,7 +150,7 @@ public class AnnouncementBean implements Serializable, Paginable {
                 idEncoder.decodeId(credentialId));
 
         PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
-        isAnnouncementCreated = true;
+        resetNewAnnouncementValues();
         init();
     }
 
@@ -215,22 +214,6 @@ public class AnnouncementBean implements Serializable, Paginable {
         return access != null && access.isCanEdit();
     }
 
-    public LoggedUserBean getLoggedUser() {
-        return loggedUser;
-    }
-
-    public void setLoggedUser(LoggedUserBean loggedUser) {
-        this.loggedUser = loggedUser;
-    }
-
-    public AnnouncementManager getAnnouncementManager() {
-        return announcementManager;
-    }
-
-    public void setAnnouncementManager(AnnouncementManager announcementManager) {
-        this.announcementManager = announcementManager;
-    }
-
     public String getCredentialId() {
         return credentialId;
     }
@@ -239,20 +222,8 @@ public class AnnouncementBean implements Serializable, Paginable {
         this.credentialId = credentialId;
     }
 
-    public UrlIdEncoder getIdEncoder() {
-        return idEncoder;
-    }
-
-    public void setIdEncoder(UrlIdEncoder idEncoder) {
-        this.idEncoder = idEncoder;
-    }
-
     public List<AnnouncementData> getCredentialAnnouncements() {
         return credentialAnnouncements;
-    }
-
-    public void setCredentialAnnouncements(List<AnnouncementData> credentialAnnouncements) {
-        this.credentialAnnouncements = credentialAnnouncements;
     }
 
     public String getNewAnnouncementTitle() {
@@ -280,60 +251,20 @@ public class AnnouncementBean implements Serializable, Paginable {
 
     }
 
-    public boolean isAnnouncementCreated() {
-        return isAnnouncementCreated;
-    }
-
     public PaginationData getPaginationData() {
         return paginationData;
-    }
-
-    public CredentialManager getCredManager() {
-        return credManager;
-    }
-
-    public void setCredManager(CredentialManager credManager) {
-        this.credManager = credManager;
     }
 
     public String getCredentialTitle() {
         return credentialTitle;
     }
 
-    public void setCredentialTitle(String credentialTitle) {
-        this.credentialTitle = credentialTitle;
-    }
-
     public boolean isCredentialMandatoryFlow() {
         return credentialMandatoryFlow;
     }
 
-    public void setCredentialMandatoryFlow(boolean credentialMandatoryFlow) {
-        this.credentialMandatoryFlow = credentialMandatoryFlow;
-    }
-
     public String getCredentialDurationString() {
         return credentialDurationString;
-    }
-
-    public void setCredentialDurationString(String credentialDurationString) {
-        this.credentialDurationString = credentialDurationString;
-    }
-
-    public ThreadPoolTaskExecutor getTaskExecutor() {
-        return taskExecutor;
-    }
-
-    public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-        this.taskExecutor = taskExecutor;
-    }
-
-    public EventFactory getEventFactory() {
-        return eventFactory;
-    }
-
-    public void setEventFactory(EventFactory eventFactory) {
-        this.eventFactory = eventFactory;
     }
 
     public long getDecodedId() {
