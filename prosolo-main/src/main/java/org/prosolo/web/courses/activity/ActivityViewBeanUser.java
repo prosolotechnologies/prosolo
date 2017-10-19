@@ -169,11 +169,16 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 
 	public void initializeRubric() {
-		if (rubricCategories == null) {
-			rubricCategories = rubricManager.getRubricDataForActivity(
-					competenceData.getActivityToShowWithDetails().getActivityId(),
-					0,
-					false);
+		try {
+			if (rubricCategories == null) {
+				rubricCategories = rubricManager.getRubricDataForActivity(
+						competenceData.getActivityToShowWithDetails().getActivityId(),
+						0,
+						false);
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
 		}
 	}
 	

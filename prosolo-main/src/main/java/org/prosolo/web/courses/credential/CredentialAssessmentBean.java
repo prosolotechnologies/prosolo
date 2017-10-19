@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -142,6 +143,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
+	public boolean isUserAllowedToSeeRubric(ActivityAssessmentData activityAssessment) {
+		return activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
+				|| (activityAssessment.getGrade().isAssessed() && activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
+	}
+
 	public boolean allCompetencesStarted() {
 		for (CompetenceAssessmentData cad : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (cad.isReadOnly()) {
@@ -149,6 +155,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 		}
 		return true;
+	}
+
+	public boolean isCurrentUserAssessedStudent() {
+		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
 	
 	public void approveCredential() {

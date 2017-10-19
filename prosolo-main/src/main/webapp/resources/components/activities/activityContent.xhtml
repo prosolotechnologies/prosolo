@@ -72,7 +72,7 @@
 											pt:data-toggle="modal"
 											process="@this"
 											action="#{cc.attrs.bean.initializeRubric()}"
-											update=":#{cc.clientId}:panelRubricPreview"
+											update=":#{cc.clientId}:panelRubricPreview #{cc.attrs.growlToUpdate}"
 											oncomplete="$('#assignInstructorModal1').modal('show');">
 										here
 									</p:commandLink>.
