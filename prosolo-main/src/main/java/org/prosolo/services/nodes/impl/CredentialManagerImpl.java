@@ -1960,22 +1960,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
-			String query =
-					"SELECT user " +
-							"FROM TargetCredential1 tCred " +
-							"INNER JOIN tCred.user user " +
-							"WHERE tCred.credential.id = :credId " +
-							"AND user.id != :userId " +
-							"AND user.id NOT IN ( " +
-							"SELECT assessment.assessor.id " +
-							"FROM CredentialAssessment assessment " +
-							"INNER JOIN assessment.targetCredential tCred " +
-							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
+			String query = 
+				"SELECT user " +
+				"FROM TargetCredential1 tCred " +
+				"INNER JOIN tCred.user user " +
+				"WHERE tCred.credential.id = :credId " + 
+					"AND user.id != :userId " +
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CredentialAssessment assessment " +
+						"INNER JOIN assessment.targetCredential tCred " +
+						"INNER JOIN tCred.credential cred " +
+						"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-							") " +
-							"ORDER BY RAND()";
+						") " +
+				"ORDER BY RAND()";
 
 			@SuppressWarnings("unchecked")
 			List<User> res = (List<User>) persistence.currentManager()
