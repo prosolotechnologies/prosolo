@@ -12,7 +12,6 @@ ALTER TABLE `activity_wall_settings` MODIFY `chosen_filter` VARCHAR(255) NOT NUL
 ALTER TABLE `notification_settings` MODIFY `type` VARCHAR(255) NOT NULL;
 ALTER TABLE `user` MODIFY `user_type` VARCHAR(255) NOT NULL;
 ALTER TABLE `notification1` MODIFY `type` VARCHAR(255) NOT NULL;
-ALTER TABLE `notification1` MODIFY `object_type` VARCHAR(255) NOT NULL;
 ALTER TABLE `oauth_access_token` MODIFY `service` VARCHAR(255) NOT NULL;
 ALTER TABLE `openidaccount` MODIFY `openidprovider` VARCHAR(255) NOT NULL;
 ALTER TABLE `social_network_account` MODIFY `social_network` VARCHAR(255) NOT NULL;
