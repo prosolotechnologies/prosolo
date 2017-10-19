@@ -7,16 +7,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.application.FacesMessage.Severity;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
@@ -83,8 +78,8 @@ public class ResourceBundleUtil {
 	}
 
 	public static String getMessage(String key, Locale locale, Object... params) throws KeyNotFoundInBundleException {
-		String bcName = Settings.getInstance().config.init.bcName;
-		return getString("org.prosolo.web."+bcName+"_messages", key, locale, params);
+		String localization = Settings.getInstance().config.init.localization;
+		return getString("org.prosolo.web."+localization+"_prosolo_messages", key, locale, params);
 	}
 
     /**
