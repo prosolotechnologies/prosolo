@@ -6,5 +6,5 @@ package org.prosolo.common.domainmodel.credential;
  * @since 1.0.0
  */
 public enum ActivityRubricVisibility {
-    NEVER, AFTER_SUBMISSION, ALWAYS
+    NEVER, AFTER_GRADED, ALWAYS
 }
