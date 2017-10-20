@@ -75,8 +75,6 @@ function gradingModeChanged(gradingModeEl) {
 
 function setVisibilityBasedOnGradingMode(gradingModeEl) {
     var gm = gradingModeEl.val();
-    console.log("STEF " + gradingModeEl);
-    console.log("STEF: " + gm);
     switch (gm) {
         case 'NONGRADED' :
             $('.maxPointsSelector, .rubricSelector').hide();

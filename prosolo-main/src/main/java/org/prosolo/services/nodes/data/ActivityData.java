@@ -104,7 +104,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		gradeOptions = new GradeData();
 		tags = new HashSet<>();
 		rubricVisibility = ActivityRubricVisibility.NEVER;
-		gradingMode = GradingMode.MANUAL;
+		gradingMode = GradingMode.NONGRADED;
 	}
 	
 	@Override

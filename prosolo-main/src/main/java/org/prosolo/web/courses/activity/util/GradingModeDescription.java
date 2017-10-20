@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.credential.GradingMode;
 /**
  * @author stefanvuckovic
  * @date 2017-10-09
- * @since 1.0.0
+ * @since 1.1.0
  */
 public enum GradingModeDescription {
 
