@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.rubric.CategoryAssessment;
+import org.prosolo.common.domainmodel.rubric.CriterionAssessment;
 import org.prosolo.common.domainmodel.rubric.Criterion;
 import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.user.User;
@@ -27,7 +27,7 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.ActivityRubricCategoryData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
@@ -497,8 +497,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			case MANUAL_SIMPLE:
 				return grade.getValue();
 			case MANUAL_RUBRIC:
-				return grade.getRubricCategories().stream()
-						.mapToInt(cat -> cat.getLevels().stream().filter(lvl -> lvl.getId() == cat.getLevelId()).findFirst().get().getPoints()).sum();
+				return grade.getRubricCriteria().stream()
+						.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
 			default:
 				return -1;
 		}
@@ -508,13 +508,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throws DbConnectionException {
 		try {
 			/*
-			check if category assessments should be created or updated
+			check if criteria assessments should be created or updated
 			 */
-			boolean categoryAssessmentsExist = grade.isAssessed();
-			if (categoryAssessmentsExist) {
-				updateCategoryAssessments(grade.getRubricCategories(), activityAssessmentId, session);
+			boolean criteriaAssessmentsExist = grade.isAssessed();
+			if (criteriaAssessmentsExist) {
+				updateCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
 			} else {
-				createCategoryAssessments(grade.getRubricCategories(), activityAssessmentId, session);
+				createCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -522,44 +522,44 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private void createCategoryAssessments(List<ActivityRubricCategoryData> rubricCategories, long activityAssessmentId, Session session) {
+	private void createCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
 		try {
-			for (ActivityRubricCategoryData category : rubricCategories) {
-				CategoryAssessment ca = new CategoryAssessment();
+			for (ActivityRubricCriterionData criterion : rubricCriteria) {
+				CriterionAssessment ca = new CriterionAssessment();
 				ca.setAssessment((ActivityAssessment) session
 						.load(ActivityAssessment.class, activityAssessmentId));
-				ca.setCategory((Criterion) session
-						.load(Criterion.class, category.getId()));
+				ca.setCriterion((Criterion) session
+						.load(Criterion.class, criterion.getId()));
 				ca.setLevel((Level) session
-						.load(Level.class, category.getLevelId()));
-				ca.setComment(category.getComment());
+						.load(Level.class, criterion.getLevelId()));
+				ca.setComment(criterion.getComment());
 				saveEntity(ca, session);
 			}
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			//category assessments exist so they need to be updated instead
-			logger.info("DB Constraint error caught: category assessments already exist, so they can't be created");
-			updateCategoryAssessments(rubricCategories, activityAssessmentId, session);
+			//criteria assessments exist so they need to be updated instead
+			logger.info("DB Constraint error caught: criteria assessments already exist, so they can't be created");
+			updateCriteriaAssessments(rubricCriteria, activityAssessmentId, session);
 		}
 	}
 
-	private void updateCategoryAssessments(List<ActivityRubricCategoryData> rubricCategories, long activityAssessmentId, Session session) {
-		for (ActivityRubricCategoryData category : rubricCategories) {
-			CategoryAssessment ca = getCategoryAssessment(category.getId(), activityAssessmentId, session);
+	private void updateCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
+		for (ActivityRubricCriterionData crit : rubricCriteria) {
+			CriterionAssessment ca = getCriterionAssessment(crit.getId(), activityAssessmentId, session);
 			ca.setLevel((Level) session
-					.load(Level.class, category.getLevelId()));
-			ca.setComment(category.getComment());
+					.load(Level.class, crit.getLevelId()));
+			ca.setComment(crit.getComment());
 		}
 	}
 
-	private CategoryAssessment getCategoryAssessment(long categoryId, long assessmentId, Session session) {
+	private CriterionAssessment getCriterionAssessment(long criterionId, long assessmentId, Session session) {
 		String q =
-				"SELECT ca FROM CategoryAssessment ca " +
-				"WHERE ca.category.id = :categoryId " +
+				"SELECT ca FROM CriterionAssessment ca " +
+				"WHERE ca.criterion.id = :critId " +
 				"AND ca.assessment.id = :assessmentId";
 
-		return (CategoryAssessment) session
+		return (CriterionAssessment) session
 				.createQuery(q)
-				.setLong("categoryId", categoryId)
+				.setLong("critId", criterionId)
 				.setLong("assessmentId", assessmentId)
 				.uniqueResult();
 	}
@@ -599,7 +599,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			saveEntity(activityDiscussion, session);
 
-			//if grading by rubric, save rubric category assessments
+			//if grading by rubric, save rubric criteria assessments
 			if (grade != null && grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
 				gradeByRubric(grade, activityDiscussion.getId(), session);
 			}
@@ -964,7 +964,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						ActivityAssessment.class, activityAssessmentId);
 //
 				ad.setPoints(gradeValue);
-				//if grading by rubric, save rubric category assessments
+				//if grading by rubric, save rubric criteria assessments
 				if (grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
 					gradeByRubric(grade, ad.getId(), persistence.currentManager());
 				}

@@ -2,9 +2,9 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.ActivityRubricCategoryData;
-import org.prosolo.services.nodes.data.ActivityRubricItemData;
-import org.prosolo.services.nodes.data.ActivityRubricLevelData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricItemData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricLevelData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricItemData;
@@ -74,22 +74,21 @@ public class RubricDataFactory {
 		rubric.syncCriterionWithExistingDescriptions(criterion, descriptions);
 	}
 
-	public ActivityRubricCategoryData getActivityRubricData(Criterion crit, CategoryAssessment assessment, List<CriterionLevel> levels) {
-		ActivityRubricCategoryData category = new ActivityRubricCategoryData();
-		setItemData(category, crit.getId(), crit.getTitle(), crit.getOrder(), crit.getPoints());
+	public ActivityRubricCriterionData getActivityRubricCriterionData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {
+		ActivityRubricCriterionData criterion = new ActivityRubricCriterionData();
+		setItemData(criterion, crit.getId(), crit.getTitle(), crit.getOrder(), crit.getPoints());
 		if (assessment != null) {
-			category.setCategoryAssessmentId(assessment.getId());
-			category.setComment(assessment.getComment());
-			category.setLevelId(assessment.getLevel().getId());
+			criterion.setComment(assessment.getComment());
+			criterion.setLevelId(assessment.getLevel().getId());
 		}
  		for (CriterionLevel cl : levels) {
 			ActivityRubricLevelData lvl = new ActivityRubricLevelData();
 			setItemData(lvl, cl.getLevel().getId(), cl.getLevel().getTitle(), cl.getLevel().getOrder(), cl.getLevel().getPoints());
 			lvl.setDescription(cl.getDescription());
-			category.addLevel(lvl);
+			criterion.addLevel(lvl);
 		}
 
-		return category;
+		return criterion;
 	}
 
 	private <T extends ActivityRubricItemData> void setItemData(T item, long id, String title, int order, double weight) {
@@ -99,38 +98,38 @@ public class RubricDataFactory {
 		item.setWeight(weight);
 	}
 
-	public void calculatePointsForCategoriesAndLevels(List<ActivityRubricCategoryData> categories, int maxPoints) {
-		calculateCategoryPointsBasedOnWeights(categories, maxPoints);
-		for (ActivityRubricCategoryData cat : categories) {
-			calculateLevelPointsBasedOnWeights(cat);
+	public void calculatePointsForCriteriaAndLevels(List<ActivityRubricCriterionData> criteria, int maxPoints) {
+		calculateCriteriaPointsBasedOnWeights(criteria, maxPoints);
+		for (ActivityRubricCriterionData crit : criteria) {
+			calculateLevelPointsBasedOnWeights(crit);
 		}
 	}
 
-	private void calculateCategoryPointsBasedOnWeights(List<ActivityRubricCategoryData> categories, int maxPoints) {
-		// class used for storing and sorting categories by cut off decimal part of points when rounding
-		class CategoryByPointsRemainder implements Comparable {
+	private void calculateCriteriaPointsBasedOnWeights(List<ActivityRubricCriterionData> criteria, int maxPoints) {
+		// class used for storing and sorting criteria by cut off decimal part of points when rounding
+		class CriterionByPointsRemainder implements Comparable {
 			double remainder;
-			ActivityRubricCategoryData category;
+			ActivityRubricCriterionData criterion;
 
-			CategoryByPointsRemainder(double remainder, ActivityRubricCategoryData category) {
+			CriterionByPointsRemainder(double remainder, ActivityRubricCriterionData criterion) {
 				this.remainder = remainder;
-				this.category = category;
+				this.criterion = criterion;
 			}
 
 			@Override
 			public int compareTo(Object o) {
-				return Double.compare(((CategoryByPointsRemainder) o).remainder, this.remainder);
+				return Double.compare(((CriterionByPointsRemainder) o).remainder, this.remainder);
 			}
 		}
 
-		List<CategoryByPointsRemainder> categoriesByPointsRemainder = new ArrayList<>();
+		List<CriterionByPointsRemainder> criteriaByPointsRemainder = new ArrayList<>();
 		int sumPoints = 0;
-		for (ActivityRubricCategoryData cat : categories) {
+		for (ActivityRubricCriterionData cat : criteria) {
 			double pointsDouble = (maxPoints * cat.getWeight() / 100);
 			int points = (int) pointsDouble;
 			sumPoints += points;
 			cat.setPoints(points);
-			categoriesByPointsRemainder.add(new CategoryByPointsRemainder(pointsDouble - points, cat));
+			criteriaByPointsRemainder.add(new CriterionByPointsRemainder(pointsDouble - points, cat));
 		}
 		/*
 		cover the case where sum of points for all items is not equal to maxPoints
@@ -140,17 +139,17 @@ public class RubricDataFactory {
 		 */
 		int diff = maxPoints - sumPoints;
 		if (diff > 0) {
-			Collections.sort(categoriesByPointsRemainder);
+			Collections.sort(criteriaByPointsRemainder);
 			for (int i = 0; i < diff; i++) {
-				ActivityRubricCategoryData cat = categoriesByPointsRemainder.get(i).category;
+				ActivityRubricCriterionData cat = criteriaByPointsRemainder.get(i).criterion;
 				cat.setPoints(cat.getPoints() + 1);
 			}
 		}
 	}
 
-	private void calculateLevelPointsBasedOnWeights(ActivityRubricCategoryData category) {
-		for (ActivityRubricLevelData lvl : category.getLevels()) {
-			lvl.setPoints((int) Math.round(lvl.getWeight() * category.getPoints() / 100));
+	private void calculateLevelPointsBasedOnWeights(ActivityRubricCriterionData criterion) {
+		for (ActivityRubricLevelData lvl : criterion.getLevels()) {
+			lvl.setPoints((int) Math.round(lvl.getWeight() * criterion.getPoints() / 100));
 		}
 	}
 

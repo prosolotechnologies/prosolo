@@ -11,11 +11,11 @@ import javax.persistence.*;
  * @since 1.0.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"assessment", "category"})})
-public class CategoryAssessment extends BaseEntity {
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"assessment", "criterion"})})
+public class CriterionAssessment extends BaseEntity {
 
     private ActivityAssessment assessment;
-    private Criterion category;
+    private Criterion criterion;
     private Level level;
     private String comment;
 
@@ -29,12 +29,12 @@ public class CategoryAssessment extends BaseEntity {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    public Criterion getCategory() {
-        return category;
+    public Criterion getCriterion() {
+        return criterion;
     }
 
-    public void setCategory(Criterion category) {
-        this.category = category;
+    public void setCriterion(Criterion criterion) {
+        this.criterion = criterion;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

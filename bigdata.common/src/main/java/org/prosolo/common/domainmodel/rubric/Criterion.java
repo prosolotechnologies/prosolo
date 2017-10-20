@@ -20,8 +20,8 @@ public class Criterion extends BaseEntity {
     private int order;
     private Set<CriterionLevel> levels;
 
-    //assessment category
-    private Set<CategoryAssessment> assessments;
+    //criterion assessments
+    private Set<CriterionAssessment> assessments;
 
     @Column(name = "points", nullable = false)
     public double getPoints() {
@@ -59,12 +59,12 @@ public class Criterion extends BaseEntity {
         this.levels = levels;
     }
 
-    @OneToMany(mappedBy = "category")
-    public Set<CategoryAssessment> getAssessments() {
+    @OneToMany(mappedBy = "criterion")
+    public Set<CriterionAssessment> getAssessments() {
         return assessments;
     }
 
-    public void setAssessments(Set<CategoryAssessment> assessments) {
+    public void setAssessments(Set<CriterionAssessment> assessments) {
         this.assessments = assessments;
     }
 }

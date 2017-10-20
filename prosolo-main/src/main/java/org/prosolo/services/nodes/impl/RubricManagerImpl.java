@@ -24,7 +24,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.ActivityRubricCategoryData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
@@ -469,9 +469,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 /*
                 following changes are allowed only in full edit mode:
                 - changing the 'ready' status for the rubric
-                - creating new categories and levels
-                - removing existing categories and levels
-                - changing category and level weights/points
+                - creating new criteria and levels
+                - removing existing criteria and levels
+                - changing criteria and level weights/points
                  */
 
             boolean notAllowedChangesMade = rubric.isReadyToUseChanged();
@@ -573,7 +573,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActivityRubricCategoryData> getRubricDataForAssessment(long activityAssessmentId, long actId)
+    public List<ActivityRubricCriterionData> getRubricDataForAssessment(long activityAssessmentId, long actId)
             throws DbConnectionException {
         try {
             String query =
@@ -583,7 +583,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             }
             query += "FROM Activity1 act " +
                      "INNER JOIN act.rubric rubric " +
-                     "INNER JOIN rubric.categories cat " +
+                     "INNER JOIN rubric.criteria cat " +
                      "INNER JOIN cat.levels catLvl " +
                      "INNER JOIN fetch catLvl.level lvl ";
 
@@ -611,33 +611,33 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             //max points for activity
             int maxPoints = (int) res.get(0)[2];
 
-            List<ActivityRubricCategoryData> categories = new ArrayList<>();
-            Criterion category = null;
-            CategoryAssessment assessment = null;
+            List<ActivityRubricCriterionData> criteria = new ArrayList<>();
+            Criterion crit = null;
+            CriterionAssessment assessment = null;
             List<CriterionLevel> levels = new ArrayList<>();
             for (Object[] row : res) {
-                Criterion cat = (Criterion) row[0];
-                if (category == null || category.getId() != cat.getId()) {
-                    if (category != null) {
-                        categories.add(rubricDataFactory.getActivityRubricData(category, assessment, levels));
+                Criterion c = (Criterion) row[0];
+                if (crit == null || crit.getId() != c.getId()) {
+                    if (crit != null) {
+                        criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
                     }
-                    category = cat;
+                    crit = c;
                     if (activityAssessmentId > 0) {
-                        assessment = (CategoryAssessment) row[3];
+                        assessment = (CriterionAssessment) row[3];
                     }
                     levels.clear();
                 }
                 levels.add((CriterionLevel) row[1]);
             }
-            //add the last category
-            if (category != null) {
-                categories.add(rubricDataFactory.getActivityRubricData(category, assessment, levels));
+            //add the last criterion
+            if (crit != null) {
+                criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
             }
 
             //calculate absolute points based on activity maximum points set
-            rubricDataFactory.calculatePointsForCategoriesAndLevels(categories, maxPoints);
+            rubricDataFactory.calculatePointsForCriteriaAndLevels(criteria, maxPoints);
 
-            return categories;
+            return criteria;
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");
