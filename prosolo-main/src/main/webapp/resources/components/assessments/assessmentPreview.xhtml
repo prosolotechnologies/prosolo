@@ -469,7 +469,7 @@
 				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
 				<h2>Grade</h2>
 				<h:panelGroup id="panelRubricAssessment">
-					<ui:repeat value="#{cc.attrs.bean.currentActivityAssessment.grade.rubricCategories}" var="c">
+					<ui:repeat value="#{cc.attrs.bean.currentActivityAssessment.grade.rubricCriteria}" var="c">
 						<h3>#{c.name}</h3>
 						<ul class="levelsList">
 							<ui:repeat value="#{c.levels}" var="l">

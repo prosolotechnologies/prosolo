@@ -89,7 +89,7 @@
 									</div>
 									<div class="modal-body alignLeft">
 										<div class="rubricsPreview">
-											<ui:repeat value="#{cc.attrs.bean.rubricCategories}" var="c">
+											<ui:repeat value="#{cc.attrs.bean.rubricCriteria}" var="c">
 												<h2>#{c.name} - #{c.points} #{c.points eq 1 ? 'point' : 'points'}</h2>
 												<table class="rubricsTable readOnly">
 													<ui:repeat value="#{c.levels}" var="lvl">

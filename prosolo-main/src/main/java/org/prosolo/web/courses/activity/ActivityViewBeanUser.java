@@ -63,7 +63,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
-	private List<ActivityRubricCriterionData> rubricCategories;
+	private List<ActivityRubricCriterionData> rubricCriteria;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -171,8 +171,8 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void initializeRubric() {
 		try {
-			if (rubricCategories == null) {
-				rubricCategories = rubricManager.getRubricDataForActivity(
+			if (rubricCriteria == null) {
+				rubricCriteria = rubricManager.getRubricDataForActivity(
 						competenceData.getActivityToShowWithDetails().getActivityId(),
 						0,
 						false);
@@ -464,7 +464,7 @@ public class ActivityViewBeanUser implements Serializable {
 		return access;
 	}
 
-	public List<ActivityRubricCriterionData> getRubricCategories() {
-		return rubricCategories;
+	public List<ActivityRubricCriterionData> getRubricCriteria() {
+		return rubricCriteria;
 	}
 }
