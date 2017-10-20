@@ -8,8 +8,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.rubric.Category;
-import org.prosolo.common.domainmodel.rubric.CategoryLevel;
+import org.prosolo.common.domainmodel.rubric.Criterion;
+import org.prosolo.common.domainmodel.rubric.CriterionLevel;
 import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
@@ -23,6 +23,10 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricItemData;
+import org.prosolo.services.nodes.data.rubrics.RubricItemDescriptionData;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -221,9 +225,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public void updateRubric(long rubricId, String name, UserContextData context) throws
+    public void updateRubricName(long rubricId, String name, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
-        Result<Void> result = self.updateRubricAndGetEvents(rubricId, name, context);
+        Result<Void> result = self.updateRubricNameAndGetEvents(rubricId, name, context);
         for(EventData eventData : result.getEvents()){
             eventFactory.generateEvent(eventData);
         }
@@ -231,7 +235,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional
-    public Result<Void> updateRubricAndGetEvents(long rubricId, String name, UserContextData context) throws
+    public Result<Void> updateRubricNameAndGetEvents(long rubricId, String name, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Void> result = new Result<>();
@@ -287,7 +291,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 query.append("INNER JOIN fetch r.creator ");
             }
             if (loadItems) {
-                query.append("LEFT JOIN fetch r.categories cat " +
+                query.append("LEFT JOIN fetch r.criteria cat " +
                              "LEFT JOIN fetch cat.levels " +
                              "LEFT JOIN fetch r.levels ");
             }
@@ -309,9 +313,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             if (rubric != null) {
                 User creator = loadCreator ? rubric.getCreator() : null;
-                Set<Category> categories = loadItems ? rubric.getCategories() : null;
+                Set<Criterion> criteria = loadItems ? rubric.getCriteria() : null;
                 Set<Level> levels = loadItems ? rubric.getLevels() : null;
-                return rubricDataFactory.getRubricData(rubric, creator, categories, levels, trackChanges);
+                return rubricDataFactory.getRubricData(rubric, creator, criteria, levels, trackChanges);
             }
             return null;
         } catch (Exception e) {
@@ -322,7 +326,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional
-    public void saveRubricCategoriesAndLevels(RubricData rubric) throws DbConnectionException {
+    public void saveRubricCriteriaAndLevels(RubricData rubric) throws DbConnectionException {
         try {
             //TODO add check here if rubric can be fully edited or limited edit only is allowed
             /*
@@ -363,58 +367,58 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 }
             }
 
-            Category cat;
-            for (RubricCategoryData category : rubric.getCategories()) {
-                switch (category.getStatus()) {
+            Criterion cat;
+            for (RubricCriterionData criterion : rubric.getCriteria()) {
+                switch (criterion.getStatus()) {
                     case CREATED:
-                        cat = new Category();
-                        cat.setTitle(category.getName());
-                        cat.setPoints(category.getPoints());
-                        cat.setOrder(category.getOrder());
+                        cat = new Criterion();
+                        cat.setTitle(criterion.getName());
+                        cat.setPoints(criterion.getPoints());
+                        cat.setOrder(criterion.getOrder());
                         cat.setRubric(rub);
                         saveEntity(cat);
-                        category.setId(cat.getId());
+                        criterion.setId(cat.getId());
                         break;
                     case CHANGED:
-                        cat = (Category) persistence.currentManager().load(Category.class, category.getId());
-                        cat.setTitle(category.getName());
-                        cat.setPoints(category.getPoints());
-                        cat.setOrder(category.getOrder());
+                        cat = (Criterion) persistence.currentManager().load(Criterion.class, criterion.getId());
+                        cat.setTitle(criterion.getName());
+                        cat.setPoints(criterion.getPoints());
+                        cat.setOrder(criterion.getOrder());
                         break;
                     case REMOVED:
-                        deleteById(Category.class, category.getId(), persistence.currentManager());
+                        deleteById(Criterion.class, criterion.getId(), persistence.currentManager());
                         break;
                     default:
                         break;
                 }
 
-                if (category.getStatus() != ObjectStatus.REMOVED) {
+                if (criterion.getStatus() != ObjectStatus.REMOVED) {
                     rubric.getLevels().stream()
                             .filter(level -> level.getStatus() != ObjectStatus.REMOVED)
                             .forEach(level -> {
                                 /*
-                                if either category or level is just created, the description should be created,
-                                otherwise it exists and it should be updated if it is changed except when category
+                                if either criterion or level is just created, the description should be created,
+                                otherwise it exists and it should be updated if it is changed except when criterion
                                 or level is removed in which case description should not be touched.
                                  */
-                                //if level or category is new, create description
-                                if (category.getStatus() == ObjectStatus.CREATED || level.getStatus() == ObjectStatus.CREATED) {
-                                    CategoryLevel cl = new CategoryLevel();
-                                    cl.setCategory((Category) persistence.currentManager().load(Category.class, category.getId()));
+                                //if level or criterion is new, create description
+                                if (criterion.getStatus() == ObjectStatus.CREATED || level.getStatus() == ObjectStatus.CREATED) {
+                                    CriterionLevel cl = new CriterionLevel();
+                                    cl.setCriterion((Criterion) persistence.currentManager().load(Criterion.class, criterion.getId()));
                                     cl.setLevel((Level) persistence.currentManager().load(Level.class, level.getId()));
-                                    cl.setDescription(category.getLevels().get(level).getDescription());
+                                    cl.setDescription(criterion.getLevels().get(level).getDescription());
                                     saveEntity(cl);
                                 } else {
-                                    //if category and level are not new nor deleted update description if it has changed
-                                    RubricItemDescriptionData desc = category.getLevels().get(level);
+                                    //if criterion and level are not new nor deleted update description if it has changed
+                                    RubricItemDescriptionData desc = criterion.getLevels().get(level);
                                     if (desc.hasObjectChanged()) {
-                                        String query = "UPDATE CategoryLevel cl SET cl.description = :description " +
-                                                       "WHERE cl.category.id = :categoryId AND cl.level.id = :levelId";
+                                        String query = "UPDATE CriterionLevel cl SET cl.description = :description " +
+                                                       "WHERE cl.criterion.id = :criterionId AND cl.level.id = :levelId";
                                         persistence.currentManager()
                                                 .createQuery(query)
-                                                .setLong("categoryId", category.getId())
+                                                .setLong("criterionId", criterion.getId())
                                                 .setLong("levelId", level.getId())
-                                                .setString("description", category.getLevels().get(level).getDescription())
+                                                .setString("description", criterion.getLevels().get(level).getDescription())
                                                 .executeUpdate();
                                     }
                                 }

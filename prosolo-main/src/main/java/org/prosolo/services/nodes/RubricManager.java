@@ -9,7 +9,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -54,12 +54,12 @@ public interface RubricManager extends AbstractManager {
     RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
             throws DbConnectionException;
 
-    void saveRubricCategoriesAndLevels(RubricData rubric) throws DbConnectionException;
+    void saveRubricCriteriaAndLevels(RubricData rubric) throws DbConnectionException;
 
-    void updateRubric(long rubricId,String name, UserContextData context) throws
+    void updateRubricName(long rubricId, String name, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Void> updateRubricAndGetEvents(long rubricId,String name, UserContextData context) throws
+    Result<Void> updateRubricNameAndGetEvents(long rubricId, String name, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
 }

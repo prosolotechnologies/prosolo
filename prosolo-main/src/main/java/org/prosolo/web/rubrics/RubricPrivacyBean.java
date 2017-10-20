@@ -2,17 +2,11 @@ package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.UnitData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;

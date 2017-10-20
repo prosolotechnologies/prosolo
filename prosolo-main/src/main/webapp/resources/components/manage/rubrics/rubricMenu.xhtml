@@ -12,14 +12,14 @@
 
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
 		 <ul class="nav nav-tabs headerSubmenu">
-			 <li role="presentation" class="#{page eq 'rubric-categories' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'rubric-categories'}"
-						 outcome="/manage/rubric-categories">
+			 <li role="presentation" class="#{page eq 'rubric-criteria' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'rubric-criteria'}"
+						 outcome="/manage/rubric-criteria">
 					 <f:param name="id" value="#{param.id}" />
-					 Categories &amp; Levels
+					 Criteria &amp; Levels
 				 </h:link>
-				 <ui:fragment rendered="#{page eq 'rubric-categories'}">
-					 <a href="javascript:void(0);">Categories &amp; Levels</a>
+				 <ui:fragment rendered="#{page eq 'rubric-criteria'}">
+					 <a href="javascript:void(0);">Criteria &amp; Levels</a>
 				 </ui:fragment>
 			 </li>
 			 <li role="presentation" class="#{page eq 'rubric-privacy' ? 'active' : ''}">

@@ -89,10 +89,9 @@ public enum ApplicationPage {
 	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
 	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
 	MANAGER_RUBRIC_LIBRARY("/manage/rubricLibrary.xhtml"),
-	MANAGER_RUBRIC_EDIT("/manage/rubricEdit.xhtml"),
-	MANAGER_RUBRIC_NEW("/manage/newRubric.xhtml"),
+	MANAGER_RUBRIC_SETTINGS("/manage/rubricEdit.xhtml"),
 	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
-	MANAGER_RUBRIC_CATEGORIES("/manage/rubric-categories.xhtml"),
+	MANAGER_RUBRIC_CATEGORIES("/manage/rubric-criteria.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),
