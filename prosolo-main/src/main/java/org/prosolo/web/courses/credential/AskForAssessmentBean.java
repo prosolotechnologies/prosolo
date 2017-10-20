@@ -67,17 +67,13 @@ public class AskForAssessmentBean implements Serializable {
     private String credentialId;
     private long decodedId;
 
-    public void init() {
+    public void init(String encodedCredentialId) {
+        this.credentialId = encodedCredentialId;
+
         decodedId = idEncoder.decodeId(credentialId);
 
         this.credentialData = credManager.getFullTargetCredentialOrCredentialData(
                 decodedId, loggedUser.getUserId());
-    }
-
-    public void initCredentialId(String encodedId) {
-        logger.info(encodedId);
-        this.credentialId = encodedId;
-        init();
     }
 
     public void searchCredentialPeers() {

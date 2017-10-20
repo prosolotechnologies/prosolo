@@ -61,21 +61,23 @@ public class CredentialKeywordsBean {
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
-		credentialData = credentialManager.getTargetCredentialData(decodedId,
-				loggedUser.getUserId(), false);
-		if (credentialData != null) {
-			selectedKeywords = new HashSet<>();
-			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
-			competences = credentialManager.getCompetencesForKeywordSearch(decodedId);
-			activities = credentialManager.getActivitiesForKeywordSearch(decodedId);
-			filterResults();
 
-			logger.info("init credential keywords");
+		if (decodedId > 0) {
+			boolean userEnrolled = credentialManager.isUserEnrolled(decodedId, loggedUser.getUserId());
+
+			if (!userEnrolled) {
+				PageUtil.accessDenied();
+			} else {
+				credentialData = credentialManager.getTargetCredentialData(decodedId, loggedUser.getUserId(), false);
+				selectedKeywords = new HashSet<>();
+				filteredCompetences = new ArrayList<>();
+				tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
+				competences = credentialManager.getCompetencesForKeywordSearch(decodedId);
+				activities = credentialManager.getActivitiesForKeywordSearch(decodedId);
+			}
 		} else {
 			PageUtil.notFound();
 		}
-
 	}
 
 	public List<CompetenceData1> getFilteredCompetences() {

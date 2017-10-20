@@ -3102,9 +3102,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public boolean isUserEnrolled(long credId, long userId) {
 		String query =
 				"SELECT targetCredential.id " +
-						"FROM TargetCredential1 targetCredential " +
-						"WHERE targetCredential.user.id = :userId " +
-						"AND targetCredential.credential.id = :credId";
+				"FROM TargetCredential1 targetCredential " +
+				"WHERE targetCredential.user.id = :userId " +
+					"AND targetCredential.credential.id = :credId";
 
 		Long result = (Long) persistence.currentManager()
 				.createQuery(query)

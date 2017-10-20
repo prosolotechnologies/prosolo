@@ -2,15 +2,12 @@ package org.prosolo.web.courses.credential.announcements;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.primefaces.mobile.component.page.Page;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -38,14 +35,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ManagedBean(name = "announcementBean")
-@Component("announcementBean")
+@ManagedBean(name = "announcementBeanManager")
+@Component("announcementBeanManager")
 @Scope("view")
-public class AnnouncementBean implements Serializable, Paginable {
+public class AnnouncementBeanManager implements Serializable, Paginable {
 
     private static final long serialVersionUID = -4020351250960511686L;
 
-    private static Logger logger = Logger.getLogger(AnnouncementBean.class);
+    private static Logger logger = Logger.getLogger(AnnouncementBeanManager.class);
 
     @Inject
     private LoggedUserBean loggedUser;
@@ -61,17 +58,12 @@ public class AnnouncementBean implements Serializable, Paginable {
     private EventFactory eventFactory;
     @Inject
     private AssessmentManager assessmentManager;
-    @Inject
-    private UserTextSearch userTextSearch;
 
     //credential related data
     private String credentialId;
-    private long decodedId;
+    private long decodedCredentialId;
 
-    private List<AnnouncementData> credentialAnnouncements = new ArrayList<>();
-    private String credentialTitle;
-    private boolean credentialMandatoryFlow;
-    private String credentialDurationString;
+    private List<AnnouncementData> announcements = new ArrayList<>();
     private CredentialData credentialData;
 
     //new announcement related data
@@ -79,78 +71,37 @@ public class AnnouncementBean implements Serializable, Paginable {
     private String newAnnouncementText;
     private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ALL_STUDENTS;
 
-    private PaginationData paginationData = new PaginationData();
+    private PaginationData paginationData = new PaginationData(1);
 
     private ResourceAccessData access;
 
     public void init() {
-        if (StringUtils.isNotBlank(credentialId)) {
+        decodedCredentialId = idEncoder.decodeId(credentialId);
+
+        if (decodedCredentialId > 0) {
             try {
-                decodedId = idEncoder.decodeId(credentialId);
+                access = credManager.getResourceAccessData(decodedCredentialId, loggedUser.getUserId(),
+                        ResourceAccessRequirements.of(AccessMode.MANAGER)
+                                .addPrivilege(UserGroupPrivilege.Instruct)
+                                .addPrivilege(UserGroupPrivilege.Edit));
 
-                this.credentialData = credManager
-                        .getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
-
-                if (credentialData == null) {
-                    PageUtil.notFound();
+                if (!access.isCanAccess()) {
+                    PageUtil.accessDenied();
                 } else {
-                    access = credManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
-                            ResourceAccessRequirements.of(AccessMode.MANAGER)
-                                    .addPrivilege(UserGroupPrivilege.Instruct)
-                                    .addPrivilege(UserGroupPrivilege.Edit));
-
-                    if (!access.isCanAccess()) {
-                        PageUtil.accessDenied();
-                    } else {
-                       initializeCredentialData(this.credentialData);
-                    }
+                    this.credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
+                    initializeCredentialData(this.credentialData);
                 }
-            } catch (ResourceCouldNotBeLoadedException e) {
-                logger.error("Could not initialize list of announcements", e);
-                PageUtil.fireErrorMessage("Error loading announcements");
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error while loading credential data");
             }
         } else {
-            logger.error("Could not initialize list of announcements, credentialId is null");
-            PageUtil.fireErrorMessage("Error loading announcements");
-        }
-    }
-
-    public void initStudent() {
-        if (StringUtils.isNotBlank(credentialId)) {
-            try {
-                boolean userEnrolled = false;
-                decodedId = idEncoder.decodeId(credentialId);
-
-                this.credentialData = credManager
-                        .getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
-                userEnrolled = credManager.isUserEnrolled(decodedId, loggedUser.getUserId());
-
-                if (credentialData == null) {
-                    PageUtil.notFound();
-                } else {
-                    if (!userEnrolled) {
-                        PageUtil.accessDenied();
-                    } else {
-                       initializeCredentialData(this.credentialData);
-                    }
-                }
-            } catch (ResourceCouldNotBeLoadedException e) {
-                logger.error("Could not initialize list of announcements", e);
-                PageUtil.fireErrorMessage("Error loading announcements");
-            }
-        } else {
-            logger.error("Could not initialize list of announcements, credentialId is null");
-            PageUtil.fireErrorMessage("Error loading announcements");
+            PageUtil.notFound();
         }
     }
 
     private void initializeCredentialData(CredentialData credentialData) throws ResourceCouldNotBeLoadedException {
-        credentialTitle = credentialData.getTitle();
-        credentialMandatoryFlow = credentialData.isMandatoryFlow();
-        credentialDurationString = credentialData.getDurationString();
-
-        credentialAnnouncements = announcementManager
-                .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
+        announcements = announcementManager
+                .getAllAnnouncementsForCredential(decodedCredentialId, paginationData.getPage() - 1, paginationData.getLimit());
         paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
                 idEncoder.decodeId(credentialId)));
     }
@@ -243,8 +194,8 @@ public class AnnouncementBean implements Serializable, Paginable {
         this.credentialId = credentialId;
     }
 
-    public List<AnnouncementData> getCredentialAnnouncements() {
-        return credentialAnnouncements;
+    public List<AnnouncementData> getAnnouncements() {
+        return announcements;
     }
 
     public String getNewAnnouncementTitle() {
@@ -269,26 +220,13 @@ public class AnnouncementBean implements Serializable, Paginable {
             paginationData.setPage(page);
             init();
         }
-
     }
 
     public PaginationData getPaginationData() {
         return paginationData;
     }
 
-    public String getCredentialTitle() {
-        return credentialTitle;
-    }
-
-    public boolean isCredentialMandatoryFlow() {
-        return credentialMandatoryFlow;
-    }
-
-    public String getCredentialDurationString() {
-        return credentialDurationString;
-    }
-
-    public long getDecodedId() {
-        return decodedId;
+    public long getDecodedCredentialId() {
+        return decodedCredentialId;
     }
 }
