@@ -11,8 +11,8 @@ import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.rubric.Category;
 import org.prosolo.common.domainmodel.rubric.CategoryAssessment;
+import org.prosolo.common.domainmodel.rubric.Criterion;
 import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -528,8 +528,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				CategoryAssessment ca = new CategoryAssessment();
 				ca.setAssessment((ActivityAssessment) session
 						.load(ActivityAssessment.class, activityAssessmentId));
-				ca.setCategory((Category) session
-						.load(Category.class, category.getId()));
+				ca.setCategory((Criterion) session
+						.load(Criterion.class, category.getId()));
 				ca.setLevel((Level) session
 						.load(Level.class, category.getLevelId()));
 				ca.setComment(category.getComment());

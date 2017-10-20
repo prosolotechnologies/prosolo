@@ -13,12 +13,12 @@ import java.util.Set;
 
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
-public class Category extends BaseEntity {
+public class Criterion extends BaseEntity {
 
     private double points;
     private Rubric rubric;
     private int order;
-    private Set<CategoryLevel> levels;
+    private Set<CriterionLevel> levels;
 
     //assessment category
     private Set<CategoryAssessment> assessments;
@@ -41,7 +41,7 @@ public class Category extends BaseEntity {
         this.rubric = rubric;
     }
 
-    @Column(name = "category_order", nullable = false)
+    @Column(name = "criterion_order", nullable = false)
     public int getOrder() {
         return order;
     }
@@ -50,12 +50,12 @@ public class Category extends BaseEntity {
         this.order = order;
     }
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    public Set<CategoryLevel> getLevels() {
+    @OneToMany(mappedBy = "criterion", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    public Set<CriterionLevel> getLevels() {
         return levels;
     }
 
-    public void setLevels(Set<CategoryLevel> levels) {
+    public void setLevels(Set<CriterionLevel> levels) {
         this.levels = levels;
     }
 

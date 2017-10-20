@@ -43,7 +43,7 @@ function copyCategoryNameAndWeight(order) {
 
 function setCategoryNameAndWeight(name, weight, order) {
     if (!name || name.length === 0) {
-        name = '<Category Name>';
+        name = '<Criterion Name>';
     }
     var weight = !weight || weight.length === 0 ? '' : ' - ' + weight + '%';
     $('h3[data-category-order=' + order + ']').text(name + weight);

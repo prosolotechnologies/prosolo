@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class CategoryAssessment extends BaseEntity {
 
     private ActivityAssessment assessment;
-    private Category category;
+    private Criterion category;
     private Level level;
     private String comment;
 
@@ -29,11 +29,11 @@ public class CategoryAssessment extends BaseEntity {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    public Category getCategory() {
+    public Criterion getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(Criterion category) {
         this.category = category;
     }
 

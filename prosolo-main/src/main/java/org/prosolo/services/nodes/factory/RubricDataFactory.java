@@ -2,7 +2,12 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityRubricCategoryData;
+import org.prosolo.services.nodes.data.ActivityRubricItemData;
+import org.prosolo.services.nodes.data.ActivityRubricLevelData;
+import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricItemData;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class RubricDataFactory {
 
-	public RubricData getRubricData(Rubric rubric, User creator, Set<Category> categories, Set<Level> levels,
+	public RubricData getRubricData(Rubric rubric, User creator, Set<Criterion> criteria, Set<Level> levels,
 									boolean trackChanges) {
 		if (rubric == null) {
 			return null;
@@ -38,16 +43,16 @@ public class RubricDataFactory {
 			rd.sortLevels();
 		}
 
-		if (categories != null) {
-			for (Category cat : categories) {
-				RubricCategoryData c = new RubricCategoryData(cat.getId(), cat.getTitle(), cat.getPoints(), cat.getOrder());
+		if (criteria != null) {
+			for (Criterion cat : criteria) {
+				RubricCriterionData c = new RubricCriterionData(cat.getId(), cat.getTitle(), cat.getPoints(), cat.getOrder());
 				if (trackChanges) {
 					c.startObservingChanges();
 				}
-				addLevelsWithDescriptionToCategory(rd, c, cat.getLevels());
-				rd.addCategory(c);
+				addLevelsWithDescriptionToCriterion(rd, c, cat.getLevels());
+				rd.addCriterion(c);
 			}
-			rd.sortCategories();
+			rd.sortCriteria();
 		}
 		
 		if (trackChanges) {
@@ -56,28 +61,28 @@ public class RubricDataFactory {
 		return rd;
 	}
 
-	private void addLevelsWithDescriptionToCategory(RubricData rubric, RubricCategoryData category, Set<CategoryLevel> categoryLevelDescriptions) {
+	private void addLevelsWithDescriptionToCriterion(RubricData rubric, RubricCriterionData criterion, Set<CriterionLevel> criterionLevelDescriptions) {
 		Map<RubricItemData, String> descriptions = rubric.getLevels()
 				.stream()
 				.collect(Collectors.toMap(
 						l -> l,
-						l -> categoryLevelDescriptions
+						l -> criterionLevelDescriptions
 								.stream()
 								.filter(cl -> cl.getLevel().getId() == l.getId()).findFirst()
 								.get()
 								.getDescription()));
-		rubric.syncCategoryWithExistingDescriptions(category, descriptions);
+		rubric.syncCriterionWithExistingDescriptions(criterion, descriptions);
 	}
 
-	public ActivityRubricCategoryData getActivityRubricData(Category cat, CategoryAssessment assessment, List<CategoryLevel> levels) {
+	public ActivityRubricCategoryData getActivityRubricData(Criterion crit, CategoryAssessment assessment, List<CriterionLevel> levels) {
 		ActivityRubricCategoryData category = new ActivityRubricCategoryData();
-		setItemData(category, cat.getId(), cat.getTitle(), cat.getOrder(), cat.getPoints());
+		setItemData(category, crit.getId(), crit.getTitle(), crit.getOrder(), crit.getPoints());
 		if (assessment != null) {
 			category.setCategoryAssessmentId(assessment.getId());
 			category.setComment(assessment.getComment());
 			category.setLevelId(assessment.getLevel().getId());
 		}
- 		for (CategoryLevel cl : levels) {
+ 		for (CriterionLevel cl : levels) {
 			ActivityRubricLevelData lvl = new ActivityRubricLevelData();
 			setItemData(lvl, cl.getLevel().getId(), cl.getLevel().getTitle(), cl.getLevel().getOrder(), cl.getLevel().getPoints());
 			lvl.setDescription(cl.getDescription());

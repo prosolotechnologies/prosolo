@@ -1,9 +1,10 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.rubrics;
 
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class RubricItemData extends StandardObservable implements Serializable {
 
@@ -13,12 +14,6 @@ public class RubricItemData extends StandardObservable implements Serializable {
 	private String name;
 	private double points;
 	private int order;
-
-	/*
-	true if this item is synced with other items - for level: rubric level is added to the collection of levels in
-	each category; for category: levels are added to collection of levels for given category.
-	 */
-	private boolean itemSynced;
 
 	private ObjectStatus status = ObjectStatus.UP_TO_DATE;
 
@@ -111,11 +106,4 @@ public class RubricItemData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("order");
 	}
 
-	public boolean isItemSynced() {
-		return itemSynced;
-	}
-
-	public void setItemSynced(boolean itemSynced) {
-		this.itemSynced = itemSynced;
-	}
 }

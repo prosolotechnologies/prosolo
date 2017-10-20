@@ -6,22 +6,22 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <ui:define name="windowTitle">
-        #{msg['label.rubric']} - #{rubricCategoriesBean.rubric.name}
+        #{rubricCriteriaBean.rubric.name} - #{msg['label.rubric']}
     </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="id" value="#{rubricCategoriesBean.rubricId}" default="null" />
-            <f:viewAction action="#{rubricCategoriesBean.init()}" />
+            <f:viewParam name="id" value="#{rubricCriteriaBean.rubricId}" default="null" />
+            <f:viewAction action="#{rubricCriteriaBean.init()}" />
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>#{rubricCategoriesBean.rubric.name}</h1>
+        <h1>#{rubricCriteriaBean.rubric.name}</h1>
     </ui:define>
 
     <ui:define name="navLinks">
-        <c:if test="#{rubricCategoriesBean.currentUserCreator}">
+        <c:if test="#{rubricCriteriaBean.currentUserCreator}">
             <rubrics:rubricMenu/>
         </c:if>
     </ui:define>
@@ -32,11 +32,11 @@
         </div>
 
         <c:choose>
-        <c:when test="#{rubricCategoriesBean.currentUserCreator}">
-            <ui:include src="/manage/rubric-categories-edit.xhtml" />
+        <c:when test="#{rubricCriteriaBean.currentUserCreator}">
+            <ui:include src="/manage/rubric-criteria-edit.xhtml" />
         </c:when>
         <c:otherwise>
-            <ui:include src="/manage/rubric-categories-readonly.xhtml" />
+            <ui:include src="/manage/rubric-criteria-readonly.xhtml" />
         </c:otherwise>
         </c:choose>
     </ui:define>

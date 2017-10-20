@@ -3,7 +3,7 @@ package org.prosolo.web.rubrics;
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -25,12 +25,12 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 
-@ManagedBean(name = "rubricEditBean")
-@Component("rubricEditBean")
+@ManagedBean(name = "rubricSettingsBean")
+@Component("rubricSettingsBean")
 @Scope("view")
-public class RubricEditBean implements Serializable {
+public class RubricSettingsBean implements Serializable {
 
-    protected static Logger logger = Logger.getLogger(RubricEditBean.class);
+    protected static Logger logger = Logger.getLogger(RubricSettingsBean.class);
 
     private static final String rubricNameTextFieldId = "formMainEditRubric:inputTextRubricName";
 
@@ -64,7 +64,7 @@ public class RubricEditBean implements Serializable {
 
     public void updateRubric() {
         try {
-            rubricManager.updateRubric(this.rubric.getId(), this.rubric.getName(), loggedUser.getUserContext());
+            rubricManager.updateRubricName(this.rubric.getId(), this.rubric.getName(), loggedUser.getUserContext());
 
             logger.debug("Rubric (" + this.rubric.getId() + ") updated by the user " + loggedUser.getUserId());
             PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase() + " has been updated");

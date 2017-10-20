@@ -19,14 +19,14 @@
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="id" value="#{rubricEditBean.id}" />
-            <f:viewAction action="#{rubricEditBean.init()}" />
+            <f:viewParam name="id" value="#{rubricSettingsBean.id}" />
+            <f:viewAction action="#{rubricSettingsBean.init()}" />
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
         <h:panelGroup id="headerRubricName">
-            <h1>#{rubricEditBean.rubric.name}</h1>
+            <h1>#{rubricSettingsBean.rubric.name}</h1>
         </h:panelGroup>
     </ui:define>
 
@@ -44,7 +44,7 @@
                     <h:link outcome="/manage/rubricLibrary" value="#{msg['label.rubric.plural']}"></h:link>
                 </li>
                 <li class="active">
-                    #{rubricEditBean.rubric.name}
+                    #{rubricSettingsBean.rubric.name}
                 </li>
             </ol>
         </div>
@@ -54,7 +54,7 @@
                     <div class="whiteBox">
                         <h:form id="formMainEditRubric">
                             <p:growl id="growlEditRubric" showDetail="true" globalOnly="true"></p:growl>
-                            <h2>Basic Info</h2>
+                            <h2>Settings</h2>
                             <div class="formWrapper editOrgForm">
                                 <div class="formLine">
                                     <label>Name</label>
@@ -64,7 +64,7 @@
                                                      autofocus="true"
                                                      required="true"
                                                      requiredMessage="#{msg['label.rubric']} name is required"
-                                                     value="#{rubricEditBean.rubric.name}"
+                                                     value="#{rubricSettingsBean.rubric.name}"
                                                      placeholder="Unit Name">
                                         </h:inputText>
 
@@ -76,7 +76,7 @@
                                     <label>Creator</label>
                                     <div class="formLineRight">
                                         <ul class="addedItems">
-                                            <li>#{rubricEditBean.rubric.creatorFullName}</li>
+                                            <li>#{rubricSettingsBean.rubric.creatorFullName}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -86,13 +86,13 @@
                                         <p:commandLink id="saveBtn"
                                                        styleClass="btn btn-green"
                                                        value="Save Changes"
-                                                       action="#{rubricEditBean.updateRubric()}" update="@form :headerRubricName">
+                                                       action="#{rubricSettingsBean.updateRubric()}" update="@form :headerRubricName">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                             <f:param name="learningContext" value="name:rubric|id:#{util:decodeId(param.id)}" />
                                         </p:commandLink>
                                         <p:defaultCommand target="saveBtn" />
                                         <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                       action="#{deleteRubricBean.setRubricForDelete(rubricEditBean.rubric)}"
+                                                       action="#{deleteRubricBean.setRubricForDelete(rubricSettingsBean.rubric)}"
                                                        oncomplete="$('#deleteModal').modal('show');">
                                             Delete
                                         </p:commandLink>
