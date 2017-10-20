@@ -202,6 +202,10 @@ public class CredentialViewBeanUser implements Serializable {
 	 * GETTERS / SETTERS
 	 */
 
+	public ResourceAccessData getAccess() {
+		return access;
+	}
+
 	public String getId() {
 		return id;
 	}

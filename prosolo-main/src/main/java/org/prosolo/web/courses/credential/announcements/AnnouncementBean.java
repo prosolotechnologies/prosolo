@@ -2,6 +2,7 @@ package org.prosolo.web.courses.credential.announcements;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.primefaces.mobile.component.page.Page;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -85,43 +86,23 @@ public class AnnouncementBean implements Serializable, Paginable {
     public void init() {
         if (StringUtils.isNotBlank(credentialId)) {
             try {
-                boolean userEnrolled = false;
                 decodedId = idEncoder.decodeId(credentialId);
 
                 this.credentialData = credManager
                         .getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
-                userEnrolled = credManager.isUserEnrolled(decodedId, loggedUser.getUserId());
 
                 if (credentialData == null) {
                     PageUtil.notFound();
                 } else {
-                    credentialTitle = credentialData.getTitle();
-                    credentialMandatoryFlow = credentialData.isMandatoryFlow();
-                    credentialDurationString = credentialData.getDurationString();
-
                     access = credManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
                             ResourceAccessRequirements.of(AccessMode.MANAGER)
                                     .addPrivilege(UserGroupPrivilege.Instruct)
                                     .addPrivilege(UserGroupPrivilege.Edit));
 
-                    if (loggedUser.hasCapability("course.announcements.view")) {
-                        if (!access.isCanAccess()) {
-                            PageUtil.accessDenied();
-                        } else {
-                            credentialAnnouncements = announcementManager
-                                    .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
-                            paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-                                    idEncoder.decodeId(credentialId)));
-                        }
+                    if (!access.isCanAccess()) {
+                        PageUtil.accessDenied();
                     } else {
-                        if (!userEnrolled) {
-                            PageUtil.accessDenied();
-                        } else {
-                            credentialAnnouncements = announcementManager
-                                    .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
-                            paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-                                    idEncoder.decodeId(credentialId)));
-                        }
+                       initializeCredentialData(this.credentialData);
                     }
                 }
             } catch (ResourceCouldNotBeLoadedException e) {
@@ -132,6 +113,46 @@ public class AnnouncementBean implements Serializable, Paginable {
             logger.error("Could not initialize list of announcements, credentialId is null");
             PageUtil.fireErrorMessage("Error loading announcements");
         }
+    }
+
+    public void initStudent() {
+        if (StringUtils.isNotBlank(credentialId)) {
+            try {
+                boolean userEnrolled = false;
+                decodedId = idEncoder.decodeId(credentialId);
+
+                this.credentialData = credManager
+                        .getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
+                userEnrolled = credManager.isUserEnrolled(decodedId, loggedUser.getUserId());
+
+                if (credentialData == null) {
+                    PageUtil.notFound();
+                } else {
+                    if (!userEnrolled) {
+                        PageUtil.accessDenied();
+                    } else {
+                       initializeCredentialData(this.credentialData);
+                    }
+                }
+            } catch (ResourceCouldNotBeLoadedException e) {
+                logger.error("Could not initialize list of announcements", e);
+                PageUtil.fireErrorMessage("Error loading announcements");
+            }
+        } else {
+            logger.error("Could not initialize list of announcements, credentialId is null");
+            PageUtil.fireErrorMessage("Error loading announcements");
+        }
+    }
+
+    private void initializeCredentialData(CredentialData credentialData) throws ResourceCouldNotBeLoadedException {
+        credentialTitle = credentialData.getTitle();
+        credentialMandatoryFlow = credentialData.isMandatoryFlow();
+        credentialDurationString = credentialData.getDurationString();
+
+        credentialAnnouncements = announcementManager
+                .getAllAnnouncementsForCredential(decodedId, paginationData.getPage() - 1, paginationData.getLimit());
+        paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+                idEncoder.decodeId(credentialId)));
     }
 
     private void resetNewAnnouncementValues() {
