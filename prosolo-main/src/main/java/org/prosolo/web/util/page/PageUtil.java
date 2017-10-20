@@ -241,15 +241,4 @@ public class PageUtil {
 		forward(getSectionForUri(uri).getPrefix() + "/notfound");
 	}
 
-
-	public static boolean checkIfMessageExistsForComponent(String id) {
-		Iterator<String> clientIdsIt = FacesContext.getCurrentInstance().getClientIdsWithMessages();
-		while (clientIdsIt.hasNext()) {
-			boolean found = clientIdsIt.next().endsWith(id);
-			if (found) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

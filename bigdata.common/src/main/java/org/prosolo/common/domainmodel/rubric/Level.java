@@ -18,7 +18,7 @@ public class Level extends BaseEntity{
     private double points;
     private Rubric rubric;
     private int order;
-    private Set<CategoryLevel> categories;
+    private Set<CriterionLevel> criteria;
 
     @Column(name = "points", nullable = false)
     public double getPoints() {
@@ -48,11 +48,11 @@ public class Level extends BaseEntity{
     }
 
     @OneToMany(mappedBy = "level", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    public Set<CategoryLevel> getCategories() {
-        return categories;
+    public Set<CriterionLevel> getCriteria() {
+        return criteria;
     }
 
-    public void setCategories(Set<CategoryLevel> categories) {
-        this.categories = categories;
+    public void setCriteria(Set<CriterionLevel> criteria) {
+        this.criteria = criteria;
     }
 }

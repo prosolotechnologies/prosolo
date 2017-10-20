@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.rubrics;
 
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
@@ -26,13 +26,13 @@ public class RubricData extends StandardObservable implements Serializable {
     private String creatorFullName;
     private long creatorId;
 
-    private List<RubricCategoryData> categories;
+    private List<RubricCriterionData> criteria;
     private List<RubricItemData> levels;
 
     private boolean readyToUse;
 
     public RubricData() {
-        categories = new ArrayList<>();
+        criteria = new ArrayList<>();
         levels = new ArrayList<>();
     }
 
@@ -46,33 +46,48 @@ public class RubricData extends StandardObservable implements Serializable {
         this.creatorId = rubric.getCreator().getId();
     }
 
-    public void syncLevel(RubricItemData level) {
-        if (!level.isItemSynced()) {
-            for (RubricCategoryData category : categories) {
-                category.addLevel(level,null);
-            }
-            level.setItemSynced(true);
+    private void syncLevel(RubricItemData level) {
+        for (RubricCriterionData crit : criteria) {
+            crit.addLevel(level,null);
         }
     }
 
-    public void syncCategory(RubricCategoryData category) {
-        if (!category.isItemSynced()) {
-            for (RubricItemData level : levels) {
-                category.addLevel(level, null);
-            }
-            category.setItemSynced(true);
+    private void syncCriterion(RubricCriterionData criterion) {
+        for (RubricItemData level : levels) {
+            criterion.addLevel(level, null);
         }
     }
 
-    public void syncCategoryWithExistingDescriptions(RubricCategoryData category, Map<RubricItemData, String> descriptions) {
-        if (!category.isItemSynced()) {
-            descriptions.forEach((lvl, desc) -> category.addLevel(lvl, desc));
-            category.setItemSynced(true);
-        }
+    public void syncCriterionWithExistingDescriptions(RubricCriterionData criterion, Map<RubricItemData, String> descriptions) {
+        descriptions.forEach((lvl, desc) -> criterion.addLevel(lvl, desc));
     }
 
-    public void sortCategories() {
-        sortItems(categories);
+    /**
+     * Adds level to collection of levels and adds it to all rubric criteria.
+     *
+     * Should be called when new level (not persistent) is created and should be added to levels collection.
+     *
+     * @param lvl
+     */
+    public void addNewLevel(RubricItemData lvl) {
+        levels.add(lvl);
+        syncLevel(lvl);
+    }
+
+    /**
+     * Adds criterion to criteria collection and adds all rubric levels to this criterion's levels collection.
+     *
+     * Should be called when new criterion (not persistent) is created and should be added to criteria collection.
+     *
+     * @param criterion
+     */
+    public void addNewCriterion(RubricCriterionData criterion) {
+        criteria.add(criterion);
+        syncCriterion(criterion);
+    }
+
+    public void sortCriteria() {
+        sortItems(criteria);
     }
 
     public void sortLevels() {
@@ -83,8 +98,8 @@ public class RubricData extends StandardObservable implements Serializable {
         items.sort(Comparator.comparing(RubricItemData::getOrder));
     }
 
-    public void addCategory(RubricCategoryData category) {
-        getCategories().add(category);
+    public void addCriterion(RubricCriterionData criterion) {
+        getCriteria().add(criterion);
     }
 
     public void addLevel(RubricItemData level) {
@@ -131,8 +146,8 @@ public class RubricData extends StandardObservable implements Serializable {
         this.creatorId = creatorId;
     }
 
-    public List<RubricCategoryData> getCategories() {
-        return categories;
+    public List<RubricCriterionData> getCriteria() {
+        return criteria;
     }
 
     public List<RubricItemData> getLevels() {
