@@ -9,22 +9,22 @@
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <div class="rubricsPreview">
-                            <p><strong>Creator:</strong> #{rubricCategoriesBean.rubric.creatorFullName}</p>
-                            <ui:fragment rendered="#{empty rubricCategoriesBean.rubric.categories}">
+                            <p><strong>Creator:</strong> #{rubricCriteriaBean.rubric.creatorFullName}</p>
+                            <ui:fragment rendered="#{empty rubricCriteriaBean.rubric.criteria}">
                                 <div class="noContentMessage">
                                     <p>
-                                        No categories and levels defined.
+                                        No criteria and levels defined.
                                     </p>
                                 </div>
                             </ui:fragment>
-                            <ui:repeat value="#{rubricCategoriesBean.rubric.categories}" var="cat">
+                            <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
                                 <h2>#{cat.name} -
                                     <h:outputLabel value="#{cat.points}">
                                         <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
                                     </h:outputLabel>%
                                 </h2>
                                 <table class="rubricsTable readOnly">
-                                    <ui:repeat value="#{rubricCategoriesBean.rubric.levels}" var="lvl">
+                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
                                         <tr>
                                             <td class="col01">#{lvl.name}</td>
                                             <td class="col02">

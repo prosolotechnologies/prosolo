@@ -5042,7 +5042,7 @@ header {
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem input[type="number"] {
-        width: 60px;
+        width: 80px;
         flex-shrink: 0;
         margin: 0 5px 0 10px; }
       /* line 4220, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */

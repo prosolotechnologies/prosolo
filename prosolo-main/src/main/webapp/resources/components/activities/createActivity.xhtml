@@ -203,7 +203,7 @@
 													</ui:fragment>
 													<ui:fragment rendered="#{not activityEditBean.limitedEdit}">
 														<div class="formLineRight">
-															<h:selectOneMenu value="#{activityEditBean.activityData.gradingMode}" styleClass="selectpicker gradingModeSelector"
+															<h:selectOneMenu binding="#{selectGradingMode}" value="#{activityEditBean.activityData.gradingMode}" styleClass="selectpicker gradingModeSelector"
 																			 onchange="gradingModeChanged(this);">
 																<f:selectItems value="#{activityEditBean.gradingModes}" var="gm" itemLabel="#{gm.description}" itemValue="#{gm.gradingMode}" />
 															</h:selectOneMenu>
@@ -222,7 +222,9 @@
 													<h:inputText disabled="#{activityEditBean.limitedEdit}" id="maxPoints"
 																 styleClass="maxPointsInputSelector"
 																 value="#{activityEditBean.activityData.maxPointsString}"
-																 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
+																 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off"
+																 validator="#{activityEditBean.validateMaxPoints}">
+														<f:attribute name="gradingModeComp" value="#{selectGradingMode}" />
 														<f:convertNumber integerOnly="true" />
 													</h:inputText>
 													<h:panelGroup layout="block" id="panelAcceptGrades" styleClass="checkbox checkLine checkAcceptGradesPanelSelector" style="#{activityEditBean.activityData.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
@@ -248,7 +250,7 @@
 														<ul class="addedItems">
 															<li>
 																<ui:fragment rendered="#{activityEditBean.activityData.rubricId gt 0}">
-																	<h:link outcome="/manage/rubric-categories">
+																	<h:link outcome="/manage/rubric-criteria">
 																		<f:param name="id" value="#{util:encodeId(activityEditBean.activityData.rubricId)}"/>
 																		#{activityEditBean.activityData.rubricName}
 																	</h:link>

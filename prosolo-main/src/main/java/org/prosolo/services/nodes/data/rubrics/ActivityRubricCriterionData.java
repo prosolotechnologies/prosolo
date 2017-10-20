@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.rubrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,26 +8,17 @@ import java.util.List;
  * @date 2017-10-13
  * @since 1.0.0
  */
-public class ActivityRubricCategoryData extends ActivityRubricItemData {
+public class ActivityRubricCriterionData extends ActivityRubricItemData {
 
     private static final long serialVersionUID = -4078621694036398105L;
 
-    private long categoryAssessmentId;
     private List<ActivityRubricLevelData> levels;
     //currently selected level for a student
     private long levelId;
     private String comment;
 
-    public ActivityRubricCategoryData() {
+    public ActivityRubricCriterionData() {
         levels = new ArrayList<>();
-    }
-
-    public long getCategoryAssessmentId() {
-        return categoryAssessmentId;
-    }
-
-    public void setCategoryAssessmentId(long categoryAssessmentId) {
-        this.categoryAssessmentId = categoryAssessmentId;
     }
 
     public List<ActivityRubricLevelData> getLevels() {

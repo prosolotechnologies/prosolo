@@ -22,18 +22,24 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
 import org.prosolo.web.courses.activity.util.GradingModeDescription;
+import org.prosolo.web.courses.validator.NumberValidatorUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
@@ -451,6 +457,34 @@ public class ActivityEditBean implements Serializable {
 	 
 	public String getPageHeaderTitle() {
 		return activityData.getActivityId() > 0 ? activityData.getTitle() : "New Activity";
+	}
+
+	/*
+	VALIDATORS
+	 */
+
+	public void validateMaxPoints(FacesContext context, UIComponent component, Object value) {
+		UIInput input = (UIInput) component.getAttributes().get("gradingModeComp");
+		if (input != null && GradingMode.NONGRADED != input.getValue()) {
+			String validationMsg = null;
+			boolean valid = true;
+			//we check if value is entered and whether integer is greater than zero, other validator checks if valid number is entered
+			if (value == null || value.toString().trim().isEmpty()) {
+				validationMsg = "Maximum number of points must be defined";
+				valid = false;
+			} else if (NumberValidatorUtil.isInteger(value.toString())) {
+				int i = Integer.parseInt(value.toString());
+				if (i <= 0) {
+					validationMsg = "Maximum number of points must be greater than zero";
+					valid = false;
+				}
+			}
+			if (!valid) {
+				FacesMessage msg = new FacesMessage(validationMsg);
+				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+				throw new ValidatorException(msg);
+			}
+		}
 	}
 	
 	/*

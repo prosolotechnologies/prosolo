@@ -1,7 +1,5 @@
 package org.prosolo.common.domainmodel.rubric;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -9,7 +7,6 @@ import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,12 +21,12 @@ public class Rubric extends BaseEntity {
 
     private User creator;
     private Organization organization;
-    private Set<Category> categories;
+    private Set<Criterion> criteria;
     private Set<Level> levels;
     private boolean readyToUse;
 
     public Rubric() {
-        categories = new HashSet<>();
+        criteria = new HashSet<>();
         levels = new HashSet<>();
     }
 
@@ -62,12 +59,12 @@ public class Rubric extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "rubric", cascade = CascadeType.REMOVE)
-    public Set<Category> getCategories() {
-        return categories;
+    public Set<Criterion> getCriteria() {
+        return criteria;
     }
 
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
+    public void setCriteria(Set<Criterion> criteria) {
+        this.criteria = criteria;
     }
 
     @Type(type = "true_false")

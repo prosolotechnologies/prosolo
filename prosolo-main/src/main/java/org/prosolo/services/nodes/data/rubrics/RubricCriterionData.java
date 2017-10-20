@@ -1,4 +1,6 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.rubrics;
+
+import org.prosolo.services.nodes.data.ObjectStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,20 +10,20 @@ import java.util.Map;
  * @date 2017-09-22
  * @since 1.0.0
  */
-public class RubricCategoryData extends RubricItemData {
+public class RubricCriterionData extends RubricItemData {
 
-    //list of levels for category
+    //collection of levels for criterion
     private Map<RubricItemData, RubricItemDescriptionData> levels = new HashMap<>();
 
-    public RubricCategoryData() {
+    public RubricCriterionData() {
         super();
     }
 
-    public RubricCategoryData(ObjectStatus status) {
+    public RubricCriterionData(ObjectStatus status) {
         super(status);
     }
 
-    public RubricCategoryData(long id, String name, double points, int order) {
+    public RubricCriterionData(long id, String name, double points, int order) {
         super(id, name, points, order);
     }
 

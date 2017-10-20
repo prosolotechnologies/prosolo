@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -62,7 +63,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
-	private List<ActivityRubricCategoryData> rubricCategories;
+	private List<ActivityRubricCriterionData> rubricCategories;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -463,7 +464,7 @@ public class ActivityViewBeanUser implements Serializable {
 		return access;
 	}
 
-	public List<ActivityRubricCategoryData> getRubricCategories() {
+	public List<ActivityRubricCriterionData> getRubricCategories() {
 		return rubricCategories;
 	}
 }

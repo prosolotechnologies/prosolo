@@ -18,6 +18,15 @@ public class NumberValidatorUtil {
         }
     }
 
+    public static boolean isInteger(String input) {
+        try {
+            Integer.parseInt(input);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public static boolean isDoubleInRange(double d, double min, double max) {
         return d >= min && d <= max;
     }
