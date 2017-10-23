@@ -245,8 +245,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 			parameters.put("credentialId", credentialId + "");
 			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, context,
-						adm, aa, null, parameters);
+				assessmentManager.generateAssessmentCommentEvent(adm, aa, parameters, loggedUserBean.getUserContext());
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

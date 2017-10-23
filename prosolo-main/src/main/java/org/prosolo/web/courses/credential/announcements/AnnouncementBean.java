@@ -158,8 +158,9 @@ public class AnnouncementBean implements Serializable, Paginable {
 				parameters.put("credentialId", credentialId + "");
 				parameters.put("publishMode", newAnouncementPublishMode.getText());
 				try {
-					eventFactory.generateEvent(EventType.AnnouncementPublished, context,
-							announcement, cred, null, parameters);
+					/*eventFactory.generateEvent(EventType.AnnouncementPublished, context,
+							announcement, cred, null, parameters);*/
+					announcementManager.generateAnnouncementPublishedEvent(cred, announcement, parameters, context);
 				} catch (Exception e) {
 					logger.error("Eror sending notification for announcement", e);
 				}

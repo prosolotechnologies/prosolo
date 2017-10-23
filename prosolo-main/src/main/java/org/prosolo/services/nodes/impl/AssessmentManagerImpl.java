@@ -1587,4 +1587,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	@Override
+	@Transactional
+	public void generateAssessmentCommentEvent(ActivityDiscussionMessage adm, ActivityAssessment aa, Map<String, String> parameters,
+											   UserContextData contextData) throws EventException {
+		try {
+			eventFactory.generateEvent(EventType.AssessmentComment, contextData,
+					adm, aa, null, parameters);
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new EventException("Error while generating event.");
+		}
+	}
+
 }

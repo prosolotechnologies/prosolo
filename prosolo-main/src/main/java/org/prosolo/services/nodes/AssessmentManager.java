@@ -5,6 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -21,6 +22,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface AssessmentManager {
@@ -185,5 +187,8 @@ public interface AssessmentManager {
 
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
+
+	void generateAssessmentCommentEvent(ActivityDiscussionMessage adm,ActivityAssessment aa,Map<String,String> parameters,
+										UserContextData contextData) throws EventException;
 
 }

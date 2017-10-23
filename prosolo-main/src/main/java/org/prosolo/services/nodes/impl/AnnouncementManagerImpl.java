@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -10,10 +11,14 @@ import org.hibernate.Query;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.SeenAnnouncement;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
@@ -28,6 +33,8 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	
 	@Inject
 	private UrlIdEncoder idEncoder;
+	@Inject
+	private EventFactory eventFactory;
 
 	private static final long serialVersionUID = 1L;
 	private static final String GET_ANNOUNCEMENTS_FOR_CREDENTIAL = 
@@ -114,6 +121,18 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 			return mapToData(lastAnnouncement);
 		}
 		else return null;
+	}
+
+	@Override
+	public void generateAnnouncementPublishedEvent(Credential1 credential1, Announcement announcement, Map<String, String> parameters, UserContextData contextData) throws EventException {
+		try {
+			eventFactory.generateEvent(EventType.AnnouncementPublished, contextData,
+					announcement, credential1, null, parameters);
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new EventException("Error while generating event.");
+		}
 	}
 
 	private Query getAnnouncementsForCredentialQuery(Long credentialId, int page, int limit, boolean deleted) {
