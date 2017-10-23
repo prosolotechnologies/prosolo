@@ -115,7 +115,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 		}
 	}
 	
-	public void resetNewAnnouncementValues() {
+	private void resetNewAnnouncementValues() {
 		newAnnouncementTitle = "";
 		newAnnouncementText = "";
 	}

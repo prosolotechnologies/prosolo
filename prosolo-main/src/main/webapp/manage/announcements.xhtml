@@ -91,7 +91,6 @@
 								<p:commandLink process="@this" styleClass="btn btn-green"
 											   pt:data-toggle="modal"
 											   update=":newAnnouncementForm:announcementModalPanel"
-											   action="#{announcementBean.resetNewAnnouncementValues()}"
 											   oncomplete="$('#newAnnouncementModal').modal('show');">New Announcement
 								<p:resetInput target=":newAnnouncementForm:announcementModalPanel" />
 								</p:commandLink>
@@ -200,7 +199,10 @@
 
 								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="title" id="errorInputTitle"/></small>
 
-								<h:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}" id="newAnnouncementText" />
+								<h:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}"
+												 id="newAnnouncementText" required="true" requiredMessage="Announcement text is required"/>
+
+								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="newAnnouncementText" id="errorAnnouncementText"/></small>
 
 								<script>
 									tinymce.remove('#newAnnouncementForm\\:newAnnouncementText');
@@ -236,7 +238,7 @@
 											   styleClass="btn btn-green"
 											   action="#{announcementBean.publishAnnouncement()}"
 											   onclick="copyTextFromTinyMCEToTextarea('#newAnnouncementForm\\:newAnnouncementText');"
-											   update=":containerDiv :newAnnouncementForm:errorInputTitle"
+											   update=":containerDiv :newAnnouncementForm:errorInputTitle :newAnnouncementForm:errorAnnouncementText"
 											   oncomplete="if (args &amp;&amp; !args.validationFailed){ hideConfirmDialog('newAnnouncementModal');}"
 								/>
 							</div>

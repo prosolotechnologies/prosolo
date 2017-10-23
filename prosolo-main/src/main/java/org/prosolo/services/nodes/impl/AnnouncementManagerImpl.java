@@ -171,9 +171,6 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	private AnnouncementData persistAnnouncement(Long credentialId, String title, String text, Long creatorId) throws DbConnectionException {
 		try {
 			Announcement announcement = new Announcement();
-			if (title.equals("") || credentialId == 0 || creatorId == 0) {
-				throw new NullPointerException("Error while saving announcement data");
-			}
 			announcement.setTitle(title);
 			announcement.setText(text);
 			announcement.setDateCreated(new Date());
@@ -185,20 +182,15 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 				logger.error(e);
 			}
 			//create and add credential
-			Credential1 credential = new Credential1();
-			credential.setId(credentialId);
+			Credential1 credential = loadResource(Credential1.class, credentialId);
 			announcement.setCredential(credential);
 			Announcement newAnnouncement = saveEntity(announcement);
 			return mapToData(newAnnouncement);
-		} catch (NullPointerException npe) {
-			throw npe;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error",e);
 			throw new DbConnectionException("Error while saving announcement data");
 		}
 	}
-	
 
 	private void persistSeenAnnouncement(Long announcementId, Long userId) {
 		SeenAnnouncement seen = new SeenAnnouncement();
