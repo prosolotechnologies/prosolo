@@ -32,6 +32,7 @@ import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -55,7 +56,7 @@ import java.util.Map;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
-@Scope(value = "session")
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class LoggedUserBean implements Serializable, HttpSessionBindingListener {
 
 	private static final long serialVersionUID = 1404040093737456717L;
