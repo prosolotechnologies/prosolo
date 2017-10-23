@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -43,6 +44,7 @@ public class ActivityViewBeanAdmin implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -66,7 +68,7 @@ public class ActivityViewBeanAdmin implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 
-		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
 				if (credId != null) {
 					decodedCredId = idEncoder.decodeId(credId);

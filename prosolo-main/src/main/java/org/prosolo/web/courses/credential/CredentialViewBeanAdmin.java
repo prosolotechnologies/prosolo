@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -37,6 +38,7 @@ public class CredentialViewBeanAdmin implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -55,7 +57,7 @@ public class CredentialViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedId = idEncoder.decodeId(id);
 
-		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
 				try {
 					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);

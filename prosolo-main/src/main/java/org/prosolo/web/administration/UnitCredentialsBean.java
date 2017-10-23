@@ -17,6 +17,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -44,6 +45,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	@Inject private CredentialManager credManager;
 	@Inject private UnitManager unitManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String unitId;
 	private long decodedUnitId;
@@ -70,7 +72,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 
-		if (loggedUserBean.getOrganizationId() == decodedOrgId || loggedUserBean.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0) {
 				if (page > 0) {
 					paginationData = PaginationData.forPage(page);

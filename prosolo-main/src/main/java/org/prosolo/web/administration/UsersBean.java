@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -54,7 +55,10 @@ public class UsersBean implements Serializable,Paginable{
 	private UserManager userManager;
 	@Inject
 	private OrganizationManager orgManager;
-	@Inject private ImportUsersBean importUsersBean;
+	@Inject
+	private ImportUsersBean importUsersBean;
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -89,7 +93,7 @@ public class UsersBean implements Serializable,Paginable{
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
 
-		if(loggedUserBean.getOrganizationId() == decodedOrgId || loggedUserBean.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0) {
 				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
 				if (orgTitle == null) {

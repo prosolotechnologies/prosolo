@@ -7,6 +7,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,6 +41,8 @@ public class UnitEditBean implements Serializable {
     private UnitManager unitManager;
     @Inject
     private OrganizationManager organizationManager;
+    @Inject
+    private PageAccessRightsResolver pageAccessRightsResolver;
 
     private UnitData unit;
     private String id;
@@ -52,7 +55,7 @@ public class UnitEditBean implements Serializable {
             this.decodedId = idEncoder.decodeId(id);
             long decodedOrgId = idEncoder.decodeId(organizationId);
 
-            if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+            if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
                 this.unit = unitManager.getUnitData(decodedId);
                 this.organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
             } else {

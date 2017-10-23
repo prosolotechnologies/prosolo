@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -45,6 +46,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private ImportUsersBean importUsersBean;
 	@Inject private RoleManager roleManager;
 	@Inject private LoggedUserBean loggedUser;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 	
 	private List<UserData> users;
 
@@ -71,7 +73,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedGroupId = idEncoder.decodeId(groupId);
 
-		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
 				try {
 					TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(

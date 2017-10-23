@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,6 +58,8 @@ public class OrganizationEditBean implements Serializable {
     private RoleManager roleManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
+    @Inject
+    private PageAccessRightsResolver pageAccessRightsResolver;
 
     private OrganizationData organization;
     private List<UserData> admins;
@@ -73,7 +76,7 @@ public class OrganizationEditBean implements Serializable {
         try {
             decodedId = idEncoder.decodeId(id);
 
-            if (loggedUser.getOrganizationId() == decodedId || loggedUser.hasCapability("admin.advanced")) {
+            if (pageAccessRightsResolver.canAccessOrganizationPage(decodedId).isCanAccess()) {
                 rolesArray = new String[]{"Admin","Super Admin"};
                 adminRoles = roleManager.getRolesByNames(rolesArray);
                 for(Role r : adminRoles){

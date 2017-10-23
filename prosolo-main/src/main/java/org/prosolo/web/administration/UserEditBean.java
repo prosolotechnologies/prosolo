@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,8 @@ public class UserEditBean implements Serializable {
 	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 	@Autowired
 	private UserTextSearch textSearch;
 	@Inject private OrganizationManager organizationManager;
@@ -94,20 +96,27 @@ public class UserEditBean implements Serializable {
 		try {
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
-				decodedId = idEncoder.decodeId(id);
-				user = userManager.getUserData(decodedId);
-				accountData = new AccountData();
-				usersToExclude.add(user);
-				if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+				if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+					initDataForPasswordEdit();
 					initOrgTitle();
 				} else {
 					PageUtil.accessDenied();
 				}
+			} else {
+				initDataForPasswordEdit();
 			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
+	}
+
+
+	private void initDataForPasswordEdit() {
+		decodedId = idEncoder.decodeId(id);
+		user = userManager.getUserData(decodedId);
+		accountData = new AccountData();
+		usersToExclude.add(user);
 	}
 
 	private void initOrgTitle() {

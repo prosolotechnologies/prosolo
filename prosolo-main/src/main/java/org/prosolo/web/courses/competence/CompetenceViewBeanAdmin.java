@@ -10,6 +10,7 @@ import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -52,7 +54,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedCompId = idEncoder.decodeId(compId);
 
-		if (loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
 				if (credId != null) {
 					decodedCredId = idEncoder.decodeId(credId);
