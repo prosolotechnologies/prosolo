@@ -1,15 +1,14 @@
 package org.prosolo.util.logging;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Properties;
+import org.apache.log4j.net.SMTPAppender;
+import org.prosolo.app.Settings;
 
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-
-import org.apache.log4j.net.SMTPAppender;
-import org.prosolo.app.Settings;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
 
 /**
  * @author Zoran Jeremic Sep 19, 2014
@@ -77,6 +76,6 @@ public class GmailAppender extends SMTPAppender {
 		  		} catch (UnknownHostException e) {	 
 			e.printStackTrace();	 
 		  }
- 		super.setSubject(subject+" BC["+Settings.getInstance().config.init.bcName+"]["+this.ipAddress+"]");
+ 		super.setSubject(subject+" BC["+Settings.getInstance().config.init.localization+"]["+this.ipAddress+"]");
  	}
  }

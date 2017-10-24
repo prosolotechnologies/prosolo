@@ -152,6 +152,7 @@ public class User extends BaseEntity {
 	}
 	
 	@Enumerated
+	@Column(nullable = false)
 	public UserType getUserType() {
 		return userType;
 	}
