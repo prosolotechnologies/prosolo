@@ -127,9 +127,25 @@ public interface UnitManager extends AbstractManager{
 
     List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
 
+    List<UnitData> getUnitsWithRubricSelectionInfo(long organizationId, long rubricId)
+            throws DbConnectionException;
+
+    void addRubricToUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> addRubricToUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    void removeRubricFromUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> removeRubricFromUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
     boolean isCredentialConnectedToUnit(long credId, long unitId, CredentialType type) throws DbConnectionException;
 
     boolean isCompetenceConnectedToUnit(long compId, long unitId) throws DbConnectionException;
 
     boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException;
+
 }

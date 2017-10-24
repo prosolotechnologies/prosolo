@@ -14,6 +14,8 @@ import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -238,4 +240,5 @@ public class PageUtil {
 	public static void notFound(String uri) {
 		forward(getSectionForUri(uri).getPrefix() + "/notfound");
 	}
+
 }

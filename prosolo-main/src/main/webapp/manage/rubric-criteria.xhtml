@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:rubrics="http://java.sun.com/jsf/composite/components/manage/rubrics"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:define name="windowTitle">
+        #{rubricCriteriaBean.rubric.name} - #{msg['label.rubric']}
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{rubricCriteriaBean.rubricId}" default="null" />
+            <f:viewAction action="#{rubricCriteriaBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{rubricCriteriaBean.rubric.name}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <c:if test="#{rubricCriteriaBean.currentUserCreator}">
+            <rubrics:rubricMenu/>
+        </c:if>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="whiteBar">
+
+        </div>
+
+        <c:choose>
+        <c:when test="#{rubricCriteriaBean.currentUserCreator}">
+            <ui:include src="/manage/rubric-criteria-edit.xhtml" />
+        </c:when>
+        <c:otherwise>
+            <ui:include src="/manage/rubric-criteria-readonly.xhtml" />
+        </c:otherwise>
+        </c:choose>
+    </ui:define>
+</ui:composition>
