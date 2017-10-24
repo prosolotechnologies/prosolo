@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -15,29 +16,34 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
+import org.prosolo.web.courses.activity.util.GradingModeDescription;
+import org.prosolo.web.courses.validator.NumberValidatorUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ManagedBean(name = "activityEditBean")
 @Component("activityEditBean")
@@ -56,6 +62,8 @@ public class ActivityEditBean implements Serializable {
 	@Inject private HTMLParser htmlParser;
 	@Inject private CredentialManager credManager;
 	@Inject private ContextJsonParserService contextParser;
+	@Inject private RubricManager rubricManager;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private String compId;
@@ -73,6 +81,10 @@ public class ActivityEditBean implements Serializable {
 	private ActivityType[] activityTypes;
 	
 	private ActivityResultType[] resultTypes;
+
+	private GradingModeDescription[] gradingModes;
+	private List<RubricData> rubrics;
+	private ActivityRubricVisibilityDescription[] rubricVisibilityTypes;
 	
 	private String context;
 	
@@ -97,6 +109,7 @@ public class ActivityEditBean implements Serializable {
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
+				loadAssessmentData();
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -104,6 +117,30 @@ public class ActivityEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
+	}
+
+	private void loadAssessmentData() {
+		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
+		if (isLimitedEdit()) {
+			Optional<GradingModeDescription> gradingMode = Arrays.stream(GradingModeDescription.values()).filter(gm -> activityData.getGradingMode() == gm.getGradingMode()).findFirst();
+			gradingModes = new GradingModeDescription[] {gradingMode.get()};
+			if (activityData.getRubricId() > 0) {
+				activityData.setRubricName(rubricManager.getRubricName(activityData.getRubricId()));
+			}
+		} else {
+			gradingModes = GradingModeDescription.values();
+			List<Long> unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
+			if (unitIds.isEmpty()) {
+				rubrics = new ArrayList<>();
+			} else {
+				rubrics = rubricManager.getPreparedRubricsFromUnits(unitIds);
+			}
+		}
+	}
+
+	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
+		activityData = res.getResource();
+		access = res.getAccess();
 	}
 	
 	public boolean isLimitedEdit() {
@@ -421,6 +458,34 @@ public class ActivityEditBean implements Serializable {
 	public String getPageHeaderTitle() {
 		return activityData.getActivityId() > 0 ? activityData.getTitle() : "New Activity";
 	}
+
+	/*
+	VALIDATORS
+	 */
+
+	public void validateMaxPoints(FacesContext context, UIComponent component, Object value) {
+		UIInput input = (UIInput) component.getAttributes().get("gradingModeComp");
+		if (input != null && GradingMode.NONGRADED != input.getValue()) {
+			String validationMsg = null;
+			boolean valid = true;
+			//we check if value is entered and whether integer is greater than zero, other validator checks if valid number is entered
+			if (value == null || value.toString().trim().isEmpty()) {
+				validationMsg = "Maximum number of points must be defined";
+				valid = false;
+			} else if (NumberValidatorUtil.isInteger(value.toString())) {
+				int i = Integer.parseInt(value.toString());
+				if (i <= 0) {
+					validationMsg = "Maximum number of points must be greater than zero";
+					valid = false;
+				}
+			}
+			if (!valid) {
+				FacesMessage msg = new FacesMessage(validationMsg);
+				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+				throw new ValidatorException(msg);
+			}
+		}
+	}
 	
 	/*
 	 * GETTERS / SETTERS
@@ -490,4 +555,15 @@ public class ActivityEditBean implements Serializable {
 		this.resultTypes = resultTypes;
 	}
 
+	public List<RubricData> getRubrics() {
+		return rubrics;
+	}
+
+	public ActivityRubricVisibilityDescription[] getRubricVisibilityTypes() {
+		return rubricVisibilityTypes;
+	}
+
+	public GradingModeDescription[] getGradingModes() {
+		return gradingModes;
+	}
 }
