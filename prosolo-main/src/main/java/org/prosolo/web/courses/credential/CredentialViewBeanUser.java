@@ -4,24 +4,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -41,7 +30,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +59,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private EventFactory eventFactory;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
-	
+	@Inject private AnnouncementManager announcementManager;
 
 	private String id;
 	private long decodedId;
@@ -83,12 +71,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private ResourceAccessData access;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
-	private boolean noRandomAssessor = false;
-
-	// used for search in the Ask for Assessment modal
-	private List<UserData> peersForAssessment;
-	private String peerSearchTerm;
-	private List<Long> peersToExcludeFromSearch;
+	private int numberOfAnnouncements;
 	
 	private int numberOfTags;
 
@@ -97,7 +80,7 @@ public class CredentialViewBeanUser implements Serializable {
 		if (decodedId > 0) {
 			try {
 				retrieveUserCredentialData();
-				
+				numberOfAnnouncements = announcementManager.numberOfAnnouncementsForCredential(decodedId);
 				/*
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
 				 */
@@ -191,123 +174,12 @@ public class CredentialViewBeanUser implements Serializable {
 		return credentialData.getCompetences().size() != index + 1;
 	}
 
-	/*
-	 * Ask for Assessment modal
-	 */
-	public void resetAskForAssessmentModal() {
-		noRandomAssessor = false;
-		assessmentRequestData = new AssessmentRequestData();
-		peersForAssessment = null;
-		peerSearchTerm = null;
-	}
-
-	public void chooseRandomPeerForAssessor() {
-		resetAskForAssessmentModal();
-
-		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
-
-		if (randomPeer != null) {
-			assessmentRequestData.setAssessorId(randomPeer.getId());
-			assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
-			assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
-			noRandomAssessor = false;
-		} else {
-			noRandomAssessor = true;
-			;
-		}
-	}
-
-	public void searchCredentialPeers() {
-		if (peerSearchTerm == null && peerSearchTerm.isEmpty()) {
-			peersForAssessment = null;
-		} else {
-			try {
-				if (peersToExcludeFromSearch == null) {
-					peersToExcludeFromSearch = credentialManager
-							.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
-					peersToExcludeFromSearch.add(loggedUser.getUserId());
-				}
-
-				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
-						loggedUser.getOrganizationId(), peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
-				peersForAssessment = result.getFoundNodes();
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		}
-	}
-
 	public void setupAssessmentRequestRecepient() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String id = params.get("assessmentRecipient");
 		if (StringUtils.isNotBlank(id)) {
 			assessmentRequestData.setAssessorId(Long.valueOf(id));
 		}
-	}
-
-	public void setAssessor(UserData assessorData) {
-		assessmentRequestData.setAssessorId(assessorData.getId());
-		assessmentRequestData.setAssessorFullName(assessorData.getFullName());
-		assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
-
-		noRandomAssessor = false;
-	}
-
-	public void submitAssessment() {
-		try {
-			// at this point, assessor should be set either from credential data or
-			// user-submitted peer id
-			if (assessmentRequestData.isAssessorSet()) {
-				populateAssessmentRequestFields();
-				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
-				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, loggedUser.getUserContext());
-
-				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
-
-				PageUtil.fireSuccessfulInfoMessage("You assessment request is sent");
-
-				if (peersToExcludeFromSearch != null) {
-					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
-				}
-			} else {
-				logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
-						+ credentialData.getId() + ", but credential has no assessor/instructor set!");
-				PageUtil.fireErrorMessage("No assessor set");
-			}
-			resetAskForAssessmentModal();
-		} catch (EventException e) {
-			logger.error(e);
-		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while seding assessment request");
-		}
-	}
-
-	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
-		UserContextData context = loggedUser.getUserContext();
-		taskExecutor.execute(() -> {
-			User assessor = new User();
-			assessor.setId(assessorId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(assessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", decodedId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
-						null, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
-			}
-		});
-
-	}
-
-	private void populateAssessmentRequestFields() {
-		assessmentRequestData.setCredentialTitle(credentialData.getTitle());
-		assessmentRequestData.setStudentId(loggedUser.getUserId());
-		assessmentRequestData.setCredentialId(credentialData.getId());
-		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
 
 	public boolean userHasAssessmentForCredential() {
@@ -329,6 +201,10 @@ public class CredentialViewBeanUser implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
+
+	public ResourceAccessData getAccess() {
+		return access;
+	}
 
 	public String getId() {
 		return id;
@@ -394,28 +270,19 @@ public class CredentialViewBeanUser implements Serializable {
 		this.numberOfUsersLearningCred = numberOfUsersLearningCred;
 	}
 
-	public boolean isNoRandomAssessor() {
-		return noRandomAssessor;
-	}
-
-	public String getPeerSearchTerm() {
-		return peerSearchTerm;
-	}
-
-	public void setPeerSearchTerm(String peerSearchTerm) {
-		this.peerSearchTerm = peerSearchTerm;
-	}
-
-	public List<UserData> getPeersForAssessment() {
-		return peersForAssessment;
-	}
-
 	public int getNumberOfTags() {
 		return numberOfTags;
 	}
 
-	public ResourceAccessData getAccess() {
-		return access;
+	public void setNumberOfTags(int numberOfTags) {
+		this.numberOfTags = numberOfTags;
 	}
 
+	public int getNumberOfAnnouncements() {
+		return numberOfAnnouncements;
+	}
+
+	public void setNumberOfAnnouncements(int numberOfAnnouncements) {
+		this.numberOfAnnouncements = numberOfAnnouncements;
+	}
 }

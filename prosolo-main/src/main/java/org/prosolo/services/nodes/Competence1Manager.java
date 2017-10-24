@@ -71,7 +71,7 @@ public interface Competence1Manager {
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
 	
-	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
+	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
 		  boolean loadActivities) throws DbConnectionException;
 	
 	
