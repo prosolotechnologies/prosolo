@@ -163,24 +163,47 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li>
-					<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-				</li>
-				<li>
-					<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
-						<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
-					</h:link>
-				</li>
+				<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
+					<li>
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary" />
+					</li>
+					<li>
+						<h:link value="#{cc.attrs.bean.credentialTitle}"
+								outcome="/manage/create-credential">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}" />
+						</h:link>
+					</li>
+					<li>
+						<h:link value="Students" outcome="credential-students">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"></f:param>
+						</h:link>
+					</li>
 
-				<li>
-					<h:link value="Assessments" outcome="/assessments">
-						<f:param name="id" value="#{param.id}" />
-					</h:link>
-				</li>
+					<li class="active">#{cc.attrs.bean.fullAssessmentData.studentFullName}</li>
+				</ui:fragment>
 
-				<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+				<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
+					<li>
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+					</li>
+					<li>
+						<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
+						</h:link>
+					</li>
+
+					<li>
+						<h:link value="Assessments" outcome="/assessments">
+							<f:param name="id" value="#{param.id}" />
+						</h:link>
+					</li>
+
+					<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+				</ui:fragment>
 			</ol>
+		</div>
 
+		<div class="container">
 			<div class="row">
 				<div class="col-md-9 mandatoryFlow">
 					<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
@@ -208,19 +231,10 @@
 								</ul>
 							</div>
 						</div>
-
-						<p>Here you can assess this #{msg['label.credential'].toLowerCase()} for
-							#{cc.attrs.bean.fullAssessmentData.studentFullName}. All comments
-							between #{cc.attrs.bean.fullAssessmentData.studentFullName} and
-							you are private.</p>
 					</ui:fragment>
 
-					<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-						<p>This is the assessment of your ${msg['label.credential'].toLowerCase()} by
-							#{cc.attrs.bean.fullAssessmentData.assessorFullName}. All comments
-							between #{cc.attrs.bean.fullAssessmentData.assessorFullName} and
-							you are private.</p>
-					</ui:fragment>
+					<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student #{cc.attrs.bean.fullAssessmentData.studentFullName}.
+						All comments between the student and the assessor are private.</p>
 
 					<ui:fragment
 						rendered="#{not empty cc.attrs.bean.fullAssessmentData.message}">
