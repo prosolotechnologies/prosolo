@@ -32,7 +32,7 @@ public class AssessmentData {
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 		}
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
-		data.setTitle(assessment.getTargetCredential().getTitle());
+		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 		data.setApproved(assessment.isApproved());
 		data.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
 		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));

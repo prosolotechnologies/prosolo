@@ -2,13 +2,13 @@ $(function () {
 
 });
 
-function linkCategoryLabels() {
-    $('input[data-category-order]').on('input', function (e) {
-        var order = $(e.target).data('category-order');
-        var name = $('input[data-category-order=' + order + '][data-field=name]').val();
-        var weight = $('input[data-category-order=' + order + '][data-field=weight]').val();
+function linkCriteriaLabels() {
+    $('input[data-criterion-order]').on('input', function (e) {
+        var order = $(e.target).data('criterion-order');
+        var name = $('input[data-criterion-order=' + order + '][data-field=name]').val();
+        var weight = $('input[data-criterion-order=' + order + '][data-field=weight]').val();
         //var name = $(e.target).val();
-        setCategoryNameAndWeight(name, weight, order);
+        setCriterionNameAndWeight(name, weight, order);
     });
 }
 
@@ -35,18 +35,18 @@ function checkNumberOfDecimals(obj, maxNumberOfDecimals) {
     }
 }
 
-function copyCategoryNameAndWeight(order) {
-    var name = $('input[data-category-order=' + order + '][data-field=name]').val();
-    var weight = $('input[data-category-order=' + order + '][data-field=weight]').val();
-    setCategoryNameAndWeight(name, weight, order);
+function copyCriterionNameAndWeight(order) {
+    var name = $('input[data-criterion-order=' + order + '][data-field=name]').val();
+    var weight = $('input[data-criterion-order=' + order + '][data-field=weight]').val();
+    setCriterionNameAndWeight(name, weight, order);
 }
 
-function setCategoryNameAndWeight(name, weight, order) {
+function setCriterionNameAndWeight(name, weight, order) {
     if (!name || name.length === 0) {
         name = '<Criterion Name>';
     }
     var weight = !weight || weight.length === 0 ? '' : ' - ' + weight + '%';
-    $('h3[data-category-order=' + order + ']').text(name + weight);
+    $('h3[data-criterion-order=' + order + ']').text(name + weight);
 }
 
 function copyLevelName(order) {
