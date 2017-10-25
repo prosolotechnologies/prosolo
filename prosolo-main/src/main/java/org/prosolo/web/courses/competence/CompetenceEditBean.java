@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;

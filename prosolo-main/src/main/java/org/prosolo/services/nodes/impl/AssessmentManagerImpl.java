@@ -443,17 +443,50 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
+	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
+								  long assessedStudentId, long credentialId) throws EventException, DbConnectionException {
+
+		Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId,targetCredentialId,reviewText,
+				context,assessedStudentId,credentialId);
+
+		for (EventData ev : result.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
 	@Transactional
-	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText) {
-		Query updateCredentialAssessmentQuery = persistence.currentManager().createQuery(APPROVE_CREDENTIAL_QUERY)
-				.setLong("credentialAssessmentId", credentialAssessmentId);
-		Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCES_QUERY)
-				.setLong("credentialAssessmentId", credentialAssessmentId);
-		Query updateTargetCredentialQuery = persistence.currentManager().createQuery(UPDATE_TARGET_CREDENTIAL_REVIEW)
-				.setLong("targetCredentialId", targetCredentialId).setString("finalReview", reviewText);
-		updateCredentialAssessmentQuery.executeUpdate();
-		updateCompetenceAssessmentQuery.executeUpdate();
-		updateTargetCredentialQuery.executeUpdate();
+	public Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
+													  UserContextData context, long assessedStudentId, long credentialId)
+			throws EventException, DbConnectionException {
+
+		Result<Void> result = new Result<>();
+		try {
+			Query updateCredentialAssessmentQuery = persistence.currentManager().createQuery(APPROVE_CREDENTIAL_QUERY)
+					.setLong("credentialAssessmentId", credentialAssessmentId);
+			Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCES_QUERY)
+					.setLong("credentialAssessmentId", credentialAssessmentId);
+			Query updateTargetCredentialQuery = persistence.currentManager().createQuery(UPDATE_TARGET_CREDENTIAL_REVIEW)
+					.setLong("targetCredentialId", targetCredentialId).setString("finalReview", reviewText);
+			updateCredentialAssessmentQuery.executeUpdate();
+			updateCompetenceAssessmentQuery.executeUpdate();
+			updateTargetCredentialQuery.executeUpdate();
+
+			CredentialAssessment assessment = new CredentialAssessment();
+			assessment.setId(credentialAssessmentId);
+			User student = new User();
+			student.setId(assessedStudentId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+
+			result.addEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+					assessment, student, null, parameters));
+
+			return result;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while approving assessment");
+		}
 	}
 
 	@Override

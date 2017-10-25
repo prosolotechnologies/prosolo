@@ -55,8 +55,6 @@ public class AnnouncementBean implements Serializable, Paginable {
 	private CredentialManager credManager;
 	@Inject
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 	
 	//credential related data
 	private String credentialId;
@@ -158,8 +156,6 @@ public class AnnouncementBean implements Serializable, Paginable {
 				parameters.put("credentialId", credentialId + "");
 				parameters.put("publishMode", newAnouncementPublishMode.getText());
 				try {
-					/*eventFactory.generateEvent(EventType.AnnouncementPublished, context,
-							announcement, cred, null, parameters);*/
 					announcementManager.generateAnnouncementPublishedEvent(cred, announcement, parameters, context);
 				} catch (Exception e) {
 					logger.error("Eror sending notification for announcement", e);
@@ -282,14 +278,6 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
-	}
-
-	public EventFactory getEventFactory() {
-		return eventFactory;
-	}
-
-	public void setEventFactory(EventFactory eventFactory) {
-		this.eventFactory = eventFactory;
 	}
 
 	public long getDecodedCredId() {

@@ -135,12 +135,13 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	
 	public void approveCredential() {
 		try {
-			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText);
-			markCredentialApproved();
+			UserContextData userContext = loggedUserBean.getUserContext();
 
-			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
+			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
+					fullAssessmentData.getTargetCredentialId(), reviewText,userContext, fullAssessmentData.getAssessedStrudentId(),
 					fullAssessmentData.getCredentialId());
+
+			markCredentialApproved();
 
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
@@ -167,23 +168,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
-	}
-
-	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, long assessedStudentId, long credentialId) {
-		UserContextData context = loggedUserBean.getUserContext();
-		taskExecutor.execute(() -> {
-			User student = new User();
-			student.setId(assessedStudentId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, context, assessment, student, null, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
-			}
-		});
 	}
 
 	private void markCompetenceApproved(String encodedCompetenceAssessmentId) {

@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -40,7 +41,12 @@ public interface AssessmentManager {
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
+	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
+								  long assessedStudentId, long credentialId) throws EventException, DbConnectionException;
+
+	Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
+											   UserContextData context, long assessedStudentId, long credentialId)
+			throws EventException, DbConnectionException;
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
