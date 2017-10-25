@@ -56,7 +56,7 @@ import java.util.Map;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
-@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(value = "session")
 public class LoggedUserBean implements Serializable, HttpSessionBindingListener {
 
 	private static final long serialVersionUID = 1404040093737456717L;

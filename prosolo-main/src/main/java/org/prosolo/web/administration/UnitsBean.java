@@ -60,7 +60,7 @@ public class UnitsBean implements Serializable {
     public void init() {
         try {
             long orgId = idEncoder.decodeId(organizationId);
-            if (pageAccessRightsResolver.canAccessOrganizationPage(orgId).isCanAccess()) {
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(orgId).isCanAccess()) {
                 this.unit = new UnitData();
                 this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
                 loadUnits();

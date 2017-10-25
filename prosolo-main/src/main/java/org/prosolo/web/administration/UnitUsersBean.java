@@ -81,7 +81,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 			decodedOrgId = idEncoder.decodeId(orgId);
 			decodedId = idEncoder.decodeId(id);
 
-			if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 				if (decodedOrgId > 0 && decodedId > 0) {
 					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
 					if (td != null) {

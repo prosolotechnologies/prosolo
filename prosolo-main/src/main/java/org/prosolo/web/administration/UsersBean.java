@@ -93,7 +93,7 @@ public class UsersBean implements Serializable,Paginable{
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
 
-		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0) {
 				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
 				if (orgTitle == null) {

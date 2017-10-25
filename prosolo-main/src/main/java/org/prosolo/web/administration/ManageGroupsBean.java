@@ -61,7 +61,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 
-		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0) {
 				unitTitle = unitManager.getUnitTitle(decodedOrgId, decodedUnitId);
 				if (unitTitle != null) {

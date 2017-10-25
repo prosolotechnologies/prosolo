@@ -96,7 +96,7 @@ public class UserEditBean implements Serializable {
 		try {
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
-				if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+				if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 					initDataForPasswordEdit();
 					initOrgTitle();
 				} else {
@@ -136,7 +136,7 @@ public class UserEditBean implements Serializable {
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
-		if(loggedUser.getOrganizationId() == decodedOrgId || loggedUser.hasCapability("admin.advanced")) {
+		if(pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			initOrgTitle();
 			if (organizationTitle != null) {
 				init(new String[]{"User", "Instructor", "Manager", "Admin"});

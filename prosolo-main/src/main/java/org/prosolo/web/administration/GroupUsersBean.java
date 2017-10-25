@@ -73,7 +73,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedGroupId = idEncoder.decodeId(groupId);
 
-		if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
 				try {
 					TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(

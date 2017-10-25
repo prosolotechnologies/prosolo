@@ -76,7 +76,7 @@ public class OrganizationEditBean implements Serializable {
         try {
             decodedId = idEncoder.decodeId(id);
 
-            if (pageAccessRightsResolver.canAccessOrganizationPage(decodedId).isCanAccess()) {
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
                 rolesArray = new String[]{"Admin","Super Admin"};
                 adminRoles = roleManager.getRolesByNames(rolesArray);
                 for(Role r : adminRoles){

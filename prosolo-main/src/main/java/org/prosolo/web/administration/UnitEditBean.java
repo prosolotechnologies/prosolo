@@ -55,7 +55,7 @@ public class UnitEditBean implements Serializable {
             this.decodedId = idEncoder.decodeId(id);
             long decodedOrgId = idEncoder.decodeId(organizationId);
 
-            if (pageAccessRightsResolver.canAccessOrganizationPage(decodedOrgId).isCanAccess()) {
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
                 this.unit = unitManager.getUnitData(decodedId);
                 this.organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
             } else {
