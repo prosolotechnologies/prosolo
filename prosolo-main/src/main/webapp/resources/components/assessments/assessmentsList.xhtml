@@ -24,6 +24,20 @@
 		
 		<div class="whiteBar"></div>
 
+		<div class="container">
+			<ol class="breadcrumb">
+				<li>
+					<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+				</li>
+				<li>
+					<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+						<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
+					</h:link>
+				</li>
+				<li class="active">Assessments</li>
+			</ol>
+		</div>
+
 		<h:form id="filterAssessmentsForm">
 			<div class="container">
 				<div class="row">

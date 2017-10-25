@@ -57,7 +57,6 @@ public class RichContent1 implements Serializable {
 	}
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	public ContentType1 getContentType() {
 		return contentType;
 	}
@@ -92,7 +91,6 @@ public class RichContent1 implements Serializable {
 	}
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	public ImageSize getImageSize() {
 		return imageSize;
 	}

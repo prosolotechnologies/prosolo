@@ -201,7 +201,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId,long userId) throws DbConnectionException;
 	
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
-	
+
 	/**
 	 * Method for getting all credentials (nevertheless the progress)
 	 * 
@@ -423,6 +423,8 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
 			throws DbConnectionException;
+
+	boolean isUserEnrolled(long credId, long userId);
 
 	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 												   int page, LearningResourceSortOption sortOption)
