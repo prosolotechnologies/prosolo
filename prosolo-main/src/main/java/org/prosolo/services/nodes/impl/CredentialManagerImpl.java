@@ -373,7 +373,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
-							.getUserCompetencesForCredential(credentialId, userId, true, true, false);
+							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
 				}
 				return credData;
@@ -439,7 +439,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (accessMode == AccessMode.USER) {
-					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
+					credData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, true, false, false));
 				} else {
 					/*
 					 * always include not published competences
@@ -1325,6 +1325,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
+	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		if (credentialData != null && credentialData.isEnrolled()) {
+			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, false, false, true));
+			return credentialData;
+		}
+		return null;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id, CredentialType type) throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder(
@@ -1949,22 +1960,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
-			String query =
-					"SELECT user " +
-							"FROM TargetCredential1 tCred " +
-							"INNER JOIN tCred.user user " +
-							"WHERE tCred.credential.id = :credId " +
-							"AND user.id != :userId " +
-							"AND user.id NOT IN ( " +
-							"SELECT assessment.assessor.id " +
-							"FROM CredentialAssessment assessment " +
-							"INNER JOIN assessment.targetCredential tCred " +
-							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
+			String query = 
+				"SELECT user " +
+				"FROM TargetCredential1 tCred " +
+				"INNER JOIN tCred.user user " +
+				"WHERE tCred.credential.id = :credId " + 
+					"AND user.id != :userId " +
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CredentialAssessment assessment " +
+						"INNER JOIN assessment.targetCredential tCred " +
+						"INNER JOIN tCred.credential cred " +
+						"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-							") " +
-							"ORDER BY RAND()";
+						") " +
+				"ORDER BY RAND()";
 
 			@SuppressWarnings("unchecked")
 			List<User> res = (List<User>) persistence.currentManager()
@@ -3086,6 +3097,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserEnrolled(long credId, long userId) {
+		String query =
+				"SELECT targetCredential.id " +
+				"FROM TargetCredential1 targetCredential " +
+				"WHERE targetCredential.user.id = :userId " +
+					"AND targetCredential.credential.id = :credId";
+
+		Long result = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+
+		return result != null;
+	}
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 															int page, LearningResourceSortOption sortOption) {
 

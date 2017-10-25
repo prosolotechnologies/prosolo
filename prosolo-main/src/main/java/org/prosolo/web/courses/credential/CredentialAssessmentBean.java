@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -18,6 +19,9 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -82,27 +86,29 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private ActivityAssessmentData currentActivityAssessment;
 
 	public void init() {
-
 		decodedId = idEncoder.decodeId(id);
 
 		if (decodedId > 0) {
-			context = "name:CREDENTIAL|id:" + decodedId;
-			try {
-				String title = credManager.getCredentialTitle(decodedId);
-				if (title != null) {
-					credentialTitle = title;
+			boolean userEnrolled = credManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
+
+			if (!userEnrolled) {
+				PageUtil.accessDenied();
+			} else {
+				try {
+					context = "name:CREDENTIAL|id:" + decodedId;
+					credentialTitle = credManager.getCredentialTitle(decodedId);
 					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(
 							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved));
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
 							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
-				} else {
-					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error while loading assessment data", e);
+					PageUtil.fireErrorMessage("Error loading assessment data");
 				}
-			} catch (Exception e) {
-				logger.error("Error while loading assessment data", e);
-				PageUtil.fireErrorMessage("Error while loading assessment data");
 			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 
@@ -112,18 +118,44 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 		
 		if (decodedId > 0 && decodedAssessmentId > 0) {
-			try {
-				fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-				credentialTitle = fullAssessmentData.getTitle();
-
+			if (isInManageSection()) {
 				// for managers, load all other assessments
-				if (isInManageSection()) {
+
+				ResourceAccessData access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Instruct)
+								.addPrivilege(UserGroupPrivilege.Edit));
+
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
+				} else {
+					try {
+					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+					credentialTitle = fullAssessmentData.getTitle();
+
 					otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+
+					} catch (Exception e) {
+						logger.error("Error while loading assessment data", e);
+						PageUtil.fireErrorMessage("Error loading assessment data");
+					}
 				}
-			} catch (Exception e) {
-				logger.error("Error while loading assessment data", e);
-				PageUtil.fireErrorMessage("Error while loading assessment data");
+			} else {
+				boolean userEnrolled = credManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
+
+				if (!userEnrolled) {
+					PageUtil.accessDenied();
+				} else {
+					try {
+						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+						credentialTitle = fullAssessmentData.getTitle();
+					} catch (Exception e) {
+						logger.error("Error while loading assessment data", e);
+						PageUtil.fireErrorMessage("Error loading assessment data");
+					}
+				}
 			}
 		}
 	}
@@ -252,41 +284,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		return Optional.empty();
 	}
 	
-//	private Optional<ActivityAssessmentData> getActivityAssessmentByActivityId(String encodedTargetActivityId) {
-//		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
-//		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-//			for (CompetenceAssessmentData comp : competenceAssessmentData) {
-//				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-//					if (encodedTargetActivityId.equals(act.getEncodedTargetActivityId())) {
-//						return Optional.of(act);
-//					}
-//				}
-//			}
-//		}
-//		return Optional.empty();
-//	}
-
-//	public void addCommentToActivityDiscussion() {
-//		try {
-//			if (StringUtils.isBlank(currentActivityAssessment.getEncodedDiscussionId())) {
-//				PageContextData lcd = new PageContextData();
-//				lcd.setPage(PageUtil.getPostParameter("page"));
-//				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-//				lcd.setService(PageUtil.getPostParameter("service"));
-//				createAssessment(idEncoder.decodeId(currentActivityAssessment.getEncodedTargetActivityId()),
-//						currentCompetenceAssessment.getCompetenceAssessmentId(),
-//						currentCompetenceAssessment.getTargetCompetenceId(), false, lcd);
-//			}
-//			addComment();
-//			cleanupCommentData();
-//		} catch (EventException e) {
-//			logger.error(e);
-//		} catch (Exception e) {
-//			logger.error(e);
-//			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
-//		}
-//	}
-
 	public void updateGrade() {
 		updateGrade(true);
 	}
@@ -335,67 +332,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 	
-//	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
-//		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
-//	}
-//
-//	public void editComment(String newContent, String activityMessageEncodedId) {
-//		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
-//		try {
-//			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
-//		} catch (ResourceCouldNotBeLoadedException e) {
-//			logger.error("Error editing message with id : " + activityMessageId, e);
-//			PageUtil.fireErrorMessage("Error editing message");
-//		}
-//	}
-
-//	private void addComment() {
-//		try {
-//			long activityAssessmentId = idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId());
-//			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
-//					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue);
-//
-//			addNewCommentToAssessmentData(newComment);
-//
-//			String page = PageUtil.getPostParameter("page");
-//			String lContext = PageUtil.getPostParameter("learningContext");
-//			String service = PageUtil.getPostParameter("service");
-//
-//			notifyAssessmentCommentAsync(decodedAssessmentId,
-//					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
-//					page, lContext, service, fullAssessmentData.getCredentialId());
-//		} catch (ResourceCouldNotBeLoadedException e) {
-//			logger.error("Error saving assessment message", e);
-//			PageUtil.fireErrorMessage("Error while adding new assessment message");
-//		}
-//	}
-
-//	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
-//		if (isCurrentUserAssessor()) {
-//			newComment.setSenderInsructor(true);
-//		}
-//		currentActivityAssessment.getActivityDiscussionMessageData().add(newComment);
-//
-//	}
-
-//	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId,
-//			long assessmentCommentId, String page, String lContext, String service, long credentialId) {
-//		taskExecutor.execute(() -> {
-//			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
-//			adm.setId(assessmentCommentId);
-//			ActivityAssessment aa = new ActivityAssessment();
-//			aa.setId(actAssessmentId);
-//			Map<String, String> parameters = new HashMap<>();
-//			parameters.put("credentialId", credentialId + "");
-//			parameters.put("credentialAssessmentId", credAssessmentId + "");
-//			try {
-//				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(),
-//						adm, aa, page, lContext, service, parameters);
-//			} catch (Exception e) {
-//				logger.error("Eror sending notification for assessment request", e);
-//			}
-//		});
-//	}
 
 	public boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
@@ -403,35 +339,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		} else
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
-
-//	private long createDiscussion(long targetActivityId, long competenceAssessmentId,
-//			PageContextData context) {
-//		try {
-//			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
-//
-//			// creating a set as there might be duplicates with ids
-//			Set<Long> participantIds = new HashSet<>();
-//
-//			// adding the student as a participant
-//			participantIds.add(fullAssessmentData.getAssessedStrudentId());
-//
-//			// adding the logged in user (the message poster) as a participant. It can happen that some other user,
-//			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
-//			participantIds.add(loggedUserBean.getUserId());
-//
-//			// if assessor is set, add him to the discussion
-//			if (fullAssessmentData.getAssessorId() > 0) {
-//				participantIds.add(fullAssessmentData.getAssessorId());
-//			}
-//
-//			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-//					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(),
-//					fullAssessmentData.isDefaultAssessment(), grade, context).getId();
-//		} catch (ResourceCouldNotBeLoadedException | EventException e) {
-//			logger.error(e);
-//			return -1;
-//		}
-//	}
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
@@ -546,15 +453,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-
-	public UrlIdEncoder getIdEncoder() {
-		return idEncoder;
-	}
-
-	public void setIdEncoder(UrlIdEncoder idEncoder) {
-		this.idEncoder = idEncoder;
-	}
-
 	public long getDecodedId() {
 		return decodedId;
 	}
@@ -569,30 +467,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setCredentialTitle(String credentialTitle) {
 		this.credentialTitle = credentialTitle;
-	}
-
-	public CredentialManager getCredManager() {
-		return credManager;
-	}
-
-	public void setCredManager(CredentialManager credManager) {
-		this.credManager = credManager;
-	}
-
-	public AssessmentManager getAssessmentManager() {
-		return assessmentManager;
-	}
-
-	public void setAssessmentManager(AssessmentManager assessmentManager) {
-		this.assessmentManager = assessmentManager;
-	}
-
-	public LoggedUserBean getLoggedUserBean() {
-		return loggedUserBean;
-	}
-
-	public void setLoggedUserBean(LoggedUserBean loggedUserBean) {
-		this.loggedUserBean = loggedUserBean;
 	}
 
 	public List<AssessmentData> getAssessmentData() {
@@ -671,14 +545,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setNewCommentValue(String newCommentValue) {
 		this.newCommentValue = newCommentValue;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-	}
-
-	public void setEventFactory(EventFactory eventFactory) {
-		this.eventFactory = eventFactory;
 	}
 
 	@Override

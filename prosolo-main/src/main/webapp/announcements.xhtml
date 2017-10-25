@@ -1,0 +1,163 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+    <ui:define name="windowTitle">
+        #{announcementBeanStudent.credentialData.title} - Announcements
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{announcementBeanStudent.credentialId}" default="null" />
+            <f:viewParam name="p" value="#{announcementBeanStudent.paginationData.pageString}" default="1" />
+            <f:viewAction action="#{announcementBeanStudent.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="resourceTitle">
+        <h1>#{announcementBeanStudent.credentialData.title}</h1>
+    </ui:define>
+
+    <ui:param name="baseContext" value="name:credential|id:#{announcementBeanStudent.decodedCredentialId}" />
+    <ui:param name="startedLearning" value="#{announcementBeanStudent.credentialData.enrolled}" />
+
+    <ui:define name="content">
+        <div class="whiteBar">
+            <h:form id="formMain">
+                <p:growl id="growlMain" globalOnly="true" showDetail="true" />
+                <div class="container">
+                    <div class="whiteBarContent">
+                        <div class="whiteBarLeft">
+                            <ui:fragment
+                                    rendered="#{announcementBeanStudent.credentialData.progress lt 100}">
+                                <h:link outcome="/competence" styleClass="btn btn-green btn-sm">
+                                    Resume
+                                    <f:param name="compId"
+                                             value="#{util:encodeId(announcementBeanStudent.credentialData.nextCompetenceToLearnId)}" />
+                                    <f:param name="credId" value="#{announcementBeanStudent.credentialId}" />
+                                </h:link>
+
+                                <h:panelGroup layout="block" styleClass="progressBar item">
+                                    <span>#{announcementBeanStudent.credentialData.progress}%</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar"
+                                             aria-valuenow="#{announcementBeanStudent.credentialData.progress}"
+                                             aria-valuemin="0" aria-valuemax="100"
+                                             style="width: #{announcementBeanStudent.credentialData.progress}">
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+                            </ui:fragment>
+                            <ui:fragment
+                                    rendered="#{announcementBeanStudent.credentialData.progress == 100}">
+                                <div class="tagCompleted item">Completed</div>
+                            </ui:fragment>
+
+                            <ui:fragment>
+                                <h:link outcome="/assessments"
+                                        class="btn btn-green-stroke btn-sm item">
+                                    View Assessments
+                                    <f:param name="id" value="#{param.id}" />
+                                </h:link>
+
+                                <h:commandButton styleClass="btn btn-green btn-sm item"
+                                                 data-toggle="modal"
+                                                 value="Ask for Assessment"
+                                                 data-target="#askAssessment" onclick="$('#askAssessment').modal('show');"
+                                                 actionListener="#{askForAssessmentBean.init(param['id'])}">
+                                    <f:ajax execute="@this" />
+                                </h:commandButton>
+
+                                <courses:askForAssessmentModal id='askForAssessmentModal'
+                                                               credentialTitle="#{announcementBeanStudent.credentialData.title}"
+                                                               role="#{cc.attrs.role}"
+                                                               toUpdate=":formMain:growlMain"/>
+                            </ui:fragment>
+                        </div>
+                        <div class="whiteBarRight">
+                            <h:panelGroup
+                                    rendered="#{announcementBeanStudent.credentialData.mandatoryFlow}"
+                                    styleClass="mandatoryTag item">Mandatory flow</h:panelGroup>
+                            <ui:fragment rendered="#{announcementBeanStudent.credentialData.durationString ne null}">
+                                <div class="duration item">#{announcementBeanStudent.credentialData.durationString}</div>
+                            </ui:fragment>
+                        </div>
+                    </div>
+                </div>
+            </h:form>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                </li>
+                <li><h:link
+                        value="#{announcementBeanStudent.credentialData.title}"
+                        outcome="credential"
+                        onclick="sendLogPageNavigation('/credential.xhtml',
+										'#{facesContext.viewRoot.viewId}',
+										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(announcementBeanStudent.credentialId).concat(&#34;/&#34;))}',
+										'#{cc.attrs.service}');">
+                    <f:param name="id" value="#{param.credentialId}"/>
+                </h:link></li>
+                <li class="active">Announcements</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <h2>Annoncements</h2>
+            <ui:fragment rendered="#{empty announcementBeanStudent.announcements}">
+                <div class="noContentMessage">
+                    <p>No announcements.</p>
+                </div>
+            </ui:fragment>
+            <h:panelGroup layout="block" id="panelAnnouncements">
+                <ui:repeat var="announcementData" value="#{announcementBeanStudent.announcements}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <article class="whiteBox announcementBox">
+                                <h2>#{empty announcementData.title ? "Announcement" : announcementData.title}</h2>
+                                <p><h:outputText escape="false" value="#{announcementData.text}" /></p>
+                            </article>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="sidebarBlock">
+                                <h2>Posted on
+                                    <utilcomp:convertTimeOutput
+                                            millis="#{announcementData.creationTime}"
+                                            format="MMM DD, YYYY"
+                                    />
+                                    , by</h2>
+                                <div class="user32">
+                                    <a href="#">
+                                        <utilcomp:userAvatar
+                                                avatar="#{announcementData.creatorAvatarUrl}"
+                                                fullName="#{announcementData.creatorFullName}" />
+                                    </a>
+                                    <h3>
+                                        <a href="#">#{announcementData.creatorFullName}</a>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ui:repeat>
+            </h:panelGroup>
+            <utilcomp:pagination
+                    id="pagination"
+                    bean="#{announcementBeanStudent}"
+                    updateUrl="true"
+                    toUpdate=":panelAnnouncements" />
+        </div>
+    </ui:define>
+
+</ui:composition>

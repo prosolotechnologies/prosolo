@@ -25,9 +25,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 	private long decodedId;
 
 	private String searchTerm = "";
-	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.DATE;
+	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.STUDENT_NAME;
 	private PaginationData paginationData = new PaginationData();
 	private LearningStatusFilter learningStatusFilter;
 	

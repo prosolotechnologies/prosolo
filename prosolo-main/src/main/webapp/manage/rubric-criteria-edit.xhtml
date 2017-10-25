@@ -22,26 +22,26 @@
                             <div class="col-md-6 rubricsCategories">
                                 <h2>Criteria</h2>
                                 <p>Specify grading criteria. A criterion score should be given as a percentage (that will be applied to the total number of points of an activity the #{msg['label.rubric'].toLowerCase()} is used for).</p>
-                                <h:panelGroup layout="block" id="panelCategories" styleClass="rubricsCategoriesList">
-                                    <h:inputHidden id="inputHiddenCategoryUniqueName" validator="uniqueNameValidator"/>
-                                    <ui:repeat id="categoriesList" value="#{rubricCriteriaBean.rubric.criteria}" var="c" varStatus="status">
+                                <h:panelGroup layout="block" id="panelCriteria" styleClass="rubricsCategoriesList">
+                                    <h:inputHidden id="inputHiddenCriterionUniqueName" validator="uniqueNameValidator"/>
+                                    <ui:repeat id="criteriaList" value="#{rubricCriteriaBean.rubric.criteria}" var="c" varStatus="status">
                                         <div class="listItemWrapper">
                                             <div class="listItem">
-                                                <h:inputText id="inputCategoryName"
+                                                <h:inputText id="inputCriterionName"
                                                              autocomplete="off"
                                                              pt:data-unique-name="true"
-                                                             pt:data-category-order="#{c.order}"
+                                                             pt:data-criterion-order="#{c.order}"
                                                              pt:data-field="name"
                                                              placeholder="Criterion Name"
                                                              value="#{c.name}"
                                                              required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
                                                              requiredMessage="Criterion name is required" />
-                                                <h:inputText disabled="#{rubricCriteriaBean.limitedEdit}" id="inputCategoryPoints"
+                                                <h:inputText disabled="#{rubricCriteriaBean.limitedEdit}" id="inputCriterionPoints"
                                                              type="number"
                                                              autocomplete="off"
                                                              pt:data-percent="true"
                                                              pt:data-field="weight"
-                                                             pt:data-category-order="#{c.order}"
+                                                             pt:data-criterion-order="#{c.order}"
                                                              value="#{c.points}" min="0" max="100" step="1.00"
                                                              required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
                                                              requiredMessage="Criterion weight is required"
@@ -60,7 +60,7 @@
                                                             styleClass="moveDown"
                                                             rendered="#{not rubricCriteriaBean.isLastCriterion(status.index)}"
                                                             action="#{rubricCriteriaBean.moveCriterionDown(status.index)}"
-                                                            update=":formMain:panelCategories :formMain:panelPreview">
+                                                            update=":formMain:panelCriteria :formMain:panelPreview">
                                                         down
                                                     </p:commandLink>
 
@@ -72,7 +72,7 @@
                                                             styleClass="moveUp"
                                                             rendered="#{status.index ne 0}"
                                                             action="#{rubricCriteriaBean.moveCriterionUp(status.index)}"
-                                                            update=":formMain:panelCategories :formMain:panelPreview">
+                                                            update=":formMain:panelCriteria :formMain:panelPreview">
                                                         up
                                                     </p:commandLink>
 
@@ -80,39 +80,39 @@
                                                             rendered="#{not rubricCriteriaBean.limitedEdit}"
                                                             value="Remove"
                                                             action="#{rubricCriteriaBean.removeCriterion(status.index)}"
-                                                            update=":formMain:panelCategories :formMain:panelPreview"
+                                                            update=":formMain:panelCriteria :formMain:panelPreview"
                                                             styleClass="removeX"
                                                             pt:data-toggle="tooltip" pt:title="Remove" pt:data-original-title="Remove">
                                                         remove
                                                     </p:commandLink>
                                                 </div>
                                             </div>
-                                            <small class="redText"><h:message for="inputCategoryName" /></small>
-                                            <ui:fragment rendered="#{not empty facesContext.getMessageList('formMain:categoriesList:'.concat(status.index).concat(':inputCategoryName')) and not empty facesContext.getMessageList('formMain:categoriesList:'.concat(status.index).concat(':inputCategoryPoints'))}">
+                                            <small class="redText"><h:message for="inputCriterionName" /></small>
+                                            <ui:fragment rendered="#{not empty facesContext.getMessageList('formMain:criteriaList:'.concat(status.index).concat(':inputCriterionName')) and not empty facesContext.getMessageList('formMain:criteriaList:'.concat(status.index).concat(':inputCriterionPoints'))}">
                                                 <br/>
                                             </ui:fragment>
-                                            <small class="redText"><h:message for="inputCategoryPoints" /></small>
+                                            <small class="redText"><h:message for="inputCriterionPoints" /></small>
                                         </div>
                                     </ui:repeat>
 
-                                    <h:inputHidden id="inputHiddenCategoryPoints" value="0" validator="percentSumValidator">
+                                    <h:inputHidden id="inputHiddenCriterionPoints" value="0" validator="percentSumValidator">
                                         <f:attribute name="msg" value="Sum of criteria points must be 100" />
                                     </h:inputHidden>
-                                    <small class="redText"><h:message for="inputHiddenCategoryPoints"/></small>
-                                    <ui:fragment rendered="#{not empty facesContext.getMessageList('formMain:inputHiddenCategoryPoints') and not empty facesContext.getMessageList('formMain:inputHiddenCategoriesEmpty')}">
+                                    <small class="redText"><h:message for="inputHiddenCriterionPoints"/></small>
+                                    <ui:fragment rendered="#{not empty facesContext.getMessageList('formMain:inputHiddenCriterionPoints') and not empty facesContext.getMessageList('formMain:inputHiddenCriteriaEmpty')}">
                                         <br/>
                                     </ui:fragment>
-                                    <h:inputHidden id="inputHiddenCategoriesEmpty" value="0" validator="nonEmptyListValidator">
+                                    <h:inputHidden id="inputHiddenCriteriaEmpty" value="0" validator="nonEmptyListValidator">
                                         <f:attribute name="msg" value="At least one criterion should be defined" />
                                     </h:inputHidden>
-                                    <small class="redText"><h:message for="inputHiddenCategoriesEmpty"/></small>
-                                    <script>linkCategoryLabels();</script>
+                                    <small class="redText"><h:message for="inputHiddenCriteriaEmpty"/></small>
+                                    <script>linkCriteriaLabels();</script>
                                 </h:panelGroup>
                                 <div class="addButtonWrapper">
                                     <p:commandLink
                                             rendered="#{not rubricCriteriaBean.limitedEdit}"
                                             action="#{rubricCriteriaBean.addEmptyCriterion()}"
-                                            update=":formMain:panelCategories :formMain:panelPreview">
+                                            update=":formMain:panelCriteria :formMain:panelPreview">
                                         Add Criterion
                                     </p:commandLink>
                                 </div>
@@ -212,8 +212,8 @@
                         <h:panelGroup layout="block" id="panelPreview" styleClass="rubricsPreview">
                             <h2>Rubrics Preview</h2>
                             <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
-                                <h3 data-category-order="#{cat.order}"></h3>
-                                <script>copyCategoryNameAndWeight(#{cat.order});</script>
+                                <h3 data-criterion-order="#{cat.order}"></h3>
+                                <script>copyCriterionNameAndWeight(#{cat.order});</script>
                                 <table class="rubricsTable">
                                     <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
                                         <tr>
