@@ -125,8 +125,7 @@
 													aria-label="Close">
 												<span aria-hidden="true">×</span>
 											</button>
-											<h2 class="modal-title" id="newAnnouncement">New
-												Announcement</h2>
+											<h2 class="modal-title" id="newAnnouncement">New Announcement</h2>
 										</div>
 										<div class="assessmentModalMeta">
 											<div class="assessmentModalMetaLine">
@@ -137,18 +136,18 @@
 											</div>
 										</div>
 										<div class="modal-body alignLeft">
-											<p:inputText type="text" id="title" value="#{announcementBeanManager.newAnnouncementTitle}" placeholder="Title" />
+											<p:inputText type="text" id="title" autocomplete="off" value="#{announcementBeanManager.newAnnouncementTitle}" placeholder="Title" />
 											<p:inputTextarea placeholder="Write message..." value="#{announcementBeanManager.newAnnouncementText}" id="newAnnouncementText" />
 											
 											<div class="radioGroup">
 												Send to:
 												<div class="radio">
-													<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="radio1" id="radio1"
+													<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="publishMode" id="radio1"
 														   value="option1"/>
 													<label for="radio1">Only active students</label>
 												</div>
 												<div class="radio">
-													<input onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio2"
+													<input onchange="setPublishModeValue('All')" type="radio" name="publishMode" id="radio2"
 														   value="option2" />
 													<label for="radio2">All students</label>
 
