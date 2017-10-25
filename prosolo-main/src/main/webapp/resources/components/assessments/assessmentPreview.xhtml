@@ -290,7 +290,7 @@
 														</p:commandLink>
 
 														<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor()}">
-															<p:commandLink
+															<p:commandLink rendered="#{activityAssessment.grade.maxGrade ne 0}"
 																	styleClass="grade gradeModalLink_#{activityAssessment.activityId}"
 																	action="#{cc.attrs.bean.setCurrentAssessment(activityAssessment)}"
 																	update=":#{cc.clientId}:activityGradePanel:gradePanel :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
@@ -298,6 +298,14 @@
 																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
 																#{activityAssessment.grade.maxGrade}
 															</p:commandLink>
+															<ui:fragment rendered="#{activityAssessment.grade.maxGrade eq 0}">
+																<a href="javascript:void(0);" class="grade"
+																   data-toggle="tooltip"
+																   title="Nongraded activity">
+																	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																	#{activityAssessment.grade.maxGrade}
+																</a>
+															</ui:fragment>
 														</ui:fragment>
 
 														<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor()}">

@@ -5,7 +5,8 @@
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:util="http://www.prosolo.com/util"
-		xmlns:jsf="http://xmlns.jcp.org/jsf">
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
 		<composite:attribute name="bean"/>
@@ -26,16 +27,13 @@
 					<ui:fragment rendered="#{not cc.attrs.assessment.completed}">
 						<p>Uncompleted activity can not be graded</p>
 					</ui:fragment>
-					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.maxGrade eq 0}">
-						<p>This activity should not be graded (nongraded grading mode is selected)</p>
-					</ui:fragment>
-					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.maxGrade ne 0 and cc.attrs.assessment.grade.gradingMode eq 'AUTOMATIC_BY_COMPLETION'}">
+					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.gradingMode eq 'AUTOMATIC_BY_COMPLETION'}">
 						<p>Student automatically gets the maximum points on activity completion.</p>
 					</ui:fragment>
-					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.maxGrade ne 0 and cc.attrs.assessment.grade.gradingMode eq 'AUTOMATIC_BY_EXTERNAL_TOOL'}">
+					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.gradingMode eq 'AUTOMATIC_BY_EXTERNAL_TOOL'}">
 						<p>Student automatically gets points from the external activity</p>
 					</ui:fragment>
-					<ui:fragment rendered="#{cc.attrs.assessment.completed and cc.attrs.assessment.grade.maxGrade ne 0 and (cc.attrs.assessment.grade.gradingMode eq 'MANUAL_SIMPLE' or cc.attrs.assessment.grade.gradingMode eq 'MANUAL_RUBRIC')}">
+					<ui:fragment rendered="#{cc.attrs.assessment.completed and (cc.attrs.assessment.grade.gradingMode eq 'MANUAL_SIMPLE' or cc.attrs.assessment.grade.gradingMode eq 'MANUAL_RUBRIC')}">
 						<h:form id="formGradeModal">
 							<ui:fragment rendered="#{cc.attrs.assessment.grade.gradingMode eq 'MANUAL_SIMPLE'}">
 								<!-- manual grading - NO rubrics start -->
@@ -75,7 +73,7 @@
 													   jsf:checked="#{c.levelId eq l.id ? true : false}"
 													   onchange="sumAndDisplayPoints()"
 												/>
-												<h:outputLabel for="lvlRadio">#{l.name} <span class="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</span> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span></h:outputLabel>
+												<h:outputLabel for="lvlRadio">#{l.name} <span class="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</span> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
 											</div>
 										</ui:repeat>
 										<h:inputHidden id="categoryLevelSelection" binding="#{hiddenLvlRadio}" value="#{c.levelId}" validator="greaterThanZeroValidator">
