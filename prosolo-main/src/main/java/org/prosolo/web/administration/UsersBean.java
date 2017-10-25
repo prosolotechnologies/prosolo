@@ -12,6 +12,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -74,7 +75,7 @@ public class UsersBean implements Serializable,Paginable{
 
 	public void initAdmins(){
 		logger.info("initializing users");
-		rolesArray = new String[]{"Admin","Super Admin"};
+		rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
 		roles = roleManager.getRolesByNames(rolesArray);
 		filter = getDefaultRoleFilter();
 		loadUsers();

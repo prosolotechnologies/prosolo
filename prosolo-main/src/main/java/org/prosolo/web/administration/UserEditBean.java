@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
@@ -119,14 +120,14 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void initAdmin() {
-		init(new String[] {"Admin", "Super Admin"});
+		init(new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN});
 	}
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		initOrgTitle();
 		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager", "Admin"});
+			init(new String[]{SystemRoleNames.USER, SystemRoleNames.INSTRUCTOR, SystemRoleNames.MANAGER, SystemRoleNames.ADMIN});
 		}
 	}
 

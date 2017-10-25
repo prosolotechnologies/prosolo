@@ -32,6 +32,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -131,7 +132,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
         user.setUserType(UserType.REGULAR_USER);
         if(roles == null) {
-            user.addRole(roleManager.getRoleByName("User"));
+            user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
         } else {
             for(Long id : roles) {
                 Role role = (Role) persistence.currentManager().load(Role.class, id);

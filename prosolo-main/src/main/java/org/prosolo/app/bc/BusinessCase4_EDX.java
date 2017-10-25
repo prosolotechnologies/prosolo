@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -26,6 +25,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -67,10 +67,10 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 
 			// get ROLES
-			Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("User");
-			Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Manager");
-			Role roleInstructor = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Instructor");
-			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName("Admin");
+			Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.USER);
+			Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.MANAGER);
+			Role roleInstructor = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.INSTRUCTOR);
+			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.ADMIN);
 
 
 

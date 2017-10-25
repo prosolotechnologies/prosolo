@@ -62,7 +62,7 @@ public class RolesBean implements Serializable {
 			Collection<Role> allRoles = roleManager.getAllRoles();
 	
 			if (allRoles != null && !allRoles.isEmpty()) {
-				List<Role> list = new ArrayList<Role>(allRoles);
+				List<Role> list = new ArrayList<>(allRoles);
 				
 				for (Role role : list) {
 					roles.add(new RoleData(role));

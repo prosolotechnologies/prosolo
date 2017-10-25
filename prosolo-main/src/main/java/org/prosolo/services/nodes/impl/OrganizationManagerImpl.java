@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -200,7 +201,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             for (Organization o : organizations) {
                 OrganizationData od;
                 if (loadAdmins) {
-                    String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                    String[] rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
                     List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
                     List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);

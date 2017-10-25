@@ -28,6 +28,7 @@ import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -184,7 +185,7 @@ public class AfterContextLoader implements ServletContextListener {
 				logger.error(e);
 			}
 	
-			String roleAdminTitle = "Admin";
+			String roleAdminTitle = SystemRoleNames.ADMIN;
 			
 			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
 			

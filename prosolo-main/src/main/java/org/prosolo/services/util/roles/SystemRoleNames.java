@@ -1,13 +1,13 @@
 package org.prosolo.services.util.roles;
 
 /**
- * This class contains role name that should match names in database. 
+ * This class contains system role names that should match names in database.
  * If roles are updated (role is added, role name is changed), this class
  * should be updated accordingly.
  * @author stefanvuckovic
  *
  */
-public class RoleNames {
+public class SystemRoleNames {
 
 	public static final String USER = "User";
 	public static final String INSTRUCTOR = "Instructor";

@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.factory.CredentialDeliveryStatusFactory;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -196,7 +196,7 @@ public class ResourceAccessFactory {
 
 		private long getStudentRoleId() {
 			List<Long> roleIds = ServiceLocator.getInstance().getService(RoleManager.class)
-					.getRoleIdsForName(RoleNames.USER);
+					.getRoleIdsForName(SystemRoleNames.USER);
 
 			if (roleIds.size() == 1) {
 				return roleIds.get(0);

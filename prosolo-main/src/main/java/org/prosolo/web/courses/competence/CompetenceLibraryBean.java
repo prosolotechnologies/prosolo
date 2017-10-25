@@ -20,7 +20,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -76,7 +76,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 				.toArray(LearningResourceSearchFilter[]::new);
 
 		try {
-			List<Long> roleIds = roleManager.getRoleIdsForName(RoleNames.USER);
+			List<Long> roleIds = roleManager.getRoleIdsForName(SystemRoleNames.USER);
 			long roleId = 0;
 			if (roleIds.size() == 1) {
 				roleId = roleIds.get(0);
