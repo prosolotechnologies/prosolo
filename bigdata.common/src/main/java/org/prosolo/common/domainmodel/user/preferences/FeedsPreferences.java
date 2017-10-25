@@ -3,11 +3,7 @@ package org.prosolo.common.domainmodel.user.preferences;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.TimeFrame;
@@ -56,6 +52,7 @@ public class FeedsPreferences extends UserPreference {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public TimeFrame getUpdatePeriod() {
 		return updatePeriod;
 	}

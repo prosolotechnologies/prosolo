@@ -161,7 +161,7 @@ public class StudentProfileBean implements Serializable {
 			selectedCredential = credProgressData;
 
 			List<CompetenceData1> competences = compManager
-					.getUserCompetencesForCredential(
+					.getCompetencesForCredential(
 							credProgressData.getCredentialId(),
 							decodedId,
 							false,
