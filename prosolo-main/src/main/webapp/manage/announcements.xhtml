@@ -9,27 +9,27 @@
 
 	<utilcomp:messagesBundle var="msg" />
 
-	<ui:define name="windowTitle">
-		#{msg['label.delivery']} - #{announcementBean.credentialTitle} - Announcements
-	</ui:define>
-
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{announcementBean.credentialId}" default="null" />
-			<f:viewParam name="p" value="#{announcementBean.paginationData.pageString}" default="1" />
-			<f:viewAction action="#{announcementBean.init()}" />
+			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
+			<f:viewParam name="p" value="#{announcementBeanManager.paginationData.pageString}" default="1" />
+			<f:viewAction action="#{announcementBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
 
+	<ui:define name="windowTitle">
+		#{msg['label.delivery']} - #{announcementBeanManager.credentialData.title} - Announcements
+	</ui:define>
+
 	<ui:define name="resourceTitle">
-		<h1><span>#{msg['label.delivery']}:</span> #{announcementBean.credentialTitle}</h1>
+		<h1><span>#{msg['label.delivery']}:</span> #{announcementBeanManager.credentialData.title}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
-										   credId="#{announcementBean.decodedCredId}"
-										   credType="Delivery"
-										   canEdit="#{announcementBean.canEdit()}"
+			credId="#{announcementBeanManager.decodedCredentialId}"
+			credType="#{msg['label.delivery']}"
+			canEdit="#{announcementBeanManager.canEdit()}"
 		/>
 	</ui:define>
 
@@ -53,11 +53,11 @@
 
 					</div>
 					<div class="whiteBarRight">
-						<h:panelGroup rendered="#{announcementBean.credentialMandatoryFlow}" styleClass="mandatoryTag item">
-							Mandatory flow
-						</h:panelGroup>
-						<div class="duration item">#{announcementBean.credentialDurationString}</div>
-					</div>
+						 <h:panelGroup rendered="#{announcementBeanManager.credentialData.mandatoryFlow}" styleClass="mandatoryTag item">
+						 	Mandatory flow
+						 </h:panelGroup>
+						 <div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
+					 </div>
 				</div>
 			</div>
 		</div>
@@ -65,9 +65,9 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
-				<li><h:link value="#{announcementBean.credentialTitle}"
+				<li><h:link value="#{announcementBeanManager.credentialData.title}"
 							outcome="/manage/create-credential">
-					<f:param name="id" value="#{announcementBean.credentialId}"></f:param>
+					<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 				</h:link></li>
 				<li class="active">Announcements</li>
 			</ol>
@@ -97,16 +97,16 @@
 							Here you can publish an announcement to all credential
 							participants.<br />
 							<br />
-							<ui:fragment rendered="#{announcementBean.canEdit()}">
+							<ui:fragment rendered="#{announcementBeanManager.canEdit()}">
 								<a href="javascript:void(0);" class="btn btn-green" data-toggle="modal"
 								   data-target="#newAnnouncementModal">New Announcement</a>
 							</ui:fragment>
-							<ui:fragment rendered="#{not announcementBean.canEdit()}">
-								<a href="javascript:void(0);"
-								   disabled="true"
-								   class="btn btn-green"
-								   data-toggle="tooltip"
-								   title="You are not allowed to publish announcements for this credential">
+							<ui:fragment rendered="#{not announcementBeanManager.canEdit()}">
+								<a href="javascript:void(0);" 
+									disabled="true"
+									class="btn btn-green"
+									data-toggle="tooltip"
+									title="You are not allowed to publish announcements for this credential">
 									New Announcement
 								</a>
 							</ui:fragment>
@@ -116,8 +116,8 @@
 						<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
 							 role="dialog" aria-labelledby="newAnnouncement">
 							<h:form id="newAnnouncementForm">
-								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBean.setPublishMode}" />
-
+								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBeanManager.setPublishMode}" />
+								
 								<div class="modal-dialog" role="document">
 									<div class="modal-content">
 										<div class="modal-header alignLeft">
@@ -132,36 +132,36 @@
 											<div class="assessmentModalMetaLine">
 												<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
 												<div class="assessmentModalMetaRight">
-													<h3>#{announcementBean.credentialTitle}</h3>
+													<h3>#{announcementBeanManager.credentialData.title}</h3>
 												</div>
 											</div>
 										</div>
 										<div class="modal-body alignLeft">
-											<p:inputText type="text" id="title" value="#{announcementBean.newAnnouncementTitle}" placeholder="Title" />
-											<p:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}" id="newAnnouncementText" />
-
+											<p:inputText type="text" id="title" value="#{announcementBeanManager.newAnnouncementTitle}" placeholder="Title" />
+											<p:inputTextarea placeholder="Write message..." value="#{announcementBeanManager.newAnnouncementText}" id="newAnnouncementText" />
+											
 											<div class="radioGroup">
 												Send to:
 												<div class="radio">
-													<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="radio2" id="radio2"
-														   value="option2"/><label for="radio2">Only
-													active students</label>
+													<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="radio1" id="radio1"
+														   value="option1"/>
+													<label for="radio1">Only active students</label>
 												</div>
 												<div class="radio">
-													<input onchange="setPublishModeValue('All')" type="radio" name="radio1" id="radio1"
-														   value="option1" /><label for="radio1">All
-													students</label>
+													<input onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio2"
+														   value="option2" />
+													<label for="radio2">All students</label>
 
 												</div>
 											</div>
 										</div>
 										<div class="modal-footer alignLeft">
 											<p:commandLink value="Publish"
-														   styleClass="btn btn-green"
-														   onclick="$('#newAnnouncementForm\\:newAnnouncementText').val(tinyMCE.activeEditor.getContent());hideConfirmDialog('newAnnouncementModal');"
-														   action="#{announcementBean.publishAnnouncement()}"
-														   update=":containerDiv"
-											/>
+		                                    	styleClass="btn btn-green"
+		                                    	onclick="$('#newAnnouncementForm\\:newAnnouncementText').val(tinyMCE.activeEditor.getContent());hideConfirmDialog('newAnnouncementModal');" 
+		                                    	action="#{announcementBeanManager.publishAnnouncement()}"
+		                                    	update=":containerDiv"
+	                                    	/>
 										</div>
 									</div>
 								</div>
@@ -178,10 +178,11 @@
 			</h:panelGroup>
 
 			<h2>Previous Annoncements</h2>
-			<ui:fragment rendered="#{empty announcementBean.credentialAnnouncements}">
+			<ui:fragment rendered="#{empty announcementBeanManager.announcements}">
 				<p>There are no announcements.</p>
 			</ui:fragment>
-			<ui:repeat var="announcementData" value="#{announcementBean.credentialAnnouncements}">
+
+			<ui:repeat var="announcementData" value="#{announcementBeanManager.announcements}">
 				<div class="row">
 					<div class="col-md-8">
 						<article class="whiteBox announcementBox">
@@ -213,10 +214,10 @@
 			</ui:repeat>
 
 			<utilcomp:pagination
-					id="pagination"
-					bean="#{announcementBean}"
-					updateUrl="true"
-					toUpdate=":containerDiv" />
+				id="pagination"
+				bean="#{announcementBeanManager}"
+				updateUrl="true"
+				toUpdate=":containerDiv" />
 		</h:panelGroup>
 	</ui:define>
 </ui:composition>
