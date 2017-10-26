@@ -1,10 +1,8 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
-import org.prosolo.search.RubricTextSearch;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.RubricData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
