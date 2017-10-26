@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.hibernate.Query;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.SeenAnnouncement;
@@ -20,6 +21,7 @@ import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -166,26 +168,29 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		return data;
 	}
 
-	private AnnouncementData persistAnnouncement(Long credentialId, String title, String text, Long creatorId) {
-		Announcement announcement = new Announcement();
-		announcement.setTitle(title);
-		announcement.setText(text);
-		announcement.setDateCreated(new Date());
-		//create and add creator
+	private AnnouncementData persistAnnouncement(Long credentialId, String title, String text, Long creatorId) throws DbConnectionException {
 		try {
-			User user = loadResource(User.class, creatorId);
-			announcement.setCreatedBy(user);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+			Announcement announcement = new Announcement();
+			announcement.setTitle(title);
+			announcement.setText(text);
+			announcement.setDateCreated(new Date());
+			//create and add creator
+			try {
+				User user = loadResource(User.class, creatorId);
+				announcement.setCreatedBy(user);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
+			//create and add credential
+			Credential1 credential = loadResource(Credential1.class, credentialId);
+			announcement.setCredential(credential);
+			Announcement newAnnouncement = saveEntity(announcement);
+			return mapToData(newAnnouncement);
+		} catch (Exception e) {
+			logger.error("Error",e);
+			throw new DbConnectionException("Error while saving announcement data");
 		}
-		//create and add credential
-		Credential1 credential = new Credential1();
-		credential.setId(credentialId);
-		announcement.setCredential(credential);
-		Announcement newAnnouncement = saveEntity(announcement);
-		return mapToData(newAnnouncement);
 	}
-	
 
 	private void persistSeenAnnouncement(Long announcementId, Long userId) {
 		SeenAnnouncement seen = new SeenAnnouncement();
