@@ -9,6 +9,7 @@ import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,6 +47,8 @@ public class UnitsBean implements Serializable {
     private OrganizationManager organizationManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
+    @Inject
+    private PageAccessRightsResolver pageAccessRightsResolver;
 
     private UnitData unit;
     private UnitData unitToDelete;
@@ -56,9 +59,14 @@ public class UnitsBean implements Serializable {
 
     public void init() {
         try {
-            this.unit = new UnitData();
-            this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
-            loadUnits();
+            long orgId = idEncoder.decodeId(organizationId);
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(orgId).isCanAccess()) {
+                this.unit = new UnitData();
+                this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
+                loadUnits();
+            } else {
+                PageUtil.accessDenied();
+            }
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");

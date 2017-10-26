@@ -7,9 +7,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -32,6 +32,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -51,44 +52,49 @@ public class CompetenceViewBeanAdmin implements Serializable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
-			if (credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
+				if (credId != null) {
+					decodedCredId = idEncoder.decodeId(credId);
+				}
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 				/*
 				if credential id is passed we check if credential is connected to unit because if admin
 				comes to this page from credential page he should always see competency details - not found
 				page would be confusing for him.
 				 */
-				boolean connectedToUnit = decodedCredId > 0
-						? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-						: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
-				if (td != null && connectedToUnit) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+					boolean connectedToUnit = decodedCredId > 0
+							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
+							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+					if (td != null && connectedToUnit) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					competenceData = competenceManager.getCompetenceData(
-							decodedCredId, decodedCompId, true, true, true,
-							false);
+						competenceData = competenceManager.getCompetenceData(
+								decodedCredId, decodedCompId, true, true, true,
+								false);
 
-					if (decodedCredId > 0) {
-						String credTitle = credManager.getCredentialTitle(decodedCredId);
-						competenceData.setCredentialId(decodedCredId);
-						competenceData.setCredentialTitle(credTitle);
+						if (decodedCredId > 0) {
+							String credTitle = credManager.getCredentialTitle(decodedCredId);
+							competenceData.setCredentialId(decodedCredId);
+							competenceData.setCredentialTitle(credTitle);
+						}
+					} else {
+						PageUtil.notFound();
 					}
-				} else {
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error loading the page");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 	
