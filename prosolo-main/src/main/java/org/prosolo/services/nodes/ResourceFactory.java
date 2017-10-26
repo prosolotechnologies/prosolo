@@ -49,7 +49,7 @@ public interface ResourceFactory extends AbstractManager {
 			IllegalDataStateException;
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
-			throws DbConnectionException, StaleDataException;
+			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
 	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
 			throws DbConnectionException;

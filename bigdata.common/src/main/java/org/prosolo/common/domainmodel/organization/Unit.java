@@ -8,6 +8,7 @@ import javax.persistence.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.rubric.RubricUnit;
 
 /**
  * @author Bojan
@@ -25,6 +26,7 @@ public class Unit extends BaseEntity {
 	private List<UnitRoleMembership> unitRoleMemberships;
 	private List<CredentialUnit> credentialUnits;
 	private List<CompetenceUnit> competenceUnits;
+	private List<RubricUnit> rubricUnits;
 	private Unit parentUnit;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -74,5 +76,15 @@ public class Unit extends BaseEntity {
 	
 	public void setParentUnit(Unit parentUnit){
 		this.parentUnit = parentUnit;
+	}
+
+	@OneToMany(mappedBy = "unit", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public List<RubricUnit> getRubricUnits(){
+		return rubricUnits;
+	}
+
+	public void setRubricUnits(List<RubricUnit> rubricUnits){
+		this.rubricUnits = rubricUnits;
 	}
 }

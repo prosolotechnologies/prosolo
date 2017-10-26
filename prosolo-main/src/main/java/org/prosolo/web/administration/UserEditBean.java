@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,8 @@ public class UserEditBean implements Serializable {
 	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 	@Autowired
 	private UserTextSearch textSearch;
 	@Inject private OrganizationManager organizationManager;
@@ -92,19 +94,29 @@ public class UserEditBean implements Serializable {
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
-			decodedId = idEncoder.decodeId(id);
-			user = userManager.getUserData(decodedId);
-			accountData = new AccountData();
-			usersToExclude.add(user);
-
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
-				initOrgTitle();
+				if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+					initDataForPasswordEdit();
+					initOrgTitle();
+				} else {
+					PageUtil.accessDenied();
+				}
+			} else {
+				initDataForPasswordEdit();
 			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
+	}
+
+
+	private void initDataForPasswordEdit() {
+		decodedId = idEncoder.decodeId(id);
+		user = userManager.getUserData(decodedId);
+		accountData = new AccountData();
+		usersToExclude.add(user);
 	}
 
 	private void initOrgTitle() {
@@ -124,9 +136,13 @@ public class UserEditBean implements Serializable {
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
-		initOrgTitle();
-		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager", "Admin"});
+		if(pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			initOrgTitle();
+			if (organizationTitle != null) {
+				init(new String[]{"User", "Instructor", "Manager", "Admin"});
+			}
+		} else {
+			PageUtil.accessDenied();
 		}
 	}
 
