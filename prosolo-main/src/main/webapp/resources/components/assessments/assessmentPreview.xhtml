@@ -234,10 +234,8 @@
 						</div>
 					</ui:fragment>
 
-					<p>Here you can assess this credential for
-						#{cc.attrs.bean.fullAssessmentData.studentFullName}. All comments
-						between #{cc.attrs.bean.fullAssessmentData.studentFullName} and
-						you are private.</p>
+					<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student #{cc.attrs.bean.fullAssessmentData.studentFullName}.
+						All comments between the student and the assessor are private.</p>
 
 					<ui:fragment
 						rendered="#{not empty cc.attrs.bean.fullAssessmentData.message}">
