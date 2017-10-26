@@ -209,17 +209,20 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private void addComment() {
 		try {
 			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
+			UserContextData userContext = loggedUserBean.getUserContext();
+
 			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
-					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue);
+					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue,userContext,
+					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
 
 			addNewCommentToAssessmentData(newComment);
 
-			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
+			/*notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
 					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
-					activityAssessmentData.getCredentialId());
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error saving assessment message", e);
-			PageUtil.fireErrorMessage("Error while adding new assessment message");
+					activityAssessmentData.getCredentialId());*/
+		} catch (Exception e){
+			logger.error("Error approving assessment data", e);
+			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
@@ -245,7 +248,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 			parameters.put("credentialId", credentialId + "");
 			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				assessmentManager.generateAssessmentCommentEvent(adm, aa, parameters, loggedUserBean.getUserContext());
+				//assessmentManager.generateAssessmentCommentEvent(adm, aa, parameters, loggedUserBean.getUserContext());
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

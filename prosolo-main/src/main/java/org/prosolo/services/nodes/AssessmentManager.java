@@ -60,8 +60,17 @@ public interface AssessmentManager {
 												boolean recalculatePoints, Session session, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException;
 
-	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
-			throws ResourceCouldNotBeLoadedException;
+	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
+														 UserContextData context,
+														 long credentialAssessmentId,
+														 long credentialId)
+			throws ResourceCouldNotBeLoadedException, EventException;
+
+	Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
+																			 String comment,UserContextData context,
+																			 long credentialAssessmentId,
+																			 long credentialId)
+			throws EventException, DbConnectionException, ResourceCouldNotBeLoadedException;
 
 	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;
@@ -193,8 +202,5 @@ public interface AssessmentManager {
 
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
-
-	void generateAssessmentCommentEvent(ActivityDiscussionMessage adm,ActivityAssessment aa,Map<String,String> parameters,
-										UserContextData contextData) throws EventException;
 
 }

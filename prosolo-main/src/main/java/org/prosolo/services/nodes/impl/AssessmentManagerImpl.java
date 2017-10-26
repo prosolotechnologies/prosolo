@@ -594,12 +594,33 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
+	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
+																UserContextData context,
+																long credentialAssessmentId,
+																long credentialId)
+			throws ResourceCouldNotBeLoadedException, EventException {
+
+		Result<ActivityDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId,senderId,
+				comment, context,credentialAssessmentId,credentialId);
+
+		for (EventData ev : result.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+
+		return result.getResult();
+ 	}
+
+	@Override
 	@Transactional
-	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
-			throws ResourceCouldNotBeLoadedException {
+	public Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
+																					String comment,UserContextData context,
+																					long credentialAssessmentId,
+																					long credentialId)
+			throws EventException, DbConnectionException, ResourceCouldNotBeLoadedException {
+
 		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
-		
+
 		if (sender == null) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 			User user = loadResource(User.class, senderId);
@@ -611,7 +632,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			sender = participant;
 			discussion.addParticipant(participant);
 		}
-		
+
 		Date now = new Date();
 		// create new comment
 		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
@@ -635,11 +656,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 		}
 		saveEntity(discussion);
-		// save the message
 		saveEntity(message);
-		// update the discussion, updating all participants along the way
-		//merge(discussion);
-		return ActivityDiscussionMessageData.from(message, null, encoder);
+		//ActivityAssessment getActivityAssessment(long compAssessmentId, long targetActId, Session session)
+		//message.setId(assessmentCommentId);
+		ActivityAssessment activityAssessment = loadResource(ActivityAssessment.class,actualDiscussionId);
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("credentialId", credentialId + "");
+		parameters.put("credentialAssessmentId", credentialAssessmentId + "");
+
+		Result<ActivityDiscussionMessageData> result = new Result<>();
+
+		result.addEvent(eventFactory.generateEventData(EventType.AssessmentComment, context,
+				message, activityAssessment, null, parameters));
+
+		result.setResult(ActivityDiscussionMessageData.from(message, null, encoder));
+
+		return result;
 	}
 
 	@Override
@@ -1617,20 +1649,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving assessment data");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void generateAssessmentCommentEvent(ActivityDiscussionMessage adm, ActivityAssessment aa, Map<String, String> parameters,
-											   UserContextData contextData) throws EventException {
-		try {
-			eventFactory.generateEvent(EventType.AssessmentComment, contextData,
-					adm, aa, null, parameters);
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new EventException("Error while generating event.");
 		}
 	}
 
