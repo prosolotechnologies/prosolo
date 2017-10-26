@@ -137,6 +137,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
@@ -152,7 +153,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/competencies").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/posts/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
@@ -227,7 +227,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/library/instructor/credentials").hasAuthority("INSTRUCTOR.LIBRARY.VIEW")
 
 		   .antMatchers("/manage/rubrics").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
-		   .antMatchers("/manage/rubrics/*/edit").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/settings").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/privacy").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
