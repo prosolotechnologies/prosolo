@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,17 +119,24 @@ public class AnnouncementBean implements Serializable, Paginable {
 	}
 
 	public void publishAnnouncement() {
-		AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
-				newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
-		
-		created.setCreatorAvatarUrl(loggedUser.getAvatar());
-		created.setCreatorFullName(loggedUser.getFullName());
+		try {
+			UserContextData userContext = loggedUser.getUserContext();
 
-		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
-				idEncoder.decodeId(credentialId));
-		
-		PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
-		init();
+			AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+					newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, userContext);
+
+			created.setCreatorAvatarUrl(loggedUser.getAvatar());
+			created.setCreatorFullName(loggedUser.getFullName());
+
+			/*notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
+					idEncoder.decodeId(credentialId));*/
+
+			PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
+			init();
+		} catch (Exception e) {
+			logger.error("Error creating announcement: ", e);
+			PageUtil.fireErrorMessage("Error creating announcement");
+		}
 	}
 	
 	public void setPublishMode() {
@@ -156,7 +162,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 				parameters.put("credentialId", credentialId + "");
 				parameters.put("publishMode", newAnouncementPublishMode.getText());
 				try {
-					announcementManager.generateAnnouncementPublishedEvent(cred, announcement, parameters, context);
+					//announcementManager.generateAnnouncementPublishedEvent(cred, announcement, parameters, context);
 				} catch (Exception e) {
 					logger.error("Eror sending notification for announcement", e);
 				}

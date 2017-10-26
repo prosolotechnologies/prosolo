@@ -657,9 +657,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 		saveEntity(discussion);
 		saveEntity(message);
-		//ActivityAssessment getActivityAssessment(long compAssessmentId, long targetActId, Session session)
-		//message.setId(assessmentCommentId);
-		ActivityAssessment activityAssessment = loadResource(ActivityAssessment.class,actualDiscussionId);
+
+		ActivityDiscussionMessage message1 = new ActivityDiscussionMessage();
+		message1.setId(message.getId());
+		ActivityAssessment discussion1 = new ActivityAssessment();
+		discussion1.setId(discussion.getId());
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("credentialId", credentialId + "");
 		parameters.put("credentialAssessmentId", credentialAssessmentId + "");
@@ -667,7 +669,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		Result<ActivityDiscussionMessageData> result = new Result<>();
 
 		result.addEvent(eventFactory.generateEventData(EventType.AssessmentComment, context,
-				message, activityAssessment, null, parameters));
+				message1, discussion1, null, parameters));
 
 		result.setResult(ActivityDiscussionMessageData.from(message, null, encoder));
 

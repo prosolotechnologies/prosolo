@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.data;
 
+
 public class AnnouncementData {
 
 	private String creatorFullName;
