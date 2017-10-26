@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -112,18 +113,23 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     }
 
     public void publishAnnouncement() {
-        AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
-                newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
+        try {
+            UserContextData context = loggedUser.getUserContext();
+            AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+                    newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, context);
 
-        created.setCreatorAvatarUrl(loggedUser.getAvatar());
-        created.setCreatorFullName(loggedUser.getFullName());
+            created.setCreatorAvatarUrl(loggedUser.getAvatar());
+            created.setCreatorFullName(loggedUser.getFullName());
 
-        notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
-                idEncoder.decodeId(credentialId));
-
-        PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
-        resetNewAnnouncementValues();
-        init();
+            PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
+            resetNewAnnouncementValues();
+            init();
+        } catch (EventException e) {
+            logger.error(e);
+        } catch (Exception e) {
+            logger.error(e);
+            PageUtil.fireErrorMessage("Error while publishing announcement");
+        }
     }
 
     public void setPublishMode() {
@@ -135,31 +141,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
             newAnouncementPublishMode = AnnouncementPublishMode.fromString(publishModeValue);
         }
     }
-
-    private void notifyForAnnouncementAsync(long announcementId, long credentialId) {
-        UserContextData context = loggedUser.getUserContext();
-        taskExecutor.execute(() -> {
-            Announcement announcement = new Announcement();
-            announcement.setId(announcementId);
-
-            try {
-                Credential1 cred = credManager.loadResource(Credential1.class, credentialId, true);
-                Map<String, String> parameters = new HashMap<>();
-                parameters.put("credentialId", credentialId + "");
-                parameters.put("publishMode", newAnouncementPublishMode.getText());
-                try {
-                    eventFactory.generateEvent(EventType.AnnouncementPublished, context,
-                            announcement, cred, null, parameters);
-                } catch (Exception e) {
-                    logger.error("Eror sending notification for announcement", e);
-                }
-            } catch (Exception e1) {
-                logger.error(e1);
-            }
-
-        });
-    }
-
 
     public String getAssessmentIdForUser() {
         return idEncoder.encodeId(
