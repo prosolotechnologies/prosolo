@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -37,6 +38,7 @@ public class CredentialViewBeanAdmin implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -55,30 +57,34 @@ public class CredentialViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedId = idEncoder.decodeId(id);
 
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedId > 0) {
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
-					if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
-						//if credential is not connected to the unit this page is for show the not found page
+						credentialData = credentialManager
+								.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+						if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
+							//if credential is not connected to the unit this page is for show the not found page
+							PageUtil.notFound();
+						}
+					} else {
 						PageUtil.notFound();
 					}
-				} else {
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 
