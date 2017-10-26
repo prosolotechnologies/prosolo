@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface DemoCustomMigrationService {
 
-    void migrateCredentialsFrom06To07();
+    void migrateDataFrom06To11();
 
     List<EventData> migrateCredentials();
 }

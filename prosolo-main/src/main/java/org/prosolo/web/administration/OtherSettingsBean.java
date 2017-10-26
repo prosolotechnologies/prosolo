@@ -266,7 +266,7 @@ public class OtherSettingsBean implements Serializable {
 	}
 
 	public void migrateDemoServer() {
-		demoCustomMigrationService.migrateCredentialsFrom06To07();
+		demoCustomMigrationService.migrateDataFrom06To11();
 	}
 
 	//GETTERS AND SETTERS

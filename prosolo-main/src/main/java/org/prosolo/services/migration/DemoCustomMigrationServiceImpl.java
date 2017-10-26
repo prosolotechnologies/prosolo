@@ -1,6 +1,7 @@
 package org.prosolo.services.migration;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -8,6 +9,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
@@ -57,7 +59,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
     @Inject private EventFactory eventFactory;
 
     @Override
-    public void migrateCredentialsFrom06To07 () {
+    public void migrateDataFrom06To11() {
         logger.info("MIGRATION STARTED");
         List<EventData> events = ServiceLocator.getInstance().getService(DemoCustomMigrationService.class)
                .migrateCredentials();
@@ -75,8 +77,16 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
     @Transactional
     public List<EventData> migrateCredentials() {
         try {
+            List<EventData> events = new LinkedList<>();
             migrateUsers();
-            return migrateData();
+
+            Result<Void> dataResult = migrateData();
+            events.addAll(dataResult.getEvents());
+
+            Result<Void> groupsResult = migrateUserGroups();
+            events.addAll(groupsResult.getEvents());
+
+            return events;
         } catch (Exception e) {
             logger.error("Error", e);
         }
@@ -155,8 +165,11 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
         }
     }
 
-    private List<EventData> migrateData() throws Exception {
+    private Result<Void> migrateData() throws Exception {
         logger.info("Migrate data start");
+
+        Result<Void> result = new Result<>();
+
         /*
         collect events related to adding privileges to users to be able to generate those events
         which would fire observers to propagate privileges to deliveries and competences
@@ -192,6 +205,8 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
             deliveryIds.add(mapping.lastDelivery.id);
 
             //add edit privilege to credential owner as this should be explicit in new app version
+            addEditPrivilegeToCredentialOwner(lastDelivery, orgUniSa.getId());
+
             for (DeliveryData dd : mapping.restDeliveries) {
                 Credential1 del = (Credential1) persistence.currentManager().load(Credential1.class, dd.id);
                 convertOriginalCredToDelivery(orgUniSa.getId(), del, originalCred, Date.from(dd.start.atZone(ZoneId.systemDefault()).toInstant()),
@@ -207,7 +222,9 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
 
         logger.info("Migrate data finished");
 
-        return events;
+        result.addEvents(events);
+
+        return result;
     }
 
     private void removeEditPrivilegesFromCredentials(List<Long> deliveryIds) {
@@ -394,6 +411,20 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
                                 null),
                         new ArrayList<>())
         );
+    }
+
+    private Result<Void> migrateUserGroups() {
+        OrganizationData orgUniSa = orgManager.getAllOrganizations(0, 1, false).getFoundNodes().get(0);
+        Unit unit = getOrgUnit(orgUniSa.getId());
+
+        List<UserGroup> userGroups = userGroupManager.getAllGroups(0,false, (Session) userGroupManager.getPersistence().currentManager());
+
+        for (UserGroup userGroup : userGroups) {
+            userGroup.setUnit(unit);
+            userGroupManager.saveEntity(userGroup);
+        }
+
+        return new Result<>();
     }
 
     private class CredentialMapping {

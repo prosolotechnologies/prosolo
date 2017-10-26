@@ -44,12 +44,14 @@
 									   styleClass="btn btn-green"
 									   action="#{bulkDataAdministration.deleteAndReindexRubrics(0)}"	/>
 
+						<ui:remove>
 							<p:commandLink value="Migrate Demo to 1.1"
 										   pt:role="button"
 										   styleClass="btn btn-green"
 										   onclick=""
 										   action="#{otherSettingsBean.migrateDemoServer()}"
 										   oncomplete="" />
+						</ui:remove>
 						<div class="clear top30"></div>
 					</div>
 				</div>
