@@ -25,6 +25,7 @@ import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

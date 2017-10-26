@@ -1,15 +1,6 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
-import org.primefaces.context.RequestContext;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
@@ -20,6 +11,13 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "studentAssessmentBean")
 @Component("studentAssessmentBean")
@@ -49,21 +47,24 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
-		try {
-			decodedId = idEncoder.decodeId(id);
-			if (decodedId > 0) {
-				credentialTitle = credentialManager.getCredentialTitle(decodedId);
-				if (credentialTitle != null) {
-					getAssessments();
-				}else {
-					PageUtil.notFound();
-				}
+		decodedId = idEncoder.decodeId(id);
+
+		if (decodedId > 0) {
+			boolean userEnrolled = credentialManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
+
+			if (!userEnrolled) {
+				PageUtil.accessDenied();
 			} else {
-				PageUtil.notFound();
+				try {
+					credentialTitle = credentialManager.getCredentialTitle(decodedId);
+					getAssessments();
+				} catch (Exception e) {
+					logger.error("Error loading assessments", e);
+					PageUtil.fireErrorMessage("Error loading assessments");
+				}
 			}
-		} catch (Exception e) {
-			logger.error("Error while loading assessment data", e);
-			PageUtil.fireErrorMessage("Error loading the page");
+		} else {
+			PageUtil.notFound();
 		}
 	}
 

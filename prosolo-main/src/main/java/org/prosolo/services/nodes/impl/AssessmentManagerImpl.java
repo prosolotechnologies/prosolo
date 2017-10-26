@@ -8,10 +8,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.*;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -32,6 +29,7 @@ import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
+import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -277,12 +275,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		Result<Integer> result = new Result<>();
 		CompetenceAssessment compAssessment = null;
 		int compPoints = 0;
+		ActivityExternalAutogradeVisitor visitor = new ActivityExternalAutogradeVisitor();
 		for (TargetActivity1 ta : tComp.getTargetActivities()) {
 			/*
-			 * if common score is set or activity is completed and autograde is true
+			 * if common score is set or activity is completed and automatic grading mode by activity completion is set
 			 * we create activity assessment with appropriate grade
 			 */
-			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
+			//check if autograding is set based on activity completion or external tool is responsible for grading
+			ta.getActivity().accept(visitor);
+			boolean externalAutograde = visitor.isAutogradeByExternalGrade();
+			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde)) {
 				//create competence assessment if not already created
 				if (compAssessment == null) {
 					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault);
@@ -292,7 +294,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				if (assessorId > 0) {
 					participantIds.add(assessorId);
 				}
-				int grade = ta.isCompleted() && ta.getActivity().isAutograde()
+				int grade = ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde
 						? ta.getActivity().getMaxPoints()
 						: ta.getCommonScore();
 				result.addEvents(createActivityAssessmentAndGetEvents(ta.getId(), compAssessment.getId(), credAssessment.getId(),

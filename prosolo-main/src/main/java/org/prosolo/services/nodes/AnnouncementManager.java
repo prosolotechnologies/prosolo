@@ -16,7 +16,7 @@ import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 
 public interface AnnouncementManager {
-	
+
 	AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode publishMode,
 										UserContextData context)
 			throws ResourceCouldNotBeLoadedException, EventException;
