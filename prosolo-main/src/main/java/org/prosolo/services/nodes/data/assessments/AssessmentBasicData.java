@@ -10,14 +10,16 @@ public class AssessmentBasicData {
     private final long activityAssessmentId;
     private final long studentId;
     private final long assessorId;
+    private final int grade;
     private final boolean isDefault;
 
-    private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId) {
+    private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId, int grade) {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
         this.studentId = 0;
         this.assessorId = 0;
+        this.grade = grade;
         this.isDefault = false;
     }
 
@@ -29,6 +31,7 @@ public class AssessmentBasicData {
         this.studentId = 0;
         this.assessorId = assessorId;
         this.isDefault = isDefault;
+        this.grade = -1;
     }
 
     private AssessmentBasicData(long studentId, long assessorId, boolean isDefault) {
@@ -38,11 +41,17 @@ public class AssessmentBasicData {
         this.studentId = studentId;
         this.assessorId = assessorId;
         this.isDefault = isDefault;
+        this.grade = -1;
     }
 
     public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
                                          long activityAssessmentId) {
-        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId);
+        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId, -1);
+    }
+
+    public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
+                                         long activityAssessmentId, int grade) {
+        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId, grade);
     }
 
     public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
@@ -56,7 +65,7 @@ public class AssessmentBasicData {
     }
 
     public static AssessmentBasicData empty() {
-        return new AssessmentBasicData(0, 0, 0);
+        return new AssessmentBasicData(0, 0, 0, -1);
     }
 
     public long getCredentialAssessmentId() {
@@ -81,5 +90,9 @@ public class AssessmentBasicData {
 
     public long getStudentId() {
         return studentId;
+    }
+
+    public int getGrade() {
+        return grade;
     }
 }

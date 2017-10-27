@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
@@ -29,12 +28,10 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
+import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -1317,7 +1314,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			//if credId is not passed, we can't know for which credential assessment to return data
 			if (returnAssessmentData && credId > 0) {
-				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id ");
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades ");
 			}
 
 			//if credId is not passed, we can't know for which credential assessment to return data
@@ -1471,11 +1468,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						
 						ActivityAssessmentData ad = ard.getAssessment();
 						ad.setTargetActivityId(tActId);
+						//if result is posted activity is completed by student
+						ad.setCompleted(true);
 						ad.setUserId(userId);
 						ad.setActivityId(actId);
 						ad.setCompetenceId(compId);
 						ad.setCredentialId(credId);
-						
 						if(assessmentId != null) {
 							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
@@ -1483,7 +1481,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
-							gd.setValue((Integer) row[14]);
+							gd.setValue((Integer) row[17]);
 							if(gd.getValue() < 0) {
 								gd.setValue(0);
 							} else {
@@ -1500,6 +1498,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
 						}
+						ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
+								GradingMode.valueOf((String) row[14]), ((BigInteger) row[15]).longValue(), ((Character) row[16]).charValue() == 'T'));
 
 						//load additional assessment data
 						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,

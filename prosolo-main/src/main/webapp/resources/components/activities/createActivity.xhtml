@@ -33,6 +33,7 @@
 				containerId = '#{cc.clientId}';
 			</script>
 			<h:form id="formMain">
+				<p:focus />
 				<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
 				<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
 				<div class="container">
@@ -250,7 +251,7 @@
 														<ul class="addedItems">
 															<li>
 																<ui:fragment rendered="#{activityEditBean.activityData.rubricId gt 0}">
-																	<h:link outcome="/manage/rubric-categories">
+																	<h:link outcome="/manage/rubric-criteria">
 																		<f:param name="id" value="#{util:encodeId(activityEditBean.activityData.rubricId)}"/>
 																		#{activityEditBean.activityData.rubricName}
 																	</h:link>

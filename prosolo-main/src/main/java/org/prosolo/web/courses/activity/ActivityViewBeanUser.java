@@ -4,20 +4,19 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -53,6 +52,7 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private RoleManager roleManager;
 	@Inject private CommentManager commentManager;
 	@Inject private ActivityResultBean activityResultBean;
+	@Inject private RubricManager rubricManager;
 
 	private String actId;
 	private long decodedActId;
@@ -63,6 +63,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
+	private List<ActivityRubricCriterionData> rubricCriteria;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -161,6 +162,24 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 		} else {
 			PageUtil.notFound();
+		}
+	}
+
+	public boolean isUserAllowedToSeeRubric() {
+		return competenceData.getActivityToShowWithDetails().getRubricVisibility() == ActivityRubricVisibility.ALWAYS;
+	}
+
+	public void initializeRubric() {
+		try {
+			if (rubricCriteria == null) {
+				rubricCriteria = rubricManager.getRubricDataForActivity(
+						competenceData.getActivityToShowWithDetails().getActivityId(),
+						0,
+						false);
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
 		}
 	}
 	
@@ -444,5 +463,8 @@ public class ActivityViewBeanUser implements Serializable {
 	public ResourceAccessData getAccess() {
 		return access;
 	}
-	
+
+	public List<ActivityRubricCriterionData> getRubricCriteria() {
+		return rubricCriteria;
+	}
 }
