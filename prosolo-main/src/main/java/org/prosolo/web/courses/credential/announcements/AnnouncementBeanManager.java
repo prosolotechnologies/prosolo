@@ -69,7 +69,7 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     //new announcement related data
     private String newAnnouncementTitle;
     private String newAnnouncementText;
-    private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ALL_STUDENTS;
+    private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ACTIVE_STUDENTS;
 
     private PaginationData paginationData = new PaginationData();
 

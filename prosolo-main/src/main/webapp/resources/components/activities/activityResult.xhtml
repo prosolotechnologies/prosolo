@@ -1,18 +1,14 @@
 <ui:component
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:post="http://java.sun.com/jsf/composite/components/post"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 		<composite:attribute name="bean"/>
@@ -93,7 +89,7 @@
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
 									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
@@ -102,6 +98,15 @@
 								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+								<a href="javascript:void(0);" class="grade"
+								   data-toggle="tooltip"
+								   title="Nongraded activity">
+									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+									/
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</a>
+							</ui:fragment>
 						</ui:fragment>
 
 						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
@@ -258,7 +263,7 @@
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
 									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
@@ -267,6 +272,15 @@
 								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+								<a href="javascript:void(0);" class="grade"
+								   data-toggle="tooltip"
+								   title="Nongraded activity">
+									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+									/
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</a>
+							</ui:fragment>
 						</ui:fragment>
 
 						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">

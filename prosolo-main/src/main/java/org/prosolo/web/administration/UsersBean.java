@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -54,7 +55,10 @@ public class UsersBean implements Serializable,Paginable{
 	private UserManager userManager;
 	@Inject
 	private OrganizationManager orgManager;
-	@Inject private ImportUsersBean importUsersBean;
+	@Inject
+	private ImportUsersBean importUsersBean;
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -88,17 +92,22 @@ public class UsersBean implements Serializable,Paginable{
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
-		if (decodedOrgId > 0) {
-			orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
-			if (orgTitle == null) {
-				PageUtil.notFound();
+
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0) {
+				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
+				if (orgTitle == null) {
+					PageUtil.notFound();
+				} else {
+					long filterId = getFilterId();
+					filter = new RoleFilter(filterId, "All", 0);
+					loadUsers();
+				}
 			} else {
-				long filterId = getFilterId();
-				filter = new RoleFilter(filterId, "All", 0);
-				loadUsers();
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 
