@@ -3,7 +3,6 @@ package org.prosolo.web.courses.credential;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.primefaces.context.RequestContext;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
@@ -22,8 +21,6 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
-import org.prosolo.web.util.pagination.Paginable;
-import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -38,7 +35,7 @@ import java.util.*;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean implements Serializable, Paginable {
+public class CredentialAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -66,47 +63,13 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private AssessmentDataFull fullAssessmentData;
 	private String reviewText;
 
-	// used for managing multiple assessments
 	private String credentialTitle;
-	private String context;
-	private List<AssessmentData> assessmentData;
 	private List<AssessmentData> otherAssessments;
-	private boolean searchForPending = true;
-	private boolean searchForApproved = true;
-
-	private PaginationData paginationData = new PaginationData(5);
 
 	// adding new comment
 	private String newCommentValue;
 
 	private ActivityAssessmentData currentActivityAssessment;
-
-	public void init() {
-		decodedId = idEncoder.decodeId(id);
-
-		if (decodedId > 0) {
-			boolean userEnrolled = credManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
-
-			if (!userEnrolled) {
-				PageUtil.accessDenied();
-			} else {
-				try {
-					context = "name:CREDENTIAL|id:" + decodedId;
-					credentialTitle = credManager.getCredentialTitle(decodedId);
-					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(
-							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved));
-					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
-							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
-							new SimpleDateFormat("MMMM dd, yyyy"));
-				} catch (Exception e) {
-					logger.error("Error while loading assessment data", e);
-					PageUtil.fireErrorMessage("Error loading assessment data");
-				}
-			}
-		} else {
-			PageUtil.notFound();
-		}
-	}
 
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
@@ -386,26 +349,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		newCommentValue = "";
 
 	}
-
-	public void searchForAll() {
-		// only reinitialize when at least one is already false
-		if (!searchForApproved || !searchForPending) {
-			searchForApproved = true;
-			searchForPending = true;
-			paginationData.setPage(1);
-			init();
-		}
-	}
-
-	public void searchForNone() {
-		// only reinitialize when at least one is true
-		if (searchForApproved || searchForPending) {
-			searchForApproved = false;
-			searchForPending = false;
-			paginationData.setPage(1);
-			init();
-		}
-	}
 	
 	private boolean isInManageSection() {
 		String currentUrl = PageUtil.getRewriteURL();
@@ -434,14 +377,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void setCredentialTitle(String credentialTitle) {
 		this.credentialTitle = credentialTitle;
 	}
-
-	public List<AssessmentData> getAssessmentData() {
-		return assessmentData;
-	}
-
-	public void setAssessmentData(List<AssessmentData> assessmentData) {
-		this.assessmentData = assessmentData;
-	}
 	
 	public List<AssessmentData> getOtherAssessments() {
 		return otherAssessments;
@@ -449,28 +384,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setOtherAssessments(List<AssessmentData> otherAssessments) {
 		this.otherAssessments = otherAssessments;
-	}
-
-	public boolean isSearchForPending() {
-		return searchForPending;
-	}
-
-	public void setSearchForPending(boolean searchForPending) {
-		this.searchForPending = searchForPending;
-		paginationData.setPage(1);
-		init();
-		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
-	}
-
-	public boolean isSearchForApproved() {
-		return searchForApproved;
-	}
-
-	public void setSearchForApproved(boolean searchForApproved) {
-		this.searchForApproved = searchForApproved;
-		paginationData.setPage(1);
-		init();
-		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
 
 	public String getId() {
@@ -511,18 +424,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setNewCommentValue(String newCommentValue) {
 		this.newCommentValue = newCommentValue;
-	}
-
-	@Override
-	public void changePage(int page) {
-		if (paginationData.getPage() != page) {
-			paginationData.setPage(page);
-			init();
-		}
-	}
-
-	public PaginationData getPaginationData() {
-		return paginationData;
 	}
 
 	public ActivityAssessmentData getCurrentActivityAssessment() {

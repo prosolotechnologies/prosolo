@@ -47,7 +47,7 @@ public enum ApplicationPage {
 	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml"),
 	//INSTRUCTOR_DETAILS("/manage/credential-instructors-add.xhtml"),
 	INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
-	CREDENTIAL_ASSESSMENT_LIST("/manage/credential-assessments.xhtml"),
+	MANAGE_CREDENTIAL_ASSESSMENTS("/manage/credential-delivery-assessments.xhtml"),
 	CREDENTIAL_ASSESSMENT_MANAGE("/manage/credential-assessment.xhtml"),
 	CREDENTIAL_ASSESSMENT("/credential-assessment.xhtml"),
 	CREDENTIAL_ANNOUNCEMENTS("/manage/announcements.xhtml"),

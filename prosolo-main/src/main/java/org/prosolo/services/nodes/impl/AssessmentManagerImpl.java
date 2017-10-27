@@ -18,16 +18,11 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.AssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -41,6 +36,7 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.AssessmentManager")
 public class AssessmentManagerImpl extends AbstractManagerImpl implements AssessmentManager {
@@ -57,6 +53,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private Competence1Manager compManager;
 	@Inject private AssessmentManager self;
 	@Inject private Activity1Manager activityManager;
+	@Inject private AssessmentDataFactory assessmentDataFactory;
+	@Inject private CredentialManager credManager;
 	
 	private static final String PENDING_ASSESSMENTS_QUERY = 
 			"FROM CredentialAssessment AS credentialAssessment " + 
@@ -1587,6 +1585,84 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving assessment data");
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException {
+		try {
+			Credential1 del = credManager.getCredentialWithCompetences(deliveryId, CredentialType.Delivery);
+
+			CredentialAssessmentsSummaryData credentialAssessmentsSummaryData = assessmentDataFactory
+					.getCredentialAssessmentsSummary(del);
+
+			//get number of users that completed activity for each activity in a credential
+			List<Long> credCompIds = new ArrayList<>();
+			del.getCompetences().forEach(cc -> credCompIds.add(cc.getCompetence().getId()));
+			Map<Long, Long> usersCompletedActivitiesMap = getNumberOfStudentsCompletedActivityForAllActivitiesInACredential(
+					credManager.getUsersLearningDelivery(deliveryId), credCompIds);
+			//get number of assessed users
+			Map<Long, Long> assessedUsersMap = getNumberOfAssessedStudentsForEachActivityInCredential(deliveryId);
+
+			for (CredentialCompetence1 cc : del.getCompetences()) {
+				CompetenceAssessmentsSummaryData compSummary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(cc.getCompetence());
+
+				List<CompetenceActivity1> compActivities = activityManager.getCompetenceActivities(cc.getCompetence().getId(), false);
+				for (CompetenceActivity1 ca : compActivities) {
+					compSummary.addActivitySummary(assessmentDataFactory.getActivityAssessmentsSummaryData(
+							ca.getActivity(), usersCompletedActivitiesMap.get(ca.getActivity().getId()), assessedUsersMap.get(ca.getActivity().getId())));
+				}
+
+				credentialAssessmentsSummaryData.addCompetenceSummary(compSummary);
+			}
+
+			return credentialAssessmentsSummaryData;
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving assessment data");
+		}
+	}
+
+	private Map<Long, Long> getNumberOfStudentsCompletedActivityForAllActivitiesInACredential(List<Long> usersLearningDelivery, List<Long> compIds) {
+		if (usersLearningDelivery == null || usersLearningDelivery.isEmpty() || compIds == null || compIds.isEmpty()) {
+			return new HashMap<>();
+		}
+		String usersCompletedActivityQ =
+				"SELECT ta.activity.id, COUNT(ta.id) " +
+				"FROM TargetActivity1 ta " +
+				"INNER JOIN ta.targetCompetence tc " +
+				"WHERE tc.competence.id IN (:compIds) " +
+				"AND tc.user.id IN (:userIds) " +
+				"AND ta.completed IS TRUE " +
+				"GROUP BY ta.activity.id";
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersCompletedActivities = persistence.currentManager()
+				.createQuery(usersCompletedActivityQ)
+				.setParameterList("compIds", compIds)
+				.setParameterList("userIds", usersLearningDelivery)
+				.list();
+		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
+	}
+
+	private Map<Long, Long> getNumberOfAssessedStudentsForEachActivityInCredential(long deliveryId) {
+		String usersAssessedQ =
+				"SELECT ta.activity.id, COUNT(aa.id) FROM ActivityAssessment aa " +
+				"INNER JOIN aa.targetActivity ta " +
+				"INNER JOIN aa.assessment compAssessment " +
+				"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+				"WITH credAssessment.defaultAssessment IS TRUE " +
+				"INNER JOIN credAssessment.targetCredential tc " +
+				"WITH tc.credential.id = :credId " +
+				"WHERE aa.points >= 0 " +
+				"GROUP BY ta.activity.id";
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersAssessed = persistence.currentManager()
+				.createQuery(usersAssessedQ)
+				.setLong("credId", deliveryId)
+				.list();
+		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
 }

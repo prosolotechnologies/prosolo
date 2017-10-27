@@ -3307,4 +3307,45 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT cred FROM Credential1 cred " +
+							"LEFT JOIN fetch cred.competences credComp " +
+							"LEFT JOIN fetch credComp.competence comp " +
+							"WHERE cred.id = :credId " +
+							"AND cred.type = :deliveryType";
+
+			return (Credential1) persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credentialId)
+					.setString("deliveryType", type.name())
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the credential data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException {
+		try {
+			String usersLearningQ =
+					"SELECT targetCred.user.id FROM TargetCredential1 targetCred " +
+					"WHERE targetCred.credential.id = :credId";
+			@SuppressWarnings("unchecked")
+			List<Long> usersLearningCredential = persistence.currentManager()
+					.createQuery(usersLearningQ)
+					.setLong("credId", deliveryId)
+					.list();
+			return usersLearningCredential;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the students data");
+		}
+	}
+
 }

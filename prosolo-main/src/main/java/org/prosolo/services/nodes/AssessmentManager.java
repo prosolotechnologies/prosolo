@@ -11,10 +11,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.AssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -185,5 +182,7 @@ public interface AssessmentManager {
 
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
+
+	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;
 
 }

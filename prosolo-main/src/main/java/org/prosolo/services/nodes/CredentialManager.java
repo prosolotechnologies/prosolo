@@ -438,4 +438,8 @@ public interface CredentialManager extends AbstractManager {
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
 
+	Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException;
+
+	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
+
 }

@@ -74,6 +74,7 @@ public class Competence1 extends BaseEntity {
 
 	@OneToMany(mappedBy = "competence", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
+	@OrderBy("order ASC")
 	public List<CompetenceActivity1> getActivities() {
 		return activities;
 	}
