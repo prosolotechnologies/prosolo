@@ -2,7 +2,7 @@ package org.prosolo.search;
 
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
 
 /**
  * @author Bojan Trifkovic

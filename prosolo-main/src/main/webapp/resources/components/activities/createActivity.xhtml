@@ -7,7 +7,8 @@
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 		xmlns:util="http://www.prosolo.com/util"
-		xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+		xmlns:jsf="http://xmlns.jcp.org/jsf">
 
 	<composite:interface>
 		<composite:attribute name="toUpdate" default=""></composite:attribute>
@@ -32,6 +33,7 @@
 				containerId = '#{cc.clientId}';
 			</script>
 			<h:form id="formMain">
+				<p:focus />
 				<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
 				<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
 				<div class="container">
@@ -146,7 +148,7 @@
 			                                        				pt:data-toggle="tab"
 			                                        				process="@this"
 			                                        				action="#{activityEditBean.updateType(type)}"
-			                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel"
+			                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel :#{cc.clientId}:formMain:panelAcceptGrades"
 			                                        				oncomplete="">
 			                                        			</p:commandLink>
 			                                        		</li>
@@ -185,6 +187,113 @@
 			                                />
 			                            </div>
 			                        </div>
+
+									<!-- assessment -->
+									<div class="whiteBox">
+										<div class="formWrapper">
+											<h2>Assessment</h2>
+											<div class="formLine">
+												<label>Grading</label>
+												<div class="formLineRight">
+													<ui:fragment rendered="#{activityEditBean.limitedEdit}">
+														<ul class="addedItems">
+															<li>
+																#{activityEditBean.gradingModes[0].description}
+															</li>
+														</ul>
+													</ui:fragment>
+													<ui:fragment rendered="#{not activityEditBean.limitedEdit}">
+														<div class="formLineRight">
+															<h:selectOneMenu binding="#{selectGradingMode}" value="#{activityEditBean.activityData.gradingMode}" styleClass="selectpicker gradingModeSelector"
+																			 onchange="gradingModeChanged(this);">
+																<f:selectItems value="#{activityEditBean.gradingModes}" var="gm" itemLabel="#{gm.description}" itemValue="#{gm.gradingMode}" />
+															</h:selectOneMenu>
+															<script>
+                                                                $('.selectpicker').selectpicker('refresh');
+															</script>
+														</div>
+													</ui:fragment>
+												</div>
+											</div>
+
+											<div class="formLine maxPointsSelector" style="#{activityEditBean.activityData.gradingMode eq 'NONGRADED' ? 'display: none;' : ''}">
+												<label>Max points</label>
+												<div class="formLineRight">
+
+													<h:inputText disabled="#{activityEditBean.limitedEdit}" id="maxPoints"
+																 styleClass="maxPointsInputSelector"
+																 value="#{activityEditBean.activityData.maxPointsString}"
+																 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off"
+																 validator="#{activityEditBean.validateMaxPoints}">
+														<f:attribute name="gradingModeComp" value="#{selectGradingMode}" />
+														<f:convertNumber integerOnly="true" />
+													</h:inputText>
+													<h:panelGroup layout="block" id="panelAcceptGrades" styleClass="checkbox checkLine checkAcceptGradesPanelSelector" style="#{activityEditBean.activityData.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
+														<ui:fragment rendered="#{activityEditBean.activityData.activityType eq 'EXTERNAL_TOOL'}">
+															<h:selectBooleanCheckbox disabled="#{activityEditBean.limitedEdit}" styleClass="checkAcceptGradesSelector"
+																					 id="checkAcceptGrades" value="#{activityEditBean.activityData.acceptGrades}">
+															</h:selectBooleanCheckbox>
+															<h:outputLabel for="checkAcceptGrades"
+																		   id="checkAcceptGradesLabel">
+																Accept grades (grade will be sent by the external activity)
+															</h:outputLabel>
+														</ui:fragment>
+													</h:panelGroup>
+
+													<small class="redText"><h:message for="maxPoints" /></small>
+												</div>
+											</div>
+
+											<div class="formLine rubricSelector" style="#{activityEditBean.activityData.gradingMode eq 'MANUAL' ? '' : 'display: none;'}">
+												<label>Rubric</label>
+												<div class="formLineRight">
+													<ui:fragment rendered="#{activityEditBean.limitedEdit}">
+														<ul class="addedItems">
+															<li>
+																<ui:fragment rendered="#{activityEditBean.activityData.rubricId gt 0}">
+																	<h:link outcome="/manage/rubric-criteria">
+																		<f:param name="id" value="#{util:encodeId(activityEditBean.activityData.rubricId)}"/>
+																		#{activityEditBean.activityData.rubricName}
+																	</h:link>
+																</ui:fragment>
+																<ui:fragment rendered="#{activityEditBean.activityData.rubricId le 0}">
+																	None
+																</ui:fragment>
+
+															</li>
+														</ul>
+													</ui:fragment>
+													<ui:fragment rendered="#{not activityEditBean.limitedEdit}">
+														<h:selectOneMenu value="#{activityEditBean.activityData.rubricId}" styleClass="selectpicker rubricPickerSelector"
+																		 onchange="showOrHideRubricVisibilityRadioButtons(this,'.radioGroup')">
+															<f:selectItem itemValue="0" itemLabel="None"/>
+															<f:selectItems value="#{activityEditBean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" />
+														</h:selectOneMenu>
+														<script>
+                                                            $('.selectpicker').selectpicker('refresh');
+														</script>
+													</ui:fragment>
+
+													<div class="radioGroup" style="#{activityEditBean.activityData.rubricId > 0 ? '' : 'display: none;'}">
+														<ui:repeat value="#{activityEditBean.rubricVisibilityTypes}" var="vis">
+															<div class="radio">
+																<input type="radio" jsf:id="visType"
+																	   name="#{hiddenVisType.clientId}"
+																	   jsf:disabled="#{activityEditBean.limitedEdit}"
+																	   value="#{vis.visibility}"
+																	   jsf:checked="#{vis.visibility eq activityEditBean.activityData.rubricVisibility ? true : false}" />
+																<h:outputLabel for="visType" value="#{vis.description}" />
+															</div>
+														</ui:repeat>
+														<h:inputHidden id="rubricVisibilityType" binding="#{hiddenVisType}" value="#{activityEditBean.activityData.rubricVisibility}"
+																	   rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
+													</div>
+												</div>
+											</div>
+										</div>
+										<script>determineVisibilityBasedOnGradingMode();</script>
+									</div>
+									<!-- assessment end -->
 			                    </div>
 			                </div>
 			            </div>

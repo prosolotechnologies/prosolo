@@ -424,6 +424,8 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getIdsOfDeliveriesUserIsLearningContainingCompetence(long userId, long compId)
 			throws DbConnectionException;
 
+	boolean isUserEnrolled(long credId, long userId);
+
 	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 												   int page, LearningResourceSortOption sortOption)
 			throws DbConnectionException, NullPointerException;

@@ -265,10 +265,17 @@
 	            		
 	            			<h:form id="formTypedResult">
 		            			 <div class="whiteBox writeResult">
-				                    <h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
-				                    	placeholder="Type your response here..."
-				                    	value="#{cc.attrs.activity.resultData.result}">
-				                    </h:inputTextarea>
+									 <div>
+										<h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+											placeholder="Type your response here..."
+											id="responseText"
+											value="#{cc.attrs.activity.resultData.result}"
+											required="true"
+											requiredMessage="Response text is required">
+										</h:inputTextarea>
+
+										 <small class="redText"><h:message for="responseText"></h:message></small>
+									 </div>
 				                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
 				                    	styleClass="btn btn-sm btn-green"
 				                    	onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"

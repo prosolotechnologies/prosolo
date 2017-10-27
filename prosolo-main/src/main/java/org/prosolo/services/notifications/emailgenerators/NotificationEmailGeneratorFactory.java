@@ -3,8 +3,6 @@
  */
 package org.prosolo.services.notifications.emailgenerators;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -16,6 +14,8 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 
 @Service
 public class NotificationEmailGeneratorFactory {
@@ -70,7 +70,7 @@ public class NotificationEmailGeneratorFactory {
 			case AnnouncementPublished:
 				try {
 					Announcement ann = defaultManager.loadResource(Announcement.class, objectId, session);
-					return new AnnouncementPublishedNotificationEmailGenerator(name, actor, objectTitle, ann.getCredential().getTitle(), predicate, date, link, type, ann.getText());
+					return new AnnouncementPublishedNotificationEmailGenerator(name, actor, objectTitle, ann.getCredential().getTitle(), predicate, date, link, ann.getTitle(), ann.getText());
 				} catch (ResourceCouldNotBeLoadedException e) {
 					logger.error(e);
 				}
