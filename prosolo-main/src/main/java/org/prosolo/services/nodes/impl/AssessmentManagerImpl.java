@@ -174,7 +174,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	//not transactional - should not be called from another transaction
-	public long requestAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
+	public void requestAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, EventException {
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
@@ -184,7 +184,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
-		return res.getResult();
 	}
 	
 	@Override
@@ -238,6 +237,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (credPoints > 0) {
 				assessment.setPoints(credPoints);
 			}
+
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", targetCredential.getCredential().getId() + "");
+			CredentialAssessment assessment1 = new CredentialAssessment();
+			assessment1.setId(assessment.getId());
+			User assessor1 = new User();
+			assessor1.setId(assessorId);
+
+			result.addEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+					null, parameters));
+
 			result.setResult(assessment.getId());
 			return result;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {

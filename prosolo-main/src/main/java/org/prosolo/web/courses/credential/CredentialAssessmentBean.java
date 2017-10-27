@@ -403,6 +403,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	/*
 	 * GETTERS / SETTERS
 	 */
+
 	public long getDecodedId() {
 		return decodedId;
 	}

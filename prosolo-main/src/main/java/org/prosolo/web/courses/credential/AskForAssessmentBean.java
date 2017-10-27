@@ -132,8 +132,7 @@ public class AskForAssessmentBean implements Serializable {
                 populateAssessmentRequestFields();
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-                long assessmentId = assessmentManager.requestAssessment(this.assessmentRequestData, loggedUser.getUserContext());
-                notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
+                assessmentManager.requestAssessment(this.assessmentRequestData, loggedUser.getUserContext());
 
                 PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
 
@@ -159,25 +158,6 @@ public class AskForAssessmentBean implements Serializable {
         this.assessmentRequestData.setStudentId(loggedUser.getUserId());
         this.assessmentRequestData.setCredentialId(credentialData.getId());
         this.assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
-    }
-
-    private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
-        UserContextData context = loggedUser.getUserContext();
-        taskExecutor.execute(() -> {
-            User assessor = new User();
-            assessor.setId(assessorId);
-            CredentialAssessment assessment = new CredentialAssessment();
-            assessment.setId(assessmentId);
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put("credentialId", idEncoder.decodeId(credentialId) + "");
-            try {
-                eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
-                        null, parameters);
-            } catch (Exception e) {
-                logger.error("Eror sending notification for assessment request", e);
-            }
-        });
-
     }
 
     public CredentialManager getCredManager() {

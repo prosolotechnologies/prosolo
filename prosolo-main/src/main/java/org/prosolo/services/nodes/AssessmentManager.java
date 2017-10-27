@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public interface AssessmentManager {
 
-	long requestAssessment(AssessmentRequestData assessmentRequestData,
+	void requestAssessment(AssessmentRequestData assessmentRequestData,
 						   UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 
 	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId,
