@@ -53,7 +53,7 @@
 	</script>
 </h:head>
 
-<h:body id="manage">
+<h:body id="manage" styleClass="#{bodyClass}">
 	<utilcomp:messagesBundle var="msg" />
 	<div class="bigWrapper">
 	<header>
@@ -121,7 +121,10 @@
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
 										or util:getPagePath(view.viewId)  == 'newRubric'
-										or util:getPagePath(view.viewId)  == 'rubricEdit' ? 'active' : ''}">
+										or util:getPagePath(view.viewId)  == 'rubricEdit'
+										or util:getPagePath(view.viewId) eq 'rubric-criteria'
+										or util:getPagePath(view.viewId) eq 'rubric-privacy'
+										? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-rubricLibrary','mainmenu');"
 										outcome="/manage/rubricLibrary"
 										value="#{msg['label.rubric.plural']}" />

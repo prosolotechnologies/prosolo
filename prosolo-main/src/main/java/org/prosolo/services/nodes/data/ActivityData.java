@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;

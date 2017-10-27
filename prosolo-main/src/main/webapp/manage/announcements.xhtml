@@ -87,14 +87,12 @@
 							participants.<br />
 							<br />
 							<ui:fragment rendered="#{announcementBeanManager.canEdit()}">
-
 								<p:commandLink process="@this" styleClass="btn btn-green"
 											   pt:data-toggle="modal"
 											   update=":newAnnouncementForm:announcementModalPanel"
 											   oncomplete="$('#newAnnouncementModal').modal('show');">New Announcement
 								<p:resetInput target=":newAnnouncementForm:announcementModalPanel" />
 								</p:commandLink>
-
 							</ui:fragment>
 							<ui:fragment rendered="#{not announcementBeanManager.canEdit()}">
 								<a href="javascript:void(0);"
@@ -150,7 +148,6 @@
 					</div>
 				</div>
 			</ui:repeat>
-
 
 			<utilcomp:pagination
 				id="pagination"

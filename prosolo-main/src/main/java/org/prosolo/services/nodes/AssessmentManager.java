@@ -39,13 +39,13 @@ public interface AssessmentManager {
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
-												long senderId, boolean isDefault, Integer grade,
+												long senderId, boolean isDefault, GradeData grade,
 												boolean recalculatePoints, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException;
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
-												long senderId, boolean isDefault, Integer grade,
+												long senderId, boolean isDefault, GradeData grade,
 												boolean recalculatePoints, Session session, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException;
 
@@ -83,8 +83,8 @@ public interface AssessmentManager {
 	void updateDefaultAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
 			throws DbConnectionException;
 
-	void updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
-										  long activityAssessmentId, Integer points, UserContextData context)
+	int updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
+										  long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException, EventException;
 
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
@@ -143,7 +143,7 @@ public interface AssessmentManager {
 
 	AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
 															  long targetActivityId, List<Long> participantIds,
-															  long senderId, Integer grade, boolean isDefault,
+															  long senderId, GradeData grade, boolean isDefault,
 															  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, EventException;
 
@@ -153,18 +153,18 @@ public interface AssessmentManager {
 
 	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
 																	long credAssessmentId, List<Long> participantIds,
-																	long senderId, boolean isDefault, Integer grade,
+																	long senderId, boolean isDefault, GradeData grade,
 																	boolean recalculatePoints, Session session,
 																	UserContextData context)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-	Result<Void> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId,
-															  long compAssessmentId, long activityAssessmentId, Integer points,
+	Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId,
+															  long compAssessmentId, long activityAssessmentId, GradeData grade,
 															  UserContextData context) throws DbConnectionException;
 
 	Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
 																				  long targetActivityId, List<Long> participantIds,
-																				  long senderId, Integer grade, boolean isDefault,
+																				  long senderId, GradeData grade, boolean isDefault,
 																				  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
