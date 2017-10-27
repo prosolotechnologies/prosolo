@@ -10,10 +10,6 @@ import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.*;
-import org.prosolo.common.domainmodel.rubric.Criterion;
-import org.prosolo.common.domainmodel.rubric.CriterionLevel;
-import org.prosolo.common.domainmodel.rubric.Level;
-import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -24,12 +20,8 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
-import org.prosolo.services.nodes.data.rubrics.RubricData;
-import org.prosolo.services.nodes.data.rubrics.RubricItemData;
-import org.prosolo.services.nodes.data.rubrics.RubricItemDescriptionData;
+import org.prosolo.services.nodes.data.rubrics.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -573,12 +567,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActivityRubricCriterionData> getRubricDataForAssessment(long activityAssessmentId, long actId)
+    public List<ActivityRubricCriterionData> getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException {
         try {
             String query =
                     "SELECT cat, catLvl, act.maxPoints ";
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += ", ass ";
             }
             query += "FROM Activity1 act " +
@@ -587,7 +581,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                      "INNER JOIN cat.levels catLvl " +
                      "INNER JOIN fetch catLvl.level lvl ";
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += "LEFT JOIN cat.assessments ass " +
                          "WITH ass.assessment.id = :assessmentId ";
             }
@@ -598,7 +592,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .createQuery(query)
                     .setLong("actId", actId);
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 q.setLong("assessmentId", activityAssessmentId);
             }
 
@@ -622,7 +616,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                         criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
                     }
                     crit = c;
-                    if (activityAssessmentId > 0) {
+                    if (loadGrades && activityAssessmentId > 0) {
                         assessment = (CriterionAssessment) row[3];
                     }
                     levels.clear();
