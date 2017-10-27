@@ -35,7 +35,8 @@ public interface AssessmentManager {
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
+	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
+						   List<CompetenceAssessmentData> competenceAssessmentDataList, boolean isDefault);
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
@@ -183,4 +184,6 @@ public interface AssessmentManager {
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
 
+
+	long createCompetenceAssessmentAndApprove(long credAssessmentId, long targetCompId, boolean isDefault);
 }
