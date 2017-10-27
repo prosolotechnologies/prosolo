@@ -1,18 +1,14 @@
 <ui:component
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:socialWall="http://java.sun.com/jsf/composite/components/socialWall"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:post="http://java.sun.com/jsf/composite/components/post"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 		<composite:attribute name="bean"/>
@@ -27,7 +23,7 @@
 		<composite:attribute name="otherResultCommentModalId" default="" />
 		<composite:attribute name="toUpdateOtherResultCommentModal" default="" />
 		<composite:attribute name="privateConvNumberOfMsgsLink" default=""/>
-		<composite:attribute name="assessmentGradeModalId" default="" />
+		<composite:attribute name="assessmentGradeLinkOnComplete" default="" />
 		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
 		<composite:attribute name="studentCanEditResponse" default="false" />
 		<composite:attribute name="gradeLink" default=""/>
@@ -92,37 +88,35 @@
 							#{cc.attrs.resultData.assessment.numberOfMessages}
 						</p:commandLink>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade gt 0 and not cc.attrs.resultData.assessment.automaticGrade}">
-							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
-								pt:data-toggle="modal"
-								action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
-								update="#{cc.attrs.toUpdateAssessmentGradeModal}"
-								oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
+									styleClass="grade #{cc.attrs.gradeLink}"
+									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
+									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
 								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+								<a href="javascript:void(0);" class="grade"
+								   data-toggle="tooltip"
+								   title="Nongraded activity">
+									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+									/
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</a>
+							</ui:fragment>
 						</ui:fragment>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade > 0 and cc.attrs.resultData.assessment.automaticGrade}">
+						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<a
 									class="grade"
 									disabled="disabled"
 									data-toggle="tooltip"
-									title="Grade for this external activity is automatically set upon completion">
-								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
-							</a>
-						</ui:fragment>
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) or cc.attrs.resultData.assessment.grade.maxGrade == 0}">
-							<a
-									class="grade"
-									disabled="disabled"
-									data-toggle="tooltip"
-									title="#{(not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData))
-																			? 'Only assessor can update the grade'
-																			: 'Points are not set for this activity'}">
-								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
+									title="Only assessor can update the grade">
+								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</a>
 						</ui:fragment>
@@ -268,37 +262,35 @@
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
 						</p:commandLink>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade gt 0 and not cc.attrs.resultData.assessment.automaticGrade}">
-							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
-										   pt:data-toggle="modal"
-										   action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
-										   update="#{cc.attrs.toUpdateAssessmentGradeModal}"
-										   oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
+									styleClass="grade #{cc.attrs.gradeLink}"
+									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
+									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
 								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+								<a href="javascript:void(0);" class="grade"
+								   data-toggle="tooltip"
+								   title="Nongraded activity">
+									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+									/
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</a>
+							</ui:fragment>
 						</ui:fragment>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade > 0 and cc.attrs.resultData.assessment.automaticGrade}">
+						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<a
 									class="grade"
 									disabled="disabled"
 									data-toggle="tooltip"
-									title="Grade for this external activity is automatically set upon completion">
-								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
-							</a>
-						</ui:fragment>
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) or cc.attrs.resultData.assessment.grade.maxGrade == 0}">
-							<a
-									class="grade"
-									disabled="disabled"
-									data-toggle="tooltip"
-									title="#{(not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData))
-																			? 'Only assessor can update the grade'
-																			: 'Points are not set for this activity'}">
-								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
+									title="Only assessor can update the grade">
+								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
+								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</a>
 						</ui:fragment>

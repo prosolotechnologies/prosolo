@@ -225,9 +225,18 @@ public class ActivityDataFactory {
 		act.setType(activity.getType());
 		act.setMaxPoints(activity.getMaxPoints());
 		act.getResultData().setResultType(getResultType(activity.getResultType()));
+
+		act.setGradingMode(activity.getGradingMode());
+		//set rubric data
+		if (activity.getRubric() != null) {
+			act.setRubricId(activity.getRubric().getId());
+			act.setRubricVisibility(activity.getRubricVisibility());
+		}
 		
 		act.setActivityType(getActivityType(activity));
-		
+
+		setBasicTypeSpecificData(activity, act);
+
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
@@ -235,6 +244,22 @@ public class ActivityDataFactory {
 		}
 
 		return act;
+	}
+
+	private void setBasicTypeSpecificData(Activity1 activity, ActivityData act) {
+		activity.accept(new ActivityVisitor() {
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				act.setAcceptGrades(activity.isAcceptGrades());
+			}
+
+			@Override
+			public void visit(UrlActivity1 activity) { }
+
+			@Override
+			public void visit(TextActivity1 activity) { }
+		});
 	}
 
 	/**
@@ -435,6 +460,16 @@ public class ActivityDataFactory {
 		act.getResultData().setResultType(getResultType(activ.getResultType()));
 		act.getResultData().setResult(activity.getResult());
 		act.setTargetCompetenceId(activity.getTargetCompetence().getId());
+
+		act.setGradingMode(activ.getGradingMode());
+		//set rubric data
+		if (activ.getRubric() != null) {
+			act.setRubricId(activ.getRubric().getId());
+			act.setRubricVisibility(activ.getRubricVisibility());
+		}
+
+		setBasicTypeSpecificData(activ, act);
+
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {

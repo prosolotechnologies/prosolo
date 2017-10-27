@@ -45,11 +45,11 @@ public class NonEmptyListValidator implements Validator {
                     });
 
             if (!valid.get()) {
-                String message = uiComponent.getAttributes().get("msg").toString();
-                if (message == null || message.isEmpty()) {
+                Object message = uiComponent.getAttributes().get("msg");
+                if (message == null || message.toString().isEmpty()) {
                     message = DEFAULT_MSG;
                 }
-                FacesMessage msg = new FacesMessage(message);
+                FacesMessage msg = new FacesMessage(message.toString());
                 msg.setSeverity(FacesMessage.SEVERITY_ERROR);
                 throw new ValidatorException(msg);
             }
