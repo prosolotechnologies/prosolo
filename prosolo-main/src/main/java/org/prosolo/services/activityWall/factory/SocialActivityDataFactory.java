@@ -82,26 +82,27 @@ public class SocialActivityDataFactory {
 			String credObjectActorName,
 			String credObjectActorLastname,
 			String credObjectDescription,
-			BigInteger commentObjectId,
-			String commentObjectComment,
-			BigInteger compTargetId,
-			String compTargetTitle,
-			BigInteger actTargetId,
-			String actTargetTitle,
-			BigInteger actTargetCompId,
-			String actTargetDType,
-			String actTargetUrlType,
-			BigInteger actObjectId,
-			String actObjectTitle,
-			BigInteger actObjectDuration,
-			String actObjectType,
-			BigInteger actObjectActorId,
-			String actObjectActorName,
-			String actObjectActorLastname,
-			String actObjectDescription,
-			String actObjectDType,
-			String actObjectUrlType,
-			BigInteger actObjectCompId,
+//not used currently
+//			BigInteger commentObjectId,
+//			String commentObjectComment,
+//			BigInteger compTargetId,
+//			String compTargetTitle,
+//			BigInteger actTargetId,
+//			String actTargetTitle,
+//			BigInteger actTargetCompId,
+//			String actTargetDType,
+//			String actTargetUrlType,
+//			BigInteger actObjectId,
+//			String actObjectTitle,
+//			BigInteger actObjectDuration,
+//			String actObjectType,
+//			BigInteger actObjectActorId,
+//			String actObjectActorName,
+//			String actObjectActorLastname,
+//			String actObjectDescription,
+//			String actObjectDType,
+//			String actObjectUrlType,
+//			BigInteger actObjectCompId,
 			BigInteger compObjectId,
 			String compObjectTitle,
 			BigInteger compObjectDuration,
@@ -231,38 +232,40 @@ public class SocialActivityDataFactory {
 					compObjectDuration.longValue(), compObjectTitle, compObjectDescription, 
 					LearningResourceType.valueOf(compObjectType), compObjectActorName, 
 					compObjectActorLastname, 0);
-		} else if(dType.equals(CompetenceCommentSocialActivity.class.getSimpleName())) {
-			//competence comment
-			sad.setType(SocialActivityType.Comment);
-			obj = objectFactory.getObjectData(0, null, 
-					ResourceType.Comment, 0, null, null, locale);
-			target = objectFactory.getObjectData(0, null, 
-					ResourceType.Competence, 0, null, null, locale);
-			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
-					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0, null);
-		} else if(dType.equals(ActivityCommentSocialActivity.class.getSimpleName())) {
-			//activity comment
-			sad.setType(SocialActivityType.Comment);
-			obj = objectFactory.getObjectData(0, null, 
-					ResourceType.Comment, 0, null, null, locale);
-			target = objectFactory.getObjectData(0, null, 
-					ResourceType.Activity, 0, null, null, locale);
-			ActivityType actType = activityFactory.getActivityType(actTargetDType, actTargetUrlType);
-			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
-					target.getType(), actTargetTitle, commentObjectComment, actTargetCompId.longValue(), 
-					actTargetId.longValue(), actType);
-		} else if(dType.equals(ActivityCompleteSocialActivity.class.getSimpleName())) {
-			//activity complete
-			sad.setType(SocialActivityType.Learning_Completion);
-			obj = objectFactory.getObjectData(0, null, 
-					ResourceType.Activity, 0, null, null, locale);
-			
-			ActivityType actType = activityFactory.getActivityType(actObjectDType, actObjectUrlType);
-			ap = richContentFactory.getAttachmentPreviewForActivity(actObjectId.longValue(), 
-					actObjectDuration.longValue(), actObjectTitle, actObjectDescription, 
-					LearningResourceType.valueOf(actObjectType), actType, actObjectActorName, 
-					actObjectActorLastname, actObjectCompId.longValue(), 0);
 		}
+		//these social activity types are not used currently
+//		else if(dType.equals(CompetenceCommentSocialActivity.class.getSimpleName())) {
+//			//competence comment
+//			sad.setType(SocialActivityType.Comment);
+//			obj = objectFactory.getObjectData(0, null,
+//					ResourceType.Comment, 0, null, null, locale);
+//			target = objectFactory.getObjectData(0, null,
+//					ResourceType.Competence, 0, null, null, locale);
+//			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(),
+//					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0, null);
+//		} else if(dType.equals(ActivityCommentSocialActivity.class.getSimpleName())) {
+//			//activity comment
+//			sad.setType(SocialActivityType.Comment);
+//			obj = objectFactory.getObjectData(0, null,
+//					ResourceType.Comment, 0, null, null, locale);
+//			target = objectFactory.getObjectData(0, null,
+//					ResourceType.Activity, 0, null, null, locale);
+//			ActivityType actType = activityFactory.getActivityType(actTargetDType, actTargetUrlType);
+//			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(),
+//					target.getType(), actTargetTitle, commentObjectComment, actTargetCompId.longValue(),
+//					actTargetId.longValue(), actType);
+//		} else if(dType.equals(ActivityCompleteSocialActivity.class.getSimpleName())) {
+//			//activity complete
+//			sad.setType(SocialActivityType.Learning_Completion);
+//			obj = objectFactory.getObjectData(0, null,
+//					ResourceType.Activity, 0, null, null, locale);
+//
+//			ActivityType actType = activityFactory.getActivityType(actObjectDType, actObjectUrlType);
+//			ap = richContentFactory.getAttachmentPreviewForActivity(actObjectId.longValue(),
+//					actObjectDuration.longValue(), actObjectTitle, actObjectDescription,
+//					LearningResourceType.valueOf(actObjectType), actType, actObjectActorName,
+//					actObjectActorLastname, actObjectCompId.longValue(), 0);
+//		}
 		
 		sad.setPredicate(ResourceBundleUtil.getActionName(sad.getType().name(), locale));
 		if(obj != null && target != null) {
