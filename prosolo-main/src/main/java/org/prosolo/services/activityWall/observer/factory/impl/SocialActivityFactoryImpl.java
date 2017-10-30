@@ -52,10 +52,11 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 				} else if (be instanceof TargetCompetence1) {
 					processor = new CompetenceObjectSocialActivityProcessor(session, event,
 							socialActivityManager);
-				} else if (be instanceof TargetActivity1) {
-					processor = new ActivityCompletionSocialActivityProcessor(session, event,
-							socialActivityManager);
 				}
+//				else if (be instanceof TargetActivity1) {
+//					processor = new ActivityCompletionSocialActivityProcessor(session, event,
+//							socialActivityManager);
+//				}
 				break;
 			case ENROLL_COURSE:
 				processor = new CredentialObjectSocialActivityProcessor(session, event, 
