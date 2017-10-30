@@ -239,67 +239,38 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	@Override
+	public void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException {
+		Result<Void> result = self.removeUserFromTheGroupAndGetEvents(groupId, userId, context);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException {
+	public Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
+			throws DbConnectionException, EventException {
 		try {
 			Optional<UserGroupUser> groupUser = getUserGroupUser(groupId, userId);
 			if(groupUser.isPresent()) {
 				delete(groupUser.get());
 			}
+			Result<Void> result = new Result<>();
+			User u = new User();
+			u.setId(userId);
+			UserGroup group = new UserGroup();
+			group.setId(groupId);
+
+			result.addEvent(eventFactory.generateEventData(EventType.REMOVE_USER_FROM_GROUP,
+					context, u, group, null, null));
+
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while removing user from the group");
 		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
-		try {
-			for(Long user : userIds) {
-				//TODO add context
-				addUserToTheGroupAndGetEvents(groupId, user, UserContextData.empty());
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while adding users to the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void removeUsersFromTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
-		try {
-			for(Long user : userIds) {
-				removeUserFromTheGroup(groupId, user);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while removing users from the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void updateGroupUsers(long groupId, List<Long> usersToAdd, List<Long> usersToRemove)
-			throws DbConnectionException {
-		try {
-			if (usersToAdd != null && !usersToAdd.isEmpty()) {
-				addUsersToTheGroup(groupId, usersToAdd);
-			}
-			
-			if (usersToRemove != null && !usersToRemove.isEmpty()) {
-				removeUsersFromTheGroup(groupId, usersToRemove);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while updating group users");
-		}
-		
 	}
 
 	@Override
@@ -319,10 +290,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException {
+	public void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
 		try {
 			for(Long group : groupIds) {
-				removeUserFromTheGroup(group, userId);
+				removeUserFromTheGroupAndGetEvents(group, userId, context);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -332,19 +303,52 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
 	public void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo) throws DbConnectionException {
+			List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException, EventException {
+		Result<Void> result = self.updateUserParticipationInGroupsAndGetEvents(userId,groupsToRemoveUserFrom,groupsToAddUserTo,context);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateUserParticipationInGroupsAndGetEvents(long userId, List<Long> groupsToRemoveUserFrom,
+																	List<Long> groupsToAddUserTo, UserContextData context)
+			throws DbConnectionException, EventException {
 		try {
 			addUserToGroups(userId, groupsToAddUserTo);
-			removeUserFromGroups(userId, groupsToRemoveUserFrom);
+			removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
+
+			User user = new User();
+			user.setId(user.getId());
+			Result<Void> result = new Result<>();
+
+			for(long id : groupsToAddUserTo) {
+				UserGroup group = new UserGroup();
+				group.setId(id);
+				result.addEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, context,
+						user, group,null, null));
+			}
+			for(long id : groupsToRemoveUserFrom) {
+				UserGroup group = new UserGroup();
+				group.setId(id);
+				result.addEvent(eventFactory.generateEventData(
+						EventType.REMOVE_USER_FROM_GROUP,
+						context,
+						user, group,null, null));
+			}
+
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while updating user groups");
 		}
+
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
     public long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException {

@@ -44,21 +44,19 @@ public interface UserGroupManager extends AbstractManager {
 	void addUserToTheGroup(long groupId, long userId, UserContextData context)
 			throws DbConnectionException, EventException;
 
-	void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException;
+	void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException;
 
-	void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException;
-
-	void removeUsersFromTheGroup(long groupId, List<Long> userIds) throws DbConnectionException;
-
-	void updateGroupUsers(long groupId, List<Long> usersToAdd, List<Long> usersToRemove)
-			throws DbConnectionException;
+	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException;
 
 	void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 
-	void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException;
+	void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException;
 
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom,
-										 List<Long> groupsToAddUserTo) throws DbConnectionException;
+										 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException, EventException;
+
+	Result<Void> updateUserParticipationInGroupsAndGetEvents(long userId, List<Long> groupsToRemoveUserFrom,
+															 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException, EventException;
 
 	long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException;
 

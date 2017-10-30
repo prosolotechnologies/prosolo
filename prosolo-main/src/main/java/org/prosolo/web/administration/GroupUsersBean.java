@@ -104,18 +104,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void removeUserFromGroup(UserData user) {
 		try {
-			userGroupManager.removeUserFromTheGroup(decodedGroupId, user.getId());
-			/*
-			TODO for now events are fired here in a JSF bean because removeUserFromTheGroup method is called
-			in other places too so event generation can't be moved to this method at the moment. This should be
-			refactored later.
-			 */
-			User u = new User();
-			u.setId(user.getId());
-			UserGroup group = new UserGroup();
-			group.setId(decodedGroupId);
-			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP,
-					loggedUserBean.getUserContext(decodedOrgId), u, group, null, null);
+			userGroupManager.removeUserFromTheGroup(decodedGroupId, user.getId(),loggedUserBean.getUserContext(decodedOrgId));
 
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " is removed from the group");
 

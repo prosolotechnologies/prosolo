@@ -1,12 +1,8 @@
 package org.prosolo.web.users;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -34,7 +30,6 @@ public class UsersGroupsBean implements Serializable {
 	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private EventFactory eventFactory;
 	
 	private UserData user;
 	private List<UserGroupData> groups;
@@ -90,24 +85,9 @@ public class UsersGroupsBean implements Serializable {
 
 	public void saveUserGroups() {
 		try {
-			userGroupManager.updateUserParticipationInGroups(user.getId(), groupsToRemoveUserFrom, 
-					groupsToAddUserTo);
-			User user = new User();
-			user.setId(user.getId());
-			for(long id : groupsToAddUserTo) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserContext(),
-						user, group,null, null);
-			}
-			for(long id : groupsToRemoveUserFrom) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				eventFactory.generateEvent(
-						EventType.REMOVE_USER_FROM_GROUP,
-						loggedUserBean.getUserContext(),
-						user, group,null, null);
-			}
+			userGroupManager.updateUserParticipationInGroups(user.getId(), groupsToRemoveUserFrom,
+					groupsToAddUserTo,loggedUserBean.getUserContext());
+
 			PageUtil.fireSuccessfulInfoMessage("The user is added to the group");
 		} catch (Exception ex) {
 			logger.error(ex);

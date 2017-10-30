@@ -4,9 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -41,7 +39,6 @@ public class GroupUserAddBean implements Serializable, Paginable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UserGroupManager userGroupManager;
-	@Inject private EventFactory eventFactory;
 
 	private long orgId;
 	private long unitId;
