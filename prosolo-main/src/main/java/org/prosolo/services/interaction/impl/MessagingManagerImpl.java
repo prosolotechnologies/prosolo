@@ -1,12 +1,6 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -24,6 +18,8 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.UserDataFactory;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -36,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
+
 @Service("org.prosolo.services.interaction.MessagingManager")
 public class MessagingManagerImpl extends AbstractManagerImpl implements MessagingManager {
 
@@ -47,6 +45,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	private EventFactory eventFactory;
 	@Autowired
 	private UserManager userManager;
+	@Inject
+	private MessagingManager self;
 
 	@Transactional
 	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException {
@@ -305,8 +305,21 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public MessageThread getLatestMessageThread(long userId, boolean archived) {
+	public MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context)
+			throws EventException {
+		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId,archived,page,context);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived,String page, UserContextData context)
+			throws EventException,DbConnectionException {
 		String query =
 				"SELECT DISTINCT thread " +
 						"FROM MessageThread thread " +
@@ -322,11 +335,23 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				.setBoolean("archived", archived)
 				.setMaxResults(1).list();
 
+		Result<MessageThread> res = new Result<>();
+
 		if (!result.isEmpty()) {
-			return result.iterator().next();
+			MessageThread messageThread = result.iterator().next();
+			MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread,userId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
+
+			res.addEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+					context, messageThread, null, null, parameters));
+
+			res.setResult(messageThread);
 		} else {
 			return null;
 		}
+
+		return res;
 	}
 
 	@Override
@@ -422,7 +447,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		}
 		return true;
 	}
-
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override

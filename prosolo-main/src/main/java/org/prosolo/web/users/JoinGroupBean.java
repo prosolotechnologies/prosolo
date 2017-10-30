@@ -2,11 +2,7 @@ package org.prosolo.web.users;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -21,8 +17,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 @ManagedBean(name = "joinGroupBean")
 @Component("joinGroupBean")
@@ -38,7 +32,6 @@ public class JoinGroupBean implements Serializable {
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private UnitManager unitManager;
 	@Inject private RoleManager roleManager;
-	@Inject private EventFactory eventFactory;
 
 	private String id;
 	private long decodedId;

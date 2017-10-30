@@ -32,7 +32,10 @@ public interface MessagingManager extends AbstractManager {
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	MessageThread getLatestMessageThread(long userId, boolean archived);
+	MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context) throws EventException;
+
+	Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, String page, UserContextData context)
+			throws EventException, DbConnectionException;
 
 	//Result<Message> sendMessageAndGetEvents(UserContextData context, long recieverId, String msg) throws DbConnectionException;
 

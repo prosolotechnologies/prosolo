@@ -120,10 +120,19 @@ public class MessagesBean implements Serializable {
 	 */
 	private MessageProcessingResult tryToInitMessages() {
 		MessageThread thread = null;
-		
+		String page = PageUtil.getPostParameter("page");
+		String context = PageUtil.getPostParameter("context");
+		page = (page != null) ? page : "messages";
+		context = (context != null) ? context : "name:messages";
+		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
+
 		if (decodedThreadId == 0) {
-			thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(),archiveView);
-			
+			try {
+				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(),archiveView,page,userContext);
+			} catch (Exception e) {
+				logger.error(e);
+			}
+
 			if (thread != null) {
 				return initializeThreadData(thread);
 			}
@@ -168,7 +177,7 @@ public class MessagesBean implements Serializable {
 			loadMessages();
 		}
 		
-		String page = PageUtil.getPostParameter("page");
+		/*String page = PageUtil.getPostParameter("page");
 		String context = PageUtil.getPostParameter("context");
 		page = (page != null) ? page : "messages";
 		context = (context != null) ? context : "name:messages";
@@ -183,7 +192,7 @@ public class MessagesBean implements Serializable {
         	} catch (EventException e) {
         		logger.error(e);
         	}
-		});
+		});*/
 		
 		return MessageProcessingResult.OK;
 	}
