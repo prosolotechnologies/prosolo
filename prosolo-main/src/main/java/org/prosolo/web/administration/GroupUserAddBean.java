@@ -108,16 +108,8 @@ public class GroupUserAddBean implements Serializable, Paginable {
 
 	public boolean addUser(UserData user, String groupName) {
 		try {
-			List<EventData> events = userGroupManager.addUserToTheGroupAndGetEvents(groupId, user.getId(),
-					loggedUser.getUserContext()).getEvents();
-			/*
-			TODO for now events are fired here in a JSF bean because addUserToTheGroup method is called
-			in other places too so event generation can't be moved to this method at the moment. This should be
-			refactored later.
-			 */
-			for (EventData ev : events) {
-				eventFactory.generateEvent(ev);
-			}
+			userGroupManager.addUserToTheGroup(groupId, user.getId(),
+					loggedUser.getUserContext());
 
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
 					+ " has been added to the group " + groupName);
@@ -128,7 +120,6 @@ public class GroupUserAddBean implements Serializable, Paginable {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error while loading user data");
 			}
-
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);

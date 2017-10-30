@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
@@ -39,6 +40,9 @@ public interface UserGroupManager extends AbstractManager {
 
 	Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
 			throws DbConnectionException;
+
+	void addUserToTheGroup(long groupId, long userId, UserContextData context)
+			throws DbConnectionException, EventException;
 
 	void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException;
 

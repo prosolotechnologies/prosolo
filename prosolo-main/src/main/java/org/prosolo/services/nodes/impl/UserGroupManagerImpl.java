@@ -18,6 +18,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialManager;
@@ -932,6 +933,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while adding the user to the group");
+		}
+	}
+
+	@Override
+	public void addUserToTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException {
+		Result<Void> result = self.addUserToTheGroupAndGetEvents(groupId, userId, context);
+
+		for (EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
 		}
 	}
 
