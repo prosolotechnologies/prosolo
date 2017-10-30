@@ -151,9 +151,11 @@
                                 <p>
                                      #{util:cleanHTMLTags(cc.attrs.attachmentPreview.description)}
                                 </p>
-                                <div class="meta">
-	                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
-                                </div>
+								<ui:fragment rendered="#{cc.attrs.attachmentPreview.duration ne null}">
+									<div class="meta">
+										<div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
+									</div>
+								</ui:fragment>
                             </div>
                         </div>
 					</ui:fragment>
