@@ -57,6 +57,22 @@ public class ESIndexNames {
 		return Arrays.asList(INDEX_USERS, INDEX_LOGS);
 	}
 
+	public static List<String> getOrganizationIndexes() {
+		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+	}
+
+	/**
+	 * Returns all indexes that contain data which can't be repopulated based on existing data in a database(s)
+	 */
+	public static List<String> getNonrecreatableSystemIndexes() {
+		return getSystemIndexes()
+				.stream()
+				.filter(ind -> getRecreatableIndexes()
+						.stream()
+						.noneMatch(rInd -> ind == rInd))
+				.collect(Collectors.toList());
+	}
+
 	/**
 	 * Returns all system level indexes that can be created from scratch based on database (SQL) data
 	 *
@@ -69,10 +85,6 @@ public class ESIndexNames {
 						.stream()
 						.anyMatch(rInd -> ind == rInd))
 				.collect(Collectors.toList());
-	}
-
-	public static List<String> getOrganizationIndexes() {
-		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
 	}
 
 	/**

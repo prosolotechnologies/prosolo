@@ -62,12 +62,21 @@ public class AfterContextLoader implements ServletContextListener {
 				logger.error(e);
 			}
 		}
-		
+
+		/*
+		always create indexes with data not dependent on mysql db if they don't exist
+		 */
+		ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
+		try {
+			esAdmin.createNonrecreatableSystemIndexesIfNotExist();
+		} catch (IndexingServiceNotAvailable e) {
+			logger.error("Error", e);
+		}
 		if (settings.config.init.formatDB) {
-			//initialize ES indexes
+			//initialize DB ES indexes
 			try {
 				logger.debug("initialize elasticsearch indexes");
-				initElasticSearchIndexes();
+				initElasticSearchDBIndexes();
 			} catch (IndexingServiceNotAvailable e1) {
 				logger.error(e1);
 			}
@@ -102,7 +111,6 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 		
 		if (settings.config.init.indexTrainingSet) {
-			ESAdministration esAdmin = new ESAdministrationImpl();
 			esAdmin.indexTrainingSet();
 		}
 		
@@ -130,10 +138,10 @@ public class AfterContextLoader implements ServletContextListener {
 		logger.debug("Services initialized");
 	}
 
-	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
+	private void initElasticSearchDBIndexes() throws IndexingServiceNotAvailable {
 		ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
-		esAdmin.deleteAllIndexes();
-		esAdmin.createAllIndexes();
+		esAdmin.deleteDBIndexes();
+		esAdmin.createDBIndexes();
 	}
 	
 	private void initApplicationServices(){

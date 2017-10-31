@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static org.elasticsearch.client.Requests.*;
@@ -40,10 +41,10 @@ public class ESAdministrationImpl implements ESAdministration {
 	private static final long serialVersionUID = 830150223713546004L;
 	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
 
-	@Override
-	public boolean createAllIndexes() throws IndexingServiceNotAvailable {
-		return createIndexes(ESIndexNames.getSystemIndexes(), ESIndexNames.getOrganizationIndexes());
-	}
+//	@Override
+//	public boolean createAllIndexes() throws IndexingServiceNotAvailable {
+//		return createIndexes(ESIndexNames.getSystemIndexes(), ESIndexNames.getOrganizationIndexes());
+//	}
 
 	@Override
 	public boolean createDBIndexes() throws IndexingServiceNotAvailable {
@@ -59,7 +60,7 @@ public class ESAdministrationImpl implements ESAdministration {
 				.getFoundNodes();
 		for (String ind : organizationIndexes) {
 			for (OrganizationData o : organizations) {
-				createIndex(ind + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+				createIndex(ElasticsearchUtil.getOrganizationIndexName(ind, o.getId()));
 			}
 		}
 		return true;
@@ -111,6 +112,11 @@ public class ESAdministrationImpl implements ESAdministration {
 			}
 		}
 	}
+
+	@Override
+	public void createNonrecreatableSystemIndexesIfNotExist() throws IndexingServiceNotAvailable {
+		createIndexes(ESIndexNames.getNonrecreatableSystemIndexes(), Collections.emptyList());
+	}
 	
 	private void addMapping(Client client, String indexName, String indexType) {
 		//temporary solution until we completely move to organization indexes
@@ -125,10 +131,10 @@ public class ESAdministrationImpl implements ESAdministration {
 		client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
 	}
 
-	@Override
-	public boolean deleteAllIndexes() throws IndexingServiceNotAvailable {
-		return deleteIndexByName("*" + CommonSettings.getInstance().config.getNamespaceSufix() + "*");
-	}
+//	@Override
+//	public boolean deleteAllIndexes() throws IndexingServiceNotAvailable {
+//		return deleteIndexByName("*" + CommonSettings.getInstance().config.getNamespaceSufix() + "*");
+//	}
 
 	@Override
 	public boolean deleteDBIndexes() throws IndexingServiceNotAvailable {
@@ -183,7 +189,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		List<String> indexes = ESIndexNames.getOrganizationIndexes();
 
 		for (String index : indexes) {
-			createIndex(index + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId));
+			createIndex(ElasticsearchUtil.getOrganizationIndexName(index, organizationId));
 		}
 		return true;
 	}
@@ -193,7 +199,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		List<String> indexes = ESIndexNames.getOrganizationIndexes();
 
 		for (String index : indexes) {
-			deleteIndex(index + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId));
+			deleteIndex(ElasticsearchUtil.getOrganizationIndexName(index, organizationId));
 		}
 		return true;
 	}
