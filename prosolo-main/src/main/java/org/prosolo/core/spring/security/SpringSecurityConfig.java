@@ -43,6 +43,7 @@ import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.log.SAMLDefaultLogger;
+import org.springframework.security.saml.log.SAMLLogger;
 import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
@@ -136,6 +137,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
@@ -151,7 +153,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library/competencies").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/posts/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
@@ -226,7 +227,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/library/instructor/credentials").hasAuthority("INSTRUCTOR.LIBRARY.VIEW")
 
 		   .antMatchers("/manage/rubrics").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
-		   .antMatchers("/manage/rubrics/*/edit").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/settings").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*/privacy").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
+		   .antMatchers("/manage/rubrics/*").hasAnyAuthority("MANAGE.RUBRICS.VIEW")
 		   
 		   .antMatchers("/manage/tools/*/*/*/create").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/tools/*").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -245,14 +248,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //admin
 		   .antMatchers("/admin").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/").hasAuthority("ADMIN.ADVANCED")
-		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
+		   .antMatchers("/admin/roles").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
 		   .antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings/twitterOAuth").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings_old").hasAuthority("BASIC.ADMIN.ACCESS")
-		   .antMatchers("/admin/other").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/other").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/admins").hasAuthority("ADMIN.ADVANCED")
            .antMatchers("/admin/admins/new").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/organizations/*/users/*/edit/password").hasAuthority("ADMINS.VIEW")
@@ -261,9 +264,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/organizations/*/users").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/new").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/settings").hasAuthority("ADMINS.VIEW")
-           .antMatchers("/admin/admins/*/edit").hasAuthority("ADMINS.VIEW")
-           .antMatchers("/admin/admins/*/edit/password").hasAuthority("ADMINS.VIEW")
-		   .antMatchers("/admin/organizations").hasAuthority("ADMINS.VIEW")
+           .antMatchers("/admin/admins/*/edit").hasAuthority("ADMIN.ADVANCED")
+           .antMatchers("/admin/admins/*/edit/password").hasAuthority("ADMIN.ADVANCED")
+		   .antMatchers("/admin/organizations").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/organizations/*/units").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units/*/teachers").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units/*/students").hasAnyAuthority("ADMINS.VIEW")
@@ -438,12 +441,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
  
     // Logger for SAML messages and events
-    @Bean
-    public SAMLDefaultLogger samlLogger() {
-        return new SAMLDefaultLogger();
-    }
- 
-    // SAML 2.0 WebSSO Assertion Consumer
+	@Bean
+	public SAMLLogger samlLogger() {
+		SAMLDefaultLogger samlLogger = new SAMLDefaultLogger();
+		samlLogger.setLogMessages(true);
+		return samlLogger;
+	}
+
+	// SAML 2.0 WebSSO Assertion Consumer
     @Bean
     public WebSSOProfileConsumer webSSOprofileConsumer() {
     	WebSSOProfileConsumerImpl consumer = new WebSSOProfileConsumerImpl();
@@ -845,7 +850,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 //samlIDPDiscovery()));
         return new FilterChainProxy(chains);
     }
-     
+
 //	    /**
 //	     * Returns the authentication manager currently used by Spring.
 //	     * It represents a bean definition with the aim allow wiring from

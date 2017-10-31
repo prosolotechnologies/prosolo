@@ -1001,10 +1001,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			Result<User> res = new Result<>();
 			res.setResult(user);
-			/*
-			TODO i don't know if we rely somewhere on event actor being new user that is just created
-			so I used new user id as an actor in event, but this is probably not semantically correct
-			 */
+
 			res.addEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
 			return res;

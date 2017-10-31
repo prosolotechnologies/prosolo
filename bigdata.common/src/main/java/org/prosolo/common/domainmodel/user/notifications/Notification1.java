@@ -84,6 +84,7 @@ public class Notification1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public NotificationType getType() {
 		return type;
 	}

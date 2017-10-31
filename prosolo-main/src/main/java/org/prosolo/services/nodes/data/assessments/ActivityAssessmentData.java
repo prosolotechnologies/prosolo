@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,9 +60,12 @@ public class ActivityAssessmentData {
 		data.setTargetActivityId(actData.getTargetActivityId());
 		data.getGrade().setMinGrade(0);
 		data.getGrade().setMaxGrade(actData.getMaxPoints());
+		//assessment grading mode
+		data.getGrade().setGradingMode(getGradingMode(actData));
 		data.setDefault(credAssessment.isDefaultAssessment());
 		data.setCredAssessmentId(credAssessment.getId());
 		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+
 		if (credAssessment.getAssessor() != null) {
 			data.setAssessorId(credAssessment.getAssessor().getId());
 		}
@@ -107,6 +109,29 @@ public class ActivityAssessmentData {
 		}
 
 		return data;
+	}
+
+	private static GradingMode getGradingMode(ActivityData ad) {
+		return getGradingMode(ad.getGradingMode(), ad.getRubricId(), ad.isAcceptGrades());
+	}
+
+	public static GradingMode getGradingMode(org.prosolo.common.domainmodel.credential.GradingMode gradingMode, long rubricId, boolean acceptGrades) {
+		switch (gradingMode) {
+			case NONGRADED:
+				return GradingMode.NONGRADED;
+			case AUTOMATIC:
+				if (acceptGrades) {
+					return GradingMode.AUTOMATIC_BY_EXTERNAL_TOOL;
+				}
+				return GradingMode.AUTOMATIC_BY_COMPLETION;
+			case MANUAL:
+				if (rubricId > 0) {
+					return GradingMode.MANUAL_RUBRIC;
+				}
+				return GradingMode.MANUAL_SIMPLE;
+			default:
+				return null;
+		}
 	}
 
 //	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
@@ -383,4 +408,5 @@ public class ActivityAssessmentData {
 	public void setCompAssessment(CompetenceAssessmentData compAssessment) {
 		this.compAssessment = compAssessment;
 	}
+
 }

@@ -47,6 +47,7 @@ public class NotificationSettings implements Serializable {
 	}
 
 	@Enumerated (EnumType.STRING)
+	@Column(nullable = false)
 	public NotificationType getType() {
 		return type;
 	}

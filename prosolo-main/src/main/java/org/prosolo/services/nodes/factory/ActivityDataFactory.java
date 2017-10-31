@@ -1,37 +1,23 @@
 package org.prosolo.services.nodes.factory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ResourceLink;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivityType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.media.util.SlideShareUtils;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityResultData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceLinkData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.util.url.URLUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class ActivityDataFactory {
@@ -64,7 +50,6 @@ public class ActivityDataFactory {
 		data.setCreatorId(activity.getCreatedBy().getId());
 		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		data.setDifficulty(activity.getDifficulty());
-		data.setAutograde(activity.isAutograde());
 		if (tags != null) {
 			data.setTags(tags);
 			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
@@ -96,6 +81,13 @@ public class ActivityDataFactory {
 				activityFiles.add(rlData);
 			}
 			data.setFiles(activityFiles);
+		}
+
+		data.setGradingMode(activity.getGradingMode());
+		//set rubric data
+		if (activity.getRubric() != null) {
+			data.setRubricId(activity.getRubric().getId());
+			data.setRubricVisibility(activity.getRubricVisibility());
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
@@ -231,12 +223,20 @@ public class ActivityDataFactory {
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
 		act.setType(activity.getType());
-		act.setAutograde(activity.isAutograde());
 		act.setMaxPoints(activity.getMaxPoints());
 		act.getResultData().setResultType(getResultType(activity.getResultType()));
+
+		act.setGradingMode(activity.getGradingMode());
+		//set rubric data
+		if (activity.getRubric() != null) {
+			act.setRubricId(activity.getRubric().getId());
+			act.setRubricVisibility(activity.getRubricVisibility());
+		}
 		
 		act.setActivityType(getActivityType(activity));
-		
+
+		setBasicTypeSpecificData(activity, act);
+
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
@@ -244,6 +244,22 @@ public class ActivityDataFactory {
 		}
 
 		return act;
+	}
+
+	private void setBasicTypeSpecificData(Activity1 activity, ActivityData act) {
+		activity.accept(new ActivityVisitor() {
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				act.setAcceptGrades(activity.isAcceptGrades());
+			}
+
+			@Override
+			public void visit(UrlActivity1 activity) { }
+
+			@Override
+			public void visit(TextActivity1 activity) { }
+		});
 	}
 
 	/**
@@ -444,6 +460,16 @@ public class ActivityDataFactory {
 		act.getResultData().setResultType(getResultType(activ.getResultType()));
 		act.getResultData().setResult(activity.getResult());
 		act.setTargetCompetenceId(activity.getTargetCompetence().getId());
+
+		act.setGradingMode(activ.getGradingMode());
+		//set rubric data
+		if (activ.getRubric() != null) {
+			act.setRubricId(activ.getRubric().getId());
+			act.setRubricVisibility(activ.getRubricVisibility());
+		}
+
+		setBasicTypeSpecificData(activ, act);
+
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
@@ -472,7 +498,6 @@ public class ActivityDataFactory {
 		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 		activity.setDifficulty(data.getDifficulty());
-		activity.setAutograde(data.isAutograde());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activityData) {
@@ -508,7 +533,6 @@ public class ActivityDataFactory {
 				extAct.setLaunchUrl(activityData.getLaunchUrl());
 				extAct.setSharedSecret(activityData.getSharedSecret());
 				extAct.setConsumerKey(activityData.getConsumerKey());
-				extAct.setAcceptGrades(activityData.isAcceptGrades());
 				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
 				extAct.setScoreCalculation(activityData.getScoreCalculation());
 				return extAct;

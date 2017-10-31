@@ -75,6 +75,7 @@ public class FeedsDigest implements Serializable {
  	}
 
 	@Enumerated (EnumType.STRING)
+	@Column(nullable = false)
 	public TimeFrame getTimeFrame() {
 		return timeFrame;
 	}

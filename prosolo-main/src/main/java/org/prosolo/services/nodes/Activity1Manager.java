@@ -70,7 +70,6 @@ public interface Activity1Manager extends AbstractManager {
 	 * acquires exclusive lock on a competence that contains activity being updated.
 	 * 
 	 * @param data
-	 * @param userId
 	 * @param context
 	 * @return
 	 * @throws {@link DbConnectionException}, {@link StaleDataException}, {@link IllegalDataStateException}
@@ -86,7 +85,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param data
 	 * @return
 	 */
-	Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException;
+	Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
 
 	/**
@@ -120,6 +119,9 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException;
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,

@@ -374,7 +374,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
-							.getUserCompetencesForCredential(credentialId, userId, true, true, false);
+							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
 				}
 				return credData;
@@ -440,7 +440,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (accessMode == AccessMode.USER) {
-					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
+					credData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, true, false, false));
 				} else {
 					/*
 					 * always include not published competences
@@ -732,12 +732,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Map<String, String> params = new HashMap<>();
 			params.put("instructorId", instructorId + "");
-			String dateString = null;
-			Date date = targetCred.getDateCreated();
-			if (date != null) {
-				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
-			}
-			params.put("dateEnrolled", dateString);
+			params.put("dateEnrolled", DateUtil.getMillisFromDate(targetCred.getDateCreated()) + "");
 			if (instructorThatForcedEnrollId > 0) {
 				params.put("forcedEnroll", "true");
 				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
@@ -1071,71 +1066,57 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public void bookmarkCredential(long credId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.bookmarkCredentialAndGetEvents(credId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> bookmarkCredentialAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			CredentialBookmark cb = resourceFactory.bookmarkCredential(credId, context.getActorId());
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
+			CredentialBookmark cb = new CredentialBookmark();
+			cb.setCredential(cred);
+			cb.setUser(user);
+			saveEntity(cb);
 
 			CredentialBookmark bookmark = new CredentialBookmark();
 			bookmark.setId(cb.getId());
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 
-			eventFactory.generateEvent(EventType.Bookmark, context, bookmark, credential, null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.Bookmark, context, bookmark, credential, null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while bookmarking credential");
+		}
+	}
+
+	@Override
+	public void deleteCredentialBookmark(long credId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.deleteCredentialBookmarkAndGetEvents(credId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
 		}
 	}
 
 	@Override
 	@Transactional
-	public CredentialBookmark bookmarkCredential(long credId, long userId)
+	public Result<Void> deleteCredentialBookmarkAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			CredentialBookmark cb = new CredentialBookmark();
-			cb.setCredential(cred);
-			cb.setUser(user);
-			return saveEntity(cb);
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while bookmarking credential");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void deleteCredentialBookmark(long credId, UserContextData context)
-			throws DbConnectionException {
-		try {
-			long deletedBookmarkId = resourceFactory.deleteCredentialBookmark(credId, context.getActorId());
-
-			CredentialBookmark cb = new CredentialBookmark();
-			cb.setId(deletedBookmarkId);
-			Credential1 credential = new Credential1();
-			credential.setId(credId);
-
-			eventFactory.generateEvent(EventType.RemoveBookmark, context, cb, credential,null, null);
-			
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential bookmark");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public long deleteCredentialBookmark(long credId, long userId)
-			throws DbConnectionException {
-		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
 			String query = "SELECT cb " +
 					"FROM CredentialBookmark cb " +
 					"WHERE cb.credential = :cred " +
@@ -1147,12 +1128,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setEntity("user", user)
 					.uniqueResult();
 
-			long id = bookmark.getId();
+			long deletedBookmarkId = bookmark.getId();
 
 			delete(bookmark);
 
-			return id;
-		} catch (Exception e) {
+			CredentialBookmark cb = new CredentialBookmark();
+			cb.setId(deletedBookmarkId);
+			Credential1 credential = new Credential1();
+			credential.setId(credId);
+
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.RemoveBookmark, context, cb, credential,null, null));
+			return res;
+		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while deleting credential bookmark");
@@ -1334,6 +1322,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
 		return getCredentialTitle(id, null);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		if (credentialData != null && credentialData.isEnrolled()) {
+			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, false, false, true));
+			return credentialData;
+		}
+		return null;
 	}
 
 	@Override
@@ -1962,22 +1961,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
-			String query =
-					"SELECT user " +
-							"FROM TargetCredential1 tCred " +
-							"INNER JOIN tCred.user user " +
-							"WHERE tCred.credential.id = :credId " +
-							"AND user.id != :userId " +
-							"AND user.id NOT IN ( " +
-							"SELECT assessment.assessor.id " +
-							"FROM CredentialAssessment assessment " +
-							"INNER JOIN assessment.targetCredential tCred " +
-							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
+			String query = 
+				"SELECT user " +
+				"FROM TargetCredential1 tCred " +
+				"INNER JOIN tCred.user user " +
+				"WHERE tCred.credential.id = :credId " + 
+					"AND user.id != :userId " +
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CredentialAssessment assessment " +
+						"INNER JOIN assessment.targetCredential tCred " +
+						"INNER JOIN tCred.credential cred " +
+						"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-							") " +
-							"ORDER BY RAND()";
+						") " +
+				"ORDER BY RAND()";
 
 			@SuppressWarnings("unchecked")
 			List<User> res = (List<User>) persistence.currentManager()
@@ -2452,8 +2451,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public void archiveCredential(long credId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.archiveCredentialAndGetEvents(credId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> archiveCredentialAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -2462,7 +2470,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 
-			eventFactory.generateEvent(EventType.ARCHIVE, context, credential,null, null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.ARCHIVE, context, credential,null, null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2471,8 +2481,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public void restoreArchivedCredential(long credId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.restoreArchivedCredentialAndGetEvents(credId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> restoreArchivedCredentialAndGetEvents(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -2481,7 +2500,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
 
-			eventFactory.generateEvent(EventType.RESTORE, context, credential, null, null, null);
+			Result<Void> res = new Result<>();
+			res.addEvent(eventFactory.generateEventData(EventType.RESTORE, context, credential,null, null, null));
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -3077,6 +3098,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserEnrolled(long credId, long userId) {
+		String query =
+				"SELECT targetCredential.id " +
+				"FROM TargetCredential1 targetCredential " +
+				"WHERE targetCredential.user.id = :userId " +
+					"AND targetCredential.credential.id = :credId";
+
+		Long result = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+
+		return result != null;
+	}
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 															int page, LearningResourceSortOption sortOption) {
 
@@ -3248,6 +3286,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new IllegalDataStateException("Update failed. Delivery end time cannot be changed because "
 						+ "delivery has already ended.");
 			}
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException {
+		try {
+			String query = "SELECT instr.user.id FROM TargetCredential1 tc " +
+					"INNER JOIN tc.instructor instr " +
+					"WHERE tc.user.id = :userId " +
+					"AND tc.credential.id = :credId";
+
+			return (Long) session.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving instructor info");
 		}
 	}
 

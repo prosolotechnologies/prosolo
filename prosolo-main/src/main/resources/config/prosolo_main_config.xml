@@ -2,8 +2,8 @@
 <config xmlns="http://www.prosolo.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<init>
 		<bc>3</bc>
-		<!-- based on this setting, appropriate messages.properties file will be used -->
-		<bc-name>dd</bc-name>
+		<!-- based on this setting, appropriate _prosolo_messages.properties file will be used -->
+		<localization>default</localization>
 		<formatDB>false</formatDB>
 		<importCapabilities>false</importCapabilities>
 		<importData>false</importData>
@@ -14,7 +14,6 @@
 			<email>prosolo.admin@gmail.com</email>
 			<pass>pass</pass>
 		</default-user>
-
 	</init>
 
 	<!-- Whether or not to re-create the databases true -> populate db with test data false -> keep data from last run -->
