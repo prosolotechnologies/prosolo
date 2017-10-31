@@ -17,7 +17,11 @@ import java.util.List;
 
 public interface MessagingManager extends AbstractManager {
 
-	Message sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context) throws ResourceCouldNotBeLoadedException;
+	void sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
+			throws ResourceCouldNotBeLoadedException, EventException;
+
+	Result<Void> sendMessagesAndGetEvents(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
+			throws ResourceCouldNotBeLoadedException, EventException;
 
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 
@@ -43,6 +47,12 @@ public interface MessagingManager extends AbstractManager {
 
 	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException, EventException;
 
+	Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException;
+
+	Result<Message> sendMessageParticipantsSetAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException;
+
 	ThreadParticipant findParticipation(long threadId, long userId);
 
 	List<Message> getUnreadMessages(long threadId, Message lastReadMessage, Date fromTime);
@@ -54,5 +64,10 @@ public interface MessagingManager extends AbstractManager {
 	void markThreadDeleted(long threadId, long userId);
 
 	List<MessageThread> getUnreadMessageThreads(long id);
+
+	MessageThread getMessageThread(long id,UserContextData context) throws ResourceCouldNotBeLoadedException, EventException;
+
+	Result<MessageThread> getMessageThreadAndGetEvents(long id,UserContextData context)
+			throws ResourceCouldNotBeLoadedException, EventException;
 
 }

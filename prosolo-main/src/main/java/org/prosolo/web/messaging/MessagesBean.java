@@ -128,7 +128,7 @@ public class MessagesBean implements Serializable {
 
 		if (decodedThreadId == 0) {
 			try {
-				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(),archiveView,page,userContext);
+				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, page, userContext);
 			} catch (Exception e) {
 				logger.error(e);
 			}
@@ -142,8 +142,12 @@ public class MessagesBean implements Serializable {
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
 			if (decodedThreadId > 0) {
 				try {
-					thread = messagingManager.get(MessageThread.class, decodedThreadId);
-					
+					try {
+						thread = messagingManager.getMessageThread(decodedThreadId,userContext);
+					} catch (EventException e) {
+						e.printStackTrace();
+					}
+
 					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
 						return MessageProcessingResult.FORBIDDEN;
@@ -181,11 +185,20 @@ public class MessagesBean implements Serializable {
 	}
 	
 	public void changeThread(MessagesThreadData threadData) {
-		MessageThread thread;
+		MessageThread thread = null;
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String context = PageUtil.getPostParameter("context");
+			page = (page != null) ? page : "messages";
+			context = (context != null) ? context : "name:messages";
+			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 			//if we were on "newView", set it to false so we do not see user dropdown (no need for full init())
 			newMessageView = false;
-			thread = messagingManager.get(MessageThread.class, threadData.getId());
+			try {
+				thread = messagingManager.getMessageThread(decodedThreadId, userContext);
+			} catch (EventException e) {
+				e.printStackTrace();
+			}
 			initializeThreadData(thread);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
@@ -266,19 +279,25 @@ public class MessagesBean implements Serializable {
 		try {
 			//TODO what is the context?
 			Message message = null;
+			String page = PageUtil.getPostParameter("page");
+			String context = PageUtil.getPostParameter("context");
+			page = (page != null) ? page : "messages";
+			context = (context != null) ? context : "name:messages";
+			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
+
 			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
 				//new recipients have been set, send message to them (and create or re-use existing thread)
-				message = messagingManager.sendMessage(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
+				message = messagingManager.sendMessageParticipantsSet(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0),
+						messageText, userContext); //single recipient, for now
 				initializeThreadData(message.getMessageThread());
 			}
 			else {
 				//no recipients set, assume current thread is used
-				message = messagingManager.sendMessages(loggedUser.getUserId(), 
-						threadData.getParticipants(), messageText, threadData.getId(), "");
+				messagingManager.sendMessages(loggedUser.getUserId(),
+						threadData.getParticipants(), messageText, threadData.getId(), "", userContext);
 			}
 			//at this point, threadData is initialized (either through init method, or now, by sending very first message)
 			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId()+ " with content: '"+this.messageText+"'");
-			publishSentMessage(loggedUser.getUserId(), threadData.getParticipants(), message);
 			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
 			//set archived to false, as sending message unarchives thread
 			archiveView = false;
