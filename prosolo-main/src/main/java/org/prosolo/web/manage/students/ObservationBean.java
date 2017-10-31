@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
@@ -50,8 +49,6 @@ public class ObservationBean implements Serializable {
 	@Inject
 	@Qualifier("taskExecutor") 
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 
 	private long studentId;
 	private String studentName;
@@ -95,31 +92,18 @@ public class ObservationBean implements Serializable {
 	public void saveObservation() {
 		try {
 			Date date = isNew ? new Date() : editObservation.getEditObservation().getDateCreated();
-			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
-					date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
-					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), loggedUserBean.getUserContext(),
-					studentId);
-			
-			logger.info("User with id "+ loggedUserBean.getUserId() + " created observation for student with id "+studentId);
-			
-			Object msg = result.get("message");
-			
-			if(msg != null) {
-				final Message message1 = (Message) msg;
-				UserContextData userContext = loggedUserBean.getUserContext();
-				taskExecutor.execute(() -> {
-					try {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("user", String.valueOf(studentId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
-								message1, null, null, parameters);
-					} catch (EventException e) {
-						logger.error(e);
-					}
-				});
+
+			try {
+				observationManager.saveObservation(editObservation.getEditObservation().getId(),
+                        date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
+                        editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), loggedUserBean.getUserContext(),
+                        studentId);
+			} catch (EventException e) {
+				e.printStackTrace();
 			}
-			
+
+			logger.info("User with id "+ loggedUserBean.getUserId() + " created observation for student with id "+studentId);
+
 			editObservation = null;
 			Observation observation = observationManager.getLastObservationForUser(studentId);
 			if (observation != null) {

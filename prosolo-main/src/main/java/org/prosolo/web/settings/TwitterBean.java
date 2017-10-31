@@ -88,7 +88,8 @@ public class TwitterBean implements Serializable {
 						socialNetworksManager.addSocialNetworkAccount(
 								loggedUser.getUserId(),
 								SocialNetworkName.TWITTER,
-								accessToken.getProfileLink());
+								accessToken.getProfileLink(),
+								loggedUser.getUserContext());
 					}
 					logger.debug("created access token:" +accessToken.getProfileLink());
 					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),accessToken.getUserId(), true);

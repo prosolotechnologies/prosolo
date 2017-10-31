@@ -13,7 +13,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -53,7 +52,6 @@ public class MessagesBean implements Serializable {
 	@Inject private MessagingManager messagingManager;
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private EventFactory eventFactory;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private TopInboxBean topInboxBean;
 	@Autowired private SearchPeopleBean searchPeopleBean;
@@ -320,24 +318,6 @@ public class MessagesBean implements Serializable {
 			newMessageThreadParticipantIds = getRecieverIdsFromParameters(ids);
 
 		}
-	}
-	
-	private void publishSentMessage(long senderId, List<UserData> participants, Message message) {
-		UserContextData userContext = loggedUser.getUserContext();
-		taskExecutor.execute(() -> {
-        	try {
-        		Map<String, String> parameters = new HashMap<String, String>();
-        		parameters.put("context", context);
-        		parameters.put("users", participants.stream().map(u -> String.valueOf(u.getId())).collect(Collectors.joining(",")));
-        		//DirectMessageDialog uses recipient as user param
-        		parameters.put("user", String.valueOf(participants.get(0).getId()));
-        		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
-						message, null, null, parameters);
-        	} catch (EventException e) {
-        		logger.error(e);
-        	}
-		});
 	}
 	
 	private List<Long> getRecieverIdsFromParameters(String ids) {

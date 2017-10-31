@@ -1134,4 +1134,36 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while retrieving user organization");
 		}
 	}
+
+	@Override
+	public UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException {
+		Result<UserData> result = self.saveAccountDataAndGetEvents(userData, contextData);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData)
+			throws DbConnectionException, EventException {
+
+		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(), userData.getEmail(), true,
+				false, userData.getPassword(), userData.getPosition(),
+				userData.getRoleIds(), new ArrayList<>());
+
+		merge(user);
+
+		Result<UserData> result = new Result<>();
+
+		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+				null, null, null, null));
+
+		result.setResult(userData);
+
+		return result;
+	}
 }

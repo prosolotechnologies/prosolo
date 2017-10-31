@@ -16,9 +16,10 @@ import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
@@ -60,14 +61,14 @@ public class ProfileSettingsBean implements Serializable {
 	@Inject
 	private AvatarProcessor avatarProcessor;
 	@Inject
-	private EventFactory eventFactory;
-	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Inject
 	private SocialNetworksManager socialNetworksManager;
 	@Inject
 	private UserOauthTokensManager oauthAccessTokenManager;
+	@Inject
+	private UserDataFactory userDataFactory;
 
 	//URL PARAMS
 	private boolean twitterConnected;
@@ -115,57 +116,50 @@ public class ProfileSettingsBean implements Serializable {
 	 * ACTIONS
 	 */
 	public void saveAccountChanges() {
-		try {
-			User user = userManager.loadResource(User.class, loggedUser.getUserId());
-		
-			boolean changed = false;
-	
-			if (!accountData.getFirstName().equals(user.getName())) {
-				user.setName(accountData.getFirstName());
-				changed = true;
-			}
-	
-			if (!accountData.getLastName().equals(user.getLastname())) {
-				user.setLastname(accountData.getLastName());
-				changed = true;
-			}
-	
-			if (!accountData.getPosition().equals(user.getPosition())) {
-				user.setPosition(accountData.getPosition());
-				changed = true;
-			}
-			
-			if ((accountData.getLocationName() != null && user.getLocationName() == null)
-					|| (!accountData.getLocationName().equals(user.getLocationName()))) {
-				try {
-					user.setLocationName(accountData.getLocationName());
-					user.setLatitude(Double.valueOf(accountData.getLatitude()));
-					user.setLongitude(Double.valueOf(accountData.getLongitude()));
-					changed = true;
-				} catch (NumberFormatException nfe) {
-					logger.debug("Can not convert to double. " + nfe);
-				}
-			}
-	
-			if (changed) {
-				userManager.saveEntity(user);
-				loggedUser.reinitializeSessionData(user);
-				
-				try {
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserContext(),
-							null, null, null, null);
-				} catch (EventException e) {
-					logger.error(e);
-				}
-	
-				init();
-				//asyncUpdateUserDataInSocialActivities(accountData);
-			}
-			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
-		} catch (ResourceCouldNotBeLoadedException e1) {
-			logger.error(e1);
-			PageUtil.fireErrorMessage("There was a problem saving the changes");
+		UserData user = userManager.getUserData(loggedUser.getUserId());
+
+		boolean changed = false;
+
+		if (!accountData.getFirstName().equals(user.getName())) {
+			user.setName(accountData.getFirstName());
+			changed = true;
 		}
+
+		if (!accountData.getLastName().equals(user.getLastName())) {
+			user.setLastName(accountData.getLastName());
+			changed = true;
+		}
+
+		if (!accountData.getPosition().equals(user.getPosition())) {
+			user.setPosition(accountData.getPosition());
+			changed = true;
+		}
+
+		if ((accountData.getLocationName() != null && user.getLocationName() == null)
+				|| (!accountData.getLocationName().equals(user.getLocationName()))) {
+			try {
+				user.setLocationName(accountData.getLocationName());
+				user.setLatitude(Double.valueOf(accountData.getLatitude()));
+				user.setLongitude(Double.valueOf(accountData.getLongitude()));
+				changed = true;
+			} catch (NumberFormatException nfe) {
+				logger.debug("Can not convert to double. " + nfe);
+			}
+		}
+
+		if (changed) {
+			UserData userData = null;
+			try {
+				userData = userManager.saveAccountData(user, loggedUser.getUserContext());
+			} catch (EventException e) {
+				e.printStackTrace();
+			}
+
+			loggedUser.reinitializeSessionData(userData, loggedUser.getOrganizationId());
+
+			init();
+		}
+		PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {
@@ -220,7 +214,6 @@ public class ProfileSettingsBean implements Serializable {
 	}
 
 	public void saveSocialNetworkChanges() {
-		boolean newSocialNetworkAccountIsAdded = false;
 
 		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccountsData();
 		
@@ -229,11 +222,11 @@ public class ProfileSettingsBean implements Serializable {
 				if (socialNetowrkAccountData.isChanged()) {
 					SocialNetworkAccount account;
 					if (socialNetowrkAccountData.getId() == 0) {
-						account = socialNetworksManager.createSocialNetworkAccount(
-								socialNetowrkAccountData.getSocialNetworkName(),
-								socialNetowrkAccountData.getLinkEdit());
+						account = socialNetworksManager.createSocialNetworkAccount(socialNetowrkAccountData.getSocialNetworkName(),
+								socialNetowrkAccountData.getLinkEdit(),
+								loggedUser.getUserContext());
 						userSocialNetworks.getSocialNetworkAccounts().add(account);
-						newSocialNetworkAccountIsAdded = true;
+						socialNetworksManager.saveUserSocialNetworks(userSocialNetworks);
 					} else {
 						try {
 							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLinkEdit());
@@ -245,19 +238,11 @@ public class ProfileSettingsBean implements Serializable {
 					}
 				}
 			}
-			
-			if (newSocialNetworkAccountIsAdded) {
-				socialNetworksManager.saveEntity(userSocialNetworks);
-				try {
-					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
-							null, null, null, null);
-				} catch (EventException e) {
-					logger.error(e);
-				}
-			}
 			PageUtil.fireSuccessfulInfoMessage("Social networks have been updated");
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("There was an error updating social networks");
+		} catch (EventException e) {
+			e.printStackTrace();
 		}
 	}
 

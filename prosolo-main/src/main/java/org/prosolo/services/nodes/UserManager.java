@@ -140,4 +140,8 @@ public interface UserManager extends AbstractManager {
 			throws DbConnectionException, EventException;
 
 	long getUserOrganizationId(long userId) throws DbConnectionException;
+
+	UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
+
+	Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
 }
