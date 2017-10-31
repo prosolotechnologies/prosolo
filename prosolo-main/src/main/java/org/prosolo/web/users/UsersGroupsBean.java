@@ -18,6 +18,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+/**
+ * JSF page for this bean is not used
+ * @deprecated
+ */
+@Deprecated
 @ManagedBean(name = "usersGroupsBean")
 @Component("usersGroupsBean")
 @Scope("view")

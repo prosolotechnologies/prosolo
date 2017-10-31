@@ -177,23 +177,6 @@ public class MessagesBean implements Serializable {
 			loadMessages();
 		}
 		
-		/*String page = PageUtil.getPostParameter("page");
-		String context = PageUtil.getPostParameter("context");
-		page = (page != null) ? page : "messages";
-		context = (context != null) ? context : "name:messages";
-		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
-		taskExecutor.execute(() -> {
-			try {
-				Map<String, String> parameters = new HashMap<String, String>();
-        		parameters.put("threadId", String.valueOf(threadData.getId()));
-        		
-        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD,
-						userContext, thread, null, null, parameters);
-        	} catch (EventException e) {
-        		logger.error(e);
-        	}
-		});*/
-		
 		return MessageProcessingResult.OK;
 	}
 	

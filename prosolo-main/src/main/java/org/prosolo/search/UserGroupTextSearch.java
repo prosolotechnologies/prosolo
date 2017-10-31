@@ -16,7 +16,11 @@ public interface UserGroupTextSearch extends AbstractManager {
 
 	PaginatedResult<UserGroupData> searchUserGroups (
 			long orgId, long unitId, String searchString, int page, int limit);
-	
+
+	/**
+	 * This method is used for /manage/students, but for now we are not using that page
+	 * @deprecated
+	 */
 	PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit);
 	
