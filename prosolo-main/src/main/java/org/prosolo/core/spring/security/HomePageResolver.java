@@ -26,7 +26,7 @@ public class HomePageResolver {
             case "basic.instructor.access":
                 return "/manage";
             case "basic.user.access":
-                return "/";
+                return "/home";
             default:
                 return "/terms";
         }
@@ -47,7 +47,7 @@ public class HomePageResolver {
                 case "basic.instructor.access":
                     return "/manage";
                 case "basic.user.access":
-                    return "/";
+                    return "/home";
                 default:
                     return "/terms";
             }
