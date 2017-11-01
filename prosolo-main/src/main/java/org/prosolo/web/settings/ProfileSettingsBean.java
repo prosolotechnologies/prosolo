@@ -27,7 +27,6 @@ import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.datatopagemappers.AccountDataToPageMapper;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
@@ -103,8 +102,7 @@ public class ProfileSettingsBean implements Serializable {
 		if (socialNetworksData == null) {
 			try {
 				userSocialNetworksData = socialNetworksManager.getSocialNetworksData(loggedUser.getUserId());
-				socialNetworksData = new SocialNetworksDataToPageMapper()
-						.mapDataToPageObjectData(userSocialNetworksData);
+				socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworksData);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the data");

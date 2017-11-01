@@ -8,7 +8,9 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +141,11 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;
+	}
+
+	@Override
+	public SocialNetworksData getSocialNetworkData(UserSocialNetworksData userSocialNetworksData) {
+		return new SocialNetworksDataToPageMapper().mapDataToPageObjectData(userSocialNetworksData);
 	}
 
 }
