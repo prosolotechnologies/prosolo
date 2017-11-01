@@ -216,7 +216,6 @@
 										<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
 												prependId="false"
 												id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
-											<p:growl />
 
 											<h2>
 												<h:link outcome="competence">
@@ -234,7 +233,7 @@
 
 											<p:commandLink styleClass="linkApprove"
 														   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment)}"
-														   update="@form"
+														   update="@form :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl "
 														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 												Approve<span></span>
 											</p:commandLink>

@@ -222,7 +222,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
 		try {
 			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
-				long competenceAssessmentId = assessmentManager.createCompetenceAssessmentAndApprove(
+				long competenceAssessmentId = assessmentManager.createAndApproveCompetenceAssessment(
 						fullAssessmentData.getCredAssessmentId(), competenceAssessmentData.getTargetCompetenceId(),
 						fullAssessmentData.isDefaultAssessment());
 				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
@@ -232,8 +232,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 			competenceAssessmentData.setApproved(true);
 
-			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
-					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage("You have successfully approved the competence for "
+					+ fullAssessmentData.getStudentFullName());
+
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");

@@ -185,5 +185,5 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 
 
-	long createCompetenceAssessmentAndApprove(long credAssessmentId, long targetCompId, boolean isDefault);
+	long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, boolean isDefault);
 }

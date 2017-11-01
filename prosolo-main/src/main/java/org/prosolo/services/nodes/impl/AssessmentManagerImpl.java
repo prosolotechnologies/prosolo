@@ -462,16 +462,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					CompetenceAssessment competenceAssessment = loadResource(CompetenceAssessment.class, c.getCompetenceAssessmentId());
 					competenceAssessment.setApproved(true);
 				} else {
-					createCompetenceAssessmentAndApprove(credentialAssessmentId, c.getTargetCompetenceId(), isDefault);
+					createAndApproveCompetenceAssessment(credentialAssessmentId, c.getTargetCompetenceId(), isDefault);
 				}
 			}
 
-			Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCES_QUERY)
-					.setLong("credentialAssessmentId", credentialAssessmentId);
 			Query updateTargetCredentialQuery = persistence.currentManager().createQuery(UPDATE_TARGET_CREDENTIAL_REVIEW)
 					.setLong("targetCredentialId", targetCredentialId).setString("finalReview", reviewText);
 			updateCredentialAssessmentQuery.executeUpdate();
-			updateCompetenceAssessmentQuery.executeUpdate();
 			updateTargetCredentialQuery.executeUpdate();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			e.printStackTrace();
@@ -1716,7 +1713,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public long createCompetenceAssessmentAndApprove(long credAssessmentId, long targetCompId, boolean isDefault) {
+	public long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, boolean isDefault) {
 		try {
 			TargetCompetence1 targetCompetence1 = loadResource(TargetCompetence1.class,targetCompId);
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class,credAssessmentId);
