@@ -449,30 +449,59 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
-								  List<CompetenceAssessmentData> competenceAssessmentDataList,boolean isDefault) {
+								  List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException {
 
 		try {
-			Query updateCredentialAssessmentQuery = persistence.currentManager().createQuery(APPROVE_CREDENTIAL_QUERY)
-					.setLong("credentialAssessmentId", credentialAssessmentId);
+			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
+			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getTargetCredential().getUser().getId(), false, false, false);
 
-			for (CompetenceAssessmentData c : competenceAssessmentDataList){
-				if (c.getCompetenceAssessmentId() > 0) {
-					CompetenceAssessment competenceAssessment = loadResource(CompetenceAssessment.class, c.getCompetenceAssessmentId());
-					competenceAssessment.setApproved(true);
+			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
+
+			if (userNotEnrolled.isPresent()) {
+				throw new IllegalDataStateException("User is not enrolled.");
+			}
+
+			for (CompetenceData1 competenceData1 : competenceData1List) {
+				Optional<CompetenceAssessment> competenceAssessment = getCompetenceAssessment(competenceData1.getTargetCompId(),
+						credentialAssessmentId);
+				if (competenceAssessment.isPresent()) {
+					competenceAssessment.get().setApproved(true);
 				} else {
-					createAndApproveCompetenceAssessment(credentialAssessmentId, c.getTargetCompetenceId(), isDefault);
+					createAndApproveCompetenceAssessment(credentialAssessmentId, competenceData1.getTargetCompId(),
+							credentialAssessment.isDefaultAssessment());
 				}
 			}
 
-			Query updateTargetCredentialQuery = persistence.currentManager().createQuery(UPDATE_TARGET_CREDENTIAL_REVIEW)
-					.setLong("targetCredentialId", targetCredentialId).setString("finalReview", reviewText);
-			updateCredentialAssessmentQuery.executeUpdate();
-			updateTargetCredentialQuery.executeUpdate();
-		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
+			credentialAssessment.setApproved(true);
+
+			//TODO Check if this is needed
+			//credentialAssessment.getTargetCredential().setFinalReview("finalReview");
+		}catch (IllegalDataStateException ex){
+			throw ex;
+		} catch (Exception e) {
+			logger.error("Error ", e);
+			throw new DbConnectionException("Error approving credential assessment.");
 		}
+	}
+
+	private Optional<CompetenceAssessment> getCompetenceAssessment(long targetCompetenceId, long credAssessmentId) {
+		String query = "SELECT ca FROM CompetenceAssessment ca " +
+				"WHERE ca.targetCompetence.id = :tcId " +
+				"AND ca.credentialAssessment.id = :credAssessmentId";
+
+		CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager()
+				.createQuery(query)
+				.setLong("tcId", targetCompetenceId)
+				.setLong("credAssessmentId", credAssessmentId)
+				.uniqueResult();
+
+		if(competenceAssessment == null){
+			return Optional.empty();
+		}
+		return Optional.of(competenceAssessment);
 	}
 
 	@Override

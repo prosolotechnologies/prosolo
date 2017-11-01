@@ -36,7 +36,7 @@ public interface AssessmentManager {
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
-						   List<CompetenceAssessmentData> competenceAssessmentDataList, boolean isDefault);
+						   List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException;
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,

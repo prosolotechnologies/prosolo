@@ -197,9 +197,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void approveCredential() {
 		try {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText,fullAssessmentData.getCompetenceAssessmentData(),
-					fullAssessmentData.isDefaultAssessment());
-			markCredentialApproved();
+					fullAssessmentData.getTargetCredentialId(), reviewText,fullAssessmentData.getCompetenceAssessmentData());
+
+			fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+					loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 
 			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
 					fullAssessmentData.getCredentialId());
@@ -212,13 +213,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void markCredentialApproved() {
-		fullAssessmentData.setApproved(true);
-		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
-			compAssessmentData.setApproved(true);
-		}
-	}
-
 	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
 		try {
 			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
@@ -227,6 +221,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						fullAssessmentData.isDefaultAssessment());
 				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
 				competenceAssessmentData.setCompetenceAssessmentEncodedId(idEncoder.encodeId(competenceAssessmentId));
+
+				for(ActivityAssessmentData activityAssessmentData : competenceAssessmentData.getActivityAssessmentData()){
+					activityAssessmentData.setCompAssessmentId(competenceAssessmentId);
+				}
 			} else {
 				assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
 			}
