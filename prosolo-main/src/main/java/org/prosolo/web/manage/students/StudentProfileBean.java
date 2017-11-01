@@ -5,7 +5,6 @@ import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.AnalyticalServerConfig;
@@ -15,12 +14,12 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.TargetCredentialData;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -66,7 +65,7 @@ public class StudentProfileBean implements Serializable {
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
 
-	private UserSocialNetworks userSocialNetworks;
+	private UserSocialNetworksData userSocialNetworks;
 
 	private List<CredentialProgressData> credentials;
 	private CredentialProgressData selectedCredential;
@@ -250,9 +249,8 @@ public class StudentProfileBean implements Serializable {
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
 			try {
-				userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
-				socialNetworksData = new SocialNetworksDataToPageMapper()
-						.mapDataToPageObject(userSocialNetworks);
+				userSocialNetworks = socialNetworksManager.getSocialNetworksData(student.getId());
+				socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworks);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}

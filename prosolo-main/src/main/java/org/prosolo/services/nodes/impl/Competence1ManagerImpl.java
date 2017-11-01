@@ -35,6 +35,7 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -2385,6 +2386,29 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		for (EventData ev : self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
+	}
+
+	@Override
+	public CompetenceAchievementsData getCompetenceAchievementsData(List<TargetCompetenceData> targetCompetenceList) {
+		CompetenceAchievementsData competenceAchievementsData = new CompetenceAchievementsData();
+
+		TargetCompetenceData targetCompetenceData;
+
+		for (TargetCompetenceData targetCompetence1 : targetCompetenceList) {
+			if (targetCompetence1 != null) {
+				CompetenceData1 competenceData1 = getCompetenceData(targetCompetence1.getCompetenceId());
+				targetCompetenceData = new TargetCompetenceData(
+						targetCompetence1.getId(),
+						competenceData1.getDescription(),
+						competenceData1.getTitle(),
+						targetCompetence1.isHiddenFromProfile(),
+						competenceData1.getDuration(),
+						competenceData1.getType(),
+						competenceData1.getCompetenceId());
+				competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
+			}
+		}
+		return competenceAchievementsData;
 	}
 
 	@Override

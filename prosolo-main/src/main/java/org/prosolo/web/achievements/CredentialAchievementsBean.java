@@ -6,7 +6,6 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
-import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +43,7 @@ public class CredentialAchievementsBean implements Serializable {
 					loggedUser.getUserId(), 
 					false);
 			
-			completedCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
-					.mapDataToPageObject(targetCredential1List);
+			completedCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") + " data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
@@ -56,9 +54,7 @@ public class CredentialAchievementsBean implements Serializable {
 		try {
 			List<TargetCredentialData> targetCredential1List = credentialManager
 					.getAllInProgressCredentials(loggedUser.getUserId(), false);
-			
-			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
-					.mapDataToPageObject(targetCredential1List);
+			inProgressCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") +" data could not be loaded!");
 			logger.error("Error while loading target credentials with progress < 100 Error:\n" + e);

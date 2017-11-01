@@ -16,6 +16,7 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.web.settings.data.AccountData;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -145,4 +146,10 @@ public interface UserManager extends AbstractManager {
 			throws DbConnectionException, EventException;
 
 	long getUserOrganizationId(long userId) throws DbConnectionException;
+
+	AccountData initAccountData(UserData userData);
+
+	UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
+
+	Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
 }

@@ -26,7 +26,6 @@ import org.prosolo.services.nodes.factory.UserSocialNetworksDataFactory;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.datatopagemappers.AccountDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
@@ -114,65 +113,57 @@ public class ProfileSettingsBean implements Serializable {
 
 	private void initAccountData() {
 		UserData user = userManager.getUserData(loggedUser.getUserId());
-		accountData = new AccountDataToPageMapper().mapDataToPageObject(user);
+		accountData = userManager.initAccountData(user);
 	}
 
 	/*
 	 * ACTIONS
 	 */
 	public void saveAccountChanges() {
-		try {
-			UserData user = userManager.getUserData(loggedUser.getUserId());
-		
-			boolean changed = false;
-	
-			if (!accountData.getFirstName().equals(user.getName())) {
-				user.setName(accountData.getFirstName());
-				changed = true;
-			}
-	
-			if (!accountData.getLastName().equals(user.getLastName())) {
-				user.setLastName(accountData.getLastName());
-				changed = true;
-			}
-	
-			if (!accountData.getPosition().equals(user.getPosition())) {
-				user.setPosition(accountData.getPosition());
-				changed = true;
-			}
-			
-			if ((accountData.getLocationName() != null && user.getLocationName() == null)
-					|| (!accountData.getLocationName().equals(user.getLocationName()))) {
-				try {
-					user.setLocationName(accountData.getLocationName());
-					user.setLatitude(Double.valueOf(accountData.getLatitude()));
-					user.setLongitude(Double.valueOf(accountData.getLongitude()));
-					changed = true;
-				} catch (NumberFormatException nfe) {
-					logger.debug("Can not convert to double. " + nfe);
-				}
-			}
-	
-			if (changed) {
-				User userToSave = userDataFactory.getUser(user,organizationManager.getOrganization(loggedUser.getOrganizationId()));
-				userManager.saveEntity(userToSave);
-				loggedUser.reinitializeSessionData(userToSave);
-				
-				try {
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserContext(),
-							null, null, null, null);
-				} catch (EventException e) {
-					logger.error(e);
-				}
-	
-				init();
-				//asyncUpdateUserDataInSocialActivities(accountData);
-			}
-			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
-		} catch (ResourceCouldNotBeLoadedException e1) {
-			logger.error(e1);
-			PageUtil.fireErrorMessage("There was a problem saving the changes");
+		UserData user = userManager.getUserData(loggedUser.getUserId());
+
+		boolean changed = false;
+
+		if (!accountData.getFirstName().equals(user.getName())) {
+			user.setName(accountData.getFirstName());
+			changed = true;
 		}
+
+		if (!accountData.getLastName().equals(user.getLastName())) {
+			user.setLastName(accountData.getLastName());
+			changed = true;
+		}
+
+		if (!accountData.getPosition().equals(user.getPosition())) {
+			user.setPosition(accountData.getPosition());
+			changed = true;
+		}
+
+		if ((accountData.getLocationName() != null && user.getLocationName() == null)
+				|| (!accountData.getLocationName().equals(user.getLocationName()))) {
+			try {
+				user.setLocationName(accountData.getLocationName());
+				user.setLatitude(Double.valueOf(accountData.getLatitude()));
+				user.setLongitude(Double.valueOf(accountData.getLongitude()));
+				changed = true;
+			} catch (NumberFormatException nfe) {
+				logger.debug("Can not convert to double. " + nfe);
+			}
+		}
+
+		if (changed) {
+			UserData userData = null;
+			try {
+				userData = userManager.saveAccountData(user, loggedUser.getUserContext());
+			} catch (EventException e) {
+				e.printStackTrace();
+			}
+
+			loggedUser.reinitializeSessionData(userData, loggedUser.getOrganizationId());
+
+			init();
+		}
+		PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {

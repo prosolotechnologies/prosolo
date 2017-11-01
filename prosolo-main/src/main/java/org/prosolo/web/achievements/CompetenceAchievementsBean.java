@@ -6,7 +6,6 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
-import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,7 @@ public class CompetenceAchievementsBean implements Serializable {
 			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					loggedUser.getUserId(),
 					false);
-
-			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper()
-					.mapDataToPageObject(targetCompetence1List);
+			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (DbConnectionException e) {
 			logger.error("Error while loading target competencies with progress == 100 Error:\n" + e);
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " data could not be loaded!");

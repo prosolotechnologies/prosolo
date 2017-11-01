@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.data.Result;
@@ -29,6 +30,8 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.web.settings.data.AccountData;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -1157,5 +1160,65 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving user organization");
 		}
+	}
+
+	@Override
+	public AccountData initAccountData(UserData userData) {
+		AccountData accountData = new AccountData();
+		accountData.setId(userData.getId());
+		accountData.setEmail(userData.getEmail());
+		accountData.setAvatarPath(AvatarUtils.getAvatarUrlInFormat(userData.getAvatarUrl(), ImageFormat.size120x120));
+		accountData.setFirstName(userData.getName());
+		accountData.setLastName(userData.getLastName());
+
+		// position
+		accountData.setPosition(userData.getPosition());
+
+		// location
+		accountData.setLocationName(userData.getLocationName());
+
+		String lat = null;
+		String lon = null;
+		if (userData.getLatitude() != null) {
+			lat = String.valueOf(userData.getLatitude());
+		}
+		if (userData.getLongitude() != null) {
+			lon = String.valueOf(userData.getLongitude());
+		}
+		accountData.setLatitude(lat);
+		accountData.setLongitude(lon);
+		return accountData;
+	}
+
+	@Override
+	public UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException {
+		Result<UserData> result = self.saveAccountDataAndGetEvents(userData, contextData);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData)
+			throws DbConnectionException, EventException {
+
+		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(), userData.getEmail(), true,
+				false, userData.getPassword(), userData.getPosition(),
+				userData.getRoleIds(), new ArrayList<>());
+
+		merge(user);
+
+		Result<UserData> result = new Result<>();
+
+		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+				null, null, null, null));
+
+		result.setResult(userData);
+
+		return result;
 	}
 }

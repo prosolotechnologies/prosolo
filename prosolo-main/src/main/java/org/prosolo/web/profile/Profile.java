@@ -25,9 +25,6 @@ import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
-import org.prosolo.web.datatopagemappers.CompetenceAchievementsDataToPageMapper;
-import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
@@ -215,8 +212,7 @@ public class Profile {
 				student.getId(), 
 				true);
 		
-		credentialAchievementsData = new CredentialAchievementsDataToPageMapper()
-				.mapDataToPageObject(targetCredential1List);
+		credentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 	}
 	
 	private void initializeTargetCompetenceData(UserData student) {
@@ -224,9 +220,7 @@ public class Profile {
 			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					student.getId(), 
 					true);
-			
-			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper()
-					.mapDataToPageObject(targetCompetence1List);
+			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Competence data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e, e);
@@ -251,8 +245,7 @@ public class Profile {
 					student.getId(), 
 					true);
 			
-			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
-					.mapDataToPageObject(targetCompetence1List);
+			inProgressCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
@@ -262,8 +255,7 @@ public class Profile {
 	private void initializeSocialNetworkData(User student) {
 		try {
 			UserSocialNetworksData userSocialNetworks = socialNetworksManager.getSocialNetworksData(student.getId());
-			socialNetworksData = new SocialNetworksDataToPageMapper()
-					.mapDataToPageObjectData(userSocialNetworks);
+			socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworks);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}

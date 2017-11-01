@@ -29,4 +29,6 @@ public interface SocialNetworksManager extends AbstractManager {
 	SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName);
 
 	SocialNetworksData getSocialNetworkData(UserSocialNetworksData userSocialNetworksData);
+
+
 }

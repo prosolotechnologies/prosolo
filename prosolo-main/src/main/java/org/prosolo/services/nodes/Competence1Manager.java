@@ -16,6 +16,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 
 import java.util.List;
@@ -404,4 +405,6 @@ public interface Competence1Manager {
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
+
+	CompetenceAchievementsData getCompetenceAchievementsData(List<TargetCompetenceData> targetCompetenceList );
 }
