@@ -3,28 +3,22 @@ package org.prosolo.bigdata.scala.twitter
 import java.util.{Timer, TimerTask}
 
 import scala.collection.mutable.ListBuffer
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
 import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
 import org.prosolo.common.domainmodel.user.{AnonUser, User, UserType}
-
 import org.prosolo.common.domainmodel.organization.VisibilityType
-
 import twitter4j.Status
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
-
 import org.prosolo.common.domainmodel.annotation.Tag
-
 
 import scala.collection.JavaConversions._
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
-
 import org.prosolo.common.util.date.DateUtil
-
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
 import org.prosolo.common.util.date.DateEpochUtil
 
@@ -66,7 +60,7 @@ object TwitterStatusBuffer {
   def processBufferStatuses() {
 
     val statuses = pullStatuses
-    val sc = SparkContextLoader.getSC
+    val sc = SparkManager.sparkContextLoader.getSC
     val statusesRDD = sc.parallelize(statuses)
     val filteredStatusesRDD = statusesRDD.filter {
       isAllowed
