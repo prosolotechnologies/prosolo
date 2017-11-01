@@ -246,9 +246,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/*/responses").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 		   .antMatchers("/manage/competences/*/*/responses/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 		   //admin
-		   .antMatchers("/admin").hasAuthority("ADMIN.ADVANCED")
-		   .antMatchers("/admin/").hasAuthority("ADMIN.ADVANCED")
-		   .antMatchers("/admin/roles").hasAuthority("ADMIN.ADVANCED")
+		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
 		   .antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings/twitterOAuth").hasAuthority("BASIC.ADMIN.ACCESS")

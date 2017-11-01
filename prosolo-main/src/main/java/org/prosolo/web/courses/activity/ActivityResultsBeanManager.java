@@ -129,9 +129,10 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private void initRubricIfNotInitialized() {
 		try {
 			if (currentResult.getAssessment().getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentResult.getAssessment().getGrade().isRubricInitialized()) {
-				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForAssessment(
+				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
+						currentResult.getAssessment().getActivityId(),
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getActivityId()));
+						true));
 				currentResult.getAssessment().getGrade().setRubricInitialized(true);
 			}
 		} catch (DbConnectionException e) {
