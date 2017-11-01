@@ -131,7 +131,9 @@
 		                    		<a href="javascript:void(0);" class="madeByUniversity" data-toggle="tooltip"
 		            					title="Made by University">made by university</a>
 		                    	</ui:fragment>
-                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
+								<ui:fragment rendered="#{cc.attrs.attachmentPreview.duration ne null}">
+                                	<div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
+								</ui:fragment>
                             </div>
                         </div>
                     </div>
@@ -152,7 +154,7 @@
                                      #{util:cleanHTMLTags(cc.attrs.attachmentPreview.description)}
                                 </p>
 								<ui:fragment rendered="#{cc.attrs.attachmentPreview.duration ne null}">
-									<div class="meta">
+										<div class="meta">
 										<div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
 									</div>
 								</ui:fragment>
