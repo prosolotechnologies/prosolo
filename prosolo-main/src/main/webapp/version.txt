@@ -1,0 +1,9 @@
+Current date:2017/10/09-15:30:52
+Source branch:PRS-2850-development-of-scripts-for-db-m
+Project version:1
+Git version:
+commit cc49885aced85c523526a54b24c7c19ecb712860
+Author: Zoran Jeremic <zoran.jeremic@gmail.com>
+Date:   Sun Oct 1 16:38:11 2017 -0700
+
+    Finished DB migration script

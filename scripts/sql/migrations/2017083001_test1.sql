@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS sample ( id bigint(20) NOT NULL AUTO_INCREMENT, name varchar(255) DEFAULT NULL, primary key(id));
