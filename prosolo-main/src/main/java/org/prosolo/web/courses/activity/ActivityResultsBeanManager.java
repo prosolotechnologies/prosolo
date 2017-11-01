@@ -5,20 +5,15 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
-import org.prosolo.services.nodes.data.assessments.StudentAssessedFilterState;
+import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -52,6 +47,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ActivityResultBean actResultBean;
+	@Inject private RubricManager rubricManager;
 
 	private String actId;
 	private long decodedActId;
@@ -127,6 +123,20 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			}
 		} else {
 			PageUtil.notFound();
+		}
+	}
+
+	private void initRubricIfNotInitialized() {
+		try {
+			if (currentResult.getAssessment().getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentResult.getAssessment().getGrade().isRubricInitialized()) {
+				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForAssessment(
+						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
+						currentResult.getAssessment().getActivityId()));
+				currentResult.getAssessment().getGrade().setRubricInitialized(true);
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
 		}
 	}
 	
@@ -347,11 +357,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 						currentResult.getAssessment().getCompAssessmentId(),
 						currentResult.getAssessment().getTargetCompId(), true);
 			} else {
-				assessmentManager.updateGradeForActivityAssessment(
+				int newGrade = assessmentManager.updateGradeForActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(),
 						currentResult.getAssessment().getCompAssessmentId(),
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade().getValue(), loggedUserBean.getUserContext());
+						currentResult.getAssessment().getGrade(), loggedUserBean.getUserContext());
+				if (newGrade >= 0) {
+					currentResult.getAssessment().getGrade().setValue(newGrade);
+				}
 			}
 
 			currentResult.getAssessment().getGrade().setAssessed(true);
@@ -377,8 +390,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
-		Integer grade = updateGrade
-				? currentResult != null ? currentResult.getAssessment().getGrade().getValue() : null
+		GradeData grade = updateGrade
+				? currentResult != null ? currentResult.getAssessment().getGrade() : null
 				: null;
 
 		// creating a set as there might be duplicates with ids
@@ -399,19 +412,22 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		try {
 			if (competenceAssessmentId > 0) {
 				//if competence assessment exists create activity assessment only
-				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
+				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
 								loggedUserBean.getUserId(), true, grade, true,
-								loggedUserBean.getUserContext()).getId()));
+								loggedUserBean.getUserContext());
+				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
+				currentResult.getAssessment().getGrade().setValue(aa.getPoints());
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
-						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
+						new ArrayList<>(participantIds), loggedUserBean.getUserId(), grade,
 						true, loggedUserBean.getUserContext());
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
 				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+				currentResult.getAssessment().getGrade().setValue(assessmentInfo.getGrade());
 			}
 		} catch (IllegalDataStateException e) {
 			/*
@@ -576,6 +592,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	public void setCurrentResult(ActivityResultData currentResult) {
 		this.currentResult = currentResult;
+		initRubricIfNotInitialized();
 	}
 	
 	public List<StudentAssessedFilterState> getFilters() {

@@ -181,9 +181,9 @@
 		           			otherResultCommentModalId="assessmentCommentsModal1b"
 							toUpdateOtherResultCommentModal=":formCommentOnOtherResult:panelModalAssessmentComments"
 		           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{result.targetActivityId}"
-		           			assessmentGradeModalId="assessmentGradeModal1"
+		           			assessmentGradeLinkOnComplete="showPopupSidebar('#cbp-spmenu-s2');"
 		           			gradeLink="gradeLink_#{result.targetActivityId}"
-		           			toUpdateAssessmentGradeModal=":activityGradeModal:formGradeModal:panelGradeModal"
+		           			toUpdateAssessmentGradeModal=":activityGradePanel:gradePanel"
 		           		/>
 	                </ui:repeat>
                 </h:panelGroup>
@@ -401,15 +401,15 @@
 			</div>
 		</div>
     </h:form>
-    
-    <activities:activityGradeModal
-    	id="activityGradeModal"
-   	 	bean="#{activityResultsBeanManager}"
-		assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
-		toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
-		minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
-		maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
-		learningContext="#{learningContext}"
+
+	<activities:activityGradePanel
+			id="activityGradePanel"
+			bean="#{activityResultsBeanManager}"
+			assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
+			toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
+			minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
+			maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
+			learningContext="#{learningContext}"
 	/>
 	
 	<ui:fragment rendered="#{not empty param['user']}">
