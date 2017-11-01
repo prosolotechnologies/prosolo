@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
@@ -55,8 +54,6 @@ public class CredentialViewBeanUser implements Serializable {
 	@Autowired
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
-	private EventFactory eventFactory;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
 	@Inject private AnnouncementManager announcementManager;
@@ -256,10 +253,6 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
-	}
-
-	public void setEventFactory(EventFactory eventFactory) {
-		this.eventFactory = eventFactory;
 	}
 
 	public long getNumberOfUsersLearningCred() {

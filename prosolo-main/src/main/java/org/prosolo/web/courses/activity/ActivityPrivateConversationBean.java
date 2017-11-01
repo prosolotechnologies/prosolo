@@ -4,14 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
@@ -50,8 +46,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private AssessmentManager assessmentManager;
 	@Inject
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 
 	private ActivityAssessmentData activityAssessmentData;
 	// adding new comment

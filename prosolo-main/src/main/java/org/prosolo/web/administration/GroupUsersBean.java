@@ -2,13 +2,9 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
@@ -39,7 +35,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UserGroupManager userGroupManager;
-	@Inject private EventFactory eventFactory;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private GroupUserAddBean groupUserAddBean;

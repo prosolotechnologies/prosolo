@@ -2,14 +2,10 @@ package org.prosolo.web.courses.credential.announcements;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.credential.Announcement;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -32,7 +28,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,8 +50,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     private CredentialManager credManager;
     @Inject
     private ThreadPoolTaskExecutor taskExecutor;
-    @Inject
-    private EventFactory eventFactory;
     @Inject
     private AssessmentManager assessmentManager;
 

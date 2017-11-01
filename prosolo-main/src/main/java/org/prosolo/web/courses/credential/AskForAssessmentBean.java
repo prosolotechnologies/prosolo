@@ -1,14 +1,9 @@
 package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -52,8 +47,6 @@ public class AskForAssessmentBean implements Serializable {
     private AssessmentManager assessmentManager;
     @Inject
     private ThreadPoolTaskExecutor taskExecutor;
-    @Inject
-    private EventFactory eventFactory;
 
     private List<UserData> peersForAssessment;
     private String peerSearchTerm;
@@ -196,14 +189,6 @@ public class AskForAssessmentBean implements Serializable {
 
     public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
         this.taskExecutor = taskExecutor;
-    }
-
-    public EventFactory getEventFactory() {
-        return eventFactory;
-    }
-
-    public void setEventFactory(EventFactory eventFactory) {
-        this.eventFactory = eventFactory;
     }
 
     public List<UserData> getPeersForAssessment() {

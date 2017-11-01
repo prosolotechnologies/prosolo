@@ -6,13 +6,9 @@ import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.assessments.*;
@@ -53,8 +49,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 
 	// PARAMETERS
 	private String id;
