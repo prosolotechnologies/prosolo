@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data.assessments;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
@@ -27,6 +28,7 @@ public class ActivityAssessmentData {
 	private long compAssessmentId;
 	private long credAssessmentId;
 	private GradeData grade;
+	private ActivityRubricVisibility rubricVisibilityForStudent;
 	private String result;
 	private long userId;
 	//is activity completed
@@ -62,6 +64,9 @@ public class ActivityAssessmentData {
 		data.getGrade().setMaxGrade(actData.getMaxPoints());
 		//assessment grading mode
 		data.getGrade().setGradingMode(getGradingMode(actData));
+		if (data.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC) {
+			data.setRubricVisibilityForStudent(actData.getRubricVisibility());
+		}
 		data.setDefault(credAssessment.isDefaultAssessment());
 		data.setCredAssessmentId(credAssessment.getId());
 		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
@@ -409,4 +414,11 @@ public class ActivityAssessmentData {
 		this.compAssessment = compAssessment;
 	}
 
+	public ActivityRubricVisibility getRubricVisibilityForStudent() {
+		return rubricVisibilityForStudent;
+	}
+
+	public void setRubricVisibilityForStudent(ActivityRubricVisibility rubricVisibilityForStudent) {
+		this.rubricVisibilityForStudent = rubricVisibilityForStudent;
+	}
 }

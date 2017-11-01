@@ -359,12 +359,20 @@ public class ActivityDataFactory {
 		data.setType(activity.getType());
 		data.setResultData(getActivityResultData(targetActivity, isManager));
 		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setMaxPoints(activity.getMaxPoints());
 		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		if (tags != null) {
 			data.setTags(tags);
 			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+		}
+
+		data.setGradingMode(activity.getGradingMode());
+		//set rubric data
+		if (activity.getRubric() != null) {
+			data.setRubricId(activity.getRubric().getId());
+			data.setRubricVisibility(activity.getRubricVisibility());
 		}
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);

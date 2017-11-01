@@ -41,7 +41,7 @@ function initCredentialsSlider() {
 	$('#credentials .slides').slick({
 		infinite : false,
 		variableWidth: true,
-		slidesToShow : 4,
+		slidesToShow : 2,
 		slidesToScroll : 2,
 		prevArrow: '#credentials .sliderIconLeft',
 		nextArrow: '#credentials .sliderIconRight',

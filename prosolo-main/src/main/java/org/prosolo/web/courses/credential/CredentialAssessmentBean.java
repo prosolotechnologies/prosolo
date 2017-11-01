@@ -7,6 +7,7 @@ import org.primefaces.context.RequestContext;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventException;
@@ -156,15 +157,21 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private void initRubricIfNotInitialized() {
 		try {
 			if (currentActivityAssessment.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentActivityAssessment.getGrade().isRubricInitialized()) {
-				currentActivityAssessment.getGrade().setRubricCriteria(rubricManager.getRubricDataForAssessment(
+				currentActivityAssessment.getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
+						currentActivityAssessment.getActivityId(),
 						idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId()),
-						currentActivityAssessment.getActivityId()));
+						true));
 				currentActivityAssessment.getGrade().setRubricInitialized(true);
 			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
 		}
+	}
+
+	public boolean isUserAllowedToSeeRubric(ActivityAssessmentData activityAssessment) {
+		return activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
+				|| (activityAssessment.getGrade().isAssessed() && activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
 	}
 
 	public boolean allCompetencesStarted() {
@@ -174,6 +181,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 		}
 		return true;
+	}
+
+	public boolean isCurrentUserAssessedStudent() {
+		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
 	
 	public void approveCredential() {
