@@ -45,6 +45,12 @@ public interface MessagingManager extends AbstractManager {
 
 	//Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException, EventException;
 
+	Message sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException;
+
+	Result<Message> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException;
+
 	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException, EventException;
 
 	Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)

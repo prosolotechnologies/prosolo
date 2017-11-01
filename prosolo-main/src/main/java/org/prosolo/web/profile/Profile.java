@@ -135,29 +135,16 @@ public class Profile {
 			if (Long.valueOf(studentId) != loggedUserBean.getUserId()) {
 				try {
 					long decodedRecieverId = Long.valueOf(studentId);
-					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedRecieverId, this.message);
+					Message message = messagingManager.sendMessageDialog(loggedUserBean.getUserId(), decodedRecieverId,
+							this.message, loggedUserBean.getUserContext());
+
 					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedRecieverId+" with content: '"+message+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();
 					
 					participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
-					
-					final Message message1 = message;
 
-					UserContextData userContext = loggedUserBean.getUserContext();
-					taskExecutor.execute(() -> {
-						try {
-							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("user", String.valueOf(decodedRecieverId));
-							parameters.put("message", String.valueOf(message1.getId()));
-							eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
-									null, null, parameters);
-						} catch (EventException e) {
-							logger.error(e);
-						}
-					});
 					this.message = "";
-					
 					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Your message is sent");
 				} catch (Exception e) {
 					logger.error(e);

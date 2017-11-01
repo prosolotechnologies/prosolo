@@ -447,6 +447,65 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
+	public Message sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException {
+		Result<Message> result = self.sendMessageDialogAndGetEvents(senderId, receiverId, msg, contextData);
+
+		for(EventData ev : result.getEvents()){
+			eventFactory.generateEvent(ev);
+		}
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<Message> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException, EventException {
+		try {
+			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
+
+			if (messagesThread == null) {
+				List<Long> participantsIds = new ArrayList<Long>();
+				participantsIds.add(receiverId);
+				participantsIds.add(senderId);
+				messagesThread = createNewMessagesThread(senderId, participantsIds, msg);
+			} else {
+				//check if thread was deleted by sender
+				ThreadParticipant participant = messagesThread.getParticipant(senderId);
+				if (participant.isDeleted()) {
+					participant.setDeleted(false);
+					persistence.merge(participant);
+				}
+			}
+
+			Message message = sendSimpleOfflineMessage(senderId, receiverId, msg, messagesThread.getId(), null);
+
+			messagesThread.addMessage(message);
+			messagesThread.setLastUpdated(new Date());
+			saveEntity(messagesThread);
+
+			message.setMessageThread(messagesThread);
+			saveEntity(message);
+
+			Result<Message> result = new Result<>();
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("user", String.valueOf(receiverId));
+			parameters.put("message", String.valueOf(message.getId()));
+
+			result.addEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+					message, null,null, parameters));
+
+			result.setResult(message);
+
+			return result;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DbConnectionException("Error while sending the message");
+		}
+	}
+
+	@Override
 	public List<MessagesThreadData> convertMessagesThreadsToMessagesThreadData(List<MessageThread> mThreads,
 																			   long userId) {
 		List<MessagesThreadData> messagesThread = new LinkedList<MessagesThreadData>();
