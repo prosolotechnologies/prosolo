@@ -160,6 +160,12 @@ public class PageUtil {
 		String section = "";
 		if (secondSlashIndex != -1) {
 			section = uri.substring(0, secondSlashIndex);
+		} else {
+			/*
+			if there is no second slash, whole uri is set to be the current section:
+			this covers cases where uri is /admin or /manage
+			 */
+			section = uri;
 		}
 
 		if (section.equals(PageSection.ADMIN.getPrefix())) {

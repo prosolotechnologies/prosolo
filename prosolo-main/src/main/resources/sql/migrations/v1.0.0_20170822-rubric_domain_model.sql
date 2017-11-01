@@ -19,7 +19,7 @@ ALTER TABLE `rubric`
   ADD CONSTRAINT `FK_rubric_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`);
 
 ALTER TABLE `rubric`
-  ADD UNIQUE KEY `UK_rubric_title_organization` (title, organization);
+  ADD UNIQUE KEY `UK_rubric_title_organization` (title(100), organization);
 
 CREATE TABLE `category` (
     `id` bigint(20) NOT NULL,
@@ -36,7 +36,7 @@ ALTER TABLE `category`
     ADD KEY `FK_category_rubric` (`rubric`);
 
 ALTER TABLE `category`
-  ADD UNIQUE KEY `UK_category_title_rubric` (title, rubric);
+  ADD UNIQUE KEY `UK_category_title_rubric` (title(100), rubric);
 
 CREATE TABLE `level` (
     `id` bigint(20) NOT NULL,
@@ -53,4 +53,4 @@ ALTER TABLE `level`
     ADD KEY `FK_level_rubric` (`rubric`);
 
 ALTER TABLE `level`
-  ADD UNIQUE KEY `UK_level_title_rubric` (title, rubric);
+  ADD UNIQUE KEY `UK_level_title_rubric` (title(100), rubric);

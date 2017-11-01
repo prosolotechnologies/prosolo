@@ -151,7 +151,7 @@ public class User extends BaseEntity {
 		this.profileUrl = profileUrl;
 	}
 	
-	@Enumerated
+	@Enumerated (EnumType.STRING)
 	@Column(nullable = false)
 	public UserType getUserType() {
 		return userType;
