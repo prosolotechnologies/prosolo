@@ -41,4 +41,16 @@ public class UserDataFactory {
         user.setLongitude(userData.getLongitude());
         return user;
     }
+
+    public org.prosolo.common.web.activitywall.data.UserData getUserData(User user){
+        org.prosolo.common.web.activitywall.data.UserData userData = new org.prosolo.common.web.activitywall.data.UserData();
+        userData.setId(user.getId());
+        userData.setAvatarUrl(user.getAvatarUrl());
+        userData.setFirstName(user.getName());
+        userData.setLastName(user.getLastname());
+        userData.setPosition(user.getPosition());
+        userData.setName(user.getFullName());
+        return userData;
+    }
+
 }

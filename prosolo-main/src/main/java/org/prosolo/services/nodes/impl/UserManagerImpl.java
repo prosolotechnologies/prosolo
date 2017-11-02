@@ -97,13 +97,17 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional(readOnly = true)
 	public org.prosolo.common.web.activitywall.data.UserData getActivityWallUserData(long userId) throws DbConnectionException {
-		org.prosolo.common.web.activitywall.data.UserData userData = null;
-		try {
-			User user = loadResource(User.class,userId);
-			userData = new org.prosolo.common.web.activitywall.data.UserData(userId,user.getName(),user.getLastname(),user.getAvatarUrl());
-		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
-		}
+		String query = "SELECT user " +
+				"FROM User user " +
+				"WHERE user.id = :userId ";
+
+		User user = (User) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.uniqueResult();
+
+		org.prosolo.common.web.activitywall.data.UserData userData = userDataFactory.getUserData(user);
+
 		return userData;
 	}
 

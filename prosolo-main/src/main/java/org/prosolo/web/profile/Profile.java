@@ -199,7 +199,7 @@ public class Profile {
 
 	private void initializeStudentData(UserData student) {
 		studentId = String.valueOf(student.getId());
-		avatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
+		avatarUrl = AvatarUtils.getAvatarUrlInFormat(student.getAvatarUrl(), ImageFormat.size120x120);
 		//smallAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
 		studentInitials = getInitials(student);
 		studentFullName = student.getFirstName()+" "+student.getLastName();
