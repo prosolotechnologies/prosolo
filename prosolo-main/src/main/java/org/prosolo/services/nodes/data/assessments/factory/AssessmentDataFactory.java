@@ -47,6 +47,7 @@ public class AssessmentDataFactory implements Serializable {
         activitySummary.setId(activity.getId());
         activitySummary.setTitle(activity.getTitle());
         activitySummary.setActivityType(activityDataFactory.getActivityType(activity));
+        activitySummary.setResultType(activity.getResultType());
         activitySummary.setGradingEnabled(activity.getGradingMode() != GradingMode.NONGRADED);
         if (numberOfUsersCompletedActivity != null) {
             activitySummary.setNumberOfStudentsCompletedActivity(numberOfUsersCompletedActivity);

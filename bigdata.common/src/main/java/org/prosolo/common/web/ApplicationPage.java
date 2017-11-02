@@ -92,6 +92,7 @@ public enum ApplicationPage {
 	MANAGER_RUBRIC_SETTINGS("/manage/rubricEdit.xhtml"),
 	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
 	MANAGER_RUBRIC_CRITERIA("/manage/rubric-criteria.xhtml"),
+	MANAGER_CREDENTIAL_ACTIVITY_ASSESSMENTS("/manage/credential-delivery-assessments-activity.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

@@ -185,4 +185,6 @@ public interface AssessmentManager {
 
 	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;
 
+	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
+
 }

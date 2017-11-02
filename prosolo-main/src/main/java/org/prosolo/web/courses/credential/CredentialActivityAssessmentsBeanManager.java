@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.activity;
+package org.prosolo.web.courses.credential;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -6,19 +6,19 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.ActivityResultBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -31,14 +31,14 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;
 
-@ManagedBean(name = "activityResultsBeanManager")
-@Component("activityResultsBeanManager")
+@ManagedBean(name = "credentialActivityAssessmentsBeanManager")
+@Component("credentialActivityAssessmentsBeanManager")
 @Scope("view")
-public class ActivityResultsBeanManager implements Serializable, Paginable {
+public class CredentialActivityAssessmentsBeanManager implements Serializable, Paginable {
 
-	private static final long serialVersionUID = 8239391131153298750L;
+	private static final long serialVersionUID = 6214124501846073070L;
 
-	private static Logger logger = Logger.getLogger(ActivityResultsBeanManager.class);
+	private static Logger logger = Logger.getLogger(CredentialActivityAssessmentsBeanManager.class);
 	
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
@@ -51,17 +51,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	private String actId;
 	private long decodedActId;
-	private String compId;
-	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
 	private String targetActId;
 	private long decodedTargetActId;
 	private String commentId;
 	
-	private ActivityData activity;
+	private ActivityAssessmentsSummaryData assessmentsSummary;
 	private String credentialTitle;
-	private String competenceTitle;
 
 	private static final boolean paginate = false;
 	private PaginationData paginationData = new PaginationData();
@@ -69,61 +66,68 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private ActivityResultData currentResult;
 	
 	private ResourceAccessData access;
-	
-	private List<StudentAssessedFilterState> filters = new ArrayList<>();
-	private List<StudentAssessedFilter> appliedFilters = new ArrayList<>();
 
 	public void init() {
-//		decodedActId = idEncoder.decodeId(actId);
-//		decodedCompId = idEncoder.decodeId(compId);
-//		decodedCredId = idEncoder.decodeId(credId);
-//		if (decodedActId > 0 && decodedCompId > 0) {
-//			try {
-//				/*
-//				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
-//				 * instructor comments
-//				 */
-//				access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(),
-//						ResourceAccessRequirements.of(AccessMode.MANAGER)
-//								.addPrivilege(UserGroupPrivilege.Edit)
-//								.addPrivilege(UserGroupPrivilege.Instruct));
-//
-//				if (!access.isCanAccess()) {
-//					PageUtil.accessDenied();
-//				} else {
-//					for (StudentAssessedFilter filterEnum : StudentAssessedFilter.values()) {
-//						StudentAssessedFilterState f = new StudentAssessedFilterState(filterEnum, true);
-//						filters.add(f);
-//						appliedFilters.add(filterEnum);
-//					}
-//					activity = activityManager
-//							.getActivityAssessmentsDataForDefaultCredentialAssessment(
-//									decodedCredId, decodedCompId, decodedActId, 0, access.isCanInstruct(),
-//									true, paginate, paginationData.getPage() - 1, paginationData.getLimit(),
-//									null);
-//					//				for(ActivityResultData ard : activity.getStudentResults()) {
-//					//					loadAdditionalData(ard);
-//					//				}
-//
-//					if (paginate) {
-//						updatePaginationData(countStudentResults(null));
-//					}
-//					if (activity == null) {
-//						PageUtil.notFound();
-//					} else {
-//						loadCompetenceAndCredentialTitle();
-//					}
-//				}
-//			} catch (ResourceNotFoundException rnfe) {
-//				logger.error(rnfe);
-//				PageUtil.notFound();
-//			} catch(Exception e) {
-//				logger.error(e);
-//				PageUtil.fireErrorMessage("Error while loading activity results");
-//			}
-//		} else {
-//			PageUtil.notFound();
-//		}
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCredId = idEncoder.decodeId(credId);
+		if (decodedActId > 0 && decodedCredId > 0) {
+			try {
+				/*
+				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				access = compManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit)
+								.addPrivilege(UserGroupPrivilege.Instruct));
+
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
+				} else {
+					assessmentsSummary = activityManager
+							.getActivityAssessmentsDataForDefaultCredentialAssessment(
+									decodedCredId, decodedActId, 0, access.isCanInstruct(), paginate,
+									paginationData.getPage() - 1, paginationData.getLimit());
+
+					if (paginate) {
+						this.paginationData.update((int) assessmentsSummary.getNumberOfStudentsCompletedActivity());
+					}
+					if (assessmentsSummary == null) {
+						PageUtil.notFound();
+					} else {
+						loadCredentialTitle();
+					}
+				}
+			} catch (ResourceNotFoundException rnfe) {
+				logger.error(rnfe);
+				PageUtil.notFound();
+			} catch(Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error loading the page");
+			}
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
+	public boolean canUserEditDelivery() {
+		return access.isCanEdit();
+	}
+
+	public int getMinGrade() {
+		if (!assessmentsSummary.getStudentResults().isEmpty()) {
+			ActivityResultData res = assessmentsSummary.getStudentResults().get(0);
+			return res.getAssessment().getGrade().getMinGrade();
+		}
+		return 0;
+	}
+
+	public int getMaxGrade() {
+		if (!assessmentsSummary.getStudentResults().isEmpty()) {
+			ActivityResultData res = assessmentsSummary.getStudentResults().get(0);
+			return res.getAssessment().getGrade().getMaxGrade();
+		}
+		return 0;
 	}
 
 	private void initRubricIfNotInitialized() {
@@ -141,60 +145,54 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	public void initIndividualResponse() {
-//		decodedActId = idEncoder.decodeId(actId);
-//		decodedCompId = idEncoder.decodeId(compId);
-//		decodedCredId = idEncoder.decodeId(credId);
-//		decodedTargetActId = idEncoder.decodeId(targetActId);
-//		if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
-//			try {
-//				/*
-//				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
-//				 * instructor comments
-//				 */
-//				access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(),
-//						ResourceAccessRequirements.of(AccessMode.MANAGER)
-//								.addPrivilege(UserGroupPrivilege.Edit)
-//								.addPrivilege(UserGroupPrivilege.Instruct));
-//
-//				if (!access.isCanAccess()) {
-//					PageUtil.accessDenied();
-//				} else {
-//					activity = activityManager
-//							.getActivityAssessmentsDataForDefaultCredentialAssessment(
-//									decodedCredId, decodedCompId, decodedActId, decodedTargetActId,
-//									access.isCanInstruct(), true, false, 0,
-//									0, null);
-//					if (activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
-//						currentResult = activity.getStudentResults().get(0);
-//						//loadAdditionalData(currentResult);
-//						if (commentId != null) {
-//							currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
-//							initializeResultCommentsIfNotInitialized(currentResult);
-//						}
-//
-//						if (activity == null || currentResult == null) {
-//							PageUtil.notFound();
-//						} else {
-//							loadCompetenceAndCredentialTitle();
-//						}
-//					} else {
-//						PageUtil.notFound();
-//					}
-//				}
-//			} catch (ResourceNotFoundException rnfe) {
-//				logger.error(rnfe);
-//				PageUtil.notFound();
-//			} catch (Exception e) {
-//				logger.error(e);
-//				PageUtil.fireErrorMessage("Error while loading activity results");
-//			}
-//		} else {
-//			PageUtil.notFound();
-//		}
-	}
-	
-	public long getCredentialId() {
-		return decodedCredId;
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCredId = idEncoder.decodeId(credId);
+		decodedTargetActId = idEncoder.decodeId(targetActId);
+		if (decodedCredId > 0 && decodedActId > 0 && decodedTargetActId > 0) {
+			try {
+				/*
+				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				access = compManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit)
+								.addPrivilege(UserGroupPrivilege.Instruct));
+
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
+				} else {
+					assessmentsSummary = activityManager
+							.getActivityAssessmentsDataForDefaultCredentialAssessment(
+									decodedCredId, decodedActId, decodedTargetActId,
+									access.isCanInstruct(), false, 0,0);
+					if (assessmentsSummary.getStudentResults() != null && !assessmentsSummary.getStudentResults().isEmpty()) {
+						currentResult = assessmentsSummary.getStudentResults().get(0);
+						//loadAdditionalData(currentResult);
+						if (assessmentsSummary.getResultType() != ActivityResultType.NONE && commentId != null) {
+							currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+							initializeResultCommentsIfNotInitialized(currentResult);
+						}
+
+						if (assessmentsSummary == null || currentResult == null) {
+							PageUtil.notFound();
+						} else {
+							loadCredentialTitle();
+						}
+					} else {
+						PageUtil.notFound();
+					}
+				}
+			} catch (ResourceNotFoundException rnfe) {
+				logger.error(rnfe);
+				PageUtil.notFound();
+			} catch (Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while loading assessmentsSummary results");
+			}
+		} else {
+			PageUtil.notFound();
+		}
 	}
 	
 	public long getTargetActivityId() {
@@ -205,47 +203,27 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		return currentResult.getUser().getFullName();
 	}
 	
-	private int countStudentResults(StudentAssessedFilter filter) {
-//		return (activityManager.countStudentsResults(decodedCredId, decodedCompId,
-//				decodedActId, filter)).intValue();
-		return 0;
+	private int countStudentResults() {
+		return activityManager.countStudentsLearningCredentialThatCompletedActivity(decodedCredId, decodedActId).intValue();
 	}
 
 	private void searchStudentResults(boolean calculateNumberOfResults) {
 		try {
-			if (appliedFilters.isEmpty()) {
-				updatePaginationData(0);
-				activity.setStudentResults(new ArrayList<>());
-			} else {
-				StudentAssessedFilter saFilter = getFilter();
-				if (paginate) {
-					updatePaginationData(countStudentResults(saFilter));
-				}
-				List<ActivityResultData> results = activityManager
-						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
-								access.isCanInstruct(), true, true, true, paginate, paginationData.getPage() - 1,
-								paginationData.getLimit(), saFilter);
-//				for(ActivityResultData ard : results) {
-//					loadAdditionalData(ard);
-//				}
-				activity.setStudentResults(results);
+			if (paginate) {
+				this.paginationData.update(activityManager.countStudentsLearningCredentialThatCompletedActivity(decodedCredId, decodedActId).intValue());
 			}
+			List<ActivityResultData> results = activityManager
+					.getStudentsActivityAssessmentsData(decodedCredId, decodedActId, 0, access.isCanInstruct(),
+							paginate, paginationData.getPage() - 1, paginationData.getLimit());
+			assessmentsSummary.setStudentResults(results);
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading activity results");
+			PageUtil.fireErrorMessage("Error while loading assessmentsSummary results");
 		}
 	}
 	
-	private StudentAssessedFilter getFilter() {
-		if(appliedFilters.isEmpty() || appliedFilters.size() == filters.size()) {
-			return null;
-		}
-		return appliedFilters.get(0);
-	}
-	
-	private void loadCompetenceAndCredentialTitle() {
+	private void loadCredentialTitle() {
 		decodedCredId = idEncoder.decodeId(credId);
-		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		credentialTitle = credManager.getCredentialTitle(decodedCredId);
 	}
 	
@@ -254,40 +232,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			actResultBean.initializeResultCommentsIfNotInitialized(result);
 		} catch(Exception e) {
 			logger.error(e);
-		}
-	}
-	
-	public void filterChanged(StudentAssessedFilterState filter) {
-		if(filter.isApplied()) {
-			appliedFilters.add(filter.getFilter());
-		} else {
-			appliedFilters.remove(filter.getFilter());
-		}
-		paginationData.setPage(1);
-		searchStudentResults(true);
-	}
-	
-	public void checkAllFilters() {
-		if (appliedFilters.size() != filters.size()) {
-			for (StudentAssessedFilterState filter : filters) {
-				if (!filter.isApplied()) {
-					filter.setApplied(true);
-					appliedFilters.add(filter.getFilter());
-				}
-			}
-			paginationData.setPage(1);
-			searchStudentResults(true);
-		}
-	}
-	
-	public void uncheckAllFilters() {
-		if (!appliedFilters.isEmpty()) {
-			appliedFilters.clear();
-			for (StudentAssessedFilterState filter : filters) {
-				filter.setApplied(false);
-			}
-			paginationData.setPage(1);
-			searchStudentResults(true);
 		}
 	}
 	
@@ -324,20 +268,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			loadActivityDiscussion(result);
 //		}
 	}
-	
-//	private void loadAdditionalData(ActivityResultData result) {
-//		if (decodedCredId > 0) {
-//			ActivityAssessmentData assessment = result.getAssessment();
-//			AssessmentBasicData assessmentInfo = assessmentManager.getDefaultAssessmentBasicData(decodedCredId,
-//					decodedCompId, 0, result.getUser().getId());
-//			if (assessmentInfo != null) {
-//				assessment.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
-//				assessment.setCredAssessmentId(assessmentInfo.getCredentialAssessmentId());
-//				//we need to know if logged in user is assessor to determine if he can participate in private conversation
-//				assessment.setAssessorId(assessmentInfo.getAssessorId());
-//			}
-//		}
-//	}
 	
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
@@ -412,7 +342,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 		try {
 			if (competenceAssessmentId > 0) {
-				//if competence assessment exists create activity assessment only
+				//if competence assessment exists create assessmentsSummary assessment only
 				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
@@ -421,7 +351,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
 				currentResult.getAssessment().getGrade().setValue(aa.getPoints());
 			} else {
-				//if competence assessment does not exist create competence assessment and activity assessment
+				//if competence assessment does not exist create competence assessment and assessmentsSummary assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<>(participantIds), loggedUserBean.getUserId(), grade,
@@ -436,8 +366,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				exception does not have to mean that this is the case. Return to this when exceptions are rethinked.
 			 */
 			/*
-				if competence assessment is already set, get activity assessment id and set it, otherwise get both
-				competence assessment and activity assessment ids.
+				if competence assessment is already set, get assessmentsSummary assessment id and set it, otherwise get both
+				competence assessment and assessmentsSummary assessment ids.
 			 */
 			if (competenceAssessmentId > 0) {
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
@@ -471,7 +401,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		List<ActivityResultData> results = activity.getStudentResults();
+		List<ActivityResultData> results = assessmentsSummary.getStudentResults();
 		if (results != null) {
 			for (ActivityResultData ard : results) {
 				if (encodedActivityDiscussionId.equals(ard.getAssessment().getEncodedDiscussionId())) {
@@ -485,18 +415,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	//assessment end
 	
 	public ActivityResultType getActivityResultType() {
-		if(activity == null) {
-			return ActivityResultType.NONE;
-		}
-		List<ActivityResultData> results = activity.getStudentResults();
-		if(results == null || results.isEmpty()) {
-			return ActivityResultType.NONE;
-		}
-		return results.get(0).getResultType();
-	}
-	
-	private void updatePaginationData(int numberOfResults) {
-		this.paginationData.update(numberOfResults);
+		return assessmentsSummary != null ? assessmentsSummary.getResultType() : ActivityResultType.NONE;
 	}
 	
 	@Override
@@ -527,22 +446,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		this.decodedActId = decodedActId;
 	}
 
-	public String getCompId() {
-		return compId;
-	}
-
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
-
-	public long getDecodedCompId() {
-		return decodedCompId;
-	}
-
-	public void setDecodedCompId(long decodedCompId) {
-		this.decodedCompId = decodedCompId;
-	}
-
 	public String getCredId() {
 		return credId;
 	}
@@ -567,20 +470,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		this.credentialTitle = credentialTitle;
 	}
 
-	public String getCompetenceTitle() {
-		return competenceTitle;
-	}
-
-	public void setCompetenceTitle(String competenceTitle) {
-		this.competenceTitle = competenceTitle;
-	}
-
-	public ActivityData getActivity() {
-		return activity;
-	}
-
-	public void setActivity(ActivityData activity) {
-		this.activity = activity;
+	public ActivityAssessmentsSummaryData getAssessmentsSummary() {
+		return assessmentsSummary;
 	}
 
 	public PaginationData getPaginationData() {
@@ -594,14 +485,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void setCurrentResult(ActivityResultData currentResult) {
 		this.currentResult = currentResult;
 		initRubricIfNotInitialized();
-	}
-	
-	public List<StudentAssessedFilterState> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<StudentAssessedFilterState> filters) {
-		this.filters = filters;
 	}
 
 	public String getTargetActId() {

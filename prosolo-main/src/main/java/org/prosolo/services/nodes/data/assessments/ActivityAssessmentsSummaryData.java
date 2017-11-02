@@ -1,8 +1,12 @@
 package org.prosolo.services.nodes.data.assessments;
 
+import org.prosolo.common.domainmodel.credential.ActivityResultType;
+import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityType;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author stefanvuckovic
@@ -16,9 +20,12 @@ public class ActivityAssessmentsSummaryData implements Serializable {
     private long id;
     private String title;
     private ActivityType activityType;
+    private ActivityResultType resultType;
     private long numberOfStudentsCompletedActivity;
     private long numberOfAssessedStudents;
     private boolean gradingEnabled;
+
+    private List<ActivityResultData> studentResults = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -66,5 +73,21 @@ public class ActivityAssessmentsSummaryData implements Serializable {
 
     public void setGradingEnabled(boolean gradingEnabled) {
         this.gradingEnabled = gradingEnabled;
+    }
+
+    public List<ActivityResultData> getStudentResults() {
+        return studentResults;
+    }
+
+    public void setStudentResults(List<ActivityResultData> studentResults) {
+        this.studentResults = studentResults;
+    }
+
+    public ActivityResultType getResultType() {
+        return resultType;
+    }
+
+    public void setResultType(ActivityResultType resultType) {
+        this.resultType = resultType;
     }
 }

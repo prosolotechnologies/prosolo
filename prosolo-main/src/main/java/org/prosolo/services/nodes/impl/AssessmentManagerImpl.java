@@ -1777,4 +1777,28 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException {
+		try {
+			String usersAssessedQ =
+					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
+							"INNER JOIN aa.targetActivity ta " +
+							"INNER JOIN aa.assessment compAssessment " +
+							"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+							"WITH credAssessment.defaultAssessment IS TRUE " +
+							"INNER JOIN credAssessment.targetCredential tc " +
+							"WITH tc.credential.id = :credId " +
+							"WHERE ta.activity.id = :actId AND aa.points >= 0";
+
+			return (Long) persistence.currentManager()
+					.createQuery(usersAssessedQ)
+					.setLong("credId", deliveryId)
+					.setLong("actId", activityId)
+					.uniqueResult();
+		} catch (Exception e) {
+			throw new DbConnectionException("Error retrieving assessment info");
+		}
+	}
+
 }
