@@ -2370,10 +2370,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			query += "ORDER BY comp.title";
 
-			return persistence.currentManager()
+			List<TargetCompetenceData> resultList = new ArrayList<>();
+
+			List<TargetCompetence1> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.list();
+
+			for(TargetCompetence1 targetCompetence1 : res){
+				TargetCompetenceData targetCompetenceData = new TargetCompetenceData(targetCompetence1);
+				resultList.add(targetCompetenceData);
+
+			}
+			return resultList;
+
 		} catch (Exception e) {
 			logger.error(e);
 			throw new DbConnectionException();
@@ -2392,33 +2402,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public CompetenceAchievementsData getCompetenceAchievementsData(List<TargetCompetenceData> targetCompetenceList) {
 		CompetenceAchievementsData competenceAchievementsData = new CompetenceAchievementsData();
 
-		TargetCompetenceData targetCompetenceData;
-
-		List<Long> competenceIds = new ArrayList<>();
-
-		for(TargetCompetenceData targetCompetenceData1 : targetCompetenceList){
-			competenceIds.add(targetCompetenceData1.getCompetenceId());
+		for(TargetCompetenceData targetCompetenceData : targetCompetenceList){
+			competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
 		}
-		List<CompetenceData1> competenceData1List = new ArrayList<>();
 
-		/*for(CompetenceData1 competenceData1 : competenceData1List){
-
-		}*/
-
-		for (TargetCompetenceData targetCompetence1 : targetCompetenceList) {
-			if (targetCompetence1 != null) {
-				CompetenceData1 competenceData1 = getCompetenceData(targetCompetence1.getCompetenceId());
-				targetCompetenceData = new TargetCompetenceData(
-						targetCompetence1.getId(),
-						competenceData1.getDescription(),
-						competenceData1.getTitle(),
-						targetCompetence1.isHiddenFromProfile(),
-						competenceData1.getDuration(),
-						competenceData1.getType(),
-						competenceData1.getCompetenceId());
-				competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
-			}
-		}
 		return competenceAchievementsData;
 	}
 

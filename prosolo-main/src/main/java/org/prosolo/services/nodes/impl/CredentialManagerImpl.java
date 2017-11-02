@@ -43,6 +43,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -1384,7 +1385,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {
-		List<TargetCredentialData> result = new ArrayList<>();
 		try {
 			String query =
 					"SELECT targetCredential1 " +
@@ -1409,15 +1409,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			query += "ORDER BY cred.title";
 
-			result = persistence.currentManager()
+			List<TargetCredentialData> resultList = new ArrayList<>();
+
+			List<TargetCredential1> result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
 					.list();
+
+			for(TargetCredential1 targetCredential1 : result){
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1);
+				resultList.add(targetCredentialData);
+			}
+
+			return resultList;
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			throw new DbConnectionException();
 		}
-		return result;
 	}
 
 	@Override
@@ -3313,20 +3321,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public CredentialAchievementsData getCredentialAchievementsData(List<TargetCredentialData> targetCredentialList) {
 		CredentialAchievementsData credentialAchievementsData = new CredentialAchievementsData();
 
-		for (TargetCredentialData targetCredential1 : targetCredentialList) {
-			if (targetCredential1 != null) {
-				TargetCredentialData targetCredentialData = new TargetCredentialData(
-						targetCredential1.getId(),
-						targetCredential1.getCredential().getTitle(),
-						targetCredential1.getCredential().getDescription(),
-						targetCredential1.isHiddenFromProfile(),
-						targetCredential1.getCredential().getDuration(),
-						targetCredential1.getCredential().getId(),
-						targetCredential1.getProgress(),
-						targetCredential1.getNextCompetenceToLearnId());
-
-				credentialAchievementsData.getTargetCredentialDataList().add(targetCredentialData);
-			}
+		for (TargetCredentialData targetCredentialData : targetCredentialList) {
+			credentialAchievementsData.getTargetCredentialDataList().add(targetCredentialData);
 		}
 		return credentialAchievementsData;
 	}

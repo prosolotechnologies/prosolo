@@ -1,5 +1,6 @@
 package org.prosolo.web.achievements.data;
 
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.nodes.data.CredentialData;
 
 import java.io.Serializable;
@@ -35,6 +36,17 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = credentialId;
 		this.progress = progress;
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	}
+
+	public TargetCredentialData(TargetCredential1 targetCredential1) {
+		this.id = targetCredential1.getId();
+		this.title = targetCredential1.getCredential().getTitle();
+		this.description = targetCredential1.getCredential().getDescription();
+		this.hiddenFromProfile = targetCredential1.isHiddenFromProfile();
+		this.duration = targetCredential1.getCredential().getDuration();
+		this.credentialId = targetCredential1.getCredential().getId();
+		this.progress = targetCredential1.getProgress();
+		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
 	}
 
 	public CredentialData getCredential() {

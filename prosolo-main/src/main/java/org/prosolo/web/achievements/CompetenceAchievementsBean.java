@@ -44,8 +44,6 @@ public class CompetenceAchievementsBean implements Serializable {
 			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					loggedUser.getUserId(),
 					false);
-			//TargetCompetenceData tg = targetCompetence1List.get(0);
-			logger.info("Cred id:-------------" + targetCompetence1List.get(0).getId());
 			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (DbConnectionException e) {
 			logger.error("Error while loading target competencies with progress == 100 Error:\n" + e);
