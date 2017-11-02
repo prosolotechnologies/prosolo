@@ -149,7 +149,15 @@ public interface UserManager extends AbstractManager {
 
 	AccountData initAccountData(UserData userData);
 
-	UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
+	/*UserData saveAccountData(UserData userData, UserContextData contextData)
+	throws DbConnectionException, EventException;
 
-	Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData) throws DbConnectionException, EventException;
+	Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData)
+	throws DbConnectionException, EventException;*/
+
+	UserData saveAccountChanges(AccountData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException;
+
+	Result<UserData> saveAccountChangesAndGetEvents(AccountData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException;
 }

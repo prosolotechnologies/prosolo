@@ -2394,6 +2394,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 		TargetCompetenceData targetCompetenceData;
 
+		List<Long> competenceIds = new ArrayList<>();
+
+		for(TargetCompetenceData targetCompetenceData1 : targetCompetenceList){
+			competenceIds.add(targetCompetenceData1.getCompetenceId());
+		}
+		List<CompetenceData1> competenceData1List = new ArrayList<>();
+
+		/*for(CompetenceData1 competenceData1 : competenceData1List){
+
+		}*/
+
 		for (TargetCompetenceData targetCompetence1 : targetCompetenceList) {
 			if (targetCompetence1 != null) {
 				CompetenceData1 competenceData1 = getCompetenceData(targetCompetence1.getCompetenceId());

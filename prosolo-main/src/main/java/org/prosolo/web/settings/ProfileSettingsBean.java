@@ -120,50 +120,17 @@ public class ProfileSettingsBean implements Serializable {
 	 * ACTIONS
 	 */
 	public void saveAccountChanges() {
-		UserData user = userManager.getUserData(loggedUser.getUserId());
-
-		boolean changed = false;
-
-		if (!accountData.getFirstName().equals(user.getName())) {
-			user.setName(accountData.getFirstName());
-			changed = true;
-		}
-
-		if (!accountData.getLastName().equals(user.getLastName())) {
-			user.setLastName(accountData.getLastName());
-			changed = true;
-		}
-
-		if (!accountData.getPosition().equals(user.getPosition())) {
-			user.setPosition(accountData.getPosition());
-			changed = true;
-		}
-
-		if ((accountData.getLocationName() != null && user.getLocationName() == null)
-				|| (!accountData.getLocationName().equals(user.getLocationName()))) {
-			try {
-				user.setLocationName(accountData.getLocationName());
-				user.setLatitude(Double.valueOf(accountData.getLatitude()));
-				user.setLongitude(Double.valueOf(accountData.getLongitude()));
-				changed = true;
-			} catch (NumberFormatException nfe) {
-				logger.debug("Can not convert to double. " + nfe);
-			}
-		}
-
-		if (changed) {
-			UserData userData = null;
-			try {
-				userData = userManager.saveAccountData(user, loggedUser.getUserContext());
-			} catch (EventException e) {
-				e.printStackTrace();
-			}
+		UserData userData = null;
+		try {
+			userData = userManager.saveAccountChanges(accountData, loggedUser.getUserId(), loggedUser.getUserContext());
 
 			loggedUser.reinitializeSessionData(userData, loggedUser.getOrganizationId());
 
 			init();
+			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
+		} catch (EventException e) {
+			e.printStackTrace();
 		}
-		PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {

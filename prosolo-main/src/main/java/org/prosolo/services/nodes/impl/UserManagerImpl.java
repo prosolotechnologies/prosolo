@@ -1190,7 +1190,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		return accountData;
 	}
 
-	@Override
+	/*@Override
 	public UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException {
 		Result<UserData> result = self.saveAccountDataAndGetEvents(userData, contextData);
 
@@ -1208,6 +1208,51 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(), userData.getEmail(), true,
 				false, userData.getPassword(), userData.getPosition(),
+				userData.getRoleIds(), new ArrayList<>());
+
+		merge(user);
+
+		Result<UserData> result = new Result<>();
+
+		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+				null, null, null, null));
+
+		result.setResult(userData);
+
+		return result;
+	}*/
+
+	@Override
+	public UserData saveAccountChanges(AccountData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException {
+		Result<UserData> result = self.saveAccountChangesAndGetEvents(accountData, userId, contextData);
+
+		for (EventData ev : result.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> saveAccountChangesAndGetEvents(AccountData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException {
+
+		UserData userData = getUserData(userId);
+
+		userData.setName(accountData.getFirstName());
+		userData.setLastName(accountData.getLastName());
+		userData.setPosition(accountData.getPosition());
+		userData.setLocationName(accountData.getLocationName());
+		if ((accountData.getLocationName() != null && userData.getLocationName() == null)
+				|| (!accountData.getLocationName().equals(userData.getLocationName()))) {
+			userData.setLatitude(Double.valueOf(accountData.getLatitude()));
+			userData.setLongitude(Double.valueOf(accountData.getLongitude()));
+		}
+
+		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(),
+				userData.getEmail(), true, false, userData.getPassword(), userData.getPosition(),
 				userData.getRoleIds(), new ArrayList<>());
 
 		merge(user);

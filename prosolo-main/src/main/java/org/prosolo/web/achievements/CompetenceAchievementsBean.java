@@ -3,6 +3,7 @@ package org.prosolo.web.achievements;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +44,8 @@ public class CompetenceAchievementsBean implements Serializable {
 			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					loggedUser.getUserId(),
 					false);
+			//TargetCompetenceData tg = targetCompetence1List.get(0);
+			logger.info("Cred id:-------------" + targetCompetence1List.get(0).getId());
 			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (DbConnectionException e) {
 			logger.error("Error while loading target competencies with progress == 100 Error:\n" + e);
