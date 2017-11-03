@@ -194,31 +194,19 @@ public interface Activity1Manager extends AbstractManager {
 	Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId) throws DbConnectionException;
 	
 	/**
-	 * Returns results data for all students that posted result for activity with id {@code actId} 
-	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
-	 * activity.
+	 * Returns results data for all students that posted result for activity with id {@code actId}
 	 * 
-	 * @param credId - if greater than zero, it will be checked if competence given by {@code compId} 
-	 * is part of a credential with {@code credId} id and if not, {@link ResourceNotFoundException} will be thrown
 	 * @param compId
 	 * @param actId
-	 * @param targetActivityId
 	 * @param userToExclude
-	 * @param isInstructor
-	 * @param isManager
-	 * @param returnAssessmentData
-	 * @param loadUsersCommentsOnOtherResults
 	 * @param paginate
 	 * @param page
 	 * @param limit
-	 * @param filter
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, long targetActivityId,
-			long userToExclude, boolean isInstructor, boolean isManager, boolean returnAssessmentData, 
-			boolean loadUsersCommentsOnOtherResults, boolean paginate, int page, int limit, 
-			StudentAssessedFilter filter) throws DbConnectionException, ResourceNotFoundException;
+	List<ActivityResultData> getStudentsResults(long compId, long actId, long userToExclude, boolean paginate,
+												int page, int limit) throws DbConnectionException, ResourceNotFoundException;
 
 	/**
 	 * NOTE: This method assumes that activity given by {@code actId} is part of the credential given by {@code credId}

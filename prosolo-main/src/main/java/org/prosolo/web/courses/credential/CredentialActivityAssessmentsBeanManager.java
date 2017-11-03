@@ -9,7 +9,10 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.assessments.*;
@@ -42,7 +45,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
@@ -76,7 +78,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
 				 * instructor comments
 				 */
-				access = compManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
+				access = credManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
 						ResourceAccessRequirements.of(AccessMode.MANAGER)
 								.addPrivilege(UserGroupPrivilege.Edit)
 								.addPrivilege(UserGroupPrivilege.Instruct));
@@ -154,7 +156,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
 				 * instructor comments
 				 */
-				access = compManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
+				access = credManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
 						ResourceAccessRequirements.of(AccessMode.MANAGER)
 								.addPrivilege(UserGroupPrivilege.Edit)
 								.addPrivilege(UserGroupPrivilege.Instruct));

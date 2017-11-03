@@ -5,14 +5,12 @@ import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -28,10 +26,12 @@ import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
+import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
-import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.Activity1Manager")
 public class Activity1ManagerImpl extends AbstractManagerImpl implements Activity1Manager {
@@ -1217,8 +1216,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					return null;
 				}
 				//pass 0 for credentialId because we don't need to check again if competence belongs to credential
-				activityWithDetails.setStudentResults(getStudentsResults(0, compId, actId, 0, userId, 
-						false, false, false, false, false, 0, 0, null));
+				activityWithDetails.setStudentResults(getStudentsResults(compId, actId, userId,false, 0, 0));
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
@@ -1242,50 +1240,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId,
-			long targetActivityId, long userToExclude, boolean isInstructor, boolean isManager,
-			boolean returnAssessmentData, boolean loadUsersCommentsOnOtherResults, boolean paginate, 
-			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException, ResourceNotFoundException {
+	public List<ActivityResultData> getStudentsResults(long compId, long actId, long userToExclude,
+													   boolean paginate, int page, int limit) throws DbConnectionException, ResourceNotFoundException {
 		try {
-			if (credId > 0) {
-				checkIfCompetenceIsPartOfACredential(credId, compId);
-			}
-
-			//if credId is not passed, it cannot be determined if student is assessed
-			if (filter == StudentAssessedFilter.Assessed && credId == 0) {
-				return new ArrayList<>();
-			}
-
 			//TODO hack - when retrieving comments for students, retrieve only comments from users learning same credentials
-			List<Long> deliveries = null;
-			if (!isManager) {
-				//userToExclude is user for which we are returning results - another hack
-				deliveries = credManager.getIdsOfDeliveriesUserIsLearningContainingCompetence(userToExclude, compId);
-				if (deliveries.isEmpty()) {
-					return new ArrayList<>();
-				}
+			//userToExclude is user for which we are returning results - another hack
+			List<Long> deliveries = credManager.getIdsOfDeliveriesUserIsLearningContainingCompetence(userToExclude, compId);
+			if (deliveries.isEmpty()) {
+				return new ArrayList<>();
 			}
 
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
-			   "SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
+		   		"SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
-		   	   "COUNT(distinct com.id) ");
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if (returnAssessmentData && credId > 0) {
-				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades ");
-			}
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if ((returnAssessmentData || filter != null) && credId > 0) {
-				query.append(", ad.points ");
-			}
-			
-			query.append("FROM target_activity1 targetAct " +
-				   	     "INNER JOIN target_competence1 targetComp " +
-				   	   		"ON (targetAct.target_competence = targetComp.id " +
-				   			"AND targetComp.competence = :compId ");
+		   	   "COUNT(distinct com.id) " +
+			   "FROM target_activity1 targetAct " +
+					 "INNER JOIN target_competence1 targetComp " +
+						"ON (targetAct.target_competence = targetComp.id " +
+						"AND targetComp.competence = :compId ");
 			
 			if (userToExclude > 0) {
 				query.append("AND targetComp.user != :userId) ");
@@ -1295,75 +1268,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			query.append("INNER JOIN activity1 act " +
 				   		 "ON (targetAct.activity = act.id " +
-						 "AND act.id = :actId) ");
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if ((returnAssessmentData || filter != null) && credId > 0) {
-				query.append("LEFT JOIN (activity_assessment ad " +
-							 "INNER JOIN competence_assessment compAssessment " +
-								"ON compAssessment.id = ad.competence_assessment " +
-						     "INNER JOIN credential_assessment credAssessment " +
-								"ON credAssessment.id = compAssessment.credential_assessment " +
-						     "INNER JOIN target_credential1 tCred " +
-								"ON tCred.id = credAssessment.target_credential " +
-							    "AND tCred.credential = :credId) " +
-							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
-			}
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if (returnAssessmentData && credId > 0) {
-				query.append("LEFT JOIN activity_discussion_participant p " +
-						 		"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
-						 	 "LEFT JOIN activity_discussion_message msg " +
-						 		"ON ad.id = msg.discussion ");
-			}
-		   	   
-			query.append("INNER JOIN user u " +
+						 "AND act.id = :actId) " +
+						 "INNER JOIN user u " +
 				   			"ON (targetComp.user = u.id) " +
 				   		 "LEFT JOIN comment1 com " +
 				   			"ON (targetAct.id = com.commented_resource_id " +
 				   			"AND com.resource_type = :resType " +
-				   			"AND com.parent_comment is NULL) ");
-
-			if (isManager && credId > 0) {
-				//TODO hack - if it is manager and credential id is greater than 0, load only responses from students learning that credential
-				query.append("INNER JOIN target_credential1 cred " +
-						"ON cred.user = targetComp.user AND cred.credential = :credId ");
-			}
-
-			query.append("WHERE targetAct.result is not NULL ");
-
-			if (!isManager) {
-				query.append("AND EXISTS " +
-						"(SELECT cred.id from target_credential1 cred WHERE cred.user = targetComp.user AND cred.credential IN (:credentials)) ");
-			}
-			
-			if (filter != null && credId > 0) {
-				if (filter == StudentAssessedFilter.Assessed) {
-					query.append("AND ad.points IS NOT NULL AND ad.points >= 0 ");
-				} else {
-					query.append("AND ad.points IS NULL OR ad.points < 0 ");
-				}
-			}
-			
-			if(targetActivityId > 0) {
-				query.append("AND targetAct.id = :tActId ");
-			}
-				   		
-			query.append("GROUP BY targetAct.id, act.result_type, targetAct.result, targetAct.result_post_date, " +
-			   "u.id, u.name, u.lastname, u.avatar_url ");
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if (returnAssessmentData && credId > 0) {
-				query.append(", ad.id, p.is_read, act.max_points, targetComp.id ");
-			}
-
-			//if credId is not passed, we can't know for which credential assessment to return data
-			if ((returnAssessmentData || filter != null) && credId > 0) {
-				query.append(", ad.points ");
-			}
-			
-			query.append("ORDER BY targetAct.result_post_date ");
+				   			"AND com.parent_comment is NULL) " +
+						 "WHERE targetAct.result is not NULL " +
+						 "AND EXISTS " +
+							"(SELECT cred.id from target_credential1 cred WHERE cred.user = targetComp.user AND cred.credential IN (:credentials)) " +
+						 "GROUP BY targetAct.id, act.result_type, targetAct.result, targetAct.result_post_date, " +
+						   "u.id, u.name, u.lastname, u.avatar_url " +
+						   "ORDER BY targetAct.result_post_date ");
 			
 			if (paginate) {
 				query.append("LIMIT " + limit + " ");
@@ -1374,23 +1291,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						.createSQLQuery(query.toString())
 						.setLong("compId", compId)
 						.setLong("actId", actId)
-						.setString("resType", CommentedResourceType.ActivityResult.name());
+						.setString("resType", CommentedResourceType.ActivityResult.name())
+						.setParameterList("credentials", deliveries);
 			
 			if (userToExclude > 0) {
 				q.setLong("userId", userToExclude);
-			}
-			if (!isManager) {
-				q.setParameterList("credentials", deliveries);
-			} else if (credId > 0) {
-				q.setLong("credId", credId);
-			}
-			if ((returnAssessmentData || filter != null) && credId > 0) {
-				q.setBoolean("boolTrue", true);
-
-				q.setLong("credId", credId);
-			}
-			if (targetActivityId > 0) {
-				q.setLong("tActId", targetActivityId);
 			}
 	
 			@SuppressWarnings("unchecked")
@@ -1416,61 +1321,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					int commentsNo = ((BigInteger) row[8]).intValue();
 					
 					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
-							date, user, commentsNo, isInstructor, isManager);
-					
-					if(loadUsersCommentsOnOtherResults) {
-						ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId, actId));
-					}
-					results.add(ard); 
-					
-					if (returnAssessmentData && credId > 0) {
-						BigInteger assessmentId = (BigInteger) row[9];
-						
-						ActivityAssessmentData ad = ard.getAssessment();
-						ad.setTargetActivityId(tActId);
-						//if result is posted activity is completed by student
-						ad.setCompleted(true);
-						ad.setUserId(userId);
-						ad.setActivityId(actId);
-						ad.setCompetenceId(compId);
-						ad.setCredentialId(credId);
-						if(assessmentId != null) {
-							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
-							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
-							ad.setAllRead(((Character) row[11]).charValue() == 'T');
-							GradeData gd = new GradeData();
-							gd.setMinGrade(0);
-							gd.setMaxGrade((Integer) row[12]);
-							gd.setValue((Integer) row[17]);
-							if(gd.getValue() < 0) {
-								gd.setValue(0);
-							} else {
-								gd.setAssessed(true);
-							}
-							ad.setGrade(gd);
-							ad.setTargetCompId(((BigInteger) row[13]).longValue());
-						} else {
-							// there is no activity assessment created yet
-							GradeData gd = new GradeData();
-							gd.setMinGrade(0);
-							gd.setMaxGrade((Integer) row[12]);
-							gd.setValue(0);
-							ad.setGrade(gd);
-							ad.setTargetCompId(((BigInteger) row[13]).longValue());
-						}
-						ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
-								GradingMode.valueOf((String) row[14]), ((BigInteger) row[15]).longValue(), ((Character) row[16]).charValue() == 'T'));
+							date, user, commentsNo, false, false);
 
-						//load additional assessment data
-						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,
-								compId, 0, ard.getUser().getId());
-						if (abd != null) {
-							ard.getAssessment().setCompAssessmentId(abd.getCompetenceAssessmentId());
-							ard.getAssessment().setCredAssessmentId(abd.getCredentialAssessmentId());
-							ard.getAssessment().setAssessorId(abd.getAssessorId());
-							ard.getAssessment().setDefault(abd.isDefault());
-						}
-					}
+					results.add(ard);
 				}
 			}
 			return results;
@@ -1479,7 +1332,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving results for students");
+			throw new DbConnectionException("Error while retrieving student responses");
 		}
 	}
 

@@ -147,7 +147,7 @@
 							oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
 							<span class="icon"></span>
 							#{cc.attrs.resultData.resultComments.numberOfComments} #{cc.attrs.resultData.resultComments.numberOfComments eq 1 ? 'comment' : 'comments'}
-		           		</p:commandLink>
+						</p:commandLink>
 						<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
 							<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
 								<a class="commentsNumber" role="button" data-toggle="collapse"
@@ -164,17 +164,17 @@
 					</h:panelGroup>
 				</div>
 				<post:comments
-		      		id="comments"
-		      		comments="#{cc.attrs.resultData.resultComments}"
-		      		uniqueId="#{cc.attrs.resultData.targetActivityId}"
-		      		commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-		      		showSortOptions="false"
-		      		isCollapsible="true"
-		      		growlToUpdate="#{cc.attrs.growlToUpdate}"
-		      		learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
-		      		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
-		      		toUpdateOnCommentSave=""
-	    		/>
+					id="comments"
+					comments="#{cc.attrs.resultData.resultComments}"
+					uniqueId="#{cc.attrs.resultData.targetActivityId}"
+					commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+					showSortOptions="false"
+					isCollapsible="true"
+					growlToUpdate="#{cc.attrs.growlToUpdate}"
+					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
+					toUpdateOnCommentSave=""
+				/>
 			</div>
 		</c:if>
 		
@@ -319,49 +319,53 @@
 				</c:if>
 				
 				<div class="activityResultFooter">
-					<h:panelGroup id="panelToggleComments">
-						<p:commandLink
-							rendered="#{!cc.attrs.resultData.resultComments.initialized}"
-							styleClass="commentsNumber" pt:role="button"
-							pt:data-toggle="collapse"
-							href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-							pt:aria-expanded="false"
-							pt:aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-							action="#{activityResultBean.initializeResultCommentsIfNotInitialized(cc.attrs.resultData)}"
-							update="comments panelToggleComments"
-							oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
-							<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} comments
-						</p:commandLink>
-						<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
-							<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
-								<a class="commentsNumber" role="button" data-toggle="collapse"
-									href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-									aria-expanded="false"
-									aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
-									<span class="icon"></span>
-									#{cc.attrs.resultData.resultComments.numberOfComments} comments
-								</a>
-							</h:panelGroup>
+					<c:if test="#{cc.attrs.resultType ne 'NONE'}">
+						<h:panelGroup id="panelToggleComments">
+							<p:commandLink
+								rendered="#{!cc.attrs.resultData.resultComments.initialized}"
+								styleClass="commentsNumber" pt:role="button"
+								pt:data-toggle="collapse"
+								href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+								pt:aria-expanded="false"
+								pt:aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+								action="#{activityResultBean.initializeResultCommentsIfNotInitialized(cc.attrs.resultData)}"
+								update="comments panelToggleComments"
+								oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
+								<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} comments
+							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
+								<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
+									<a class="commentsNumber" role="button" data-toggle="collapse"
+										href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+										aria-expanded="false"
+										aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
+										<span class="icon"></span>
+										#{cc.attrs.resultData.resultComments.numberOfComments} comments
+									</a>
+								</h:panelGroup>
+							</ui:fragment>
+						</h:panelGroup>
+						<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+							<a href="javascript:void(0)" class="edit editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}"
+								onclick="
+									$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');
+									$(this).addClass('hidden');
+									return false;"><span class="icon"></span>Edit</a>
 						</ui:fragment>
-					</h:panelGroup>
-					<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
-						<a href="javascript:void(0)" class="edit editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}"
-							onclick="
-								$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');
-							    $(this).addClass('hidden');
-						    	return false;"><span class="icon"></span>Edit</a>
-					</ui:fragment>
+					</c:if>
 				</div>
-				
-				<post:comments id="comments"
-					comments="#{cc.attrs.resultData.resultComments}"
-					uniqueId="#{cc.attrs.resultData.targetActivityId}"
-					commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-					showSortOptions="false" isCollapsible="true"
-					growlToUpdate="#{cc.attrs.growlToUpdate}"
-					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
-					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
-					toUpdateOnCommentSave="" />
+
+				<c:if test="#{cc.attrs.resultType ne 'NONE'}">
+					<post:comments id="comments"
+						comments="#{cc.attrs.resultData.resultComments}"
+						uniqueId="#{cc.attrs.resultData.targetActivityId}"
+						commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+						showSortOptions="false" isCollapsible="true"
+						growlToUpdate="#{cc.attrs.growlToUpdate}"
+						learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+						toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
+						toUpdateOnCommentSave="" />
+				</c:if>
 			</article>
 		</c:if>
 	</composite:implementation>
