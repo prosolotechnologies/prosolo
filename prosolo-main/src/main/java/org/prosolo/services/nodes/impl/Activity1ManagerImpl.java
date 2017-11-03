@@ -1681,7 +1681,31 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor,
+	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
+			throws DbConnectionException, ResourceNotFoundException {
+		try {
+			//check if activity is part of a crecential
+			checkIfActivityIsPartOfACredential(credId, actId);
+
+			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
+
+			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, 0L, 0L);
+
+			summary.getStudentResults().addAll(getStudentsActivityAssessmentsData(credId, actId, targetActivityId, isInstructor,
+					false, 0, 0));
+
+			return summary;
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading activity assessment");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, boolean isInstructor,
 																												   boolean paginate, int page, int limit)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {
@@ -1689,18 +1713,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			checkIfActivityIsPartOfACredential(credId, actId);
 
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
-			if (activity == null) {
-				return null;
-			}
+
 			long numberOfStudentsCompletedActivity = countStudentsLearningCredentialThatCompletedActivity(credId, actId);
 			long numberOfStudentsAssessed = 0;
 			List<ActivityResultData> results = new ArrayList<>();
 			if (numberOfStudentsCompletedActivity > 0) {
-				results.addAll(getStudentsActivityAssessmentsData(credId, actId, targetActivityId, isInstructor,
+				results.addAll(getStudentsActivityAssessmentsData(credId, actId, 0, isInstructor,
 						paginate, page, limit));
 				numberOfStudentsAssessed = assessmentManager.getNumberOfAssessedStudentsForActivity(credId, actId);
-				//if this is an activity for which response should be submitted, get the number of students submitted a response
-
 			}
 			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, numberOfStudentsCompletedActivity, numberOfStudentsAssessed);
 			summary.setStudentResults(results);
@@ -1757,12 +1777,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			ActivityResultData activityResult = activityFactory.getActivityResultData(
 					targetActivity.getId(), resType, targetActivity.getResult(), 
-					targetActivity.getResultPostDate(), user, 0, false, isManager);
+					targetActivity.getResultPostDate(), user, 0, instructor, isManager);
 			
 			if (loadComments) {
-				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
-						targetActivityId, instructor, false);
-				
+				CommentsData commentsData = activityResult.getResultComments();
+
 				List<CommentData> comments = commentManager.getComments(
 						commentsData.getResourceType(), 
 						commentsData.getResourceId(), false, 0, 
@@ -1773,8 +1792,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				Collections.reverse(comments);
 				
 				commentsData.setComments(comments);
-				
-				activityResult.setResultComments(commentsData);
 			}
 			
 			return activityResult;

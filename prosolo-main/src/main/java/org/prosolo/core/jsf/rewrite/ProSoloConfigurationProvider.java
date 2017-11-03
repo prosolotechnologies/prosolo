@@ -128,6 +128,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/instructors").to("/manage/credential-instructors.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments").to("/manage/credential-delivery-assessments.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments/activities/{activityId}").to("/manage/credential-delivery-assessments-activity.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/assessments/activities/{actId}/{targetActId}").to("/manage/credential-delivery-activity-assessment.xhtml"))
 				/* instructor viewing single assessment where he is instructor (manage-assessment-preview.html) */
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assessmentId}").to("/manage/credential-assessment.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))
@@ -160,12 +161,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/competences/{compId}/{id}/edit").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/newActivity").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}").to("/manage/activity.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses").to("/manage/activity-responses.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/{actId}").to("/manage/activity.xhtml"))
-				.addRule(Join.path("/manage/competences/{compId}/{actId}/responses").to("/manage/activity-responses.xhtml"))
-				.addRule(Join.path("/manage/competences/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
-				
+
 				//manage library
 				.addRule(Join.path("/manage/library").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))

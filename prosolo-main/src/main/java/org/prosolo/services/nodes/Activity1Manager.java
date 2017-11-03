@@ -173,8 +173,11 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 * @throws ResourceNotFoundException
 	 */
-	ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor,
+	ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, boolean isInstructor,
 																							boolean paginate, int page, int limit)
+			throws DbConnectionException, ResourceNotFoundException;
+
+	ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
 			throws DbConnectionException, ResourceNotFoundException;
 
 	/**

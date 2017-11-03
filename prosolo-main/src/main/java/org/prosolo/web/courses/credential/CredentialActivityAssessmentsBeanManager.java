@@ -86,7 +86,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				} else {
 					assessmentsSummary = activityManager
 							.getActivityAssessmentsDataForDefaultCredentialAssessment(
-									decodedCredId, decodedActId, 0, access.isCanInstruct(), paginate,
+									decodedCredId, decodedActId, access.isCanInstruct(), paginate,
 									paginationData.getPage() - 1, paginationData.getLimit());
 
 					if (paginate) {
@@ -163,9 +163,8 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					PageUtil.accessDenied();
 				} else {
 					assessmentsSummary = activityManager
-							.getActivityAssessmentsDataForDefaultCredentialAssessment(
-									decodedCredId, decodedActId, decodedTargetActId,
-									access.isCanInstruct(), false, 0,0);
+							.getActivityAssessmentDataForDefaultCredentialAssessment(
+									decodedCredId, decodedActId, decodedTargetActId, access.isCanInstruct());
 					if (assessmentsSummary.getStudentResults() != null && !assessmentsSummary.getStudentResults().isEmpty()) {
 						currentResult = assessmentsSummary.getStudentResults().get(0);
 						//loadAdditionalData(currentResult);
@@ -194,7 +193,11 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 			PageUtil.notFound();
 		}
 	}
-	
+
+	public ActivityResultData getIndividualActivityResponse() {
+		return assessmentsSummary.getStudentResults().get(0);
+	}
+
 	public long getTargetActivityId() {
 		return decodedTargetActId;
 	}

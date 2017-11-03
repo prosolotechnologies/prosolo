@@ -309,14 +309,13 @@
 																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
 																<f:param name="targetActId" value="#{util:encodeId(activityAssessment.targetActivityId)}" />
 															</h:link>
-															<h:link outcome="activity-responses"
+															<h:link outcome="/manage/credential-delivery-assessments-activity"
 																	styleClass="viewResult"
 																	rendered="#{cc.attrs.role eq 'MANAGER'}"
 																	pt:data-toggle="tooltip" pt:title="View Response">
 																View Response
-																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																<f:param name="activityId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
 																<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
 															</h:link>
 														</ui:fragment>

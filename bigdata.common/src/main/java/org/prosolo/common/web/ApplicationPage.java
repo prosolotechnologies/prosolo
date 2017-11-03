@@ -76,8 +76,7 @@ public enum ApplicationPage {
 	USER__EDIT_COMPETENCE("/create-competence.xhtml"),
 	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
 	PEOPLE("/people.xhtml"),
-	RESULTS("/activity-results.xhtml"),
-	MANAGER_RESULTS("/manage/activity-results.xhtml"),
+	RESULTS("/activity-responses.xhtml"),
 	USER_COMPETENCE_LIBRARY("/competenceLibrary.xhtml"),
 	MANAGER_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
 	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
@@ -93,6 +92,7 @@ public enum ApplicationPage {
 	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
 	MANAGER_RUBRIC_CRITERIA("/manage/rubric-criteria.xhtml"),
 	MANAGER_CREDENTIAL_ACTIVITY_ASSESSMENTS("/manage/credential-delivery-assessments-activity.xhtml"),
+	MANAGER_CREDENTIAL_ACTIVITY_USER_ASSESSMENT("/manage/credential-delivery-activity-assessment.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

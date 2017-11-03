@@ -46,7 +46,7 @@ public abstract class NotificationEventProcessor {
 		long targetId = getTargetId();
 		ResourceType targetType = getTargetType();
 		for(NotificationReceiverData receiver : receivers) {
-			if(isConditionMet(sender, receiver.getReceiverId())) {
+			if(isConditionMet(sender, receiver.getReceiverId()) && receiver.getNotificationLink() != null) {
 //				String section = getUrlSection(receiver);
 				Notification1 notification = notificationManager.createNotification(
 						sender, 

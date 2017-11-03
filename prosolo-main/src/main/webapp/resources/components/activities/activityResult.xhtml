@@ -27,6 +27,7 @@
 		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
 		<composite:attribute name="studentCanEditResponse" default="false" />
 		<composite:attribute name="gradeLink" default=""/>
+		<composite:attribute name="credId" default="0" />
 		<composite:attribute name="role" default="USER" />
 	</composite:interface>
 	
@@ -40,10 +41,19 @@
 							avatar="#{cc.attrs.resultData.user.avatarUrl}"
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
-							<h:link outcome="/profile">
-								#{cc.attrs.resultData.user.fullName}
-								<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
-							</h:link>
+							<c:if test="#{cc.attrs.role eq 'USER'}">
+								<h:link outcome="/profile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+								</h:link>
+							</c:if>
+							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
+								<h:link outcome="/manage/studentProfile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="cred" value="#{util:encodeId(cc.attrs.credId)}" />
+								</h:link>
+							</c:if>
 						</h3>
 					</div>
 		           <div class="timestamp">
@@ -176,10 +186,19 @@
 							avatar="#{cc.attrs.resultData.user.avatarUrl}"
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
-							<h:link outcome="/profile">
-	                     		#{cc.attrs.resultData.user.fullName}
-	                     		<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
-							</h:link>
+							<c:if test="#{cc.attrs.role eq 'USER'}">
+								<h:link outcome="/profile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+								</h:link>
+							</c:if>
+							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
+								<h:link outcome="/manage/studentProfile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="cred" value="#{util:encodeId(cc.attrs.credId)}" />
+								</h:link>
+							</c:if>
 						</h3>
 					</div>
 					<div class="timestamp">

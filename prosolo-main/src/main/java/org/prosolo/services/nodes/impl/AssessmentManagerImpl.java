@@ -1688,7 +1688,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.uniqueResult();
 
 			if (res != null) {
-				return AssessmentBasicData.of((long) res[1], (long) res[2], (boolean) res[0]);
+				Long assessorId = (Long) res[2];
+				return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (boolean) res[0]);
 			}
 
 			return AssessmentBasicData.empty();
