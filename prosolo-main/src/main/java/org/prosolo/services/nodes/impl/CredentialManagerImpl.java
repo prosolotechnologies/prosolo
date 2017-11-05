@@ -1960,7 +1960,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
-
 			String query = 
 				"SELECT user " +
 				"FROM TargetCredential1 tCred " +
@@ -3098,6 +3097,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserEnrolled(long credId, long userId) {
+		String query =
+				"SELECT targetCredential.id " +
+				"FROM TargetCredential1 targetCredential " +
+				"WHERE targetCredential.user.id = :userId " +
+					"AND targetCredential.credential.id = :credId";
+
+		Long result = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setLong("credId", credId)
+				.uniqueResult();
+
+		return result != null;
+	}
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 															int page, LearningResourceSortOption sortOption) {
 

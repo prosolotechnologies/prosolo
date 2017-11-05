@@ -15,10 +15,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
@@ -61,6 +58,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
     @Inject private EventFactory eventFactory;
+    @Inject private UserGroupManager userGroupManager;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -242,7 +240,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
-            throws DbConnectionException, StaleDataException {
+            throws DbConnectionException, StaleDataException, IllegalDataStateException {
         return activityManager.updateActivityData(data);
     }
 
@@ -463,6 +461,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 competence = new Competence1();
 
+            competence.setOrganization(comp.getOrganization());
             competence.setTitle("Copy of " + comp.getTitle());
             competence.setDescription(comp.getDescription());
             competence.setDateCreated(new Date());
@@ -491,6 +490,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                 competence.getActivities().add(actRes.getResult());
                 res.addEvents(actRes.getEvents());
             }
+
+            //add Edit privilege to the competence creator
+            res.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
+                    context.getActorId(), competence.getId(),
+                    UserGroupPrivilege.Edit,true, context).getEvents());
             return res;
         } catch(Exception e) {
             logger.error(e);

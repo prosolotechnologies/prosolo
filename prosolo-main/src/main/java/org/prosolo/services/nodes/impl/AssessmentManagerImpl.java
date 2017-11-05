@@ -8,11 +8,12 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.*;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.rubric.CriterionAssessment;
+import org.prosolo.common.domainmodel.rubric.Criterion;
+import org.prosolo.common.domainmodel.rubric.Level;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -26,12 +27,11 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.AssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
+import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -277,12 +277,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		Result<Integer> result = new Result<>();
 		CompetenceAssessment compAssessment = null;
 		int compPoints = 0;
+		ActivityExternalAutogradeVisitor visitor = new ActivityExternalAutogradeVisitor();
 		for (TargetActivity1 ta : tComp.getTargetActivities()) {
 			/*
-			 * if common score is set or activity is completed and autograde is true
+			 * if common score is set or activity is completed and automatic grading mode by activity completion is set
 			 * we create activity assessment with appropriate grade
 			 */
-			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
+			//check if autograding is set based on activity completion or external tool is responsible for grading
+			ta.getActivity().accept(visitor);
+			boolean externalAutograde = visitor.isAutogradeByExternalGrade();
+			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde)) {
 				//create competence assessment if not already created
 				if (compAssessment == null) {
 					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault);
@@ -292,11 +296,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				if (assessorId > 0) {
 					participantIds.add(assessorId);
 				}
-				int grade = ta.isCompleted() && ta.getActivity().isAutograde()
+				int grade = ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde
 						? ta.getActivity().getMaxPoints()
 						: ta.getCommonScore();
+				GradeData gd = new GradeData();
+				gd.setValue(grade);
 				result.addEvents(createActivityAssessmentAndGetEvents(ta.getId(), compAssessment.getId(), credAssessment.getId(),
-						participantIds, 0, isDefault, grade, false, persistence.currentManager(), context).getEvents());
+						participantIds, 0, isDefault, gd, false, persistence.currentManager(), context).getEvents());
 				compPoints += grade;
 			}
 		}
@@ -459,7 +465,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	//not transactional and should not be called from transactional methods
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, Integer grade,
+		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, GradeData grade,
 		    boolean recalculatePoints, UserContextData context)
 					throws IllegalDataStateException, DbConnectionException, EventException {
 		return createActivityDiscussion(targetActivityId, competenceAssessmentId, credAssessmentId, participantIds,
@@ -469,7 +475,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	//not transactional and should not be called from transactional methods
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, Integer grade,
+		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, GradeData grade,
 		    boolean recalculatePoints, Session session, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException {
 		try {
@@ -488,11 +494,93 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	/**
+	 * Returns negative value if grade should not be updated and positive value (which is a new grade)
+	 * if grade should be updated
+	 *
+	 * @param grade
+	 * @return
+	 */
+	private int calculateGrade(GradeData grade) {
+		if (grade.getGradingMode() == null) {
+			return grade.getValue();
+		}
+		switch (grade.getGradingMode()) {
+			case MANUAL_SIMPLE:
+				return grade.getValue();
+			case MANUAL_RUBRIC:
+				return grade.getRubricCriteria().stream()
+						.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
+			default:
+				return -1;
+		}
+	}
+
+	private void gradeByRubric(GradeData grade, long activityAssessmentId, Session session)
+			throws DbConnectionException {
+		try {
+			/*
+			check if criteria assessments should be created or updated
+			 */
+			boolean criteriaAssessmentsExist = grade.isAssessed();
+			if (criteriaAssessmentsExist) {
+				updateCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
+			} else {
+				createCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving the grade");
+		}
+	}
+
+	private void createCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
+		try {
+			for (ActivityRubricCriterionData criterion : rubricCriteria) {
+				CriterionAssessment ca = new CriterionAssessment();
+				ca.setAssessment((ActivityAssessment) session
+						.load(ActivityAssessment.class, activityAssessmentId));
+				ca.setCriterion((Criterion) session
+						.load(Criterion.class, criterion.getId()));
+				ca.setLevel((Level) session
+						.load(Level.class, criterion.getLevelId()));
+				ca.setComment(criterion.getComment());
+				saveEntity(ca, session);
+			}
+		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
+			//criteria assessments exist so they need to be updated instead
+			logger.info("DB Constraint error caught: criteria assessments already exist, so they can't be created");
+			updateCriteriaAssessments(rubricCriteria, activityAssessmentId, session);
+		}
+	}
+
+	private void updateCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
+		for (ActivityRubricCriterionData crit : rubricCriteria) {
+			CriterionAssessment ca = getCriterionAssessment(crit.getId(), activityAssessmentId, session);
+			ca.setLevel((Level) session
+					.load(Level.class, crit.getLevelId()));
+			ca.setComment(crit.getComment());
+		}
+	}
+
+	private CriterionAssessment getCriterionAssessment(long criterionId, long assessmentId, Session session) {
+		String q =
+				"SELECT ca FROM CriterionAssessment ca " +
+				"WHERE ca.criterion.id = :critId " +
+				"AND ca.assessment.id = :assessmentId";
+
+		return (CriterionAssessment) session
+				.createQuery(q)
+				.setLong("critId", criterionId)
+				.setLong("assessmentId", assessmentId)
+				.uniqueResult();
+	}
+
 	@Override
 	@Transactional(readOnly = false)
 	public Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
 																long credAssessmentId, List<Long> participantIds,
-																long senderId, boolean isDefault, Integer grade,
+																long senderId, boolean isDefault, GradeData grade,
 																boolean recalculatePoints, Session session, UserContextData context)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 		try {
@@ -513,11 +601,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			//activityDiscussion.setParticipants(participants);
 			activityDiscussion.setDefaultAssessment(isDefault);
 
+			int gradeValue = -1;
 			if (grade != null) {
-				activityDiscussion.setPoints(grade);
+				gradeValue = calculateGrade(grade);
+				if (gradeValue >= 0) {
+					activityDiscussion.setPoints(gradeValue);
+				}
 			}
 
 			saveEntity(activityDiscussion, session);
+
+			//if grading by rubric, save rubric criteria assessments
+			if (grade != null && grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
+				gradeByRubric(grade, activityDiscussion.getId(), session);
+			}
 			//List<ActivityDiscussionParticipant> participants = new ArrayList<>();
 			for (Long userId : participantIds) {
 				ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
@@ -534,16 +631,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				activityDiscussion.addParticipant(participant);
 			}
 			session.flush();
-			if (recalculatePoints && grade != null && grade > 0) {
+			if (recalculatePoints && gradeValue > 0) {
 				recalculateScoreForCompetenceAssessment(competenceAssessmentId, session);
 				recalculateScoreForCredentialAssessment(credAssessmentId, session);
 			}
 
-			if (grade != null && grade >= 0) {
+			if (gradeValue >= 0) {
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(activityDiscussion.getId());
 				Map<String, String> params = new HashMap<>();
-				params.put("grade", grade + "");
+				params.put("grade", gradeValue + "");
 				result.addEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context, aa, null, null, params));
 			}
 
@@ -870,43 +967,51 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	//nt
-	public void updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
-												 long activityAssessmentId, Integer points, UserContextData context)
+	public int updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
+												 long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException, EventException {
-		Result<Void> res = self.updateGradeForActivityAssessmentAndGetEvents(credentialAssessmentId, compAssessmentId,
-				activityAssessmentId, points, context);
+		Result<Integer> res = self.updateGradeForActivityAssessmentAndGetEvents(credentialAssessmentId, compAssessmentId,
+				activityAssessmentId, grade, context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
+		return res.getResult();
 	}
 
 	@Override
 	@Transactional(readOnly = false)
-	public Result<Void> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId, long compAssessmentId,
-																	 long activityAssessmentId, Integer points, UserContextData context)
+	public Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId, long compAssessmentId,
+																	 long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
-			Result<Void> result = new Result<>();
-			ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
-					ActivityAssessment.class, activityAssessmentId);
-//			ad.getGrade().setValue(value);
-			ad.setPoints(points);
-			saveEntity(ad);
+			Result<Integer> result = new Result<>();
+			int gradeValue = calculateGrade(grade);
+			if (gradeValue >= 0) {
+				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
+						ActivityAssessment.class, activityAssessmentId);
+//
+				ad.setPoints(gradeValue);
+				//if grading by rubric, save rubric criteria assessments
+				if (grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
+					gradeByRubric(grade, ad.getId(), persistence.currentManager());
+				}
 
-			if (points != null && points > 0) {
+				saveEntity(ad);
+
 				//recalculate competence and credential assessment score
 				recalculateScoreForCompetenceAssessment(compAssessmentId);
 				recalculateScoreForCredentialAssessment(credentialAssessmentId);
-			}
 
-			ActivityAssessment aa = new ActivityAssessment();
-			aa.setId(ad.getId());
-			Map<String, String> params = new HashMap<>();
-			params.put("grade", points + "");
-			result.addEvent(eventFactory.generateEventData(
-					EventType.GRADE_ADDED, context, aa,null, null, params));
+				ActivityAssessment aa = new ActivityAssessment();
+				aa.setId(ad.getId());
+				Map<String, String> params = new HashMap<>();
+				params.put("grade", gradeValue + "");
+				result.addEvent(eventFactory.generateEventData(
+						EventType.GRADE_ADDED, context, aa, null, null, params));
+				result.setResult(gradeValue);
+			}
 			return result;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating grade");
@@ -1089,26 +1194,32 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					as = getActivityAssessment(caId, targetActId, session);
 					if (as != null) {
 						// if activity assessment exists, just update the grade
+						GradeData gd = new GradeData();
+						gd.setValue(score);
 						result.addEvents(updateGradeForActivityAssessmentAndGetEvents(
-								credAssessmentId, caId, as.getId(), score, context).getEvents());
+								credAssessmentId, caId, as.getId(), gd, context).getEvents());
 					} else {
 						// if activity assessment does not exist, create one
 						CredentialAssessment credAssessment = (CredentialAssessment) session.load(
 								CredentialAssessment.class, credAssessmentId);
 
+						GradeData gd = new GradeData();
+						gd.setValue(score);
 						result.addEvents(createActivityAssessmentAndGetEvents(
 								targetActId, caId, credAssessmentId,
 								getParticipantIdsForCredentialAssessment(credAssessment), senderId,
-								credAssessment.isDefaultAssessment(), score, true, session, context).getEvents());
+								credAssessment.isDefaultAssessment(), gd, true, session, context).getEvents());
 					}
 				} else {
 					//if competence assessment does not exist, create competence and activity assessment
 					CredentialAssessment credAssessment = (CredentialAssessment) session.load(
 							CredentialAssessment.class, credAssessmentId);
 
+					GradeData gd = new GradeData();
+					gd.setValue(score);
 					result.addEvents(createCompetenceAndActivityAssessmentAndGetEvents(
 							credAssessmentId, targetCompId, targetActId,
-							getParticipantIdsForCredentialAssessment(credAssessment), senderId, score,
+							getParticipantIdsForCredentialAssessment(credAssessment), senderId, gd,
 							credAssessment.isDefaultAssessment(), context).getEvents());
 				}
 			}
@@ -1342,7 +1453,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
 															  long targetActivityId, List<Long> participantIds,
-															  long senderId, Integer grade, boolean isDefault,
+															  long senderId, GradeData grade, boolean isDefault,
 														      UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, EventException {
 		Result<AssessmentBasicData> res = self.createCompetenceAndActivityAssessmentAndGetEvents(credAssessmentId,
@@ -1357,7 +1468,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
 																						  long targetActivityId, List<Long> participantIds,
-																						  long senderId, Integer grade, boolean isDefault,
+																						  long senderId, GradeData grade, boolean isDefault,
 																						  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
@@ -1372,7 +1483,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					persistence.currentManager(), context);
 			result.addEvents(actAssessmentRes.getEvents());
 			result.setResult(AssessmentBasicData.of(credAssessmentId, compAssessment.getId(),
-					actAssessmentRes.getResult().getId()));
+					actAssessmentRes.getResult().getId(), actAssessmentRes.getResult().getPoints()));
 			return result;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
 			throw new IllegalDataStateException("Competency assessment already exists");

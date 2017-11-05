@@ -21,6 +21,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -50,6 +51,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
+	@Inject private LoggedUserBean loggedUser;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String credId;
 	private long credentialId;
@@ -99,24 +102,28 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		credentialId = idEncoder.decodeId(credId);
 
-		if (decodedOrgId > 0 && decodedUnitId > 0 && credentialId > 0) {
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				if (td != null && unitManager.isCredentialConnectedToUnit(credentialId, decodedUnitId, CredentialType.Delivery)) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					initializeData();
-				} else {
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && credentialId > 0) {
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+					if (td != null && unitManager.isCredentialConnectedToUnit(credentialId, decodedUnitId, CredentialType.Delivery)) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						initializeData();
+					} else {
+						PageUtil.notFound();
+					}
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error trying to retrieve " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " data");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

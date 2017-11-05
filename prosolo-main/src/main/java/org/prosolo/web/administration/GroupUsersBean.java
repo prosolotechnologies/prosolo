@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -44,6 +45,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private GroupUserAddBean groupUserAddBean;
 	@Inject private ImportUsersBean importUsersBean;
 	@Inject private RoleManager roleManager;
+	@Inject private LoggedUserBean loggedUser;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 	
 	private List<UserData> users;
 
@@ -69,28 +72,33 @@ public class GroupUsersBean implements Serializable, Paginable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedGroupId = idEncoder.decodeId(groupId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
-			try {
-				TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
-						decodedOrgId, decodedUnitId, decodedGroupId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					userGroupTitle = td.getUserGroupTitle();
-					if (page > 0) {
-						paginationData.setPage(page);
+
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedGroupId > 0) {
+				try {
+					TitleData td = userGroupManager.getUserGroupUnitAndOrganizationTitle(
+							decodedOrgId, decodedUnitId, decodedGroupId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						userGroupTitle = td.getUserGroupTitle();
+						if (page > 0) {
+							paginationData.setPage(page);
+						}
+						roleId = roleManager.getRoleIdByName(RoleNames.USER);
+						loadUsersFromDB();
+					} else {
+						PageUtil.notFound();
 					}
-					roleId = roleManager.getRoleIdByName(RoleNames.USER);
-					loadUsersFromDB();
-				} else {
-					PageUtil.notFound();
+				} catch (Exception e) {
+					logger.error("Error", e);
+					PageUtil.fireErrorMessage("Error while loading the page");
 				}
-			} catch (Exception e) {
-				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading the page");
+			} else {
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 

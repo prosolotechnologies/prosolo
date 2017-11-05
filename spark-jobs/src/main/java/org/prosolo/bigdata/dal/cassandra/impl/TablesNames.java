@@ -49,4 +49,7 @@ public class TablesNames {
     public static final String TWITTER_HASHTAG_USERS_COUNT = "twitter_hashtaguserscount";
     public static final String TWITTER_DISABLED_HASHTAGS = "twitter_disabledhashtags";
     public static final String STUDENT_ASSIGN_EVENTS ="student_assign_events";
+
+    public static final String JOBS_LOGS="jobs_logs";
+    public static final String JOBS_SUMMARIES ="jobs_summaries" ;
 }

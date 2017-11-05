@@ -21,6 +21,7 @@ import scala.collection.JavaConverters._
   * zoran 15/12/15
   */
 object UserProfileClusteringManager {
+
   val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
   val endDate: Date=new Date
@@ -42,9 +43,11 @@ object UserProfileClusteringManager {
   def runClustering()={
     println("INITIALIZE USER PROFILE CLUSTERING ")
 
-    val credentialsIds=clusteringDAOManager.getAllCredentialsIds
-
-    UserProfileClusteringSparkJob.runSparkJob(credentialsIds,dbName, days,numClusters,numFeatures)
+     val credentialsIds=clusteringDAOManager.getAllActiveDeliveriesIds
+    //val credentialsIds=new java.util.List[Long]()
+val userProfileClusteringSparkJob=new UserProfileClusteringSparkJob(dbName, numFeatures,numClusters)
+    userProfileClusteringSparkJob.runSparkJob(credentialsIds,dbName, days,numClusters,numFeatures)
+    userProfileClusteringSparkJob.finishJob()
   }
 
 

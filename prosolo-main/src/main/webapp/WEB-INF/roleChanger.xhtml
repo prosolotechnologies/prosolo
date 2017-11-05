@@ -26,15 +26,9 @@
                         </h:link>
                     </li>
                     <li class="#{section eq 'ADMIN' ? 'selected' : ''}">
-                        <h:link rendered="#{loggeduser.hasCapability('admin.advanced')}"
+                        <h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
                                 onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-                                outcome="/admin/organizations">
-                            <span></span>Admin
-                        </h:link>
-                        <h:link rendered="#{!loggeduser.hasCapability('admin.advanced')}"
-                                onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-                                outcome="/admin/organization-settings">
-                            <f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+                                outcome="/admin/root">
                             <span></span>Admin
                         </h:link>
                     </li>
