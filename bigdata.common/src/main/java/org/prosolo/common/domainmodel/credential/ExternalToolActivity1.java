@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 
 @Entity
@@ -51,7 +52,8 @@ public class ExternalToolActivity1 extends Activity1 {
 	public void setConsumerKey(String consumerKey) {
 		this.consumerKey = consumerKey;
 	}
-	
+
+	@Type(type = "true_false")
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isAcceptGrades() {
 		return acceptGrades;

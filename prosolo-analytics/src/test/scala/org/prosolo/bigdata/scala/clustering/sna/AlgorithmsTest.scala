@@ -4,7 +4,7 @@ package org.prosolo.bigdata.scala.clustering.sna
 import org.junit.Test
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileInteractionsManager
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 import org.prosolo.common.config.CommonSettings
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
@@ -19,7 +19,7 @@ class AlgorithmsTest {
     println("FINISHED PROFILER")
   }
   @Test def testCassandraConnector(): Unit ={
-    val sc = SparkContextLoader.getSC
+    val sc = SparkManager.sparkContextLoader.getSC
     val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
     val rdd=sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT )
       .select("course","source","target","count").where("course=?",1)

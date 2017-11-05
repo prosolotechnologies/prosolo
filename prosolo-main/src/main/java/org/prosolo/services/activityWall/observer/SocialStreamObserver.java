@@ -53,7 +53,7 @@ public class SocialStreamObserver extends EventObserver {
 			null, // when event does not have object, e.g. Edit_Profile
 			Credential1.class, 
 			Activity1.class,
-			TargetActivity1.class,
+			//TargetActivity1.class,
 			//TODO for now we do not create social activities for competency and activity comments. This should be rethinked.
 			//Comment1.class
 		};
