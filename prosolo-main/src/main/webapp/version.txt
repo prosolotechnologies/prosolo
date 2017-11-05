@@ -1,9 +1,13 @@
-Current date:2017/10/09-15:30:52
-Source branch:PRS-2850-development-of-scripts-for-db-m
-Project version:1
+Current date:2017/11/05-17:51:29
+Source branch:develop
 Git version:
-commit cc49885aced85c523526a54b24c7c19ecb712860
-Author: Zoran Jeremic <zoran.jeremic@gmail.com>
-Date:   Sun Oct 1 16:38:11 2017 -0700
+commit 19462bdba2c760534435d27afe9386fcd6492d4f
+Merge: 4723a2ed 7f678b3f
+Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
+Date:   Sun Nov 5 16:45:34 2017 +0000
 
-    Finished DB migration script
+    Merged in PRS-2892-manager-gets-access-denied-when (pull request #227)
+    
+    Implement redirection logic for application root based on capabilities
+    
+    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
