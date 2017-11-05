@@ -5,5 +5,4 @@
 .cache-main
 .cache-tests
 /.idea/
-prosolo-multimodule.iml
-
+**/*.iml

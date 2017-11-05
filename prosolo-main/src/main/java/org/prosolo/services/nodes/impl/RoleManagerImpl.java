@@ -31,22 +31,19 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	@Autowired private ResourceFactory resourceFactory;
 	
 	@Override
-	public List<Long> getRoleIdsForName(String name){
+	@Transactional
+	public Long getRoleIdByName(String name){
 		String query = 
 				"SELECT r.id " +
 				"FROM Role r " +
 				"WHERE lower(r.title) = :name";
 		
 		@SuppressWarnings("unchecked")
-		List<Long> result = persistence.currentManager().createQuery(query)
+		Long result = (Long) persistence.currentManager().createQuery(query)
 			.setParameter("name", name.toLowerCase())
-			.list();
+			.uniqueResult();
 		
-		if (result != null && !result.isEmpty()) {
-			return result;
-		}
-
-		return new ArrayList<Long>();
+		return result;
 	}
 
 	@Override

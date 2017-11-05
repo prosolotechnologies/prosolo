@@ -72,12 +72,8 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 		searchFilters = CredentialSearchFilterUser.values();
 
 		try {
-			List<Long> roleIds = roleManager.getRoleIdsForName(RoleNames.USER);
-			long roleId = 0;
-			if (roleIds.size() == 1) {
-				roleId = roleIds.get(0);
-			}
-			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), roleId);
+			Long userRoleId = roleManager.getRoleIdByName(RoleNames.USER);
+			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), userRoleId);
 
 			searchCredentials(false);
 		} catch (DbConnectionException e) {

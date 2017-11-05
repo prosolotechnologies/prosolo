@@ -87,7 +87,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 					if (td != null) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
-						roleId = roleManager.getRoleIdsForName(role).get(0);
+						roleId = roleManager.getRoleIdByName(role);
 						if (page > 0) {
 							paginationData.setPage(page);
 						}

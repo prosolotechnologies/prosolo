@@ -167,12 +167,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			} else {
 				resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 			}
-			List<Long> roleIds = roleManager.getRoleIdsForName(
+			this.roleId = roleManager.getRoleIdByName(
 					privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
-
-			if (roleIds.size() == 1) {
-				roleId = roleIds.get(0);
-			}
 
 			//units are connected to original credential so we need to work with original credential id
 			long origCredId = credType == CredentialType.Original
