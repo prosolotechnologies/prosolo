@@ -13,7 +13,6 @@ public class ESIndexNames {
  
 	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static final String INDEX_LOGS = CommonSettings.getInstance().config.elasticSearch.logsIndex+CommonSettings.getInstance().config.getNamespaceSufix();;
-	public static String INDEX_DOCUMENTS=CommonSettings.getInstance().config.elasticSearch.documentsIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"documents";
 	public static String INDEX_NODES=CommonSettings.getInstance().config.elasticSearch.nodesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
 	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"users";
 	public static String INDEX_RECOMMENDATION_DATA=CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
@@ -55,7 +54,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getSystemIndexes() {
-		return Arrays.asList(INDEX_USERS, INDEX_LOGS);
+		return Arrays.asList(INDEX_USERS, INDEX_LOGS, INDEX_ASSOCRULES, INDEX_RECOMMENDATION_DATA, INDEX_JOBS_LOGS);
 	}
 
 	public static List<String> getOrganizationIndexes() {
