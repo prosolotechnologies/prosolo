@@ -74,6 +74,7 @@ public class CredentialKeywordsBean {
 				tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
 				competences = credentialManager.getCompetencesForKeywordSearch(decodedId);
 				activities = credentialManager.getActivitiesForKeywordSearch(decodedId);
+				filteredActivities = new ArrayList<>();
 			}
 		} else {
 			PageUtil.notFound();

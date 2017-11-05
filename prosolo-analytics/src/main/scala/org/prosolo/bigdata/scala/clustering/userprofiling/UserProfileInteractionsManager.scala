@@ -18,8 +18,9 @@ object UserProfileInteractionsManager{
 
   def runAnalyser() = {
     println("RUN ANALYZER")
-    val credentialsIds = clusteringDAOManager.getAllCredentialsIds
-    UserProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)
+    val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
+    val userProfileInteractionsSparkJob=new UserProfileInteractionsSparkJob(dbName)
+    userProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)
     println("FINISHED ANALYZER FOR USER PROFILE INTERACTIONS MANAGER JOB")
   }
 

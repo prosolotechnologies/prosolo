@@ -4,9 +4,9 @@ import java.util.List
 
 import com.datastax.driver.core.Row
 import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.dal.cassandra.impl.{SNAClustersDAO}
+import org.prosolo.bigdata.dal.cassandra.impl.SNAClustersDAO
 import org.prosolo.bigdata.scala.clustering.sna.{DirectedNetwork, UserLink, UserNode}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
@@ -19,33 +19,34 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * zoran 18/03/17
   */
-object SNAClusteringSparkJob {
-  val sc = SparkContextLoader.getSC
+class SNAClusteringSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+//  val sc = SparkContextLoader.getSC
   val edgesToRemove=2
 
-  def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, timestamp: Long): Unit = {
-    val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
-    println("ALL CREDENTIALS:" + credentialsIdsScala.mkString(","))
+  def runSparkJob(deliveriesIds: java.util.List[java.lang.Long], dbName: String, timestamp: Long): Unit = {
+    val deliveriesIdsScala: Seq[java.lang.Long] = deliveriesIds.asScala.toSeq
+    println("ALL DELIVERIES:" + deliveriesIdsScala.mkString(","))
 
 
-    val credentialsRDD: RDD[Long] = sc.parallelize(credentialsIdsScala.map {
+    val deliveriesRDD: RDD[Long] = sc.parallelize(deliveriesIdsScala.map {
       Long2long
     })
     val timestamp=System.currentTimeMillis()
-    credentialsRDD.foreachPartition {
+    deliveriesRDD.foreachPartition {
 
-      credentialsIt => {
+      deliveriesIt => {
         val dbManager=new SNAClustersDAO(dbName)
-        credentialsIt.foreach{
-          credentialId=>
-            println("RUNNING SNA CLUSTERING FOR CREDENTIAL:" + credentialId+ " timestamp:"+timestamp)
-            identifyClustersInCredential(timestamp, credentialId, dbManager)
+        deliveriesIt.foreach{
+          deliveryId=>
+            println("RUNNING SNA CLUSTERING FOR CREDENTIAL:" + deliveryId+ " timestamp:"+timestamp)
+            identifyClustersInCredential(timestamp, deliveryId, dbManager)
         }
       }
     }
-    def identifyClustersInCredential(timestamp:Long, credentialId:Long, dbManager:SNAClustersDAO): Unit ={
-      println("identify clusters in credential:"+credentialId)
-      val socialInteractionsData=readCourseData(credentialId,dbManager)
+    def identifyClustersInCredential(timestamp:Long, deliveryId:Long, dbManager:SNAClustersDAO): Unit ={
+      println("identify clusters in credential:"+deliveryId)
+      val socialInteractionsData=readCourseData(deliveryId,dbManager)
       val directedNetwork=new DirectedNetwork()
       socialInteractionsData.foreach {
         row =>
@@ -60,7 +61,7 @@ object SNAClusteringSparkJob {
           directedNetwork.calculateEdgeBetweennessClustering(directedNetwork.getLinks().size)
         }else directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
         //val finalUserNodes:ArrayBuffer[UserNode]=directedNetwork.calculateEdgeBetweennessClustering(edgesToRemove)
-        storeUserNodesClustersForCourse(timestamp, credentialId,finalUserNodes, directedNetwork.getLinks(),dbManager)
+        storeUserNodesClustersForCourse(timestamp, deliveryId,finalUserNodes, directedNetwork.getLinks(),dbManager)
       }
 
     }
@@ -120,12 +121,6 @@ object SNAClusteringSparkJob {
        println("SOURCE INTERACTIONS CONVERTED:"+sourceInteractionsConv.toString)
 
     }
-   /* def updateTimestamp(timestamp:Long)={
-      val dbManager=new SNAClustersDAO(dbName)
-      dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
-      dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
-      dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
-    }*/
 
 
   }
