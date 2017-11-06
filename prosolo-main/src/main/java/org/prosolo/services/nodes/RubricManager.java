@@ -35,10 +35,11 @@ public interface RubricManager extends AbstractManager {
 
     List<Rubric> getAllRubrics (long orgId, Session session) throws DbConnectionException;
 
-    void deleteRubric(long rubricId,UserContextData context) throws DbConnectionException, EventException;
+    void deleteRubric(long rubricId,UserContextData context)
+            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
     Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context)
-            throws DbConnectionException;
+            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
     RubricData getOrganizationRubric(long rubricId);
 
