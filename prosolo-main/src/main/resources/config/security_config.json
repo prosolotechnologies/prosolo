@@ -70,6 +70,7 @@
             "name": "admins.view",
             "description": "Access the page for managing admins",
             "roles": [
+                "Admin",
                 "Super Admin"
             ]
         },
