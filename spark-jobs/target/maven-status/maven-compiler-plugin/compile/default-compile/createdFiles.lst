@@ -1,0 +1,4 @@
+org/prosolo/bigdata/dal/cassandra/impl/TablesNames.class
+org/prosolo/bigdata/dal/cassandra/impl/TableNames.class
+org/prosolo/bigdata/clustering/QuartileName.class
+org/prosolo/bigdata/utils/DateUtil.class

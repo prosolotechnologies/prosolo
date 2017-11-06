@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.es
 
 import org.elasticsearch.spark.rdd.EsSpark
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 
 //import org.prosolo.bigdata.es.ESIndexNames
 
@@ -22,7 +22,7 @@ object RecommendationsESIndexer {
 
     }
 
-    val sc=SparkContextLoader.getSC
+    val sc=SparkManager.sparkContextLoader.getSC
     val rdd=sc.makeRDD(Seq(UserRecommendations(userId,recommendations)))
      val resource=indexRecommendationDataName+"/"+similarUsersIndexType
     //val resource="spark/docs"

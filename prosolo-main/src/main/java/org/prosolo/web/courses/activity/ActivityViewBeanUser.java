@@ -18,7 +18,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
@@ -96,8 +96,8 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void init() {
 		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
+		roles.add(SystemRoleNames.MANAGER);
+		roles.add(SystemRoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
 			this.roles = "Instructor";

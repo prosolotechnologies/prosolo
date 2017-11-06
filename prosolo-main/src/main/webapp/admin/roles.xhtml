@@ -57,7 +57,13 @@
 											<h:outputText rendered="#{empty role.userIds}" value="0 users" />
 										</td>
 										<td class="col3">
-											 <p:commandLink
+											 <ui:fragment rendered="#{role.system}">
+												 <span class="btn btn-green-stroke btn-sm disabled" data-toggle="tooltip"
+													title="System defined role can't be renamed">
+													 Rename
+												 </span>
+											 </ui:fragment>
+											 <p:commandLink rendered="#{not role.system}"
 												styleClass="btn btn-green-stroke btn-sm"
 												pt:data-toggle="modal"
 												action="#{roles.prepareEditRole(role)}"
@@ -66,7 +72,7 @@
 												Rename
 											 </p:commandLink>
 											 <p:commandLink
-												rendered="#{!roles.isRoleUsed(role)}"
+												rendered="#{!roles.isRoleUsed(role) and not role.system}"
 												styleClass="linkRed"
 												pt:data-toggle="modal"
 												action="#{roles.setRoleToDelete(role)}"
@@ -74,9 +80,15 @@
 												oncomplete="$('#deleteModal').modal('show');">
 												Delete
 											</p:commandLink>
-											<ui:fragment rendered="#{roles.isRoleUsed(role)}">
-												<a href="javascript:void(0);" class="linkRed" data-toggle="tooltip"
+											<ui:fragment rendered="#{not role.system and roles.isRoleUsed(role)}">
+												<a href="javascript:void(0);" class="linkRed disabled" data-toggle="tooltip"
 													title="There are users with this role, so it cannot be deleted">
+													Delete
+												</a>
+											</ui:fragment>
+											<ui:fragment rendered="#{role.system}">
+												<a href="javascript:void(0);" class="linkRed disabled" data-toggle="tooltip"
+												   title="System defined role can't be deleted">
 													Delete
 												</a>
 											</ui:fragment>

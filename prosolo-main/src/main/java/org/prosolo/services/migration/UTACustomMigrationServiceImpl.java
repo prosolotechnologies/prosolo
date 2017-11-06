@@ -22,7 +22,7 @@ import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +89,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             // converting users Admin Admin (email=zoran.jeremic@gmail.com, id=1) and Nikola Milikic (email=zoran.jeremic@uta.edu, id=163840) to Super Admins
             User userAdminAdmin = userManager.getUser("zoran.jeremic@gmail.com");
             User userNikolaMilikic = userManager.getUser("zoran.jeremic@uta.edu");
-            Role roleSuperAdmin = roleManager.getRoleByName(RoleNames.SUPER_ADMIN);
+            Role roleSuperAdmin = roleManager.getRoleByName(SystemRoleNames.SUPER_ADMIN);
             roleManager.assignRoleToUser(roleSuperAdmin, userAdminAdmin.getId());
             roleManager.assignRoleToUser(roleSuperAdmin, userNikolaMilikic.getId());
 
@@ -101,7 +101,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                     .createNewOrganizationAndGetEvents("UTA", Arrays.asList(new UserData(userJustinDellinger)), UserContextData.empty()).getResult();
 
             // Giving Justin Dellinger an admin role in UTA
-            Role roleAdmin = roleManager.getRoleByName(RoleNames.ADMIN);
+            Role roleAdmin = roleManager.getRoleByName(SystemRoleNames.ADMIN);
             userJustinDellinger = roleManager.assignRoleToUser(roleAdmin, userJustinDellinger.getId());
 
 
@@ -112,7 +112,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
             // loading all users from the db
             Collection<User> allUsers = userManager.getAllUsers(0);
-            Role roleUser = roleManager.getRoleByName(RoleNames.USER);
+            Role roleUser = roleManager.getRoleByName(SystemRoleNames.USER);
 
             for (User user : allUsers) {
                 if (user.getId() != userAdminAdmin.getId() &&
@@ -132,8 +132,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             // Giving Kimberly Breuer and Matt Crosslin instructor and manager roles in UTA and adding them to the History Department as teachers
             User userKimberlyBreuer = userManager.getUser("breuer@uta.edu");
             User userMattCrosslin = userManager.getUser("matt@uta.edu");
-            Role roleManage = roleManager.getRoleByName(RoleNames.MANAGER);
-            Role roleInstructor = roleManager.getRoleByName(RoleNames.INSTRUCTOR);
+            Role roleManage = roleManager.getRoleByName(SystemRoleNames.MANAGER);
+            Role roleInstructor = roleManager.getRoleByName(SystemRoleNames.INSTRUCTOR);
             userKimberlyBreuer = roleManager.assignRoleToUser(roleManage, userKimberlyBreuer.getId());
             unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleManage.getId(), UserContextData.empty());
             unitManager.addUserToUnitWithRoleAndGetEvents(userKimberlyBreuer.getId(), unitHistoryDepartment.getId(), roleInstructor.getId(), UserContextData.empty());
