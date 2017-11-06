@@ -4,10 +4,11 @@
 	<parent>
 		<groupId>org.prosolo</groupId>
 		<artifactId>prosolo-multimodule</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>bigdata.common</artifactId>
 	<packaging>jar</packaging>
+	<version>1.0.0</version>
 
 	<name>bigdata.common</name>
 	<url>http://maven.apache.org</url>

@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.prosolo</groupId>
   <artifactId>prosolo-multimodule</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
   <name>prosolo-multimodule</name>
   <modules>
   	<module>bigdata.common</module>
   	<module>prosolo-analytics</module>
 	<module>prosolo-main</module>
-      <module>spark-jobs</module>
+    <module>spark-jobs</module>
   </modules>
   <properties>
   	<hibernate.version>4.3.10.Final</hibernate.version>
@@ -95,6 +95,24 @@
 			  <groupId>org.codehaus.mojo</groupId>
 			  <artifactId>sonar-maven-plugin</artifactId>
 			  <version>2.7.1</version>
+		  </plugin>
+		  <plugin>
+            <groupId>external.atlassian.jgitflow</groupId>
+            <artifactId>jgitflow-maven-plugin</artifactId>
+            <version>1.0-m5.1</version>
+			<configuration>
+				<flowInitContext>
+					<masterBranchName>master</masterBranchName>
+					<developBranchName>develop</developBranchName>
+					<featureBranchPrefix>feature-</featureBranchPrefix>
+					<releaseBranchPrefix>release-</releaseBranchPrefix>
+					<hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+					<versionTagPrefix>version-</versionTagPrefix>
+				</flowInitContext>
+				<username>nikola.milikic@gmail.com</username>
+				<noDeploy>true</noDeploy>
+				<squash>true</squash>
+            </configuration>
 		  </plugin>
 	  </plugins>
     </build>
