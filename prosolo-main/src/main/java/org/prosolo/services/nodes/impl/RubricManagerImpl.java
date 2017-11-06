@@ -19,11 +19,14 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.rubrics.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     @Inject
     private RubricManager self;
     @Inject private RubricDataFactory rubricDataFactory;
+    @Inject private RoleManager roleManager;
+    @Inject private UnitManager unitManager;
 
     @Override
     public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
@@ -85,6 +90,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             res.addEvent(eventFactory.generateEventData(
                     EventType.Create, context, rubric, null, null, null));
 
+            //connect rubric to all units where rubric creator is manager
+            res.addEvents(addRubricToDefaultUnits(rubric.getId(), context));
+
             res.setResult(rubric);
             return res;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
@@ -96,6 +104,23 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             e.printStackTrace();
             throw new DbConnectionException("Error while saving rubric data");
         }
+    }
+
+    /**
+     * Connects rubric to all units rubric creator (context actor) is manager in.
+     *
+     * @param rubricId
+     * @param context
+     * @return
+     */
+    private List<EventData> addRubricToDefaultUnits(long rubricId, UserContextData context) {
+        long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
+        List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
+        List<EventData> events = new ArrayList<>();
+        for (long unitId : unitsWithManagerRole) {
+            events.addAll(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEvents());
+        }
+        return events;
     }
 
     @Override
