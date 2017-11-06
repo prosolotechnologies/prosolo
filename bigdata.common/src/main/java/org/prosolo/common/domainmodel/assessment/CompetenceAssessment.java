@@ -41,7 +41,7 @@ public class CompetenceAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy = "assessment")
+	@OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<ActivityAssessment> getActivityDiscussions() {
 		return activityDiscussions;
