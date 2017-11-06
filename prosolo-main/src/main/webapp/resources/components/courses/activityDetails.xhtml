@@ -158,7 +158,7 @@
 	            	<p><h:outputText escape="false" value="#{cc.attrs.activity.description}"/></p>
 	            </ui:fragment>
 	            
-	            <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
+	            <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT' and cc.attrs.activity.text ne null and cc.attrs.activity.text ne ''}" styleClass="whiteBox activityTextBox">
 					<h:outputText escape="false" value="#{cc.attrs.activity.text}"/>
 	            </h:panelGroup>
 	            

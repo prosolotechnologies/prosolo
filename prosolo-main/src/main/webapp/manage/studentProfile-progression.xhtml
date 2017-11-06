@@ -11,7 +11,7 @@
 			width: 180px;
 		}
 	</style>
-	
+
 	<div role="tabpanel" id="progression" class="tab-pane fade in active">
 		<div class="whiteBox">
            <h:panelGroup layout="block" id="svgContainer">
@@ -28,33 +28,36 @@
 					update=":svgContainer">
 					<i class="fa fa-angle-left"></i>
 			   </p:commandLink>
-				   <ui:repeat var="cred" value="#{studentProfileBean.credentials}">
-					
-						<p:commandLink
-							styleClass="progressBlock #{cred.id == studentProfileBean.selectedCredential.id ? 'selected' : ''}"
-							action="#{studentProfileBean.selectCredential(cred)}"
-							update=":competencesBlock :activitiesBlock :svgContainer"
-							onclick="$('#credentials .progressBlock').removeClass('selected');$(this).addClass('selected');">
-		
-							<div class="progress">
-								<div class="progression bgGreen"
-									style="height: #{cred.progress}%"></div>
-								<div class="progressMask"></div>
-								<div class="percentage">#{cred.progress}%</div>
-							</div>
-							<h3>#{cred.name}</h3>
-						</p:commandLink>
-					</ui:repeat>
-		
+
+			   <div class="slides">
+                   <ui:repeat var="cred" value="#{studentProfileBean.credentials}">
+
+                        <p:commandLink
+                            styleClass="progressBlock #{cred.id == studentProfileBean.selectedCredential.id ? 'selected' : ''}"
+                            action="#{studentProfileBean.selectCredential(cred)}"
+                            update=":competencesBlock :activitiesBlock :svgContainer"
+                            onclick="$('#credentials .progressBlock').removeClass('selected');$(this).addClass('selected');">
+
+                            <div class="progress">
+                                <div class="progression bgGreen"
+                                    style="height: #{cred.progress}%"></div>
+                                <div class="progressMask"></div>
+                                <div class="percentage">#{cred.progress}%</div>
+                            </div>
+                            <h3>#{cred.name}</h3>
+                        </p:commandLink>
+                    </ui:repeat>
+			   </div>
+
 			   <p:commandLink styleClass="sliderIconRight"
 					update=":svgContainer">
 					<i class="fa fa-angle-right"></i>
 			   </p:commandLink>
                <div class="clear"></div>
-               
+
                <script>
 					$(function(){
-						//initCredentialsSlider();
+						initCredentialsSlider();
 						$('#credentials').fadeIn();
 					});
 			   </script>
@@ -66,35 +69,35 @@
 					update=":svgContainer">
 					<i class="fa fa-angle-left"></i>
 			   </p:commandLink>
-			   
+
 				   <ui:repeat var="comp" value="#{studentProfileBean.selectedCredential.competences}">
-		
+
 						<ui:remove><h:panelGroup layout="block" id="competencePanel"
 							styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedCredential.selectedCompetence.id ? 'selected' : ''}"></h:panelGroup></ui:remove>
-							
+
 							<p:commandLink
 								styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedCredential.selectedCompetence.id ? 'selected' : ''}"
 								onclick="$('#competencesBlock .progressBlock').removeClass('selected');$(this).addClass('selected');"
 								action="#{studentProfileBean.selectCompetence(comp)}"
 								update=":activitiesBlock :svgContainer">
-			
+
 								<div class="progress">
 									<div class="progression bgBlue" style="height: #{comp.progress}%"></div>
 									<div class="progressMask"></div>
 									<div class="percentage">#{comp.progress}%</div>
 								</div>
-								
+
 								<h3>#{comp.name}</h3>
-							</p:commandLink>			
+							</p:commandLink>
 						<ui:remove><h:panelGroup></h:panelGroup></ui:remove>
 					</ui:repeat>
-              
+
                 <p:commandLink styleClass="sliderIconRightCred"
 					update=":svgContainer">
 					<i class="fa fa-angle-right"></i>
 				</p:commandLink>
                <div class="clear"></div>
-               
+
                <script>
 				$(function(){
 					//initCompetenceSlider();
@@ -105,7 +108,7 @@
 
            <h2>Activities</h2>
            <h:panelGroup layout="block" styleClass="activitiesBlock" id="activitiesBlock" style="display: none;">
-           		
+
           	<div class="activitiesBlockLeft">
           	  	<ui:repeat var="act" value="#{studentProfileBean.selectedCredential.selectedCompetence.activities}">
 					<h3 class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.type)}" id="act#{act.id}"
@@ -114,8 +117,8 @@
 	                        <span class="#{act.completed ? 'check' : 'iconType'}"></span>
 	                        #{act.name}
 	                    </a>
-	                </h3>	
-				</ui:repeat>  
+	                </h3>
+				</ui:repeat>
             </div>
             <div class="activitiesBlockRight">
                 <div class="graph">
@@ -127,9 +130,9 @@
 					</div>
                 </div>
             </div>
-           	  
+
                <div class="clear"></div>
-               
+
                <script>
 				$(function(){
 					$('#activitiesBlock').fadeIn();

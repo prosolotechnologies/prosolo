@@ -17,6 +17,7 @@ import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
@@ -77,7 +78,7 @@ public class OrganizationEditBean implements Serializable {
             decodedId = idEncoder.decodeId(id);
 
             if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
-                rolesArray = new String[]{"Admin","Super Admin"};
+                rolesArray = new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
                 adminRoles = roleManager.getRolesByNames(rolesArray);
                 for(Role r : adminRoles){
                     adminRolesIds.add(r.getId());

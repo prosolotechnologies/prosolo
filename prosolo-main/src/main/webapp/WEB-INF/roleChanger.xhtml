@@ -6,8 +6,8 @@
               xmlns:util="http://www.prosolo.com/util"
 >
         <c:if test="#{section eq 'STUDENT' and (loggeduser.hasCapability('basic.manager.access')  or loggeduser.hasCapability('basic.instructor.access') or loggeduser.hasCapability('basic.admin.access'))
-            or section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access'))
-            or section eq 'ADMIN' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access'))}">
+            or (section eq 'MANAGE' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')))
+            or (section eq 'ADMIN' and (loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')))}">
             <div class="dropdown roleChanger">
                 <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
                 <ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
@@ -26,15 +26,9 @@
                         </h:link>
                     </li>
                     <li class="#{section eq 'ADMIN' ? 'selected' : ''}">
-                        <h:link rendered="#{loggeduser.hasCapability('admin.advanced')}"
+                        <h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
                                 onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-                                outcome="/admin/organizations">
-                            <span></span>Admin
-                        </h:link>
-                        <h:link rendered="#{!loggeduser.hasCapability('admin.advanced')}"
-                                onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-                                outcome="/admin/organization-settings">
-                            <f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+                                outcome="/admin/root">
                             <span></span>Admin
                         </h:link>
                     </li>

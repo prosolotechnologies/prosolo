@@ -10,7 +10,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
@@ -65,15 +65,15 @@ public class UnitUsersBean implements Serializable, Paginable {
 	private String unitTitle;
 
 	public void initTeachers() {
-		init(RoleNames.MANAGER);
+		init(SystemRoleNames.MANAGER);
 	}
 
 	public void initStudents() {
-		init(RoleNames.USER);
+		init(SystemRoleNames.USER);
 	}
 
 	public void initInstructors() {
-		init(RoleNames.INSTRUCTOR);
+		init(SystemRoleNames.INSTRUCTOR);
 	}
 
 	public void init(String role) {
@@ -87,7 +87,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 					if (td != null) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
-						roleId = roleManager.getRoleIdsForName(role).get(0);
+						roleId = roleManager.getRoleIdByName(role);
 						if (page > 0) {
 							paginationData.setPage(page);
 						}

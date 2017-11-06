@@ -26,12 +26,13 @@ object SimilarUsersBasedOnPreferencesManager{
   def runJob() ={
     val totalNumberOfUsers:Long=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
     println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers)
+    val similarUsersBasedOnPreferencesSparkJob=new SimilarUsersBasedOnPreferencesSparkJob(keyspaceName)
+    if (totalNumberOfUsers>clusterAproxSize*1.5) similarUsersBasedOnPreferencesSparkJob.runKmeans(totalNumberOfUsers,keyspaceName,possibleMaxIterations,clusterAproxSize)
+    else similarUsersBasedOnPreferencesSparkJob.createOneCluster(keyspaceName)
 
-    if (totalNumberOfUsers>clusterAproxSize*1.5) SimilarUsersBasedOnPreferencesSparkJob.runKmeans(totalNumberOfUsers,keyspaceName,possibleMaxIterations,clusterAproxSize)
-    else SimilarUsersBasedOnPreferencesSparkJob.createOneCluster(keyspaceName)
-
-    SimilarUsersBasedOnPreferencesSparkJob.runALSUserRecommender(clusterAproxSize,keyspaceName,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
+    similarUsersBasedOnPreferencesSparkJob.runALSUserRecommender(clusterAproxSize,keyspaceName,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
     println("SIMILAR USERS BASED ON PREFERENCES runJob finished")
+    similarUsersBasedOnPreferencesSparkJob.finishJob()
   }
 
 }
