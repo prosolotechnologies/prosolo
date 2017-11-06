@@ -88,7 +88,7 @@
                             <li>
                                 <div class="manageRubricsListLeft">
                                     <h2>
-                                        <h:link outcome="/manage/rubricEdit">
+                                        <h:link outcome="/manage/rubric-criteria">
                                             #{rubric.name}
                                             <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
                                         </h:link>
@@ -101,18 +101,10 @@
                                     </div>
                                 </div>
                                 <div class="manageRubricsListRight">
-                                    <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId}">
-                                        <h:link outcome="/manage/rubricEdit" styleClass="btn btn-sm btn-green-stroke">
-                                            Edit
-                                            <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
-                                        </h:link>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{rubric.creatorId ne loggeduser.userId}">
-                                        <a href=""
-                                           class="btn btn-sm btn-green-stroke"
-                                           disabled="disabled"
-                                           title="Only creator can edit rubric">Edit</a>
-                                    </ui:fragment>
+                                    <h:link outcome="/manage/rubric-criteria" styleClass="btn btn-sm btn-green-stroke">
+                                        View
+                                        <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
+                                    </h:link>
                                     <div class="dropdown optMoreMenu">
                                         <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                         <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">

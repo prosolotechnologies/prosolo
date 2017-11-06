@@ -14,6 +14,8 @@ import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -158,6 +160,12 @@ public class PageUtil {
 		String section = "";
 		if (secondSlashIndex != -1) {
 			section = uri.substring(0, secondSlashIndex);
+		} else {
+			/*
+			if there is no second slash, whole uri is set to be the current section:
+			this covers cases where uri is /admin or /manage
+			 */
+			section = uri;
 		}
 
 		if (section.equals(PageSection.ADMIN.getPrefix())) {
@@ -238,4 +246,5 @@ public class PageUtil {
 	public static void notFound(String uri) {
 		forward(getSectionForUri(uri).getPrefix() + "/notfound");
 	}
+
 }

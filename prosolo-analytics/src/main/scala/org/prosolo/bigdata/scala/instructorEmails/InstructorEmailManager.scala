@@ -31,7 +31,7 @@ val BATCH_SIZE=50
 
     studentAssignManager.setBucket(bucket + 1)
     studentAssignManager.updateCurrentTimestamp(bucket + 1)
-
+    val InstructorEmailSenderSparkJob=new InstructorEmailSenderSparkJob(dbName)
    val emailsToSend:Array[CourseInstructorEmail]= InstructorEmailSenderSparkJob.runSparkJob(courseIds,dbName, bucket)
     val emailService: InstructorStudentsEmailService = new InstructorStudentsEmailServiceImpl
     val emailsBatches:Array[Array[CourseInstructorEmail]]=emailsToSend.grouped(BATCH_SIZE).toArray

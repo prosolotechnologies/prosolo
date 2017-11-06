@@ -148,11 +148,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	public void prepareAddingInstructor() {
 		try {
 			if(instructorRoleId == 0) {
-				List<Long> roleIds = roleManager.getRoleIdsForName(SystemRoleNames.INSTRUCTOR);
-				
-				if (roleIds.size() == 1) {
-					instructorRoleId = roleIds.get(0);
-				}
+				instructorRoleId = roleManager.getRoleIdByName(SystemRoleNames.INSTRUCTOR);
 
 				//retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
 				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));

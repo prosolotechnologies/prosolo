@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{SequenceFile, Text}
 import org.joda.time.DateTime
 import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 
@@ -35,8 +35,9 @@ import com.datastax.driver.core.Row
 /**
   * Zoran 22/11/15
   */
-class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:Int)  {
-  val sc=SparkContextLoader.getSC
+@deprecated
+class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters:Int, val numFeatures:Int)  {
+  //val sc=SparkContextLoader.getSC
   val featuresQuartiles: mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   val matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
   val profilesDAO=new ProfilesDAO(dbName)
@@ -45,21 +46,22 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
   def getMatchedClusterProfile(clusterId:Long):String={
     matchedClusterProfiles.getOrElse(clusterId,"").toString
   }
-  case class CourseClusterConfiguration(courseId: Long,
+  /*case class CourseClusterConfiguration(courseId: Long,
                                         clustersDir:String,
                                         vectorsDir:String,
                                         outputDir:String,
                                         output:Path,
                                         datapath:Path)
 
-
+*/
   /**
     * Main function that executes clustering
     *
     * @param startDate
     * @param endDate
     */
-  def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long):Iterable[Tuple5[Long,String,Long,Long,String]] = {
+  //def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long):Iterable[Tuple5[Long,String,Long,Long,String]] = {
+    def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long) = {
     println("perform kmeans clustering for:"+courseId)
     val clustersDir = "clustersdir/"+courseId
     val vectorsDir = clustersDir + "/users"
@@ -68,7 +70,8 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     val datapath = new Path(vectorsDir + "/part-00000")
 
     //val courseClusterConfiguration:Tuple6[Long, String, String, String, Path, Path]=new Tuple6(courseId, clustersDir,vectorsDir, outputDir, output, datapath)
-    val courseClusterConfiguration:CourseClusterConfiguration=new CourseClusterConfiguration(courseId, clustersDir,vectorsDir, outputDir, output, datapath)
+   // val courseClusterConfiguration:CourseClusterConfiguration=new CourseClusterConfiguration(courseId, clustersDir,vectorsDir, outputDir, output, datapath)
+    val courseClusterConfiguration=""
     val daysSinceEpoch:IndexedSeq[Long]=days.map{
       day=>
         DateUtil.getDaysSinceEpoch(day)
@@ -81,13 +84,13 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     evaluateFeaturesQuartiles()
     val usersQuartilesFeatures: Predef.Map[Long, Array[Double]] =  usersFeatures.transform((userid, userFeatures)=>transformUserFeaturesToFeatureQuartiles(userid, userFeatures))
     prepareSequenceFile(usersQuartilesFeatures, datapath)
-    if(runClustering(courseClusterConfiguration)){
+  /*  if(runClustering(courseClusterConfiguration)){
       val usercourseprofiles:Iterable[Tuple5[Long,String,Long,Long,String]] =readAndProcessClusters(usersQuartilesFeatures, daysSinceEpoch,  courseId,output, outputDir)
       usercourseprofiles
     }else {
       val usercourseprofiles:Iterable[Tuple5[Long,String,Long,Long,String]] =new  mutable.ListBuffer[Tuple5[Long,String,Long,Long,String]]()
       usercourseprofiles
-    }
+    }*/
   }
 
   //////////////////////////////////////////
@@ -134,6 +137,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @return
     */
   def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[Row]) = {
+    println("TRANSFORM USER FEATURES:"+userid)
     val featuresArray: Array[Double] = new Array[Double](numFeatures)
     for (userRow <- userRows) {
       for (i <- 0 to numFeatures - 1) {
@@ -151,6 +155,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @param usersFeatures
     */
   def extractFeatureQuartilesValues(usersFeatures: collection.Map[Long, Array[Double]]): Unit = {
+    println("EXTRACT FEATURE:"+usersFeatures.size)
     usersFeatures.foreach {
       case (userid: Long, userFeatures: Array[Double]) =>
         for (i <- 0 to (userFeatures.length - 1)) {
@@ -187,7 +192,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * We are running clustering with selected algorithm
     */
 
-  def runClustering(courseClusterConfiguration:CourseClusterConfiguration):Boolean= {
+/*  def runClustering(courseClusterConfiguration:CourseClusterConfiguration):Boolean= {
 
     HadoopUtil.delete(ClusteringUtils.conf, courseClusterConfiguration.output)
     val measure = new CosineDistanceMeasure()
@@ -206,6 +211,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
       }catch{
         case ise: IllegalStateException=>
           println("ERROR in KMeansDriver.run:"+ise.getMessage)
+          sparkJob.submitTaskProblem(ise.getMessage,courseClusterConfiguration.courseId,"KMeansClustering",ProblemSeverity.MAJOR)
           success=false;
       }
 
@@ -217,7 +223,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
 
     // CanopyDriver.run(conf, datapath, clustersIn, output, convergenceDelta, maxIterations, true, 0.0, true)
     success
-  }
+  }*/
 
   /**
     * W

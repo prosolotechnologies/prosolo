@@ -35,6 +35,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -71,9 +74,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.MANAGER);
 			Role roleInstructor = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.INSTRUCTOR);
 			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.ADMIN);
-
-
-
+			Role roleSuperAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.SUPER_ADMIN);
 
 			/*
 			 * CREATING USERS
@@ -93,66 +94,51 @@ public class BusinessCase4_EDX extends BusinessCase {
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
 					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
 
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.error(e);
+			}
+
+
 			UnitData unit = ServiceLocator.getInstance().getService(UnitManager.class)
 					.createNewUnit("Unit 1", org.getId(), 0, UserContextData.empty());
 
-			//to give time indexes to be created after ogranization is saved
+			//to give time indexes to be created after the ogranisation is saved
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				logger.error(e);
 			}
 
+
+
 			User userRichardAnderson = createUser(org.getId(), "Richard", "Anderson", "richard.anderson@gmail.com", genericPassword, genericPosition, "male2.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRichardAnderson.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userKevinMitchell = createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", genericPassword, genericPosition, "male3.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinMitchell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userPaulEdwards = createUser(org.getId(), "Paul", "Edwards", "paul.edwards@gmail.com", genericPassword, genericPosition, "male4.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPaulEdwards.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userStevenTurner = createUser(org.getId(), "Steven", "Turner", "steven.turner@gmail.com", genericPassword, genericPosition, "male5.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userStevenTurner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userGeorgeYoung = createUser(org.getId(), "George", "Young", "george.young@gmail.com", genericPassword, genericPosition, "male6.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userGeorgeYoung.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userPhillAmstrong = createUser(org.getId(), "Phill", "Amstrong", "phill.amstrong@gmail.com", genericPassword, genericPosition, "male7.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPhillAmstrong.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userJosephGarcia = createUser(org.getId(), "Joseph", "Garcia", "joseph.garcia@gmail.com", genericPassword, genericPosition, "male8.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userJosephGarcia.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userTimothyRivera = createUser(org.getId(), "Timothy", "Rivera", "timothy.rivera@gmail.com", genericPassword, genericPosition, "male9.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTimothyRivera.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userKevinHall = createUser(org.getId(), "Kevin", "Hall", "kevin.hall@gmail.com", genericPassword, genericPosition, "male10.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinHall.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userKennethCarter = createUser(org.getId(), "Kenneth", "Carter", "kenneth.carter@gmail.com", genericPassword, genericPosition, "male11.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKennethCarter.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userAnthonyMoore = createUser(org.getId(), "Anthony", "Moore", "anthony.moore@gmail.com", genericPassword, genericPosition, "male12.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnthonyMoore.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 
 
 			User userTaniaCortese = createUser(org.getId(), "Tania", "Cortese", "tania.cortese@gmail.com", genericPassword, genericPosition, "female1.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTaniaCortese.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userSonyaElston = createUser(org.getId(), "Sonya", "Elston", "sonya.elston@gmail.com", genericPassword, genericPosition, "female2.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSonyaElston.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userLoriAbner = createUser(org.getId(), "Lori", "Abner", "lori.abner@gmail.com", genericPassword, genericPosition, "female3.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userLoriAbner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userSamanthaDell = createUser(org.getId(), "Samantha", "Dell", "samantha.dell@gmail.com", genericPassword, genericPosition, "female4.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSamanthaDell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userAkikoKido = createUser(org.getId(), "Akiko", "Kido", "akiko.kido@gmail.com", genericPassword, genericPosition, "female7.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAkikoKido.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userKarenWhite = createUser(org.getId(), "Karen", "White", "karen.white@gmail.com", genericPassword, genericPosition, "female10.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKarenWhite.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userAnnaHallowell = createUser(org.getId(), "Anna", "Hallowell", "anna.hallowell@gmail.com", genericPassword, genericPosition, "female11.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnnaHallowell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userErikaAmes = createUser(org.getId(), "Erika", "Ames", "erika.ames@gmail.com", genericPassword, genericPosition, "female12.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userErikaAmes.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userHelenCampbell = createUser(org.getId(), "Helen", "Campbell", "helen.campbell@gmail.com", genericPassword, genericPosition, "female13.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userHelenCampbell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userSheriLaureano = createUser(org.getId(), "Sheri", "Laureano", "sheri.laureano@gmail.com", genericPassword, genericPosition, "female14.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSheriLaureano.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userAngelicaFallon = createUser(org.getId(), "Angelica", "Fallon", "angelica.fallon@gmail.com", genericPassword, genericPosition, "female16.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAngelicaFallon.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userIdaFritz = createUser(org.getId(), "Ida", "Fritz", "ida.fritz@gmail.com", genericPassword, genericPosition, "female17.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userIdaFritz.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			User userRachelWiggins = createUser(org.getId(), "Rachel", "Wiggins", "rachel.wiggins@gmail.com", genericPassword, genericPosition, "female20.png", roleUser);
-			ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRachelWiggins.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 
 			// allow users to be added to indexes
 			try {
@@ -163,8 +149,9 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 			// Adding roles to the users
 			try {
-				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell.getId());
 				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell.getId());
+				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell.getId());
+				userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleSuperAdmin, userNickPowell.getId());
 
 				userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong.getId());
 				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
@@ -186,6 +173,33 @@ public class BusinessCase4_EDX extends BusinessCase {
 				userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userKarenWhite.getId());
 				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
 						EventType.Edit_Profile, UserContextData.of(userKarenWhite.getId(), userKarenWhite.getOrganization().getId(), null, null), userKarenWhite, null, null, null);
+
+
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userNickPowell.getId(), unit.getId(), roleManager.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRichardAnderson.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinMitchell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPaulEdwards.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userStevenTurner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userGeorgeYoung.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPhillAmstrong.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userJosephGarcia.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTimothyRivera.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinHall.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKennethCarter.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnthonyMoore.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTaniaCortese.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSonyaElston.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userLoriAbner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSamanthaDell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAkikoKido.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKarenWhite.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnnaHallowell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userErikaAmes.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userHelenCampbell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSheriLaureano.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAngelicaFallon.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userIdaFritz.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+				ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRachelWiggins.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
 			} catch (EventException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -469,10 +483,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 						ActivityResultType.TEXT);
 
 				publishCredential(cred1, cred1.getCreatedBy());
+
+				Thread.sleep(1000);
 			} catch (EventException e) {
 				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
+			}
+
+			try {
+				Credential1 cred1Delivery = ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDelivery(cred1.getId(), new Date().getTime(), LocalDateTime.now(Clock.systemUTC()).plusDays(20).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli(), UserContextData.ofActor(userNickPowell.getId()));
+
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userRichardAnderson.getId()));
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userGeorgeYoung.getId()));
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userIdaFritz.getId()));
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userLoriAbner.getId()));
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userErikaAmes.getId()));
+				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userTaniaCortese.getId()));
+			} catch (IllegalDataStateException e) {
+				e.printStackTrace();
 			}
 
 
@@ -849,13 +878,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(orgId, name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
-
-			newUser = ServiceLocator
-					.getInstance()
-					.getService(RoleManager.class)
-					.assignRoleToUser(roleUser, newUser.getId());
-
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, Arrays.asList(roleUser.getId()));
 			return newUser;
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
@@ -926,6 +949,12 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class)
 				.saveNewCredential(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		ServiceLocator
 				.getInstance()

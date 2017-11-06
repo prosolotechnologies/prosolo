@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @ManagedBean(name = "competenceUserPrivilegeBean")
 @Component("competenceUserPrivilegeBean")
 @Scope("view")
@@ -104,12 +105,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 						} else {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
 						}
-						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? SystemRoleNames.MANAGER : SystemRoleNames.USER);
 
-						if (roleIds.size() == 1) {
-							roleId = roleIds.get(0);
-						}
+						roleId = roleManager.getRoleIdByName(
+								privilege == UserGroupPrivilege.Edit ? SystemRoleNames.MANAGER : SystemRoleNames.USER);
 
 						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(compId);
 

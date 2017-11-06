@@ -1,8 +1,19 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.observations.Suggestion;
+import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.services.migration.DemoCustomMigrationService;
+import org.prosolo.services.migration.UTACustomMigrationService;
+import org.prosolo.services.studentProfile.observations.SuggestionManager;
+import org.prosolo.services.studentProfile.observations.SymptomManager;
+import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.manage.students.data.observantions.SuggestionData;
+import org.prosolo.web.manage.students.data.observantions.SymptomData;
+import org.prosolo.web.util.page.PageUtil;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -10,20 +21,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
-
-import org.apache.log4j.Logger;
-import org.primefaces.event.RowEditEvent;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.observations.Suggestion;
-import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.services.migration.UTACustomMigrationService;
-import org.prosolo.services.studentProfile.observations.SuggestionManager;
-import org.prosolo.services.studentProfile.observations.SymptomManager;
-import org.prosolo.web.manage.students.data.observantions.SuggestionData;
-import org.prosolo.web.manage.students.data.observantions.SymptomData;
-import org.prosolo.web.util.page.PageUtil;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name="otherSettingsBean")
 @Component("otherSettingsBean")
@@ -40,6 +40,10 @@ public class OtherSettingsBean implements Serializable {
 	private SuggestionManager suggestionManager;
 	@Inject
 	private UTACustomMigrationService utaCustomMigrationService;
+	@Inject
+	private LoggedUserBean loggedUser;
+	@Inject
+	private DemoCustomMigrationService demoCustomMigrationService;
 	
 	private List<SymptomData> symptoms;
 	private List<SuggestionData> suggestions;
@@ -259,7 +263,10 @@ public class OtherSettingsBean implements Serializable {
 
 	public void migrateUtaCredentialsTo07() {
 		utaCustomMigrationService.migrateCredentialsFrom06To07();
-		//utaCustomMigrationService.deleteUsers(3);
+	}
+
+	public void migrateDemoServer() {
+		demoCustomMigrationService.migrateDataFrom06To11();
 	}
 
 	//GETTERS AND SETTERS
@@ -311,5 +318,5 @@ public class OtherSettingsBean implements Serializable {
 	public void setSuggestionForEdit(SuggestionData suggestionForEdit) {
 		this.suggestionForEdit = suggestionForEdit;
 	}
-	
+
 }

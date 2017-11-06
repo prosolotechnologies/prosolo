@@ -2,9 +2,6 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -12,14 +9,10 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
-import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -43,6 +36,7 @@ public class ActivityViewBeanAdmin implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private UnitManager unitManager;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -65,45 +59,50 @@ public class ActivityViewBeanAdmin implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
-			if (credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
-			try {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
+
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedActId > 0 && decodedCompId > 0) {
+				if (credId != null) {
+					decodedCredId = idEncoder.decodeId(credId);
+				}
+				try {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 				/*
 				if credential id is passed we check if credential is connected to unit because if admin
 				comes to this page from credential page he should always see competency and activity details - not found
 				page would be confusing for him.
 				 */
-				boolean connectedToUnit = decodedCredId > 0
-						? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-						: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
-				if (td != null && connectedToUnit) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
+					boolean connectedToUnit = decodedCredId > 0
+							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
+							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+					if (td != null && connectedToUnit) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
 
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
-									decodedCredId, decodedCompId, decodedActId);
+						competenceData = activityManager
+								.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+										decodedCredId, decodedCompId, decodedActId);
 
-					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-							competenceData.getActivityToShowWithDetails().getCaptions(),
-							loggedUser.getUserId());
+						ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+								competenceData.getActivityToShowWithDetails().getCaptions(),
+								loggedUser.getUserId());
 
-					loadCompetenceAndCredentialTitle();
-				} else {
+						loadCompetenceAndCredentialTitle();
+					} else {
+						PageUtil.notFound();
+					}
+				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error loading the page");
 				}
-			} catch (ResourceNotFoundException rnfe) {
+			} else {
 				PageUtil.notFound();
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
 	}
 	

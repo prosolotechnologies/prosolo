@@ -1,24 +1,11 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.CapabilityData;
 import org.prosolo.web.administration.data.RoleData;
@@ -27,6 +14,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name="roles")
 @Component("roles")
@@ -48,6 +48,7 @@ public class RolesBean implements Serializable {
 	private RoleData roleToDelete;
 	
 	private List<CapabilityData> capabilities;
+	private ResourceAccessData access;
 
 	@PostConstruct
 	public void init() {
@@ -176,17 +177,13 @@ public class RolesBean implements Serializable {
 //	}
 
 	public void validateName(FacesContext context, UIComponent component, Object value){
-		Collection<Long> roleUris = roleManager.getRoleIdsForName((String) value);
+		Long roleId = roleManager.getRoleIdByName((String) value);
 		
-		boolean isValid = roleUris.size() > 0 ? false : true;
+		boolean isValid = roleId > 0 ? false : true;
 
 		if (!isValid && !isCreateRoleUseCase()) {
-			List<Long> urisList = new ArrayList<Long>(roleUris);
-			
-			for (Long id : urisList) {
-				if (id.equals(formData.getId()))
-					isValid = true;
-			}
+			if (roleId.equals(formData.getId()))
+				isValid = true;
 		}
 
 		if (!isValid) {

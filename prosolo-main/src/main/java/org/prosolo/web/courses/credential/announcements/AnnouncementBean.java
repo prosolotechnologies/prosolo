@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,17 +121,22 @@ public class AnnouncementBean implements Serializable, Paginable {
 	}
 
 	public void publishAnnouncement() {
-		AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
-				newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
-		
-		created.setCreatorAvatarUrl(loggedUser.getAvatar());
-		created.setCreatorFullName(loggedUser.getFullName());
+		try{
+			AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+					newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
 
-		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
-				idEncoder.decodeId(credentialId));
-		
-		PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
-		init();
+			created.setCreatorAvatarUrl(loggedUser.getAvatar());
+			created.setCreatorFullName(loggedUser.getFullName());
+
+			notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
+					idEncoder.decodeId(credentialId));
+
+			PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
+			init();
+		} catch (Exception e){
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error creating the announcement");
+		}
 	}
 	
 	public void setPublishMode() {

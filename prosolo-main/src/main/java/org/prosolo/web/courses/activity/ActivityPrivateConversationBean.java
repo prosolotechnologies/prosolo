@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -137,8 +138,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
-		Integer grade = updateGrade
-				? activityAssessmentData != null ? activityAssessmentData.getGrade().getValue() : null
+		GradeData grade = updateGrade
+				? activityAssessmentData != null ? activityAssessmentData.getGrade() : null
 				: null;
 
 		// creating a set as there might be duplicates with ids
@@ -159,11 +160,13 @@ public class ActivityPrivateConversationBean implements Serializable {
 		try {
 			if (competenceAssessmentId > 0) {
 				//if competence assessment exists create activity assessment only
-				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-								activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
+								activityAssessmentData.getCredAssessmentId(), new ArrayList<>(participantIds),
 								loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
-								loggedUserBean.getUserContext()).getId()));
+								loggedUserBean.getUserContext());
+				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
+				activityAssessmentData.getGrade().setValue(aa.getPoints());
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
@@ -198,6 +201,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private void populateCompetenceAndActivityAssessmentIds(AssessmentBasicData assessmentInfo) {
 		activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
 				assessmentInfo.getActivityAssessmentId()));
+		activityAssessmentData.getGrade().setValue(assessmentInfo.getGrade());
 		activityAssessmentData.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
 		//if competence assessment data is set, set id there too
 		if (activityAssessmentData.getCompAssessment() != null) {

@@ -70,14 +70,19 @@
 								</li>
 							</ui:remove>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'organizations'
-									or util:getPagePath(view.viewId)  == 'organization-settings'
-									or util:getPagePath(view.viewId)  == 'organizationUsers'
-									or util:getPagePath(view.viewId)  == 'organizationUserEdit'
-									or util:getPagePath(view.viewId)  == 'userEditPassword'
-									or util:getPagePath(view.viewId)  == 'units'
-									or util:getPagePath(view.viewId)  == 'unit-credentials'
-									or util:getPagePath(view.viewId)  == 'unit-settings'
+								class="#{util:getPagePath(view.viewId) == 'organizations'
+									or util:getPagePath(view.viewId) == 'organization-settings'
+									or util:getPagePath(view.viewId) == 'organizationUsers'
+									or util:getPagePath(view.viewId) == 'organizationUserEdit'
+									or util:getPagePath(view.viewId) == 'userEditPassword'
+									or util:getPagePath(view.viewId) == 'units'
+									or util:getPagePath(view.viewId) == 'unit-credentials'
+									or util:getPagePath(view.viewId) == 'unit-teachers'
+									or util:getPagePath(view.viewId) == 'unit-students'
+									or util:getPagePath(view.viewId) == 'unit-instructors'
+									or util:getPagePath(view.viewId) == 'unit-group-users'
+									or util:getPagePath(view.viewId) == 'unit-groups'
+									or util:getPagePath(view.viewId) == 'unit-settings'
 									or util:getPagePath(view.viewId) == 'credential'
 									or util:getPagePath(view.viewId) == 'competence'
 									or util:getPagePath(view.viewId) == 'activity'
@@ -118,12 +123,18 @@
 						<nav>
 							<ul class="nav nav-pills">
 								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'units'
-									 or util:getPagePath(view.viewId)  == 'unitEdit'
-									 or util:getPagePath(view.viewId)  == 'unit-students'
-									 or util:getPagePath(view.viewId)  == 'unit-instructors'
-									 or util:getPagePath(view.viewId)  == 'unit-group-users'
-									 or util:getPagePath(view.viewId)  == 'unit-groups'
-									 or util:getPagePath(view.viewId)  == 'unit-teachers'? 'active' : ''}">
+									or util:getPagePath(view.viewId) == 'unit-settings'
+									or util:getPagePath(view.viewId) == 'unit-students'
+									or util:getPagePath(view.viewId) == 'unit-instructors'
+									or util:getPagePath(view.viewId) == 'unit-group-users'
+									or util:getPagePath(view.viewId) == 'unit-groups'
+									or util:getPagePath(view.viewId) == 'unit-teachers'
+									or util:getPagePath(view.viewId) == 'unit-credentials'
+									or util:getPagePath(view.viewId) == 'credential'
+									or util:getPagePath(view.viewId) == 'competence'
+									or util:getPagePath(view.viewId) == 'activity'
+									or util:getPagePath(view.viewId) == 'credential-who-can-learn'
+									? 'active' : ''}">
 									<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
 										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
 										Units
@@ -148,10 +159,10 @@
 									<h:link rendered="#{util:getPagePath(view.viewId) ne 'organization-settings'}"
 											outcome="/admin/organization-settings">
 										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
-										Organization Details
+										Settings
 									</h:link>
 									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organization-settings'}">
-										<a href="javascript:void(0);">Organization Details</a>
+										<a href="javascript:void(0);">Settings</a>
 									</ui:fragment>
 								</li>
 							</ul>
@@ -172,9 +183,7 @@
 							onclick="sendLogPageNavigation('messages','mainmenu');"
 							outcome="/admin/messages">
 						Messages
-						<span
-								class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
-							unreadDot </span>
+						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot </span>
 					</h:link>
 
 					<div class="dropdown notificationsMenu">

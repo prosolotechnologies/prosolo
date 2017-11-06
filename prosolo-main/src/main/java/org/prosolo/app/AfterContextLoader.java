@@ -7,10 +7,6 @@ import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -19,7 +15,6 @@ import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -32,6 +27,7 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.util.Arrays;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -139,19 +135,19 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initApplicationServices(){
 		System.out.println("Init application services...");
-		
+
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
-			 systemConsumer = new ReliableConsumerImpl();
+			systemConsumer = new ReliableConsumerImpl();
 			systemConsumer.setWorker(new DefaultMessageWorker());
 			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
-			 sessionConsumer = new ReliableConsumerImpl();
+			sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());
 			sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 			sessionConsumer.StartAsynchronousConsumer();
 
-			 broadcastConsumer = new ReliableConsumerImpl();
+			broadcastConsumer = new ReliableConsumerImpl();
 			broadcastConsumer.setWorker(new DefaultMessageWorker());
 			broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
 			broadcastConsumer.StartAsynchronousConsumer();
@@ -164,7 +160,9 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initStaticData() {
 		try {
-			User adminUser = ServiceLocator.getInstance().getService(UserManager.class)
+			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
+
+			ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
 							0,
 							Settings.getInstance().config.init.defaultUser.name,
@@ -175,31 +173,8 @@ public class AfterContextLoader implements ServletContextListener {
 							null, 
 							null,
 							null,
-							null,
+							Arrays.asList(superAdminRoleId),
 							true);
-			
-			// allow user to be added to indexes in the previous method
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
-	
-			String roleAdminTitle = SystemRoleNames.ADMIN;
-			
-			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
-			
-			adminUser = ServiceLocator.getInstance().getService(RoleManager.class)
-					.assignRoleToUser(
-							adminRole, 
-							adminUser.getId());
-			
-			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-					EventType.Edit_Profile, UserContextData.ofActor(adminUser.getId()), adminUser, null, null, null);
-	
-//			// instantiate badges
-//			ServiceLocator.getInstance().getService(BadgeManager.class)
-//					.createBadge(BadgeType.STAR, "Excellence Badge");
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (UserAlreadyRegisteredException e) {

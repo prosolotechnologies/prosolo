@@ -55,6 +55,9 @@ public class ElasticSearchConfig {
 
 	@Element(name = "rubrics-index")
 	public String rubricsIndex;
-	
+
+	@Element(name = "jobsLogs-index")
+	public String jobsLogsIndex;
+
 	
 }
