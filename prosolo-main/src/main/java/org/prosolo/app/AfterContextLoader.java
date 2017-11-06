@@ -23,7 +23,7 @@ import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -160,7 +160,7 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initStaticData() {
 		try {
-			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(RoleNames.SUPER_ADMIN);
+			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
 
 			ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
