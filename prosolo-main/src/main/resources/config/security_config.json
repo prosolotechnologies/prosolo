@@ -74,6 +74,22 @@
             ]
         },
         {
+            "name": "organization.administration",
+            "description": "Administration of organization related data",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
+            "name": "organization.units.administration",
+            "description": "Administration of organization units related data",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
             "name": "admin.advanced",
             "description": "Set advanced options in the admin section that affect the whole application",
             "roles": [
