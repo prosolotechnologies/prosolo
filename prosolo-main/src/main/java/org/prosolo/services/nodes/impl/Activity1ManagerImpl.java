@@ -351,7 +351,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT compAct " +
+			builder.append("SELECT DISTINCT compAct " +
 				      	   "FROM CompetenceActivity1 compAct " + 
 				       	   "INNER JOIN fetch compAct.activity act ");
 			
