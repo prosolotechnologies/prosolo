@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.capability.UserCapabilityUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -114,10 +115,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
      * @return
      */
     private List<EventData> addRubricToDefaultUnits(long rubricId, UserContextData context) {
-        long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
-        List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
+        List<Long> units = unitManager.getUserUnitIdsWithUserCapability(context.getActorId(),
+                UserCapabilityUtil.getRubricCreationCapability());
         List<EventData> events = new ArrayList<>();
-        for (long unitId : unitsWithManagerRole) {
+        for (long unitId : units) {
             events.addAll(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEvents());
         }
         return events;
