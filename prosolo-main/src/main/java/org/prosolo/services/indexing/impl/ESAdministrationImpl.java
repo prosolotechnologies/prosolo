@@ -41,10 +41,10 @@ public class ESAdministrationImpl implements ESAdministration {
 	private static final long serialVersionUID = 830150223713546004L;
 	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
 
-//	@Override
-//	public boolean createAllIndexes() throws IndexingServiceNotAvailable {
-//		return createIndexes(ESIndexNames.getSystemIndexes(), ESIndexNames.getOrganizationIndexes());
-//	}
+	@Override
+	public boolean createAllIndexes() throws IndexingServiceNotAvailable {
+		return createIndexes(ESIndexNames.getSystemIndexes(), ESIndexNames.getOrganizationIndexes());
+	}
 
 	@Override
 	public boolean createDBIndexes() throws IndexingServiceNotAvailable {
@@ -131,10 +131,10 @@ public class ESAdministrationImpl implements ESAdministration {
 		client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
 	}
 
-//	@Override
-//	public boolean deleteAllIndexes() throws IndexingServiceNotAvailable {
-//		return deleteIndexByName("*" + CommonSettings.getInstance().config.getNamespaceSufix() + "*");
-//	}
+	@Override
+	public boolean deleteAllIndexes() throws IndexingServiceNotAvailable {
+		return deleteIndexByName("*" + CommonSettings.getInstance().config.getNamespaceSufix() + "*");
+	}
 
 	@Override
 	public boolean deleteDBIndexes() throws IndexingServiceNotAvailable {

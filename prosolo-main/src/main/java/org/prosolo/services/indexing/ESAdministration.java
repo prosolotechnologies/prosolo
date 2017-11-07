@@ -10,11 +10,11 @@ import java.io.Serializable;
  */
 public interface ESAdministration  extends Serializable{
 
-	//boolean deleteAllIndexes() throws IndexingServiceNotAvailable;
+	boolean deleteAllIndexes() throws IndexingServiceNotAvailable;
 
 	boolean deleteDBIndexes() throws IndexingServiceNotAvailable;
 
-	//boolean createAllIndexes() throws IndexingServiceNotAvailable;
+	boolean createAllIndexes() throws IndexingServiceNotAvailable;
 
 	boolean createDBIndexes() throws IndexingServiceNotAvailable;
 
