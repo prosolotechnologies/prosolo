@@ -31,7 +31,6 @@ import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
-import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -1498,8 +1497,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
 						}
+						BigInteger rubricId = (BigInteger) row[15];
 						ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
-								GradingMode.valueOf((String) row[14]), ((BigInteger) row[15]).longValue(), ((Character) row[16]).charValue() == 'T'));
+								GradingMode.valueOf((String) row[14]), rubricId != null ? rubricId.longValue() : 0, ((Character) row[16]).charValue() == 'T'));
 
 						//load additional assessment data
 						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,

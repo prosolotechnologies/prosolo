@@ -18,7 +18,6 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.impl.PaginatedResult;
@@ -45,7 +44,7 @@ import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTr
 import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -181,8 +180,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @return
 	 */
 	private List<EventData> addCredentialToDefaultUnits(long credId, UserContextData context) {
-		long roleId = roleManager.getRoleIdsForName(RoleNames.MANAGER).get(0);
-		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), roleId);
+		long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
+		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
 		List<EventData> events = new ArrayList<>();
 		for (long unitId : unitsWithManagerRole) {
 			events.addAll(unitManager.addCredentialToUnitAndGetEvents(credId, unitId, context).getEvents());

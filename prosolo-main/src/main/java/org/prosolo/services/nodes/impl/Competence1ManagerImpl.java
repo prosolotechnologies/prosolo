@@ -37,7 +37,7 @@ import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,8 +179,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 */
 	private List<EventData> addCompetenceToDefaultUnits(long compId, UserContextData context) {
-		long roleId = roleManager.getRoleIdsForName(RoleNames.MANAGER).get(0);
-		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), roleId);
+		long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
+		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
 		List<EventData> events = new ArrayList<>();
 		for (long unitId : unitsWithManagerRole) {
 			events.addAll(unitManager.addCompetenceToUnitAndGetEvents(compId, unitId, context).getEvents());

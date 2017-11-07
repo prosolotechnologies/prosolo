@@ -1,13 +1,12 @@
 package org.prosolo.services.util.url;
 
+import org.prosolo.services.media.util.LinkParserException;
+import org.prosolo.services.media.util.SlideShareUtils;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
+
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.prosolo.services.media.util.MediaDataException;
-import org.prosolo.services.media.util.SlideShareUtils;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 
 public class URLUtil {
 
@@ -43,22 +42,6 @@ public class URLUtil {
 		}
 	}
 	
-	public static MediaData getYoutubeMediaData(String link) {
-		String embedLink = null;
-		String youtubeEmbedLink="https://www.youtube.com/embed/";
-		String id = null;
-		//
-		//^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$
-		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
-				Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(link);
-		if (matcher.matches()) {
-			id = matcher.group(1);
-			embedLink = youtubeEmbedLink + id +"?rel=0&amp;fs=1";
-		} 
-		return new MediaData(MediaType1.Youtube, embedLink, id);
-	}	
-	
 	public static String getYoutubeEmbedId(String link) {
 		String id = null;
 		//^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$
@@ -76,9 +59,9 @@ public class URLUtil {
 	 * @param link
 	 * @param embedId if embedId is not known pass null
 	 * @return
-	 * @throws MediaDataException 
+	 * @throws LinkParserException
 	 */
-	public static MediaData getSlideshareEmbedLink(String link, String embedId) throws MediaDataException {
+	public static MediaData getSlideshareEmbedLink(String link, String embedId) throws LinkParserException {
 		return SlideShareUtils.convertSlideShareURLToEmbededUrl(link, embedId);
 	}
 	

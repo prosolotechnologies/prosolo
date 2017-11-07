@@ -21,9 +21,9 @@ public class SlideShareUtils {
 	 * @param slideShareUrl
 	 * @param embedId - if not known pass null
 	 * @return
-	 * @throws MediaDataException 
+	 * @throws LinkParserException
 	 */
-	public static MediaData convertSlideShareURLToEmbededUrl(String slideShareUrl, String embedId) throws MediaDataException {
+	public static MediaData convertSlideShareURLToEmbededUrl(String slideShareUrl, String embedId) throws LinkParserException {
 		String presentationId = "";
 		if(embedId != null && !embedId.isEmpty()) {
 			presentationId = embedId;
@@ -48,7 +48,7 @@ public class SlideShareUtils {
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
-				throw new MediaDataException("Exception retrieving JSON description for:"+slideShareUrl+". Returned json string is:"+jsonString);
+				throw new LinkParserException("Exception retrieving JSON description for:"+slideShareUrl+". Returned json string is:"+jsonString);
 			}
 		}
 		

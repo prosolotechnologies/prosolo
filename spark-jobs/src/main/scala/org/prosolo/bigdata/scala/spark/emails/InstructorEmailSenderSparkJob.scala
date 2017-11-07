@@ -3,7 +3,7 @@ package org.prosolo.bigdata.scala.spark.emails
 
 
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
 import com.datastax.spark.connector._
 import org.apache.spark.rdd.RDD
 //import org.prosolo.bigdata.services.email.InstructorStudentsEmailService
@@ -19,8 +19,9 @@ case class Record(courseId: java.lang.Long,
 case class CourseInstructorEmail(val courseId: Long, val instructorId: Long, val assigned:java.util.List[java.lang.Long], val unassigned:java.util.List[java.lang.Long])
 
 
-object InstructorEmailSenderSparkJob {
-  val sc = SparkContextLoader.getSC
+class InstructorEmailSenderSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+ // val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, bucket: Long): Array[CourseInstructorEmail] = {
     val scalaCourseIds: Seq[java.lang.Long] = credentialsIds.asScala.toSeq

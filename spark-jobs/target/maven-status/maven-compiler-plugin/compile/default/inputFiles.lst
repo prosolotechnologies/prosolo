@@ -1,0 +1,4 @@
+/home/zoran/git/prosolo-multimodule/spark-jobs/src/main/java/org/prosolo/bigdata/utils/DateUtil.java
+/home/zoran/git/prosolo-multimodule/spark-jobs/src/main/java/org/prosolo/bigdata/dal/cassandra/impl/TablesNames.java
+/home/zoran/git/prosolo-multimodule/spark-jobs/src/main/java/org/prosolo/bigdata/dal/cassandra/impl/TableNames.java
+/home/zoran/git/prosolo-multimodule/spark-jobs/src/main/java/org/prosolo/bigdata/clustering/QuartileName.java
