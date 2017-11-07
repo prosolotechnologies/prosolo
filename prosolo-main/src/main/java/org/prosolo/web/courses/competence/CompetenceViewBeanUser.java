@@ -53,6 +53,8 @@ public class CompetenceViewBeanUser implements Serializable {
 	private long nextCompToLearn;
 	private boolean mandatoryOrder;
 
+	private String credentialTitle;
+
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
@@ -77,7 +79,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				commentBean.loadComments(commentsData);
 				
 				if(decodedCredId > 0) {
-					String credTitle = credManager.getCredentialTitle(decodedCredId);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
 //					if(competenceData.isEnrolled()) {
 ////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
 ////								loggedUser.getUserId(), false);
@@ -88,8 +90,6 @@ public class CompetenceViewBeanUser implements Serializable {
 //					} else {
 //						credTitle = credManager.getCredentialTitle(decodedCredId);
 //					}
-					competenceData.setCredentialId(decodedCredId);
-					competenceData.setCredentialTitle(credTitle);
 				}
 				if (justEnrolled) {
 					PageUtil.fireSuccessfulInfoMessage(
@@ -232,5 +232,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		this.justEnrolled = justEnrolled;
 	}
 
-
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
 }
