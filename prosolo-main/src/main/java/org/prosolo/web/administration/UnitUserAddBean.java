@@ -9,6 +9,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -105,7 +106,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			unitManager.addUserToUnitWithRole(user.getId(), unitId,
 					roleId, loggedUser.getUserContext(orgId));
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
-					+ " is added to the unit '" + unitTitle + "'");
+					+ " is added to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
 			resetSearchData();
 			try {
 				loadUsersFromDB();
@@ -117,7 +118,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while trying to add "
-					+ user.getFullName() + " to the unit '" + unitTitle + "'");
+					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}

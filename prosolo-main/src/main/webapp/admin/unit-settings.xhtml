@@ -2,9 +2,12 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui" xmlns:utilcomp="http://www.prosolo.com/util"
+                xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
-                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+    <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >Settings</ui:define>
 
@@ -45,7 +48,7 @@
                         </li>
                         <li>
                             <h:link outcome="/admin/units">
-                                Units
+                                #{msg['label.unit.plural']}
                                 <f:param name="id" value="#{param.orgId}" />
                             </h:link>
                         </li>
@@ -73,9 +76,9 @@
                                                      autocomplete="off"
                                                      autofocus="true"
                                                      required="true"
-                                                     requiredMessage="Unit title is required"
+                                                     requiredMessage="#{msg['label.unit']} title is required"
                                                      value="#{unitEditBean.unit.title}"
-                                                     placeholder="Unit Name">
+                                                     placeholder="#{msg['label.unit']} Name">
                                         </h:inputText>
 
                                         <small class="redText"><h:message for="inputTextUnitTitle"></h:message></small>
