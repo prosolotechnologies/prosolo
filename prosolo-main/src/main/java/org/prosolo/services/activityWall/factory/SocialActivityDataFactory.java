@@ -13,7 +13,7 @@ import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserType;
@@ -168,7 +168,7 @@ public class SocialActivityDataFactory {
 				
 				try {
 					ap = richContentFactory.getAttachmentPreview(rc);
-				} catch (MediaDataException e) {
+				} catch (LinkParserException e) {
 					logger.error(e);
 				}
 			}
@@ -199,7 +199,7 @@ public class SocialActivityDataFactory {
 				try {
 					AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(rc);
 					originalPost.setAttachmentPreview(attach);
-				} catch (MediaDataException e) {
+				} catch (LinkParserException e) {
 					logger.error(e);
 				}
 			}
@@ -322,7 +322,7 @@ public class SocialActivityDataFactory {
 			if(pAct.getRichContent() != null) {
 				try {
 					ap = richContentFactory.getAttachmentPreview(pAct.getRichContent());
-				} catch (MediaDataException e) {
+				} catch (LinkParserException e) {
 					logger.error(e);
 				}
 			}
@@ -345,7 +345,7 @@ public class SocialActivityDataFactory {
 				try {
 					AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(psa.getRichContent());
 					originalPost.setAttachmentPreview(attach);
-				} catch (MediaDataException e) {
+				} catch (LinkParserException e) {
 					logger.error(e);
 				}
 			}
