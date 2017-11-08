@@ -50,12 +50,8 @@ public class DeleteRubricBean implements Serializable {
                 PageUtil.fireSuccessfulInfoMessageAcrossPages(ResourceBundleUtil.getMessage("label.rubric") + " " +
                         rubricToDelete.getName() + " has been deleted");
                 PageUtil.redirect("/manage/rubrics");
-            } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            } catch (Exception e) {
                 logger.error(e);
-                e.printStackTrace();
-                PageUtil.fireErrorMessage("Error deleting the " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase());
-            } catch (Exception ex) {
-                logger.error(ex);
                 PageUtil.fireErrorMessage("Error deleting the " + ResourceBundleUtil.getMessage("label.rubric").toLowerCase());
             }
         }

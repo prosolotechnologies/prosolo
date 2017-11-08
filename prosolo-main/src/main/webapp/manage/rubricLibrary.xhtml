@@ -116,16 +116,10 @@
                                                         Delete
                                                     </p:commandLink>
                                                 </ui:fragment>
-                                                <ui:fragment rendered="#{rubric.creatorId != loggeduser.userId}">
+                                                <ui:fragment rendered="#{rubric.creatorId != loggeduser.userId or rubric.rubricUsed}">
                                                     <a  class="linkRed" data-toggle="tooltip"
-                                                        title="Only creator can delete rubric"
-                                                        disabled="disabled">
-                                                        Delete
-                                                    </a>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{rubric.rubricUsed}">
-                                                    <a  class="linkRed" data-toggle="tooltip"
-                                                        title="Rubric can't be deleted because it is used in an activity"
+                                                        title="#{rubric.creatorId != loggeduser.userId ? 'Only creator can delete rubric'
+                                                         : 'Rubric can not be deleted because it is used in an activity'}"
                                                         disabled="disabled">
                                                         Delete
                                                     </a>

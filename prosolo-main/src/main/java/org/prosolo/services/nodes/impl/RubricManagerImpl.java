@@ -172,7 +172,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     public void deleteRubric(long rubricId, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.deleteRubricAndGetEvents(rubricId, context);
         for (EventData ev : result.getEvents()) {
             try {
@@ -186,7 +186,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     @Override
     @Transactional
     public Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Void> result = new Result<>();
             Rubric rubric = new Rubric();
@@ -197,11 +197,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             return result;
 
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-            logger.error(e);
-            e.printStackTrace();
+            logger.error("Error: ", e);
             throw e;
         } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
+            logger.error("Error: ", e);
             throw new DbConnectionException("Error while deleting rubric");
         }
     }
@@ -288,12 +287,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             throws DbConnectionException {
         try {
             Rubric rubric = getRubric(rubricId, loadCreator, loadItems, userId);
-
+            boolean rubricUsed = isRubricUsed(rubricId);
             if (rubric != null) {
                 User creator = loadCreator ? rubric.getCreator() : null;
                 Set<Criterion> criteria = loadItems ? rubric.getCriteria() : null;
                 Set<Level> levels = loadItems ? rubric.getLevels() : null;
-                return rubricDataFactory.getRubricData(rubric, creator, criteria, levels, trackChanges);
+                return rubricDataFactory.getRubricData(rubric, creator, criteria, levels, trackChanges, rubricUsed);
             }
             return null;
         } catch (Exception e) {
@@ -545,7 +544,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .list();
 
             return rubrics.stream()
-                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false))
+                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false, isRubricUsed(r.getId())))
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             logger.error("Error", e);
