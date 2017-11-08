@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.factory.CredentialDeliveryStatusFactory;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -181,7 +181,7 @@ public class ResourceAccessFactory {
 		@Override
 		public Void visit(CredentialUserAccessSpecification spec) {
 			Long studentRoleId = ServiceLocator.getInstance().getService(RoleManager.class)
-					.getRoleIdByName(RoleNames.USER);
+					.getRoleIdByName(SystemRoleNames.USER);
 			
 			canAccess = ServiceLocator.getInstance().getService(UnitManager.class)
 					.checkIfUserHasRoleInUnitsConnectedToCredential(userId,
@@ -193,7 +193,7 @@ public class ResourceAccessFactory {
 		@Override
 		public Void visit(CompetenceUserAccessSpecification spec) {
 			Long studentRoleId = ServiceLocator.getInstance().getService(RoleManager.class)
-					.getRoleIdByName(RoleNames.USER);
+					.getRoleIdByName(SystemRoleNames.USER);
 					
 			canAccess = ServiceLocator.getInstance().getService(UnitManager.class)
 					.checkIfUserHasRoleInUnitsConnectedToCompetence(userId, resourceId, studentRoleId);

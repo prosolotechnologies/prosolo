@@ -25,6 +25,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -71,9 +72,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 
 			// get ROLES
-			String roleUserTitle = "User";
-			String roleManagerTitle = "Manager";
-			String roleAdminTitle = "Admin";
+			String roleUserTitle = SystemRoleNames.USER;
+			String roleManagerTitle = SystemRoleNames.MANAGER;
+			String roleAdminTitle = SystemRoleNames.ADMIN;
 			Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleUserTitle);
 			Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleManagerTitle);
 			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);

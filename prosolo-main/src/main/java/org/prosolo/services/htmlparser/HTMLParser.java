@@ -11,14 +11,8 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
  */
 public interface HTMLParser {
 
-	boolean checkIfValidUrl(String url);
-
 	Document parseUrl(String url);
 
-	String getFirstImage(String url) throws IOException;
-
 	String getPageTitle(String url);
-	
-	AttachmentPreview1 extractAttachmentPreview1(String url);
 
 }

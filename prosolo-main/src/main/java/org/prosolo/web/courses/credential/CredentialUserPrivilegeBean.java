@@ -18,7 +18,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -167,8 +167,9 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			} else {
 				resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 			}
+
 			this.roleId = roleManager.getRoleIdByName(
-					privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
+					privilege == UserGroupPrivilege.Edit ? SystemRoleNames.MANAGER : SystemRoleNames.USER);
 
 			//units are connected to original credential so we need to work with original credential id
 			long origCredId = credType == CredentialType.Original

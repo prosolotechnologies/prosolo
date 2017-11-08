@@ -29,7 +29,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
@@ -91,7 +91,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			if (user == null) {
 				logger.info("User with email: " + email + " does not exist so new account will be created");
 				//if email does not exist, create new user account;
-				Role role = roleManager.getRoleByName(RoleNames.USER);
+				Role role = roleManager.getRoleByName(SystemRoleNames.USER);
 				//String firstname = credential.getAttributeAsString("givenName");
 				//String lastname = credential.getAttributeAsString("sn");
 				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";

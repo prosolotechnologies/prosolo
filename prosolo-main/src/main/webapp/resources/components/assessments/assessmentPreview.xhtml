@@ -86,10 +86,10 @@
 
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.allCompetencesStarted()}">
 								<p:commandLink
-										styleClass="btn btn-green btn-sm item"
-										value="Approve"
-										update="@form"
-										action="#{cc.attrs.bean.approveCredential()}"
+									styleClass="btn btn-green btn-sm item"
+									value="Approve"
+									update="@form :assessmentPreview:competenceAssessmentPanel"
+									action="#{cc.attrs.bean.approveCredential()}"
 								/>
 
 								<ui:remove>
@@ -251,105 +251,88 @@
 						</div>
 					</ui:fragment>
 
-					<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
-						<ui:fragment rendered="#{not competenceAssessment.readOnly}">
-							<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
-								<div class="innerWrapper">
-									<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
-											prependId="false"
-											id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
-										<p:growl />
+					<h:panelGroup id = "competenceAssessmentPanel">
+						<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
+							<ui:fragment rendered="#{not competenceAssessment.readOnly}">
+								<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+									<div class="innerWrapper">
+										<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
+												prependId="false"
+												id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
 
-										<h2>
-											<h:link outcome="competence">
-												#{competenceAssessment.title}
-												<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-												<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
-														 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
-											</h:link>
-										</h2>
+											<h2>
+												<h:link outcome="competence">
+													#{competenceAssessment.title}
+													<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+													<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+															 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+												</h:link>
+											</h2>
 
-										<h:panelGroup rendered="#{competenceAssessment.approved}"
-													  styleClass="tagApproved" layout="block">
-											Approved
-										</h:panelGroup>
+											<h:panelGroup rendered="#{competenceAssessment.approved}"
+														  styleClass="tagApproved" layout="block">
+												Approved
+											</h:panelGroup>
 
-										<p:commandLink styleClass="linkApprove"
-													   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}"
-													   update="@form"
-													   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
-											Approve<span></span>
-										</p:commandLink>
+											<p:commandLink styleClass="linkApprove"
+														   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment)}"
+														   update="@form :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl "
+														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+												Approve<span></span>
+											</p:commandLink>
 
-										<div class="clear"></div>
-									</h:form>
-								</div>
+											<div class="clear"></div>
+										</h:form>
+									</div>
 
-								<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
-									<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{competenceAssessment.competenceId}"
-												  id="activityAssessmentWrapper#{compAssIndex.index}">
-										<ul>
-											<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
-												<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
-													<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
-													<h:link outcome="activity">
-														#{activityAssessment.title}
-														<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-														<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-														<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
-																 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
-													</h:link>
-													<div class="activityOptions">
-														<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-															<h:link outcome="activity-response"
-																	styleClass="viewResult"
-																	rendered="#{cc.attrs.role eq 'USER'}"
-																	pt:data-toggle="tooltip" pt:title="View Response">
-																View Response
-																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
-																<f:param name="targetActId" value="#{util:encodeId(activityAssessment.targetActivityId)}" />
-															</h:link>
-															<h:link outcome="activity-responses"
-																	styleClass="viewResult"
-																	rendered="#{cc.attrs.role eq 'MANAGER'}"
-																	pt:data-toggle="tooltip" pt:title="View Response">
-																View Response
-																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
-																<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
-															</h:link>
-														</ui:fragment>
-
-														<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-																	   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
-																	   action="#{activityPrivateConversationBean.init(activityAssessment)}"
-																	   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
-																	   oncomplete="$('#assessmentCommentsModal1').modal('show');">
-															#{activityAssessment.numberOfMessages}
-														</p:commandLink>
-
-														<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
-															<p:commandLink rendered="#{activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment)}"
-																		   styleClass="grade"
-																		   action="#{cc.attrs.bean.setCurrentAssessment(activityAssessment)}"
-																		   update=":#{cc.clientId}:panelRubricAssessment :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
-																		   oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
-																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																#{activityAssessment.grade.maxGrade}
-															</p:commandLink>
-															<ui:fragment rendered="#{not (activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment))}">
-																<span class="grade">
-																	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																	#{activityAssessment.grade.maxGrade}
-																</span>
+									<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
+										<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{competenceAssessment.competenceId}"
+													  id="activityAssessmentWrapper#{compAssIndex.index}">
+											<ul>
+												<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
+													<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+														<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
+														<h:link outcome="activity">
+															#{activityAssessment.title}
+															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+															<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+															<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+																	 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+														</h:link>
+														<div class="activityOptions">
+															<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+																<h:link outcome="activity-response"
+																		styleClass="viewResult"
+																		rendered="#{cc.attrs.role eq 'USER'}"
+																		pt:data-toggle="tooltip" pt:title="View Response">
+																	View Response
+																	<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																	<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																	<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																	<f:param name="targetActId" value="#{util:encodeId(activityAssessment.targetActivityId)}" />
+																</h:link>
+																<h:link outcome="activity-responses"
+																		styleClass="viewResult"
+																		rendered="#{cc.attrs.role eq 'MANAGER'}"
+																		pt:data-toggle="tooltip" pt:title="View Response">
+																	View Response
+																	<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																	<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																	<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																	<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
+																</h:link>
 															</ui:fragment>
-														</c:if>
-														<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent)}">
+
+															<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+																		   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
+																		   action="#{activityPrivateConversationBean.init(activityAssessment)}"
+																		   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
+																		   oncomplete="$('#assessmentCommentsModal1').modal('show');">
+																#{activityAssessment.numberOfMessages}
+															</p:commandLink>
+
 															<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor()}">
-																<p:commandLink
+																<p:commandLink rendered="#{activityAssessment.grade.maxGrade ne 0}"
 																		styleClass="grade gradeModalLink_#{activityAssessment.activityId}"
 																		action="#{cc.attrs.bean.setCurrentAssessment(activityAssessment)}"
 																		update=":#{cc.clientId}:activityGradePanel:gradePanel :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
@@ -357,6 +340,14 @@
 																	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
 																	#{activityAssessment.grade.maxGrade}
 																</p:commandLink>
+																<ui:fragment rendered="#{activityAssessment.grade.maxGrade eq 0}">
+																	<a href="javascript:void(0);" class="grade"
+																	   data-toggle="tooltip"
+																	   title="Nongraded activity">
+																		#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																		#{activityAssessment.grade.maxGrade}
+																	</a>
+																</ui:fragment>
 															</ui:fragment>
 
 															<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor()}">
@@ -369,75 +360,75 @@
 																	#{activityAssessment.grade.maxGrade}
 																</a>
 															</ui:fragment>
-														</c:if>
-													</div>
+														</div>
+													</li>
+												</ui:repeat>
+
+												<li class="competenceScore">
+													<div>#{msg['label.competence']} score:</div>
+													<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
+														#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
+													</h:panelGroup>
 												</li>
-											</ui:repeat>
-
-											<li class="competenceScore">
-												<div>#{msg['label.competence']} score:</div>
-												<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
-													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
-												</h:panelGroup>
-											</li>
-										</ul>
-									</h:panelGroup>
-								</ui:fragment>
-							</article>
-						</ui:fragment>
-						<ui:fragment rendered="#{competenceAssessment.readOnly}">
-							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
-								<div class="innerWrapper">
-									<h2>
-										<h:link outcome="competence">
-											#{competenceAssessment.title}
-											<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
-													 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
-										</h:link>
-									</h2>
-
-									<ui:fragment rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
-										<a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
+											</ul>
+										</h:panelGroup>
 									</ui:fragment>
+								</article>
+							</ui:fragment>
+							<ui:fragment rendered="#{competenceAssessment.readOnly}">
+								<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
+									<div class="innerWrapper">
+										<h2>
+											<h:link outcome="competence">
+												#{competenceAssessment.title}
+												<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+												<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+														 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+											</h:link>
+										</h2>
 
-									<div class="clear"></div>
-								</div>
+										<ui:fragment rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+											<a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
+										</ui:fragment>
 
-								<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
-									<div class="assessmentActivityList">
-										<ul>
-											<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
-												<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)}">
-													<span class="iconType"></span>
-													<h:link outcome="activity">
-														#{activityAssessment.title}
-														<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-														<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-														<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
-																 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
-													</h:link>
+										<div class="clear"></div>
+									</div>
 
-													<div class="activityOptions">
-														<div class="disabledOverlay"></div>
-														<a href="javascript:void(0);" class="commentsIcon">0</a>
-														<a href="javascript:void(0);" class="grade">- / #{activityAssessment.grade.maxGrade}</a>
+									<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
+										<div class="assessmentActivityList">
+											<ul>
+												<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
+													<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)}">
+														<span class="iconType"></span>
+														<h:link outcome="activity">
+															#{activityAssessment.title}
+															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+															<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+															<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+																	 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+														</h:link>
+
+														<div class="activityOptions">
+															<div class="disabledOverlay"></div>
+															<a href="javascript:void(0);" class="commentsIcon">0</a>
+															<a href="javascript:void(0);" class="grade">- / #{activityAssessment.grade.maxGrade}</a>
+														</div>
+													</li>
+												</ui:repeat>
+
+												<li class="competenceScore">
+													<div>#{msg['label.competence']} score:</div>
+													<div>
+														#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
 													</div>
 												</li>
-											</ui:repeat>
-
-											<li class="competenceScore">
-												<div>#{msg['label.competence']} score:</div>
-												<div>
-													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
-												</div>
-											</li>
-										</ul>
-									</div>
-								</ui:fragment>
-							</article>
-						</ui:fragment>
-					</ui:repeat>
+											</ul>
+										</div>
+									</ui:fragment>
+								</article>
+							</ui:fragment>
+						</ui:repeat>
+					</h:panelGroup>
 				</div>
 
 

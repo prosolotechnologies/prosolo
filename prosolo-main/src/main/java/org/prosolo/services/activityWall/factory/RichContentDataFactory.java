@@ -1,12 +1,10 @@
 package org.prosolo.services.activityWall.factory;
 
-import javax.inject.Inject;
-
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -17,12 +15,14 @@ import org.prosolo.services.util.page.ObjectToPageMapper;
 import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
 @Component
 public class RichContentDataFactory {
 
 	@Inject private UrlIdEncoder idEncoder;
 
-	public AttachmentPreview1 getAttachmentPreview(RichContent1 richContent) throws MediaDataException {
+	public AttachmentPreview1 getAttachmentPreview(RichContent1 richContent) throws LinkParserException {
 		if(richContent == null) {
 			return null;
 		}
@@ -165,7 +165,7 @@ public class RichContentDataFactory {
 		return ap;
 	}
 
-	public MediaData getMediaData(AttachmentPreview1 attachPreview) throws MediaDataException {
+	public MediaData getMediaData(AttachmentPreview1 attachPreview) throws LinkParserException {
 		MediaType1 mediaType = MediaType1.Link_Other;
 		String embedLink = null;
 		String embedId = null;

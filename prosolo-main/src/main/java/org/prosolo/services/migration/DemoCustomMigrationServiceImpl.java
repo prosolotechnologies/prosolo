@@ -24,7 +24,7 @@ import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,7 +98,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
             logger.info("Migrate users start");
             // converting users prosolo.admin@gmail.com to Super Admin
             User userAdminAdmin = userManager.getUser("prosolo.admin@gmail.com");
-            Role roleSuperAdmin = roleManager.getRoleByName(RoleNames.SUPER_ADMIN);
+            Role roleSuperAdmin = roleManager.getRoleByName(SystemRoleNames.SUPER_ADMIN);
             roleManager.assignRoleToUser(roleSuperAdmin, userAdminAdmin.getId());
 
 
@@ -109,7 +109,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
                     .createNewOrganizationAndGetEvents("UniSA", Arrays.asList(new UserData(userGrahamHardy)), UserContextData.empty()).getResult();
 
             // Giving Graham Hardy an admin role in the UniSA
-            Role roleAdmin = roleManager.getRoleByName(RoleNames.ADMIN);
+            Role roleAdmin = roleManager.getRoleByName(SystemRoleNames.ADMIN);
             userGrahamHardy = roleManager.assignRoleToUser(roleAdmin, userGrahamHardy.getId());
 
 
@@ -120,7 +120,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
 
             // loading all users from the db
             Collection<User> allUsers = userManager.getAllUsers(0);
-            Role roleUser = roleManager.getRoleByName(RoleNames.USER);
+            Role roleUser = roleManager.getRoleByName(SystemRoleNames.USER);
 
             for (User user : allUsers) {
                 if (user.getId() != userAdminAdmin.getId()) {
@@ -145,8 +145,8 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
                     "jane.smith@unisa.edu.au",
                     "john.smit@unisa.edu.auw1"
             };
-            Role roleManager = this.roleManager.getRoleByName(RoleNames.MANAGER);
-            Role roleInstructor = this.roleManager.getRoleByName(RoleNames.INSTRUCTOR);
+            Role roleManager = this.roleManager.getRoleByName(SystemRoleNames.MANAGER);
+            Role roleInstructor = this.roleManager.getRoleByName(SystemRoleNames.INSTRUCTOR);
 
             for (String email : unisaEmails) {
                 User user = userManager.getUser(email);

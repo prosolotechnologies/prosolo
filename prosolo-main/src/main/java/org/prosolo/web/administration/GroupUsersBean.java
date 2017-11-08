@@ -14,7 +14,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
@@ -85,7 +85,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 						if (page > 0) {
 							paginationData.setPage(page);
 						}
-						roleId = roleManager.getRoleIdByName(RoleNames.USER);
+						roleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
 						loadUsersFromDB();
 					} else {
 						PageUtil.notFound();

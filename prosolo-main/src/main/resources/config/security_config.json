@@ -70,6 +70,23 @@
             "name": "admins.view",
             "description": "Access the page for managing admins",
             "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
+            "name": "organization.administration",
+            "description": "Administration of organization related data",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
+            "name": "organization.units.administration",
+            "description": "Administration of organization units related data",
+            "roles": [
+                "Admin",
                 "Super Admin"
             ]
         },
