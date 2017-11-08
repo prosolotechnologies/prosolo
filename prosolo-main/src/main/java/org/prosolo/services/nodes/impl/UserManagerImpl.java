@@ -89,26 +89,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			user = loadResource(User.class,id);
 		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error("Error: ", e);
 			e.printStackTrace();
 		}
 		return user;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public org.prosolo.common.web.activitywall.data.UserData getActivityWallUserData(long userId) throws DbConnectionException {
-		String query = "SELECT user " +
-				"FROM User user " +
-				"WHERE user.id = :userId ";
-
-		User user = (User) persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", userId)
-				.uniqueResult();
-
-		org.prosolo.common.web.activitywall.data.UserData userData = userDataFactory.getUserData(user);
-
-		return userData;
 	}
 
 	@Override
@@ -1171,7 +1155,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		AccountData accountData = new AccountData();
 		accountData.setId(userData.getId());
 		accountData.setEmail(userData.getEmail());
-		accountData.setAvatarPath(AvatarUtils.getAvatarUrlInFormat(userData.getAvatarUrl(), ImageFormat.size120x120));
+		accountData.setAvatarPath(userData.getAvatarUrl());
 		accountData.setFirstName(userData.getName());
 		accountData.setLastName(userData.getLastName());
 

@@ -28,7 +28,8 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		String query = 
 				"SELECT socialNetwork " + 
 				"FROM UserSocialNetworks socialNetwork " +
-				"WHERE socialNetwork.user.id = :userId ";
+				"LEFT JOIN FETCH socialNetwork.user user " +
+				"WHERE user.id = :userId ";
 
 		UserSocialNetworks result = (UserSocialNetworks) persistence.currentManager().createQuery(query)
 				.setLong("userId", userId)

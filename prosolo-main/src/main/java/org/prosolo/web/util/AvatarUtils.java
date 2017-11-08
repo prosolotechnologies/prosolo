@@ -10,7 +10,6 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.services.FileStoreConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.StringUtils;

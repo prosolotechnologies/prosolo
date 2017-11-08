@@ -81,6 +81,11 @@ public class UserData implements Serializable {
 		this.email = email;
 	}
 
+	public UserData(long id, String fullName){
+		this.id = id;
+		this.fullName = fullName;
+	}
+
 	public void addRoleId(long id) {
 		this.roleIds.add(id);
 	}
