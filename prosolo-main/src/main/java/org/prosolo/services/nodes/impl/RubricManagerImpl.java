@@ -283,11 +283,16 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
+    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges, boolean loadRubricUsed)
             throws DbConnectionException {
         try {
             Rubric rubric = getRubric(rubricId, loadCreator, loadItems, userId);
-            boolean rubricUsed = isRubricUsed(rubricId);
+            boolean rubricUsed = false;
+
+            if(loadRubricUsed) {
+                rubricUsed = isRubricUsed(rubricId);
+            }
+
             if (rubric != null) {
                 User creator = loadCreator ? rubric.getCreator() : null;
                 Set<Criterion> criteria = loadItems ? rubric.getCriteria() : null;
@@ -544,7 +549,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .list();
 
             return rubrics.stream()
-                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false, isRubricUsed(r.getId())))
+                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false, false))
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             logger.error("Error", e);
