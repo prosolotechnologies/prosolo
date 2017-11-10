@@ -4,7 +4,6 @@ import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
@@ -18,7 +17,7 @@ import java.util.List;
 public interface Activity1Manager extends AbstractManager {
 	
 	Activity1 saveNewActivity(ActivityData data, UserContextData context)
-			throws DbConnectionException, EventException, IllegalDataStateException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
 									 UserContextData context)
@@ -119,7 +118,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	void completeActivity(long targetActId, long targetCompId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException;

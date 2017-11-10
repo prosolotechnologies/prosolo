@@ -1,50 +1,45 @@
 package org.prosolo.services.data;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventQueue;
 
 public class Result<T> {
 
 	private T result;
 	private List<T> results;
-	private List<EventData> events;
+	private EventQueue eventQueue;
 	private List<Event> firedEvents;
 	
 	public Result() {
-		results = new ArrayList<>();
-		events = new ArrayList<>();
+		results = new LinkedList<>();
+		eventQueue = EventQueue.newEventQueue();
 		firedEvents = new ArrayList<>();
-	}
-
-	public Result(T result, List<T> results, List<EventData> events) {
-		super();
-		this.result = result;
-		this.results = results;
-		this.events = events;
 	}
 
 	public static Result<Void> empty() {
 		return new Result<>();
 	}
 
-	public static Result<Void> of(List<EventData> events) {
+	public static Result<Void> of(EventQueue eventQueue) {
 		Result<Void> res = new Result<>();
-		res.addEvents(events);
+		res.appendEvents(eventQueue);
 		return res;
 	}
 	
-	public void addEvent(EventData ev) {
-		if(ev != null) {
-			events.add(ev);
+	public void appendEvent(EventData ev) {
+		if (ev != null) {
+			eventQueue.appendEvent(ev);
 		}
 	}
 	
-	public void addEvents(List<EventData> events) {
-		if(events != null) {
-			this.events.addAll(events);
+	public void appendEvents(EventQueue eventQueue) {
+		if (eventQueue != null) {
+			this.eventQueue.appendEvents(eventQueue);
 		}
 	}
 	
@@ -74,12 +69,12 @@ public class Result<T> {
 		this.results = results;
 	}
 
-	public List<EventData> getEvents() {
-		return events;
+	public EventQueue getEventQueue() {
+		return eventQueue;
 	}
 
-	public void setEvents(List<EventData> events) {
-		this.events = events;
+	public void setEventQueue(EventQueue eventQueue) {
+		this.eventQueue = eventQueue;
 	}
 
 	public List<Event> getFiredEvents() {

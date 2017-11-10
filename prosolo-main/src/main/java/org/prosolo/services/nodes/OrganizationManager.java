@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
@@ -23,13 +22,13 @@ public interface OrganizationManager extends AbstractManager {
     PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
             throws DbConnectionException;
 
-    void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
+    void deleteOrganization(long organizationId) throws DbConnectionException;
 
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException;
 
     Organization createNewOrganization(String title, List<UserData> adminsChosen, UserContextData context)
-            throws DbConnectionException, EventException;
+            throws DbConnectionException;
 
     Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, UserContextData context)
             throws DbConnectionException;
@@ -37,10 +36,10 @@ public interface OrganizationManager extends AbstractManager {
     OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException;
 
     Organization updateOrganization(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
-            throws DbConnectionException,EventException;
+            throws DbConnectionException;
 
     Result<Organization> updateOrganizationAndGetEvents(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
-            throws DbConnectionException,EventException;
+            throws DbConnectionException;
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 

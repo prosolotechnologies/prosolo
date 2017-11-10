@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -118,8 +117,6 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while trying to add "
 					+ user.getFullName() + " to the unit '" + unitTitle + "'");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 		return false;
 	}

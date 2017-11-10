@@ -13,7 +13,9 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.*;
+import org.prosolo.services.event.Event;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,6 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				EventType.Detach,
 				EventType.USER_GROUP_ADDED_TO_RESOURCE,
 				EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
-				EventType.Create,
 				EventType.ENROLL_COURSE
 		};
 	}
@@ -115,23 +116,6 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 						}
 					}
 					break;
-				case Create:
-					if (object instanceof Competence1) {
-						//todo observer refactor - remove this because we should only react to attach event for competence
-						if (params != null) {
-							String credIdString = params.get("credentialId");
-							if (credIdString != null) {
-								long credId = Long.parseLong(credIdString);
-								if (credId > 0) {
-									res = userGroupManager
-											.propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(credId,
-													object.getId(), UserContextData.of(event.getActorId(), event.getOrganizationId(),
-															event.getSessionId(), null), session);
-								}
-							}
-						}
-					}
-					break;
 				case ENROLL_COURSE:
 					res = userGroupManager.addLearnPrivilegeToCredentialCompetencesAndGetEvents(
 							object.getId(), event.getActorId(), UserContextData.of(event.getActorId(),
@@ -150,13 +134,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 			HibernateUtil.close(session);
 		}
 		if(success == true && res != null) {
-			try {
-				for (EventData ev : res.getEvents()) {
-	    			eventFactory.generateEvent(ev);
-	    		}
-			} catch (EventException ee) {
-				logger.error(ee);
-			}
+			eventFactory.generateEvents(res.getEventQueue());
 		}
 		logger.info("UserPrivilegePropagationObserver finished");
 	}

@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
@@ -236,8 +235,6 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 
 		if (saved) {
@@ -262,8 +259,6 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error changing the owner");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 

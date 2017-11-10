@@ -3,7 +3,6 @@ package org.prosolo.services.interaction.impl;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +45,7 @@ public class FollowResourceAsyncManagerImpl implements FollowResourceAsyncManage
 //	@Transactional
 	public boolean asyncUnfollowUser(final User userToUnfollow, final UserContextData context) {
 		taskExecutor.execute(() -> {
-			try {
-				followManager.unfollowUser(userToUnfollow.getId(), context);
-			} catch (EventException e) {
-				logger.error(e);
-			}
+			followManager.unfollowUser(userToUnfollow.getId(), context);
         });
 		return true;
 	}

@@ -3,13 +3,6 @@
  */
 package org.prosolo.services.event;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.activityWall.observer.SocialStreamObserver;
@@ -22,6 +15,9 @@ import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.*;
 
 /**
  * Central class for registering and propagating Events @Event to the
@@ -75,11 +71,9 @@ public class CentralEventDispatcher {
 	
 	public void dispatchEvent(Event event, List<Class<? extends EventObserver>> observersToInvoke) {
 		for (EventObserver observer : getObservers()) {
-			if(EventProcessingUtil.shouldInvokeObserver(observer, event)) {
-			
-				if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
-					tpe.runTask(new EventProcessor(observer, event));
-				}
+			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
+				tpe.runTask(new EventProcessor(observer, Arrays.asList(event)));
+			}
 	//			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
 	//				if(observer instanceof LoggingEventsObserver) {
 	//					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
@@ -104,7 +98,12 @@ public class CentralEventDispatcher {
 	//					}
 	//				}
 	//			}
-			}
+		}
+	}
+
+	public void dispatchEvents(List<Event> events) {
+		for (EventObserver observer : getObservers()) {
+			tpe.runTask(new EventProcessor(observer, events));
 		}
 	}
 
@@ -119,24 +118,25 @@ public class CentralEventDispatcher {
 	private class EventProcessor extends Thread {
 
 		private EventObserver observer;
-		private Event event;
+		private List<Event> events = new ArrayList<>();
 
-		private EventProcessor(EventObserver observer, Event event) {
+		private EventProcessor(EventObserver observer, List<Event> events) {
 			this.observer = observer;
-			this.event = event;
+			this.events.addAll(events);
 		}
 
 		@Override
 		public void run() {
-			processEvent();
+			processEvents();
 		}
 
-		private void processEvent() {
+		private void processEvents() {
 			EventType[] eventClasses = observer.getSupportedEvents();
 			Class<?>[] resourceClasses = observer.getResourceClasses();
-			
-			if (EventProcessingUtil.shouldProcessEvent(event, eventClasses, resourceClasses)) {
-				observer.handleEvent(event);
+			for (Event event : events) {
+				if (EventProcessingUtil.shouldInvokeObserver(observer, event) && EventProcessingUtil.shouldProcessEvent(event, eventClasses, resourceClasses)) {
+					observer.handleEvent(event);
+				}
 			}
 		}
 	}

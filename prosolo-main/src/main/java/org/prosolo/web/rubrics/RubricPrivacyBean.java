@@ -2,7 +2,6 @@ package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
@@ -85,8 +84,6 @@ public class RubricPrivacyBean implements Serializable {
 			unit.changeSelectionStatus();
 			logger.error(e);
 			PageUtil.fireErrorMessage("An error has occurred");
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 	}
 

@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
@@ -81,16 +80,12 @@ public class DirectMessagesDialog implements Serializable {
 
 			UserContextData userContext = loggedUser.getUserContext();
 			taskExecutor.execute(() -> {
-				try {
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("context", context);
-					parameters.put("user", String.valueOf(receiver.getId()));
-					parameters.put("message", String.valueOf(message1.getId()));
-					//TODO what to do for sending message from admin section where organization id maybe does not exist in user session
-					eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1, null, null, parameters);
-				} catch (EventException e) {
-					logger.error(e);
-				}
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("context", context);
+				parameters.put("user", String.valueOf(receiver.getId()));
+				parameters.put("message", String.valueOf(message1.getId()));
+				//TODO what to do for sending message from admin section where organization id maybe does not exist in user session
+				eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1, null, null, parameters);
 			});
 			
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Your message is sent");
