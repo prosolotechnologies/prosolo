@@ -1,10 +1,10 @@
 package org.prosolo.services.media.util;
 
-public class MediaDataException extends Exception {
+public class LinkParserException extends Exception {
 
 	private static final long serialVersionUID = 5176544609743181062L;
 
-	public MediaDataException(String msg) {
+	public LinkParserException(String msg) {
 		super(msg);
 	}
 }
