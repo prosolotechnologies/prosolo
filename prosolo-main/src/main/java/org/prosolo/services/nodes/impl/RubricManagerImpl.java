@@ -289,11 +289,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             Rubric rubric = getRubric(rubricId, loadCreator, loadItems, userId);
             boolean rubricUsed = false;
 
-            if(loadRubricUsed) {
-                rubricUsed = isRubricUsed(rubricId);
-            }
-
             if (rubric != null) {
+                if (loadRubricUsed) {
+                    rubricUsed = isRubricUsed(rubricId);
+                }
                 User creator = loadCreator ? rubric.getCreator() : null;
                 Set<Criterion> criteria = loadItems ? rubric.getCriteria() : null;
                 Set<Level> levels = loadItems ? rubric.getLevels() : null;
