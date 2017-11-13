@@ -135,6 +135,11 @@ public class CompetenceViewBeanManager implements Serializable {
 	 * GETTERS / SETTERS
 	 */
 
+	public String getCredentialTitle() {
+		//TODO temporary solution until nikola merges branch related to this issue
+		return competenceData.getCredentialTitle();
+	}
+
 	public CompetenceData1 getCompetenceData() {
 		return competenceData;
 	}
