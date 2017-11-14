@@ -78,13 +78,12 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
-				indexNode(builder, String.valueOf(competence.getId()), ESIndexNames.INDEX_NODES
-						+ ElasticsearchUtil.getOrganizationIndexSuffix(competence.getOrganization().getId()),
+				indexNode(builder, String.valueOf(competence.getId()),
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, competence.getOrganization().getId()),
 						ESIndexTypes.COMPETENCE);
 			}
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -167,11 +166,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("visibleToAll", value);
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -183,11 +181,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addUsersWithPrivileges(builder, compId, session);
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -200,11 +197,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(comp.getDatePublished()));
 			}
 			doc.endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, comp.getId() + "", doc);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -217,11 +213,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -234,7 +229,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -250,7 +245,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -264,11 +259,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", archived)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -280,11 +274,10 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("creatorId", newOwnerId);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 

@@ -241,7 +241,7 @@ var socialInteractionGraph = (function () {
 			}
 		});
 	}
-	
+
 	return {
 		load: function (config) {
 			$
@@ -255,13 +255,13 @@ var socialInteractionGraph = (function () {
 						$("#social-interaction").text(config.noResultsMessage);
 						return;
 					}
-					
+
 					var students = socialInteractionService.students(ci[0], oi[0]);
 					$.when.apply($, readStudentData(config, students))
 					 .then(function() {
 						 var merge = {};
 						 for(var i = 0; i < arguments.length; i++) {
-							 $.extend(true, merge, arguments[i].responseJSON);								
+							 $.extend(true, merge, arguments[i].responseJSON);
 						 }
 						 run(config, ci[0], oi[0], merge);
 					 });
