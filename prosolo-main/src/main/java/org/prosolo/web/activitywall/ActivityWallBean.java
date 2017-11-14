@@ -21,9 +21,11 @@ import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.htmlparser.HTMLParser;
+import org.prosolo.services.htmlparser.LinkParser;
+import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -312,26 +314,17 @@ public class ActivityWallBean implements Serializable {
 		sActivity.setComments(cd);
 	}
 	
-	public void fetchLinkContents() {
+	public void fetchLinkContents() throws IOException {
 		if (link != null && !link.isEmpty()) {
 			logger.debug("User "+loggedUser.getFullName()+" is fetching contents of a link: "+link);
-			
-			AttachmentPreview1 attachmentPreview = htmlParser.extractAttachmentPreview1(
-					StringUtil.cleanHtml(link.trim()));
-			
-			if (attachmentPreview != null) {
-				try {
-					MediaData md = richContentFactory.getMediaData(attachmentPreview);
-					attachmentPreview.setMediaType(md.getMediaType());
-					attachmentPreview.setEmbedingLink(md.getEmbedLink());
-					attachmentPreview.setEmbedId(md.getEmbedId());
-					newSocialActivity.setAttachmentPreview(attachmentPreview);
-				} catch (MediaDataException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("There was a problem fetching URL.");
-				}
-			} else {
-				newSocialActivity.getAttachmentPreview().setInvalidLink(true);
+
+			try {
+				LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(link.trim()));
+				AttachmentPreview1 attachmentPreview1 = parser.parse();
+				newSocialActivity.setAttachmentPreview(attachmentPreview1);
+				setNewSocialActivity(newSocialActivity);
+			} catch (LinkParserException e) {
+				logger.debug("Could not parse URL " + link + ". " + e);
 			}
 		}
 	}
@@ -365,7 +358,7 @@ public class ActivityWallBean implements Serializable {
 				MediaData md = richContentFactory.getMediaData(uploadFile);
 				uploadFile.setMediaType(md.getMediaType());
 				uploadFile.setEmbedingLink(md.getEmbedLink());
-			} catch (MediaDataException e) {
+			} catch (LinkParserException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("There was a problem saving file");
 			}

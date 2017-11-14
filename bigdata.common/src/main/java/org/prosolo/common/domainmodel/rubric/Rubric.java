@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,6 +25,7 @@ public class Rubric extends BaseEntity {
     private Set<Criterion> criteria;
     private Set<Level> levels;
     private boolean readyToUse;
+    private List<RubricUnit> rubricUnits;
 
     public Rubric() {
         criteria = new HashSet<>();
@@ -75,5 +77,14 @@ public class Rubric extends BaseEntity {
 
     public void setReadyToUse(boolean readyToUse) {
         this.readyToUse = readyToUse;
+    }
+
+    @OneToMany(mappedBy = "rubric", cascade = CascadeType.REMOVE)
+    public List<RubricUnit> getRubricUnits() {
+        return rubricUnits;
+    }
+
+    public void setRubricUnits(List<RubricUnit> rubricUnits) {
+        this.rubricUnits = rubricUnits;
     }
 }

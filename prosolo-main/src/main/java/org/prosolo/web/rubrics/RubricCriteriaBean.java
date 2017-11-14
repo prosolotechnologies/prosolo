@@ -64,14 +64,13 @@ public class RubricCriteriaBean implements Serializable {
 	private void initData() {
 		criteriaToRemove = new ArrayList<>();
 		levelsToRemove = new ArrayList<>();
-		rubric = rubricManager.getRubricData(decodedRubricId, true, true, 0,true);
+		rubric = rubricManager.getRubricData(decodedRubricId, true, true, 0, true, true);
 		if (rubric == null) {
 			PageUtil.notFound();
 		} else {
 			//edit mode
 			if (isCurrentUserCreator()) {
-				boolean rubricUsedInActivity = rubricManager.isRubricUsed(decodedRubricId);
-				editMode = rubricUsedInActivity ? EditMode.LIMITED : EditMode.FULL;
+				editMode = rubric.isRubricUsed() ? EditMode.LIMITED : EditMode.FULL;
 				//if criteria and levels are not defined add one empty criterion and level
 				if (rubric.getCriteria().isEmpty()) {
 					addEmptyCriterion();
