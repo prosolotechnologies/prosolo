@@ -100,15 +100,13 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
-				String indexType = ESIndexTypes.CREDENTIAL;
 				indexNode(
 						builder, String.valueOf(cred.getId()),
-						ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(
-								cred.getOrganization().getId()), indexType);
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, cred.getOrganization().getId()),
+						ESIndexTypes.CREDENTIAL);
 			}
 		} catch (IOException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -232,11 +230,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -249,11 +246,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -267,11 +263,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -284,11 +279,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -301,11 +295,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -316,11 +309,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					.startObject()
 					.field("archived", archived)
 					.endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", doc);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -333,11 +325,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -354,8 +345,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				updateUnits(organizationId, id, units);
 			}
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -366,7 +356,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.endObject();
 
 		partialUpdate(
-				ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+				ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 				ESIndexTypes.CREDENTIAL, credId + "", builder);
 	}
 
@@ -388,11 +378,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, delivery.getId() + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 }

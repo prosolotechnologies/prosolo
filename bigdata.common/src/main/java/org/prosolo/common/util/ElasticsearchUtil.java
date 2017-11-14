@@ -31,8 +31,26 @@ public class ElasticsearchUtil {
         return Streams.copyToString(new InputStreamReader(is, Charsets.UTF_8));
     }
 
-    public static String getOrganizationIndexSuffix(long organizationId) {
+    private static String getOrganizationIndexSuffix(long organizationId) {
         return "_" + organizationId;
+    }
+
+    /**
+     * Returns exact index name based on base index name and organization id.
+     *
+     * If {@code orgId} is not greater than zero IllegalArgumentException is thrown
+     *
+     * @param base
+     * @param organizationId
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public static String getOrganizationIndexName(String base, long organizationId) {
+        if (organizationId <= 0) {
+            logger.error("Organization id passed (" + organizationId + ") must be greater than zero");
+            throw new IllegalArgumentException("organizationId must be greater than zero");
+        }
+        return base + getOrganizationIndexSuffix(organizationId);
     }
 
     /**
