@@ -59,6 +59,7 @@
 		<logs-index>logs</logs-index>
 
 		<rubrics-index>rubrics</rubrics-index>
+		<jobsLogs-index>jobslogs</jobsLogs-index>
 
 	</elastic-search-config>
 	<mysql-config>
@@ -87,7 +88,7 @@
 				REPEATABLE_READ - 4
 				SERIALIZABLE - 8
 			-->
-		 <isolation>2</isolation>
+			<isolation>2</isolation>
 		</connection>
 		<cache>
 			<use-second-level-cache>true</use-second-level-cache>

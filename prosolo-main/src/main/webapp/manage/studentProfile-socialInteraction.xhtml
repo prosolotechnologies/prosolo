@@ -32,16 +32,21 @@
 						</div>
 					</div>
 				</div>
-				
-				<div class="socialRight">
-					<div id="social-interaction"
-						data-api="#{socialInteractionBean.servicesDomain}"
-						data-student-id="#{studentProfileBean.decodedId}"
-						data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
-						class="container manage">
-						<div id="graph"></div>
-					</div>
-				</div>
+
+
+				<h:form id="socialInteractionDataForm">
+					<p:remoteCommand name="updateSocialInteractionDataRegion" update="socialInteractionData" oncomplete="loadSocialInteractionGraph()" />
+					<h:panelGroup layout="block" id="socialInteractionData" class="socialRight">
+						<div id="social-interaction"
+							 data-api="#{socialInteractionBean.servicesDomain}"
+							 data-student-id="#{studentProfileBean.decodedId}"
+							 data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
+							 class="container manage">
+							<div id="graph"></div>
+						</div>
+					</h:panelGroup>
+				</h:form>
+
 				<div class="clear"></div>
 			</div>
 		</div>

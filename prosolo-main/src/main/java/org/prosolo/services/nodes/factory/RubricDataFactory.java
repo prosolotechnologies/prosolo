@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class RubricDataFactory {
 
 	public RubricData getRubricData(Rubric rubric, User creator, Set<Criterion> criteria, Set<Level> levels,
-									boolean trackChanges) {
+									boolean trackChanges, boolean rubricUsed) {
 		if (rubric == null) {
 			return null;
 		}
@@ -26,6 +26,7 @@ public class RubricDataFactory {
 		rd.setName(rubric.getTitle());
 		rd.setOrganizationId(rubric.getOrganization().getId());
 		rd.setReadyToUse(rubric.isReadyToUse());
+		rd.setRubricUsed(rubricUsed);
 
 		if (creator != null) {
 			rd.setCreatorFullName(creator.getFullName());
