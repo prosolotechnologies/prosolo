@@ -6,7 +6,9 @@
                 template="templates/masterLayout2.xhtml"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
                 xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
     <ui:define name="windowTitle" >
         <ui:fragment rendered="#{organizationEditBean.decodedId == 0}">New Organization</ui:fragment>
@@ -162,6 +164,56 @@
                                         </h:panelGroup>
                                 </div>
                             </div>
+                            <c:if test="#{organizationEditBean.learningInStagesEnabled}">
+                                <h:panelGroup layout="block" id="panelLearningStages" styleClass="formLine">
+                                    <label>Learning in stages</label>
+                                    <div class="formLineRight">
+                                        <div class="checkbox checkLine">
+                                            <h:selectBooleanCheckbox id="checkboxLearningInStages"
+                                                value="#{organizationEditBean.organization.learningInStagesEnabled}"
+                                            />
+                                            <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
+                                        </div>
+                                        <p class="bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()} stage should have specific requirements and learners complete a specific stage at a time.</p>
+                                        <table class="tableSymptoms">
+                                            <ui:repeat value="#{organizationEditBean.organization.learningStages}" var="ls" varStatus="lsStatus">
+                                                <tr class="#{lsStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
+                                                    <td class="col1">
+                                                        #{ls.title}
+                                                    </td>
+                                                    <td class="col2">
+                                                        <p:commandLink styleClass="btn btn-green-stroke btn-sm"
+                                                                       pt:data-toggle="modal"
+                                                                       process="@this"
+                                                                       action="#{organizationEditBean.prepareLearningStageForEdit(ls)}"
+                                                                       update=":formEditLearningStage:panelEditLearningStage"
+                                                                       oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                            Rename
+                                                        </p:commandLink>
+                                                        <p:commandLink rendered="#{not ls.used}" styleClass="linkRed"
+                                                            process="@this"
+                                                            action="#{organizationEditBean.removeLearningStage(lsStatus.index)}"
+                                                            update=":formMain:panelLearningStages">
+                                                            Delete
+                                                        </p:commandLink>
+                                                        <ui:fragment rendered="#{ls.used}">
+                                                            <a href="javascript:void(0);" class="linkRed"
+                                                               data-toggle="tooltip" title="This learning stage is being used"/>
+                                                        </ui:fragment>
+                                                    </td>
+                                                </tr>
+                                            </ui:repeat>
+                                        </table>
+                                        <p:commandLink styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
+                                            process="@this"
+                                            action="#{organizationEditBean.prepareAddingNewLearningStage()}"
+                                            update=":formEditLearningStage:panelEditLearningStage"
+                                            oncomplete="$('#modalEditLearningStage').modal('show')">
+                                            Add Learning Stage
+                                        </p:commandLink>
+                                    </div>
+                                </h:panelGroup>
+                            </c:if>
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
@@ -199,6 +251,44 @@
                 </div>
             </ui:fragment>
         </div>
+
+        <c:if test="#{organizationEditBean.learningInStagesEnabled}">
+            <h:form id="formEditLearningStage">
+                <div class="modal fade newFeedModal" id="modalEditLearningStage" tabindex="-1" role="dialog" aria-labelledby="renLevel1">
+                    <div class="modal-dialog">
+                        <h:panelGroup layout="block" id="panelEditLearningStage" styleClass="modal-content">
+                            <div class="modal-header alignLeft">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                <h2 class="modal-title">#{organizationEditBean.createLearningStageUseCase ? 'Add' : 'Rename'} Learning Stage</h2>
+                            </div>
+                            <div class="modal-body alignLeft">
+                                <h:inputText id="inputLearningStage" value="#{organizationEditBean.selectedLearningStage.title}"
+                                    placeholder="Learning stage name"
+                                    required="true" requiredMessage="Learning stage name is required"
+                                    validator="#{organizationEditBean.validateLearningStage}"></h:inputText>
+                                <small class="redText bottom5 topMinus20 displayBlock"><h:message id="inputLearninStageMsg" for="inputLearningStage"></h:message></small>
+                            </div>
+                            <div class="modal-footer alignLeft">
+                                <p:commandLink id="btnEditLearningStage" styleClass="btn btn-green"
+                                               action="#{organizationEditBean.saveLearningStage()}"
+                                               update="inputLearninStageMsg :formMain:panelLearningStages"
+                                               oncomplete="if (args &amp;&amp; !args.validationFailed) {$('#modalEditLearningStage').modal('hide');}">
+                                    #{organizationEditBean.createLearningStageUseCase ? 'Add' : 'Save'}
+                                </p:commandLink>
+                                <p:defaultCommand target="btnEditLearningStage"/>
+                                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            </div>
+                        </h:panelGroup>
+                        <script>
+                            $('#modalEditLearningStage').on('shown.bs.modal', function () {
+                                $('#modalEditLearningStage input:first').focus();
+                            })
+                        </script>
+                    </div>
+                </div>
+            </h:form>
+
+        </c:if>
     </ui:define>
 
 

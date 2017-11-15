@@ -24,6 +24,7 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
@@ -91,8 +92,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 					userNickPowell, null, null, params);
 
 			//create organization
+			OrganizationData orgData = new OrganizationData();
+			orgData.setTitle("Org 1");
+			orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
-					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
+					.createNewOrganization(orgData, UserContextData.empty());
 
 			try {
 				Thread.sleep(1000);

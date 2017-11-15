@@ -18,9 +18,9 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
@@ -97,8 +97,11 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             User userJustinDellinger = userManager.getUser("jdelling@uta.edu");
 
             // Create UTA organization
+            OrganizationData orgData = new OrganizationData();
+            orgData.setTitle("UTA");
+            orgData.setAdmins(Arrays.asList(new UserData(userJustinDellinger)));
             Organization orgUta = ServiceLocator.getInstance().getService(OrganizationManager.class)
-                    .createNewOrganizationAndGetEvents("UTA", Arrays.asList(new UserData(userJustinDellinger)), UserContextData.empty()).getResult();
+                    .createNewOrganizationAndGetEvents(orgData, UserContextData.empty()).getResult();
 
             // Giving Justin Dellinger an admin role in UTA
             Role roleAdmin = roleManager.getRoleByName(SystemRoleNames.ADMIN);

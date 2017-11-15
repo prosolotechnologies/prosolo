@@ -20,7 +20,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -105,8 +105,11 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
             User userGrahamHardy = userManager.getUser("graham.hardy@unisa.edu.au");
 
             // Create UniSA organization
+            OrganizationData orgData = new OrganizationData();
+            orgData.setTitle("UniSA");
+            orgData.setAdmins(Arrays.asList(new UserData(userGrahamHardy)));
             Organization orgUniSa = ServiceLocator.getInstance().getService(OrganizationManager.class)
-                    .createNewOrganizationAndGetEvents("UniSA", Arrays.asList(new UserData(userGrahamHardy)), UserContextData.empty()).getResult();
+                    .createNewOrganizationAndGetEvents(orgData, UserContextData.empty()).getResult();
 
             // Giving Graham Hardy an admin role in the UniSA
             Role roleAdmin = roleManager.getRoleByName(SystemRoleNames.ADMIN);
