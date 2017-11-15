@@ -1,11 +1,9 @@
 package org.prosolo.common.domainmodel.organization;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -23,6 +21,8 @@ public class Organization extends BaseEntity {
 
 	private List<User> users;
 	private List<Unit> units;
+
+	private boolean learningInStagesEnabled;
 
 	@OneToMany(mappedBy = "organization")
 	public List<User> getUsers(){
@@ -42,4 +42,13 @@ public class Organization extends BaseEntity {
 		this.units = units;
 	}
 
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isLearningInStagesEnabled() {
+		return learningInStagesEnabled;
+	}
+
+	public void setLearningInStagesEnabled(boolean learningInStagesEnabled) {
+		this.learningInStagesEnabled = learningInStagesEnabled;
+	}
 }
