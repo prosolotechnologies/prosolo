@@ -38,31 +38,33 @@ public abstract class NotificationEventProcessor {
 	public List<Notification1> getNotificationList() {
 		List<Notification1> notifications = new ArrayList<>();
 		List<NotificationReceiverData> receivers = getReceiversData();
-		
-		long sender = getSenderId();
-		NotificationType notificationType = getNotificationType();
-		long objectId = getObjectId();
-		ResourceType resType = getObjectType();
-		long targetId = getTargetId();
-		ResourceType targetType = getTargetType();
-		for(NotificationReceiverData receiver : receivers) {
-			if(isConditionMet(sender, receiver.getReceiverId())) {
-//				String section = getUrlSection(receiver);
-				Notification1 notification = notificationManager.createNotification(
-						sender, 
-						receiver.getReceiverId(),
-						notificationType, 
-						event.getDateCreated(),
-						objectId,
-						resType,
-						targetId,
-						targetType,
-						receiver.getNotificationLink(),
-						shouldUserBeNotifiedByEmail(receiver.getReceiverId(), notificationType),
-						receiver.isObjectOwner(),
-						session);
-				
-				notifications.add(notification);
+
+		if (!receivers.isEmpty()) {
+			long sender = getSenderId();
+			NotificationType notificationType = getNotificationType();
+			long objectId = getObjectId();
+			ResourceType resType = getObjectType();
+			long targetId = getTargetId();
+			ResourceType targetType = getTargetType();
+			for (NotificationReceiverData receiver : receivers) {
+				if (isConditionMet(sender, receiver.getReceiverId())) {
+					//				String section = getUrlSection(receiver);
+					Notification1 notification = notificationManager.createNotification(
+							sender,
+							receiver.getReceiverId(),
+							notificationType,
+							event.getDateCreated(),
+							objectId,
+							resType,
+							targetId,
+							targetType,
+							receiver.getNotificationLink(),
+							shouldUserBeNotifiedByEmail(receiver.getReceiverId(), notificationType),
+							receiver.isObjectOwner(),
+							session);
+
+					notifications.add(notification);
+				}
 			}
 		}
 		
