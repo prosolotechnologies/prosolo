@@ -6600,7 +6600,5 @@ footer {
   #supportLink:hover {
     opacity: 1; }
 #graph {
-  height: 300px;
-  width: 400px;
   overflow: hidden;
 }

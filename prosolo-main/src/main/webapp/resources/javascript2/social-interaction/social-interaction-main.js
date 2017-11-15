@@ -2,14 +2,15 @@ function loadSocialInteractionGraph() {
 
     var root = document.getElementById("social-interaction");
 
-    var graphWidth = $(".tab-content").width() / 12 * 9 - 50;
+    var graphWidth = 600;
+    var graphHeight = 500;
 
     socialInteractionGraph.load({
         host: root.dataset.api,
         courseId: root.dataset.courseId,
         studentId: root.dataset.studentId,
         width: graphWidth,
-        height: 400,
+        height: graphHeight,
         selector: "#social-interaction #graph",
         charge: -60,
         distance: 260,
@@ -19,8 +20,8 @@ function loadSocialInteractionGraph() {
         focusPoints: [
             {x: 0, y: 0},
             {x: graphWidth, y: 0},
-            {x: 0, y: 400},
-            {x: graphWidth, y: 400}
+            {x: 0, y: graphHeight},
+            {x: graphWidth, y: graphHeight}
         ],
         relations: [
             {lower: 0, upper: 33, type: "twofive"},
@@ -29,15 +30,10 @@ function loadSocialInteractionGraph() {
             {lower: 85, upper: 100, type: "onezerozero"}
         ],
         onNodeClick: function (student) {
-            $("#social-interactions-nonodeselected").hide();
-            $("#social-interactions-selectedstudent").show();
-            $("#social-interactions-by-type-panel").show();
-            $("#social-interactions-by-peer-panel").show();
-            $("#social-interactions-selected-id").text(student.id);
-            $("#social-interactions-selected-name").text(student.name);
-            $("#social-interactions-selected-cluster").text(student.cluster);
-            $("#social-interactions-selected-avatar").attr("src", student.avatar);
-            $("#social-interactions-selected-avatar").show();
+            //$("#social-interaction-info .student Id-interactions-selected-id").text(student.id);
+            $("#social-interaction-info .studentName").text(student.name);
+            //$("#social-interactions-selected-cluster").text(student.cluster);
+            $("#social-interaction-info .studentAvatar").attr("src", student.avatar).attr("alt", student.name);
             initializeDataForSelectedStudent(student, root.dataset.courseId);
         },
         noResultsMessage: "No results found for given parameters.",
@@ -62,6 +58,8 @@ function loadSocialInteractionGraph() {
             crossDomain: true,
             dataType: 'json'
         }).done(function (data) {
+            data = {}
+
             console.log("INTERACTIONSBYPEERS:" + JSON.stringify(data));
             for (var i = 0; i < data[0].interactions.length; i++) {
                 data[0].interactions[i] = JSON.parse(data[0].interactions[i]);
@@ -108,7 +106,6 @@ function loadSocialInteractionGraph() {
 
                         innerHtml = innerHtml + "</table>";
                         $("#social-interactions-bypeers").append(innerHtml);
-                        $("social-interactions-by-peer-panel").show();
                     });
             }
         });
@@ -137,7 +134,6 @@ function loadSocialInteractionGraph() {
                 });
                 innerHtml = innerHtml + "</table>";
                 $("#social-interactions-bytype").append(innerHtml);
-                $("social-interactions-by-type-panel").show();
             }
         });
     };
