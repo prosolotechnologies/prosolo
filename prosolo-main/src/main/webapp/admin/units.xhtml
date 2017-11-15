@@ -7,9 +7,12 @@
 				xmlns:util="http://www.prosolo.com/util"
 				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
 				xmlns:admin="http://java.sun.com/jsf/composite/components/admin"
-				xmlns:course="http://java.sun.com/jsf/composite/components/courses">
+				xmlns:course="http://java.sun.com/jsf/composite/components/courses"
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
-	<ui:define name="windowTitle" >Units</ui:define>
+	<utilcomp:messagesBundle var="msg" />
+
+	<ui:define name="windowTitle" >#{msg['label.unit.plural']}</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
@@ -33,7 +36,7 @@
 			<div class="container">
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft">
-						<p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New Unit"
+						<p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New #{msg['label.unit']}"
 										oncomplete="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
                                         $('#newUnitModal').modal('show');"
 										update="newUnitModal:formNewUnitModal">
@@ -57,7 +60,7 @@
 								<f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
 						</li>
 						<li class="active">
-							Units
+							#{msg['label.unit.plural']}
 						</li>
 					</ol>
 				</div>
@@ -67,7 +70,7 @@
 						<ui:fragment rendered="#{empty unitsBean.units}">
 							<div class="noContentMessage">
 								<p>
-									No units.
+									No #{msg['label.unit.plural']}.
 								</p>
 							</div>
 						</ui:fragment>
@@ -85,7 +88,7 @@
 											</h2>
 										</div>
 										<div class="adminUnitsListRight">
-											<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
+											<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add #{msg['label.subunit']}"
 															action="#{unitsBean.setParentUnit(unit.id)}"
 															oncomplete="$('#newUnitModal').modal('show');"
 															update="newUnitModal:formNewUnitModal">
@@ -108,7 +111,7 @@
 														</ui:fragment>
 														<ui:fragment rendered="#{unit.hasUsers or not empty unit.childrenUnits}">
 															<a  class="linkRed" data-toggle="tooltip"
-															    title="#{not empty unit.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+															    title="#{not empty unit.childrenUnits ?  msg['label.unit'].concat(' can not be deleted since it has ').concat(msg['label.subunit'].toLowerCase()) :   msg['label.unit'].concat(' can not be deleted as there are users associated with it')}"
 															    disabled="disabled">
 																Delete
 															</a>
@@ -132,7 +135,7 @@
 														</h3>
 													</div>
 													<div class="adminUnitsListRight">
-														<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
+														<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add #{msg['label.subunit']}"
 																		action="#{unitsBean.setParentUnit(child.id)}"
 																		oncomplete="$('#newUnitModal').modal('show');"
 																		update="newUnitModal:formNewUnitModal">
@@ -155,7 +158,7 @@
                                                                     </ui:fragment>
                                                                     <ui:fragment rendered="#{child.hasUsers or not empty child.childrenUnits}">
                                                                         <a  class="linkRed" data-toggle="tooltip"
-                                                                            title="#{not empty child.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+                                                                            title="#{not empty child.childrenUnits ?   msg['label.unit'].concat(' can not be deleted since it has ').concat(msg['label.subunit']) :  msg['label.unit'].concat(' can not be deleted as there are users associated with it')}"
                                                                             disabled="disabled">
                                                                             Delete
                                                                         </a>
@@ -195,7 +198,7 @@
                                                                                 </ui:fragment>
                                                                                 <ui:fragment rendered="#{child2.hasUsers}">
                                                                                     <a  class="linkRed" data-toggle="tooltip"
-                                                                                        title="Unit can not be deleted as there are users associated with it"
+                                                                                        title="#{msg['label.unit']} can not be deleted as there are users associated with it"
                                                                                         disabled="disabled">
                                                                                         Delete
                                                                                     </a>
@@ -227,8 +230,8 @@
 				deleteActionMethodName=""
 				deleteAction="#{unitsBean.delete()}"
 				toUpdate=":formUnits"
-				modalDeleteTitle="Unit"
-				modalDeleteText="unit"/>
+				modalDeleteTitle="#{msg['label.unit']}"
+				modalDeleteText="#{msg['label.unit'].toLowerCase()}"/>
 	</ui:define>
 
 </ui:composition>

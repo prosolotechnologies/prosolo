@@ -13,6 +13,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -180,10 +181,10 @@ public class UnitUsersBean implements Serializable, Paginable {
 			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserContext(decodedOrgId));
 			resetSearchData();
 			loadUsersFromDB();
-			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the unit " + unitTitle);
+			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the unit " + unitTitle);
+			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}
