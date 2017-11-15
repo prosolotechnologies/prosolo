@@ -25,7 +25,9 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
   }
 
   def getSocialInteractions(credentialId: java.lang.Long): List[Row] ={
+    println("Get social interactions keyspace:"+keyspace+" credential:"+credentialId)
     val query= s"SELECT * FROM $keyspace." + TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT + " where course=?";
+    println("QUERY:"+query)
     DBManager.connector.withSessionDo {
       session =>
         val rs = session.execute(query,credentialId)
@@ -45,6 +47,7 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
   }
 
   def insertInsideClusterInteractions(timestamp: java.lang.Long, credentialId: java.lang.Long, cluster: java.lang.Long, student: java.lang.Long, interactions: util.List[String]) {
+    println("Insert Inside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+student);
     val query= s"INSERT INTO $keyspace." + TablesNames.SNA_INSIDE_CLUSTER_INTERACTIONS + "(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?) "
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, credentialId, cluster, student, interactions)
