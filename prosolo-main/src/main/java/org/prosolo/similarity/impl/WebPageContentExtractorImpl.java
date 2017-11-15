@@ -1,14 +1,4 @@
-package org.prosolo.services.htmlparser.impl;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-
-import org.apache.log4j.Logger;
-import org.prosolo.services.htmlparser.WebPageContent;
-import org.prosolo.services.htmlparser.WebPageContentExtractor;
-import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
+package org.prosolo.similarity.impl;
 
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
@@ -16,11 +6,20 @@ import de.l3s.boilerpipe.extractors.DefaultExtractor;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 import de.l3s.boilerpipe.sax.HTMLDocument;
 import de.l3s.boilerpipe.sax.HTMLFetcher;
+import org.apache.log4j.Logger;
+import org.prosolo.services.htmlparser.WebPageContent;
+import org.prosolo.similarity.WebPageContentExtractor;
+import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * @author Zoran Jeremic 2013-08-17
  */
-@Service("org.prosolo.services.htmlparser.WebPageContentExtractor")
+@Service("org.prosolo.similarity.WebPageContentExtractor")
 public class WebPageContentExtractorImpl implements WebPageContentExtractor {
 
 	private static Logger logger = Logger

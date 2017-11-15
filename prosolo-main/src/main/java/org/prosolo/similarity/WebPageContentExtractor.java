@@ -1,4 +1,6 @@
-package org.prosolo.services.htmlparser;
+package org.prosolo.similarity;
+
+import org.prosolo.services.htmlparser.WebPageContent;
 
 import java.net.URL;
 

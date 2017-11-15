@@ -36,13 +36,13 @@ public class RubricNodeChangeProcessor implements NodeChangeProcessor {
     @Override
     public void process() {
         long rubricId = event.getObject().getId();
-        Rubric rubric = (Rubric) session.get(Rubric.class, rubricId);
-        long orgId = rubric.getOrganization().getId();
+        long orgId = event.getOrganizationId();
 
         if (event.getAction() == EventType.Create || event.getAction() == EventType.Edit) {
+            Rubric rubric = (Rubric) session.get(Rubric.class, rubricId);
             rubricsESService.saveRubric(orgId, rubric);
         } else if (event.getAction() == EventType.Delete) {
-            rubricsESService.deleteRubric(orgId, rubric.getId());
+            rubricsESService.deleteRubric(orgId, rubricId);
         }
     }
 }
