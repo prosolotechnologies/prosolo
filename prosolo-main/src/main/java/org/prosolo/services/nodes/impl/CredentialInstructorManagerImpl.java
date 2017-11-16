@@ -10,11 +10,8 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -89,12 +86,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	//not transactional
 	@Override
 	public void assignStudentToInstructor(long studentId, long instructorId, long credId, long formerInstructorUserId,
-			UserContextData context) throws DbConnectionException, EventException {
+			UserContextData context) throws DbConnectionException {
 		Result<Void> res = credInstructorManager.assignStudentToInstructorAndGetEvents(studentId, instructorId, credId, 
 				formerInstructorUserId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -118,12 +113,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	//not transactional
 	@Override
 	public void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorId, 
-			UserContextData context) throws DbConnectionException, EventException {
+			UserContextData context) throws DbConnectionException {
 		Result<Void> res = credInstructorManager.assignStudentToInstructorAndGetEvents(
 				instructorId, targetCredId, formerInstructorId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -199,7 +192,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			target.setId(targetInstructorUserId);
 			User object = new User();
 			object.setId(targetCred.getUser().getId());
-			result.addEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
+			result.appendEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
 		}	
 		return result;
 	}
@@ -289,12 +282,9 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
                 InstructorData instructorToAssign = getInstructorWithLowestNumberOfStudents(instructors, 
                 		tCred.getUser().getId());
                 if (instructorToAssign != null) {
-	                result.addEvents(assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(), 
-	                		formerInstructorId, updateAssessor, context).getEvents());
-	                /*
-	                this is currently needed only for enrollincredential method to be able to get instructor user id
-	                 */
-	                //TODO observer refactor - when observers are refactored remove this if not needed
+	                result.appendEvents(assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(),
+	                		formerInstructorId, updateAssessor, context).getEventQueue());
+
 	                CredentialInstructor ci = new CredentialInstructor();
 	                User instUser = new User();
 	                instUser.setId(instructorToAssign.getUser().getId());
@@ -380,12 +370,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     //not transactional
     @Override
     public void unassignStudentFromInstructor(long userId, long credId, UserContextData context)
-    		throws DbConnectionException, EventException {
+    		throws DbConnectionException {
 		Result<Void> res = credInstructorManager.unassignStudentFromInstructorAndGetEvents(
 				userId, credId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
     }
     
     @Override
@@ -407,14 +395,14 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     	Result<Void> res = new Result<>();
 		Result<StudentAssignData> result = assignStudentsToInstructorAutomatically(credId, 
 				targetCreds, instructorId, context);
-		res.addEvents(result.getEvents());
+		res.appendEvents(result.getEventQueue());
 		List<TargetCredential1> unassigned = result.getResult().getUnassigned();
 		if(!unassigned.isEmpty()) {
 //			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager().
 //					load(CredentialInstructor.class, instructorId);
-			res.addEvents(updateStudentsAssigned(
+			res.appendEvents(updateStudentsAssigned(
 					null, null, unassigned, context)
-						.getEvents());
+						.getEventQueue());
 		}
 		return res;
 	}
@@ -435,12 +423,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	public void removeInstructorFromCredential(long instructorId, long credId, 
 			boolean reassignAutomatically, UserContextData context)
-					throws DbConnectionException, EventException {
+					throws DbConnectionException {
 		Result<Void> res = credInstructorManager.removeInstructorFromCredentialAndGetEvents(
 				instructorId, credId, reassignAutomatically, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 	
 	
@@ -454,18 +440,18 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					load(CredentialInstructor.class, instructorId);
 			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
 			if (reassignAutomatically) {
-				res.addEvents(assignStudentsAutomatically(
-						credId, targetCreds, instructorId, context).getEvents());
+				res.appendEvents(assignStudentsAutomatically(
+						credId, targetCreds, instructorId, context).getEventQueue());
 			} else {
 				List<Long> unassignedCreds = new ArrayList<>();
             	for(TargetCredential1 tc : targetCreds) {
             		unassignedCreds.add(tc.getId());
             	}
-				res.addEvents(updateStudentsAssigned(null, null, targetCreds, context)
-						.getEvents());
+				res.appendEvents(updateStudentsAssigned(null, null, targetCreds, context)
+						.getEventQueue());
 			}
-			res.addEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
-					instructor.getUser().getId(), credId, UserGroupPrivilege.Instruct, context).getEvents());
+			res.appendEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
+					instructor.getUser().getId(), credId, UserGroupPrivilege.Instruct, context).getEventQueue());
 			
 			persistence.currentManager().delete(instructor);
 			
@@ -473,7 +459,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			cred.setId(credId);
 			User instr = new User();
 			instr.setId(instructor.getUser().getId());
-			res.addEvent(eventFactory.generateEventData(
+			res.appendEvent(eventFactory.generateEventData(
 				EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, context, instr, cred,null,null));
 				
 			return res;
@@ -519,7 +505,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					target.setId(instructor.getUser().getId());
 					User object = new User();
 					object.setId(tc.getUser().getId());
-					result.addEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
+					result.appendEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
 				}
 			    
 				List<Long> targetCredIdsToAssign = targetCredsToAssign.stream().map(tc -> tc.getId())
@@ -541,7 +527,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					target.setId(tc.getInstructor().getUser().getId());
 					User object = new User();
 					object.setId(tc.getUser().getId());
-					result.addEvent(eventFactory.generateEventData(
+					result.appendEvent(eventFactory.generateEventData(
 							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, context, object, target, null, params));
 				}
 				
@@ -566,13 +552,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	//not transactional
 	@Override
 	public void addInstructorToCredential(long credId, long userId, 
-			int maxNumberOfStudents, UserContextData context) throws DbConnectionException,
-				EventException {
+			int maxNumberOfStudents, UserContextData context) throws DbConnectionException {
 		//self invocation to trigger spring interception and transaction start
-		for (EventData ev : credInstructorManager.addInstructorToCredentialAndGetEvents(
-				credId, userId, maxNumberOfStudents, context).getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(credInstructorManager.addInstructorToCredentialAndGetEvents(
+				credId, userId, maxNumberOfStudents, context).getEventQueue());
 	}
 	
 	@Override
@@ -597,8 +580,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			saveEntity(instructor);
 			
 			//assign instruct privilege for newly added instructor
-			res.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
-					userId, credId, UserGroupPrivilege.Instruct, context).getEvents());
+			res.appendEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
+					userId, credId, UserGroupPrivilege.Instruct, context).getEventQueue());
 			
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
@@ -606,7 +589,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			instr.setId(userId);
 			Map<String, String> params = new HashMap<>();
 			params.put("dateAssigned", DateUtil.getMillisFromDate(instructor.getDateAssigned()) + "");
-			res.addEvent(eventFactory.generateEventData(
+			res.appendEvent(eventFactory.generateEventData(
 					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context, instr, credential, null, params));
 				
 			return res;
@@ -621,12 +604,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	public void updateInstructorAndStudentsAssigned(long credId, InstructorData id, 
 			List<Long> studentsToAssign, List<Long> studentsToUnassign, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = credInstructorManager.updateInstructorAndStudentsAssignedAndGetEvents(
 				credId, id, studentsToAssign, studentsToUnassign, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 	
 	@Override

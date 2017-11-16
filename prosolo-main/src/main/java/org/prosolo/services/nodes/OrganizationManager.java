@@ -9,10 +9,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -25,13 +23,13 @@ public interface OrganizationManager extends AbstractManager {
     PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
             throws DbConnectionException;
 
-    void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
+    void deleteOrganization(long organizationId) throws DbConnectionException;
 
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException;
 
     Organization createNewOrganization(OrganizationData org, UserContextData context)
-            throws DbConnectionException, EventException;
+            throws DbConnectionException;
 
     Result<Organization> createNewOrganizationAndGetEvents(OrganizationData org, UserContextData context)
             throws DbConnectionException;
@@ -39,10 +37,10 @@ public interface OrganizationManager extends AbstractManager {
     OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException;
 
     Organization updateOrganization(OrganizationData organization, UserContextData context)
-            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException, EventException;
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     Result<Organization> updateOrganizationAndGetEvents(OrganizationData organization, UserContextData context)
-            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException, EventException;
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 

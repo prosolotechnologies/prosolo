@@ -11,7 +11,6 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -227,8 +226,6 @@ public class UserEditBean implements Serializable {
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.debug(e);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to save user data");
@@ -256,8 +253,6 @@ public class UserEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the user");
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 

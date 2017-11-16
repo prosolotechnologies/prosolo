@@ -16,8 +16,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -58,13 +56,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private OrganizationManager self;
 
     @Override
+    //nt
     public Organization createNewOrganization(OrganizationData org, UserContextData context)
-            throws DbConnectionException,EventException {
-
+            throws DbConnectionException {
         Result<Organization> res = self.createNewOrganizationAndGetEvents(org, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -81,7 +77,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             Result<Organization> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
+            res.appendEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
 
             updateOrganizationLearningStages(organization.getId(), org);
 
@@ -231,11 +227,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     public Organization updateOrganization(OrganizationData organization, UserContextData context)
-            throws DbConnectionException, DataIntegrityViolationException, ConstraintViolationException, EventException {
+            throws DbConnectionException {
         Result<Organization> res = self.updateOrganizationAndGetEvents(organization, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -254,11 +248,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 switch (ud.getObjectStatus()) {
                     case REMOVED:
                         userManager.setUserOrganization(ud.getId(), 0);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context, user, organization, null, null));
+                        res.appendEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context, user, organization, null, null));
                         break;
                     case CREATED:
                         userManager.setUserOrganization(ud.getId(), org.getId());
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context, user, organization, null, null));
+                        res.appendEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context, user, organization, null, null));
                         break;
                     default:
                         break;

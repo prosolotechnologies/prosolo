@@ -5,7 +5,6 @@ import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -55,7 +54,7 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	private String credentialTitle;
 
-	public void init() {	
+	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
 			try {
@@ -147,8 +146,6 @@ public class CompetenceViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	

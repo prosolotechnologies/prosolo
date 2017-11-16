@@ -62,15 +62,6 @@ public class OpenIDBean implements Serializable {
 	private String openIdLanguage;
 	private OpenIDProvider openIDProvider;
 
-
-	public OpenIDProvider getOpenIDProvider() {
-		return openIDProvider;
-	}
-
-	public void setOpenIDProvider(OpenIDProvider openIDProvider) {
-		this.openIDProvider = openIDProvider;
-	}
-
 	public void authenticateUser(User user) {
 		System.out.println("authenticate user:" + validatedId);
 		OpenIDAccount openIDAccount = registrationManager.findOpenIDAccount(validatedId);
@@ -109,6 +100,7 @@ public class OpenIDBean implements Serializable {
 			openIdEmail = userInfo.getEmail();
 			openIdFirstName = userInfo.getFirstName();
 			openIdLastName = userInfo.getLastName();
+			openIDProvider = OpenIDProvider.valueOf(request.getParameter("provider").toUpperCase());
 			validatedId = userInfo.getId();
 
 			User user = userManager.getUser(openIdEmail);

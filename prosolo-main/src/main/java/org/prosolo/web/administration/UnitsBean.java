@@ -10,6 +10,7 @@ import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFact
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -92,7 +93,7 @@ public class UnitsBean implements Serializable {
             UnitData unit = unitManager.createNewUnit(this.unit.getTitle(), this.organizationData.getId(),
                     this.unit.getParentUnitId(), loggedUser.getUserContext(idEncoder.decodeId(organizationId)));
 
-            logger.debug("New Organization Unit (" + unit.getTitle() + ")");
+            logger.debug("New Organization " + ResourceBundleUtil.getMessage("label.unit") + "(" + unit.getTitle() + ")");
             PageUtil.fireSuccessfulInfoMessage("New unit has been created");
 
             this.unit = new UnitData();
@@ -107,11 +108,11 @@ public class UnitsBean implements Serializable {
                     "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
             input.setValid(false);
             context.addMessage("newUnitModal:formNewUnitModal:inputTextOrganizationUnitName",
-                    new FacesMessage("Unit with this name already exists"));
+                    new FacesMessage( ResourceBundleUtil.getMessage("label.unit") + " with this name already exists"));
             context.validationFailed();
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save unit data");
+            PageUtil.fireErrorMessage("Error while trying to save " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " data");
         }
     }
 
@@ -124,7 +125,7 @@ public class UnitsBean implements Serializable {
             try {
                 unitManager.deleteUnit(this.unitToDelete.getId());
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("The unit " + unitToDelete.getTitle() + " has been deleted");
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("The " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " " + unitToDelete.getTitle() + " has been deleted");
                 this.unitToDelete = new UnitData();
                 loadUnits();
             } catch (IllegalStateException ise) {
@@ -132,7 +133,7 @@ public class UnitsBean implements Serializable {
                 PageUtil.fireErrorMessage(ise.getMessage());
             } catch (Exception ex) {
                 logger.error(ex);
-                PageUtil.fireErrorMessage("Error while trying to delete unit");
+                PageUtil.fireErrorMessage("Error while trying to delete " + ResourceBundleUtil.getMessage("label.unit").toLowerCase());
             }
         }
     }

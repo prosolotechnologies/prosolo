@@ -14,7 +14,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -106,12 +105,8 @@ public class Profile {
 				String context = "name:profile|id:" + currentStudent.getId();
 				UserContextData userContext = loggedUserBean.getUserContext(new PageContextData(page, context, null));
 				taskExecutor.execute(() -> {
-					try {
-						eventFactory.generateEvent(EventType.View_Profile, userContext, currentStudent,
-								null, null, null);
-					} catch (EventException e) {
-						logger.error(e);
-					}
+					eventFactory.generateEvent(EventType.View_Profile, userContext, currentStudent,
+							null, null, null);
 				});
 			}
 			
@@ -146,15 +141,11 @@ public class Profile {
 
 					UserContextData userContext = loggedUserBean.getUserContext();
 					taskExecutor.execute(() -> {
-						try {
-							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("user", String.valueOf(decodedRecieverId));
-							parameters.put("message", String.valueOf(message1.getId()));
-							eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
-									null, null, parameters);
-						} catch (EventException e) {
-							logger.error(e);
-						}
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("user", String.valueOf(decodedRecieverId));
+						parameters.put("message", String.valueOf(message1.getId()));
+						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
+								null, null, parameters);
 					});
 					this.message = "";
 					

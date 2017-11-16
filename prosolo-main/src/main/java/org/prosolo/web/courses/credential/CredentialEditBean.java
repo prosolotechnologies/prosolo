@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -263,9 +262,6 @@ public class CredentialEditBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
-		} catch (EventException e) {
-			logger.error(e);
-			return false;
 		}
 	}
 	
@@ -284,8 +280,6 @@ public class CredentialEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -297,8 +291,6 @@ public class CredentialEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -348,8 +340,6 @@ public class CredentialEditBean implements Serializable {
 			logger.error(div);
 			div.printStackTrace();
 			PageUtil.fireErrorMessage("There are students that started learning this credential so it cannot be deleted");
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 	}
 	

@@ -30,10 +30,13 @@ public class CommentLikeEventProcessor extends CommentEventProcessor {
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
-			Long resCreatorId = getResource().getUser().getId();
-			String prefix = getResource().isManagerComment() ? "/manage" : "";
-			receivers.add(new NotificationReceiverData(resCreatorId, prefix + getNotificationLink(), 
-					false));
+			String notificationLink = getNotificationLink();
+			if (notificationLink != null && !notificationLink.isEmpty()) {
+				Long resCreatorId = getResource().getUser().getId();
+				String prefix = getResource().isManagerComment() ? "/manage" : "";
+				receivers.add(new NotificationReceiverData(resCreatorId, prefix + notificationLink,
+						false));
+			}
 			return receivers;
 		} catch(Exception e) {
 			e.printStackTrace();

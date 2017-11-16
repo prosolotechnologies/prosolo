@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 
 import java.util.List;
@@ -21,12 +20,12 @@ import java.util.List;
 public interface FollowResourceManager extends AbstractManager {
 
 	User followUser(long userToFollowId, UserContextData learningContext)
-			throws DbConnectionException, EntityAlreadyExistsException, EventException;
+			throws DbConnectionException, EntityAlreadyExistsException;
 
 	Result<User> followUserAndGetEvents(long userToFollowId, UserContextData context)
 			throws DbConnectionException, EntityAlreadyExistsException;
 
-	boolean unfollowUser(long userToUnfollow, UserContextData context) throws DbConnectionException, EventException;
+	boolean unfollowUser(long userToUnfollow, UserContextData context) throws DbConnectionException;
 
 	Result<Boolean> unfollowUserAndGetEvents(long userToUnfollowId, UserContextData context) throws DbConnectionException;
 

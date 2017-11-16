@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
@@ -407,9 +406,6 @@ public class ActivityEditBean implements Serializable {
 				activityData.setCompetenceName(competenceName);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
-			return true;
-		} catch(EventException ee) {
-			logger.error(ee);
 			return true;
 		} catch(DbConnectionException|IllegalDataStateException|StaleDataException e) {
 			logger.error(e);

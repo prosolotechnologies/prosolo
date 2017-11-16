@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -23,10 +22,10 @@ import java.util.Optional;
 public interface AssessmentManager {
 
 	long requestAssessment(AssessmentRequestData assessmentRequestData,
-						   UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+						   UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId,
-								 UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+								 UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
@@ -42,13 +41,13 @@ public interface AssessmentManager {
 												long credAssessmentId, List<Long> participantIds,
 												long senderId, boolean isDefault, GradeData grade,
 												boolean recalculatePoints, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException, EventException;
+			throws IllegalDataStateException, DbConnectionException;
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
 												long senderId, boolean isDefault, GradeData grade,
 												boolean recalculatePoints, Session session, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException, EventException;
+			throws IllegalDataStateException, DbConnectionException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
@@ -86,7 +85,7 @@ public interface AssessmentManager {
 
 	int updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
 										  long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
@@ -146,7 +145,7 @@ public interface AssessmentManager {
 															  long targetActivityId, List<Long> participantIds,
 															  long senderId, GradeData grade, boolean isDefault,
 															  UserContextData context)
-			throws DbConnectionException, IllegalDataStateException, EventException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
 											  String message, boolean defaultAssessment, UserContextData context)

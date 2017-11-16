@@ -7,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
@@ -379,8 +378,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				logger.error("Error after retry: " + e);
 				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
-		} catch (EventException e) {
-			logger.info(e);
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -390,7 +387,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException, EventException {
+			throws DbConnectionException, IllegalDataStateException {
 		GradeData grade = updateGrade
 				? currentResult != null ? currentResult.getAssessment().getGrade() : null
 				: null;
