@@ -165,7 +165,7 @@
                                 </div>
                             </div>
                             <c:if test="#{organizationEditBean.learningInStagesEnabled}">
-                                <h:panelGroup layout="block" id="panelLearningStages" styleClass="formLine">
+                                <div class="formLine">
                                     <label>Learning in stages</label>
                                     <div class="formLineRight">
                                         <div class="checkbox checkLine">
@@ -175,44 +175,58 @@
                                             <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
                                         </div>
                                         <p class="bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()} stage should have specific requirements and learners complete a specific stage at a time.</p>
-                                        <table class="tableSymptoms">
-                                            <ui:repeat value="#{organizationEditBean.organization.learningStages}" var="ls" varStatus="lsStatus">
-                                                <tr class="#{lsStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
-                                                    <td class="col1">
-                                                        #{ls.title}
-                                                    </td>
-                                                    <td class="col2">
-                                                        <p:commandLink styleClass="btn btn-green-stroke btn-sm"
-                                                                       pt:data-toggle="modal"
-                                                                       process="@this"
-                                                                       action="#{organizationEditBean.prepareLearningStageForEdit(ls)}"
-                                                                       update=":formEditLearningStage:panelEditLearningStage"
-                                                                       oncomplete="$('#modalEditLearningStage').modal('show')">
-                                                            Rename
-                                                        </p:commandLink>
-                                                        <p:commandLink rendered="#{not ls.used}" styleClass="linkRed"
-                                                            process="@this"
-                                                            action="#{organizationEditBean.removeLearningStage(lsStatus.index)}"
-                                                            update=":formMain:panelLearningStages">
-                                                            Delete
-                                                        </p:commandLink>
-                                                        <ui:fragment rendered="#{ls.used}">
-                                                            <a href="javascript:void(0);" class="linkRed"
-                                                               data-toggle="tooltip" title="This learning stage is being used"/>
-                                                        </ui:fragment>
-                                                    </td>
-                                                </tr>
-                                            </ui:repeat>
-                                        </table>
-                                        <p:commandLink styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
-                                            process="@this"
-                                            action="#{organizationEditBean.prepareAddingNewLearningStage()}"
-                                            update=":formEditLearningStage:panelEditLearningStage"
-                                            oncomplete="$('#modalEditLearningStage').modal('show')">
-                                            Add Learning Stage
-                                        </p:commandLink>
+                                        <h:panelGroup id="panelLearningStages">
+                                            <table class="tableSymptoms">
+                                                <ui:repeat value="#{organizationEditBean.organization.learningStages}" var="ls" varStatus="lsStatus">
+                                                    <tr class="#{lsStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
+                                                        <td class="col1">
+                                                            #{ls.title}
+                                                        </td>
+                                                        <td class="col2">
+                                                            <p:commandLink styleClass="btn btn-green-stroke btn-sm"
+                                                                           pt:data-toggle="modal"
+                                                                           process="@this"
+                                                                           action="#{organizationEditBean.prepareLearningStageForEdit(ls)}"
+                                                                           update=":formEditLearningStage:panelEditLearningStage"
+                                                                           oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                                Rename
+                                                                <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
+                                                            </p:commandLink>
+                                                            <p:commandLink rendered="#{not ls.used}" styleClass="linkRed"
+                                                                process="@this"
+                                                                action="#{organizationEditBean.removeLearningStage(lsStatus.index)}"
+                                                                update=":formMain:panelLearningStages">
+                                                                Delete
+                                                            </p:commandLink>
+                                                            <ui:fragment rendered="#{ls.used}">
+                                                                <a href="javascript:void(0);" class="linkRed disabled"
+                                                                   data-toggle="tooltip" title="This learning stage is being used">
+                                                                   Delete
+                                                                </a>
+                                                            </ui:fragment>
+                                                        </td>
+                                                    </tr>
+                                                </ui:repeat>
+                                            </table>
+                                            <p:commandLink rendered="#{organizationEditBean.canNewLearningStageBeAdded()}" styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
+                                                process="@this"
+                                                action="#{organizationEditBean.prepareAddingNewLearningStage()}"
+                                                update=":formEditLearningStage:panelEditLearningStage"
+                                                oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                Add Learning Stage
+                                                <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
+                                            </p:commandLink>
+                                            <ui:fragment rendered="#{not organizationEditBean.canNewLearningStageBeAdded()}">
+                                                <a href="javascript:void(0);" class="btn btn-green btn-sm"
+                                                    disabled="disabled"
+                                                    data-toggle="tooltip"
+                                                    title="Maximum number of learning stages is reached">
+                                                    Add Learning Stage
+                                                </a>
+                                            </ui:fragment>
+                                        </h:panelGroup>
                                     </div>
-                                </h:panelGroup>
+                                </div>
                             </c:if>
                             <div class="formLine">
                                 <label>&#160;</label>

@@ -84,7 +84,7 @@ public class OrganizationEditBean implements Serializable {
 
     public void init() {
         logger.debug("initializing");
-        admins = new ArrayList<UserData>();
+        admins = new ArrayList<>();
         try {
             decodedId = idEncoder.decodeId(id);
 
@@ -95,12 +95,7 @@ public class OrganizationEditBean implements Serializable {
                     adminRolesIds.add(r.getId());
                 }
                 if (decodedId > 0) {
-                    this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles);
-
-                    if (organization == null) {
-                        this.organization = new OrganizationData();
-                        PageUtil.fireErrorMessage("Organization cannot be found");
-                    }
+                    initOrgData();
                 } else {
                     organization = new OrganizationData();
                     this.organization.setAdmins(new ArrayList<>());
@@ -110,12 +105,26 @@ public class OrganizationEditBean implements Serializable {
             }
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while loading page");
+            PageUtil.fireErrorMessage("Error loading the page");
+        }
+    }
+
+    private void initOrgData() {
+        this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles);
+
+        if (organization == null) {
+            this.organization = new OrganizationData();
+            PageUtil.fireErrorMessage("Organization cannot be found");
         }
     }
 
     public boolean isLearningInStagesEnabled() {
-        return appBean.getConfig().application.pluginConfig.enableLearningInStages;
+        return appBean.getConfig().application.pluginConfig.learningInStagesPlugin.enabled;
+    }
+
+    public boolean canNewLearningStageBeAdded() {
+        return appBean.getConfig().application.pluginConfig.learningInStagesPlugin.maxNumberOfLearningStages >
+                organization.getLearningStages().size();
     }
 
     public void prepareLearningStageForEdit(LearningStageData ls) {
@@ -184,8 +193,6 @@ public class OrganizationEditBean implements Serializable {
             if(this.organization.getAdmins() != null && !this.organization.getAdmins().isEmpty()) {
                 Organization organization = organizationManager.createNewOrganization(this.organization, loggedUser.getUserContext(decodedId));
 
-                this.organization.setId(organization.getId());
-
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
@@ -215,12 +222,17 @@ public class OrganizationEditBean implements Serializable {
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
             PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
+            try {
+                initOrgData();
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error refreshing the data");
+            }
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
                 logger.error("Error", e);
-            /* TODO exception - pay attention to this case - we can have several constraints violated
-               and we don't know which one is actually violated so we can't generate specific, meaningful
-               message. Should we maybe have a specific exception for each constraint
-             */
+                /* TODO exception - pay attention to this case - we can have several constraints violated
+                   and we don't know which one is actually violated so we can't generate specific, meaningful
+                   message. Should we maybe have a specific exception for each constraint
+                 */
                 PageUtil.fireErrorMessage("Error updating the organization");
         } catch (DbConnectionException e) {
             logger.error(e);

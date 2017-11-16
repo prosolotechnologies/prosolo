@@ -108,7 +108,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      */
     private void updateOrganizationLearningStages(long orgId, OrganizationData organization) {
         //if learning stages are not enabled, we don't update learning stages for organization
-        if (Settings.getInstance().config.application.pluginConfig.enableLearningInStages) {
+        if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
             try {
                 Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
                 org.setLearningInStagesEnabled(organization.isLearningInStagesEnabled());
@@ -116,6 +116,12 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 for (LearningStageData ls : organization.getLearningStagesForDeletion()) {
                     deleteById(LearningStage.class, ls.getId(), persistence.currentManager());
                 }
+
+                /*
+                trigger learning stages deletion at this point to avoid name conflict
+                for new learning stages with deleted
+                 */
+                persistence.currentManager().flush();
 
                 for (LearningStageData ls : organization.getLearningStages()) {
                     switch (ls.getStatus()) {
@@ -136,7 +142,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                     }
                 }
             } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                logger.error("DB constraint violation", e);
+                logger.error("DB constraint violation when updating organization learning stages", e);
                 throw e;
             } catch (Exception e) {
                 logger.error("Error", e);
@@ -178,7 +184,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private List<LearningStageData> getOrganizationLearningStages(long orgId) {
         List<LearningStageData> learningStagesData = new ArrayList<>();
         //only if learning in stages is enabled load the stages
-        if (Settings.getInstance().config.application.pluginConfig.enableLearningInStages) {
+        if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
             String query =
                     "SELECT ls, " +
                             "CASE WHEN cred IS NULL THEN false ELSE true END," +

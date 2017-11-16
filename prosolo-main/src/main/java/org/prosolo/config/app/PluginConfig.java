@@ -9,6 +9,6 @@ import org.simpleframework.xml.Element;
  */
 public class PluginConfig {
 
-    @Element(name = "enable-learning-in-stages")
-    public boolean enableLearningInStages;
+    @Element(name = "learning-in-stages")
+    public LearningInStagesPlugin learningInStagesPlugin;
 }
