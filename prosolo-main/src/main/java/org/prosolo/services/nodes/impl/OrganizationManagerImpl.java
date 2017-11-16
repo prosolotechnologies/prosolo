@@ -23,9 +23,9 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,29 +186,47 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         //only if learning in stages is enabled load the stages
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
             String query =
-                    "SELECT ls, " +
-                            "CASE WHEN cred IS NULL THEN false ELSE true END," +
-                            "CASE WHEN comp IS NULL THEN false ELSE true END " +
+                    "SELECT ls " +
                     "FROM LearningStage ls " +
-                    "LEFT JOIN ls.credentials cred " +
-                    "LEFT JOIN ls.competences comp " +
                     "WHERE ls.organization.id = :orgId " +
                     "order by ls.order ASC";
 
             @SuppressWarnings("unchecked")
-            List<Object[]> res =  persistence.currentManager()
+            List<LearningStage> res =  persistence.currentManager()
                     .createQuery(query)
                     .setLong("orgId", orgId)
                     .list();
 
-            for (Object[] row : res) {
-                LearningStage ls = (LearningStage) row[0];
-                boolean usedInCredentials = (boolean) row[1];
-                boolean usedInCompetences = (boolean) row[2];
-                learningStagesData.add(new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), usedInCredentials || usedInCompetences, true));
+            for (LearningStage ls : res) {
+                learningStagesData.add(new LearningStageData(
+                        ls.getId(), ls.getTitle(), ls.getOrder(), isLearningStageBeingUsed(ls.getId()), true));
             }
         }
         return learningStagesData;
+    }
+
+    private boolean isLearningStageBeingUsed(long learningStageId) {
+        //check if it is used in a credential
+        String q1 =
+                "SELECT 1 FROM Credential1 c WHERE c.learningStage.id = :lsId";
+        Integer i = (Integer) persistence.currentManager()
+                .createQuery(q1)
+                .setLong("lsId", learningStageId)
+                .setMaxResults(1)
+                .uniqueResult();
+
+        if (i != null) {
+            return true;
+        }
+
+        String q2 =
+                "SELECT 1 FROM Competence1 c WHERE c.learningStage.id = :lsId";
+        i = (Integer) persistence.currentManager()
+                .createQuery(q2)
+                .setLong("lsId", learningStageId)
+                .setMaxResults(1)
+                .uniqueResult();
+        return i != null;
     }
 
     @Override
