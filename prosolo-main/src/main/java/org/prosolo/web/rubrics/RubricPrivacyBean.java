@@ -44,7 +44,7 @@ public class RubricPrivacyBean implements Serializable {
 		if (decodedRubricId > 0) {
 			try {
 				RubricData rd = rubricManager.getRubricData(decodedRubricId, false, false,
-						loggedUserBean.getUserId(), false);
+						loggedUserBean.getUserId(), false, false);
 				if (rd != null) {
 					rubricName = rd.getName();
 					loadData();

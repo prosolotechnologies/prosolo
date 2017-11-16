@@ -17,7 +17,6 @@ import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -58,7 +57,7 @@ public class AfterContextLoader implements ServletContextListener {
 				logger.error(e);
 			}
 		}
-		
+
 		if (settings.config.init.formatDB) {
 			//initialize ES indexes
 			try {
@@ -89,6 +88,16 @@ public class AfterContextLoader implements ServletContextListener {
 			settings.config.init.formatDB = false;
 			
 			CommonSettings.getInstance().config.emailNotifier.activated = oldEmailNotifierVal;
+		} else {
+			/*
+			if we are not formatting the database, create indexes with data not dependent on mysql db if they don't exist
+			 */
+			ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
+			try {
+				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
+			} catch (IndexingServiceNotAvailable e) {
+				logger.error("Error", e);
+			}
 		}
 	
 		if (Settings.getInstance().config.init.importData) {
@@ -98,8 +107,7 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 		
 		if (settings.config.init.indexTrainingSet) {
-			ESAdministration esAdmin = new ESAdministrationImpl();
-			esAdmin.indexTrainingSet();
+			ServiceLocator.getInstance().getService(ESAdministration.class).indexTrainingSet();
 		}
 		
 		logger.debug("Initialize thread to start elastic search");

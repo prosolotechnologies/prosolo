@@ -54,7 +54,7 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	private String credentialTitle;
 
-	public void init() {	
+	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
 			try {
