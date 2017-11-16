@@ -944,6 +944,32 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsWithUserCapability(long userId, String capability) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT DISTINCT urm.unit.id " +
+                    "FROM UnitRoleMembership urm " +
+                    "INNER JOIN urm.role role " +
+                    "INNER JOIN role.capabilities cap " +
+                        "WITH cap.name = :capability " +
+                    "WHERE urm.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setString("capability", capability)
+                    .list();
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<UnitData> getUnitsWithRubricSelectionInfo(long organizationId, long rubricId)
             throws DbConnectionException {
         try {
