@@ -28,12 +28,10 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -96,17 +94,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	//nt
 	public Credential1 saveNewCredential(CredentialData data, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		//self-invocation
 		Result<Credential1> res = self.saveNewCredentialAndGetEvents(data, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, UserContextData context)
 			throws DbConnectionException {
 		try {
@@ -140,22 +136,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Result<Credential1> res = new Result<>();
 
-			res.addEvent(eventFactory.generateEventData(
+			res.appendEvent(eventFactory.generateEventData(
 					EventType.Create, context, cred, null, null, null));
 
 			//add Edit privilege to the credential creator
-			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(
+			res.appendEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(
 					context.getActorId(), cred.getId(),
-					UserGroupPrivilege.Edit, true, context).getEvents());
+					UserGroupPrivilege.Edit, true, context).getEventQueue());
 
 			//add credential to all units where credential creator is manager
-			/*
-			TODO observer refactor - when these events are generated exceptions will occur
-			because credential index does not exist yet. This is ok for now, because when credential
-			is indexed units collection in a credential will be indexed too. Also, event generation will
-			be refactored soon to handle these cases.
-			 */
-			res.addEvents(addCredentialToDefaultUnits(cred.getId(), context));
+			res.appendEvents(addCredentialToDefaultUnits(cred.getId(), context));
 
 			res.setResult(cred);
 
@@ -176,12 +166,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @param context
 	 * @return
 	 */
-	private List<EventData> addCredentialToDefaultUnits(long credId, UserContextData context) {
+	private EventQueue addCredentialToDefaultUnits(long credId, UserContextData context) {
 		long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
 		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
-		List<EventData> events = new ArrayList<>();
+		EventQueue events = EventQueue.newEventQueue();
 		for (long unitId : unitsWithManagerRole) {
-			events.addAll(unitManager.addCredentialToUnitAndGetEvents(credId, unitId, context).getEvents());
+			events.appendEvents(unitManager.addCredentialToUnitAndGetEvents(credId, unitId, context).getEventQueue());
 		}
 		return events;
 	}
@@ -189,12 +179,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//non transactional
 	@Override
 	public void deleteDelivery(long deliveryId, UserContextData context)
-			throws DbConnectionException, StaleDataException, DataIntegrityViolationException, EventException {
+			throws DbConnectionException, StaleDataException, DataIntegrityViolationException {
 		//self invocation so spring can intercept the call and start transaction
 		Result<Void> res = self.deleteDeliveryAndGetEvents(deliveryId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -206,7 +194,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (deliveryId > 0) {
 				Credential1 del = new Credential1();
 				del.setId(deliveryId);
-				res.addEvent(eventFactory.generateEventData(EventType.Delete,
+				res.appendEvent(eventFactory.generateEventData(EventType.Delete,
 						context, del, null, null, null));
 			
 				//delete delivery from database
@@ -503,9 +491,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Result<Credential1> res = resourceFactory.updateCredential(data, context);
 			Credential1 cred = res.getResult();
 
-			for(EventData ev : res.getEvents()) {
-				eventFactory.generateEvent(ev);
-			}
+			eventFactory.generateEvents(res.getEventQueue());
 
 			fireEditEvent(data, cred, context);
 			//we should generate update hashtags only for deliveries
@@ -551,7 +537,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	private void fireEditEvent(CredentialData data, Credential1 cred,
-							   UserContextData context) throws EventException {
+							   UserContextData context) {
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -633,7 +619,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				//if competence is added to credential
 		    				Competence1 competence = new Competence1();
 		    				competence.setId(comp.getId());
-		    				res.addEvent(eventFactory.generateEventData(
+		    				res.appendEvent(eventFactory.generateEventData(
 		    						EventType.Attach, context, competence, credToUpdate,null, null));
 		    				recalculateDuration = true;
 		    				break;
@@ -649,7 +635,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				delete(cc3);
 		    				Competence1 competence1 = new Competence1();
 		    				competence1.setId(cd.getCompetenceId());
-		    				res.addEvent(eventFactory.generateEventData(
+		    				res.appendEvent(eventFactory.generateEventData(
 		    						EventType.Detach, context, competence1, credToUpdate, null, null));
 		    				recalculateDuration = true;
 		    				break;
@@ -680,25 +666,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//not transactional
 	@Override
 	public void enrollInCredential(long credentialId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.enrollInCredentialAndGetEvents(credentialId, context.getActorId(),
 				0, context);
-		for (EventData ev : res.getEvents()) {
-			/*
-			if student assigned to instructor event should be generated, don't invoke nodechangeobserver
-			because instructor will be assigned to student in ES index by enroll course event.
-			 */
-			//TODO observer refactor - these dependencies between different events and/or observers should be avoided
-			if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
-				Class<? extends EventObserver>[] toExclude = new Class[]{NodeChangeObserver.class};
-				ev.setObserversToExclude(toExclude);
-			}
-			eventFactory.generateEvent(ev);
-		}
+
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId,
 													   long instructorThatForcedEnrollId, UserContextData context) throws DbConnectionException {
 		try {
@@ -709,6 +685,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = getCredential(credentialId, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 
+			/*
+			TODO actor doesn't have to be enrolled student, it could be an instructor that triggered
+			student enroll, that should be taken into account in all places.
+			*/
+			User student = new User();
+			student.setId(userId);
+			result.appendEvent(eventFactory.generateEventData(
+					EventType.ENROLL_COURSE, context, cred, student, null, null));
+
 			long instructorId = 0;
 
 			if (!cred.isManuallyAssignStudents()) {
@@ -716,7 +701,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
 						credentialId, targetCredIds, 0, false, context);
-				result.addEvents(res.getEvents());
+				result.appendEvents(res.getEventQueue());
 				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
 				if (assigned.size() == 1) {
 					StudentInstructorPair pair = assigned.get(0);
@@ -728,20 +713,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//create default assessment for user
 			assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
 
-			Map<String, String> params = new HashMap<>();
-			params.put("instructorId", instructorId + "");
-			params.put("dateEnrolled", DateUtil.getMillisFromDate(targetCred.getDateCreated()) + "");
-			if (instructorThatForcedEnrollId > 0) {
-				params.put("forcedEnroll", "true");
-				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-			}
-			params.put("progress", targetCred.getProgress() + "");
-			result.addEvent(eventFactory.generateEventData(
-					EventType.ENROLL_COURSE, context, cred, null, null, params));
-
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
-				result.addEvent(eventFactory.generateEventData(
+				result.appendEvent(eventFactory.generateEventData(
 						EventType.Completion, context, targetCred, null, null, null));
 			}
 
@@ -759,23 +733,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		if (userIds != null) {
 			try {
-				List<EventData> events = new ArrayList<>();
+				EventQueue events = EventQueue.newEventQueue();
 				for (long userId : userIds) {
-					events.addAll(self.enrollInCredentialAndGetEvents(
-							credId, userId, instructorId, context).getEvents());
+					events.appendEvents(self.enrollInCredentialAndGetEvents(
+							credId, userId, instructorId, context).getEventQueue());
 				}
-				for (EventData ev : events) {
-					/*
-					if student assigned to instructor event should be generated, don't invoke nodechangeobserver
-					because instructor will be assigned to student in ES index by enroll course event.
-					 */
-					//TODO observer refactor - these dependencies between different events and/or observers should be avoided
-					if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
-						Class<? extends EventObserver>[] toExclude = new Class[]{NodeChangeObserver.class};
-						ev.setObserversToExclude(toExclude);
-					}
-					eventFactory.generateEvent(ev);
-				}
+
+				eventFactory.generateEvents(events);
 			} catch (Exception e) {
 				throw new DbConnectionException("Error while enrolling students in a credential");
 			}
@@ -846,10 +810,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, UserContextData context)
+	public EventQueue addCompetenceToCredential(long credId, Competence1 comp, UserContextData context)
 			throws DbConnectionException {
 		try {
-			List<EventData> events = new ArrayList<>();
+			EventQueue eventQueue = EventQueue.newEventQueue();
 			Credential1 cred = (Credential1) persistence.currentManager().load(
 					Credential1.class, credId);
 
@@ -868,9 +832,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Competence1 competence = new Competence1();
 			competence.setId(comp.getId());
-			events.add(eventFactory.generateEventData(EventType.Attach, context, competence, cred,null, null));
+			eventQueue.appendEvent(eventFactory.generateEventData(EventType.Attach, context, competence, cred,null, null));
 			
-			return events;
+			return eventQueue;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1065,11 +1029,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	public void bookmarkCredential(long credId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.bookmarkCredentialAndGetEvents(credId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1090,7 +1052,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			credential.setId(credId);
 
 			Result<Void> res = new Result<>();
-			res.addEvent(eventFactory.generateEventData(EventType.Bookmark, context, bookmark, credential, null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.Bookmark, context, bookmark, credential, null, null));
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1101,11 +1063,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	public void deleteCredentialBookmark(long credId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.deleteCredentialBookmarkAndGetEvents(credId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1136,7 +1096,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			credential.setId(credId);
 
 			Result<Void> res = new Result<>();
-			res.addEvent(eventFactory.generateEventData(EventType.RemoveBookmark, context, cb, credential,null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.RemoveBookmark, context, cb, credential,null, null));
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1197,10 +1157,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> updateCredentialProgress(long targetCompId, UserContextData context)
+	public EventQueue updateCredentialProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			List<EventData> events = new ArrayList<>();
+			EventQueue events = EventQueue.newEventQueue();
 			String query = "SELECT tCred.id, cred.id, comp.id, coalesce(tComp.progress, 0) " +
 					"FROM TargetCredential1 tCred " +
 					"INNER JOIN tCred.credential cred " +
@@ -1238,7 +1198,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if (tCredId != currentTCredId) {
 						if (currentTCredId > 0) {
 							int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
-							events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId,
+							events.appendEvents(updateTargetCredentialProgress(currentTCredId, currentCredId,
 									finalCredProgress, nextCompToLearnId, now, context));
 						}
 						currentTCredId = tCredId;
@@ -1258,7 +1218,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				//update last credential
 				if (currentTCredId > 0) {
 					int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
-					events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId,
+					events.appendEvents(updateTargetCredentialProgress(currentTCredId, currentCredId,
 							finalCredProgress, nextCompToLearnId, now, context));
 				}
 			}
@@ -1270,7 +1230,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private List<EventData> updateTargetCredentialProgress(long tCredId, long credId, int finalCredProgress,
+	private EventQueue updateTargetCredentialProgress(long tCredId, long credId, int finalCredProgress,
 														   long nextCompToLearnId, Date now, UserContextData context) {
 		StringBuilder updateCredQuery = new StringBuilder(
 				"UPDATE TargetCredential1 targetCred SET " +
@@ -1294,7 +1254,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		q1.executeUpdate();
 
-		List<EventData> events = new ArrayList<>();
+		EventQueue events = EventQueue.newEventQueue();
 
 		TargetCredential1 tCred = new TargetCredential1();
 		tCred.setId(tCredId);
@@ -1305,11 +1265,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
 				context, tCred, null, null, null);
 		ev.setProgress(finalCredProgress);
-		events.add(ev);
+		events.appendEvent(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tCred, finalCredProgress,
 //				lcPage, lcContext, lcService, null);
-		if(finalCredProgress == 100) {
-			events.add(eventFactory.generateEventData(EventType.Completion, context, tCred, null, null, null));
+		if (finalCredProgress == 100) {
+			events.appendEvent(eventFactory.generateEventData(EventType.Completion, context, tCred, null, null, null));
 //			eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
 //					lcPage, lcContext, lcService, null);
 		}
@@ -2295,14 +2255,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups,
 										   List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-										   UserContextData context) throws DbConnectionException, EventException {
+										   UserContextData context) throws DbConnectionException {
 		try {
-			List<EventData> events =
+			EventQueue events =
 					self.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll,
 							visibleToAllChanged, context);
-			for (EventData ev : events) {
-				eventFactory.generateEvent(ev);
-			}
+			eventFactory.generateEvents(events);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2312,11 +2270,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
+	public EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
 																  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
 																  UserContextData context) throws DbConnectionException {
 		try {
-			List<EventData> events = new ArrayList<>();
+			EventQueue events = EventQueue.newEventQueue();
 			if (visibleToAllChanged) {
 				Credential1 cred = (Credential1) persistence.currentManager().load(
 						Credential1.class, credId);
@@ -2325,10 +2283,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Credential1 credential = new Credential1();
 				credential.setId(credId);
 				credential.setVisibleToAll(visibleToAll);
-				events.add(eventFactory.generateEventData(
+				events.appendEvent(eventFactory.generateEventData(
 						EventType.VISIBLE_TO_ALL_CHANGED, context, credential, null, null,null));
 			}
-			events.addAll(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, context).getEvents());
+			events.appendEvents(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, context).getEventQueue());
 			return events;
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -2450,11 +2408,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	public void archiveCredential(long credId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.archiveCredentialAndGetEvents(credId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -2469,7 +2425,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			credential.setId(credId);
 
 			Result<Void> res = new Result<>();
-			res.addEvent(eventFactory.generateEventData(EventType.ARCHIVE, context, credential,null, null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.ARCHIVE, context, credential,null, null, null));
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -2480,11 +2436,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	public void restoreArchivedCredential(long credId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.restoreArchivedCredentialAndGetEvents(credId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -2499,7 +2453,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			credential.setId(credId);
 
 			Result<Void> res = new Result<>();
-			res.addEvent(eventFactory.generateEventData(EventType.RESTORE, context, credential,null, null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.RESTORE, context, credential,null, null, null));
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -2675,13 +2629,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//not transactional
 	@Override
 	public Credential1 createCredentialDelivery(long credentialId, long start, long end,
-												UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException {
+												UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		Result<Credential1> res = self.createCredentialDeliveryAndGetEvents(
 				credentialId, DateUtil.getDateFromMillis(start), DateUtil.getDateFromMillis(end), context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
-
+		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -2690,7 +2641,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end,
 																	UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
-			Result<Credential1> res = new Result<>();
 			//if end date is before start throw exception
 			if (start != null && end != null && start.after(end)) {
 				throw new IllegalDataStateException("Delivery cannot be ended before it starts");
@@ -2716,8 +2666,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDeliveryEnd(end);
 
 			saveEntity(cred);
-
-			res.addEvent(eventFactory.generateEventData(EventType.Create, context, cred, null,
+			Result<Credential1> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.Create, context, cred, null,
 					null, null));
 
 			Set<Tag> hashtags = cred.getHashtags();
@@ -2726,7 +2676,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				String csv = StringUtil.convertTagsToCSV(hashtags);
 				params.put("newhashtags", csv);
 				params.put("oldhashtags", "");
-				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS,
+				res.appendEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS,
 						context, cred, null, null, params));
 			}
 
@@ -2748,8 +2698,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				saveEntity(cc);
 
 				//publish competency if not published because creating a delivery means that all competencies must be published
-				res.addEvents(compManager.publishCompetenceIfNotPublished(credComp.getCompetence(), context)
-						.getEvents());
+				res.appendEvents(compManager.publishCompetenceIfNotPublished(credComp.getCompetence(), context)
+						.getEventQueue());
 
 				cred.getCompetences().add(cc);
 			}
@@ -2835,15 +2785,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				 */
 				if (cd.getType() == CredentialType.Original) {
 					//remove Edit privilege from old owner
-					result.addEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
-							oldCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEvents());
+					result.appendEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
+							oldCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEventQueue());
 					//add edit privilege to new owner
-					result.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
-							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEvents());
+					result.appendEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
+							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEventQueue());
 				}
 
 				//for all credentials and deliveries change_owner event should be generated
-				result.addEvent(getOwnerChangeEvent(cd.getId(), oldCreatorId, newCreatorId, context));
+				result.appendEvent(getOwnerChangeEvent(cd.getId(), oldCreatorId, newCreatorId, context));
 			}
 			return result;
 		} catch (Exception e) {
@@ -2969,10 +2919,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	//nt
-	public void changeOwner(long credId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException {
-		for (EventData ev : self.changeOwnerAndGetEvents(credId, newOwnerId, context).getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+	public void changeOwner(long credId, long newOwnerId, UserContextData context) throws DbConnectionException {
+		eventFactory.generateEvents(self.changeOwnerAndGetEvents(credId, newOwnerId, context).getEventQueue());
 	}
 
 	@Override
@@ -2988,7 +2936,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 				Result<Void> res = new Result<>();
 				for (Credential1 c : credWithDeliveries) {
-					res.addEvent(getOwnerChangeEvent(c.getId(), oldOwnerId, newOwnerId, context));
+					res.appendEvent(getOwnerChangeEvent(c.getId(), oldOwnerId, newOwnerId, context));
 				}
 				return res;
 			}
@@ -3211,12 +3159,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//nt
 	@Override
 	public void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
-			throws StaleDataException, IllegalDataStateException, DbConnectionException, EventException {
+			throws StaleDataException, IllegalDataStateException, DbConnectionException {
 		Result<Void> res = self.updateDeliveryStartAndEndAndGetEvents(deliveryData, context);
-
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -3249,7 +3194,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Map<String, String> params = new HashMap<>();
 			params.put("deliveryStart", deliveryData.getDeliveryStartTime() + "");
 			params.put("deliveryEnd", deliveryData.getDeliveryEndTime() + "");
-			res.addEvent(eventFactory.generateEventData(EventType.UPDATE_DELIVERY_TIMES, context, del, null, null, params));
+			res.appendEvent(eventFactory.generateEventData(EventType.UPDATE_DELIVERY_TIMES, context, del, null, null, params));
 			return res;
 		} catch (HibernateOptimisticLockingFailureException e) {
 			logger.error("Error", e);

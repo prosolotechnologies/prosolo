@@ -20,7 +20,6 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -36,7 +35,7 @@ public interface ResourceFactory extends AbstractManager {
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
     User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
-            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
+            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles);
 
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     

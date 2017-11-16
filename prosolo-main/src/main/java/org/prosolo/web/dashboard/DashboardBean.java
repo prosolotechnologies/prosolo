@@ -2,7 +2,6 @@ package org.prosolo.web.dashboard;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.web.LoggedUserBean;
@@ -74,12 +73,8 @@ public class DashboardBean implements Serializable {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
-		try {
-			//TODO what to do with organization id
-			eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserContext(), null, null, null, parameters);
-		} catch (EventException e) {
-			logger.error("Generate event failed.", e);
-		}
+		//TODO what to do with organization id
+		eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserContext(), null, null, null, parameters);
 	}
 
 	public void enableHashtag() {
@@ -89,12 +84,8 @@ public class DashboardBean implements Serializable {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
-		try {
-			//TODO what to do with organization id since this is admin section and admins do not have to have organizationId in session
-			eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserContext(), null, null, null, parameters);
-		} catch (EventException e) {
-			logger.error("Generate event failed.", e);
-		}
+		//TODO what to do with organization id since this is admin section and admins do not have to have organizationId in session
+		eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserContext(), null, null, null, parameters);
 	}
 
 }

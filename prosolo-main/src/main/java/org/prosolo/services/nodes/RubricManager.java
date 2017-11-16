@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
@@ -25,7 +24,7 @@ import java.util.List;
 public interface RubricManager extends AbstractManager {
 
     Rubric createNewRubric(String name, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     Result<Rubric> createNewRubricAndGetEvents(String name, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
@@ -68,7 +67,7 @@ public interface RubricManager extends AbstractManager {
     boolean isRubricReadyToUse(long rubricId) throws DbConnectionException;
 
     void updateRubricName(long rubricId, String name, UserContextData context) throws
-            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     Result<Void> updateRubricNameAndGetEvents(long rubricId, String name, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;

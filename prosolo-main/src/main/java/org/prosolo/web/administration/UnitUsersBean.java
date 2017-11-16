@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.TitleData;
@@ -185,8 +184,6 @@ public class UnitUsersBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 

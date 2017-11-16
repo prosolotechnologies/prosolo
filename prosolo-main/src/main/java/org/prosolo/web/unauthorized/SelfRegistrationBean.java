@@ -1,22 +1,20 @@
 package org.prosolo.web.unauthorized;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author Zoran Jeremic 2013-10-24
@@ -121,8 +119,6 @@ public class SelfRegistrationBean {
 			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
-		} catch (EventException e) {
-			logger.error(e);
 		} catch (FileNotFoundException e) {
 			logger.error(e);
 		} catch (IOException e) {
@@ -138,8 +134,6 @@ public class SelfRegistrationBean {
 		try {
 			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
 		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e);
-		} catch (EventException e) {
 			logger.error(e);
 		}
 		return user; 

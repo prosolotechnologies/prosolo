@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.web.LoggedUserBean;
@@ -60,16 +59,12 @@ public class SendMessageBean implements Serializable {
 
 				UserContextData context = loggedUserBean.getUserContext();
 				taskExecutor.execute(() -> {
-					try {
-						Map<String, String> parameters = new HashMap<String, String>();
-						//parameters.put("context", createContext());
-						parameters.put("user", String.valueOf(receiverId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, context,
-								message1, null,null, parameters);
-					} catch (EventException e) {
-						logger.error(e);
-					}
+					Map<String, String> parameters = new HashMap<String, String>();
+					//parameters.put("context", createContext());
+					parameters.put("user", String.valueOf(receiverId));
+					parameters.put("message", String.valueOf(message1.getId()));
+					eventFactory.generateEvent(EventType.SEND_MESSAGE, context,
+							message1, null,null, parameters);
 				});
 				this.message = "";
 				PageUtil.fireSuccessfulInfoMessage("Your message is sent");

@@ -20,7 +20,6 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.data.CommentData;
@@ -104,7 +103,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-                              String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
+                              String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) {
 
         emailAddress = emailAddress.toLowerCase();
 
@@ -481,7 +480,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 c = new Competence1();
             c.setId(competence.getId());
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
+            res.appendEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
 
             List<CompetenceActivity1> activities = comp.getActivities();
 
@@ -489,13 +488,13 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                 Result<CompetenceActivity1> actRes = activityManager.cloneActivity(
                         compActivity, competence.getId(), context);
                 competence.getActivities().add(actRes.getResult());
-                res.addEvents(actRes.getEvents());
+                res.appendEvents(actRes.getEventQueue());
             }
 
             //add Edit privilege to the competence creator
-            res.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
+            res.appendEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
                     context.getActorId(), competence.getId(),
-                    UserGroupPrivilege.Edit,true, context).getEvents());
+                    UserGroupPrivilege.Edit,true, context).getEventQueue());
             return res;
         } catch(Exception e) {
             logger.error(e);

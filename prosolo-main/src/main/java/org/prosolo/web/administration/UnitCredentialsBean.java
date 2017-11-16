@@ -9,7 +9,6 @@ import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -197,8 +196,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 		}
 	}
@@ -220,8 +217,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 		}
 	}
@@ -231,8 +226,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			try {
 				credManager.updateDeliveryStartAndEnd(selectedCred, loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been updated");
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception e) {
 				logger.error("Error", e);
 				//restore dates

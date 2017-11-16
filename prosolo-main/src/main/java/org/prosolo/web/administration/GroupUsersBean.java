@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -129,8 +128,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while removing user " + user.getFullName() + " from the group");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
