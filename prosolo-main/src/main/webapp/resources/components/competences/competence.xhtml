@@ -133,26 +133,26 @@
 			</div>
 		
 		    <div class="container">
-		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
+		    	<ui:fragment rendered="#{not empty param.credId}">
 		    		<ol class="breadcrumb">
 			            <li>
 			            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 			            </li>
 			            <li>
-			            	<h:link 
-			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
+			            	<h:link
+								value="#{cc.attrs.bean.credentialTitle}"
 			            		outcome="credential"
 			            		onclick="sendLogPageNavigation('/credential.xhtml', 
 										'#{facesContext.viewRoot.viewId}', 
 										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
 										'#{cc.attrs.service}');">
-			            		<f:param name="id" value="#{util:encodeId(cc.attrs.bean.competenceData.credentialId)}"></f:param>
+			            		<f:param name="id" value="#{param.credId}"></f:param>
 			            	</h:link>
 			            </li>
 			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
 			        </ol>
 		    	</ui:fragment>
-		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
+		        <ui:fragment rendered="#{empty param.credId}">
 		    		<ol class="breadcrumb">	
 		    			<li>
 			            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>

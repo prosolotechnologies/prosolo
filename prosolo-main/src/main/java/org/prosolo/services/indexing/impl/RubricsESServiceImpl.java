@@ -41,23 +41,24 @@ public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implem
 
             System.out.println("JSON: " + builder.prettyPrint().string());
 
-            String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME +
-                    ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+            String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId);
 
             indexNode(builder, String.valueOf(rubric.getId()), fullIndexName,
                     ESIndexTypes.RUBRIC);
         } catch (IOException e) {
-            logger.error(e);
-            e.printStackTrace();
+            logger.error("Error", e);
         }
     }
 
     @Override
     public void deleteRubric(long orgId, long rubricId) {
-        String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME +
-                ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+        try {
+            String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId);
 
-        delete(rubricId + "", fullIndexName, ESIndexTypes.RUBRIC);
+            delete(rubricId + "", fullIndexName, ESIndexTypes.RUBRIC);
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
     }
 
 }

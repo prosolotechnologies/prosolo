@@ -7,6 +7,7 @@ import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
@@ -20,9 +21,11 @@ import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.htmlparser.HTMLParser;
+import org.prosolo.services.htmlparser.LinkParser;
+import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -254,22 +257,13 @@ public class ActivityWallBean implements Serializable {
 					newSocialActivity, loggedUser.getUserContext());
 			
 			PageUtil.fireSuccessfulInfoMessage("Your new status is posted");
-			newSocialActivity.setId(post.getId());
-			//set actor from session
-			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
-			newSocialActivity.setDateCreated(post.getDateCreated());
-			newSocialActivity.setLastAction(post.getLastAction());
-			CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, 
-					newSocialActivity.getId());
-			newSocialActivity.setComments(cd);
-			newSocialActivity.setType(SocialActivityType.Post);
+			populateDataForNewPost(newSocialActivity, post, SocialActivityType.Post);
+
 //			if(post.getRichContent() != null) {
 //				newSocialActivity.setAttachmentPreview(richContentFactory.getAttachmentPreview(
 //						post.getRichContent()));
 //			}
-			newSocialActivity.setPredicate(ResourceBundleUtil.getActionName(newSocialActivity.getType().name(),
-					loggedUser.getLocale()));
+
 			socialActivities.add(0, newSocialActivity);
 			
 			newSocialActivity = new SocialActivityData1();
@@ -286,24 +280,16 @@ public class ActivityWallBean implements Serializable {
 			
 			PageUtil.fireSuccessfulInfoMessage("The post has been shared");
 			SocialActivityData1 postShareSocialActivity = new SocialActivityData1();
-			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
-			postShareSocialActivity.setId(postShare.getId());
-			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null, 
+			populateDataForNewPost(postShareSocialActivity, postShare, SocialActivityType.Post_Reshare);
+			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null,
 					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
 					socialActivityForShare.getActor().getFullName(), 
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
 			postShareSocialActivity.setText(postShareText);
 			postShareSocialActivity.setOriginalSocialActivity(socialActivityForShare);
-			//set actor from session
-			postShareSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
-			postShareSocialActivity.setDateCreated(postShare.getDateCreated());
-			postShareSocialActivity.setLastAction(postShare.getLastAction());
-			postShareSocialActivity.setPredicate(ResourceBundleUtil.getActionName(
-					postShareSocialActivity.getType().name(), loggedUser.getLocale()));
+
 			socialActivities.add(0, postShareSocialActivity);
-			
 			//socialActivityForShare.setShareCount(socialActivityForShare.getShareCount() + 1);
 			
 			socialActivityForShare = null;
@@ -313,27 +299,32 @@ public class ActivityWallBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while sharing post!");
 		}
 	}
+
+	private void populateDataForNewPost(SocialActivityData1 sActivity, SocialActivity1 sa, SocialActivityType type) {
+		sActivity.setType(type);
+		sActivity.setId(sa.getId());
+		sActivity.setActor(new UserData(loggedUser.getUserId(),
+				loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
+		sActivity.setDateCreated(sa.getDateCreated());
+		sActivity.setLastAction(sa.getLastAction());
+		sActivity.setPredicate(ResourceBundleUtil.getActionName(
+				sActivity.getType().name(), loggedUser.getLocale()));
+		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity,
+				sActivity.getId());
+		sActivity.setComments(cd);
+	}
 	
-	public void fetchLinkContents() {
+	public void fetchLinkContents() throws IOException {
 		if (link != null && !link.isEmpty()) {
 			logger.debug("User "+loggedUser.getFullName()+" is fetching contents of a link: "+link);
-			
-			AttachmentPreview1 attachmentPreview = htmlParser.extractAttachmentPreview1(
-					StringUtil.cleanHtml(link.trim()));
-			
-			if (attachmentPreview != null) {
-				try {
-					MediaData md = richContentFactory.getMediaData(attachmentPreview);
-					attachmentPreview.setMediaType(md.getMediaType());
-					attachmentPreview.setEmbedingLink(md.getEmbedLink());
-					attachmentPreview.setEmbedId(md.getEmbedId());
-					newSocialActivity.setAttachmentPreview(attachmentPreview);
-				} catch (MediaDataException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("There was a problem fetching URL.");
-				}
-			} else {
-				newSocialActivity.getAttachmentPreview().setInvalidLink(true);
+
+			try {
+				LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(link.trim()));
+				AttachmentPreview1 attachmentPreview1 = parser.parse();
+				newSocialActivity.setAttachmentPreview(attachmentPreview1);
+				setNewSocialActivity(newSocialActivity);
+			} catch (LinkParserException e) {
+				logger.debug("Could not parse URL " + link + ". " + e);
 			}
 		}
 	}
@@ -367,7 +358,7 @@ public class ActivityWallBean implements Serializable {
 				MediaData md = richContentFactory.getMediaData(uploadFile);
 				uploadFile.setMediaType(md.getMediaType());
 				uploadFile.setEmbedingLink(md.getEmbedLink());
-			} catch (MediaDataException e) {
+			} catch (LinkParserException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("There was a problem saving file");
 			}

@@ -52,17 +52,14 @@ public class SecurityServiceImpl extends AbstractManagerImpl implements Security
 			
 			for (RoleConfig role : sc.getRoles()) {
 				Role r = roleManager.getRoleByName(role.getName());
-				
+				//each role defined in security_config file is system defined role (system = true)
 				if (r != null) {
 					r.setDescription(role.getDescription());
+					r.setSystem(true);
 					roles.add(r);
 					logger.info("Role " + r.getTitle() + " updated from file");
 				} else {
-					boolean isSystem = false;
-					if ("Admin".equals(role.getName())) {
-						isSystem = true;
-					}
-					roles.add(roleManager.saveRole(role.getName(), role.getDescription(), isSystem));
+					roles.add(roleManager.saveRole(role.getName(), role.getDescription(), true));
 					logger.info("Role " + role.getName() + " inserted from file");
 				}
 			}

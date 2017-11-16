@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -196,8 +197,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void approveCredential() {
 		try {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText);
-			markCredentialApproved();
+					fullAssessmentData.getTargetCredentialId(), reviewText,fullAssessmentData.getCompetenceAssessmentData());
+
+			fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+					loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 
 			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
 					fullAssessmentData.getCredentialId());
@@ -210,19 +213,26 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void markCredentialApproved() {
-		fullAssessmentData.setApproved(true);
-		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
-			compAssessmentData.setApproved(true);
-		}
-	}
-
-	public void approveCompetence(String encodedCompetenceAssessmentId) {
+	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
 		try {
-			assessmentManager.approveCompetence(idEncoder.decodeId(encodedCompetenceAssessmentId));
-			markCompetenceApproved(encodedCompetenceAssessmentId);
-			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
-					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
+			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
+				long competenceAssessmentId = assessmentManager.createAndApproveCompetenceAssessment(
+						fullAssessmentData.getCredAssessmentId(), competenceAssessmentData.getTargetCompetenceId(),
+						fullAssessmentData.isDefaultAssessment());
+				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
+				competenceAssessmentData.setCompetenceAssessmentEncodedId(idEncoder.encodeId(competenceAssessmentId));
+
+				for(ActivityAssessmentData activityAssessmentData : competenceAssessmentData.getActivityAssessmentData()){
+					activityAssessmentData.setCompAssessmentId(competenceAssessmentId);
+				}
+			} else {
+				assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
+			}
+			competenceAssessmentData.setApproved(true);
+
+			PageUtil.fireSuccessfulInfoMessage("You have successfully approved the competence for "
+					+ fullAssessmentData.getStudentFullName());
+
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");
@@ -244,14 +254,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				logger.error("Eror sending notification for assessment request", e);
 			}
 		});
-	}
-
-	private void markCompetenceApproved(String encodedCompetenceAssessmentId) {
-		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
-			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(encodedCompetenceAssessmentId)) {
-				competenceAssessment.setApproved(true);
-			}
-		}
 	}
 
 	public void markDiscussionRead() {

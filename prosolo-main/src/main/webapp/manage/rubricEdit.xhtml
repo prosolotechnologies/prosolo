@@ -91,11 +91,20 @@
                                             <f:param name="learningContext" value="name:rubric|id:#{util:decodeId(param.id)}" />
                                         </p:commandLink>
                                         <p:defaultCommand target="saveBtn" />
-                                        <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                       action="#{deleteRubricBean.setRubricForDelete(rubricSettingsBean.rubric)}"
-                                                       oncomplete="$('#deleteModal').modal('show');">
-                                            Delete
-                                        </p:commandLink>
+                                        <ui:fragment rendered="#{not rubricSettingsBean.rubric.rubricUsed}">
+                                            <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+                                                           action="#{deleteRubricBean.setRubricForDelete(rubricSettingsBean.rubric)}"
+                                                           oncomplete="$('#deleteModal').modal('show');">
+                                                Delete
+                                            </p:commandLink>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{rubricSettingsBean.rubric.rubricUsed}">
+                                            <a  class="linkRed" data-toggle="tooltip"
+                                                title="Rubric can not be deleted because it is used in an activity"
+                                                disabled="disabled">
+                                                Delete
+                                            </a>
+                                        </ui:fragment>
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +117,7 @@
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
                 deleteAction="#{deleteRubricBean.delete()}"
-                toUpdate=""
+                toUpdate=":formMainEditRubric:growlEditRubric"
                 modalDeleteTitle="#{msg['label.rubric']}"
                 modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>
 

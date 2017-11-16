@@ -25,6 +25,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -556,7 +557,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .uniqueResult();
 
             if (numberOfSubunits != 0 ) {
-                throw new IllegalStateException("Unit can not be deleted since it has subunits");
+                throw new IllegalStateException("Unit can not be deleted since it has " + ResourceBundleUtil.getMessage("label.rubric.plural").toLowerCase());
             }
 
             String query1 =

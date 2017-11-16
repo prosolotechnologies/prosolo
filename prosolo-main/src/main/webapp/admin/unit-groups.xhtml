@@ -7,11 +7,12 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-                xmlns:util="http://www.prosolo.com/util"
->
+                xmlns:util="http://www.prosolo.com/util">
+
+    <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Unit Groups
+        #{msg['label.unit']} Groups
     </ui:define>
 
     <ui:define name="metadata">
@@ -82,7 +83,7 @@
             </li>
             <li>
                 <h:link outcome="/admin/units">
-                    Units
+                    #{msg['label.unit.plural']}
                     <f:param name="id" value="#{param.orgId}" />
                 </h:link>
             </li>
@@ -181,7 +182,7 @@
                             <h2 class="modal-title">Join URL</h2>
                         </div>
                         <div class="modal-body alignLeft">
-                            <p>Students can join this group via URL. Only students that are part of this unit can join the group.</p>
+                            <p>Students can join this group via URL. Only students that are part of this #{msg['label.unit'].toLowerCase()} can join the group.</p>
                             <div class="checkbox checkLine">
                                 <h:selectBooleanCheckbox id="activateJoiningViaUrl"
                                                          value="#{manageGroupsBean.groupForEdit.joinUrlActive}"
