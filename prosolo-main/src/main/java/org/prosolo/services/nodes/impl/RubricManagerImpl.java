@@ -17,6 +17,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.capability.UserCapabilityUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.RoleManager;
@@ -88,7 +89,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     EventType.Create, context, rubric, null, null, null));
 
             //connect rubric to all units where rubric creator is manager
-            res.addEvents(addRubricToDefaultUnits(rubric.getId(), context));
+            res.appendEvents(addRubricToDefaultUnits(rubric.getId(), context));
 
             res.setResult(rubric);
             return res;
@@ -110,12 +111,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
      * @param context
      * @return
      */
-    private List<EventData> addRubricToDefaultUnits(long rubricId, UserContextData context) {
+    private EventQueue addRubricToDefaultUnits(long rubricId, UserContextData context) {
         List<Long> units = unitManager.getUserUnitIdsWithUserCapability(context.getActorId(),
                 UserCapabilityUtil.getRubricCreationCapability());
-        List<EventData> events = new ArrayList<>();
+        EventQueue events = EventQueue.newEventQueue();
         for (long unitId : units) {
-            events.addAll(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEvents());
+            events.appendEvents(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEventQueue());
         }
         return events;
     }
