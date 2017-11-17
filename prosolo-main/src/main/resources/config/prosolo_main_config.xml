@@ -85,7 +85,10 @@
 			</saml>
 		</registration>
 		<plugin-config>
-			<enable-learning-in-stages>true</enable-learning-in-stages>
+			<learning-in-stages>
+				<enabled>true</enabled>
+				<max-number-of-learning-stages>5</max-number-of-learning-stages>
+			</learning-in-stages>
 		</plugin-config>
 	</app-config>
 
