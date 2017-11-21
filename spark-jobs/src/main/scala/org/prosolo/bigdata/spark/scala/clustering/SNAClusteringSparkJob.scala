@@ -30,7 +30,7 @@ class SNAClusteringSparkJob(kName:String) extends SparkJob with Serializable{
     val deliveriesIdsScala: Seq[java.lang.Long] = deliveriesIds.asScala.toSeq
     //deliveriesIdsScala:+6l
     //val deliveriesIdsScala:Seq[java.lang.Long] =Seq[java.lang.Long](6l,7l)
-    println("ALL DELIVERIES:" + deliveriesIdsScala.mkString(","))DateUtil
+    println("ALL DELIVERIES:" + deliveriesIdsScala.mkString(","))
 
 
     /*val deliveriesRDD: RDD[Long] = sc.parallelize(deliveriesIdsScala.map {
@@ -45,7 +45,6 @@ class SNAClusteringSparkJob(kName:String) extends SparkJob with Serializable{
           deliveryId=>
             println("RUNNING SNA CLUSTERING FOR CREDENTIAL:" + deliveryId+ " timestamp:"+timestamp)
               identifyClustersInCredential(timestamp, deliveryId,dbManager )
-            println("identify clusters in credential:"+deliveryId)
             //val socialInteractionsData=readCourseData(deliveryId,dbManager)
        // }
      // }
