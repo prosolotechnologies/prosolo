@@ -17,7 +17,6 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
   override val keyspace=dbName
 
   def updateCurrentTimestamp(tableName:TableNames, timestamp:java.lang.Long): Unit ={
-    println("UPDATE CURRENT TIMESTAMP FOR:"+tableName.toString+" to:"+timestamp)
    val query= s"UPDATE $keyspace." + TablesNames.CURRENT_TIMESTAMPS + "  SET timestamp=? WHERE tablename=?"
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, tableName.toString)
@@ -25,9 +24,7 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
   }
 
   def getSocialInteractions(credentialId: java.lang.Long): List[Row] ={
-    println("Get social interactions keyspace:"+keyspace+" credential:"+credentialId)
     val query= s"SELECT * FROM $keyspace." + TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT + " where course=?";
-    println("QUERY:"+query)
     DBManager.connector.withSessionDo {
       session =>
         val rs = session.execute(query,credentialId)
