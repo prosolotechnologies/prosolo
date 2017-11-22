@@ -13,6 +13,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -36,6 +37,7 @@ import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTr
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -104,6 +106,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			comp.setPublished(data.isPublished());
 			comp.setDuration(data.getDuration());
 			comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+
+			if (credentialId > 0) {
+				//TODO learning in stages - for now we propagate learning stage from credential
+				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
+				if (cred.getLearningStage() != null) {
+					comp.setLearningStage(cred.getLearningStage());
+				}
+			}
+
 			saveEntity(comp);
 
 			if (data.getActivities() != null) {
@@ -653,7 +664,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished)
 					throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -1839,9 +1850,106 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	public long duplicateCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
-		Result<Competence1> res = resourceFactory.duplicateCompetence(compId, context);
+		Result<Competence1> res = self.duplicateCompetenceAndGetEvents(compId, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult().getId();
+	}
+
+	@Override
+	@Transactional
+	public Result<Competence1> duplicateCompetenceAndGetEvents(long compId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
+			return duplicateCompetence(comp, "Copy of " + comp.getTitle(), comp, null, null, context);
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error creating the competence duplicate");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Competence1> createCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, basedOnCompId);
+			LearningStage ls = (LearningStage) persistence.currentManager().load(LearningStage.class, learningStageId);
+			/*
+			if order of learning stage is 2, it means previous learning stage is first, otherwise we get the
+			first stage comp from previous stage comp. Unlike with credentials, it can happen that there is no
+			first stage comp referenced, so these competences would not be connected.
+			 */
+			Competence1 firstStageComp = ls.getOrder() == 2 ? comp : comp.getFirstLearningStageCompetence();
+			return duplicateCompetence(
+					comp,
+					comp.getTitle(),
+					null,
+					ls,
+					firstStageComp,
+					context);
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error creating the competence for the learning stage");
+		}
+	}
+
+	private Result<Competence1> duplicateCompetence(Competence1 original, String title, Competence1 versionOf,
+											LearningStage lStage, Competence1 firstStageComp, UserContextData context) {
+		Competence1 competence = new Competence1();
+
+		User user = (User) persistence.currentManager().load(User.class, context.getActorId());
+		competence.setOrganization(original.getOrganization());
+		competence.setTitle(title);
+		competence.setDescription(original.getDescription());
+		competence.setDateCreated(new Date());
+		competence.setTags(new HashSet<>(original.getTags()));
+		competence.setCreatedBy(user);
+		competence.setDuration(original.getDuration());
+		competence.setStudentAllowedToAddActivities(original.isStudentAllowedToAddActivities());
+		competence.setType(original.getType());
+		competence.setArchived(false);
+		competence.setPublished(false);
+		competence.setOriginalVersion(versionOf);
+		competence.setLearningStage(lStage);
+		competence.setFirstLearningStageCompetence(firstStageComp);
+
+		saveEntity(competence);
+
+		Result<Competence1> res = new Result<>();
+		res.setResult(competence);
+
+		Competence1 c = new Competence1();
+		c.setId(competence.getId());
+		res.appendEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
+
+		Result<List<CompetenceActivity1>> activityCopies = copyCompetenceActivities(competence, original.getActivities(), context);
+		competence.getActivities().addAll(activityCopies.getResult());
+		res.appendEvents(activityCopies.getEventQueue());
+
+		//add Edit privilege to the competence creator
+		res.appendEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
+				context.getActorId(), competence.getId(),
+				UserGroupPrivilege.Edit,true, context).getEventQueue());
+
+		//add competence to all units where competence creator is manager
+		res.appendEvents(addCompetenceToDefaultUnits(competence.getId(), context));
+
+		return res;
+	}
+
+	private Result<List<CompetenceActivity1>> copyCompetenceActivities(
+			Competence1 competenceToAddActivitiesTo, List<CompetenceActivity1> activities, UserContextData context) {
+		Result<List<CompetenceActivity1>> res = new Result<>();
+		List<CompetenceActivity1> activityCopies = new LinkedList<>();
+		for (CompetenceActivity1 compActivity : activities) {
+			Result<CompetenceActivity1> actRes = activityManager.cloneActivity(
+					compActivity, competenceToAddActivitiesTo.getId(), context);
+			res.appendEvents(actRes.getEventQueue());
+			activityCopies.add(actRes.getResult());
+		}
+		res.setResult(activityCopies);
+		return res;
 	}
 	
 	@Override

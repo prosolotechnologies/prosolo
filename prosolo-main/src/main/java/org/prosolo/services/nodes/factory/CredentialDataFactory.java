@@ -4,11 +4,13 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,7 @@ public class CredentialDataFactory {
 		CredentialData cred = new CredentialData(false);
 		cred.setVersion(credential.getVersion());
 		cred.setId(credential.getId());
+		cred.setOrganizationId(credential.getOrganization().getId());
 		cred.setType(credential.getType());
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
@@ -53,6 +56,18 @@ public class CredentialDataFactory {
 		}
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
+
+		boolean learningStagesEnabled = false;
+		if (credential.getLearningStage() != null) {
+			learningStagesEnabled = true;
+			LearningStage ls = credential.getLearningStage();
+			cred.setLearningStage(new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false));
+			cred.setFirstLearningStageCredentialId(
+					credential.getFirstLearningStageCredential() == null
+							? credential.getId()
+							: credential.getFirstLearningStageCredential().getId());
+		}
+		cred.setLearningStageEnabled(learningStagesEnabled);
 
 		if (credential.getType() == CredentialType.Delivery) {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());

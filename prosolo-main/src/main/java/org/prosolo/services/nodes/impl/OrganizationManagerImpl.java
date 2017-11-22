@@ -21,10 +21,12 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
+import org.prosolo.services.nodes.factory.LearningResourceLearningStageDataFactory;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Bojan on 6/9/2017.
@@ -54,6 +57,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private OrganizationDataFactory organizationDataFactory;
     @Inject
     private OrganizationManager self;
+    @Inject
+    private LearningResourceLearningStageDataFactory learningResourceLearningStageDataFactory;
 
     @Override
     //nt
@@ -166,7 +171,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             }
 
             List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
-            List<LearningStageData> learningStages = getOrganizationLearningStages(organizationId);
+            List<LearningStageData> learningStages = getOrganizationLearningStagesData(organizationId);
             OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins, learningStages);
 
             return od;
@@ -177,21 +182,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
-    private List<LearningStageData> getOrganizationLearningStages(long orgId) {
+    private List<LearningStageData> getOrganizationLearningStagesData(long orgId) {
         List<LearningStageData> learningStagesData = new ArrayList<>();
         //only if learning in stages is enabled load the stages
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
-            String query =
-                    "SELECT ls " +
-                    "FROM LearningStage ls " +
-                    "WHERE ls.organization.id = :orgId " +
-                    "order by ls.order ASC";
-
-            @SuppressWarnings("unchecked")
-            List<LearningStage> res =  persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("orgId", orgId)
-                    .list();
+            List<LearningStage> res =  getOrganizationLearningStages(orgId, false);
 
             for (LearningStage ls : res) {
                 learningStagesData.add(new LearningStageData(
@@ -199,6 +194,47 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             }
         }
         return learningStagesData;
+    }
+
+    private List<LearningStage> getOrganizationLearningStages(long orgId, boolean returnOnlyIfEnabled) throws DbConnectionException {
+        String query =
+                "SELECT ls " +
+                "FROM LearningStage ls ";
+        if (returnOnlyIfEnabled) {
+            query +=
+                    "INNER JOIN ls.organization org " +
+                    "WHERE org.id = :orgId " +
+                    "AND org.learningInStagesEnabled IS TRUE ";
+        } else {
+            query +=
+                    "WHERE ls.organization.id = :orgId ";
+        }
+
+        query += "order by ls.order ASC";
+
+        @SuppressWarnings("unchecked")
+        List<LearningStage> res = persistence.currentManager()
+                .createQuery(query)
+                .setLong("orgId", orgId)
+                .list();
+
+        return res;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LearningResourceLearningStage> getOrganizationLearningStagesForLearningResource(long orgId) throws DbConnectionException {
+        try {
+            if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
+                List<LearningStage> learningStages = getOrganizationLearningStages(orgId, true);
+                return learningResourceLearningStageDataFactory.getLearningResourceLearningStages(
+                        learningStages.stream().map(ls -> new Object[]{ls, null}).collect(Collectors.toList()));
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the learning stages");
+        }
     }
 
     private boolean isLearningStageBeingUsed(long learningStageId) {
