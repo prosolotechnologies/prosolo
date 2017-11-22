@@ -36,7 +36,7 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
     }
   }
   def insertOutsideClusterInteractions(timestamp:java.lang.Long, credentialId:java.lang.Long, studentId: java.lang.Long, cluster: java.lang.Long, direction: String, interactions: util.List[String]): Unit ={
-
+    println("Insert outside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+studentId);
    val query= s"INSERT INTO $keyspace." + TablesNames.SNA_OUTSIDE_CLUSTER_INTERACTIONS + "(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?) "
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, credentialId,  studentId,direction, cluster, interactions)
