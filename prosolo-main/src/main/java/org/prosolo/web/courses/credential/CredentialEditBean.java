@@ -279,7 +279,8 @@ public class CredentialEditBean implements Serializable {
 
 	public void enableLearningStagesChecked() {
 		if (credentialData.isLearningStageEnabled()) {
-			LearningStageData ls = credentialData.isLearningStageEnabledChanged()
+			//first stage should be set for new credentials and those which did not have stages enabled before
+			LearningStageData ls = credentialData.getId() == 0 || credentialData.isLearningStageEnabledChanged()
 					? credentialData.getLearningStages().get(0).getLearningStage()
 					: credentialData.getLearningStageBeforeUpdate();
 			credentialData.setLearningStage(ls);
