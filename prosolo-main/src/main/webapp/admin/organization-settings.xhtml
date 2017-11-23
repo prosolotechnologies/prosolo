@@ -169,7 +169,8 @@
                                     <label>Learning in stages</label>
                                     <div class="formLineRight">
                                         <div class="checkbox checkLine">
-                                            <h:selectBooleanCheckbox id="checkboxLearningInStages"
+                                            <h:selectBooleanCheckbox id="checkboxLearningInStages" styleClass="checkboxLearningInStagesSelector"
+                                                onchange="onLearningInStagesChanged()"
                                                 value="#{organizationEditBean.organization.learningInStagesEnabled}"
                                             />
                                             <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
@@ -231,15 +232,54 @@
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink  id="saveBtn" styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
+                                    <a href="javascript:void(0)" class="btn btn-green" onclick="determineSaveAction()">#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}</a>
+                                    <p:commandLink id="saveBtn" styleClass="saveBtnSelector" style="display: none;"
                                                     action="#{organizationEditBean.saveOrganization()}" update=":formMain :growlMain">
                                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                                     <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
                                     </p:commandLink>
+                                    <div class="modal fade" id="modalSaveChanges" tabindex="-1" role="dialog" aria-labelledby="removeCompetence">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                                    <h2 class="modal-title" id="removeCompetence1">Save changes</h2>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <p>By disabling learning in stages, learning stages will be removed from all #{msg['label.credential.plural'].toLowerCase()} and #{msg['label.competence.plural'].toLowerCase()} currently using them. Are you sure you want to continue?<br/></p>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <p:commandLink  id="saveBtnModal" styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
+                                                                    action="#{organizationEditBean.saveOrganization()}" update=":formMain :growlMain"
+                                                                    oncomplete="hideModal('modalSaveChanges')">
+                                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                        <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                                    </p:commandLink>
+                                                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <p:defaultCommand target="saveBtn" />
                                 </div>
                             </div>
                         </div>
+                            <script>
+                                var learningInStagesChanged = false;
+                                function onLearningInStagesChanged() {
+                                    learningInStagesChanged = !learningInStagesChanged;
+                                    console.log(learningInStagesChanged);
+                                }
+                                function determineSaveAction() {
+                                    if (!$('.checkboxLearningInStagesSelector').is(':checked') &amp;&amp; learningInStagesChanged) {
+                                        $('#modalSaveChanges').modal('show');
+                                    } else {
+                                        $('.saveBtnSelector').click();
+                                    }
+                                }
+                            </script>
                         </h:form>
                     </div>
                 </div>

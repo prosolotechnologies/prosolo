@@ -77,6 +77,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences, long userId, AccessMode accessMode)
 					throws ResourceNotFoundException, DbConnectionException;
+
+	CredentialData getCredentialDataForEdit(long credentialId) throws DbConnectionException;
+
+	List<LearningResourceLearningStage> getCredentialLearningStagesData(long orgId, long firstStageCredId) throws DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -438,4 +442,9 @@ public interface CredentialManager extends AbstractManager {
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
 
+	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
+
+	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
+
+	void disableLearningStagesForOrganizationCredentials(long orgId) throws DbConnectionException;
 }

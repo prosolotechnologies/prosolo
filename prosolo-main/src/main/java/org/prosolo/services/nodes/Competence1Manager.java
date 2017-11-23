@@ -113,7 +113,7 @@ public interface Competence1Manager {
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished)
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
@@ -324,6 +324,12 @@ public interface Competence1Manager {
 			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
 	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
+
+	Result<Competence1> duplicateCompetenceAndGetEvents(long compId, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Competence1> getOrCreateCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+			throws DbConnectionException;
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
 	
@@ -400,4 +406,6 @@ public interface Competence1Manager {
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
+
+	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
 }

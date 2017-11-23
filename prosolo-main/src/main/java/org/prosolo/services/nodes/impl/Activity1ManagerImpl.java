@@ -1956,12 +1956,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			@Override
 			public void visit(UrlActivity1 activity) {
-				UrlActivity1 originalUrlAct = (UrlActivity1) original;
-
 				UrlActivity1 urlAct = new UrlActivity1();
-				urlAct.setUrlType(originalUrlAct.getUrlType());
-				urlAct.setUrl(originalUrlAct.getUrl());
-				urlAct.setLinkName(originalUrlAct.getLinkName());
+				urlAct.setUrlType(activity.getUrlType());
+				urlAct.setUrl(activity.getUrl());
+				urlAct.setLinkName(activity.getLinkName());
 				urlAct.setCaptions(cloneLinks(activity.getCaptions()));
 				act = urlAct;
 			}

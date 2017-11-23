@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
@@ -15,15 +16,15 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -55,6 +56,8 @@ public class CredentialEditBean implements Serializable {
 	@Inject private LoggingService loggingService;
 	@Inject private CredentialUserPrivilegeBean visibilityBean;
 	@Inject private UnitManager unitManager;
+	@Inject private ApplicationBean applicationBean;
+	@Inject private OrganizationManager organizationManager;
 
 	private String id;
 	private long decodedId;
@@ -72,6 +75,10 @@ public class CredentialEditBean implements Serializable {
 
 	private String context;
 
+	private LearningStageData nextStageToBeCreated;
+	//this is the last stage for which credential is created;
+	private LearningResourceLearningStage lastCreatedStage;
+
 	public void init() {
 		initializeValues();
 
@@ -79,6 +86,12 @@ public class CredentialEditBean implements Serializable {
 			credentialData = new CredentialData(false);
 			//if it is new resource, it can only be original credential, delivery can never be created from this page
 			credentialData.setType(CredentialType.Original);
+			try {
+				credentialData.addLearningStages(organizationManager.getOrganizationLearningStagesForLearningResource(
+						loggedUser.getOrganizationId()));
+			} catch (Exception e) {
+				PageUtil.fireErrorMessage("Error loading the page");
+			}
 		} else {
 			try {
 				decodedId = idEncoder.decodeId(id);
@@ -87,10 +100,9 @@ public class CredentialEditBean implements Serializable {
 
 				loadCredentialData(decodedId);
 			} catch(Exception e) {
-				logger.error(e);
-				e.printStackTrace();
+				logger.error("Error", e);
 				credentialData = new CredentialData(false);
-				PageUtil.fireErrorMessage("Error while trying to load credential data");
+				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		}
 	}
@@ -153,8 +165,7 @@ public class CredentialEditBean implements Serializable {
 			if (!access.isCanAccess()) {
 				PageUtil.accessDenied();
 			} else {
-				credentialData = credentialManager.getCredentialData(id, true, true,
-						loggedUser.getUserId(), AccessMode.MANAGER);
+				credentialData = credentialManager.getCredentialDataForEdit(id);
 				List<CompetenceData1> comps = credentialData.getCompetences();
 				for(CompetenceData1 cd : comps) {
 					compsToExcludeFromSearch.add(cd.getCompetenceId());
@@ -190,6 +201,8 @@ public class CredentialEditBean implements Serializable {
 		compsToRemove = new ArrayList<>();
 		compsToExcludeFromSearch = new ArrayList<>();
 		unitIds = new ArrayList<>();
+		nextStageToBeCreated = null;
+		lastCreatedStage = null;
 	}
 
 	public boolean hasMoreCompetences(int index) {
@@ -200,10 +213,103 @@ public class CredentialEditBean implements Serializable {
 		return comp.getCreator() == null ? false : 
 			comp.getCreator().getId() == loggedUser.getUserId();
 	}
-	
+
+	public boolean isLearningInStagesEnabled() {
+		return applicationBean.getConfig().application.pluginConfig.learningInStagesPlugin.enabled;
+	}
+
+	public boolean isLearningStageActive(LearningResourceLearningStage ls) {
+		return ls.getLearningStage().getId() == credentialData.getLearningStage().getId();
+	}
+
+	public LearningStageData getFirstStage() {
+		if (!credentialData.getLearningStages().isEmpty()) {
+			return credentialData.getLearningStages().get(0).getLearningStage();
+		}
+		return null;
+	}
+
+	public LearningStageData getNextStageToBeCreated() {
+		if (nextStageToBeCreated == null) {
+			Optional<LearningResourceLearningStage> lStage = credentialData.getLearningStages()
+					.stream()
+					.filter(ls -> ls.isCanBeCreated())
+					.findFirst();
+
+			if (lStage.isPresent()) {
+				nextStageToBeCreated = lStage.get().getLearningStage();
+			}
+		}
+		return nextStageToBeCreated;
+	}
+
+	public LearningResourceLearningStage getLastCreatedStage() {
+		if (lastCreatedStage == null) {
+			ListIterator<LearningResourceLearningStage> it = credentialData.getLearningStages().listIterator(credentialData.getLearningStages().size());
+			while (it.hasPrevious()) {
+				LearningResourceLearningStage ls = it.previous();
+				if (ls.getLearningResourceId() > 0) {
+					lastCreatedStage = ls;
+					break;
+				}
+			}
+		}
+		return lastCreatedStage;
+	}
+
+	/**
+	 * Returns true if disabling learning in stages would influence other credentials too, so
+	 * that those credentials would also have learning in stages disabled.
+	 * @return
+	 */
+	public boolean areOtherCredentialsInfluencedByUpdate() {
+		return credentialData.getId() > 0 && credentialData.isLearningStageEnabledChanged()
+				&& !credentialData.isLearningStageEnabled() && otherStagesDefined();
+	}
+
+	private boolean otherStagesDefined() {
+		return credentialData.getLearningStages()
+				.stream()
+				.anyMatch(ls -> ls.getLearningResourceId() > 0 && ls.getLearningResourceId() != credentialData.getId());
+	}
+
 	/*
 	 * ACTIONS
 	 */
+
+	public void enableLearningStagesChecked() {
+		if (credentialData.isLearningStageEnabled()) {
+			//first stage should be set for new credentials and those which did not have stages enabled before
+			LearningStageData ls = credentialData.getId() == 0 || credentialData.isLearningStageEnabledChanged()
+					? credentialData.getLearningStages().get(0).getLearningStage()
+					: credentialData.getLearningStageBeforeUpdate();
+			credentialData.setLearningStage(ls);
+		} else {
+			credentialData.setLearningStage(null);
+		}
+	}
+
+	public void createNextStageCredentialBasic() {
+		createNextStageCredential(false);
+	}
+
+	public void createNextStageCredentialFull() {
+		createNextStageCredential(true);
+	}
+
+	private void createNextStageCredential(boolean full) {
+		try {
+			long id = credentialManager.createCredentialInLearningStage(
+					getLastCreatedStage().getLearningResourceId(),
+					getNextStageToBeCreated().getId(),
+					full,
+					loggedUser.getUserContext());
+
+			PageUtil.redirect("/manage/credentials/" + idEncoder.encodeId(id) + "/edit");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error creating the credential for the " + getNextStageToBeCreated().getTitle() + " stage");
+		}
+	}
 	
 	public void saveAndNavigateToCreateCompetence() {
 		boolean saved = saveCredentialData(false);
