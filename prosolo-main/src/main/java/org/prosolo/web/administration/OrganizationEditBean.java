@@ -200,8 +200,7 @@ public class OrganizationEditBean implements Serializable {
                 PageUtil.fireErrorMessage("Error creating the organization");
             }
         } catch (ConstraintViolationException | DataIntegrityViolationException e){
-            logger.error(e);
-            e.printStackTrace();
+            logger.error("Error", e);
             FacesContext.getCurrentInstance().validationFailed();
             /* TODO exception - pay attention to this case - we can have several constraints violated
                and we don't know which one is actually violated so we can't generate specific, meaningful
