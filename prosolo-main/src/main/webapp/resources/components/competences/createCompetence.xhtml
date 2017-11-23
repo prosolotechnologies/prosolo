@@ -117,12 +117,12 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
-			                        <li role="presentation" class="#{param.tab eq 'activities' ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
+			                        <li role="presentation" class="#{param.tab ne 'paths' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
+			                        <li role="presentation" class="#{param.tab eq 'paths' ? 'active' : ''}"><a href="#paths" aria-controls="paths" role="tab" data-toggle="tab" onclick="setQueryParam('tab','paths')">Learning Paths</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'activities' ? 'active in' : '' }" id="info">
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'paths' ? 'active in' : '' }" id="info">
 			                        <div class="whiteBox">
 			                            <h2>#{msg['label.competence']} Info</h2>
 			                            <div class="formWrapper">
@@ -185,25 +185,27 @@
 			                                    </div>
 			                                </div>
 			                                <script>$('.tagsInputCompTag').tagsinput();</script>
-			                                <div class="formLine">
-			                                    <label>Other</label>
-			                                    <div class="formLineRight">
-			                                        <div class="checkbox checkLine">
-														<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
-															id="selectAllowStudentsToAddActivities"
-															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
-														</h:selectBooleanCheckbox>
+			                                <ui:remove>
+												<div class="formLine">
+													<label>Other</label>
+													<div class="formLineRight">
+														<div class="checkbox checkLine">
+															<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
+																id="selectAllowStudentsToAddActivities"
+																value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
+															</h:selectBooleanCheckbox>
 
-														<h:outputLabel for="selectAllowStudentsToAddActivities">
-															Allow students to add activities
-														</h:outputLabel>
+															<h:outputLabel for="selectAllowStudentsToAddActivities">
+																Allow students to add activities
+															</h:outputLabel>
+														</div>
 													</div>
-			                                    </div>
-			                                </div>
+												</div>
+											</ui:remove>
 			                            </div>
 			                        </div>
 			                    </div>
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'activities' ? 'active in' : ''}" id="activities">
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'paths' ? 'active in' : ''}" id="paths">
 			                    <div class="whiteBox activitiesList">
 			                    	<courses:activityList
 			                    		id="activityList"

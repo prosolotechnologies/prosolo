@@ -367,7 +367,7 @@ public class ActivityEditBean implements Serializable {
 			 * may not be what we really want.
 			 */
 			StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-					"/competences/" + compId + "/edit?tab=activities");
+					"/competences/" + compId + "/edit?tab=paths");
 			if (credId != null && !credId.isEmpty()) {
 				url.append("&credId=" + credId);
 			}
@@ -431,7 +431,7 @@ public class ActivityEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?tab=activities");
+						"/competences/" + compId + "/edit?tab=paths");
 				if (credId != null && !credId.isEmpty()) {
 					url.append("&credId=" + credId);
 				}
