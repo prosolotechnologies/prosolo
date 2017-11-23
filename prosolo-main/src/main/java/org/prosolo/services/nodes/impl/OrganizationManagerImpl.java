@@ -18,9 +18,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
@@ -59,6 +57,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private OrganizationManager self;
     @Inject
     private LearningResourceLearningStageDataFactory learningResourceLearningStageDataFactory;
+    @Inject private CredentialManager credManager;
+    @Inject private Competence1Manager compManager;
 
     @Override
     //nt
@@ -112,8 +112,15 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
             try {
                 Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
+                /*
+                if learning in stages was enabled and should be disabled now we should remove stages
+                from all credentials and competences in this organization
+                 */
+                if (org.isLearningInStagesEnabled() && !organization.isLearningInStagesEnabled()) {
+                    credManager.disableLearningStagesForOrganizationCredentials(orgId);
+                    compManager.disableLearningStagesForOrganizationCompetences(orgId);
+                }
                 org.setLearningInStagesEnabled(organization.isLearningInStagesEnabled());
-
                 for (LearningStageData ls : organization.getLearningStagesForDeletion()) {
                     deleteById(LearningStage.class, ls.getId(), persistence.currentManager());
                 }
@@ -277,7 +284,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             Result<Organization> res = new Result<>();
 
             Organization organization = loadResource(Organization.class, org.getId());
-            organization.setTitle(organization.getTitle());
+            organization.setTitle(org.getTitle());
 
             for (UserData ud : org.getAdmins()) {
                 User user = new User(ud.getId());
@@ -450,4 +457,5 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             throw new DbConnectionException("Error while retrieving organization title");
         }
     }
+
 }

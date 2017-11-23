@@ -2459,4 +2459,36 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	@Transactional
+	public void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException {
+		try {
+			List<Competence1> comps = getAllCompetencesWithLearningStagesEnabled(orgId);
+			for (Competence1 comp : comps) {
+				comp.setLearningStage(null);
+				comp.setFirstLearningStageCompetence(null);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error disabling learning in stages for competences in organization: " + orgId);
+		}
+	}
+
+	private List<Competence1> getAllCompetencesWithLearningStagesEnabled(long orgId) throws DbConnectionException {
+		String query =
+				"SELECT comp " +
+				"FROM Competence1 comp " +
+				"WHERE comp.deleted IS FALSE " +
+				"AND comp.organization.id = :orgId " +
+				"AND comp.learningStage IS NOT NULL";
+
+		@SuppressWarnings("unchecked")
+		List<Competence1> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("orgId", orgId)
+				.list();
+
+		return result;
+	}
+
 }

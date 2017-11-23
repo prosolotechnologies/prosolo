@@ -406,4 +406,6 @@ public interface Competence1Manager {
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
+
+	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
 }

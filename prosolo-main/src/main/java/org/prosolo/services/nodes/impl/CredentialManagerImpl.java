@@ -791,8 +791,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private void disableStagesForCredentialsInOtherStages(long firstStageCredId, long credentialToExcludeId) {
 		List<Credential1> credentials = getOtherCredentialsFromLearningStageGroup(firstStageCredId, credentialToExcludeId);
 		for (Credential1 cred : credentials) {
-			cred.setLearningStage(null);
-			cred.setFirstLearningStageCredential(null);
+			disableLearningInStagesForCredential(cred);
 			setLearningStageForCredentialCompetences(cred.getId(), null);
 		}
 	}
@@ -3496,5 +3495,42 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error copying the credential");
 		}
+	}
+
+	 @Override
+	 @Transactional
+	 public void disableLearningStagesForOrganizationCredentials(long orgId) throws DbConnectionException {
+		try {
+			List<Credential1> creds = getAllCredentialsWithLearningStagesEnabled(orgId);
+			for (Credential1 cred : creds) {
+				disableLearningInStagesForCredential(cred);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error disabling learning in stages for credentials in organization: " + orgId);
+		}
+	 }
+
+	 private void disableLearningInStagesForCredential(Credential1 cred) {
+		 cred.setLearningStage(null);
+		 cred.setFirstLearningStageCredential(null);
+		 //we will probably need event generated here
+	 }
+
+	private List<Credential1> getAllCredentialsWithLearningStagesEnabled(long orgId) throws DbConnectionException {
+		String query =
+				"SELECT cred " +
+				"FROM Credential1 cred " +
+				"WHERE cred.deleted IS FALSE " +
+				"AND cred.organization.id = :orgId " +
+				"AND cred.learningStage IS NOT NULL";
+
+		@SuppressWarnings("unchecked")
+		List<Credential1> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("orgId", orgId)
+				.list();
+
+		return result;
 	}
 }
