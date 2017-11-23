@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -35,6 +36,7 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -1870,8 +1872,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional
-	public Result<Competence1> createCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+	public Result<Competence1> getOrCreateCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
 			throws DbConnectionException {
+		long firstStageCompId = 0;
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, basedOnCompId);
 			LearningStage ls = (LearningStage) persistence.currentManager().load(LearningStage.class, learningStageId);
@@ -1881,6 +1884,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			first stage comp referenced, so these competences would not be connected.
 			 */
 			Competence1 firstStageComp = ls.getOrder() == 2 ? comp : comp.getFirstLearningStageCompetence();
+			firstStageCompId = firstStageComp.getId();
 			return duplicateCompetence(
 					comp,
 					comp.getTitle(),
@@ -1888,10 +1892,35 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					ls,
 					firstStageComp,
 					context);
+		} catch (DataIntegrityViolationException e) {
+			logger.debug("Error", e);
+			//if competence in that stage already exists, return it
+			if (firstStageCompId > 0) {
+				Competence1 existingComp = getCompetenceInLearningStage(firstStageCompId, learningStageId);
+				if (existingComp != null) {
+					Result<Competence1> res = new Result<>();
+					res.setResult(existingComp);
+					logger.debug("Competence in learning stage already exists so it is returned");
+					return res;
+				}
+			}
+			throw e;
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error creating the competence for the learning stage");
 		}
+	}
+
+	private Competence1 getCompetenceInLearningStage(long firstStageCompId, long learningStageId) {
+		String query =
+				"SELECT comp FROM Competence1 comp " +
+				"WHERE comp.learningStage.id = :lsId " +
+				"AND comp.firstLearningStageCompetence.id = :firstStageCompId";
+		return (Competence1) persistence.currentManager()
+				.createQuery(query)
+				.setLong("lsId", learningStageId)
+				.setLong("firstStageCompId", firstStageCompId)
+				.uniqueResult();
 	}
 
 	private Result<Competence1> duplicateCompetence(Competence1 original, String title, Competence1 versionOf,
@@ -1903,7 +1932,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		competence.setTitle(title);
 		competence.setDescription(original.getDescription());
 		competence.setDateCreated(new Date());
-		competence.setTags(new HashSet<>(original.getTags()));
 		competence.setCreatedBy(user);
 		competence.setDuration(original.getDuration());
 		competence.setStudentAllowedToAddActivities(original.isStudentAllowedToAddActivities());
@@ -1913,8 +1941,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		competence.setOriginalVersion(versionOf);
 		competence.setLearningStage(lStage);
 		competence.setFirstLearningStageCompetence(firstStageComp);
-
 		saveEntity(competence);
+		/*
+		if this line is put before saveEntity and there is an exception thrown so competence can't be saved, hibernate would still issue
+		insert statements for saving competence tags which would lead to another exception because competence is not saved.
+		 */
+		competence.setTags(new HashSet<>(original.getTags()));
 
 		Result<Competence1> res = new Result<>();
 		res.setResult(competence);

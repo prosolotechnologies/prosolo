@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.mortbay.jetty.security.Credential;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -3444,7 +3443,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (copyCompetences) {
 				List<CredentialCompetence1> competences = original.getCompetences();
 				for (CredentialCompetence1 credComp : competences) {
-					Result<Competence1> compRes = compManager.createCompetenceInLearningStageAndGetEvents(
+					Result<Competence1> compRes = compManager.getOrCreateCompetenceInLearningStageAndGetEvents(
 							credComp.getCompetence().getId(), learningStageId, context);
 					res.appendEvents(compRes.getEventQueue());
 					CredentialCompetence1 cc = new CredentialCompetence1();

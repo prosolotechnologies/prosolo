@@ -328,7 +328,7 @@ public interface Competence1Manager {
 	Result<Competence1> duplicateCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
 
-	Result<Competence1> createCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+	Result<Competence1> getOrCreateCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
 			throws DbConnectionException;
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
