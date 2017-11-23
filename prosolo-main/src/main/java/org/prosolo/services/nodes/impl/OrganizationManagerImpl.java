@@ -5,8 +5,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
@@ -19,9 +21,10 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.factory.OrganizationDataFactory;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -53,28 +56,30 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private OrganizationManager self;
 
     @Override
-    public Organization createNewOrganization(String title, List<UserData> adminsChosen, UserContextData context)
+    //nt
+    public Organization createNewOrganization(OrganizationData org, UserContextData context)
             throws DbConnectionException {
-
-        Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, context);
+        Result<Organization> res = self.createNewOrganizationAndGetEvents(org, context);
         eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
     @Override
     @Transactional
-    public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, UserContextData context)
+    public Result<Organization> createNewOrganizationAndGetEvents(OrganizationData org, UserContextData context)
             throws DbConnectionException {
         try {
             Organization organization = new Organization();
-            organization.setTitle(title);
+            organization.setTitle(org.getTitle());
 
             saveEntity(organization);
-            userManager.setOrganizationForUsers(adminsChosen, organization.getId());
+            userManager.setOrganizationForUsers(org.getAdmins(), organization.getId());
 
             Result<Organization> res = new Result<>();
 
             res.appendEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
+
+            updateOrganizationLearningStages(organization.getId(), org);
 
             res.setResult(organization);
             return res;
@@ -88,9 +93,63 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    /**
+     *
+     * @param orgId
+     * @param organization
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    private void updateOrganizationLearningStages(long orgId, OrganizationData organization) {
+        //if learning stages are not enabled, we don't update learning stages for organization
+        if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
+            try {
+                Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
+                org.setLearningInStagesEnabled(organization.isLearningInStagesEnabled());
+
+                for (LearningStageData ls : organization.getLearningStagesForDeletion()) {
+                    deleteById(LearningStage.class, ls.getId(), persistence.currentManager());
+                }
+
+                /*
+                trigger learning stages deletion at this point to avoid name conflict
+                for new learning stages with deleted
+                 */
+                persistence.currentManager().flush();
+
+                for (LearningStageData ls : organization.getLearningStages()) {
+                    switch (ls.getStatus()) {
+                        case CREATED:
+                            LearningStage newLStage = new LearningStage();
+                            newLStage.setOrganization(org);
+                            newLStage.setTitle(ls.getTitle());
+                            newLStage.setOrder(ls.getOrder());
+                            saveEntity(newLStage);
+                            break;
+                        case CHANGED:
+                            LearningStage lStageToChange = (LearningStage) persistence.currentManager().load(LearningStage.class, ls.getId());
+                            lStageToChange.setTitle(ls.getTitle());
+                            lStageToChange.setOrder(ls.getOrder());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+                logger.error("DB constraint violation when updating organization learning stages", e);
+                throw e;
+            } catch (Exception e) {
+                logger.error("Error", e);
+                throw new DbConnectionException("Error updating the learning stages");
+            }
+        }
+    }
+
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException {
+    public OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException {
 
         try{
             String query = "SELECT organization " +
@@ -102,9 +161,13 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
 
-            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
+            if (organization == null) {
+                return null;
+            }
 
-            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins);
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
+            List<LearningStageData> learningStages = getOrganizationLearningStages(organizationId);
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins, learningStages);
 
             return od;
         } catch (Exception e) {
@@ -114,33 +177,81 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    private List<LearningStageData> getOrganizationLearningStages(long orgId) {
+        List<LearningStageData> learningStagesData = new ArrayList<>();
+        //only if learning in stages is enabled load the stages
+        if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
+            String query =
+                    "SELECT ls " +
+                    "FROM LearningStage ls " +
+                    "WHERE ls.organization.id = :orgId " +
+                    "order by ls.order ASC";
+
+            @SuppressWarnings("unchecked")
+            List<LearningStage> res =  persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", orgId)
+                    .list();
+
+            for (LearningStage ls : res) {
+                learningStagesData.add(new LearningStageData(
+                        ls.getId(), ls.getTitle(), ls.getOrder(), isLearningStageBeingUsed(ls.getId()), true));
+            }
+        }
+        return learningStagesData;
+    }
+
+    private boolean isLearningStageBeingUsed(long learningStageId) {
+        //check if it is used in a credential
+        String q1 =
+                "SELECT 1 FROM Credential1 c WHERE c.learningStage.id = :lsId";
+        Integer i = (Integer) persistence.currentManager()
+                .createQuery(q1)
+                .setLong("lsId", learningStageId)
+                .setMaxResults(1)
+                .uniqueResult();
+
+        if (i != null) {
+            return true;
+        }
+
+        String q2 =
+                "SELECT 1 FROM Competence1 c WHERE c.learningStage.id = :lsId";
+        i = (Integer) persistence.currentManager()
+                .createQuery(q2)
+                .setLong("lsId", learningStageId)
+                .setMaxResults(1)
+                .uniqueResult();
+        return i != null;
+    }
+
     @Override
-    public Organization updateOrganization(long organizationId, String title, List<UserData> chosenUsers, UserContextData context)
+    public Organization updateOrganization(OrganizationData organization, UserContextData context)
             throws DbConnectionException {
-        Result<Organization> res = self.updateOrganizationAndGetEvents(organizationId, title, chosenUsers, context);
+        Result<Organization> res = self.updateOrganizationAndGetEvents(organization, context);
         eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
     @Override
     @Transactional
-    public Result<Organization> updateOrganizationAndGetEvents(long organizationId, String title, List<UserData> chosenUsers,
-                                                               UserContextData context) throws DbConnectionException {
-        try{
+    public Result<Organization> updateOrganizationAndGetEvents(OrganizationData org, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
             Result<Organization> res = new Result<>();
 
-            Organization organization = loadResource(Organization.class,organizationId);
-            organization.setTitle(title);
+            Organization organization = loadResource(Organization.class, org.getId());
+            organization.setTitle(organization.getTitle());
 
-            for(UserData ud : chosenUsers){
+            for (UserData ud : org.getAdmins()) {
                 User user = new User(ud.getId());
-                switch (ud.getObjectStatus()){
+                switch (ud.getObjectStatus()) {
                     case REMOVED:
-                        userManager.setUserOrganization(ud.getId(),0);
+                        userManager.setUserOrganization(ud.getId(), 0);
                         res.appendEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context, user, organization, null, null));
                         break;
                     case CREATED:
-                        userManager.setUserOrganization(ud.getId(),organizationId);
+                        userManager.setUserOrganization(ud.getId(), org.getId());
                         res.appendEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context, user, organization, null, null));
                         break;
                     default:
@@ -149,11 +260,17 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             }
 
             saveEntity(organization);
+
+            updateOrganizationLearningStages(org.getId(), org);
+
             return res;
-        }catch (Exception e){
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            throw e;
+        } catch (Exception e){
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while loading organization");
+            throw new DbConnectionException("Error updating the organization");
         }
     }
 

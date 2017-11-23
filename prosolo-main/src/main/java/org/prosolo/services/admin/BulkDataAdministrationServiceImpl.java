@@ -13,7 +13,7 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

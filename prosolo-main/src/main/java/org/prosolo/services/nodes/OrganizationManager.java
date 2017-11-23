@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -9,8 +10,8 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.OrganizationData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 
@@ -27,19 +28,19 @@ public interface OrganizationManager extends AbstractManager {
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException;
 
-    Organization createNewOrganization(String title, List<UserData> adminsChosen, UserContextData context)
+    Organization createNewOrganization(OrganizationData org, UserContextData context)
             throws DbConnectionException;
 
-    Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, UserContextData context)
+    Result<Organization> createNewOrganizationAndGetEvents(OrganizationData org, UserContextData context)
             throws DbConnectionException;
 
-    OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException;
+    OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException;
 
-    Organization updateOrganization(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
-            throws DbConnectionException;
+    Organization updateOrganization(OrganizationData organization, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Organization> updateOrganizationAndGetEvents(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
-            throws DbConnectionException;
+    Result<Organization> updateOrganizationAndGetEvents(OrganizationData organization, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 
