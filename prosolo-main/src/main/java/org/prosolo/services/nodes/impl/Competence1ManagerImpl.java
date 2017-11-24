@@ -93,7 +93,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * if competence has no activities, it can't be published
 			 */
-			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
+			if (data.isPublished() && data.getLearningPathType() == LearningPathType.ACTIVITY && (data.getActivities() == null || data.getActivities().isEmpty())) {
 				throw new IllegalDataStateException("Can not publish competency without activities.");
 			}
 
@@ -106,8 +106,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			comp.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
 			comp.setType(data.getType());
 			comp.setPublished(data.isPublished());
+			if (data.isPublished()) {
+				comp.setDatePublished(new Date());
+			}
 			comp.setDuration(data.getDuration());
-			comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			comp.setLearningPathType(data.getLearningPathType());
+			comp.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 
 			if (credentialId > 0) {
 				//TODO learning in stages - for now we propagate learning stage from credential
@@ -119,7 +123,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			saveEntity(comp);
 
-			if (data.getActivities() != null) {
+			if (data.getLearningPathType() == LearningPathType.ACTIVITY && data.getActivities() != null) {
 				for (ActivityData bad : data.getActivities()) {
 					CompetenceActivity1 ca = new CompetenceActivity1();
 					ca.setOrder(bad.getOrder());
@@ -381,8 +385,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			CompetenceData1 compData = competenceFactory.getCompetenceData(
 					creator, comp, tags, shouldTrackChanges);
-			
-			if(loadActivities) {
+
+			//activities should be loaded only if learning path is activity based
+			if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadActivities) {
 				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
 				compData.setActivities(activities);
 			}
@@ -468,10 +473,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException, IllegalDataStateException, StaleDataException {
 		try {
 			/*
-			 * if competence has no activities (that are not removed), it can't
+			 * if competence has Activity learning path and has no activities (that are not removed), it can't
 			 * be published
 			 */
-			if (data.isPublished()) {
+			if (data.isPublished() && data.getLearningPathType() == LearningPathType.ACTIVITY) {
 				if (data.getActivities() == null) {
 					throw new IllegalDataStateException("Competency should have at least one activity");
 				}
@@ -553,59 +558,66 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compToUpdate.setDatePublished(new Date());
 		}
     	if(data.isTagsStringChanged()) {
-    		compToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+    		compToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
     				data.getTagsString())));		     
     	}
     	
     	//these changes are not allowed if competence was once published
     	if(data.getDatePublished() == null) {
+			compToUpdate.setLearningPathType(data.getLearningPathType());
     		compToUpdate.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
-			
-    		List<ActivityData> activities = data.getActivities();
-		    if(activities != null) {
-		    	boolean recalculateDuration = false;
-	    		Iterator<ActivityData> actIterator = activities.iterator();
-	    		while(actIterator.hasNext()) {
-	    			ActivityData bad = actIterator.next();
-		    		switch(bad.getObjectStatus()) {
-		    			case CREATED:
-		    				CompetenceActivity1 ca1 = new CompetenceActivity1();
-		    				ca1.setOrder(bad.getOrder());
-		    				ca1.setCompetence(compToUpdate);
-		    				Activity1 act = (Activity1) persistence.currentManager().load(
-		    						Activity1.class, bad.getActivityId());
-		    				ca1.setActivity(act);
-		    				saveEntity(ca1);
-		    				recalculateDuration = true;
-		    				break;
-		    			case CHANGED:
-		    				CompetenceActivity1 ca2 = (CompetenceActivity1) persistence
-		    					.currentManager().load(CompetenceActivity1.class, 
-		    							bad.getCompetenceActivityId());
-		    				ca2.setOrder(bad.getOrder());
-		    				break;
-		    			case REMOVED:
-		    				CompetenceActivity1 ca3 = (CompetenceActivity1) persistence.currentManager().load(
-		    						CompetenceActivity1.class, bad.getCompetenceActivityId());
-		    				delete(ca3);
-		    				recalculateDuration = true;
-		    				break;
-		    			case UP_TO_DATE:
-		    				break;
-		    		}
-		    	}
-		    
-	    		//activityManager.publishDraftActivities(0, userId, actIds);
+
+    		if (data.getLearningPathType() == LearningPathType.ACTIVITY) {
+				List<ActivityData> activities = data.getActivities();
+				if (activities != null) {
+					boolean recalculateDuration = false;
+					Iterator<ActivityData> actIterator = activities.iterator();
+					while (actIterator.hasNext()) {
+						ActivityData bad = actIterator.next();
+						switch (bad.getObjectStatus()) {
+							case CREATED:
+								CompetenceActivity1 ca1 = new CompetenceActivity1();
+								ca1.setOrder(bad.getOrder());
+								ca1.setCompetence(compToUpdate);
+								Activity1 act = (Activity1) persistence.currentManager().load(
+										Activity1.class, bad.getActivityId());
+								ca1.setActivity(act);
+								saveEntity(ca1);
+								recalculateDuration = true;
+								break;
+							case CHANGED:
+								CompetenceActivity1 ca2 = (CompetenceActivity1) persistence
+										.currentManager().load(CompetenceActivity1.class,
+												bad.getCompetenceActivityId());
+								ca2.setOrder(bad.getOrder());
+								break;
+							case REMOVED:
+								CompetenceActivity1 ca3 = (CompetenceActivity1) persistence.currentManager().load(
+										CompetenceActivity1.class, bad.getCompetenceActivityId());
+								delete(ca3);
+								recalculateDuration = true;
+								break;
+							case UP_TO_DATE:
+								break;
+						}
+					}
+
+					//activityManager.publishDraftActivities(0, userId, actIds);
 //	    		updateDurationForAllCredentialsWithCompetence(data.getCompetenceId(), 
 //	    				Operation.Add, compToUpdate.getDuration());
-	    		if(recalculateDuration) {
-		    		persistence.currentManager().flush();
-		    		long oldDuration = compToUpdate.getDuration();
-		    		long newDuration = getRecalculatedDuration(compToUpdate.getId());
-		    		compToUpdate.setDuration(newDuration);
-		    		updateCredDuration(compToUpdate.getId(), newDuration, oldDuration);
-	    		}
-		    }
+					if (recalculateDuration) {
+						persistence.currentManager().flush();
+						long oldDuration = compToUpdate.getDuration();
+						long newDuration = getRecalculatedDuration(compToUpdate.getId());
+						compToUpdate.setDuration(newDuration);
+						updateCredDuration(compToUpdate.getId(), newDuration, oldDuration);
+					}
+				}
+			} else if (data.isLearningPathChanged()) {
+				//if new learning path is evidence and it was activity delete all competence activities and set duration to 0
+				compToUpdate.getActivities().clear();
+				compToUpdate.setDuration(0);
+			}
     	}
 	    
 	    return compToUpdate;
@@ -843,13 +855,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 * Lock the competence row in db so it can't be updated while we have the lock.
 			 * That way, we can avoid the situation where competence is published concurrently and
 			 * we add new activity to it after it is published which violates data integrity rule
+			 *
+			 * or when competence learning path type changed in the meantime and new learning path type does not
+			 * support adding activities
 			 */
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId, 
 					LockOptions.UPGRADE);
 			
 			//if publish date is not null then new activities are not allowed to be added. Only limited edits are allowed.
-			if(comp.getDatePublished() != null) {
+			if (comp.getDatePublished() != null) {
 				throw new IllegalDataStateException("After competence is first published, new activities can not be added. Only limited edits allowed.");
+			}
+
+			if (comp.getLearningPathType() != LearningPathType.ACTIVITY) {
+				throw new IllegalDataStateException("Competency doesn't support adding activities");
 			}
 
 			CompetenceActivity1 ca = new CompetenceActivity1();
@@ -2506,7 +2525,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private List<Competence1> getAllCompetencesWithLearningStagesEnabled(long orgId) throws DbConnectionException {
+	private List<Competence1> getAllCompetencesWithLearningStagesEnabled(long orgId) {
 		String query =
 				"SELECT comp " +
 				"FROM Competence1 comp " +
@@ -2521,6 +2540,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.list();
 
 		return result;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT comp.learningPathType " +
+							"FROM Competence1 comp " +
+							"WHERE comp.deleted IS FALSE " +
+							"AND comp.id = :compId";
+
+			return (LearningPathType) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading competence learning path type");
+		}
 	}
 
 }

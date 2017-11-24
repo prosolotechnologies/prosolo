@@ -9,7 +9,8 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences">
+	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -76,6 +77,11 @@
 				var isDraft = '#{competenceEditBean.draft}';
 
 				function shouldOpenCanNotPublishModal(){
+                    var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
+                    console.log("LPATH " + lPath);
+//                    if (lPath !== 'ACTIVITY') {
+//                        return false;
+//					}
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
@@ -93,7 +99,7 @@
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-					 if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
+				 	if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
 						var desc = $("#createCompetence\\:formMain\\:description");
 						var title = $("#createCompetence\\:formMain\\:inputTitle");
 						if(desc.val() &amp;&amp; title.val()){
@@ -206,19 +212,42 @@
 			                        </div>
 			                    </div>
 			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'paths' ? 'active in' : ''}" id="paths">
-			                    <div class="whiteBox activitiesList">
-			                    	<courses:activityList
-			                    		id="activityList"
-			                    		activities="#{competenceEditBean.competenceData.activities}"
-			                    		bean="#{competenceEditBean}"
-			                    		isEdit="true"
-			                    		showMarkedIfCompleted="false"
-			                    		encodedCompetenceId="#{param['id']}"
-			                    		encodedCredentialId="#{param['credId']}"
-			                    		toUpdate=""
-			                    		mainForm=":#{cc.clientId}:formMain"/>
+									<div class="whiteBox pathOptions">
+										<p>Choose which learning path you want students to take in order to master this #{msg['label.competence'].toLowerCase()}</p>
+										<div class="radioGroup">
+											<ui:repeat value="#{competenceEditBean.learningPaths}" var="path">
+												<div class="radio">
+													<input type="radio" jsf:id="pathRadio"
+														   name="#{hiddenPathRadio.clientId}"
+														   value="#{path.learningPathType}" jsf:disabled="#{competenceEditBean.limitedEdit}"
+														   jsf:checked="#{competenceEditBean.competenceData.learningPathType eq path.learningPathType ? true : false}"
+														   onchange="changeLearningPath()"
+													/>
+													<h:outputLabel for="pathRadio">#{path.description}</h:outputLabel>
+												</div>
+											</ui:repeat>
+											<h:inputHidden id="pathChooser" binding="#{hiddenPathRadio}" value="#{competenceEditBean.competenceData.learningPathType}"/>
+										</div>
+										<p:remoteCommand name="changeLearningPath"
+														 process="pathChooser"
+														 update=":#{cc.clientId}:formMain:panelActivities pathChooser"/>
+									</div>
 
-			                    </div>
+									<h:panelGroup layout="block" id="panelActivities" styleClass="whiteBox activitiesList">
+										<ui:fragment rendered="#{competenceEditBean.competenceData.learningPathType eq 'ACTIVITY'}">
+											<courses:activityList
+												id="activityList"
+												activities="#{competenceEditBean.competenceData.activities}"
+												bean="#{competenceEditBean}"
+												isEdit="true"
+												showMarkedIfCompleted="false"
+												encodedCompetenceId="#{param['id']}"
+												encodedCredentialId="#{param['credId']}"
+												toUpdate=""
+												mainForm=":#{cc.clientId}:formMain"/>
+										</ui:fragment>
+
+									</h:panelGroup>
 			                    </div>
 			                </div>
 			            </div>

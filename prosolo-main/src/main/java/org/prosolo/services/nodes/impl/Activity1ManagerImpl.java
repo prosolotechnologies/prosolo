@@ -140,7 +140,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 
-			activity.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			activity.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 
 			saveEntity(activity);
 
@@ -150,9 +150,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if(data.getCompetenceId() > 0) {
 				EventData ev = compManager.addActivityToCompetence(data.getCompetenceId(),
 						activity, context);
-				if (ev != null) {
-					result.appendEvent(ev);
-				}
+				result.appendEvent(ev);
 			}
 
 			result.setResult(activity);

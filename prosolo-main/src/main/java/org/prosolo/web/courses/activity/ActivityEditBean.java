@@ -2,6 +2,7 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.mobile.component.page.Page;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -9,6 +10,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -28,6 +30,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
 import org.prosolo.web.courses.activity.util.GradingModeDescription;
 import org.prosolo.web.courses.validator.NumberValidatorUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -100,6 +103,13 @@ public class ActivityEditBean implements Serializable {
 				decodedCompId = idEncoder.decodeId(compId);
 				if(id == null) {
 					activityData = new ActivityData(false);
+					//make sure that activity can be created for given competency - that appropriate learning path is set
+					LearningPathType lPath = compManager.getCompetenceLearningPathType(decodedCompId);
+					if (lPath != LearningPathType.ACTIVITY) {
+						PageUtil.fireErrorMessageAcrossPages(ResourceBundleUtil.getLabel("competence") + " doesn't support adding activities");
+						PageUtil.redirect("/manage/competences/" + compId + "/edit");
+						return;
+					}
 				} else {
 					decodedId = idEncoder.decodeId(id);
 					logger.info("Editing activity with id " + decodedId);

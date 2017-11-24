@@ -408,4 +408,6 @@ public interface Competence1Manager {
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
 	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
+
+	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 }
