@@ -78,14 +78,13 @@
 
 				function shouldOpenCanNotPublishModal(){
                     var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
-                    console.log("LPATH " + lPath);
-//                    if (lPath !== 'ACTIVITY') {
-//                        return false;
-//					}
+                    if (lPath !== 'ACTIVITY') {
+                        return false;
+					}
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-					 if(activityListSize == 0 &amp;&amp; selectStatus == "PUBLISHED"){
+					 if(activityListSize &lt;= 0 &amp;&amp; selectStatus == "PUBLISHED"){
 						var desc = $("#createCompetence\\:formMain\\:description");
 						var title = $("#createCompetence\\:formMain\\:inputTitle");
 						if(desc.val() &amp;&amp; title.val()){
