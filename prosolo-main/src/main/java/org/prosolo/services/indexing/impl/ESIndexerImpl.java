@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic 2013-06-10
  *
  */
+@Deprecated
 @Service("org.prosolo.services.indexing.ESIndexer")
 public class ESIndexerImpl implements ESIndexer {
 

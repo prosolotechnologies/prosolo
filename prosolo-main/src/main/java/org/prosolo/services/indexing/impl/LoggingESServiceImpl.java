@@ -8,7 +8,6 @@ import org.elasticsearch.client.Client;
 import org.json.simple.JSONObject;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.LoggingESService;
 import org.springframework.stereotype.Service;
 

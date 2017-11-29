@@ -3,77 +3,78 @@ package org.prosolo.bigdata.es.impl;/**
  */
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchPhaseExecutionException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.InnerHitBuilder;
+import org.elasticsearch.index.query.NestedQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
-import org.elasticsearch.search.aggregations.bucket.nested.Nested;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.DataSearch;
-import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * zoran 31/07/16
  */
-public class DataSearchImpl  extends AbstractESIndexer implements DataSearch {
+public class DataSearchImpl  extends AbstractESIndexerImpl implements DataSearch {
     private static Logger logger = Logger
             .getLogger(DataSearch.class.getName());
     @Override
+    //TODO es migration - test this query
     public List<Long> findCredentialMembers(long credId,int page, int limit) {
             List<Long> members=new ArrayList<Long>();
-            int start = 0;
-            start = setStart(page, limit);
+            try {
+                int start = 0;
+                start = setStart(page, limit);
 
-            Client client = ElasticSearchConnector.getClient();
-            BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+                BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 
-            BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
-            nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
-             NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
-                    nestedFB);
-            FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
-                    nestedFilter1);
+                BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+                nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
+                NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials", nestedFB, ScoreMode.None);
+                nestedFilter1.innerHit(new InnerHitBuilder());
+                bQueryBuilder.filter(nestedFilter1);
 
                 String[] includes = {"id"};
-                SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-                        .setTypes(ESIndexTypes.USER)
-                        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                        .setQuery(filteredQueryBuilder)
-                        .addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
-                                .subAggregation(AggregationBuilders.filter("filtered")
-                                        .filter(QueryBuilders.termQuery("credentials.id", credId))
-                                        ))
-                        .setFetchSource(includes, null);
-                    nestedFilter1.innerHit(new QueryInnerHitBuilder());
+                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+                searchSourceBuilder
+                        .query(bQueryBuilder)
+                        .aggregation(AggregationBuilders.nested("nestedAgg", "credentials")
+                                .subAggregation(AggregationBuilders.filter("filtered", QueryBuilders.termQuery("credentials.id", credId))))
+                        .fetchSource(includes, null)
+                        .from(start)
+                        .size(limit);
+                //                SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+                //                        .setTypes(ESIndexTypes.USER)
+                //                        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                //                        .setQuery(bQueryBuilder)
+                //                        .addAggregation(AggregationBuilders.nested("nestedAgg", "credentials")
+                //                                .subAggregation(AggregationBuilders.filter("filtered", QueryBuilders.termQuery("credentials.id", credId))))
+                //                        .setFetchSource(includes, null);
 
 
-                searchRequestBuilder.setFrom(start).setSize(limit);
+                //searchRequestBuilder.setFrom(start).setSize(limit);
 
 
-             //   System.out.println(searchRequestBuilder.toString());
-                SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
-        if (sResponse != null) {
-            for (SearchHit hit : sResponse.getHits()) {
-                members.add(Long.valueOf(hit.getSource().get("id").toString()));
+                //   System.out.println(searchRequestBuilder.toString());
+                SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+                if (sResponse != null) {
+                    for (SearchHit hit : sResponse.getHits()) {
+                        members.add(Long.valueOf(hit.getSource().get("id").toString()));
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Error", e);
             }
-        }
-        return members;
+            return members;
     }
 
     private int setStart(int page, int limit){

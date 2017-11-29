@@ -6,10 +6,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -26,7 +23,6 @@ import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -86,7 +82,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			if(searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("title");
 				
 				bQueryBuilder.filter(qb);
@@ -189,7 +185,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
 				
@@ -320,7 +316,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 				
 				bQueryBuilder.filter(qb);

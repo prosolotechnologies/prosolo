@@ -12,8 +12,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("org.prosolo.services.indexing.NodeEntityESService")
 @Transactional(readOnly=false)
-public class NodeEntityESServiceImpl extends AbstractBaseEntityESServiceImpl implements NodeEntityESService {
+public class NodeEntityESServiceImpl extends AbstractESIndexerImpl implements NodeEntityESService {
 
 	private static Logger logger = Logger.getLogger(NodeEntityESServiceImpl.class.getName());
 	

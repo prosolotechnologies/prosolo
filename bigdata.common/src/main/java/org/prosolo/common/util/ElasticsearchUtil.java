@@ -23,6 +23,9 @@ import java.util.TimeZone;
 public class ElasticsearchUtil {
     private static Logger logger = Logger.getLogger(ElasticsearchUtil.class);
 
+    //TODO es migrate - migrate to painless
+    public static final String DEFAULT_SCRIPT_LANG = "groovy";
+
     public static String copyToStringFromClasspath(String path) throws IOException {
         InputStream is = Streams.class.getResourceAsStream(path);
         if (is == null) {

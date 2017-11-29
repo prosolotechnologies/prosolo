@@ -3,11 +3,12 @@ package org.prosolo.services.indexing;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.elasticsearch.AbstractESIndexer;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 import java.util.Date;
 
-public interface CompetenceESService  extends AbstractBaseEntityESService {
+public interface CompetenceESService extends AbstractESIndexer {
 
 	void saveCompetenceNode(Competence1 comp, Session session);
 	

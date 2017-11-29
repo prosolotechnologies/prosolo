@@ -4,7 +4,6 @@ package org.prosolo.services.indexing;/**
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -17,6 +16,8 @@ import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.elasticsearch.client.ESRestClient;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ class LogsFilter{
     public void setBeforeDate(Long beforeDate) { this.beforeDate = beforeDate;    }
   }
 public class LoggingESServiceTest {
-    private static Client client;
+    private static ESRestClient client;
     private static List<Long> actors;
     private static List<Long> courses;
     private static LogsFilter f1;
@@ -71,7 +72,7 @@ public class LoggingESServiceTest {
     public static void initializeClient(){
         String indexName = ESIndexNames.INDEX_LOGS;
         String indexType = ESIndexTypes.LOG;
-        client = ElasticSearchFactory.getClient();
+        client = ElasticSearchConnector.getClient();
 
         System.out.println("ES CLIENT INITIALIZED");
         actors=new ArrayList();

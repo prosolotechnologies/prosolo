@@ -10,8 +10,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.indexing.CredentialESService")
-public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl implements CredentialESService {
+public class CredentialESServiceImpl extends AbstractESIndexerImpl implements CredentialESService {
 	
 	private static Logger logger = Logger.getLogger(CredentialESServiceImpl.class);
 	

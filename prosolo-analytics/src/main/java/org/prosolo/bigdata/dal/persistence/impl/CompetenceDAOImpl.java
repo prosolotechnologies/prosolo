@@ -6,7 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.dal.persistence.CompetenceDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
-import org.prosolo.bigdata.es.impl.CompetenceIndexerImpl;
+import org.prosolo.bigdata.es.impl.CompetenceIndexerImplImpl;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
@@ -33,7 +33,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 				comp.setPublished(true);
 			}
 			
-			CompetenceIndexerImpl.getInstance().updateVisibility(compId, comp.isPublished());
+			CompetenceIndexerImplImpl.getInstance().updateVisibility(compId, comp.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -80,7 +80,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, c.getId(), userId);
 				if (priv == UserGroupPrivilege.Edit) {
 					c.setPublished(true);
-					CompetenceIndexerImpl.getInstance().updateVisibility(c.getId(), true);
+					CompetenceIndexerImplImpl.getInstance().updateVisibility(c.getId(), true);
 					publishedComps.add(c.getId());
 				}
 			}

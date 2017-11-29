@@ -1,6 +1,7 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -16,7 +17,6 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -246,7 +246,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -262,7 +262,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			unitRoleFilter.filter(unitFilter);
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 			
 			if (usersToExclude != null) {
@@ -317,7 +317,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.defaultOperator(Operator.AND)
 					.field("name");
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();

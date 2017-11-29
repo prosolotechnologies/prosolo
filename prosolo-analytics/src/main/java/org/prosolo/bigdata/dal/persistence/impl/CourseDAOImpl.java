@@ -10,8 +10,6 @@ import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
-import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {

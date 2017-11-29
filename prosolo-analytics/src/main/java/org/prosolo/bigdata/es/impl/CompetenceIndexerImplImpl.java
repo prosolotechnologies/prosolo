@@ -10,27 +10,27 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.CompetenceIndexer;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
-public class CompetenceIndexerImpl extends AbstractESIndexer implements
+public class CompetenceIndexerImplImpl extends AbstractESIndexerImpl implements
 		CompetenceIndexer, Serializable {
 	
 	private static final long serialVersionUID = -1740927229182115398L;
 	
 	private static Logger logger = Logger
-			.getLogger(CompetenceIndexerImpl.class.getName());
+			.getLogger(CompetenceIndexerImplImpl.class.getName());
 	
-	private CompetenceIndexerImpl() {
+	private CompetenceIndexerImplImpl() {
 		
 	}
 	
 	private static class SingletonHolder {
-        private static final CompetenceIndexerImpl INSTANCE = new CompetenceIndexerImpl();
+        private static final CompetenceIndexerImplImpl INSTANCE = new CompetenceIndexerImplImpl();
     }
     
-    public static CompetenceIndexerImpl getInstance(){
+    public static CompetenceIndexerImplImpl getInstance(){
         return SingletonHolder.INSTANCE;
     }
 	

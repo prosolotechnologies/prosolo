@@ -6,8 +6,8 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.RubricsESService;
 import org.prosolo.services.nodes.RubricManager;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 
 @Service("org.prosolo.services.indexing.RubricsESService")
-public class RubricsESServiceImpl extends AbstractBaseEntityESServiceImpl implements RubricsESService {
+public class RubricsESServiceImpl extends AbstractESIndexerImpl implements RubricsESService {
 
     private static Logger logger = Logger.getLogger(RubricsESServiceImpl.class);
 

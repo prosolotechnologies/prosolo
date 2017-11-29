@@ -1,6 +1,7 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -8,7 +9,6 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -16,6 +16,7 @@ import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -33,7 +34,6 @@ import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.StudentData;
@@ -92,7 +92,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -172,7 +172,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			esIndexer.addMapping(client, indexName, indexType);
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -203,13 +203,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.setFetchSource(includes, null);
 
 			if (organizationId > 0) {
-				srb.addAggregation(AggregationBuilders.nested("nestedAgg").path("roles")
+				srb.addAggregation(AggregationBuilders.nested("nestedAgg", "roles")
 						.subAggregation(
-								AggregationBuilders.terms("roles")
-										.field("roles.id")));
+								AggregationBuilders.terms("roles").field("roles.id")));
 			} else {
-				srb.addAggregation(AggregationBuilders.terms("roles")
-						.field("roles.id"));
+				srb.addAggregation(AggregationBuilders.terms("roles").field("roles.id"));
 			}
 
 			if (roles != null && !roles.isEmpty()) {
@@ -218,8 +216,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				if (organizationId > 0) {
-					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles",
-							bqb1);
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", bqb1, ScoreMode.None);
 					bQueryBuilder.filter(nestedFilter);
 				} else {
 					bQueryBuilder.filter(bqb1);
@@ -230,8 +227,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if (roleId > 0) {
 				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
 				if (organizationId > 0) {
-					NestedQueryBuilder nestedPostFilter = QueryBuilders.nestedQuery("roles",
-							bqb);
+					NestedQueryBuilder nestedPostFilter = QueryBuilders.nestedQuery("roles", bqb, ScoreMode.None);
 					srb.setPostFilter(nestedPostFilter);
 				} else {
 					srb.setPostFilter(bqb);
@@ -286,7 +282,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				} else {
 					terms = sResponse.getAggregations().get("roles");
 				}
-				List<Terms.Bucket> buckets = terms.getBuckets();
+				List<? extends Terms.Bucket> buckets = terms.getBuckets();
 
 				List<RoleFilter> roleFilters = new ArrayList<>();
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
@@ -318,7 +314,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return response;
 	}
 	
-	private Bucket getBucketForRoleId(long id, List<Bucket> buckets) {
+	private Bucket getBucketForRoleId(long id, List<? extends Bucket> buckets) {
 		if(buckets != null) {
 			for(Bucket b : buckets) {
 				if(Long.parseLong(b.getKey().toString()) == id) {
@@ -377,7 +373,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -388,8 +384,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(instructorId != -1) {
 				nestedFB.must(QueryBuilders.termQuery("credentials.instructorId", instructorId));
 			}
-			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
-					nestedFB);
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials", nestedFB, ScoreMode.None);
 //					.innerHit(new QueryInnerHitBuilder());
 //			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 //					nestedFilter1);
@@ -402,15 +397,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
-						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
-								.subAggregation(AggregationBuilders.filter("filtered")
-										.filter(QueryBuilders.termQuery("credentials.id", credId))
+						.addAggregation(AggregationBuilders.nested("nestedAgg", "credentials")
+								.subAggregation(AggregationBuilders.filter("filtered", QueryBuilders.termQuery("credentials.id", credId))
 								.subAggregation(
 										AggregationBuilders.terms("unassigned")
-										.field("credentials.instructorId")
-										.include(new long[] {0}))
-								.subAggregation(AggregationBuilders.filter("completed")
-										.filter(QueryBuilders.termQuery("credentials.progress", 100)))))
+										//TODO es migration - check whether includexclude is working
+										.field("credentials.instructorId").includeExclude(new IncludeExclude(new long[] {0}, null)))
+								.subAggregation(AggregationBuilders.filter("completed", QueryBuilders.termQuery("credentials.progress", 100)))))
 								
 						.setFetchSource(includes, null);
 				
@@ -426,8 +419,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 * credentials for users matched by query
 					 */
 					assignFilter.must(QueryBuilders.termQuery("credentials.id", credId));
+					//TODO es migration - check if InnerHitBuilder works
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							assignFilter).innerHit(new QueryInnerHitBuilder());
+							assignFilter, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 //					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
 //					nestedBQBuilder.must(qBuilder);
@@ -439,11 +433,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 * credentials for users matched by query
 					 */
 					completedF.must(QueryBuilders.termQuery("credentials.id", credId));
+					//TODO es migration - check if InnerHitBuilder works
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							completedF).innerHit(new QueryInnerHitBuilder());
+							completedF, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 			    } else {
-					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+					//TODO es migration - check if InnerHitBuilder works
+					nestedFilter1.innerHit(new InnerHitBuilder());
 				}
 				
 				searchRequestBuilder.setFrom(start).setSize(limit);	
@@ -530,7 +526,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						Terms terms = filtered.getAggregations().get("unassigned");
 						Filter completed = filtered.getAggregations().get("completed");
 						//Terms terms = nestedAgg.getAggregations().get("unassigned");
-						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+						Iterator<? extends Terms.Bucket> it = terms.getBuckets().iterator();
 						long unassignedNo = 0;
 						if(it.hasNext()) {
 							unassignedNo = it.next().getDocCount();
@@ -577,7 +573,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				bQueryBuilder.must(qb);
 			}
@@ -666,7 +662,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.filter(qb);
@@ -680,7 +676,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 			unitRoleFilter.filter(unitFilter);
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 			
 			for (Long id : excludedUserIds) {
@@ -753,7 +749,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -776,7 +772,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					"credentials.instructorId", instructorId));
 			credFilter.must(unassignedOrWithSpecifiedInstructorFilter);
 			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials",
-					credFilter);
+					credFilter, ScoreMode.None);
 		
 			BoolQueryBuilder qb = QueryBuilders.boolQuery();
 			qb.must(bQueryBuilder);
@@ -788,14 +784,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(qb)
-						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+						.addAggregation(AggregationBuilders.nested("nestedAgg", "credentials")
 								.subAggregation(
-										AggregationBuilders.filter("filtered")
-										.filter(credFilter)
+										AggregationBuilders.filter("filtered", credFilter)
 										.subAggregation(
 												AggregationBuilders.terms("unassigned")
 												.field("credentials.instructorId")
-												.include(new long[] {0}))))
+												.includeExclude(new IncludeExclude(new long[] {0}, null)))))
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(1000)
 						.setFrom(start).setSize(limit);
@@ -807,7 +802,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				BoolQueryBuilder filterBuilder = null;
 				switch(filter) {
 					case All:
-						nestedCredFilter.innerHit(new QueryInnerHitBuilder());
+						nestedCredFilter.innerHit(new InnerHitBuilder());
 						break;
 					case Assigned:
 						filterBuilder = QueryBuilders.boolQuery();
@@ -825,7 +820,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				}
 				if(filterBuilder != null) {
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							filterBuilder).innerHit(new QueryInnerHitBuilder());
+							filterBuilder, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				}
 				searchRequestBuilder.addSort("credentials.instructorId", SortOrder.DESC);
@@ -874,7 +869,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
 					Filter filtered = nestedAgg.getAggregations().get("filtered");
 					Terms terms = filtered.getAggregations().get("unassigned");
-					Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+					Iterator<? extends Terms.Bucket> it = terms.getBuckets().iterator();
 					long unassignedNo = 0;
 					if(it.hasNext()) {
 						unassignedNo = it.next().getDocCount();
@@ -928,7 +923,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -937,7 +932,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
 			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
-					nestedFB);
+					nestedFB, ScoreMode.None);
 //					.innerHit(new QueryInnerHitBuilder());
 			//instead of deprecated filteredquery
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery();
@@ -953,13 +948,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
-						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
-								.subAggregation(AggregationBuilders.filter("filtered")
-										.filter(QueryBuilders.termQuery("credentials.id", credId))
+						.addAggregation(AggregationBuilders.nested("nestedAgg", "credentials")
+								.subAggregation(AggregationBuilders.filter("filtered", QueryBuilders.termQuery("credentials.id", credId))
 								.subAggregation(
 										AggregationBuilders.terms("inactive")
 										.field("credentials.progress")
-										.include(new long[] {100}))))
+										.includeExclude(new IncludeExclude(new long[] {100}, null)))))
 						.setFetchSource(includes, null);
 				
 				/*
@@ -975,10 +969,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 */
 					assignFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							assignFilter).innerHit(new QueryInnerHitBuilder());
+							assignFilter, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				} else {
-					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+					nestedFilter1.innerHit(new InnerHitBuilder());
 				}
 				
 				searchRequestBuilder.setFrom(start).setSize(limit);	
@@ -1037,7 +1031,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						Filter filtered = nestedAgg.getAggregations().get("filtered");
 						Terms terms = filtered.getAggregations().get("inactive");
 						//Terms terms = nestedAgg.getAggregations().get("unassigned");
-						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+						Iterator<? extends Terms.Bucket> it = terms.getBuckets().iterator();
 						long inactive = 0;
 						if(it.hasNext()) {
 							inactive = it.next().getDocCount();
@@ -1092,7 +1086,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -1109,13 +1103,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 			unitRoleFilter.filter(unitFilter);
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 			
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
-			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
-					nestedFB);
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials", nestedFB, ScoreMode.None);
 
 			bQueryBuilder.mustNot(nestedFilter1);
 			
@@ -1187,7 +1180,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -1247,7 +1240,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.filter(qb);
@@ -1316,7 +1309,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -1324,9 +1317,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
 					.must(bQueryBuilder)
-					.filter(QueryBuilders.nestedQuery("credentials",
-						QueryBuilders.boolQuery()
-						.must(QueryBuilders.termQuery("credentials.id", credId))));
+					.filter(QueryBuilders.nestedQuery(
+									"credentials",
+									QueryBuilders.boolQuery().must(QueryBuilders.termQuery("credentials.id", credId)),
+									ScoreMode.None));
 			
 			if (peersToExcludeFromSearch != null) {
 				for (Long exUserId : peersToExcludeFromSearch) {
@@ -1396,7 +1390,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -1405,7 +1399,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("competences.id", compId));
 			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("competences",
-					nestedFB);
+					nestedFB, ScoreMode.None);
 
 			bQueryBuilder.filter(nestedFilter1);
 			
@@ -1419,11 +1413,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
-						.addAggregation(AggregationBuilders.nested("nestedAgg").path("competences")
-								.subAggregation(AggregationBuilders.filter("filtered")
-										.filter(studentsLearningCompAggrFilter)
-										.subAggregation(AggregationBuilders.filter("completed")
-												.filter(studentsCompletedCompAggrFilter))))
+						.addAggregation(AggregationBuilders.nested("nestedAgg", "competences")
+								.subAggregation(AggregationBuilders.filter("filtered", studentsLearningCompAggrFilter)
+										.subAggregation(AggregationBuilders.filter("completed", studentsCompletedCompAggrFilter))))
 						.setFetchSource(includes, null);
 				
 				/*
@@ -1439,7 +1431,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 */
 					completedFilter.must(QueryBuilders.termQuery("competences.id", compId));
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("competences",
-							completedFilter).innerHit(new QueryInnerHitBuilder());
+							completedFilter, ScoreMode.None)
+							//.innerHit(new QueryInnerHitBuilder());
+							.innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				} else if(filter == CompetenceStudentsSearchFilterValue.UNCOMPLETED) {
 					BoolQueryBuilder uncompletedFilter = QueryBuilders.boolQuery();
@@ -1449,11 +1443,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 * competences for users matched by query
 					 */
 					uncompletedFilter.must(QueryBuilders.termQuery("competences.id", compId));
+					//TODO es migration - check if innerhitbuilder instead of queryinnerhitbuilder works
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("competences",
-							uncompletedFilter).innerHit(new QueryInnerHitBuilder());
+							uncompletedFilter, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchRequestBuilder.setPostFilter(nestedFilter);
 			    } else {
-					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+					//TODO es migration - check if innerhitbuilder instead of queryinnerhitbuilder works
+					nestedFilter1.innerHit(new InnerHitBuilder());
 				}
 				
 				searchRequestBuilder.setFrom(start).setSize(limit);	
@@ -1677,7 +1673,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				unitRoleFilter.mustNot(qb);
 			}
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -1736,7 +1732,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			QueryBuilder qb = termQuery("roles.units.id", unitId);
 			unitRoleFilter.filter(qb);
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 
 			bQueryBuilder.mustNot(termQuery("groups.id", groupId));
@@ -1778,7 +1774,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		if (searchTerm != null && !searchTerm.isEmpty()) {
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 
 			bQueryBuilder.filter(qb);

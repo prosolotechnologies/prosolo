@@ -14,9 +14,9 @@ import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
 import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImplImpl;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
+import org.prosolo.bigdata.es.impl.ESAdministrationImplImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 /**
@@ -29,7 +29,7 @@ public class CompetenceAlgoFPGrowthTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testRunAlgorithm() {
-		ESAdministration admin = new ESAdministrationImpl();
+		ESAdministration admin = new ESAdministrationImplImpl();
 		AnalyzedResultsDBManager dbManager =  AnalyzedResultsDBmanagerImpl.getInstance();
 		try {
 			admin.createIndexes();
@@ -38,7 +38,7 @@ public class CompetenceAlgoFPGrowthTest {
 			e1.printStackTrace();
 		}
 		// long competenceid=4915341;
-		AssociationRulesIndexer indexer = new AssociationRulesIndexerImpl();
+		AssociationRulesIndexer indexer = new AssociationRulesIndexerImplImpl();
 		long competenceid = 24;
 		CompetenceAlgoFPGrowth fpgrowth = new CompetenceAlgoFPGrowth(
 				competenceid);

@@ -10,8 +10,8 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
@@ -31,7 +31,7 @@ import java.util.Map;
  *
  */
 @Service("org.prosolo.services.indexing.UserEntityESService")
-public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl implements UserEntityESService{
+public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements UserEntityESService{
 	
 	private static Logger logger = Logger.getLogger(UserEntityESService.class);
 	

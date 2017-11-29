@@ -15,22 +15,22 @@ import org.elasticsearch.client.Client;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 
 /**
  * @author Zoran Jeremic May 9, 2015
  *
  */
 
-public class ESAdministrationImpl extends AbstractESIndexer implements
+public class ESAdministrationImplImpl extends AbstractESIndexerImpl implements
 		ESAdministration {
 	private static final long serialVersionUID = 830150223713546004L;
-	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
+	private static Logger logger = Logger.getLogger(ESAdministrationImplImpl.class);
 
 	@Override
 	public boolean createIndexes() throws IndexingServiceNotAvailable {
@@ -52,9 +52,9 @@ public class ESAdministrationImpl extends AbstractESIndexer implements
 			ElasticSearchConfig elasticSearchConfig = CommonSettings
 					.getInstance().config.elasticSearch;
 			 Settings.Builder elasticsearchSettings =  Settings
-					.settingsBuilder()
-					.put("http.enabled", "false")
-					.put("cluster.name", elasticSearchConfig.clusterName)
+					.builder()
+					//.put("http.enabled", "false")
+					//.put("cluster.name", elasticSearchConfig.clusterName)
 					.put("index.number_of_replicas",
 							elasticSearchConfig.replicasNumber)
 					.put("index.number_of_shards",

@@ -3,12 +3,13 @@ package org.prosolo.services.indexing;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.elasticsearch.AbstractESIndexer;
 
 /**
  * @author Zoran Jeremic 2013-06-29
  *
  */
-public interface UserEntityESService  extends AbstractBaseEntityESService {
+public interface UserEntityESService extends AbstractESIndexer {
 
 	void saveUserNode(User user, Session session);
 

@@ -28,7 +28,6 @@ import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.es.LogsSearch;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

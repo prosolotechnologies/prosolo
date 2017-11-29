@@ -2,8 +2,8 @@ package org.prosolo.bigdata.es.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.RecommendationDataIndexer;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
 import java.io.Serializable;
 
@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  */
 
-public class RecommendationDataIndexerImpl extends AbstractESIndexer implements
+public class RecommendationDataIndexerImplImpl extends AbstractESIndexerImpl implements
 		RecommendationDataIndexer, Serializable {
 	private static Logger logger = Logger
 			.getLogger(RecommendationDataIndexer.class.getName());

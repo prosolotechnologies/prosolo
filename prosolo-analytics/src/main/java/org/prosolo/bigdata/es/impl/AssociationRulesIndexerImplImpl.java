@@ -1,13 +1,6 @@
 package org.prosolo.bigdata.es.impl;
 
-import java.io.IOException;
-import java.io.Serializable;
-//import java.util.Set;
-
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -15,25 +8,32 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.es.AssociationRulesIndexer;
+import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+
+//import java.util.Set;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.es.AbstractESIndexer;
-import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.ElasticSearchConnector;
-import org.prosolo.common.ESIndexNames;
 
 /**
  * @author Zoran Jeremic May 9, 2015
  *
  */
 
-public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
+public class AssociationRulesIndexerImplImpl extends AbstractESIndexerImpl implements
 		AssociationRulesIndexer, Serializable {
 	private static Logger logger = Logger
-			.getLogger(AssociationRulesIndexerImpl.class.getName());
+			.getLogger(AssociationRulesIndexerImplImpl.class.getName());
 
 	// public static String
 	// INDEX_TYPE=CommonSettings.getInstance().config.elasticSearch.associationrulesIndex;
@@ -67,7 +67,7 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 			}
 			builder.endArray();
 			builder.endObject();
-			this.indexDocument(builder, null, ESIndexNames.INDEX_ASSOCRULES,
+			this.indexNode(builder, null, ESIndexNames.INDEX_ASSOCRULES,
 					ESIndexTypes.COMPETENCE_ACTIVITIES);
 			// indexNode(builder, String.valueOf(resource.getId()),ES_INDEX,
 			// indexType);
@@ -94,7 +94,7 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 			}
 			builder.endArray();
 			builder.endObject();
-			this.indexDocument(builder, String.valueOf(competenceid),
+			this.indexNode(builder, String.valueOf(competenceid),
 					ESIndexNames.INDEX_RECOMMENDATION_DATA,
 					ESIndexTypes.FREQ_COMPETENCE_ACTIVITIES);
 		} catch (IOException e) {
@@ -122,6 +122,7 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 
 		//client.prepareDeleteByQuery(indexName).setQuery(boolQuery)
 		//		.setTypes(indexType).execute().actionGet();
+		DeleteByQueryAction.INSTANCE.newRequestBuilder(client);
 		DeleteByQueryRequestBuilder requestBuilder=new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE);
 		requestBuilder.setQuery(boolQuery).execute().actionGet();
 

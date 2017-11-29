@@ -13,7 +13,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 
 /**
 @author Zoran Jeremic Jun 6, 2015
@@ -26,7 +26,7 @@ public class RecommendedResourcesSearchImplTest {
 	public void testFindMostActiveRecommendedUsers() {
 		Client client=null;
 		try {
-			client = ElasticSearchFactory.getClient();
+			client = ElasticSearchConnector.getClient();
 		} catch (NoNodeAvailableException e) {
 			e.printStackTrace();
 		}
