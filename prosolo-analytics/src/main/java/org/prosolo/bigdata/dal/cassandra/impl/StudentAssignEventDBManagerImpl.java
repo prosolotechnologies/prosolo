@@ -90,7 +90,7 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 		Long res = null;
 		try {
 			BoundStatement statement = new BoundStatement(preparedStatements.get(GET_CURRENT_TIMESTAMP));
-			statement.setString(0, TablesNames.STUDENT_ASSIGN_EVENTS);
+			statement.setString(0, TableNames.STUDENT_ASSIGN_EVENTS.name());
 			Row row = this.getSession().execute(statement).one();
 			res = (row == null) ? -1 : row.getLong(0);
 		} catch(Exception e) {
@@ -105,7 +105,7 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 		try {
 			BoundStatement statement = new BoundStatement(preparedStatements.get(UPDATE_CURRENT_TIMESTAMP));
 			statement.setLong(0, bucket);
-			statement.setString(1, TablesNames.STUDENT_ASSIGN_EVENTS);
+			statement.setString(1, TableNames.STUDENT_ASSIGN_EVENTS.name());
 		    this.getSession().execute(statement);
 		    return true;
 		} catch(Exception e) {
