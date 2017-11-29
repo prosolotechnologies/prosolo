@@ -191,7 +191,7 @@
 	            <h:panelGroup id="tabPanel" styleClass="tab-content" layout="block">
 	            <!-- CREDENTIALS -->
 	              <h:panelGroup id="credentials" a:role="tabPanel" styleClass="tab-pane fade in active" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.credentialAchievementsData.targetCredentialDataList}">
+	                	<ui:fragment rendered="#{empty profileBean.targetCredential1List}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
@@ -206,7 +206,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-		                <ui:repeat value="#{profileBean.credentialAchievementsData.targetCredentialDataList}"
+		                <ui:repeat value="#{profileBean.targetCredential1List}"
 	                    			var="targetCredential" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">
@@ -242,7 +242,7 @@
 	                
 	                <!-- COMPETENCES -->
 	                <h:panelGroup id="competences" a:role="tabPanel" styleClass="tab-pane fade" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.competenceAchievementsData.targetCompetenceDataList}">
+	                	<ui:fragment rendered="#{empty profileBean.targetCompetence1List}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
@@ -256,7 +256,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-						<ui:repeat value="#{profileBean.competenceAchievementsData.targetCompetenceDataList}"
+						<ui:repeat value="#{profileBean.targetCompetence1List}"
 							var="targetCompetence" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">
@@ -312,7 +312,7 @@
 	                
 	                <!-- IN PROGRESS CREDENTIALS -->
 	                <h:panelGroup id="inprogress" a:role="tabPanel" styleClass="tab-pane fade" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+	                	<ui:fragment rendered="#{empty profileBean.targetCredential1ListInProgress}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
@@ -326,7 +326,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-	                	<ui:repeat value="#{profileBean.inProgressCredentialAchievementsData.targetCredentialDataList}"
+	                	<ui:repeat value="#{profileBean.targetCredential1ListInProgress}"
 	                    			var="inProgressCredential" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">

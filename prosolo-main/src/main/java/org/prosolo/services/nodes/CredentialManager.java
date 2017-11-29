@@ -19,7 +19,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -439,7 +438,5 @@ public interface CredentialManager extends AbstractManager {
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
-
-	CredentialAchievementsData getCredentialAchievementsData(List<TargetCredentialData> targetCredentialList);
 
 }

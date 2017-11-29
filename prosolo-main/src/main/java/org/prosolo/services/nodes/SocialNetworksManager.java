@@ -8,13 +8,10 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
 
 public interface SocialNetworksManager extends AbstractManager {
 
 	UserSocialNetworks getSocialNetworks(long id) throws ResourceCouldNotBeLoadedException;
-
-	UserSocialNetworksData getSocialNetworksData(long userId) throws ResourceCouldNotBeLoadedException;
 	
 	SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link);
 	
@@ -28,7 +25,7 @@ public interface SocialNetworksManager extends AbstractManager {
 
 	SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName);
 
-	SocialNetworksData getSocialNetworkData(UserSocialNetworksData userSocialNetworksData);
+	SocialNetworksData getSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException;
 
 
 }

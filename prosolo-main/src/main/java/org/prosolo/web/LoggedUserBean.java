@@ -145,17 +145,17 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			long orgId = 0;
 			if (organizationId > 0) {
 				orgId = organizationId;
+				sessionData.setOrganizationId(orgId);
+				sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
+				sessionData.setName(user.getName());
+				sessionData.setLastName(user.getLastName());
+				sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+				sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
+				sessionData.setPosition(user.getPosition());
+				sessionData.setEmail(user.getEmail());
+				sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
+				initialized = true;
 			}
-			sessionData.setOrganizationId(orgId);
-			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
-			sessionData.setName(user.getName());
-			sessionData.setLastName(user.getLastName());
-			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
-			sessionData.setPosition(user.getPosition());
-			sessionData.setEmail(user.getEmail());
-			sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
-			initialized = true;
 		}
 	}
 	

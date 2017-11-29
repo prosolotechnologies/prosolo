@@ -16,7 +16,6 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.web.settings.data.AccountData;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -25,8 +24,6 @@ import java.util.List;
 public interface UserManager extends AbstractManager {
 
 	User getUser(String email) throws DbConnectionException;
-
-	User getUserById(long id) throws DbConnectionException;
 
 	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
@@ -145,11 +142,11 @@ public interface UserManager extends AbstractManager {
 
 	long getUserOrganizationId(long userId) throws DbConnectionException;
 
-	AccountData initAccountData(UserData userData);
+	UserData initAccountData(UserData userData);
 
-	UserData saveAccountChanges(AccountData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException;
+	UserData saveAccountChanges(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException;
 
-	Result<UserData> saveAccountChangesAndGetEvents(AccountData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException;
+	Result<UserData> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException;
 }

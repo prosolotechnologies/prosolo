@@ -19,7 +19,6 @@ import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -64,8 +63,6 @@ public class StudentProfileBean implements Serializable {
 
 	private StudentData student;
 	private SocialNetworksData socialNetworksData;
-
-	private UserSocialNetworksData userSocialNetworks;
 
 	private List<CredentialProgressData> credentials;
 	private CredentialProgressData selectedCredential;
@@ -249,8 +246,7 @@ public class StudentProfileBean implements Serializable {
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
 			try {
-				userSocialNetworks = socialNetworksManager.getSocialNetworksData(student.getId());
-				socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworks);
+				socialNetworksData = socialNetworksManager.getSocialNetworkData(student.getId());
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}

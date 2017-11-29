@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -34,16 +33,14 @@ public class CredentialAchievementsBean implements Serializable {
 	@Autowired
 	private LoggedUserBean loggedUser;
 	
-	private CredentialAchievementsData completedCredentialAchievementsData;
-	private CredentialAchievementsData inProgressCredentialAchievementsData;
+	private List<TargetCredentialData> targetCredential1List;
+	private List<TargetCredentialData> targetCredential1ListInProgress;
 
 	public void initCompletedCredentials() {
 		try {
-			List<TargetCredentialData> targetCredential1List = credentialManager.getAllCompletedCredentials(
+			targetCredential1List = credentialManager.getAllCompletedCredentials(
 					loggedUser.getUserId(), 
 					false);
-			
-			completedCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") + " data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
@@ -52,9 +49,8 @@ public class CredentialAchievementsBean implements Serializable {
 
 	public void initInProgressCredentials() {
 		try {
-			List<TargetCredentialData> targetCredential1List = credentialManager
+			targetCredential1ListInProgress = credentialManager
 					.getAllInProgressCredentials(loggedUser.getUserId(), false);
-			inProgressCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.credential") +" data could not be loaded!");
 			logger.error("Error while loading target credentials with progress < 100 Error:\n" + e);
@@ -62,8 +58,12 @@ public class CredentialAchievementsBean implements Serializable {
 	}
 
 	public void hideCompletedTargetCredentialFromProfile(Long id) {
-		TargetCredentialData data = completedCredentialAchievementsData.getTargetCredentialDataByid(id);
-		boolean hideFromProfile = data.isHiddenFromProfile();
+		boolean hideFromProfile = false;
+		for (TargetCredentialData data : targetCredential1List) {
+			if (data.getId() == id) {
+				hideFromProfile = data.isHiddenFromProfile();
+			}
+		}
 		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";
 		
 		try {
@@ -76,8 +76,12 @@ public class CredentialAchievementsBean implements Serializable {
 	}
 
 	public void hideInProgressTargetCredentialFromProfile(Long id) {
-		TargetCredentialData data = inProgressCredentialAchievementsData.getTargetCredentialDataByid(id);
-		boolean hideFromProfile = data.isHiddenFromProfile();
+		boolean hideFromProfile = false;
+		for (TargetCredentialData data : targetCredential1ListInProgress) {
+			if (data.getId() == id) {
+				hideFromProfile = data.isHiddenFromProfile();
+			}
+		}
 		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";
 		
 		try {
@@ -90,21 +94,19 @@ public class CredentialAchievementsBean implements Serializable {
 
 	}
 
-	public CredentialAchievementsData getCompletedCredentialAchievementsData() {
-		return completedCredentialAchievementsData;
+	public List<TargetCredentialData> getTargetCredential1List() {
+		return targetCredential1List;
 	}
 
-	public void setCompletedCredentialAchievementsData(CredentialAchievementsData completedCredentialAchievementsData) {
-		this.completedCredentialAchievementsData = completedCredentialAchievementsData;
+	public void setTargetCredential1List(List<TargetCredentialData> targetCredential1List) {
+		this.targetCredential1List = targetCredential1List;
 	}
 
-	public CredentialAchievementsData getInProgressCredentialAchievementsData() {
-		return inProgressCredentialAchievementsData;
+	public List<TargetCredentialData> getTargetCredential1ListInProgress() {
+		return targetCredential1ListInProgress;
 	}
 
-	public void setInProgressCredentialAchievementsData(
-			CredentialAchievementsData inProgressCredentialAchievementsData) {
-		this.inProgressCredentialAchievementsData = inProgressCredentialAchievementsData;
+	public void setTargetCredential1ListInProgress(List<TargetCredentialData> targetCredential1ListInProgress) {
+		this.targetCredential1ListInProgress = targetCredential1ListInProgress;
 	}
-
 }

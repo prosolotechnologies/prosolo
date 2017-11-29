@@ -30,8 +30,6 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.prosolo.web.settings.data.AccountData;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -81,18 +79,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = true)
 	public User getUser(String email) throws DbConnectionException {
 		return getUser(email, false);
-	}
-
-	@Override
-	public User getUserById(long id) throws DbConnectionException {
-		User user = null;
-		try {
-			user = loadResource(User.class,id);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error: ", e);
-			e.printStackTrace();
-		}
-		return user;
 	}
 
 	@Override
@@ -1151,12 +1137,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public AccountData initAccountData(UserData userData) {
-		AccountData accountData = new AccountData();
+	public UserData initAccountData(UserData userData) {
+		UserData accountData = new UserData();
 		accountData.setId(userData.getId());
 		accountData.setEmail(userData.getEmail());
-		accountData.setAvatarPath(userData.getAvatarUrl());
-		accountData.setFirstName(userData.getName());
+		accountData.setAvatarUrl(userData.getAvatarUrl());
+		accountData.setName(userData.getName());
 		accountData.setLastName(userData.getLastName());
 
 		// position
@@ -1165,55 +1151,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		// location
 		accountData.setLocationName(userData.getLocationName());
 
-		String lat = null;
-		String lon = null;
-		if (userData.getLatitude() != null) {
-			lat = String.valueOf(userData.getLatitude());
-		}
-		if (userData.getLongitude() != null) {
-			lon = String.valueOf(userData.getLongitude());
-		}
-		accountData.setLatitude(lat);
-		accountData.setLongitude(lon);
+		accountData.setLatitude(userData.getLatitude());
+		accountData.setLongitude(userData.getLongitude());
 		return accountData;
 	}
 
-	/*@Override
-	public UserData saveAccountData(UserData userData, UserContextData contextData) throws DbConnectionException, EventException {
-		Result<UserData> result = self.saveAccountDataAndGetEvents(userData, contextData);
-
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
-
-		return result.getResult();
-	}
-
 	@Override
-	@Transactional
-	public Result<UserData> saveAccountDataAndGetEvents(UserData userData, UserContextData contextData)
-			throws DbConnectionException, EventException {
-
-		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(), userData.getEmail(), true,
-				false, userData.getPassword(), userData.getPosition(),
-				userData.getRoleIds(), new ArrayList<>());
-
-		merge(user);
-
-		Result<UserData> result = new Result<>();
-
-		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
-				null, null, null, null));
-
-		result.setResult(userData);
-
-		return result;
-	}*/
-
-	@Override
-	public UserData saveAccountChanges(AccountData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException {
-		Result<UserData> result = self.saveAccountChangesAndGetEvents(accountData, userId, contextData);
+	public UserData saveAccountChanges(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
+		Result<UserData> result = self.saveAccountChangesAndGetEvents(accountData, accountData.getId(), contextData);
 
 		for (EventData ev : result.getEvents()) {
 			eventFactory.generateEvent(ev);
@@ -1224,24 +1170,27 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public Result<UserData> saveAccountChangesAndGetEvents(AccountData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException {
+	public Result<UserData> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
 
 		UserData userData = getUserData(userId);
 
-		userData.setName(accountData.getFirstName());
+		userData.setName(accountData.getName());
 		userData.setLastName(accountData.getLastName());
 		userData.setPosition(accountData.getPosition());
 		userData.setLocationName(accountData.getLocationName());
 		if ((accountData.getLocationName() != null && userData.getLocationName() == null)
 				|| (!accountData.getLocationName().equals(userData.getLocationName()))) {
-			userData.setLatitude(Double.valueOf(accountData.getLatitude()));
-			userData.setLongitude(Double.valueOf(accountData.getLongitude()));
+			userData.setLatitude(accountData.getLatitude());
+			userData.setLongitude(accountData.getLongitude());
 		}
 
-		User user = resourceFactory.updateUser(contextData.getActorId(), userData.getName(), userData.getLastName(),
-				userData.getEmail(), true, false, userData.getPassword(), userData.getPosition(),
-				userData.getRoleIds(), new ArrayList<>());
+		User user = loadResource(User.class, userId);
+		user.setName(userData.getName());
+		user.setLastname(userData.getLastName());
+		user.setPosition(userData.getPosition());
+		user.setEmail(userData.getEmail());
+		user.setVerified(true);
 
 		merge(user);
 
@@ -1254,4 +1203,5 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		return result;
 	}
+
 }

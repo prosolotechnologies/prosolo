@@ -1,14 +1,18 @@
 package org.prosolo.services.nodes.factory;
 
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
+import org.prosolo.web.profile.data.SocialNetworksData;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,18 +29,26 @@ public class UserSocialNetworksDataFactory {
     @Inject
     private SocialNetworkAccountDataFactory socialNetworkAccountDataFactory;
 
-    public UserSocialNetworks getUserSocialNetworks(UserSocialNetworksData userSocialNetworksData){
+    public UserSocialNetworks getUserSocialNetworks(SocialNetworksData socialNetworksData){
         UserSocialNetworks userSocialNetworks = new UserSocialNetworks();
-        userSocialNetworks.setId(userSocialNetworksData.getId());
-        userSocialNetworks.setUser(userManager.getUserById(userSocialNetworksData.getUserId()));
-
-        Set<SocialNetworkAccount> accountsSet = new HashSet<>();
-        for(SocialNetworkAccountData s : userSocialNetworksData.getSocialNetworkAccounts()){
-            SocialNetworkAccount socialNetworkAccount = socialNetworkAccountDataFactory.getSocialNetworkAccount(s);
-            accountsSet.add(socialNetworkAccount);
+        userSocialNetworks.setId(socialNetworksData.getId());
+        try {
+            userSocialNetworks.setUser(userManager.loadResource(User.class, socialNetworksData.getUserId()));
+        } catch (ResourceCouldNotBeLoadedException e) {
+            e.printStackTrace();
         }
 
-        userSocialNetworks.setSocialNetworkAccounts(accountsSet);
+        Map<String,SocialNetworkAccount> accountDataMap = new HashMap<>();
+
+        for(SocialNetworkAccountData s : socialNetworksData.getSocialNetworkAccountsData().values()){
+            if(s.getId() != 0) {
+                SocialNetworkAccount socialNetworkAccount = socialNetworkAccountDataFactory.getSocialNetworkAccount(s);
+                accountDataMap.put(socialNetworkAccount.getSocialNetwork().toString(), socialNetworkAccount);
+            }
+        }
+        Set<SocialNetworkAccount> socialNetworkAccounts = new HashSet<>(accountDataMap.values());
+
+        userSocialNetworks.setSocialNetworkAccounts(socialNetworkAccounts);
 
         return userSocialNetworks;
     }

@@ -25,32 +25,4 @@ public class UserDataFactory {
     private String getFullName(String name, String lastName) {
         return name + (lastName != null ? " " + lastName : "");
     }
-
-    public User getUser(UserData userData, Organization organization){
-        User user = new User();
-        user.setId(userData.getId());
-        user.setName(userData.getName());
-        user.setLastname(userData.getLastName());
-        user.setAvatarUrl(userData.getAvatarUrl());
-        user.setOrganization(organization);
-        user.setPosition(userData.getPosition());
-        user.setEmail(userData.getEmail());
-        user.setPassword(userData.getPassword());
-        user.setLocationName(userData.getLocationName());
-        user.setLatitude(userData.getLatitude());
-        user.setLongitude(userData.getLongitude());
-        return user;
-    }
-
-    public org.prosolo.common.web.activitywall.data.UserData getUserData(User user){
-        org.prosolo.common.web.activitywall.data.UserData userData = new org.prosolo.common.web.activitywall.data.UserData();
-        userData.setId(user.getId());
-        userData.setAvatarUrl(user.getAvatarUrl());
-        userData.setFirstName(user.getName());
-        userData.setLastName(user.getLastname());
-        userData.setPosition(user.getPosition());
-        userData.setName(user.getFullName());
-        return userData;
-    }
-
 }

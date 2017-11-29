@@ -10,11 +10,11 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Service("org.prosolo.services.nodes.SocialNetworksManager")
@@ -46,24 +46,31 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public UserSocialNetworksData getSocialNetworksData(long userId) throws ResourceCouldNotBeLoadedException {
-		UserSocialNetworksData result = null;
+	public SocialNetworksData getSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
 		try {
 			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
 			Set<SocialNetworkAccount> socialNetworkAccounts = userSocialNetworks.getSocialNetworkAccounts();
-			Set<SocialNetworkAccountData> listAccountsData = new HashSet<>();
+			Map<String,SocialNetworkAccountData> socialNetworkAccountDataMap = new HashMap<>();
 
 			for (SocialNetworkAccount s : socialNetworkAccounts) {
 				SocialNetworkAccountData socialNetworkAccountData = new SocialNetworkAccountData(s);
-				listAccountsData.add(socialNetworkAccountData);
+				socialNetworkAccountDataMap.put(socialNetworkAccountData.getSocialNetworkName().toString(),socialNetworkAccountData);
 			}
 
-			result = new UserSocialNetworksData(userSocialNetworks, listAccountsData);
+			SocialNetworksData socialNetworksData = new SocialNetworksData(/*userSocialNetworks,socialNetworkAccountDataMap*/);
+			socialNetworksData.setId(userSocialNetworks.getId());
+			socialNetworksData.setUserId(userSocialNetworks.getUser().getId());
+
+			for (SocialNetworkAccount account : socialNetworkAccounts) {
+				socialNetworksData.setAccount(account);
+			}
+			return socialNetworksData;
+
 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			e.printStackTrace();
 		}
-		return result;
+		return null;
 	}
 
 	@Override
@@ -140,20 +147,6 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;
-	}
-
-	@Override
-	public SocialNetworksData getSocialNetworkData(UserSocialNetworksData userSocialNetworksData) {
-
-		Set<SocialNetworkAccountData> socialNetworkAccounts = userSocialNetworksData.getSocialNetworkAccounts();
-
-		SocialNetworksData socialNetworksData = new SocialNetworksData();
-		socialNetworksData.setId(userSocialNetworksData.getId());
-
-		for (SocialNetworkAccountData account : socialNetworkAccounts) {
-			socialNetworksData.setAccount(account);
-		}
-		return socialNetworksData;
 	}
 
 }

@@ -24,8 +24,6 @@ public interface OrganizationManager extends AbstractManager {
     PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
             throws DbConnectionException;
 
-    Organization getOrganization(long orgId) throws ResourceCouldNotBeLoadedException;
-
     void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
 
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)

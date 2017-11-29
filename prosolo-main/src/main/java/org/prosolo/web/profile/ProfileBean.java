@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
@@ -19,19 +18,15 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.achievements.data.CompetenceAchievementsData;
-import org.prosolo.web.achievements.data.CredentialAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,9 +60,8 @@ public class ProfileBean {
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	private SocialNetworksData socialNetworksData;
-	private CredentialAchievementsData credentialAchievementsData;
-	private CompetenceAchievementsData competenceAchievementsData;
-	private CredentialAchievementsData inProgressCredentialAchievementsData;
+	private List<TargetCredentialData> targetCredential1List;
+	private List<TargetCredentialData> targetCredential1ListInProgress;
 	private Map<String, String> nameMap = new HashMap<>();
 	
 	/* parameter that can be provided in the via UI*/
@@ -78,13 +72,15 @@ public class ProfileBean {
 	private boolean personalProfile;
 	private UserData userData;
 
+	private List<TargetCompetenceData> targetCompetence1List;
+
 	public void init() {
+		decodedStudentId = idEncoder.decodeId(studentId);
 		if (StringUtils.isNotBlank(studentId) &&
                 loggedUserBean.isInitialized() &&
-                idEncoder.decodeId(studentId) != loggedUserBean.getUserId()) {
+                decodedStudentId != loggedUserBean.getUserId()) {
 
 			personalProfile = false;
-			decodedStudentId = idEncoder.decodeId(studentId);
 			userData = userManager.getUserData(decodedStudentId);
 			User user = new User();
 			user.setId(userData.getId());
@@ -157,32 +153,29 @@ public class ProfileBean {
 
 	private void initializeData(String activeTab) throws ResourceCouldNotBeLoadedException {
 		//student is already initialized in init() method
-		if(activeTab.contains("credentials") && credentialAchievementsData == null) {
+		if(activeTab.contains("credentials")) {
 			initializeTargetCredentialData(userData);
 		}
-		else if(activeTab.contains("competences") && competenceAchievementsData == null) {
+		else if(activeTab.contains("competences")) {
 			initializeTargetCompetenceData(userData);
 		}
-		else if(activeTab.contains("inprogress") && inProgressCredentialAchievementsData == null) {
+		else if(activeTab.contains("inprogress")) {
 			initializeInProgressCredentials(userData);
 		}
 		
 	}
 
 	private void initializeTargetCredentialData(UserData student) {
-		List<TargetCredentialData> targetCredential1List = credentialManager.getAllCompletedCredentials(
+		targetCredential1List = credentialManager.getAllCompletedCredentials(
 				student.getId(), 
 				true);
-		
-		credentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCredential1List);
 	}
 	
 	private void initializeTargetCompetenceData(UserData student) {
 		try {
-			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
+			targetCompetence1List= competenceManager.getAllCompletedCompetences(
 					student.getId(), 
 					true);
-			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Competence data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e, e);
@@ -191,11 +184,9 @@ public class ProfileBean {
 	
 	private void initializeInProgressCredentials(UserData student) {
 		try {
-			List<TargetCredentialData> targetCompetence1List = credentialManager.getAllInProgressCredentials(
+			targetCredential1ListInProgress = credentialManager.getAllInProgressCredentials(
 					student.getId(), 
 					true);
-			
-			inProgressCredentialAchievementsData = credentialManager.getCredentialAchievementsData(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
@@ -204,8 +195,7 @@ public class ProfileBean {
 
 	private void initializeSocialNetworkData(long id) {
 		try {
-			UserSocialNetworksData userSocialNetworks = socialNetworksManager.getSocialNetworksData(id);
-			socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworks);
+			socialNetworksData = socialNetworksManager.getSocialNetworkData(id);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -231,10 +221,6 @@ public class ProfileBean {
 		return socialNetworksData;
 	}
 
-	public CredentialAchievementsData getCredentialAchievementsData() {
-		return credentialAchievementsData;
-	}
-
 	public String getStudentId() {
 		return studentId;
 	}
@@ -247,16 +233,8 @@ public class ProfileBean {
 		return personalProfile;
 	}
 
-	public CompetenceAchievementsData getCompetenceAchievementsData() {
-		return competenceAchievementsData;
-	}
-
 	public String getMessage() {
 		return message;
-	}
-
-	public CredentialAchievementsData getInProgressCredentialAchievementsData() {
-		return inProgressCredentialAchievementsData;
 	}
 
 	public void setStudentId(String studentId) {
@@ -273,5 +251,21 @@ public class ProfileBean {
 
 	public void setDecodedStudentId(long decodedStudentId) {
 		this.decodedStudentId = decodedStudentId;
+	}
+
+	public List<TargetCompetenceData> getTargetCompetence1List() {
+		return targetCompetence1List;
+	}
+
+	public void setTargetCompetence1List(List<TargetCompetenceData> targetCompetence1List) {
+		this.targetCompetence1List = targetCompetence1List;
+	}
+
+	public List<TargetCredentialData> getTargetCredential1List() {
+		return targetCredential1List;
+	}
+
+	public List<TargetCredentialData> getTargetCredential1ListInProgress() {
+		return targetCredential1ListInProgress;
 	}
 }

@@ -35,7 +35,6 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
-import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -409,19 +408,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading competence data");
 		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceData(long id) throws DbConnectionException {
-		CompetenceData1 competenceData1 = null;
-		try {
-			Competence1 competence1 = loadResource(Competence1.class,id);
-			competenceData1 = new CompetenceData1(competence1);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
-		}
-		return competenceData1;
 	}
 
 	/**
@@ -2378,9 +2364,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.list();
 
 			for(TargetCompetence1 targetCompetence1 : res){
-				TargetCompetenceData targetCompetenceData = new TargetCompetenceData(targetCompetence1);
-				resultList.add(targetCompetenceData);
-
+				resultList.add(new TargetCompetenceData(targetCompetence1));
 			}
 			return resultList;
 
@@ -2396,17 +2380,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		for (EventData ev : self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
-	}
-
-	@Override
-	public CompetenceAchievementsData getCompetenceAchievementsData(List<TargetCompetenceData> targetCompetenceList) {
-		CompetenceAchievementsData competenceAchievementsData = new CompetenceAchievementsData();
-
-		for(TargetCompetenceData targetCompetenceData : targetCompetenceList){
-			competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
-		}
-
-		return competenceAchievementsData;
 	}
 
 	@Override

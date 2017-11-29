@@ -49,7 +49,7 @@
 				<h:form id="completedCompetencesForm">
 					<p:growl id="completedCompetencesGrowl" showDetail="true"></p:growl>
 					
-					<ui:fragment rendered="#{empty competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}">
+					<ui:fragment rendered="#{empty competenceAchievementsBean.targetCompetence1List}">
 						<div class="col-md-12">
 							<div class="noContentMessage">
 								<p>
@@ -63,7 +63,7 @@
 					</ui:fragment>
 					
 					<ui:repeat var="targetCompetence"
-						value="#{competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}"
+						value="#{competenceAchievementsBean.targetCompetence1List}"
 						varStatus="iterator">
 
 						<div class="col-md-6">

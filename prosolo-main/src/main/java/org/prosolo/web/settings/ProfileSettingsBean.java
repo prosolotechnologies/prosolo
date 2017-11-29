@@ -28,8 +28,6 @@ import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.SocialNetworksData;
-import org.prosolo.web.profile.data.UserSocialNetworksData;
-import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -81,12 +79,11 @@ public class ProfileSettingsBean implements Serializable {
 	//URL PARAMS
 	private boolean twitterConnected;
 	
-	private AccountData accountData;
+	private UserData accountData;
 	private SocialNetworksData socialNetworksData;
 	private boolean connectedToTwitter;
 
 	private UserSocialNetworks userSocialNetworks;
-	private UserSocialNetworksData userSocialNetworksData;
 
 	public void init() {
 		initAccountData();
@@ -100,8 +97,7 @@ public class ProfileSettingsBean implements Serializable {
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
 			try {
-				userSocialNetworksData = socialNetworksManager.getSocialNetworksData(loggedUser.getUserId());
-				socialNetworksData = socialNetworksManager.getSocialNetworkData(userSocialNetworksData);
+				socialNetworksData = socialNetworksManager.getSocialNetworkData(loggedUser.getUserId());
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the data");
@@ -122,14 +118,15 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveAccountChanges() {
 		UserData userData = null;
 		try {
-			userData = userManager.saveAccountChanges(accountData, loggedUser.getUserId(), loggedUser.getUserContext());
+			userData = userManager.saveAccountChanges(accountData, loggedUser.getUserContext());
 
 			loggedUser.reinitializeSessionData(userData, loggedUser.getOrganizationId());
 
 			init();
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
-		} catch (EventException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while saving account data");
 		}
 	}
 
@@ -171,7 +168,7 @@ public class ProfileSettingsBean implements Serializable {
 			loggedUser.getSessionData().setAvatar(updatedUser.getAvatarUrl());
 			loggedUser.initializeAvatar();
 
-			accountData.setAvatarPath(loggedUser.getAvatar());
+			accountData.setAvatarUrl(loggedUser.getAvatar());
 
 			newAvatar = null;
 
@@ -199,7 +196,7 @@ public class ProfileSettingsBean implements Serializable {
 								socialNetowrkAccountData.getSocialNetworkName(),
 								socialNetowrkAccountData.getLinkEdit());
 						userAccount = new SocialNetworkAccountData(account);
-						userSocialNetworksData.getSocialNetworkAccounts().add(userAccount);
+						socialNetworksData.getSocialNetworkAccountsData().put(userAccount.getSocialNetworkName().toString(), userAccount);
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
@@ -214,7 +211,7 @@ public class ProfileSettingsBean implements Serializable {
 			}
 			
 			if (newSocialNetworkAccountIsAdded) {
-				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(userSocialNetworksData);
+				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(socialNetworksData);
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
 					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
@@ -236,10 +233,6 @@ public class ProfileSettingsBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-
-	public AccountData getAccountData() {
-		return accountData;
-	}
 
 	public String getNewAvatar() {
 		return newAvatar;
@@ -276,5 +269,8 @@ public class ProfileSettingsBean implements Serializable {
 	public void setTwitterConnected(boolean twitterConnected) {
 		this.twitterConnected = twitterConnected;
 	}
-	
+
+	public UserData getAccountData() {
+		return accountData;
+	}
 }

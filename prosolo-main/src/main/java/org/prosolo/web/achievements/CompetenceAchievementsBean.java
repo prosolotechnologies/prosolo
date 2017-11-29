@@ -3,9 +3,7 @@ package org.prosolo.web.achievements;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.achievements.data.CompetenceAchievementsData;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,14 +34,13 @@ public class CompetenceAchievementsBean implements Serializable {
 	@Autowired
 	private LoggedUserBean loggedUser;
 
-	private CompetenceAchievementsData competenceAchievementsData;
+	private List<TargetCompetenceData> targetCompetence1List;
 
 	public void init() {
 		try {
-			List<TargetCompetenceData> targetCompetence1List = competenceManager.getAllCompletedCompetences(
+			targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					loggedUser.getUserId(),
 					false);
-			competenceAchievementsData = competenceManager.getCompetenceAchievementsData(targetCompetence1List);
 		} catch (DbConnectionException e) {
 			logger.error("Error while loading target competencies with progress == 100 Error:\n" + e);
 			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " data could not be loaded!");
@@ -52,8 +48,12 @@ public class CompetenceAchievementsBean implements Serializable {
 	}
 
 	public void hideTargetCompetenceFromProfile(Long id) {
-		TargetCompetenceData data = competenceAchievementsData.getTargetCompetenceDataByid(id);
-		boolean hiddenFromProfile = data.isHiddenFromProfile();
+		boolean hiddenFromProfile = false;
+		for (TargetCompetenceData data : targetCompetence1List) {
+			if (data.getId() == id) {
+				hiddenFromProfile = data.isHiddenFromProfile();
+			}
+		}
 	
 		try {
 			competenceManager.updateHiddenTargetCompetenceFromProfile(id, hiddenFromProfile);
@@ -65,8 +65,7 @@ public class CompetenceAchievementsBean implements Serializable {
 		}
 	}
 
-	public CompetenceAchievementsData getCompetenceAchievementsData() {
-		return competenceAchievementsData;
+	public List<TargetCompetenceData> getTargetCompetence1List() {
+		return targetCompetence1List;
 	}
-
 }

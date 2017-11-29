@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author Bojan Trifkovic
  * @date 2017-10-09
- * @since 1.0.0
+ * @since 1.2.0
  */
 
 @Component
@@ -17,7 +17,7 @@ public class SocialNetworkAccountDataFactory {
         SocialNetworkAccount socialNetworkAccount = new SocialNetworkAccount();
         socialNetworkAccount.setId(socialNetworkAccountData.getId());
         socialNetworkAccount.setLink(socialNetworkAccountData.getLink());
-        socialNetworkAccount.setSocialNetwork(socialNetworkAccount.getSocialNetwork());
+        socialNetworkAccount.setSocialNetwork(socialNetworkAccountData.getSocialNetworkName());
         return socialNetworkAccount;
     }
 }

@@ -44,14 +44,6 @@ public class UserData implements Serializable, Comparable<UserData> {
 	
 	public UserData() {	}
 
-	public UserData(long userId, String firstName,String lastName, String avatar){
-		this();
-		this.id = userId;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.avatarUrl = avatar;
-	}
-
 	public UserData(long userId, String name, String avatar) {
 		this.setId(userId);
 		this.setName(name);

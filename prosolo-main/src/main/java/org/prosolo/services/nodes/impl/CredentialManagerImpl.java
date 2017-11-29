@@ -41,8 +41,6 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.web.achievements.data.CredentialAchievementsData;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -3314,16 +3312,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving instructor info");
 		}
-	}
-
-	@Override
-	public CredentialAchievementsData getCredentialAchievementsData(List<TargetCredentialData> targetCredentialList) {
-		CredentialAchievementsData credentialAchievementsData = new CredentialAchievementsData();
-
-		for (TargetCredentialData targetCredentialData : targetCredentialList) {
-			credentialAchievementsData.getTargetCredentialDataList().add(targetCredentialData);
-		}
-		return credentialAchievementsData;
 	}
 
 }
