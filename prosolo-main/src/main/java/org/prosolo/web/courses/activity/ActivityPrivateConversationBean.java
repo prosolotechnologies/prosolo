@@ -74,7 +74,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize private conversation messages");
+			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
 		}
 	}
 

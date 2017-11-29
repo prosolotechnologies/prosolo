@@ -88,7 +88,7 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Private conversation:</span>
+						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
@@ -273,7 +273,7 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Private conversation:</span>
+						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"

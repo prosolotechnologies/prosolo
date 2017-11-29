@@ -256,7 +256,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize private conversation messages");
+			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
 		}
 	}
 	
@@ -302,8 +302,11 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					currentResult.getAssessment().getGrade().setValue(newGrade);
 				}
 			}
-
-			currentResult.getAssessment().getGrade().setAssessed(true);
+			if (!currentResult.getAssessment().getGrade().isAssessed()) {
+				//if student was not previously assessed number of assessed students should be increased by 1
+				assessmentsSummary.setNumberOfAssessedStudents(assessmentsSummary.getNumberOfAssessedStudents() + 1);
+				currentResult.getAssessment().getGrade().setAssessed(true);
+			}
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (IllegalDataStateException e) {
