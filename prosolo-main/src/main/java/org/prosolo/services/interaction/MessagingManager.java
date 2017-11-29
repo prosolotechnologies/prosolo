@@ -8,7 +8,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 
@@ -38,7 +37,7 @@ public interface MessagingManager extends AbstractManager {
 
 	//Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException, EventException;
 
-	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException, EventException;
+	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException;
 
 	ThreadParticipant findParticipation(long threadId, long userId);
 

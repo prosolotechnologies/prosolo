@@ -14,11 +14,13 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.CredentialUnit;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"first_learning_stage_credential", "learning_stage"})})
 public class Credential1 extends BaseEntity {
 
 	private static final long serialVersionUID = 4974054331339101656L;
@@ -48,11 +50,14 @@ public class Credential1 extends BaseEntity {
 	//All existing users have View privilege
 	private boolean visibleToAll;
 	
-	// when credential is cloned, this reference to the original
 	private Credential1 deliveryOf;
 	private Date deliveryStart;
 	private Date deliveryEnd;
 	private CredentialType type;
+
+	//learning in stages
+	private LearningStage learningStage;
+	private Credential1 firstLearningStageCredential;
 	
 	private boolean archived;
 	
@@ -331,5 +336,23 @@ public class Credential1 extends BaseEntity {
 
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public LearningStage getLearningStage() {
+		return learningStage;
+	}
+
+	public void setLearningStage(LearningStage learningStage) {
+		this.learningStage = learningStage;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Credential1 getFirstLearningStageCredential() {
+		return firstLearningStageCredential;
+	}
+
+	public void setFirstLearningStageCredential(Credential1 firstLearningStageCredential) {
+		this.firstLearningStageCredential = firstLearningStageCredential;
 	}
 }

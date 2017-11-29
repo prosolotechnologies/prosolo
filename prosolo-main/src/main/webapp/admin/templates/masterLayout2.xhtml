@@ -123,19 +123,24 @@
 						<nav>
 							<ul class="nav nav-pills">
 								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'units'
-									 or util:getPagePath(view.viewId)  == 'unit-students'
-									 or util:getPagePath(view.viewId)  == 'unit-instructors'
-									 or util:getPagePath(view.viewId)  == 'unit-group-users'
-									 or util:getPagePath(view.viewId)  == 'unit-groups'
-									 or util:getPagePath(view.viewId)  == 'unit-credentials'
-									 or util:getPagePath(view.viewId)  == 'unit-settings'
-									 or util:getPagePath(view.viewId)  == 'unit-teachers'? 'active' : ''}">
+									or util:getPagePath(view.viewId) == 'unit-settings'
+									or util:getPagePath(view.viewId) == 'unit-students'
+									or util:getPagePath(view.viewId) == 'unit-instructors'
+									or util:getPagePath(view.viewId) == 'unit-group-users'
+									or util:getPagePath(view.viewId) == 'unit-groups'
+									or util:getPagePath(view.viewId) == 'unit-teachers'
+									or util:getPagePath(view.viewId) == 'unit-credentials'
+									or util:getPagePath(view.viewId) == 'credential'
+									or util:getPagePath(view.viewId) == 'competence'
+									or util:getPagePath(view.viewId) == 'activity'
+									or util:getPagePath(view.viewId) == 'credential-who-can-learn'
+									? 'active' : ''}">
 									<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
 										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
-										Units
+										#{msg['label.unit.plural']}
 									</h:link>
 									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'units'}">
-										<a href="javascript:void(0);">Units</a>
+										<a href="javascript:void(0);">#{msg['label.unit.plural']}</a>
 									</ui:fragment>
 								</li>
 								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationUsers'
@@ -178,9 +183,7 @@
 							onclick="sendLogPageNavigation('messages','mainmenu');"
 							outcome="/admin/messages">
 						Messages
-						<span
-								class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
-							unreadDot </span>
+						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot </span>
 					</h:link>
 
 					<div class="dropdown notificationsMenu">
@@ -232,7 +235,7 @@
 
 							<li class="linkAllNotifications"><h:link value="View all"
 																	 onclick="sendLogPageNavigation('notifications','mainmenu');"
-																	 outcome="/notifications" /></li>
+																	 outcome="/admin/notifications" /></li>
 						</h:panelGroup>
 					</div>
 

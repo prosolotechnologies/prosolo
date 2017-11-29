@@ -38,29 +38,36 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 		
 		try {
 			Long resCreatorId = commentManager.getCommentedResourceCreatorId(
-					getResource().getResourceType(), 
-					getResource().getCommentedResourceId());
+						getResource().getResourceType(),
+						getResource().getCommentedResourceId());
 			if (resCreatorId != null) {
 				List<Long> usersToExclude = new ArrayList<>();
 				usersToExclude.add(resCreatorId);
 
-				//get ids of all users who posted a comment as regular users
-				List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
-						getResource().getResourceType(), getResource().getCommentedResourceId(), 
-						Role.User, usersToExclude);
 				String userSectionLink = getNotificationLink(Role.User);
-				for(Long id : users) {
-					receiversData.add(new NotificationReceiverData(id, userSectionLink, false));
+				//if link is null or empty it means there is no enough information to create notification
+				if (userSectionLink != null && !userSectionLink.isEmpty()) {
+					//get ids of all users who posted a comment as regular users
+					List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
+							getResource().getResourceType(), getResource().getCommentedResourceId(),
+							Role.User, usersToExclude);
+					for (Long id : users) {
+						receiversData.add(new NotificationReceiverData(id, userSectionLink, false));
+					}
+					usersToExclude.addAll(users);
 				}
-				usersToExclude.addAll(users);
-				//get ids of all users who posted a comment as managers
-				List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
-						getResource().getResourceType(), getResource().getCommentedResourceId(), 
-						Role.Manager, 
-						usersToExclude);
+
 				String manageSectionLink = getNotificationLink(Role.Manager);
-				for(long id : managers) {
-					receiversData.add(new NotificationReceiverData(id, manageSectionLink, false));
+				//if link is null or empty it means there is no enough information to create notification
+				if (manageSectionLink != null && !manageSectionLink.isEmpty()) {
+					//get ids of all users who posted a comment as managers
+					List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
+							getResource().getResourceType(), getResource().getCommentedResourceId(),
+							Role.Manager,
+							usersToExclude);
+					for (long id : managers) {
+						receiversData.add(new NotificationReceiverData(id, manageSectionLink, false));
+					}
 				}
 				/*
 				 * determine role for user as a creator of this resource
@@ -68,7 +75,9 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				Role creatorRole = commentManager.getCommentedResourceCreatorRole(
 						getResource().getResourceType(), getResource().getCommentedResourceId());
 				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
-				receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true));
+				if (creatorLink != null && !creatorLink.isEmpty()) {
+					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true));
+				}
 			}
 			return receiversData;
 		} catch(Exception e) {

@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
 /**
  * @author Bojan Trifkovic
  * @date 2017-08-30
@@ -89,7 +87,7 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
         }
 
         Client client = ElasticSearchFactory.getClient();
-        String fullIndexName = ESIndexNames.INDEX_RUBRIC_NAME + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+        String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId);
         esIndexer.addMapping(client, fullIndexName, ESIndexTypes.RUBRIC);
 
         QueryBuilder queryBuilder = QueryBuilders

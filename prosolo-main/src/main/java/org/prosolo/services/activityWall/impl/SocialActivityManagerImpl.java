@@ -25,7 +25,6 @@ import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.annotation.Annotation1Manager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -218,29 +217,30 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"credObjectActor.lastname AS credObjectActorLastname, " +
 				"credObject.description AS credObjectDescription, " +
 				//comment social activity (competence and activity)
-				"sa.comment_object AS commentObjectId, " +
-				"commentObject.description AS commentObjectComment, " +
+						//types of social activity not used currently
+					//"sa.comment_object AS commentObjectId, " +
+					//"commentObject.description AS commentObjectComment, " +
 				//competence comment social activity
-				"sa.competence_target AS compTargetId, " +
-				"compTarget.title AS compTargetTitle, " +
+					//"sa.competence_target AS compTargetId, " +
+					//"compTarget.title AS compTargetTitle, " +
 				//activity comment social activity
-				"sa.activity_target AS actTargetId, " +
-				"actTarget.title AS actTargetTitle, " +
-				"compActivity.competence AS actTargetCompId, " +
-				"actTarget.dtype AS actTargetDType, " +
-				"actTarget.url_type AS actTargetUrlType, " +
+					//"sa.activity_target AS actTargetId, " +
+					//"actTarget.title AS actTargetTitle, " +
+					//"compActivity.competence AS actTargetCompId, " +
+					//"actTarget.dtype AS actTargetDType, " +
+					//"actTarget.url_type AS actTargetUrlType, " +
 				//activity complete
-				"tActObject.activity AS actObjectId, " +
-				"actObject.title AS actObjectTitle, " +
-				"actObject.duration AS actObjectDuration, " +
-				"actObject.type AS actObjectType, " +
-				"actObject.created_by AS actObjectActorId, " +
-				"actObjectActor.name AS actObjectActorName, " +
-				"actObjectActor.lastname AS actObjectActorLastname, " +
-				"actObject.description AS actObjectDescription, " +
-				"actObject.dtype AS actObjectDType, " +
-				"actObject.url_type AS actObjectUrlType, " +
-				"tComp.competence AS actObjectCompetenceId, " +
+//					"tActObject.activity AS actObjectId, " +
+//					"actObject.title AS actObjectTitle, " +
+//					"actObject.duration AS actObjectDuration, " +
+//					"actObject.type AS actObjectType, " +
+//					"actObject.created_by AS actObjectActorId, " +
+//					"actObjectActor.name AS actObjectActorName, " +
+//					"actObjectActor.lastname AS actObjectActorLastname, " +
+//					"actObject.description AS actObjectDescription, " +
+//					"actObject.dtype AS actObjectDType, " +
+//					"actObject.url_type AS actObjectUrlType, " +
+//					"tComp.competence AS actObjectCompetenceId, " +
 				//"tCred.credential AS actObjectCredentialId, " +
 				//competence complete
 				"tCompObject.competence AS compObjectId, " +
@@ -291,39 +291,44 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"   LEFT JOIN user AS compObjectActor " +
 				"       ON compObject.created_by = compObjectActor.id " +
 				//comment social activity (competence and activity)
-				"	LEFT JOIN comment1 AS commentObject \n" +
-				"		ON (sa.dType = :competenceCommentDType " +
-				"       OR sa.dType = :activityCommentDType) \n " +
-				"       AND sa.comment_object = commentObject.id \n " +
+//				"	LEFT JOIN comment1 AS commentObject \n" +
+//				"		ON (sa.dType = :competenceCommentDType " +
+//				"       OR sa.dType = :activityCommentDType) \n " +
+//				"       AND sa.comment_object = commentObject.id \n " +
 				//competence comment social activity
-				"	LEFT JOIN competence1 AS compTarget \n" +
-				"		ON sa.dType = :competenceCommentDType \n" +
-				"       AND sa.competence_target = compTarget.id \n " +
+//				"	LEFT JOIN competence1 AS compTarget \n" +
+//				"		ON sa.dType = :competenceCommentDType \n" +
+//				"       AND sa.competence_target = compTarget.id \n " +
 				//activity comment social activity
-				"	LEFT JOIN activity1 AS actTarget \n" +
-				"		ON sa.dType = :activityCommentDType \n" +
-				"       AND sa.activity_target = actTarget.id \n " +
-				"   LEFT JOIN (competence_activity1 compActivity \n " +   
-						"   INNER JOIN competence1 AS actTargetCompetence \n " +
-						"       ON compActivity.competence = actTargetCompetence.id) \n " + 
-				"       ON actTarget.id = compActivity.activity \n " +
+//				"	LEFT JOIN activity1 AS actTarget \n" +
+//				"		ON sa.dType = :activityCommentDType \n" +
+//				"       AND sa.activity_target = actTarget.id \n " +
+//				"   LEFT JOIN (competence_activity1 compActivity \n " +
+//						"   INNER JOIN competence1 AS actTargetCompetence \n " +
+//						"       ON compActivity.competence = actTargetCompetence.id) \n " +
+//				"       ON actTarget.id = compActivity.activity \n " +
 				//activity complete social activity
-				"	LEFT JOIN target_activity1 AS tActObject \n" +
-				"		ON sa.dType = :activityCompleteDType \n" +
-				"       AND sa.target_activity_object = tActObject.id \n " +
-				"   LEFT JOIN activity1 actObject " +
-				"       ON tActObject.activity = actObject.id " +
-				"   LEFT JOIN target_competence1 tComp " +
-				"       ON tActObject.target_competence = tComp.id " +
-				"   LEFT JOIN user AS actObjectActor " +
-				"       ON actObject.created_by = actObjectActor.id " +
+//				"	LEFT JOIN target_activity1 AS tActObject \n" +
+//				"		ON sa.dType = :activityCompleteDType \n" +
+//				"       AND sa.target_activity_object = tActObject.id \n " +
+//				"   LEFT JOIN activity1 actObject " +
+//				"       ON tActObject.activity = actObject.id " +
+//				"   LEFT JOIN target_competence1 tComp " +
+//				"       ON tActObject.target_competence = tComp.id " +
+//				"   LEFT JOIN user AS actObjectActor " +
+//				"       ON actObject.created_by = actObjectActor.id " +
+
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
 				"       AND annotation.annotated_resource = :annotatedResource " +
 				"		AND annotation.annotation_type = :annotationType " +
 				"		AND annotation.maker = :userId " +
 						
-				"WHERE sa.deleted = :saDeleted \n";
+				"WHERE sa.deleted = :saDeleted \n" +
+				//these social activity types are not used currently
+				"AND sa.dType != :competenceCommentDType " +
+				"AND sa.dType != :activityCommentDType " +
+				"AND sa.dType != :activityCompleteDType ";
 			
 		if (!shouldReturnHidden) {
 			q += " AND config.id IS NULL \n";
@@ -387,7 +392,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
 				//Sometimes Integer is returned and sometimes BigInteger
-				boolean liked = 1 == Integer.valueOf(tuple[73].toString());
+				boolean liked = 1 == Integer.valueOf(tuple[53].toString());
 
 				return socialActivityFactory.getSocialActivityData(
 						(BigInteger) tuple[0],
@@ -435,36 +440,37 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						(String) tuple[42],
 						(String) tuple[43],
 						(String) tuple[44],
+//not used social activity types
+//						(BigInteger) tuple[45],
+//						(String) tuple[46],
+//						(BigInteger) tuple[47],
+//						(String) tuple[48],
+//						(BigInteger) tuple[49],
+//						(String) tuple[50],
+//						(BigInteger) tuple[51],
+//						(String) tuple[52],
+//						(String) tuple [53],
+//						(BigInteger) tuple[54],
+//						(String) tuple[55],
+//						(BigInteger) tuple[56],
+//						(String) tuple[57],
+//						(BigInteger) tuple[58],
+//						(String) tuple[59],
+//						(String) tuple[60],
+//						(String) tuple[61],
+//						(String) tuple[62],
+//						(String) tuple[63],
+//						(BigInteger) tuple[64],
 						(BigInteger) tuple[45],
 						(String) tuple[46],
 						(BigInteger) tuple[47],
 						(String) tuple[48],
 						(BigInteger) tuple[49],
 						(String) tuple[50],
-						(BigInteger) tuple[51],
+						(String) tuple[51],
 						(String) tuple[52],
-						(String) tuple [53],
-						(BigInteger) tuple[54],
-						(String) tuple[55],
-						(BigInteger) tuple[56],
-						(String) tuple[57],
-						(BigInteger) tuple[58],
-						(String) tuple[59],
-						(String) tuple[60],
-						(String) tuple[61],
-						(String) tuple[62],
-						(String) tuple[63],
-						(BigInteger) tuple[64],
-						(BigInteger) tuple[65],
-						(String) tuple[66],
-						(BigInteger) tuple[67],
-						(String) tuple[68],
-						(BigInteger) tuple[69],
-						(String) tuple[70],
-						(String) tuple[71],
-						(String) tuple[72],
 						liked,
-						(BigInteger) tuple[74],
+						(BigInteger) tuple[54],
 						locale);
 			}
 
@@ -816,11 +822,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
-			try {
-				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
-			} catch (EventException e) {
-				logger.error(e);
-			}
+			eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
+
 			
 			return post;
 		} catch(Exception e) {
@@ -840,8 +843,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 		RichContent1 richContent = post.getRichContent();
 		if (richContent != null && richContent.getContentType() != null) {
-			try {
-				switch (richContent.getContentType()) {
+			switch (richContent.getContentType()) {
 				case LINK:
 					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
 					addedLink = richContent.getLink();
@@ -851,9 +853,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					break;
 				default:
 					break;
-				}
-			} catch (EventException e) {
-				logger.error(e);
 			}
 		}
 	

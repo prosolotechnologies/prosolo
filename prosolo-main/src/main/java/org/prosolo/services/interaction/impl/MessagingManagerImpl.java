@@ -1,14 +1,5 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -20,11 +11,9 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.UserDataFactory;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
@@ -35,6 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.interaction.MessagingManager")
 public class MessagingManagerImpl extends AbstractManagerImpl implements MessagingManager {
@@ -216,12 +208,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread.setSubject(subject);
 		messagesThread = saveEntity(messagesThread);
 
-		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
-					null, null, null);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
+				null, null, null);
 		return messagesThread;
 	}
 

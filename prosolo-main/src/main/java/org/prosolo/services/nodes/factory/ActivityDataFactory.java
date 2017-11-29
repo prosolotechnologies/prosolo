@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -25,7 +25,7 @@ public class ActivityDataFactory {
 	private static final Logger logger = Logger.getLogger(ActivityDataFactory.class);
 	
 	public ActivityData getActivityData(CompetenceActivity1 competenceActivity, Set<ResourceLink> links,
-										Set<ResourceLink> files, Set<Tag> tags, boolean shouldTrackChanges) throws MediaDataException {
+										Set<ResourceLink> files, Set<Tag> tags, boolean shouldTrackChanges) throws LinkParserException {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
 			return null;
 		}
@@ -135,7 +135,7 @@ public class ActivityDataFactory {
 	}
 
 	public ActivityData getActivityData(Activity1 act, long compId, int order, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges) throws MediaDataException {
+			Set<ResourceLink> files, boolean shouldTrackChanges) throws LinkParserException {
 		CompetenceActivity1 ca = new CompetenceActivity1();
 		ca.setActivity(act);
 		Competence1 comp = new Competence1();
@@ -189,7 +189,7 @@ public class ActivityDataFactory {
 						try {
 							act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
 									.getEmbedLink());
-						} catch (MediaDataException e) {
+						} catch (LinkParserException e) {
 							logger.error(e);
 						}
 						act.setSlidesLink(activity.getUrl());
@@ -359,12 +359,20 @@ public class ActivityDataFactory {
 		data.setType(activity.getType());
 		data.setResultData(getActivityResultData(targetActivity, isManager));
 		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setMaxPoints(activity.getMaxPoints());
 		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		if (tags != null) {
 			data.setTags(tags);
 			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+		}
+
+		data.setGradingMode(activity.getGradingMode());
+		//set rubric data
+		if (activity.getRubric() != null) {
+			data.setRubricId(activity.getRubric().getId());
+			data.setRubricVisibility(activity.getRubricVisibility());
 		}
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);

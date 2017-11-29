@@ -8,7 +8,6 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -135,9 +134,10 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	private void initRubricIfNotInitialized() {
 		try {
 			if (currentResult.getAssessment().getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentResult.getAssessment().getGrade().isRubricInitialized()) {
-				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForAssessment(
+				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
+						currentResult.getAssessment().getActivityId(),
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getActivityId()));
+						true));
 				currentResult.getAssessment().getGrade().setRubricInitialized(true);
 			}
 		} catch (DbConnectionException e) {
@@ -317,8 +317,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				logger.error("Error after retry: " + e);
 				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
-		} catch (EventException e) {
-			logger.info(e);
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -328,7 +326,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException, EventException {
+			throws DbConnectionException, IllegalDataStateException {
 		GradeData grade = updateGrade
 				? currentResult != null ? currentResult.getAssessment().getGrade() : null
 				: null;

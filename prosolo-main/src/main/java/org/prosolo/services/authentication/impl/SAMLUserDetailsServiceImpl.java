@@ -16,25 +16,26 @@
 
 package org.prosolo.services.authentication.impl;
 
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.authentication.UserAuthenticationService;
-import org.prosolo.services.nodes.RoleManager;
-import java.util.*;
-import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSString;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.authentication.UserAuthenticationService;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,7 +92,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			if (user == null) {
 				logger.info("User with email: " + email + " does not exist so new account will be created");
 				//if email does not exist, create new user account;
-				Role role = roleManager.getRoleByName(RoleNames.USER);
+				Role role = roleManager.getRoleByName(SystemRoleNames.USER);
 				//String firstname = credential.getAttributeAsString("givenName");
 				//String lastname = credential.getAttributeAsString("sn");
 				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
@@ -100,6 +101,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				user = userManager.createNewUser(1, fName,
 						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()));
 
+				//TODO observer refactor migrate to sequential event processing when there is a possibility to test UTA login
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException ie) {

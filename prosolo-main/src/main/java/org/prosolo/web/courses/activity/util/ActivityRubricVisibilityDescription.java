@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
  */
 public enum ActivityRubricVisibilityDescription {
     NEVER(ActivityRubricVisibility.NEVER, "Don't display rubrics to students"),
-    AFTER_SUBMISSION(ActivityRubricVisibility.AFTER_SUBMISSION, "Display rubrics to students after their result submission"),
+    AFTER_GRADED(ActivityRubricVisibility.AFTER_GRADED, "Display rubrics to students after their result is graded"),
     ALWAYS(ActivityRubricVisibility.ALWAYS, "Display rubrics to students all the time");
 
 

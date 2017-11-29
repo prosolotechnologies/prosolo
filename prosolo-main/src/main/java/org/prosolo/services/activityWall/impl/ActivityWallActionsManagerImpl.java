@@ -14,7 +14,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 
 	@Override
 	@Transactional (readOnly = false)
-	public SocialActivityConfig hideNotification(long socialActivityId, UserContextData context, Session session) throws ResourceCouldNotBeLoadedException, EventException {
+	public SocialActivityConfig hideNotification(long socialActivityId, UserContextData context, Session session) throws ResourceCouldNotBeLoadedException {
 		User user = (User) session.load(User.class, context.getActorId());
 		SocialActivityConfig config = new SocialActivityConfig();
 		
@@ -54,7 +53,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 	
 	@Override
 	@Transactional
-	public boolean deleteSocialActivity(User user, long socialActivityId, UserContextData context, Session session) throws EventException, ResourceCouldNotBeLoadedException {
+	public boolean deleteSocialActivity(User user, long socialActivityId, UserContextData context, Session session) throws ResourceCouldNotBeLoadedException {
 		SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
 		
 		socialActivity.setDeleted(true);

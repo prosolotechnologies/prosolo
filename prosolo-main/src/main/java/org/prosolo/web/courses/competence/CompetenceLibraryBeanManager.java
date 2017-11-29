@@ -11,7 +11,6 @@ import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -147,8 +146,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(archived) {
 				try {
@@ -173,8 +170,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(success) {
 				try {
@@ -204,8 +199,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			} catch(DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while trying to duplicate competence");
-			} catch(EventException ee) {
-				logger.error(ee);
 			}
 		}
 	}

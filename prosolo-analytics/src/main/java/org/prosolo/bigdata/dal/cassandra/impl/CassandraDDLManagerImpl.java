@@ -191,6 +191,13 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		 		this.cqls.add(studentAssignEventsByProffesor);
 
 
+		String jobsLogsDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.JOBS_LOGS+"(jobid bigint, logtype varchar, loglevel varchar,time timestamp, message varchar,  PRIMARY KEY (jobid,logtype,loglevel))";
+		this.cqls.add(jobsLogsDDL);
+
+		String jobsSummariesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.JOBS_SUMMARIES+"(type varchar,  created timestamp, finished timestamp, generalinfo bigint, warning bigint, critical bigint, major bigint, minor bigint, trivial bigint, success boolean,  PRIMARY KEY (type, created))";
+		this.cqls.add(jobsSummariesDDL);
+
+
 	}
 
 	@Override

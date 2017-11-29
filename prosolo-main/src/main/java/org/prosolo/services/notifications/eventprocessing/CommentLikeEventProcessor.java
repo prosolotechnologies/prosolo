@@ -31,10 +31,12 @@ public class CommentLikeEventProcessor extends CommentEventProcessor {
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
-			Long resCreatorId = getResource().getUser().getId();
 			Role role = getResource().isManagerComment() ? Role.Manager : Role.User;
-			receivers.add(new NotificationReceiverData(resCreatorId, getNotificationLink(role),
-					false));
+			String notificationLink = getNotificationLink(role);
+			if (notificationLink != null && !notificationLink.isEmpty()) {
+				Long resCreatorId = getResource().getUser().getId();
+				receivers.add(new NotificationReceiverData(resCreatorId, notificationLink,false));
+			}
 			return receivers;
 		} catch(Exception e) {
 			e.printStackTrace();

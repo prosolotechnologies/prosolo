@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
@@ -127,8 +126,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 				logger.error("Error after retry: " + e);
 				PageUtil.fireErrorMessage("Error while saving a comment. Please refresh the page and try again.");
 			}
-		} catch (EventException e) {
-			logger.error(e);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
@@ -137,7 +134,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException, EventException {
+			throws DbConnectionException, IllegalDataStateException {
 		GradeData grade = updateGrade
 				? activityAssessmentData != null ? activityAssessmentData.getGrade() : null
 				: null;

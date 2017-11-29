@@ -17,7 +17,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * @author zoran Jul 28, 2015
  */
-object SparkContextLoader {
+class SparkContextLoader {
 
   /**
    * Return a SparkContext that has hard-coded parameters
@@ -29,20 +29,15 @@ object SparkContextLoader {
 println("Initializing SparkContextLoader")
 
   val numOfCores=Runtime.getRuntime.availableProcessors()
-  //val numOfCores=1
- // val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig
-  //val sparkConfig = Settings.getInstance().config.sparkConfig
-  //val esConfig=CommonSettings.getInstance().config.elasticSearch
 
 	val dbHost =SparkApplicationConfig.conf.getString("cassandra.dbHost")
-  //dbConfig.dbHost
 	val dbPort = SparkApplicationConfig.conf.getString("cassandra.dbPort")
   val maxCores=SparkApplicationConfig.conf.getString("spark.maxCores")
   val mode=SparkApplicationConfig.conf.getString("spark.mode")
   val maxNumberCores=if(numOfCores>maxCores.toInt) maxCores else numOfCores
+  println("SPARK MODE:"+mode)
   val master=if(mode.equals("local")) "local["+numOfCores+"]" else SparkApplicationConfig.conf.getString("spark.master")
   val executorMemory=SparkApplicationConfig.conf.getString("spark.executorMemory")
- //val numOfCores=1;
   val sparkConf = new SparkConf()
   sparkConf.setMaster(master)
 
@@ -66,10 +61,6 @@ println("Initializing SparkContextLoader")
   val sparkSession:SparkSession=SparkSession.builder().config(sparkConf).getOrCreate()
 
 
-/*
-
-  */
-
 
  // @transient  val sc = new SparkContext(sparkConf)
 val sc=sparkSession.sparkContext
@@ -85,24 +76,15 @@ val sc=sparkSession.sparkContext
     sparkSession
   }
 
+
   def addESConfig(sparkConf:SparkConf): Unit ={
     sparkConf.set("es.index.auto.create","true")
     sparkConf.set("es.http.timeout","5m")
     sparkConf.set("es.scroll.size","50")
-
-
-
       val hosts=new util.LinkedList[String]
-        hosts.add("52.202.81.232:"+"9200")
-
-
+        hosts.add(SparkApplicationConfig.conf.getString("elasticsearch.host")+":"+SparkApplicationConfig.conf.getString("elasticsearch.port"))
       sparkConf.set("es.nodes", StringUtils.join(hosts, ","))
         sparkConf.set("es.nodes.wan.only","true")
-     // sparkConf.set("es.nodes", "dev.prosolo.ca")
-       //  sparkConf.set("es.port","9200")
-
-
-
   }
 
 }

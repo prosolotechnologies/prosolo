@@ -10,26 +10,21 @@ import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.*;
-import org.prosolo.common.domainmodel.rubric.Criterion;
-import org.prosolo.common.domainmodel.rubric.CriterionLevel;
-import org.prosolo.common.domainmodel.rubric.Level;
-import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.capability.UserCapabilityUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
-import org.prosolo.services.nodes.data.rubrics.RubricData;
-import org.prosolo.services.nodes.data.rubrics.RubricItemData;
-import org.prosolo.services.nodes.data.rubrics.RubricItemDescriptionData;
+import org.prosolo.services.nodes.data.rubrics.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,15 +54,16 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     @Inject
     private RubricManager self;
     @Inject private RubricDataFactory rubricDataFactory;
+    @Inject private RoleManager roleManager;
+    @Inject private UnitManager unitManager;
+    @Inject
+    private Activity1Manager activity1Manager;
 
     @Override
-    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
-            EventException, ConstraintViolationException, DataIntegrityViolationException {
+    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Rubric> res = self.createNewRubricAndGetEvents(name, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -83,13 +81,15 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             rubric.setTitle(name);
             rubric.setCreator(user);
             rubric.setOrganization(organization);
-
             saveEntity(rubric);
 
             Result<Rubric> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(
+            res.appendEvent(eventFactory.generateEventData(
                     EventType.Create, context, rubric, null, null, null));
+
+            //connect rubric to all units where rubric creator is manager
+            res.appendEvents(addRubricToDefaultUnits(rubric.getId(), context));
 
             res.setResult(rubric);
             return res;
@@ -104,6 +104,23 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         }
     }
 
+    /**
+     * Connects rubric to all units rubric creator (context actor) is manager in.
+     *
+     * @param rubricId
+     * @param context
+     * @return
+     */
+    private EventQueue addRubricToDefaultUnits(long rubricId, UserContextData context) {
+        List<Long> units = unitManager.getUserUnitIdsWithUserCapability(context.getActorId(),
+                UserCapabilityUtil.getRubricCreationCapability());
+        EventQueue events = EventQueue.newEventQueue();
+        for (long unitId : units) {
+            events.appendEvents(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEventQueue());
+        }
+        return events;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public PaginatedResult<RubricData> getRubrics(int page, int limit, long organizationId) throws DbConnectionException {
@@ -112,11 +129,11 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             String query =
                     "SELECT  rubric " +
-                    "FROM Rubric rubric " +
-                    "LEFT JOIN FETCH rubric.creator " +
-                    "WHERE rubric.organization =:organizationId " +
-                    "AND rubric.deleted is FALSE " +
-                    "ORDER BY rubric.title ASC";
+                            "FROM Rubric rubric " +
+                            "LEFT JOIN FETCH rubric.creator " +
+                            "WHERE rubric.organization =:organizationId " +
+                            "AND rubric.deleted is FALSE " +
+                            "ORDER BY rubric.title ASC";
 
             long rubricNumber = getOrganizationRubricsCount(organizationId);
 
@@ -128,7 +145,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 }
                 List<Rubric> rubrics = q.list();
                 for (Rubric r : rubrics) {
-                    RubricData rd = new RubricData(r, r.getCreator());
+                    RubricData rd = new RubricData(r, r.getCreator(), isRubricUsed(r.getId()));
                     response.addFoundNode(rd);
                     response.setHitsNumber(rubricNumber);
                 }
@@ -148,8 +165,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         try {
             String query =
                     "SELECT rubric " +
-                    "FROM Rubric rubric " +
-                    "WHERE rubric.deleted = :deleted ";
+                            "FROM Rubric rubric " +
+                            "WHERE rubric.deleted = :deleted ";
 
             if (orgId > 0) {
                 query += "AND rubric.organization.id = :orgId";
@@ -176,34 +193,31 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     }
 
     @Override
-    public void deleteRubric(long rubricId, UserContextData context) throws DbConnectionException {
+    public void deleteRubric(long rubricId, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.deleteRubricAndGetEvents(rubricId, context);
-        for (EventData ev : result.getEvents()) {
-            try {
-                eventFactory.generateEvent(ev);
-            } catch (EventException e) {
-                logger.error(e);
-            }
-        }
+        eventFactory.generateEvents(result.getEventQueue());
     }
 
     @Override
     @Transactional
-    public Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context) throws DbConnectionException {
-        Rubric rubric;
+    public Result<Void> deleteRubricAndGetEvents(long rubricId, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
-            rubric = loadResource(Rubric.class, rubricId);
-            rubric.setDeleted(true);
-            saveEntity(rubric);
-
             Result<Void> result = new Result<>();
 
-            result.addEvent(eventFactory.generateEventData(EventType.Delete, context, rubric, null, null, null));
+            Rubric rubric = new Rubric();
+            rubric.setId(rubricId);
+            result.appendEvent(eventFactory.generateEventData(EventType.Delete, context, rubric, null, null, null));
+            deleteById(Rubric.class, rubricId, persistence.currentManager());
 
             return result;
 
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("Error: ", e);
+            throw e;
         } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
+            logger.error("Error: ", e);
             throw new DbConnectionException("Error while deleting rubric");
         }
     }
@@ -213,27 +227,25 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public RubricData getOrganizationRubric(long rubricId) {
         String query =
                 "SELECT rubric " +
-                "FROM Rubric rubric " +
-                "INNER JOIN FETCH rubric.creator " +
-                "WHERE rubric.id = :rubricId";
+                        "FROM Rubric rubric " +
+                        "INNER JOIN FETCH rubric.creator " +
+                        "WHERE rubric.id = :rubricId";
 
         Rubric rubric = (Rubric) persistence.currentManager()
                 .createQuery(query)
                 .setLong("rubricId", rubricId)
                 .uniqueResult();
 
-        RubricData rubricData = new RubricData(rubric, rubric.getCreator());
+        RubricData rubricData = new RubricData(rubric, rubric.getCreator(), isRubricUsed(rubricId));
 
         return rubricData;
     }
 
     @Override
     public void updateRubricName(long rubricId, String name, UserContextData context) throws
-            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.updateRubricNameAndGetEvents(rubricId, name, context);
-        for(EventData eventData : result.getEvents()){
-            eventFactory.generateEvent(eventData);
-        }
+        eventFactory.generateEvents(result.getEventQueue());
     }
 
     @Override
@@ -245,8 +257,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             String query =
                     "UPDATE Rubric rubric " +
-                    "SET rubric.title = :name " +
-                    "WHERE rubric.id = :rubricId ";
+                            "SET rubric.title = :name " +
+                            "WHERE rubric.id = :rubricId ";
 
             persistence.currentManager()
                     .createQuery(query)
@@ -256,7 +268,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             Rubric rubric = new Rubric();
             rubric.setId(rubricId);
-            result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
+            result.appendEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
 
             return result;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
@@ -286,16 +298,20 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges)
+    public RubricData getRubricData(long rubricId, boolean loadCreator, boolean loadItems, long userId, boolean trackChanges, boolean loadRubricUsed)
             throws DbConnectionException {
         try {
             Rubric rubric = getRubric(rubricId, loadCreator, loadItems, userId);
+            boolean rubricUsed = false;
 
             if (rubric != null) {
+                if (loadRubricUsed) {
+                    rubricUsed = isRubricUsed(rubricId);
+                }
                 User creator = loadCreator ? rubric.getCreator() : null;
                 Set<Criterion> criteria = loadItems ? rubric.getCriteria() : null;
                 Set<Level> levels = loadItems ? rubric.getLevels() : null;
-                return rubricDataFactory.getRubricData(rubric, creator, criteria, levels, trackChanges);
+                return rubricDataFactory.getRubricData(rubric, creator, criteria, levels, trackChanges, rubricUsed);
             }
             return null;
         } catch (Exception e) {
@@ -420,7 +436,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                                     RubricItemDescriptionData desc = criterion.getLevels().get(level);
                                     if (desc.hasObjectChanged()) {
                                         String query = "UPDATE CriterionLevel cl SET cl.description = :description " +
-                                                       "WHERE cl.criterion.id = :criterionId AND cl.level.id = :levelId";
+                                                "WHERE cl.criterion.id = :criterionId AND cl.level.id = :levelId";
                                         persistence.currentManager()
                                                 .createQuery(query)
                                                 .setLong("criterionId", criterion.getId())
@@ -518,7 +534,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         try {
             String query =
                     "SELECT r.readyToUse FROM Rubric r " +
-                    "WHERE r.id = :id";
+                            "WHERE r.id = :id";
 
             return persistence.currentManager().createQuery(query)
                     .setLong("id", rubricId)
@@ -538,8 +554,8 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             }
 
             String query = "SELECT DISTINCT r FROM RubricUnit ru " +
-                           "INNER JOIN ru.rubric r " +
-                           "WHERE r.readyToUse IS TRUE AND ru.unit.id IN (:unitIds)";
+                    "INNER JOIN ru.rubric r " +
+                    "WHERE r.readyToUse IS TRUE AND ru.unit.id IN (:unitIds)";
 
             List<Rubric> rubrics = persistence.currentManager()
                     .createQuery(query)
@@ -547,7 +563,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     .list();
 
             return rubrics.stream()
-                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false))
+                    .map(r -> rubricDataFactory.getRubricData(r, null, null, null, false, false))
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             logger.error("Error", e);
@@ -573,32 +589,32 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActivityRubricCriterionData> getRubricDataForAssessment(long activityAssessmentId, long actId)
+    public List<ActivityRubricCriterionData> getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException {
         try {
             String query =
                     "SELECT cat, catLvl, act.maxPoints ";
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += ", ass ";
             }
             query += "FROM Activity1 act " +
-                     "INNER JOIN act.rubric rubric " +
-                     "INNER JOIN rubric.criteria cat " +
-                     "INNER JOIN cat.levels catLvl " +
-                     "INNER JOIN fetch catLvl.level lvl ";
+                    "INNER JOIN act.rubric rubric " +
+                    "INNER JOIN rubric.criteria cat " +
+                    "INNER JOIN cat.levels catLvl " +
+                    "INNER JOIN fetch catLvl.level lvl ";
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 query += "LEFT JOIN cat.assessments ass " +
-                         "WITH ass.assessment.id = :assessmentId ";
+                        "WITH ass.assessment.id = :assessmentId ";
             }
             query += "WHERE act.id = :actId " +
-                     "ORDER BY cat.order, lvl.order";
+                    "ORDER BY cat.order, lvl.order";
 
             Query q = persistence.currentManager()
                     .createQuery(query)
                     .setLong("actId", actId);
 
-            if (activityAssessmentId > 0) {
+            if (loadGrades && activityAssessmentId > 0) {
                 q.setLong("assessmentId", activityAssessmentId);
             }
 
@@ -622,7 +638,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                         criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
                     }
                     crit = c;
-                    if (activityAssessmentId > 0) {
+                    if (loadGrades && activityAssessmentId > 0) {
                         assessment = (CriterionAssessment) row[3];
                     }
                     levels.clear();

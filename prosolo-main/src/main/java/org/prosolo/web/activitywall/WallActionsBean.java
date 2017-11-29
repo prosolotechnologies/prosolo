@@ -9,7 +9,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -52,8 +51,6 @@ public class WallActionsBean {
 				session.flush();
 			} catch (ResourceCouldNotBeLoadedException e1) {
 				logger.error(e1);
-			} catch (EventException e) {
-				logger.error(e);
 			} finally {
 				HibernateUtil.close(session);
 			}
