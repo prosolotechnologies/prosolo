@@ -24,6 +24,7 @@ import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -2512,16 +2513,39 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional
-	public void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException {
+	public EventQueue disableLearningStagesForOrganizationCompetences(long orgId, UserContextData context) throws DbConnectionException {
 		try {
 			List<Competence1> comps = getAllCompetencesWithLearningStagesEnabled(orgId);
+			EventQueue queue = EventQueue.newEventQueue();
 			for (Competence1 comp : comps) {
-				comp.setLearningStage(null);
-				comp.setFirstLearningStageCompetence(null);
+				queue.appendEvents(updateCompetenceLearningStage(comp, null, context));
 			}
+			return queue;
+		} catch (DbConnectionException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error disabling learning in stages for competences in organization: " + orgId);
+		}
+	}
+
+	@Override
+	@Transactional
+	public EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException {
+		try {
+			EventQueue queue = EventQueue.newEventQueue();
+			competence.setLearningStage(stage);
+			//if stages are enabled it means that this is the first stage so reference to the first stage competence should remain null
+			if (stage == null) {
+				competence.setFirstLearningStageCompetence(null);
+			}
+			Competence1 comp = new Competence1();
+			comp.setId(competence.getId());
+			queue.appendEvent(eventFactory.generateEventData(EventType.LEARNING_STAGE_UPDATE, context, comp, null, null, null));
+			return queue;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error updating the competence learning stage");
 		}
 	}
 

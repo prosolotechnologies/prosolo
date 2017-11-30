@@ -7,10 +7,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.util.ElasticsearchUtil;
@@ -72,6 +69,8 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.field("creatorId", competence.getCreatedBy().getId());
 				builder.field("visibleToAll", competence.isVisibleToAll());
 
+				setLearningStageInfo(builder, competence);
+
 				addBookmarks(builder, competence.getId(), session);
 				addUsersWithPrivileges(builder, competence.getId(), session);
 				addStudents(builder, competence.getId());
@@ -85,6 +84,14 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		} catch (Exception e) {
 			logger.error("Error", e);
 		}
+	}
+
+	private void setLearningStageInfo(XContentBuilder builder, Competence1 competence) throws IOException {
+		builder.field("learningStageId", competence.getLearningStage() != null ? competence.getLearningStage().getId() : 0);
+		builder.field("firstStageCompetenceId",
+				competence.getFirstLearningStageCompetence() != null
+						? competence.getFirstLearningStageCompetence().getId()
+						: 0);
 	}
 
 	private void addUnits(XContentBuilder builder, long compId, Session session) throws IOException {
@@ -277,6 +284,22 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateLearningStageInfo(Competence1 comp) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			setLearningStageInfo(builder, comp);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, comp.getOrganization().getId()),
+					ESIndexTypes.COMPETENCE, comp.getId() + "", builder);
+		} catch (Exception e) {
 			logger.error("Error", e);
 		}
 	}

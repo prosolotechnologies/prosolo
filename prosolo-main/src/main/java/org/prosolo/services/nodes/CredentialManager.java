@@ -446,5 +446,5 @@ public interface CredentialManager extends AbstractManager {
 
 	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 
-	void disableLearningStagesForOrganizationCredentials(long orgId) throws DbConnectionException;
+	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
 }

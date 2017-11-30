@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -407,7 +408,9 @@ public interface Competence1Manager {
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
-	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
+	EventQueue disableLearningStagesForOrganizationCompetences(long orgId, UserContextData context) throws DbConnectionException;
 
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
+
+	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
 }
