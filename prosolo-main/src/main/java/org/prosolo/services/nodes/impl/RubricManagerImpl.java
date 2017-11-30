@@ -16,9 +16,8 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.capability.UserCapabilityUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.RoleManager;
@@ -61,13 +60,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     private Activity1Manager activity1Manager;
 
     @Override
-    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException,
-            EventException, ConstraintViolationException, DataIntegrityViolationException {
+    public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Rubric> res = self.createNewRubricAndGetEvents(name, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -89,11 +85,11 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             Result<Rubric> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(
+            res.appendEvent(eventFactory.generateEventData(
                     EventType.Create, context, rubric, null, null, null));
 
             //connect rubric to all units where rubric creator is manager
-            res.addEvents(addRubricToDefaultUnits(rubric.getId(), context));
+            res.appendEvents(addRubricToDefaultUnits(rubric.getId(), context));
 
             res.setResult(rubric);
             return res;
@@ -115,12 +111,12 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
      * @param context
      * @return
      */
-    private List<EventData> addRubricToDefaultUnits(long rubricId, UserContextData context) {
+    private EventQueue addRubricToDefaultUnits(long rubricId, UserContextData context) {
         List<Long> units = unitManager.getUserUnitIdsWithUserCapability(context.getActorId(),
                 UserCapabilityUtil.getRubricCreationCapability());
-        List<EventData> events = new ArrayList<>();
+        EventQueue events = EventQueue.newEventQueue();
         for (long unitId : units) {
-            events.addAll(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEvents());
+            events.appendEvents(unitManager.addRubricToUnitAndGetEvents(rubricId, unitId, context).getEventQueue());
         }
         return events;
     }
@@ -200,13 +196,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public void deleteRubric(long rubricId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.deleteRubricAndGetEvents(rubricId, context);
-        for (EventData ev : result.getEvents()) {
-            try {
-                eventFactory.generateEvent(ev);
-            } catch (EventException e) {
-                logger.error(e);
-            }
-        }
+        eventFactory.generateEvents(result.getEventQueue());
     }
 
     @Override
@@ -215,9 +205,10 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Void> result = new Result<>();
+
             Rubric rubric = new Rubric();
             rubric.setId(rubricId);
-            result.addEvent(eventFactory.generateEventData(EventType.Delete, context, rubric, null, null, null));
+            result.appendEvent(eventFactory.generateEventData(EventType.Delete, context, rubric, null, null, null));
             deleteById(Rubric.class, rubricId, persistence.currentManager());
 
             return result;
@@ -252,11 +243,9 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     public void updateRubricName(long rubricId, String name, UserContextData context) throws
-            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+            DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.updateRubricNameAndGetEvents(rubricId, name, context);
-        for(EventData eventData : result.getEvents()){
-            eventFactory.generateEvent(eventData);
-        }
+        eventFactory.generateEvents(result.getEventQueue());
     }
 
     @Override
@@ -279,7 +268,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             Rubric rubric = new Rubric();
             rubric.setId(rubricId);
-            result.addEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
+            result.appendEvent(eventFactory.generateEventData(EventType.Edit, context, rubric, null, null, null));
 
             return result;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {

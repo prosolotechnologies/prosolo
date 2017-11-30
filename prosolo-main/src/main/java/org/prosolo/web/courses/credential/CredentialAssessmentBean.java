@@ -13,8 +13,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -325,8 +323,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				logger.error("Error after retry: " + e);
 				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
-		} catch (EventException e) {
-			logger.error(e);
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -344,7 +340,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException, EventException {
+			throws DbConnectionException, IllegalDataStateException {
 		GradeData grade = updateGrade
 				? currentActivityAssessment != null ? currentActivityAssessment.getGrade() : null
 				: null;

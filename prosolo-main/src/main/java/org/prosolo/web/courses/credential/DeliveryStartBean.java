@@ -3,8 +3,6 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -51,8 +49,6 @@ public class DeliveryStartBean implements Serializable {
 				PageUtil.redirect("/admin/organizations/" + PageUtil.getGetParameter("orgId") + "/units/"
 						+ PageUtil.getGetParameter("unitId") + "/credentials");
 			}
-		} catch (EventException ee) {
-			logger.error(ee);
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
 			String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";

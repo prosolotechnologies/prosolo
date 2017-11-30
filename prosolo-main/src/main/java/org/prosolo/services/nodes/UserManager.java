@@ -10,7 +10,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
@@ -38,11 +37,11 @@ public interface UserManager extends AbstractManager {
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException;
+			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException;
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException;
+			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException;
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
@@ -62,7 +61,7 @@ public interface UserManager extends AbstractManager {
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 
@@ -78,7 +77,7 @@ public interface UserManager extends AbstractManager {
 	
 	String getUserEmail(long id) throws DbConnectionException;
 	
-	void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context) throws DbConnectionException, EventException;
+	void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context) throws DbConnectionException;
 
 	Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId, UserContextData context)
 			throws DbConnectionException;
@@ -131,13 +130,12 @@ public interface UserManager extends AbstractManager {
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
-	 * @throws EventException
 	 */
 	boolean createNewUserAndConnectToResources(
 											String name, String lastname, String emailAddress,
 											String password, String position, long unitId,
 											long unitRoleId, long userGroupId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	long getUserOrganizationId(long userId) throws DbConnectionException;
 }

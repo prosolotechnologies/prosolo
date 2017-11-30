@@ -7,7 +7,6 @@ import org.json.simple.parser.ParseException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.ComponentName;
@@ -137,15 +136,11 @@ public class LoggingNavigationBean implements Serializable {
 	}
 	
 	public void submitServiceUse(){
-		try {
-			Map<String, String> params = convertToMap(parameters);
-			params.put("objectType", component);
-			eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
-					null, params);
-			//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		Map<String, String> params = convertToMap(parameters);
+		params.put("objectType", component);
+		eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
+				null, params);
+		//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
 	}
 	
 	private String getIpAddress() {

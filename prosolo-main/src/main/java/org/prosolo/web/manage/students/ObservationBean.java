@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
@@ -108,15 +107,11 @@ public class ObservationBean implements Serializable {
 				final Message message1 = (Message) msg;
 				UserContextData userContext = loggedUserBean.getUserContext();
 				taskExecutor.execute(() -> {
-					try {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("user", String.valueOf(studentId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
-								message1, null, null, parameters);
-					} catch (EventException e) {
-						logger.error(e);
-					}
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("user", String.valueOf(studentId));
+					parameters.put("message", String.valueOf(message1.getId()));
+					eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
+							message1, null, null, parameters);
 				});
 			}
 			

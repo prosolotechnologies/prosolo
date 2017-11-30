@@ -10,7 +10,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiUser;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.nodes.UserManager;
@@ -57,8 +56,6 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 				user = userManager.createNewUser(0, name, lastName, email, true, password, null, null, null, null);
 			} catch (UserAlreadyRegisteredException e) {
 				user = userManager.getUser(email);
-			} catch (EventException e) {
-				logger.error(e);
 			}
 			return user;
 		}catch(Exception e){

@@ -84,6 +84,12 @@
 				</provider>
 			</saml>
 		</registration>
+		<plugin-config>
+			<learning-in-stages>
+				<enabled>true</enabled>
+				<max-number-of-learning-stages>5</max-number-of-learning-stages>
+			</learning-in-stages>
+		</plugin-config>
 	</app-config>
 
 	<services>

@@ -6,7 +6,6 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
 import org.prosolo.web.ApplicationPagesBean;
@@ -77,13 +76,9 @@ public class PageLoadEventFilter implements Filter {
 			params.put("ip", ipAddress);
 			params.put("uri", uri);
 			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
-			try {
-				eventFactory.generateEvent(
-						EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new PageContextData(uri, null, null)),
-						null, null, null, params);
-			} catch (EventException e) {
-				logger.error("Error while generating page open event " + e);
-			}
+			eventFactory.generateEvent(
+					EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new PageContextData(uri, null, null)),
+					null, null, null, params);
 		}
 		
 		chain.doFilter(req, res);

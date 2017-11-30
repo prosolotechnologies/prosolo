@@ -25,7 +25,6 @@ import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.annotation.Annotation1Manager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -823,11 +822,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
-			try {
-				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
-			} catch (EventException e) {
-				logger.error(e);
-			}
+			eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
+
 			
 			return post;
 		} catch(Exception e) {
@@ -847,8 +843,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 		RichContent1 richContent = post.getRichContent();
 		if (richContent != null && richContent.getContentType() != null) {
-			try {
-				switch (richContent.getContentType()) {
+			switch (richContent.getContentType()) {
 				case LINK:
 					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
 					addedLink = richContent.getLink();
@@ -858,9 +853,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					break;
 				default:
 					break;
-				}
-			} catch (EventException e) {
-				logger.error(e);
 			}
 		}
 	

@@ -14,7 +14,6 @@ import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -183,8 +182,6 @@ public class AfterContextLoader implements ServletContextListener {
 							null,
 							Arrays.asList(superAdminRoleId),
 							true);
-		} catch (EventException e) {
-			logger.error(e);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		}

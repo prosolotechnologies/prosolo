@@ -15,7 +15,6 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
@@ -233,8 +232,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			PageUtil.fireSuccessfulInfoMessage("The instructor has been " + action);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 

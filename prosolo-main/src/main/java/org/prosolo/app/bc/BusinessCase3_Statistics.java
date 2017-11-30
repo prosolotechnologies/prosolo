@@ -19,11 +19,11 @@ import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
@@ -97,8 +97,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					EventType.USER_ROLES_UPDATED, UserContextData.ofActor(userNickPowell.getId()), userNickPowell, null, null, params);
 			
 			//create organization
+			OrganizationData orgData = new OrganizationData();
+			orgData.setTitle("Org 1");
+			orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
-					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
+					.createNewOrganization(orgData, UserContextData.empty());
 
 			//to give time indexes to be created after ogranization is saved
 			Thread.sleep(1500);
@@ -188,8 +191,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://www.stat.yale.edu/Courses/1997-98/101/sampinf.htm");
 
 				publishCredential(cred1, cred1.getCreatedBy());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 			}
@@ -242,8 +243,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"List of probability distributions",
 						comp1cred2.getId(),
 						"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 			}
@@ -291,8 +290,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				publishCredential(cred2, cred2.getCreatedBy());
 
 				addCompetenceToCredential(org.getId(),cred2, comp1cred1, userNickPowell);
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error(ex);
 				ex.printStackTrace();
@@ -323,8 +320,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"An Introductory Handbook to Probability, Statistics and Excel 2",
 						comp1cred3.getId(),
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 			}
@@ -356,8 +351,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"Paper: 'Gephi: An Open Source Software for Exploring and Manipulating Networks'",
 						comp2cred3.getId(),
 						"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 			}
@@ -381,8 +374,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				publishCredential(cred3, cred3.getCreatedBy());
 
 				addCompetenceToCredential(org.getId(),cred3, comp1cred1, userNickPowell);
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 			}
@@ -454,8 +445,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						comp1cred4.getId(),
 						"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
 
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -487,8 +476,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				publishCredential(cred4, cred4.getCreatedBy());
 
 				addCompetenceToCredential(org.getId(), cred4, comp1cred1, userNickPowell);
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -532,8 +519,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://www.khanacademy.org/math/statistics/v/introduction-to-the-normal-distribution");
 
 				publishCredential(cred5, cred5.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -575,8 +560,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 
 				publishCredential(cred6, cred6.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -617,8 +600,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 
 				publishCredential(cred7, cred7.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -661,8 +642,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 
 				publishCredential(cred8, cred8.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -716,8 +695,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/reading_data.shtml");
 
 				publishCredential(cred9, cred9.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -765,8 +742,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
 
 				publishCredential(cred10, cred10.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
@@ -790,8 +765,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Teaching Prediction Intervals");
 			
 			publishCredential(cred11, cred11.getCreatedBy());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		} catch (Exception ex) {
 			logger.error("Error", ex);
 		}
@@ -819,19 +792,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 	}
 
 	private void addCompetenceToCredential(long orgId, Credential1 credential, Competence1 competence, User user) {
-		List<EventData> ev = ServiceLocator
+		EventQueue ev = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
 						UserContextData.ofOrganization(orgId));
 		try {
 			if(ev != null) {
-				for(EventData e : ev) {
-					ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(e);
-				}
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(ev);
 			}
-		} catch (EventException e) {
-			logger.error(e);
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -855,14 +823,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			return newUser;
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e.getLocalizedMessage());
-		} catch (EventException e) {
-			logger.error(e.getMessage());
 		}
 		return null;
 	}
 
 	private Activity1 createActivity(long orgId, User userNickPowell, String title, long compId, String... links)
-		throws DbConnectionException, EventException, IllegalDataStateException {
+		throws DbConnectionException, IllegalDataStateException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setActivityType(ActivityType.TEXT);
@@ -890,8 +856,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return act;
 	}
 
-	private Credential1 createCredential(long orgId, String title, String description, User userNickPowell, String tags)
-			throws EventException {
+	private Credential1 createCredential(long orgId, String title, String description, User userNickPowell, String tags) {
 		CredentialData credentialData = new CredentialData(false);
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
@@ -905,8 +870,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return credNP1;
 	}
 
-	public Competence1 createCompetence(long orgId, User user, String title, String description, long credentialId, String tags)
-			throws EventException {
+	public Competence1 createCompetence(long orgId, User user, String title, String description, long credentialId, String tags) {
 		
 		CompetenceData1 compData = new CompetenceData1(false);
 		compData.setTitle(title);
