@@ -18,8 +18,7 @@ import org.prosolo.common.config.CommonSettings
   */
 object SNAclusterManager{
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
-  val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName +
-    CommonSettings.getInstance().config.getNamespaceSufix();
+  val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
   println("INITIALIZED SNA CLUSTER MANAGER")
 
   def updateTimestamp(timestamp:Long)={
