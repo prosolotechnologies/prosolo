@@ -122,13 +122,15 @@ var socialInteractionGraph = (function () {
 			.on("tick", tick)
 			.start();
 
-		var drag = force.drag()
-			.on("dragstart", dragstart);
-		
-		var svg = d3.select(config.selector).append("svg")
-			// .attr("width", width)
-			// .attr("height", height)
-			.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
+		/*var drag = force.drag()
+			.on("dragstart", dragstart);*/
+
+        var svg = d3.select(config.selector).append("svg")
+			 .attr("width", width)
+			 .attr("height", height)
+			 .append("g")
+				//.call(d3.behavior.zoom().scaleExtent([0.5, 4]).on("zoom", zoom));
+			 .call(d3.behavior.zoom().scaleExtent([0.5, 2]).on("zoom", zoom));
 
 		svg.on('mousedown.zoom',null);
 

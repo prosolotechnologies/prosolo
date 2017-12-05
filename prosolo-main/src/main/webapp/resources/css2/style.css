@@ -6599,3 +6599,8 @@ footer {
   /* line 5792, milos/work/freelance/prosolo/v2/html/prosolo-design/css2/style.scss */
   #supportLink:hover {
     opacity: 1; }
+#graph {
+  height: 300px;
+  width: 400px;
+  overflow: hidden;
+}
