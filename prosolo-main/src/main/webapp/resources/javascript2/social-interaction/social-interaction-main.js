@@ -9,6 +9,8 @@ function loadSocialInteractionGraph() {
         host: root.dataset.api,
         courseId: root.dataset.courseId,
         studentId: root.dataset.studentId,
+        studentName: root.dataset.studentName,
+        studentAvatar: root.dataset.studentAvatar,
         width: graphWidth,
         height: graphHeight,
         selector: "#social-interaction #graph",
@@ -29,112 +31,8 @@ function loadSocialInteractionGraph() {
             {lower: 66, upper: 85, type: "sevenfive"},
             {lower: 85, upper: 100, type: "onezerozero"}
         ],
-        onNodeClick: function (student) {
-            //$("#social-interaction-info .student Id-interactions-selected-id").text(student.id);
-            $("#social-interaction-info .studentName").text(student.name);
-            //$("#social-interactions-selected-cluster").text(student.cluster);
-            $("#social-interaction-info .studentAvatar").attr("src", student.avatar).attr("alt", student.name);
-            initializeDataForSelectedStudent(student, root.dataset.courseId);
-        },
         noResultsMessage: "No results found for given parameters.",
         systemNotAvailableMessage: "System is not available."
     });
 
-    var getStudentsData = function (peers) {
-        return $.ajax({
-            url: root.dataset.api + "/social/interactions/data",
-            data: {"students": peers},
-            type: "GET",
-            crossDomain: true,
-            dataType: 'json'
-        });
-    }
-
-    var initializeDataForSelectedStudent = function (student, courseid) {
-        $.ajax({
-            url: root.dataset.api + "/social/interactions/interactionsbypeers/" + courseid + "/" + student.id,
-            //data : {"students" : part},
-            type: "GET",
-            crossDomain: true,
-            dataType: 'json'
-        }).done(function (data) {
-            data = {}
-
-            console.log("INTERACTIONSBYPEERS:" + JSON.stringify(data));
-            for (var i = 0; i < data[0].interactions.length; i++) {
-                data[0].interactions[i] = JSON.parse(data[0].interactions[i]);
-            }
-            var interactions = data[0].interactions;
-            var peersinteractions = {};
-            var peers = [];
-            if (interactions.length > 0) {
-                interactions.forEach(function (interaction) {
-                    var intobject = {};
-                    if (typeof (peersinteractions[interaction.peer]) !== 'undefined') {
-                        intobject = peersinteractions[interaction.peer];
-                    } else peers.push(interaction.peer);
-                    intobject[interaction.direction] = {
-                        count: interaction.count,
-                        percentage: Math.round(interaction.percentage * 100)
-                    }
-                    peersinteractions[interaction.peer] = intobject;
-                });
-                var studentsData = getStudentsData(peers);
-                $.when(
-                    getStudentsData(peers))
-                    .then(function (studentsData) {
-                        $("#social-interactions-bypeer-table").remove();
-                        var innerHtml = "<table id='social-interactions-bypeer-table'><tr style='font-weight:bold'><td>Student</td><td>OUT</td><td>IN</td></tr>";
-
-                        for (var peerId in peersinteractions) {
-                            var interaction = peersinteractions[peerId];
-                            var student = studentsData[peerId];
-                            innerHtml = innerHtml + "<tr><td>" + student.name + "</td>"
-                            if (typeof(interaction.OUT) !== 'undefined') {
-                                innerHtml = innerHtml + "<td>" + interaction.OUT.count + "(" + interaction.OUT.percentage + " %)</td>";
-                            } else {
-                                innerHtml = innerHtml + "<td/>";
-                            }
-
-                            if (typeof(interaction.IN) !== 'undefined') {
-                                innerHtml = innerHtml + "<td>" + interaction.IN.count + "(" + interaction.IN.percentage + " %)" + "</td>";
-                            } else {
-                                innerHtml = innerHtml + "<td/>";
-                            }
-                        }
-                        ;
-
-                        innerHtml = innerHtml + "</table>";
-                        $("#social-interactions-bypeers").append(innerHtml);
-                    });
-            }
-        });
-
-        $.ajax({
-            url: root.dataset.api + "/social/interactions/interactionsbytype/" + courseid + "/" + student.id,
-            //data : {"students" : part},
-            type: "GET",
-            crossDomain: true,
-            dataType: 'json'
-        }).done(function (data) {
-            console.log("INTERACTIONSBYTYPE:" + JSON.stringify(data));
-            for (var i = 0; i < data[0].interactions.length; i++) {
-                data[0].interactions[i] = JSON
-                    .parse(data[0].interactions[i]);
-            }
-            var interactions = data[0].interactions;
-            if (interactions.length > 0) {
-                $("#social-interactions-bytype-table").remove();
-                var innerHtml = "<table id='social-interactions-bytype-table'><tr style='font-weight:bold'><td>Type</td><td>OUT</td><td>IN</td></tr>";
-                interactions.forEach(function (interaction) {
-                    innerHtml = innerHtml + "<tr><td>" + interaction.type + "</td><td>"
-                        + interaction.fromusercount + "(" + Math.round(interaction.fromuserpercentage * 100) + " %)</td><td>"
-                        + interaction.tousercount + "(" + Math.round(interaction.touserpercentage * 100) + " %)" +
-                        "</td>";
-                });
-                innerHtml = innerHtml + "</table>";
-                $("#social-interactions-bytype").append(innerHtml);
-            }
-        });
-    };
 }
