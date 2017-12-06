@@ -9,34 +9,9 @@
 			<h2>Social interaction graph</h2>
 		
 			<div class="socialGraph">
-				<div class="socialLeft">
-					<p id="social-interactions-nonodeselected">Select one of the nodes to display more information</p>
-					
-					<div id="social-interactions-selectedstudent" style="display: none">
-						<h2>Selected student</h2>
-							<div id="social-interactions-selected" class="user32">
-							<a href="#"><img id="social-interactions-selected-avatar" style="display: none" class="img-circle" alt="Walter White" height="32" width="32" /></a>
-							<h3><a href="#" id="social-interactions-selected-name"></a></h3>
-						</div>
-					</div>
-					
-					<div id="social-interactions-by-type-panel" style="display: none">
-						<div id="social-interactions-bytype">
-							<h2>Social interactions by type</h2>
-						</div>
-					</div>
-					
-					<div id="social-interactions-by-peer-panel" style="display: none">
-						<div id="social-interactions-bypeers">
-							<h2>Social interactions by peers</h2>
-						</div>
-					</div>
-				</div>
-
-
 				<h:form id="socialInteractionDataForm">
 					<p:remoteCommand name="updateSocialInteractionDataRegion" update="socialInteractionData" oncomplete="loadSocialInteractionGraph()" />
-					<h:panelGroup layout="block" id="socialInteractionData" class="socialRight">
+					<h:panelGroup layout="block" id="socialInteractionData">
 						<div id="social-interaction"
 							 data-api="#{socialInteractionBean.servicesDomain}"
 							 data-student-id="#{studentProfileBean.decodedId}"
@@ -48,6 +23,28 @@
 				</h:form>
 
 				<div class="clear"></div>
+
+				<div id="social-interaction-info">
+					<div>
+						<h3>Selected student</h3>
+						<div class="user32">
+							<img class="studentAvatar img-circle" alt="" height="32" width="32" />
+							<h3><a href="#" class="studentName"></a></h3>
+						</div>
+					</div>
+
+					<div>
+						<div class="interactionsByType">
+							<h3>Social interactions by type</h3>
+						</div>
+					</div>
+
+					<div>
+						<div class="interactionsByPeers">
+							<h3>Social interactions by peers</h3>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
