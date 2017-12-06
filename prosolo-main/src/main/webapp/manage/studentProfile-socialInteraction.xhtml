@@ -14,7 +14,9 @@
 					<h:panelGroup layout="block" id="socialInteractionData">
 						<div id="social-interaction"
 							 data-api="#{socialInteractionBean.servicesDomain}"
-							 data-student-id="#{studentProfileBean.decodedId}"
+							 data-student-id="#{studentProfileBean.student.id}"
+							 data-student-name="#{studentProfileBean.student.name}"
+							 data-student-avatar="#{studentProfileBean.student.avatar}"
 							 data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
 							 class="container manage">
 							<div id="graph"></div>
@@ -24,24 +26,30 @@
 
 				<div class="clear"></div>
 
-				<div id="social-interaction-info">
+				<div id="social-interaction-info" style="display: none;">
 					<div>
 						<h3>Selected student</h3>
 						<div class="user32">
-							<img class="studentAvatar img-circle" alt="" height="32" width="32" />
-							<h3><a href="#" class="studentName"></a></h3>
+							<span class="studentAvatar"></span>
+							<span class="studentName"></span>
 						</div>
 					</div>
 
 					<div>
-						<div class="interactionsByType">
+						<div>
 							<h3>Social interactions by type</h3>
+							<span class="interactionsByType">
+
+							</span>
 						</div>
 					</div>
 
 					<div>
-						<div class="interactionsByPeers">
+						<div>
 							<h3>Social interactions by peers</h3>
+							<span class="interactionsByPeers">
+
+							</span>
 						</div>
 					</div>
 				</div>

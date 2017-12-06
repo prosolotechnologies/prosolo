@@ -39,6 +39,104 @@ var socialInteractionGraph = (function () {
 		});
 	}
 
+    function initializeDataForStudent(config, student, courseid) {
+        //$("#social-interaction-info .student Id-interactions-selected-id").text(student.id);
+        $("#social-interaction-info .studentName").html("<h3><a href=\"#\">"+student.name+"</a></h3>");
+        //$("#social-interactions-selected-cluster").text(student.cluster);
+        $("#social-interaction-info .studentAvatar").html("<img class=\"studentAvatar img-circle\" src=\""+student.avatar+"\" alt=\""+student.name+"\" height=\"32\" width=\"32\" />");
+
+        $.ajax({
+            url: config.host + "/social/interactions/interactionsbypeers/" + courseid + "/" + student.id,
+            //data : {"students" : part},
+            type: "GET",
+            crossDomain: true,
+            dataType: 'json'
+        }).done(function (data) {
+            for (var i = 0; i < data[0].interactions.length; i++) {
+                data[0].interactions[i] = JSON.parse(data[0].interactions[i]);
+            }
+            var interactions = data[0].interactions;
+            var peersinteractions = {};
+            var peers = [];
+            if (interactions.length > 0) {
+                interactions.forEach(function (interaction) {
+                    var intobject = {};
+                    if (typeof (peersinteractions[interaction.peer]) !== 'undefined') {
+                        intobject = peersinteractions[interaction.peer];
+                    } else peers.push(interaction.peer);
+                    intobject[interaction.direction] = {
+                        count: interaction.count,
+                        percentage: Math.round(interaction.percentage * 100)
+                    }
+                    peersinteractions[interaction.peer] = intobject;
+                });
+                $.when(
+                    getStudentsData(config, peers))
+                    .then(function (studentsData) {
+                        $("#social-interaction-info .interactionsByPeers").empty();
+                        var innerHtml = "<table><tr style='font-weight:bold'><td>Student</td><td>OUT</td><td>IN</td></tr>";
+
+                        for (var peerId in peersinteractions) {
+                            var interaction = peersinteractions[peerId];
+                            var student = studentsData[peerId];
+                            innerHtml = innerHtml + "<tr><td>" + student.name + "</td>"
+                            if (typeof(interaction.OUT) !== 'undefined') {
+                                innerHtml = innerHtml + "<td>" + interaction.OUT.count + "(" + interaction.OUT.percentage + " %)</td>";
+                            } else {
+                                innerHtml = innerHtml + "<td/>";
+                            }
+
+                            if (typeof(interaction.IN) !== 'undefined') {
+                                innerHtml = innerHtml + "<td>" + interaction.IN.count + "(" + interaction.IN.percentage + " %)" + "</td>";
+                            } else {
+                                innerHtml = innerHtml + "<td/>";
+                            }
+                        }
+                        ;
+
+                        innerHtml = innerHtml + "</table>";
+                        $("#social-interaction-info .interactionsByPeers").append(innerHtml);
+                    });
+            }
+        });
+
+        $.ajax({
+            url: config.host + "/social/interactions/interactionsbytype/" + courseid + "/" + student.id,
+            //data : {"students" : part},
+            type: "GET",
+            crossDomain: true,
+            dataType: 'json'
+        }).done(function (data) {
+            for (var i = 0; i < data[0].interactions.length; i++) {
+                data[0].interactions[i] = JSON
+                    .parse(data[0].interactions[i]);
+            }
+            var interactions = data[0].interactions;
+            if (interactions.length > 0) {
+                $("#social-interaction-info .interactionsByType").empty();
+                var innerHtml = "<table id='social-interactions-bytype-table'><tr style='font-weight:bold'><td>Type</td><td>OUT</td><td>IN</td></tr>";
+                interactions.forEach(function (interaction) {
+                    innerHtml = innerHtml + "<tr><td>" + interaction.type + "</td><td>"
+                        + interaction.fromusercount + "(" + Math.round(interaction.fromuserpercentage * 100) + " %)</td><td>"
+                        + interaction.tousercount + "(" + Math.round(interaction.touserpercentage * 100) + " %)" +
+                        "</td>";
+                });
+                innerHtml = innerHtml + "</table>";
+                $("#social-interaction-info .interactionsByType").append(innerHtml);
+            }
+        });
+    };
+
+    function getStudentsData(config, peers) {
+        return $.ajax({
+            url: config.host + "/social/interactions/data",
+            data: {"students": peers},
+            type: "GET",
+            crossDomain: true,
+            dataType: 'json'
+        });
+    }
+
 	function run(config, clusterInteractions, outerInteractions, studentData) {
 
 		var links = socialInteractionService.denormalize(clusterInteractions, outerInteractions);
@@ -172,12 +270,13 @@ var socialInteractionGraph = (function () {
 			.enter()
 			.append("g")
 			.on("click", function(d) {
-				config.onNodeClick({
-					id: d.name,
-					cluster: d.cluster,
-					name: studentData[d.name] ? studentData[d.name].name : "",
-					avatar: studentData[d.name] ? studentData[d.name].avatar : ""
-				});
+				var student = {
+                    id: d.name,
+                    cluster: d.cluster,
+                    name: studentData[d.name] ? studentData[d.name].name : "",
+                    avatar: studentData[d.name] ? studentData[d.name].avatar : ""
+                };
+                initializeDataForStudent(config, student, config.courseId);
 			})
 			.attr("class", "node")
 			.call(drag);
@@ -247,30 +346,40 @@ var socialInteractionGraph = (function () {
 
 	return {
 		load: function (config) {
-			$
-				.when(
-					readClusterInteractions(config),
-					readOuterInteractions(config))
-				.then(function(ci, oi) {
-					parse(ci[0]);
-					parse(oi[0]);
-					if ((ci[0].length + oi[0].length) == 0) {
-						$("#social-interaction").text(config.noResultsMessage);
-						return;
-					}
+			$.when(
+				readClusterInteractions(config),
+				readOuterInteractions(config))
+			.then(function(ci, oi) {
+				parse(ci[0]);
+				parse(oi[0]);
+				if ((ci[0].length + oi[0].length) == 0) {
+					$("#social-interaction").text(config.noResultsMessage);
+					return;
+				}
 
-					var students = socialInteractionService.students(ci[0], oi[0]);
-					$.when.apply($, readStudentData(config, students))
-					 .then(function() {
-						 var merge = {};
-						 for(var i = 0; i < arguments.length; i++) {
-							 $.extend(true, merge, arguments[i].responseJSON);
-						 }
-						 run(config, ci[0], oi[0], merge);
-					 });
-				}).fail(function() {
-					$("#social-interaction").text(config.systemNotAvailableMessage);
-				});
-		}
+				$("#social-interaction-info").show();
+				$("#social-interaction-info")
+
+				var students = socialInteractionService.students(ci[0], oi[0]);
+				$.when.apply($, readStudentData(config, students))
+				 .then(function() {
+					 var merge = {};
+					 for(var i = 0; i < arguments.length; i++) {
+						 $.extend(true, merge, arguments[i].responseJSON);
+					 }
+					 run(config, ci[0], oi[0], merge);
+				 });
+			}).fail(function() {
+				$("#social-interaction").text(config.systemNotAvailableMessage);
+			});
+
+            var student = {
+                id: config.studentId,
+                cluster: 0,
+                name: config.studentName,
+                avatar: config.studentAvatar
+            };
+            initializeDataForStudent(config, student, config.courseId);
+		},
 	};
 })();
