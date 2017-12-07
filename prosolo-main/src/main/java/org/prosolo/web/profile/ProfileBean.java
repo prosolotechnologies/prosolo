@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -25,7 +24,6 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -113,15 +111,11 @@ public class ProfileBean {
 
 					UserContextData userContext = loggedUserBean.getUserContext();
 					taskExecutor.execute(() -> {
-						try {
-							Map<String, String> parameters = new HashMap<String, String>();
-							parameters.put("user", String.valueOf(decodedStudentId));
-							parameters.put("message", String.valueOf(message1.getId()));
-							eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
-									null, null, parameters);
-						} catch (EventException e) {
-							logger.error(e);
-						}
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("user", String.valueOf(decodedStudentId));
+						parameters.put("message", String.valueOf(message1.getId()));
+						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
+								null, null, parameters);
 					});
 					this.message = "";
 					

@@ -141,8 +141,8 @@ public interface UserManager extends AbstractManager {
 	long getUserOrganizationId(long userId) throws DbConnectionException;
 
 	void saveAccountChanges(UserData accountData, UserContextData contextData)
-			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException;
+			throws DbConnectionException, ResourceCouldNotBeLoadedException;
 
 	Result<Void> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException;
+			throws DbConnectionException, ResourceCouldNotBeLoadedException;
 }

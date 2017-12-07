@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.ImageFormat;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.data.Result;
@@ -1115,18 +1114,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	public void saveAccountChanges(UserData accountData, UserContextData contextData)
-			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData, accountData.getId(), contextData);
-
-		for (EventData ev : result.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 	}
 
 	@Override
 	@Transactional
 	public Result<Void> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
-			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 
 		User user = loadResource(User.class, userId);
 		user.setName(accountData.getName());
@@ -1146,7 +1142,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		Result<Void> result = new Result<>();
 
-		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+		result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
 				null, null, null, null));
 
 		return result;
