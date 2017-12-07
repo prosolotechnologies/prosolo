@@ -1017,7 +1017,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var mejs = {};
 
-mejs.version = '4.2.6';
+mejs.version = '4.2.7';
 
 mejs.html5media = {
 	properties: ['volume', 'src', 'currentTime', 'muted', 'duration', 'paused', 'ended', 'buffered', 'error', 'networkState', 'readyState', 'seeking', 'seekable', 'currentSrc', 'preload', 'bufferedBytes', 'bufferedTime', 'initialTime', 'startOffsetTime', 'defaultPlaybackRate', 'playbackRate', 'played', 'autoplay', 'loop', 'controls'],
@@ -6249,7 +6249,7 @@ var NativeFlv = {
 				NativeFlv._createPlayer(settings);
 			});
 		} else {
-			settings.options.path = typeof settings.options.path === 'string' ? settings.options.path : 'https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.3.3/flv.min.js';
+			settings.options.path = typeof settings.options.path === 'string' ? settings.options.path : 'https://cdn.jsdelivr.net/npm/flv.js@latest';
 
 			NativeFlv.promise = NativeFlv.promise || (0, _dom.loadScript)(settings.options.path);
 			NativeFlv.promise.then(function () {
@@ -6274,7 +6274,7 @@ var FlvNativeRenderer = {
 	options: {
 		prefix: 'native_flv',
 		flv: {
-			path: 'https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.3.3/flv.min.js',
+			path: 'https://cdn.jsdelivr.net/npm/flv.js@latest',
 
 			cors: true,
 			debug: false
@@ -6498,7 +6498,7 @@ var NativeHls = {
 				NativeHls._createPlayer(settings);
 			});
 		} else {
-			settings.options.path = typeof settings.options.path === 'string' ? settings.options.path : 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/0.8.4/hls.min.js';
+			settings.options.path = typeof settings.options.path === 'string' ? settings.options.path : 'https://cdn.jsdelivr.net/npm/hls.js@latest';
 
 			NativeHls.promise = NativeHls.promise || (0, _dom.loadScript)(settings.options.path);
 			NativeHls.promise.then(function () {
@@ -6521,7 +6521,7 @@ var HlsNativeRenderer = {
 	options: {
 		prefix: 'native_hls',
 		hls: {
-			path: 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/0.8.4/hls.min.js',
+			path: 'https://cdn.jsdelivr.net/npm/hls.js@latest',
 
 			autoStartLoad: false,
 			debug: false
@@ -8320,7 +8320,7 @@ function secondsToTimeCode(time) {
 		if (showFrameCount) {
 			seconds = timeBaseDivision % 60;
 		} else {
-			seconds = (f / timeBase % 60).toFixed(secondsDecimalLength);
+			seconds = Math.floor(f / timeBase % 60).toFixed(secondsDecimalLength);
 		}
 	} else {
 		hours = Math.floor(time / 3600) % 24;
@@ -8328,12 +8328,15 @@ function secondsToTimeCode(time) {
 		if (showFrameCount) {
 			seconds = Math.floor(time % 60);
 		} else {
-			seconds = (time % 60).toFixed(secondsDecimalLength);
+			seconds = Math.floor(time % 60).toFixed(secondsDecimalLength);
 		}
 	}
 	hours = hours <= 0 ? 0 : hours;
 	minutes = minutes <= 0 ? 0 : minutes;
 	seconds = seconds <= 0 ? 0 : seconds;
+
+	seconds = seconds === 60 ? 0 : seconds;
+	minutes = minutes === 60 ? 0 : minutes;
 
 	var timeFormatFrags = timeFormat.split(':');
 	var timeFormatSettings = {};
