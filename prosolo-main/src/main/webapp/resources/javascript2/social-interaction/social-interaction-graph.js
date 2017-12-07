@@ -247,11 +247,13 @@ var socialInteractionGraph = (function () {
 			.attr("orient", "auto")
 			.attr("markerUnits", "userSpaceOnUse")
 			.append("svg:path")
+			.append("g")
 			.attr("d", "M0,-5L10,0L0,5");
 
 		svgdefs.append("svg:clipPath")
 			.attr("id", "circle-clip")
 			.append("svg:circle")
+			.append("g")
 			.attr("r", "10")
 			.attr("cx", "0")
 			.attr("cy", "0");
@@ -279,7 +281,7 @@ var socialInteractionGraph = (function () {
                 initializeDataForStudent(config, student, config.courseId);
 			})
 			.attr("class", "node")
-			.call(drag);
+			.call(force.drag);
 
 		node.append("circle").attr("r", 10).attr("class", function(d) {
 			return (d.name == config.studentId ? "focus " : "") + d.clusterClass;
@@ -330,9 +332,9 @@ var socialInteractionGraph = (function () {
 			});
 		}
 
-		function dragstart(d) {
-			d3.select(this).classed("fixed", d.fixed = true);
-		}
+		// function dragstart(d) {
+		// 	d3.select(this).classed("fixed", d.fixed = true);
+		// }
 
 	}
 
