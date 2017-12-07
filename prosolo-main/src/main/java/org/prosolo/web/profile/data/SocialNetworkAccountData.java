@@ -1,12 +1,11 @@
 package org.prosolo.web.profile.data;
 
-import java.io.Serializable;
-
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.web.data.IData;
 
-public class SocialNetworkAccountData implements Serializable, IData {
+import java.io.Serializable;
+
+public class SocialNetworkAccountData implements Serializable {
 
 	private static final long serialVersionUID = 2744838596870425767L;
 

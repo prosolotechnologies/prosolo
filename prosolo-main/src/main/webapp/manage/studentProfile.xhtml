@@ -34,7 +34,7 @@
                 <div>#{studentProfileBean.student.position}</div>
                 <div>#{studentProfileBean.student.location}</div>
                 <ul class="socialLinks">
-                	<ui:repeat value="#{studentProfileBean.socialNetworksData.socialNetworkAccountsData.entrySet().toArray()}" 
+                	<ui:repeat value="#{studentProfileBean.userSocialNetworksData.socialNetworkAccountsData.entrySet().toArray()}"
                 			var="socialNetworkData" varStatus="iterator">
                 		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
 	                      <li class="#{studentProfileBean.getAlternativeName(socialNetworkData.value.socialNetworkName)}">

@@ -25,7 +25,7 @@ import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
-import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -68,7 +68,7 @@ public class ProfileSettingsBean implements Serializable {
 	private boolean twitterConnected;
 	
 	private UserData accountData;
-	private SocialNetworksData socialNetworksData;
+	private UserSocialNetworksData userSocialNetworksData;
 	private boolean connectedToTwitter;
 
 	private UserSocialNetworks userSocialNetworks;
@@ -88,7 +88,7 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void initSocialNetworksData() {
 		try {
-			socialNetworksData = socialNetworksManager.getSocialNetworkData(loggedUser.getUserId());
+			userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(loggedUser.getUserId());
 			
 			connectedToTwitter = oauthAccessTokenManager.hasOAuthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -167,19 +167,19 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveSocialNetworkChanges() {
 		boolean newSocialNetworkAccountIsAdded = false;
 
-		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccountsData();
+		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = userSocialNetworksData.getSocialNetworkAccountsData();
 		
 		try {
 			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
 				if (socialNetowrkAccountData.isChanged()) {
 					SocialNetworkAccount account;
-					SocialNetworkAccountData userAccount = socialNetworksManager.getSocialNetworkAccountData(loggedUser.getUserId(),socialNetowrkAccountData.getSocialNetworkName());
+					SocialNetworkAccountData userAccount = socialNetworksManager.getSocialNetworkAccountData(loggedUser.getUserId(), socialNetowrkAccountData.getSocialNetworkName());
 					if (socialNetowrkAccountData.getId() == 0 && userAccount == null) {
 						account = socialNetworksManager.createSocialNetworkAccount(
 								socialNetowrkAccountData.getSocialNetworkName(),
 								socialNetowrkAccountData.getLinkEdit());
 						userAccount = new SocialNetworkAccountData(account);
-						socialNetworksData.getSocialNetworkAccountsData().put(userAccount.getSocialNetworkName().toString(), userAccount);
+						userSocialNetworksData.getSocialNetworkAccountsData().put(userAccount.getSocialNetworkName().toString(), userAccount);
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
@@ -194,7 +194,7 @@ public class ProfileSettingsBean implements Serializable {
 			}
 			
 			if (newSocialNetworkAccountIsAdded) {
-				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(socialNetworksData);
+				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(userSocialNetworksData);
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
 					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
@@ -229,12 +229,12 @@ public class ProfileSettingsBean implements Serializable {
 		this.cropCoordinates = cropCoordinates;
 	}
 
-	public SocialNetworksData getSocialNetworksData() {
-		return socialNetworksData;
+	public UserSocialNetworksData getUserSocialNetworksData() {
+		return userSocialNetworksData;
 	}
 
-	public void setSocialNetworksData(SocialNetworksData socialNetworksData) {
-		this.socialNetworksData = socialNetworksData;
+	public void setUserSocialNetworksData(UserSocialNetworksData userSocialNetworksData) {
+		this.userSocialNetworksData = userSocialNetworksData;
 	}
 
 	public boolean isConnectedToTwitter() {

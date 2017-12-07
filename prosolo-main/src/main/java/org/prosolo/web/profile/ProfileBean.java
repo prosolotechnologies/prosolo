@@ -20,7 +20,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
-import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -59,7 +59,7 @@ public class ProfileBean {
 	@Inject
 	private ThreadPoolTaskExecutor taskExecutor;
 	
-	private SocialNetworksData socialNetworksData;
+	private UserSocialNetworksData userSocialNetworksData;
 	private List<TargetCredentialData> targetCredential1List;
 	private List<TargetCredentialData> targetCredential1ListInProgress;
 	private Map<String, String> nameMap = new HashMap<>();
@@ -195,7 +195,7 @@ public class ProfileBean {
 
 	private void initializeSocialNetworkData(long id) {
 		try {
-			socialNetworksData = socialNetworksManager.getSocialNetworkData(id);
+			userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(id);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -217,8 +217,8 @@ public class ProfileBean {
 		return nameMap.get(name.toString());
 	}
 
-	public SocialNetworksData getSocialNetworksData() {
-		return socialNetworksData;
+	public UserSocialNetworksData getUserSocialNetworksData() {
+		return userSocialNetworksData;
 	}
 
 	public String getStudentId() {

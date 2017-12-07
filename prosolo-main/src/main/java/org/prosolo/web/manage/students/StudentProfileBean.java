@@ -18,7 +18,7 @@ import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
-import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -62,7 +62,7 @@ public class StudentProfileBean implements Serializable {
 	private long decodedId;
 
 	private StudentData student;
-	private SocialNetworksData socialNetworksData;
+	private UserSocialNetworksData userSocialNetworksData;
 
 	private List<CredentialProgressData> credentials;
 	private CredentialProgressData selectedCredential;
@@ -117,7 +117,7 @@ public class StudentProfileBean implements Serializable {
 //
 //				student.addInterests(preferredKeywords);
 //			}
-			if (socialNetworksData == null) {
+			if (userSocialNetworksData == null) {
 				initSocialNetworks();
 			}
 		} catch (Exception e) {
@@ -244,9 +244,9 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public void initSocialNetworks() {
-		if (socialNetworksData == null) {
+		if (userSocialNetworksData == null) {
 			try {
-				socialNetworksData = socialNetworksManager.getSocialNetworkData(student.getId());
+				userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(student.getId());
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}
@@ -318,12 +318,12 @@ public class StudentProfileBean implements Serializable {
 		this.decodedId = decodedId;
 	}
 
-	public SocialNetworksData getSocialNetworksData() {
-		return socialNetworksData;
+	public UserSocialNetworksData getUserSocialNetworksData() {
+		return userSocialNetworksData;
 	}
 
-	public void setSocialNetworksData(SocialNetworksData socialNetworksData) {
-		this.socialNetworksData = socialNetworksData;
+	public void setUserSocialNetworksData(UserSocialNetworksData userSocialNetworksData) {
+		this.userSocialNetworksData = userSocialNetworksData;
 	}
 
 	public List<CredentialProgressData> getCredentials() {

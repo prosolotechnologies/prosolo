@@ -62,6 +62,7 @@ public class CredentialAchievementsBean implements Serializable {
 		for (TargetCredentialData data : targetCredential1List) {
 			if (data.getId() == id) {
 				hideFromProfile = data.isHiddenFromProfile();
+				break;
 			}
 		}
 		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";
@@ -80,6 +81,7 @@ public class CredentialAchievementsBean implements Serializable {
 		for (TargetCredentialData data : targetCredential1ListInProgress) {
 			if (data.getId() == id) {
 				hideFromProfile = data.isHiddenFromProfile();
+				break;
 			}
 		}
 		String hiddenOrShown = hideFromProfile ? "hidden from" : "displayed in";

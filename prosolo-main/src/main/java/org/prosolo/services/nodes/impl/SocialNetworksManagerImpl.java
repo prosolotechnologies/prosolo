@@ -9,13 +9,9 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
-import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 @Service("org.prosolo.services.nodes.SocialNetworksManager")
 public class SocialNetworksManagerImpl extends AbstractManagerImpl implements SocialNetworksManager {
@@ -46,29 +42,20 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public SocialNetworksData getSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
+	public UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
 		try {
 			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
-			Set<SocialNetworkAccount> socialNetworkAccounts = userSocialNetworks.getSocialNetworkAccounts();
-			Map<String,SocialNetworkAccountData> socialNetworkAccountDataMap = new HashMap<>();
 
-			for (SocialNetworkAccount s : socialNetworkAccounts) {
-				SocialNetworkAccountData socialNetworkAccountData = new SocialNetworkAccountData(s);
-				socialNetworkAccountDataMap.put(socialNetworkAccountData.getSocialNetworkName().toString(),socialNetworkAccountData);
+			UserSocialNetworksData userSocialNetworksData = new UserSocialNetworksData();
+			userSocialNetworksData.setId(userSocialNetworks.getId());
+			userSocialNetworksData.setUserId(userId);
+
+			for (SocialNetworkAccount account : userSocialNetworks.getSocialNetworkAccounts()) {
+				userSocialNetworksData.setAccount(account);
 			}
-
-			SocialNetworksData socialNetworksData = new SocialNetworksData(/*userSocialNetworks,socialNetworkAccountDataMap*/);
-			socialNetworksData.setId(userSocialNetworks.getId());
-			socialNetworksData.setUserId(userSocialNetworks.getUser().getId());
-
-			for (SocialNetworkAccount account : socialNetworkAccounts) {
-				socialNetworksData.setAccount(account);
-			}
-			return socialNetworksData;
-
-
+			return userSocialNetworksData;
 		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return null;
 	}

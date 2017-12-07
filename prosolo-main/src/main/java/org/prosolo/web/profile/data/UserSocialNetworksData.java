@@ -3,20 +3,18 @@
  */
 package org.prosolo.web.profile.data;
 
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
+
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
-import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
-import org.prosolo.web.data.IData;
 
 /**
  * @author "Nikola Milikic"
  * 
  */
-public class SocialNetworksData implements Serializable, IData {
+public class UserSocialNetworksData implements Serializable {
 
 	private static final long serialVersionUID = 2744838596870425737L;
 	
@@ -25,7 +23,7 @@ public class SocialNetworksData implements Serializable, IData {
 
 	private Map<String, SocialNetworkAccountData> socialNetworkAccountsData;
 
-	public SocialNetworksData() {
+	public UserSocialNetworksData() {
 		socialNetworkAccountsData = new LinkedHashMap<>();
 		socialNetworkAccountsData.put(SocialNetworkName.LINKEDIN.toString(),
 				new SocialNetworkAccountData(SocialNetworkName.LINKEDIN));
