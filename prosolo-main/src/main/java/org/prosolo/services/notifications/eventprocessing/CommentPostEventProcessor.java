@@ -1,8 +1,5 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
@@ -11,10 +8,14 @@ import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommentPostEventProcessor extends CommentEventProcessor {
 
@@ -23,10 +24,10 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 	private CommentManager commentManager;
 	
 	public CommentPostEventProcessor(Event event, Session session,
-			NotificationManager notificationManager, 
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, 
-			CommentManager commentManager, ContextJsonParserService contextJsonParserService) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+									 NotificationManager notificationManager,
+									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
+									 UrlIdEncoder idEncoder, CommentManager commentManager, ContextJsonParserService contextJsonParserService) {
+		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder,
 				contextJsonParserService);
 		this.commentManager = commentManager;
 	}
@@ -36,39 +37,46 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 		List<NotificationReceiverData> receiversData = new ArrayList<>();
 		
 		try {
-			String notificationLink = getNotificationLink();
-			if (notificationLink != null && !notificationLink.isEmpty()) {
-				Long resCreatorId = commentManager.getCommentedResourceCreatorId(
+			Long resCreatorId = commentManager.getCommentedResourceCreatorId(
 						getResource().getResourceType(),
 						getResource().getCommentedResourceId());
-				if (resCreatorId != null) {
-					List<Long> usersToExclude = new ArrayList<>();
-					usersToExclude.add(resCreatorId);
+			if (resCreatorId != null) {
+				List<Long> usersToExclude = new ArrayList<>();
+				usersToExclude.add(resCreatorId);
 
+				String userSectionLink = getNotificationLink(Role.User);
+				//if link is null or empty it means there is no enough information to create notification
+				if (userSectionLink != null && !userSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as regular users
 					List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.User, usersToExclude);
 					for (Long id : users) {
-						receiversData.add(new NotificationReceiverData(id, notificationLink, false));
+						receiversData.add(new NotificationReceiverData(id, userSectionLink, false));
 					}
 					usersToExclude.addAll(users);
+				}
+
+				String manageSectionLink = getNotificationLink(Role.Manager);
+				//if link is null or empty it means there is no enough information to create notification
+				if (manageSectionLink != null && !manageSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as managers
 					List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.Manager,
 							usersToExclude);
 					for (long id : managers) {
-						receiversData.add(new NotificationReceiverData(id, "/manage" + notificationLink, false));
+						receiversData.add(new NotificationReceiverData(id, manageSectionLink, false));
 					}
-					/*
-					 * determine role for user as a creator of this resource and add appropriate
-					 * prefix to notification url based on that
-					 */
-					Role creatorRole = commentManager.getCommentedResourceCreatorRole(
-							getResource().getResourceType(), getResource().getCommentedResourceId());
-					String prefix = creatorRole == Role.Manager ? "/manage" : "";
-					receiversData.add(new NotificationReceiverData(resCreatorId, prefix + notificationLink, true));
+				}
+				/*
+				 * determine role for user as a creator of this resource
+				 */
+				Role creatorRole = commentManager.getCommentedResourceCreatorRole(
+						getResource().getResourceType(), getResource().getCommentedResourceId());
+				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
+				if (creatorLink != null && !creatorLink.isEmpty()) {
+					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true));
 				}
 			}
 			return receiversData;

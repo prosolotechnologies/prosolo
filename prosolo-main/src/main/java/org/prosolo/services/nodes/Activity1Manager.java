@@ -9,8 +9,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
-import org.prosolo.services.nodes.data.rubrics.RubricData;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
 
 import java.util.Date;
 import java.util.List;
@@ -153,60 +152,78 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws {@link DbConnectionException} {@link ResourceNotFoundException} {@link AccessDeniedException}
 	 */
 	CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-			long credId, long compId, long actId, long userId, boolean isManager)
-			throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
+			long credId, long compId, long actId, long userId, boolean isManager) 
+					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
 
 	/**
-	 * Returns activity data with results for all students that posted result for activity with id {@code actId}
+	 * Returns activity assessments summary data with students results and assessments for all students
+
 	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
 	 * activity.
 	 *
 	 * @param credId
-	 * @param compId
 	 * @param actId
-	 * @param targetActivityId
 	 * @param isInstructor
 	 * @param paginate
 	 * @param page
 	 * @param limit
-	 * @param filter
-	 * @param isManager
 	 * @return
 	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException
 	 */
-	ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId,
-															 long targetActivityId, boolean isInstructor, boolean isManager, boolean paginate, int page,
-															 int limit, StudentAssessedFilter filter) throws DbConnectionException;
+	ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, boolean isInstructor,
+																							boolean paginate, int page, int limit)
+			throws DbConnectionException, ResourceNotFoundException;
 
-	Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter)
-			throws DbConnectionException ;
+	ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
+			throws DbConnectionException, ResourceNotFoundException;
 
 	/**
-	 * Returns results data for all students that posted result for activity with id {@code actId}
-	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
-	 * activity.
+	 * Returns number of students completed activity but only those who at least started credential given
+	 * by {@code credId}
 	 *
-	 * @param credId - if greater than zero, it will be checked if competence given by {@code compId} 
-	 * is part of a credential with {@code credId} id and if not, {@link ResourceNotFoundException} will be thrown
+	 * NOTE: This method assumes that activity given by {@code activityId} is part of the credential given by {@code credId}
+	 * so it does not check that.
+	 *
+	 * @param credId
+	 * @param actId
+	 * @return
+	 */
+	Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId) throws DbConnectionException;
+	
+	/**
+	 * Returns results data for all students that posted result for activity with id {@code actId}
+	 *
 	 * @param compId
 	 * @param actId
-	 * @param targetActivityId
 	 * @param userToExclude
-	 * @param isInstructor
-	 * @param isManager
-	 * @param returnAssessmentData
-	 * @param loadUsersCommentsOnOtherResults
 	 * @param paginate
 	 * @param page
 	 * @param limit
-	 * @param filter
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, long targetActivityId,
-												long userToExclude, boolean isInstructor, boolean isManager, boolean returnAssessmentData,
-												boolean loadUsersCommentsOnOtherResults, boolean paginate, int page, int limit,
-												StudentAssessedFilter filter) throws DbConnectionException, ResourceNotFoundException;
+	List<ActivityResultData> getStudentsResults(long compId, long actId, long userToExclude, boolean paginate,
+												int page, int limit) throws DbConnectionException, ResourceNotFoundException;
+
+	/**
+	 * NOTE: This method assumes that activity given by {@code actId} is part of the credential given by {@code credId}
+	 * so it does not check that.
+	 *
+	 * @param credId
+	 * @param actId
+	 * @param targetActivityId
+	 * @param isInstructor
+	 * @param paginate
+	 * @param page
+	 * @param limit
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException
+	 */
+	List<ActivityResultData> getStudentsActivityAssessmentsData(long credId, long actId,
+																long targetActivityId, boolean isInstructor, boolean paginate,
+																int page, int limit) throws DbConnectionException, ResourceNotFoundException;
 
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments,
 											 boolean instructor, boolean isManager, long loggedUserId);

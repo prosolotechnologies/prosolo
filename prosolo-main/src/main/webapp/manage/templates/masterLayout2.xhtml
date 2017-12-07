@@ -84,7 +84,8 @@
 										or util:getPagePath(view.viewId)  == 'credential-editors'
 										or util:getPagePath(view.viewId)  == 'credential-who-can-learn'
 										or util:getPagePath(view.viewId)  == 'credential-instructors'
-										or util:getPagePath(view.viewId)  == 'credential-assessments'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-assessments'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-assessments-activity'
 										or util:getPagePath(view.viewId)  == 'credential-assessment'
 										or util:getPagePath(view.viewId)  == 'assessment-preview'
 										or util:getPagePath(view.viewId)  == 'credential-rss'
@@ -98,9 +99,8 @@
 										or util:getPagePath(view.viewId)  == 'competence-students'
 										or util:getPagePath(view.viewId)  == 'create-activity'
 										or util:getPagePath(view.viewId)  == 'activity'
-										or util:getPagePath(view.viewId)  == 'activity-responses'
-										or util:getPagePath(view.viewId)  == 'activity-response'
-										or util:getPagePath(view.viewId)  == 'activity-responses' ? 'active' : ''}">
+										or util:getPagePath(view.viewId)  == 'credential-delivery-'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-activity-assessment' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
 									outcome="/manage/library"
 									value="Library" />

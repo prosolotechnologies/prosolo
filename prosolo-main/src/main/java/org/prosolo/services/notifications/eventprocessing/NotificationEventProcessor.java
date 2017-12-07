@@ -1,8 +1,5 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
@@ -14,6 +11,9 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class NotificationEventProcessor {
 
@@ -38,7 +38,6 @@ public abstract class NotificationEventProcessor {
 	public List<Notification1> getNotificationList() {
 		List<Notification1> notifications = new ArrayList<>();
 		List<NotificationReceiverData> receivers = getReceiversData();
-
 		if (!receivers.isEmpty()) {
 			long sender = getSenderId();
 			NotificationType notificationType = getNotificationType();
@@ -47,7 +46,7 @@ public abstract class NotificationEventProcessor {
 			long targetId = getTargetId();
 			ResourceType targetType = getTargetType();
 			for (NotificationReceiverData receiver : receivers) {
-				if (isConditionMet(sender, receiver.getReceiverId())) {
+				if (isConditionMet(sender, receiver.getReceiverId()) && receiver.getNotificationLink() != null) {
 					//				String section = getUrlSection(receiver);
 					Notification1 notification = notificationManager.createNotification(
 							sender,
@@ -67,7 +66,7 @@ public abstract class NotificationEventProcessor {
 				}
 			}
 		}
-		
+
 		return notifications;
 	}
 	

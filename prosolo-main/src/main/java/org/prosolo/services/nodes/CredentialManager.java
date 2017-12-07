@@ -14,7 +14,6 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
@@ -442,6 +441,10 @@ public interface CredentialManager extends AbstractManager {
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
+
+	Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException;
+
+	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
 
 	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 

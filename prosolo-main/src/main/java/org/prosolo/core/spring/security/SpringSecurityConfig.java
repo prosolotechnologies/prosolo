@@ -209,6 +209,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //.antMatchers("/manage/credentials/*/instructors/new").hasAuthority("COURSE.ASSIGNINSTRUCTOR")
 		   .antMatchers("/manage/credentials/*/instructors").hasAuthority("COURSE.INSTRUCTORS.VIEW")
 		   .antMatchers("/manage/credentials/*/assessments/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
+		   .antMatchers("/manage/credentials/*/assessments/activities/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
+		   .antMatchers("/manage/credentials/*/assessments/activities/*/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/rss").hasAnyAuthority("MANAGE.CREDENTIAL.RSSFEEDS")
 		   .antMatchers("/manage/credentials/*/assessments").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/announcements").hasAnyAuthority("COURSE.ANNOUNCEMENTS.VIEW")
@@ -243,10 +245,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   
 		   .antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/credentials/*/*/*/responses").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
-		   .antMatchers("/manage/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
-		   .antMatchers("/manage/competences/*/*/responses").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
-		   .antMatchers("/manage/competences/*/*/responses/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/").hasAuthority("BASIC.ADMIN.ACCESS")

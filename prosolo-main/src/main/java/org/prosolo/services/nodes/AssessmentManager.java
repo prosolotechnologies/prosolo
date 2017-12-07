@@ -183,6 +183,9 @@ public interface AssessmentManager {
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
 
+	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;
+
+	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
 
 	long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, boolean isDefault);
 }

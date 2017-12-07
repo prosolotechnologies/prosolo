@@ -103,6 +103,7 @@ public class Credential1 extends BaseEntity {
 
 	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
+	@OrderBy("order ASC")
 	public List<CredentialCompetence1> getCompetences() {
 		return competences;
 	}
