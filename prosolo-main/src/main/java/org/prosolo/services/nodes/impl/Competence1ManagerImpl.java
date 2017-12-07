@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -30,6 +29,8 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -39,7 +40,6 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -72,6 +72,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private Competence1Manager self;
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
+	@Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
 
 	@Override
 	//nt
@@ -371,7 +373,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, DbConnectionException {
 		try {
 			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
@@ -1061,12 +1063,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param credId
 	 * @param compId
 	 * @param userId
-	 * @param loadActivities
+	 * @param loadLearningPathContent
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
-			boolean loadActivities) throws DbConnectionException {
+			boolean loadLearningPathContent) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -1101,10 +1103,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 0,
 						res.getCompetence().getTags(), null, true);
 
-				if (compData != null && loadActivities) {
-					List<ActivityData> activities = activityManager
-							.getTargetActivitiesData(compData.getTargetCompId());
-					compData.setActivities(activities);
+				if (compData != null && loadLearningPathContent) {
+					if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+						List<ActivityData> activities = activityManager
+								.getTargetActivitiesData(compData.getTargetCompId());
+						compData.setActivities(activities);
+					} else {
+						//load user evidences
+						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), true);
+						compData.setEvidences(compEvidences);
+					}
 				}
 				return compData;
 			}
