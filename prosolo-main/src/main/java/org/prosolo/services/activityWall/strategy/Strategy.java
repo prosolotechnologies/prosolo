@@ -32,6 +32,6 @@ import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 public @interface  Strategy {
 	 Class<?> type();
 	 FilterType[] filters() default{};
-	 //   Profile[] profiles() default {};
+	 //   ProfileBean[] profiles() default {};
 }
 

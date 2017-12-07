@@ -6,6 +6,8 @@ import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 
 public interface SocialNetworksManager extends AbstractManager {
 
@@ -20,5 +22,10 @@ public interface SocialNetworksManager extends AbstractManager {
 	void updateSocialNetworkAccount(SocialNetworkAccount account, String newLink) throws DbConnectionException, ResourceCouldNotBeLoadedException;
 
 	SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName);
-	
+
+	SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName);
+
+	UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException;
+
+
 }

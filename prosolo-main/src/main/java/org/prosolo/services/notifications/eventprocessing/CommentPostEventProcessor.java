@@ -36,38 +36,40 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 		List<NotificationReceiverData> receiversData = new ArrayList<>();
 		
 		try {
-			Long resCreatorId = commentManager.getCommentedResourceCreatorId(
-					getResource().getResourceType(), 
-					getResource().getCommentedResourceId());
-			if (resCreatorId != null) {
-				List<Long> usersToExclude = new ArrayList<>();
-				usersToExclude.add(resCreatorId);
-				
-				String link = getNotificationLink();
-				//get ids of all users who posted a comment as regular users
-				List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
-						getResource().getResourceType(), getResource().getCommentedResourceId(), 
-						Role.User, usersToExclude);
-				for(Long id : users) {
-					receiversData.add(new NotificationReceiverData(id, link, false));
+			String notificationLink = getNotificationLink();
+			if (notificationLink != null && !notificationLink.isEmpty()) {
+				Long resCreatorId = commentManager.getCommentedResourceCreatorId(
+						getResource().getResourceType(),
+						getResource().getCommentedResourceId());
+				if (resCreatorId != null) {
+					List<Long> usersToExclude = new ArrayList<>();
+					usersToExclude.add(resCreatorId);
+
+					//get ids of all users who posted a comment as regular users
+					List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
+							getResource().getResourceType(), getResource().getCommentedResourceId(),
+							Role.User, usersToExclude);
+					for (Long id : users) {
+						receiversData.add(new NotificationReceiverData(id, notificationLink, false));
+					}
+					usersToExclude.addAll(users);
+					//get ids of all users who posted a comment as managers
+					List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
+							getResource().getResourceType(), getResource().getCommentedResourceId(),
+							Role.Manager,
+							usersToExclude);
+					for (long id : managers) {
+						receiversData.add(new NotificationReceiverData(id, "/manage" + notificationLink, false));
+					}
+					/*
+					 * determine role for user as a creator of this resource and add appropriate
+					 * prefix to notification url based on that
+					 */
+					Role creatorRole = commentManager.getCommentedResourceCreatorRole(
+							getResource().getResourceType(), getResource().getCommentedResourceId());
+					String prefix = creatorRole == Role.Manager ? "/manage" : "";
+					receiversData.add(new NotificationReceiverData(resCreatorId, prefix + notificationLink, true));
 				}
-				usersToExclude.addAll(users);
-				//get ids of all users who posted a comment as managers
-				List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
-						getResource().getResourceType(), getResource().getCommentedResourceId(), 
-						Role.Manager, 
-						usersToExclude);
-				for(long id : managers) {
-					receiversData.add(new NotificationReceiverData(id, "/manage" + link, false));
-				}
-				/*
-				 * determine role for user as a creator of this resource and add appropriate
-				 * prefix to notification url based on that
-				 */
-				Role creatorRole = commentManager.getCommentedResourceCreatorRole(
-						getResource().getResourceType(), getResource().getCommentedResourceId());
-				String prefix =  creatorRole == Role.Manager ? "/manage" : "";
-				receiversData.add(new NotificationReceiverData(resCreatorId, prefix + link, true));
 			}
 			return receiversData;
 		} catch(Exception e) {

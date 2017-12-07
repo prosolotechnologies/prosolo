@@ -83,7 +83,8 @@ public enum ContextName {
 	RUBRIC("Rubric"),	
 	MAKE_OWNER_DIALOG(""),
 	GROUP_JOIN("UserGroup"),
-	USERS("");
+	USERS(""),
+	NEXT_LEARNING_STAGE_DIALOG("LearningStage");
 
     private String objectType; 
     

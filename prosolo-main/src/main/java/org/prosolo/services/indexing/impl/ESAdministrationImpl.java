@@ -17,11 +17,12 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static org.elasticsearch.client.Requests.*;
@@ -59,7 +60,7 @@ public class ESAdministrationImpl implements ESAdministration {
 				.getFoundNodes();
 		for (String ind : organizationIndexes) {
 			for (OrganizationData o : organizations) {
-				createIndex(ind + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+				createIndex(ElasticsearchUtil.getOrganizationIndexName(ind, o.getId()));
 			}
 		}
 		return true;
@@ -110,6 +111,11 @@ public class ESAdministrationImpl implements ESAdministration {
 				this.addMapping(client, indexName, ESIndexTypes.RUBRIC);
 			}
 		}
+	}
+
+	@Override
+	public void createNonrecreatableSystemIndexesIfNotExist() throws IndexingServiceNotAvailable {
+		createIndexes(ESIndexNames.getNonrecreatableSystemIndexes(), Collections.emptyList());
 	}
 	
 	private void addMapping(Client client, String indexName, String indexType) {
@@ -183,7 +189,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		List<String> indexes = ESIndexNames.getOrganizationIndexes();
 
 		for (String index : indexes) {
-			createIndex(index + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId));
+			createIndex(ElasticsearchUtil.getOrganizationIndexName(index, organizationId));
 		}
 		return true;
 	}
@@ -193,7 +199,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		List<String> indexes = ESIndexNames.getOrganizationIndexes();
 
 		for (String index : indexes) {
-			deleteIndex(index + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId));
+			deleteIndex(ElasticsearchUtil.getOrganizationIndexName(index, organizationId));
 		}
 		return true;
 	}

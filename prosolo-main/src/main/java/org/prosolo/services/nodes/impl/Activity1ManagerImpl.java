@@ -14,7 +14,6 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -31,7 +30,6 @@ import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
-import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -65,13 +63,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	//nt
 	public Activity1 saveNewActivity(ActivityData data, UserContextData context)
-			throws DbConnectionException, EventException, IllegalDataStateException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Activity1> res = self.createActivity(data, context);
 
-			for(EventData ev : res.getEvents()) {
-				eventFactory.generateEvent(ev);
-			}
+			eventFactory.generateEvents(res.getEventQueue());
 
 			return res.getResult();
 		} catch (IllegalDataStateException idse) {
@@ -144,20 +140,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 
-			activity.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			activity.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 
 			saveEntity(activity);
+
+			result.appendEvent(eventFactory.generateEventData(
+					EventType.Create, context, activity, null, null, null));
 
 			if(data.getCompetenceId() > 0) {
 				EventData ev = compManager.addActivityToCompetence(data.getCompetenceId(),
 						activity, context);
-				if (ev != null) {
-					result.addEvent(ev);
-				}
+				result.appendEvent(ev);
 			}
-
-			result.addEvent(eventFactory.generateEventData(
-					EventType.Create, context, activity, null, null, null));
 
 			result.setResult(activity);
 			return result;
@@ -352,7 +346,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT compAct " +
+			builder.append("SELECT DISTINCT compAct " +
 				      	   "FROM CompetenceActivity1 compAct " + 
 				       	   "INNER JOIN fetch compAct.activity act ");
 			
@@ -580,18 +574,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 updateActivity(ActivityData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException {
-		try {
-			Activity1 act = resourceFactory.updateActivity(data);
+		Activity1 act = resourceFactory.updateActivity(data);
 
-			eventFactory.generateEvent(EventType.Edit, context, act,
-					null, null, null);
+		eventFactory.generateEvent(EventType.Edit, context, act,
+				null, null, null);
 
-		    return act;
-		} catch (EventException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while saving credential");
-		}
+		return act;
 	}
 	
 	private void updateActivityType(long activityId, ActivityType activityType) {
@@ -907,11 +895,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
-		for (EventData ev : res.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -932,12 +918,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.executeUpdate();
 
 			Result<Void> res = new Result<>();
-			res.addEvents(compManager.updateCompetenceProgress(targetCompId, context));
+			res.appendEvents(compManager.updateCompetenceProgress(targetCompId, context));
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			res.addEvent(eventFactory.generateEventData(EventType.Completion, context, tAct, null, null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.Completion, context, tAct, null, null, null));
 			return res;
 		} catch (DbConnectionException dce) {
 			throw dce;
@@ -1498,8 +1484,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
 						}
+						BigInteger rubricId = (BigInteger) row[15];
 						ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
-								GradingMode.valueOf((String) row[14]), ((BigInteger) row[15]).longValue(), ((Character) row[16]).charValue() == 'T'));
+								GradingMode.valueOf((String) row[14]), rubricId != null ? rubricId.longValue() : 0, ((Character) row[16]).charValue() == 'T'));
 
 						//load additional assessment data
 						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,
@@ -1875,7 +1862,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			saveEntity(competenceActivity);
 			Result<CompetenceActivity1> r = new Result<>();
 			r.setResult(competenceActivity);
-			r.addEvents(res.getEvents());
+			r.appendEvents(res.getEventQueue());
 			return r;
 		} catch(DbConnectionException dce) {
 			throw dce;
@@ -1925,7 +1912,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			act.setId(activity.getId());
 			ev.setObject(act);
 			
-			res.addEvent(ev);
+			res.appendEvent(ev);
 			return res;
 		} catch (Exception e) {
 			logger.error(e);
@@ -1967,12 +1954,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			@Override
 			public void visit(UrlActivity1 activity) {
-				UrlActivity1 originalUrlAct = (UrlActivity1) original;
-
 				UrlActivity1 urlAct = new UrlActivity1();
-				urlAct.setUrlType(originalUrlAct.getUrlType());
-				urlAct.setUrl(originalUrlAct.getUrl());
-				urlAct.setLinkName(originalUrlAct.getLinkName());
+				urlAct.setUrlType(activity.getUrlType());
+				urlAct.setUrl(activity.getUrl());
+				urlAct.setLinkName(activity.getLinkName());
 				urlAct.setCaptions(cloneLinks(activity.getCaptions()));
 				act = urlAct;
 			}

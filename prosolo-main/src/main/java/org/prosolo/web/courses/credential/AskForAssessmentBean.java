@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -146,8 +145,6 @@ public class AskForAssessmentBean implements Serializable {
                 PageUtil.fireErrorMessage("No assessor set");
             }
             resetAskForAssessmentModal();
-        } catch (EventException e) {
-            logger.error(e);
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while sending assessment request");

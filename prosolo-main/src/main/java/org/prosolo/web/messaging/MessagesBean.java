@@ -12,7 +12,6 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -174,15 +173,11 @@ public class MessagesBean implements Serializable {
 		context = (context != null) ? context : "name:messages";
 		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 		taskExecutor.execute(() -> {
-			try {
-				Map<String, String> parameters = new HashMap<String, String>();
-        		parameters.put("threadId", String.valueOf(threadData.getId()));
-        		
-        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD,
-						userContext, thread, null, null, parameters);
-        	} catch (EventException e) {
-        		logger.error(e);
-        	}
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("threadId", String.valueOf(threadData.getId()));
+
+			eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD,
+					userContext, thread, null, null, parameters);
 		});
 		
 		return MessageProcessingResult.OK;
@@ -314,18 +309,14 @@ public class MessagesBean implements Serializable {
 	private void publishSentMessage(long senderId, List<UserData> participants, Message message) {
 		UserContextData userContext = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {
-        	try {
-        		Map<String, String> parameters = new HashMap<String, String>();
-        		parameters.put("context", context);
-        		parameters.put("users", participants.stream().map(u -> String.valueOf(u.getId())).collect(Collectors.joining(",")));
-        		//DirectMessageDialog uses recipient as user param
-        		parameters.put("user", String.valueOf(participants.get(0).getId()));
-        		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
-						message, null, null, parameters);
-        	} catch (EventException e) {
-        		logger.error(e);
-        	}
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("context", context);
+			parameters.put("users", participants.stream().map(u -> String.valueOf(u.getId())).collect(Collectors.joining(",")));
+			//DirectMessageDialog uses recipient as user param
+			parameters.put("user", String.valueOf(participants.get(0).getId()));
+			parameters.put("message", String.valueOf(message.getId()));
+			eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
+					message, null, null, parameters);
 		});
 	}
 	

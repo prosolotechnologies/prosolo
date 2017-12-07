@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -61,6 +62,8 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private Date datePublished;
 	
 	private long numberOfStudents;
+
+	private LearningPathType learningPathType = LearningPathType.ACTIVITY;
 	
 	//by default competence can be unpublished
 	private boolean canUnpublish = true;
@@ -72,7 +75,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		tags = new HashSet<>();
 		this.listenChanges = listenChanges;
 	}
-	
+
 	@Override
 	public boolean hasObjectChanged() {
 		boolean changed = super.hasObjectChanged();
@@ -428,6 +431,10 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		return changedAttributes.containsKey("scheduledPublicDate");
 	}
 
+	public boolean isLearningPathChanged() {
+		return changedAttributes.containsKey("learningPathType");
+	}
+
 	public boolean isBookmarkedByCurrentUser() {
 		return bookmarkedByCurrentUser;
 	}
@@ -484,4 +491,12 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.canUnpublish = canUnpublish;
 	}
 
+	public LearningPathType getLearningPathType() {
+		return learningPathType;
+	}
+
+	public void setLearningPathType(LearningPathType learningPathType) {
+		observeAttributeChange("learningPathType", this.learningPathType, learningPathType);
+		this.learningPathType = learningPathType;
+	}
 }

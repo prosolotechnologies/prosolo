@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -20,7 +19,6 @@ import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
@@ -32,7 +30,6 @@ import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -139,24 +136,23 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 	
-	public void reinitializeSessionData(User user) {
+	public void reinitializeSessionData(UserData user, long organizationId) {
 		if (user != null) {
-//			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
 			long orgId = 0;
-			if (user.getOrganization() != null) {
-				orgId = user.getOrganization().getId();
+			if (organizationId > 0) {
+				orgId = organizationId;
+				sessionData.setOrganizationId(orgId);
+				sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
+				sessionData.setName(user.getName());
+				sessionData.setLastName(user.getLastName());
+				sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+				sessionData.setAvatar(user.getAvatarUrl());
+				sessionData.setPosition(user.getPosition());
+				sessionData.setEmail(user.getEmail());
+				sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
+				initialized = true;
 			}
-			sessionData.setOrganizationId(orgId);
-			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
-			sessionData.setName(user.getName());
-			sessionData.setLastName(user.getLastname());
-			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
-			sessionData.setPosition(user.getPosition());
-			sessionData.setEmail(user.getEmail());
-			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
-			initialized = true;
 		}
 	}
 	
@@ -263,15 +259,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
-				try {
-					Map<String, String> parameters = new HashMap<>();
-					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
-							getUserId(), getOrganizationId(), event.getSession().getId(), null),
-							null, null, null, parameters);
-				} catch (EventException e) {
-					logger.error("Generate event failed.", e);
-				}
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("ip", ipAddress);
+				eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+						getUserId(), getOrganizationId(), event.getSession().getId(), null),
+						null, null, null, parameters);
+
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
 						+ " for user:" + getUserId());

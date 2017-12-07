@@ -1,9 +1,6 @@
 
 package org.prosolo.web.util;
 
-import java.io.File;
-import java.util.Date;
-
 import org.hibernate.Hibernate;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
@@ -14,6 +11,9 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.util.StringUtils;
 
+import java.io.File;
+import java.util.Date;
+
 /**
  * @author Zoran Jeremic
  * @date Jul 6, 2012
@@ -21,14 +21,6 @@ import org.prosolo.util.StringUtils;
 
 public class AvatarUtils {
 
-//	public static String generateAvatarUrl(String org, String imageType) {
-//		return "resources/images/users/" + org + "/format/" + UUID.randomUUID() + "." + imageType;
-//	}
-	
-//	public static String getDefaultAvatarUrl(){
-//		return CommonSettings.getInstance().config.services.userService.defaultAvatarName;
-//	}
-	
 	public static String getAvatarUrlInFormat(User user, ImageFormat format) {
 		
 		String avatarUrl = null;
@@ -44,8 +36,6 @@ public class AvatarUtils {
 			}
 			avatarUrl = user.getAvatarUrl();
 			return getAvatarUrlInFormat(avatarUrl, format);
-//		} else {
-//			avatarUrl = getDefaultAvatarUrl();
 		}
 		return null;
 	}

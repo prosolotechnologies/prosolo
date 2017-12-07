@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.*;
@@ -18,7 +17,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
@@ -96,8 +95,8 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void init() {
 		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
+		roles.add(SystemRoleNames.MANAGER);
+		roles.add(SystemRoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
 			this.roles = "Instructor";
@@ -252,8 +251,6 @@ public class ActivityViewBeanUser implements Serializable {
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -316,8 +313,6 @@ public class ActivityViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error marking the activity as completed");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	

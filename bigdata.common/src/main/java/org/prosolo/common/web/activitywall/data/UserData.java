@@ -3,6 +3,9 @@
  */
 package org.prosolo.common.web.activitywall.data;
 
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 

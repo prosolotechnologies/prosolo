@@ -11,6 +11,7 @@ public class RoleData implements Serializable {
 
 	private String name;
 	private String description;
+	private boolean system;
 	private long id;
 	private boolean active;
 	private List<Long> userIds;
@@ -20,6 +21,7 @@ public class RoleData implements Serializable {
 	public RoleData(Role role) {
 		this.name = role.getTitle();
 		this.description = role.getDescription();
+		this.system = role.isSystem();
 		this.id = role.getId();
 	}
 
@@ -66,6 +68,12 @@ public class RoleData implements Serializable {
 	public void setUserIds(List<Long> userIds) {
 		this.userIds = userIds;
 	}
-	
-	
+
+	public boolean isSystem() {
+		return system;
+	}
+
+	public void setSystem(boolean system) {
+		this.system = system;
+	}
 }

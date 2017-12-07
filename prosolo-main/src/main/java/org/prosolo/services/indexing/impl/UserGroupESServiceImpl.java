@@ -33,21 +33,22 @@ public class UserGroupESServiceImpl extends AbstractBaseEntityESServiceImpl impl
 			builder.field("name", group.getName());
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
-			String fullIndexName = ESIndexNames.INDEX_USER_GROUP +
-					ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 			indexNode(builder, String.valueOf(group.getId()), fullIndexName,
 					ESIndexTypes.USER_GROUP);
 		} catch (IOException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
 	@Override
 	public void deleteUserGroup(long orgId, long groupId) {
-		String fullIndexName = ESIndexNames.INDEX_USER_GROUP +
-				ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
-		delete(groupId + "", fullIndexName, ESIndexTypes.USER_GROUP);
+		try {
+			String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
+			delete(groupId + "", fullIndexName, ESIndexTypes.USER_GROUP);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
 	}
 
 }

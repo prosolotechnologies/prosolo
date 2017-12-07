@@ -8,6 +8,8 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,8 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		String query = 
 				"SELECT socialNetwork " + 
 				"FROM UserSocialNetworks socialNetwork " +
-				"WHERE socialNetwork.user.id = :userId ";
+				"LEFT JOIN FETCH socialNetwork.user user " +
+				"WHERE user.id = :userId ";
 
 		UserSocialNetworks result = (UserSocialNetworks) persistence.currentManager().createQuery(query)
 				.setLong("userId", userId)
@@ -39,13 +42,33 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
+	public UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
+		try {
+			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
+
+			UserSocialNetworksData userSocialNetworksData = new UserSocialNetworksData();
+			userSocialNetworksData.setId(userSocialNetworks.getId());
+			userSocialNetworksData.setUserId(userId);
+
+			for (SocialNetworkAccount account : userSocialNetworks.getSocialNetworkAccounts()) {
+				userSocialNetworksData.setAccount(account);
+			}
+			return userSocialNetworksData;
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
 	public SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link) {
 		SocialNetworkAccount account = new SocialNetworkAccount();
 		account.setSocialNetwork(name);
 		account.setLink(link);
 		return saveEntity(account);
 	}
-	
+
 	@Override
 	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link) throws ResourceCouldNotBeLoadedException {
 		UserSocialNetworks socialNetworks = getSocialNetworks(userId);
@@ -99,6 +122,16 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		
 		if (result != null) {
 			return result;
+		}
+		return null;
+	}
+
+	@Override
+	public SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName) {
+		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId,socialNetworkName);
+
+		if(socialNetworkAccount != null){
+			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;
 	}

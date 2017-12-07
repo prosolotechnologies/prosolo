@@ -11,16 +11,15 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
-import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,7 +76,7 @@ public class UserEditBean implements Serializable {
 	private long decodedOrgId;
 	private String id;
 	private long decodedId;
-	private AccountData accountData;
+	private UserData accountData;
 	private UserData userToDelete;
 	private UserData user;
 	private UserData newOwner = new UserData();
@@ -115,7 +114,7 @@ public class UserEditBean implements Serializable {
 	private void initDataForPasswordEdit() {
 		decodedId = idEncoder.decodeId(id);
 		user = userManager.getUserData(decodedId);
-		accountData = new AccountData();
+		accountData = new UserData();
 		usersToExclude.add(user);
 	}
 
@@ -131,15 +130,16 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void initAdmin() {
-		init(new String[] {"Admin", "Super Admin"});
+		init(new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN});
 	}
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
+
 		if(pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			initOrgTitle();
 			if (organizationTitle != null) {
-				init(new String[]{"User", "Instructor", "Manager", "Admin"});
+				init(new String[]{SystemRoleNames.USER, SystemRoleNames.INSTRUCTOR, SystemRoleNames.MANAGER, SystemRoleNames.ADMIN});
 			}
 		} else {
 			PageUtil.accessDenied();
@@ -153,7 +153,7 @@ public class UserEditBean implements Serializable {
 			if (decodedId > 0) {
 				user = userManager.getUserWithRoles(decodedId, decodedOrgId);
 				if (user != null) {
-					accountData = new AccountData();
+					accountData = new UserData();
 				} else {
 					user = new UserData();
 					PageUtil.fireErrorMessage("Admin cannot be found");
@@ -225,8 +225,6 @@ public class UserEditBean implements Serializable {
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.debug(e);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to save user data");
@@ -254,8 +252,6 @@ public class UserEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the user");
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 
@@ -296,7 +292,7 @@ public class UserEditBean implements Serializable {
 		this.allRoles = allRoles;
 	}
 
-	public AccountData getAccountData() {
+	public UserData getAccountData() {
 		return accountData;
 	}
 

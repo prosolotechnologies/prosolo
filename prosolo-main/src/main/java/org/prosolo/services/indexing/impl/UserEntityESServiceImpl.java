@@ -68,11 +68,14 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 	@Override
 	public void removeUserFromOrganization(User user, long organizationId) {
-		delete(user.getId() + "", ESIndexNames.INDEX_USERS +
-				ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER);
-		//if user is also a system user (admin) update assigned flag to false
-		if (RoleUtil.hasAdminRole(user)) {
-			updateUserAssignedFlag(user.getId(), false);
+		try {
+			delete(user.getId() + "", ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId), ESIndexTypes.ORGANIZATION_USER);
+			//if user is also a system user (admin) update assigned flag to false
+			if (RoleUtil.hasAdminRole(user)) {
+				updateUserAssignedFlag(user.getId(), false);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -140,10 +143,9 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
 				String indexType = ESIndexTypes.ORGANIZATION_USER;
-				String fullIndexName = ESIndexNames.INDEX_USERS +
-						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+				String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				logger.error(e);
 			}
 		}
@@ -154,8 +156,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	 		try {
 				XContentBuilder builder = getBasicOrgUserDataSet(user, session);
 				builder.endObject();
-				partialUpdate(ESIndexNames.INDEX_USERS +
-						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER,
+				partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId), ESIndexTypes.ORGANIZATION_USER,
 						user.getId() + "", builder);
 			} catch (IOException e) {
 				logger.error(e);
@@ -300,8 +301,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addCredentials(builder, userId, session);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(orgId), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -317,11 +317,10 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			Map<String, Object> params = new HashMap<>();
 			params.put("credId", credId);
 			params.put("instructorId", instructorId);
-			partialUpdateByScript(ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId),
+			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
 					ESIndexTypes.ORGANIZATION_USER,userId+"", script, params);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -333,8 +332,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addCredentialsWithInstructorRole(builder, userId);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(orgId), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -350,11 +348,10 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			Map<String, Object> params = new HashMap<>();
 			params.put("credId", credId);
 			params.put("progress", progress);
-			partialUpdateByScript(ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId),
+			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
 					ESIndexTypes.ORGANIZATION_USER,userId+"", script, params);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -366,8 +363,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addFollowers(builder, userId);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(orgId), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -382,8 +378,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addCompetences(builder, userId, session);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(orgId), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -404,11 +399,10 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				dateCompleted = ElasticsearchUtil.getDateStringRepresentation(tComp.getDateCompleted());
 			}
 			params.put("date", dateCompleted);
-			partialUpdateByScript(ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId),
+			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
 					ESIndexTypes.ORGANIZATION_USER,userId+"", script, params);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
 	}
 
@@ -421,8 +415,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 			partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, userId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -435,8 +428,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addRoles(builder, user, session);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(user.getOrganization().getId()), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, user.getOrganization().getId()), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -451,8 +443,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addGroups(builder, userId);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_USERS +
-							ElasticsearchUtil.getOrganizationIndexSuffix(orgId), ESIndexTypes.ORGANIZATION_USER,
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
 					userId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -463,8 +454,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void removeUserFromIndex(User user) {
 		try {
 			if (user.getOrganization() != null) {
-				delete(user.getId() + "", ESIndexNames.INDEX_USERS +
-								ElasticsearchUtil.getOrganizationIndexSuffix(user.getOrganization().getId()),
+				delete(user.getId() + "", ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, user.getOrganization().getId()),
 						ESIndexTypes.ORGANIZATION_USER);
 			}
 			if (RoleUtil.hasAdminRole(user)) {

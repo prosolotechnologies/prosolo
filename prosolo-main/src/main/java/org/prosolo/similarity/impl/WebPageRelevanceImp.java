@@ -6,7 +6,7 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.prosolo.services.htmlparser.WebPageContent;
-import org.prosolo.services.htmlparser.WebPageContentExtractor;
+import org.prosolo.similarity.WebPageContentExtractor;
 import org.prosolo.similarity.CosineSimilarity;
 import org.prosolo.similarity.ResourceTokenizer;
 import org.prosolo.similarity.WebPageRelevance;

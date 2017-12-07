@@ -7,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
@@ -133,8 +132,6 @@ public class CredentialViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
@@ -165,8 +162,6 @@ public class CredentialViewBeanUser implements Serializable {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 

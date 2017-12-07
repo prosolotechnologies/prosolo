@@ -3,7 +3,7 @@ package org.prosolo.web.administration;
 import org.apache.log4j.Logger;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 

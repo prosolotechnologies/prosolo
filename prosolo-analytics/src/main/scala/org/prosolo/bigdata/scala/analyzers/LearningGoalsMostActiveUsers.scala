@@ -16,7 +16,7 @@ import org.prosolo.common.util.date.DateEpochUtil
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 /**
   * Created by zoran on 09/01/16.
   */
@@ -28,7 +28,7 @@ class LearningGoalsMostActiveUsers {
   def analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch:Long)={
     //val dbManager = new AnalyticalEventDBManagerImpl;
     println("*****************************analyzeLearningGoalsMostActiveUsersForDay")
-    val sc=SparkContextLoader.getSC
+    val sc=SparkManager.sparkContextLoader.getSC
     val activitiesCounters = AnalyticalEventDBManagerImpl.getInstance().findUserLearningGoalActivitiesByDate(daysSinceEpoch);
    val activitiesCountersRDD:RDD[UserLearningGoalActivitiesCount]= sc.parallelize(activitiesCounters.asScala)
     println("Activities counters:")
@@ -83,7 +83,7 @@ class LearningGoalsMostActiveUsers {
     val indexer = new RecommendationDataIndexerImpl
     val daysSinceEpoch=DateEpochUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
-    val sc=SparkContextLoader.getSC
+    val sc=SparkManager.sparkContextLoader.getSC
     val daysToAnalyzeRDD=sc.parallelize(daysToAnalyze)
     val mostActiveUsersByDateRDD:RDD[(Long,mutable.Buffer[MostActiveUsersForLearningGoal])]=daysToAnalyzeRDD.map{
       date=>

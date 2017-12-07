@@ -18,8 +18,6 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
@@ -228,7 +226,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException {
+			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException {
 		return createNewUser(organizationId, name, lastname, emailAddress, emailVerified, password, position,
 				avatarStream, avatarFilename, roles, false);
 	}
@@ -237,7 +235,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException {
+			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
@@ -382,7 +380,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
 						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, roles, rolesToUpdate);
 
@@ -501,11 +499,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	//nt
 	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
-		for (EventData ev : result.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 	}
 
 	@Override
@@ -519,10 +515,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				user.setDeleted(true);
 				saveEntity(user);
 
-				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId, context).getEvents());
+				result.appendEvents(assignNewOwner(newCreatorId, oldCreatorId, context).getEventQueue());
 				User u = new User(oldCreatorId);
 				//actor not passed
-				result.addEvent(eventFactory.generateEventData(EventType.Delete,
+				result.appendEvent(eventFactory.generateEventData(EventType.Delete,
 						context, u, null, null, null));
 				//TODO check if line below is needed
 				//userEntityESService.deleteNodeFromES(user);
@@ -725,8 +721,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId, UserContextData context) {
 		Result<Void> result = new Result<>();
-		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId, context).getEvents());
-		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId, context).getEvents());
+		result.appendEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId, context).getEventQueue());
+		result.appendEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId, context).getEventQueue());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
 		return result;
 	}
@@ -822,13 +818,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 												   String password, String position, long unitId,
 												   long unitRoleId, long userGroupId,
 												   UserContextData context)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<UserCreationData> res = self.createNewUserConnectToResourcesAndGetEvents(
 				name, lastname, emailAddress, password, position, unitId, unitRoleId,
 				userGroupId, context);
 
 		if (res.getResult() != null) {
-			taskExecutor.execute(() -> {
+			//generate events
+			eventFactory.generateEvents(res.getEventQueue());
+			//taskExecutor.execute(() -> {
 				//TODO for now, we do not send emails
 				//send email if new or activated account
 //				if (res.getResult().isNewAccount()) {
@@ -854,28 +852,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 //								+ res.getResult().getUser().getId() + ") with new account created");
 //					}
 //				}
-
-				//generate events
-				for (EventData ev : res.getEvents()) {
-					try {
-						eventFactory.generateEvent(ev);
-						/*
-						TODO this is a hack until we implement a mechanism for
-						sequential handling of events
-						 */
-						if (ev.getEventType() == EventType.Registered ||
-								ev.getEventType() == EventType.Account_Activated) {
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								logger.error("Error", e);
-							}
-						}
-					} catch (EventException ee) {
-						logger.error("Error", ee);
-					}
-				}
-			});
+			//});
 
 			return true;
 		}
@@ -899,18 +876,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 					unitRoleId, context);
 
 			res.setResult(newUserRes.getResult());
-			res.addEvents(newUserRes.getEvents());
+			res.appendEvents(newUserRes.getEventQueue());
 
 			//only if user is created/updated and retrieved successfully other operations can be performed
 			if (newUserRes.getResult() != null) {
 				if (unitId > 0 && unitRoleId > 0) {
-					res.addEvents(unitManager.addUserToUnitWithRoleAndGetEvents(
-							newUserRes.getResult().getUser().getId(), unitId, unitRoleId, context).getEvents());
+					res.appendEvents(unitManager.addUserToUnitWithRoleAndGetEvents(
+							newUserRes.getResult().getUser().getId(), unitId, unitRoleId, context).getEventQueue());
 				}
 
 				if (userGroupId > 0) {
-					res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(userGroupId, newUserRes.getResult().getUser().getId(),
-							context).getEvents());
+					res.appendEvents(userGroupManager.addUserToTheGroupAndGetEvents(userGroupId, newUserRes.getResult().getUser().getId(),
+							context).getEventQueue());
 				}
 			}
 
@@ -978,7 +955,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			Result<User> res = new Result<>();
 			res.setResult(user);
 
-			res.addEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
+			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
 			return res;
 		} catch (UserAlreadyRegisteredException e) {
@@ -1029,7 +1006,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 					password, position, system, avatarStream, avatarFilename, roleIds, context);
 			Result<UserCreationData> res = new Result<>();
 			res.setResult(new UserCreationData(newUserRes.getResult(), true));
-			res.addEvents(newUserRes.getEvents());
+			res.appendEvents(newUserRes.getEventQueue());
 			return res;
 		} catch (UserAlreadyRegisteredException e) {
 			try {
@@ -1042,8 +1019,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				User user = getUser(context.getOrganizationId(), emailAddress.toLowerCase());
 				if (user != null) {
 					if (user.isDeleted()) {
-						res.addEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
-								context).getEvents());
+						res.appendEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
+								context).getEventQueue());
 						res.setResult(new UserCreationData(user, true));
 						return res;
 					} else {
@@ -1061,7 +1038,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 								user.getRoles().add(
 										(Role) persistence.currentManager().load(Role.class, roleId));
 								User us = new User(user.getId());
-								res.addEvent(eventFactory.generateEventData(
+								res.appendEvent(eventFactory.generateEventData(
 										EventType.USER_ROLES_UPDATED, context, us, null, null, null));
 							}
 						}
@@ -1110,7 +1087,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		User u = new User(user.getId());
 		Result<Void> res = new Result<>();
-		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, context, u, null, null, null));
+		res.appendEvent(eventFactory.generateEventData(EventType.Account_Activated, context, u, null, null, null));
 
 		return res;
 	}
@@ -1134,4 +1111,41 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while retrieving user organization");
 		}
 	}
+
+	@Override
+	public void saveAccountChanges(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData, accountData.getId(), contextData);
+		eventFactory.generateEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+
+		User user = loadResource(User.class, userId);
+		user.setName(accountData.getName());
+		user.setLastname(accountData.getLastName());
+		user.setPosition(accountData.getPosition());
+
+		if (accountData.getLocationName() == null ||
+				accountData.getLocationName().isEmpty()) {
+			user.setLocationName(null);
+			user.setLatitude(null);
+			user.setLongitude(null);
+		} else {
+			user.setLocationName(accountData.getLocationName());
+			user.setLatitude(accountData.getLatitude());
+			user.setLongitude(accountData.getLongitude());
+		}
+
+		Result<Void> result = new Result<>();
+
+		result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+				null, null, null, null));
+
+		return result;
+	}
+
 }

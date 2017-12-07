@@ -13,7 +13,7 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -66,8 +66,9 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     @Override
     public void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
         //delete nodes indexes
-        esAdministration.deleteIndexByName(ESIndexNames.INDEX_NODES +
-                (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*"));
+        esAdministration.deleteIndexByName(orgId > 0
+                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, orgId)
+                : ESIndexNames.INDEX_NODES + "*");
 
         createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_NODES});
 
@@ -77,8 +78,9 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     @Override
     public void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable {
         //delete rubrics indexes
-        esAdministration.deleteIndexByName(ESIndexNames.INDEX_RUBRIC_NAME +
-                (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*"));
+        esAdministration.deleteIndexByName(orgId > 0
+                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId)
+                : ESIndexNames.INDEX_RUBRIC_NAME + "*");
 
         createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_RUBRIC_NAME});
 
@@ -88,9 +90,11 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     @Override
     public void deleteAndReindexUsersAndGroups(long orgId) throws IndexingServiceNotAvailable {
         //delete all user and user group indexes
-        String suffix =  orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "*";
         esAdministration.deleteIndexesByName(
-                new String[] {ESIndexNames.INDEX_USERS + suffix, ESIndexNames.INDEX_USER_GROUP + suffix});
+                new String[] {
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId) : ESIndexNames.INDEX_USERS + "*",
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId) : ESIndexNames.INDEX_USER_GROUP + "*"
+                });
 
         if (orgId <= 0) {
             /*
@@ -120,8 +124,7 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     private void createOrgIndexes(long orgId, String[] indexes) throws IndexingServiceNotAvailable {
         for (String index : indexes) {
-            esAdministration.createIndex(index
-                    + ElasticsearchUtil.getOrganizationIndexSuffix(orgId));
+            esAdministration.createIndex(ElasticsearchUtil.getOrganizationIndexName(index, orgId));
         }
     }
 
