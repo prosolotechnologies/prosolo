@@ -1137,69 +1137,40 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public UserData initAccountData(UserData userData) {
-		UserData accountData = new UserData();
-		accountData.setId(userData.getId());
-		accountData.setEmail(userData.getEmail());
-		accountData.setAvatarUrl(userData.getAvatarUrl());
-		accountData.setName(userData.getName());
-		accountData.setLastName(userData.getLastName());
-
-		// position
-		accountData.setPosition(userData.getPosition());
-
-		// location
-		accountData.setLocationName(userData.getLocationName());
-
-		accountData.setLatitude(userData.getLatitude());
-		accountData.setLongitude(userData.getLongitude());
-		return accountData;
-	}
-
-	@Override
-	public UserData saveAccountChanges(UserData accountData, UserContextData contextData)
+	public void saveAccountChanges(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
-		Result<UserData> result = self.saveAccountChangesAndGetEvents(accountData, accountData.getId(), contextData);
+		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData, accountData.getId(), contextData);
 
 		for (EventData ev : result.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
-
-		return result.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<UserData> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
+	public Result<Void> saveAccountChangesAndGetEvents(UserData accountData, long userId, UserContextData contextData)
 			throws DbConnectionException, EventException, ResourceCouldNotBeLoadedException {
 
-		UserData userData = getUserData(userId);
+		User user = loadResource(User.class, userId);
+		user.setName(accountData.getName());
+		user.setLastname(accountData.getLastName());
+		user.setPosition(accountData.getPosition());
 
-		userData.setName(accountData.getName());
-		userData.setLastName(accountData.getLastName());
-		userData.setPosition(accountData.getPosition());
-		userData.setLocationName(accountData.getLocationName());
-		if ((accountData.getLocationName() != null && userData.getLocationName() == null)
-				|| (!accountData.getLocationName().equals(userData.getLocationName()))) {
-			userData.setLatitude(accountData.getLatitude());
-			userData.setLongitude(accountData.getLongitude());
+		if (accountData.getLocationName() == null ||
+				accountData.getLocationName().isEmpty()) {
+			user.setLocationName(null);
+			user.setLatitude(null);
+			user.setLongitude(null);
+		} else {
+			user.setLocationName(accountData.getLocationName());
+			user.setLatitude(accountData.getLatitude());
+			user.setLongitude(accountData.getLongitude());
 		}
 
-		User user = loadResource(User.class, userId);
-		user.setName(userData.getName());
-		user.setLastname(userData.getLastName());
-		user.setPosition(userData.getPosition());
-		user.setEmail(userData.getEmail());
-		user.setVerified(true);
-
-		merge(user);
-
-		Result<UserData> result = new Result<>();
+		Result<Void> result = new Result<>();
 
 		result.addEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
 				null, null, null, null));
-
-		result.setResult(userData);
 
 		return result;
 	}
