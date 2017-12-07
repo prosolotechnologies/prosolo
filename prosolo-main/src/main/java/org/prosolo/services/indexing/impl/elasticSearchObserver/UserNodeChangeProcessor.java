@@ -56,8 +56,10 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.removeUserFromOrganization(
 					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId());
 		} else if (eventType == EventType.ENROLL_COURSE) {
+			//TODO event actor does not have to be enrolled student, it could be an instructor that triggered student enroll
+			//this should be taken into account when we enable student enroll by instructor
 			//reindex user credentials collection
-			userEntityESService.updateCredentials(event.getOrganizationId(), event.getActorId(), session);
+			userEntityESService.updateCredentials(event.getOrganizationId(), event.getTarget().getId(), session);
 			//reindex credential students collection
 			credESService.updateStudents(event.getOrganizationId(), event.getObject().getId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {

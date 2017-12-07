@@ -48,6 +48,8 @@ public class CompetenceViewBeanAdmin implements Serializable {
 
 	private CompetenceData1 competenceData;
 
+	private String credentialTitle;
+
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
@@ -77,9 +79,8 @@ public class CompetenceViewBeanAdmin implements Serializable {
 								false);
 
 						if (decodedCredId > 0) {
-							String credTitle = credManager.getCredentialTitle(decodedCredId);
+							credentialTitle = credManager.getCredentialTitle(decodedCredId);
 							competenceData.setCredentialId(decodedCredId);
-							competenceData.setCredentialTitle(credTitle);
 						}
 					} else {
 						PageUtil.notFound();
@@ -182,5 +183,9 @@ public class CompetenceViewBeanAdmin implements Serializable {
 
 	public String getUnitTitle() {
 		return unitTitle;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
 	}
 }

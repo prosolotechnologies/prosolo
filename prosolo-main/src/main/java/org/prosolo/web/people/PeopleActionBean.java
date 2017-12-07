@@ -9,7 +9,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
@@ -50,27 +49,21 @@ public class PeopleActionBean implements Serializable {
 			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
 	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
-		try {
-			unfollowUserById(userToUnfollowId);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		unfollowUserById(userToUnfollowId);
 
 		PageUtil.fireSuccessfulInfoMessage("You are not following " + userToUnfollowName);
 	}
 	
 	public void followUserById(long userToFollowId) 
-			throws EntityAlreadyExistsException, DbConnectionException, EventException {
+			throws EntityAlreadyExistsException, DbConnectionException {
 		followResourceManager.followUser(userToFollowId, loggedUser.getUserContext());
 	}
 
-	public void unfollowUserById(long userToUnfollowId) throws EventException {
+	public void unfollowUserById(long userToUnfollowId) {
 		followResourceManager.unfollowUser(userToUnfollowId, loggedUser.getUserContext());
 	}
 	
@@ -84,18 +77,12 @@ public class PeopleActionBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("An error has occurred. Please try again");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
 	public void unfollowCollegue(UserData user) {
-		try {
-			unfollowUserById(user.getId());
-			user.setFollowed(false);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		unfollowUserById(user.getId());
+		user.setFollowed(false);
 
 		PageUtil.fireSuccessfulInfoMessage("You are not following " + user.getName());
 	}

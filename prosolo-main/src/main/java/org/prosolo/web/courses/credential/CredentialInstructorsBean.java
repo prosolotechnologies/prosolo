@@ -11,7 +11,6 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -183,8 +182,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 		
 	}
@@ -228,8 +225,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			PageUtil.fireSuccessfulInfoMessage("The instructor has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 	}
 	

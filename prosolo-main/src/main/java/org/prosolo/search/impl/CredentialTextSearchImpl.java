@@ -1,7 +1,6 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.search.BooleanQuery;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -73,7 +72,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
 			
@@ -188,7 +187,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);

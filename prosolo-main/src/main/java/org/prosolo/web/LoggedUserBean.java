@@ -19,7 +19,6 @@ import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
@@ -260,15 +259,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
-				try {
-					Map<String, String> parameters = new HashMap<>();
-					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
-							getUserId(), getOrganizationId(), event.getSession().getId(), null),
-							null, null, null, parameters);
-				} catch (EventException e) {
-					logger.error("Generate event failed.", e);
-				}
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("ip", ipAddress);
+				eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+						getUserId(), getOrganizationId(), event.getSession().getId(), null),
+						null, null, null, parameters);
+
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
 						+ " for user:" + getUserId());

@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserImportData;
@@ -178,8 +177,6 @@ public class ImportUsersBean implements Serializable {
 				} catch (DbConnectionException e) {
 					logger.error("User not imported", e);
 					usersNotImported.add(getUserCSV(user));
-				} catch (EventException e) {
-					logger.error(e);
 				}
 			}
 			importFinished = true;

@@ -18,6 +18,8 @@ public interface ESAdministration  extends Serializable{
 
 	boolean createDBIndexes() throws IndexingServiceNotAvailable;
 
+	void createNonrecreatableSystemIndexesIfNotExist() throws IndexingServiceNotAvailable;
+
 	void indexTrainingSet();
 
 	void deleteIndex(String indexName) throws IndexingServiceNotAvailable;

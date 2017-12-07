@@ -137,10 +137,10 @@
 									? 'active' : ''}">
 									<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
 										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
-										Units
+										#{msg['label.unit.plural']}
 									</h:link>
 									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'units'}">
-										<a href="javascript:void(0);">Units</a>
+										<a href="javascript:void(0);">#{msg['label.unit.plural']}</a>
 									</ui:fragment>
 								</li>
 								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationUsers'
@@ -235,7 +235,7 @@
 
 							<li class="linkAllNotifications"><h:link value="View all"
 																	 onclick="sendLogPageNavigation('notifications','mainmenu');"
-																	 outcome="/notifications" /></li>
+																	 outcome="/admin/notifications" /></li>
 						</h:panelGroup>
 					</div>
 

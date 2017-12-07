@@ -9,7 +9,8 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences">
+	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -76,10 +77,14 @@
 				var isDraft = '#{competenceEditBean.draft}';
 
 				function shouldOpenCanNotPublishModal(){
+                    var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
+                    if (lPath !== 'ACTIVITY') {
+                        return false;
+					}
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-					 if(activityListSize == 0 &amp;&amp; selectStatus == "PUBLISHED"){
+					 if(activityListSize &lt;= 0 &amp;&amp; selectStatus == "PUBLISHED"){
 						var desc = $("#createCompetence\\:formMain\\:description");
 						var title = $("#createCompetence\\:formMain\\:inputTitle");
 						if(desc.val() &amp;&amp; title.val()){
@@ -93,7 +98,7 @@
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-					 if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
+				 	if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
 						var desc = $("#createCompetence\\:formMain\\:description");
 						var title = $("#createCompetence\\:formMain\\:inputTitle");
 						if(desc.val() &amp;&amp; title.val()){
@@ -117,12 +122,12 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
-			                        <li role="presentation" class="#{param.tab eq 'activities' ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
+			                        <li role="presentation" class="#{param.tab ne 'paths' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
+			                        <li role="presentation" class="#{param.tab eq 'paths' ? 'active' : ''}"><a href="#paths" aria-controls="paths" role="tab" data-toggle="tab" onclick="setQueryParam('tab','paths')">Learning Paths</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'activities' ? 'active in' : '' }" id="info">
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'paths' ? 'active in' : '' }" id="info">
 			                        <div class="whiteBox">
 			                            <h2>#{msg['label.competence']} Info</h2>
 			                            <div class="formWrapper">
@@ -185,38 +190,63 @@
 			                                    </div>
 			                                </div>
 			                                <script>$('.tagsInputCompTag').tagsinput();</script>
-			                                <div class="formLine">
-			                                    <label>Other</label>
-			                                    <div class="formLineRight">
-			                                        <div class="checkbox checkLine">
-														<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
-															id="selectAllowStudentsToAddActivities"
-															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
-														</h:selectBooleanCheckbox>
+			                                <ui:remove>
+												<div class="formLine">
+													<label>Other</label>
+													<div class="formLineRight">
+														<div class="checkbox checkLine">
+															<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
+																id="selectAllowStudentsToAddActivities"
+																value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
+															</h:selectBooleanCheckbox>
 
-														<h:outputLabel for="selectAllowStudentsToAddActivities">
-															Allow students to add activities
-														</h:outputLabel>
+															<h:outputLabel for="selectAllowStudentsToAddActivities">
+																Allow students to add activities
+															</h:outputLabel>
+														</div>
 													</div>
-			                                    </div>
-			                                </div>
+												</div>
+											</ui:remove>
 			                            </div>
 			                        </div>
 			                    </div>
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'activities' ? 'active in' : ''}" id="activities">
-			                    <div class="whiteBox activitiesList">
-			                    	<courses:activityList
-			                    		id="activityList"
-			                    		activities="#{competenceEditBean.competenceData.activities}"
-			                    		bean="#{competenceEditBean}"
-			                    		isEdit="true"
-			                    		showMarkedIfCompleted="false"
-			                    		encodedCompetenceId="#{param['id']}"
-			                    		encodedCredentialId="#{param['credId']}"
-			                    		toUpdate=""
-			                    		mainForm=":#{cc.clientId}:formMain"/>
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'paths' ? 'active in' : ''}" id="paths">
+									<div class="whiteBox pathOptions">
+										<p>Choose which learning path you want students to take in order to master this #{msg['label.competence'].toLowerCase()}</p>
+										<div class="radioGroup">
+											<ui:repeat value="#{competenceEditBean.learningPaths}" var="path">
+												<div class="radio">
+													<input type="radio" jsf:id="pathRadio"
+														   name="#{hiddenPathRadio.clientId}"
+														   value="#{path.learningPathType}" jsf:disabled="#{competenceEditBean.limitedEdit}"
+														   jsf:checked="#{competenceEditBean.competenceData.learningPathType eq path.learningPathType ? true : false}"
+														   onchange="changeLearningPath()"
+													/>
+													<h:outputLabel for="pathRadio">#{path.description}</h:outputLabel>
+												</div>
+											</ui:repeat>
+											<h:inputHidden id="pathChooser" binding="#{hiddenPathRadio}" value="#{competenceEditBean.competenceData.learningPathType}"/>
+										</div>
+										<p:remoteCommand name="changeLearningPath"
+														 process="pathChooser"
+														 update=":#{cc.clientId}:formMain:panelActivities pathChooser"/>
+									</div>
 
-			                    </div>
+									<h:panelGroup layout="block" id="panelActivities" styleClass="whiteBox activitiesList">
+										<ui:fragment rendered="#{competenceEditBean.competenceData.learningPathType eq 'ACTIVITY'}">
+											<courses:activityList
+												id="activityList"
+												activities="#{competenceEditBean.competenceData.activities}"
+												bean="#{competenceEditBean}"
+												isEdit="true"
+												showMarkedIfCompleted="false"
+												encodedCompetenceId="#{param['id']}"
+												encodedCredentialId="#{param['credId']}"
+												toUpdate=""
+												mainForm=":#{cc.clientId}:formMain"/>
+										</ui:fragment>
+
+									</h:panelGroup>
 			                    </div>
 			                </div>
 			            </div>

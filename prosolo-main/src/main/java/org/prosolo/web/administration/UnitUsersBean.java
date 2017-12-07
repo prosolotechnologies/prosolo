@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.TitleData;
@@ -13,6 +12,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -180,12 +180,10 @@ public class UnitUsersBean implements Serializable, Paginable {
 			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserContext(decodedOrgId));
 			resetSearchData();
 			loadUsersFromDB();
-			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the unit " + unitTitle);
+			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the unit " + unitTitle);
-		} catch (EventException e) {
-			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		}
 	}
 

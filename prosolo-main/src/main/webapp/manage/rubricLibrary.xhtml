@@ -109,21 +109,21 @@
                                         <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                         <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
                                             <li>
-                                                <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId}">
+                                                <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId and not rubric.rubricUsed}">
                                                     <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
                                                                    action="#{deleteRubricBean.setRubricForDelete(rubric)}"
                                                                    oncomplete="$('#deleteModal').modal('show');">
                                                         Delete
                                                     </p:commandLink>
                                                 </ui:fragment>
-                                                <ui:fragment rendered="#{rubric.creatorId != loggeduser.userId}">
+                                                <ui:fragment rendered="#{rubric.creatorId != loggeduser.userId or rubric.rubricUsed}">
                                                     <a  class="linkRed" data-toggle="tooltip"
-                                                        title="Only creator can delete rubric"
+                                                        title="#{rubric.creatorId != loggeduser.userId ? 'Only creator can delete rubric'
+                                                         : 'Rubric can not be deleted because it is used in an activity'}"
                                                         disabled="disabled">
                                                         Delete
                                                     </a>
                                                 </ui:fragment>
-
                                             </li>
                                         </ul>
                                     </div>
@@ -149,7 +149,7 @@
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
                 deleteAction="#{deleteRubricBean.delete()}"
-                toUpdate=":panelRubrics"
+                toUpdate=":panelRubrics :growlMainRubricLibrary"
                 modalDeleteTitle="#{msg['label.rubric']}"
                 modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>
 

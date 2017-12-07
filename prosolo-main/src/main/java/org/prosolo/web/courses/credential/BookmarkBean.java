@@ -2,7 +2,6 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -36,8 +35,6 @@ public class BookmarkBean implements Serializable {
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -52,8 +49,6 @@ public class BookmarkBean implements Serializable {
 			comp.setBookmarkedByCurrentUser(!comp.isBookmarkedByCurrentUser());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 }

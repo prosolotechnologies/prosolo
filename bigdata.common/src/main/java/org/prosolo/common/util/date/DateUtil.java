@@ -458,6 +458,8 @@ public class DateUtil {
 		
 		Date now = new Date();
 		System.out.println("Date " + now);
+		Long daysSinceEpoch=DateEpochUtil.getDaysSinceEpoch(now);
+		System.out.println("Days since epoch:"+daysSinceEpoch);
 		LocalDateTime ldt = LocalDateTime.now();
 		System.out.println("Local date " + ldt);
 		System.out.println("Yesterday local date " +yesterday(ldt));

@@ -15,7 +15,6 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
@@ -196,12 +195,8 @@ public class ProfileSettingsBean implements Serializable {
 			if (newSocialNetworkAccountIsAdded) {
 				userSocialNetworks = userSocialNetworksDataFactory.getUserSocialNetworks(userSocialNetworksData);
 				socialNetworksManager.saveEntity(userSocialNetworks);
-				try {
-					eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
-							null, null, null, null);
-				} catch (EventException e) {
-					logger.error(e);
-				}
+				eventFactory.generateEvent(EventType.UpdatedSocialNetworks, loggedUser.getUserContext(),
+						null, null, null, null);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Social networks have been updated");
 		} catch (DbConnectionException e) {

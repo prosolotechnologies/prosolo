@@ -52,6 +52,11 @@ public class PageUtil {
 		keepFiredMessagesAcrossPages();
 	}
 
+	public static void fireErrorMessageAcrossPages(String msg) {
+		fireErrorMessage(msg);
+		keepFiredMessagesAcrossPages();
+	}
+
 	public static void keepFiredMessagesAcrossPages() {
 		ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 		Flash flash = extContext.getFlash();

@@ -13,10 +13,11 @@ import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.w3c.dom.events.EventException;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
-			UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+			UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
 													  UserContextData context) throws DbConnectionException,
@@ -114,7 +115,7 @@ public interface Competence1Manager {
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished)
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
@@ -239,11 +240,11 @@ public interface Competence1Manager {
 	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
 							   List<ResourceVisibilityMember> users, boolean visibleToAll,
 							   boolean visibleToAllChanged, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
-	List<EventData> updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
-														   List<ResourceVisibilityMember> users, boolean visibleToAll,
-														   boolean visibleToAllChanged, UserContextData context)
+	EventQueue updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
+													  List<ResourceVisibilityMember> users, boolean visibleToAll,
+													  boolean visibleToAllChanged, UserContextData context)
 			throws DbConnectionException;
 	
 	/**
@@ -270,13 +271,13 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	void bookmarkCompetence(long compId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<Void> bookmarkCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
 	
 	void deleteCompetenceBookmark(long compId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<Void> deleteCompetenceBookmarkAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
@@ -290,21 +291,21 @@ public interface Competence1Manager {
 			boolean justUncompleted) throws DbConnectionException;
 	
 	void enrollInCompetence(long compId, long userId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
 														   UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
-	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException, EventException;
+	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
 
 	Result<Void> archiveCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
@@ -324,8 +325,13 @@ public interface Competence1Manager {
 	List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
 			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
-	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException,
-			EventException;
+	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
+
+	Result<Competence1> duplicateCompetenceAndGetEvents(long compId, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Competence1> getOrCreateCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+			throws DbConnectionException;
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
 	
@@ -333,7 +339,7 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	void restoreArchivedCompetence(long compId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<Void> restoreArchivedCompetenceAndGetEvents(long compId, UserContextData context)
 			throws DbConnectionException;
@@ -343,7 +349,7 @@ public interface Competence1Manager {
 	
 	LearningInfo getCompetenceLearningInfo(long compId, long userId) throws DbConnectionException;
 	
-	List<EventData> updateCompetenceProgress(long targetCompId, UserContextData context)
+	EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
 	
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
@@ -403,4 +409,7 @@ public interface Competence1Manager {
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
 
+	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
+
+	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 }

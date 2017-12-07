@@ -13,6 +13,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.CompetenceUnit;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
@@ -25,6 +26,7 @@ import org.prosolo.common.domainmodel.user.User;
  *
  */
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"first_learning_stage_competence", "learning_stage"})})
 public class Competence1 extends BaseEntity {
 
 	private static final long serialVersionUID = 412852664415717013L;
@@ -55,6 +57,13 @@ public class Competence1 extends BaseEntity {
 	private Date datePublished;
 	
 	private List<CompetenceBookmark> bookmarks;
+
+	//learning in stages
+	private LearningStage learningStage;
+	private Competence1 firstLearningStageCompetence;
+
+	//learning path type
+	private LearningPathType learningPathType = LearningPathType.ACTIVITY;
 	
 	public Competence1() {
 		tags = new HashSet<>();
@@ -216,5 +225,33 @@ public class Competence1 extends BaseEntity {
 
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public LearningStage getLearningStage() {
+		return learningStage;
+	}
+
+	public void setLearningStage(LearningStage learningStage) {
+		this.learningStage = learningStage;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Competence1 getFirstLearningStageCompetence() {
+		return firstLearningStageCompetence;
+	}
+
+	public void setFirstLearningStageCompetence(Competence1 firstLearningStageCompetence) {
+		this.firstLearningStageCompetence = firstLearningStageCompetence;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public LearningPathType getLearningPathType() {
+		return learningPathType;
+	}
+
+	public void setLearningPathType(LearningPathType learningPathType) {
+		this.learningPathType = learningPathType;
 	}
 }

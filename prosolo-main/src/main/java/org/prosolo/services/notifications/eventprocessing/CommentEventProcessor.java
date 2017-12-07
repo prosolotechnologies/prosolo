@@ -95,6 +95,8 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 							idEncoder.encodeId(compId) + "/" +
 							idEncoder.encodeId(resource.getCommentedResourceId())+
 							"?comment=" +  idEncoder.encodeId(resource.getId());
+				} else {
+					logger.error("Activity comment notification link can't be constructed because competence id is not available in learning context.");
 				}
 				break;
 			case Competence:
