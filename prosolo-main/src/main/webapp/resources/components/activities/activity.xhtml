@@ -22,7 +22,7 @@
 	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-and-player.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/videojs.js"></script>
 		<link rel="stylesheet" type="text/css" media="all"
-			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
+			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.css" />
 			
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
      		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
