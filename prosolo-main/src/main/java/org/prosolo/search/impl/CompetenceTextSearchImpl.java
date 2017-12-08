@@ -1,20 +1,22 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -71,15 +73,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchString != null && !searchString.isEmpty()) {
+			if (searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(Operator.AND)
@@ -115,27 +112,32 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					CompetenceSearchConfig.of(
 							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId, null));
 			
-			SearchRequestBuilder searchResultBuilder = client
-					.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+//			SearchRequestBuilder searchResultBuilder = client
+//					.prepareSearch(indexName)
+//					.setTypes(ESIndexTypes.COMPETENCE)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit);
 			
 			if (!sortTitleAsc.equals(SortingOption.NONE)) {
 				switch (sortTitleAsc) {
 					case ASC:
-						searchResultBuilder.addSort("title", SortOrder.ASC);
+						searchSourceBuilder.sort(new FieldSortBuilder("title").order(SortOrder.ASC));
 						break;
 					case DESC:
-						searchResultBuilder.addSort("title", SortOrder.DESC);
+						searchSourceBuilder.sort(new FieldSortBuilder("title").order(SortOrder.DESC));
 						break;
 					default:
 						break;
 				}
 			}
 			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
-			SearchResponse sResponse = searchResultBuilder
-					.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -158,7 +160,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				}
 			}
 			return response;
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 			e1.printStackTrace();
 			return null;
@@ -174,15 +176,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(Operator.AND)
@@ -240,22 +237,20 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
 			String[] includes = {"id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
 			
 			//add sorting
 			SortOrder order = sortOption.getSortOrder() == 
 					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if(sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -305,15 +300,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(Operator.AND)
@@ -353,24 +343,22 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						userId, null));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
-			
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
+
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
+			SortOrder order = sortOption.getSortOrder() ==
+					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {

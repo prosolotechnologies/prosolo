@@ -1,12 +1,13 @@
 package org.prosolo.app;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.client.ESRestClient;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -115,7 +116,8 @@ public class AfterContextLoader implements ServletContextListener {
 			@Override
 			public void run() {
 				try {
-					Client client = ElasticSearchFactory.getClient();
+					//TODO what is the purpose of this call - to initialize es client here instead of at the first query time?
+					ESRestClient client = ElasticSearchConnector.getClient();
 				} catch (NoNodeAvailableException e) {
 					logger.error(e);
 				}

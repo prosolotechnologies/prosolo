@@ -42,6 +42,7 @@
 			<es-host>
 				<host>192.168.2.219</host>
 				<port>9300</port>
+				<http-port>9200</http-port>
 			</es-host>
 		</es-hosts>
 		<home-path>/home/zoran/elasticsearch</home-path>

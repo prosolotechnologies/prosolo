@@ -1,17 +1,17 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.RubricTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 /**
  * @author Bojan Trifkovic
@@ -77,17 +78,13 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
     }
 
     private SearchResponse getRubricsSearchResponse(long orgId, String searchString,
-                                                       int page, int limit) {
+                                                       int page, int limit) throws IOException {
         int start = 0;
         int size = 1000;
         if (limit > 0) {
             start = setStart(page, limit);
             size = limit;
         }
-
-        Client client = ElasticSearchFactory.getClient();
-        String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId);
-        esIndexer.addMapping(client, fullIndexName, ESIndexTypes.RUBRIC);
 
         QueryBuilder queryBuilder = QueryBuilders
                 .queryStringQuery(searchString.toLowerCase() + "*")
@@ -96,13 +93,14 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.filter(queryBuilder);
 
-        SearchRequestBuilder srb = client.prepareSearch(fullIndexName)
-                .setTypes(ESIndexTypes.RUBRIC)
-                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                .setQuery(boolQueryBuilder)
-                .setFrom(start).setSize(size)
-                .addSort("name", SortOrder.ASC);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(boolQueryBuilder)
+                .from(start)
+                .size(size)
+                .sort(new FieldSortBuilder("name").order(SortOrder.ASC));
 
-        return srb.execute().actionGet();
+        //System.out.println(searchRequestBuilder.toString());
+        return ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId), ESIndexTypes.RUBRIC);
     }
 }

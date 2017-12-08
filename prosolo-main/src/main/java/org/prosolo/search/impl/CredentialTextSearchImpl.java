@@ -1,18 +1,21 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
@@ -67,14 +70,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(Operator.AND)
@@ -86,7 +85,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			switch(filter) {
+			switch (filter) {
 				case ALL:
 					break;
 				case BOOKMARKS:
@@ -103,22 +102,20 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					CredentialSearchConfig.forDelivery(true, true, false, false), userId, unitIds));
 			
 			String[] includes = {"id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.CREDENTIAL)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
-			
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
+
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
+			SortOrder order = sortOption.getSortOrder() ==
+					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.CREDENTIAL);
 			
 			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -183,12 +180,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
-
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(Operator.AND)
@@ -209,24 +201,22 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			}
 
 			String[] includes = {"id", "title", "archived"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.CREDENTIAL)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-
-
-			searchRequestBuilder.setFrom(start).setSize(limit);
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
 
 			//add sorting
 			SortOrder order = sortOption.getSortOrder() ==
 					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.CREDENTIAL);
 
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {
