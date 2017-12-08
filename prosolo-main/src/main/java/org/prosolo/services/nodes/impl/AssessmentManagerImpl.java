@@ -454,7 +454,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
-								  long assessedStudentId, long credentialId) throws , DbConnectionException {
+								  long assessedStudentId, long credentialId) throws DbConnectionException {
 
 		Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId,targetCredentialId,reviewText,
 				context,assessedStudentId,credentialId);
@@ -712,15 +712,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 																UserContextData context,
 																long credentialAssessmentId,
 																long credentialId)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws ResourceCouldNotBeLoadedException {
 
 		Result<ActivityDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId,senderId,
 				comment, context,credentialAssessmentId,credentialId);
 
-		for (EventData ev : result.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
-
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
  	}
 

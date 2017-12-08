@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -117,8 +116,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
             PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
             resetNewAnnouncementValues();
             init();
-        } catch (EventException e) {
-            logger.error(e);
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while publishing announcement");

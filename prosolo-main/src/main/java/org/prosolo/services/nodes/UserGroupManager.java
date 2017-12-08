@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
@@ -42,21 +41,21 @@ public interface UserGroupManager extends AbstractManager {
 			throws DbConnectionException;
 
 	void addUserToTheGroup(long groupId, long userId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
-	void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException;
+	void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException;
 
-	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException, EventException;
+	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException;
 
 	void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 
 	void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException;
 
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom,
-										 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException, EventException;
+										 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException;
 
 	Result<Void> updateUserParticipationInGroupsAndGetEvents(long userId, List<Long> groupsToRemoveUserFrom,
-															 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException, EventException;
+															 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException;
 
 	long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException;
 

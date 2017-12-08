@@ -4,14 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.credential.Announcement;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 
@@ -19,12 +14,12 @@ public interface AnnouncementManager {
 
 	AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode publishMode,
 										UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException;
+			throws ResourceCouldNotBeLoadedException;
 
 	Result<AnnouncementData> createAnnouncementAndGetEvents(Long credentialId, String title, String text, Long creatorId,
 															AnnouncementPublishMode publishMode,
 															UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException, DbConnectionException;
+			throws ResourceCouldNotBeLoadedException, DbConnectionException;
 	
 	AnnouncementData getAnnouncement(Long announcementId) throws ResourceCouldNotBeLoadedException;
 	

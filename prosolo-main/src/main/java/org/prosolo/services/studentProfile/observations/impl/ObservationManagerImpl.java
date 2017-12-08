@@ -21,7 +21,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
@@ -73,15 +72,12 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
     @Override
     public void saveObservation(long id, Date date, String message, String note, List<Long> symptomIds,
                                 List<Long> suggestionIds, UserContextData context, long studentId)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
 
         Result<Void> result = self.saveObservationAndGetEvents(id, date, message, note, symptomIds,
                 suggestionIds, context, studentId);
 
-        for (EventData ev : result.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
-
+        eventFactory.generateEvents(result.getEventQueue());
     }
 
     @Override
@@ -89,7 +85,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
     public Result<Void> saveObservationAndGetEvents(long id, Date date, String message, String note,
                                                     List<Long> symptomIds, List<Long> suggestionIds,
                                                     UserContextData context, long studentId)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         try {
             boolean insert = true;
             Observation observation = new Observation();
@@ -144,7 +140,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
                 parameters.put("user", String.valueOf(studentId));
                 parameters.put("message", String.valueOf(message1.getId()));
 
-                res.addEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, context,
+                res.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, context,
                         message1, null, null, parameters));
             }
 

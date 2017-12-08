@@ -17,7 +17,6 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
@@ -25,7 +24,6 @@ import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,12 +57,10 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	@Override
 	public AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode mode,
 											   UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws ResourceCouldNotBeLoadedException {
 
 		Result<AnnouncementData> result = self.createAnnouncementAndGetEvents(credentialId, title, text, creatorId, mode, context);
-		for (EventData ev : result.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
@@ -73,7 +69,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	public Result<AnnouncementData> createAnnouncementAndGetEvents(Long credentialId, String title, String text, Long creatorId,
 																   AnnouncementPublishMode publishMode,
 																   UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException, DbConnectionException {
+			throws ResourceCouldNotBeLoadedException, DbConnectionException {
 
 		Announcement announcement = new Announcement();
 		announcement.setTitle(title);
@@ -99,7 +95,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		parameters.put("credentialId", credentialId + "");
 		parameters.put("publishMode", publishMode.getText());
 
-		result.addEvent(eventFactory.generateEventData(EventType.AnnouncementPublished, context,
+		result.appendEvent(eventFactory.generateEventData(EventType.AnnouncementPublished, context,
 				announcement1, credential, null, parameters));
 
 		result.setResult(mapToData(newAnnouncement));
