@@ -10,7 +10,6 @@ import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
@@ -162,8 +161,6 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(archived) {
 				try {
@@ -188,8 +185,6 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(success) {
 				try {

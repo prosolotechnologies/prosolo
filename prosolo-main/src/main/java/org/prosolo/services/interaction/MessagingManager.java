@@ -8,7 +8,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 
@@ -18,10 +17,10 @@ import java.util.List;
 public interface MessagingManager extends AbstractManager {
 
 	void sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
-			throws ResourceCouldNotBeLoadedException, EventException;
+			throws ResourceCouldNotBeLoadedException;
 
 	Result<Void> sendMessagesAndGetEvents(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
-			throws ResourceCouldNotBeLoadedException, EventException;
+			throws ResourceCouldNotBeLoadedException;
 
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 
@@ -36,28 +35,28 @@ public interface MessagingManager extends AbstractManager {
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context) throws EventException;
+	MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context);
 
 	Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, String page, UserContextData context)
-			throws EventException, DbConnectionException;
+			throws DbConnectionException;
 
 	//Result<Message> sendMessageAndGetEvents(UserContextData context, long recieverId, String msg) throws DbConnectionException;
 
 	//Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException, EventException;
 
-	Message sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException;
+	String sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
 
-	Result<Message> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException;
+	Result<String> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
 
-	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException, EventException;
+	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException;
 
 	Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	Result<Message> sendMessageParticipantsSetAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 
 	ThreadParticipant findParticipation(long threadId, long userId);
 
@@ -71,9 +70,9 @@ public interface MessagingManager extends AbstractManager {
 
 	List<MessageThread> getUnreadMessageThreads(long id);
 
-	MessageThread getMessageThread(long id,UserContextData context) throws ResourceCouldNotBeLoadedException, EventException;
+	MessageThread getMessageThread(long id,UserContextData context) throws ResourceCouldNotBeLoadedException;
 
 	Result<MessageThread> getMessageThreadAndGetEvents(long id,UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException;
+			throws ResourceCouldNotBeLoadedException;
 
 }

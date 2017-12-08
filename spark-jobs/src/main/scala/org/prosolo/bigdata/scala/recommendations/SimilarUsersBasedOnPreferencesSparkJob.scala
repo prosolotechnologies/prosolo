@@ -2,6 +2,7 @@ package org.prosolo.bigdata.scala.recommendations
 
 import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
 import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
+import org.prosolo.bigdata.scala.spark.SparkJob
 //import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 //import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
@@ -13,12 +14,9 @@ import scala.collection.JavaConverters._
 /**
   * Created by zoran on 29/04/17.
   */
-object SimilarUsersBasedOnPreferencesSparkJob{
-  val sc = SparkContextLoader.getSC
-  sc.setLogLevel("WARN")
-  //val sqlContext = SQLContext.getOrCreate(sc)
- // val sparkSession:SparkSession=new SparkSession(sc)
-  val sparkSession:SparkSession=SparkContextLoader.getSparkSession
+class SimilarUsersBasedOnPreferencesSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+
 
   println("CREATED SQL CONTEXT")
   /**
@@ -75,6 +73,8 @@ object SimilarUsersBasedOnPreferencesSparkJob{
     val recommendationsDAO=new RecommendationsDAO(keyspaceName)
 
     recommendationsDAO.insertClusterUsers(clusterId,clusterUsers)
+
+
     //UserRecommendationsDBManagerImpl.getInstance().insertClusterUsers(clusterId,clusterUsers)
 
   }

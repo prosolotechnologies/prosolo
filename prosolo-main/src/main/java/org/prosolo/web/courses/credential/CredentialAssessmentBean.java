@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RubricManager;
@@ -186,7 +185,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public boolean isCurrentUserAssessedStudent() {
 		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
-	
+
 	public void approveCredential() {
 		try {
 			UserContextData userContext = loggedUserBean.getUserContext();
@@ -231,6 +230,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 		}
 	}
+
 
 	public void markDiscussionRead() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
@@ -301,8 +301,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				logger.error("Error after retry: " + e);
 				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
 			}
-		} catch (EventException e) {
-			logger.error(e);
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -320,7 +318,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException, EventException {
+			throws DbConnectionException, IllegalDataStateException {
 		GradeData grade = updateGrade
 				? currentActivityAssessment != null ? currentActivityAssessment.getGrade() : null
 				: null;

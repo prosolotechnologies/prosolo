@@ -2,13 +2,12 @@ package org.prosolo.web.users;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -80,16 +79,12 @@ public class JoinGroupBean implements Serializable {
 			
 			try {
 				//TODO generate events here
-				long roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
 
-				try {
+				long roleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
+
 					unitManager.addUserToUnitAndGroupWithRole(loggedUserBean.getUserId(), groupData.getUnitId(), roleId, decodedId, loggedUserBean.getUserContext());
 
 					PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
-				} catch (EventException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("joinForm:join", "There was a problem adding you to the group");
-				}
 			} catch (DbConnectionException e) {
 				logger.warn(e);
 				PageUtil.fireErrorMessage("growlJoinSuccess", "Error joining the group.");

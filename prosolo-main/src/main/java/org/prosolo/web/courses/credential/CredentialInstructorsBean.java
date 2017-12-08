@@ -11,7 +11,6 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -22,6 +21,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -147,11 +147,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	public void prepareAddingInstructor() {
 		try {
 			if(instructorRoleId == 0) {
-				List<Long> roleIds = roleManager.getRoleIdsForName("INSTRUCTOR");
-				
-				if (roleIds.size() == 1) {
-					instructorRoleId = roleIds.get(0);
-				}
+				instructorRoleId = roleManager.getRoleIdByName(SystemRoleNames.INSTRUCTOR);
 
 				//retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
 				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));
@@ -186,8 +182,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 		
 	}
@@ -231,8 +225,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			PageUtil.fireSuccessfulInfoMessage("The instructor has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 	}
 	

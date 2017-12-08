@@ -11,7 +11,9 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.*;
+import org.prosolo.services.event.Event;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
@@ -74,14 +76,8 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 			HibernateUtil.close(session);
 		}
 
-		if (result != null && result.getEvents() != null) {
-			try {
-				for (EventData ev : result.getEvents()) {
-					eventFactory.generateEvent(ev);
-				}
-			} catch (EventException ee) {
-				logger.error(ee);
-			}
+		if (result != null) {
+			eventFactory.generateEvents(result.getEventQueue());
 		}
 	}
 

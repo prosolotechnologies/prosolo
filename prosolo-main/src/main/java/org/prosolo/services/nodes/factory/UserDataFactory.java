@@ -22,5 +22,4 @@ public class UserDataFactory {
     private String getFullName(String name, String lastName) {
         return name + (lastName != null ? " " + lastName : "");
     }
-
 }

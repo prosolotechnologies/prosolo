@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -67,7 +68,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	
 	public void prepareStudentEnroll() {
 		if(userRoleId == 0) {
-			Role role = roleManager.getRoleByName("User");
+			Role role = roleManager.getRoleByName(SystemRoleNames.USER);
 			if(role != null) {
 				userRoleId = role.getId();
 			}

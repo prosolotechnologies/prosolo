@@ -55,6 +55,9 @@ public class AppConfig {
 	@Element(name = "registration")
 	public RegistrationConfig registration;
 
+	@Element(name = "plugin-config")
+	public PluginConfig pluginConfig;
+
 	public boolean getDevelopmentMode() {
 		return developmentMode;
 	}

@@ -1,7 +1,5 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -14,26 +12,23 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
-import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.interaction.MessagingManager")
 public class MessagingManagerImpl extends AbstractManagerImpl implements MessagingManager {
@@ -46,7 +41,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	private EventFactory eventFactory;
 	@Autowired
 	private UserManager userManager;
-	@Inject
+	@Autowired
 	private MessagingManager self;
 
 	@Transactional
@@ -87,18 +82,16 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	public Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<Message> result = self.sendMessageParticipantsSetAndGetEvents(senderId, receiverId, msg, contextData);
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
 	@Override
 	@Transactional
 	public Result<Message> sendMessageParticipantsSetAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		try {
 			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
 
@@ -128,7 +121,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
 
-			result.addEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+			result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
 					contextData, message.getMessageThread(), null, null, parameters));
 
 			Map<String, String> parameters1 = new HashMap<String, String>();
@@ -139,7 +132,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			parameters1.put("user", String.valueOf(messagesThreadData.getParticipants().get(0).getId()));
 			parameters1.put("message", String.valueOf(message.getId()));
 
-			result.addEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
 					message, null, null, parameters1));
 
 			result.setResult(message);
@@ -194,17 +187,15 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	public void sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws ResourceCouldNotBeLoadedException {
 
 		Result<Void> result = self.sendMessagesAndGetEvents(senderId, receivers, text, threadId, context, contextData);
-		for (EventData ev : result.getEvents()) {
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 	}
 
 	@Override
 	public Result<Void> sendMessagesAndGetEvents(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws ResourceCouldNotBeLoadedException {
 
 		Message message = createMessages(senderId, receivers, text, threadId, context);
 		Result<Void> result = new Result<>();
@@ -216,7 +207,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		parameters.put("user", String.valueOf(receivers.get(0).getId()));
 		parameters.put("message", String.valueOf(message.getId()));
 
-		result.addEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+		result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
 				message, null, null, parameters));
 
 		return result;
@@ -308,12 +299,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread.setSubject(subject);
 		messagesThread = saveEntity(messagesThread);
 
-		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
-					null, null, null);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
+				null, null, null);
 		return messagesThread;
 	}
 
@@ -397,13 +384,10 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context)
-			throws EventException {
+	public MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context) {
 		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId,archived,page,context);
 
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 
 		return result.getResult();
 	}
@@ -411,7 +395,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	@Transactional
 	public Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived,String page, UserContextData context)
-			throws EventException,DbConnectionException {
+			throws DbConnectionException {
 		String query =
 				"SELECT DISTINCT thread " +
 						"FROM MessageThread thread " +
@@ -435,7 +419,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
 
-			res.addEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+			res.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
 					context, messageThread, null, null, parameters));
 
 			res.setResult(messageThread);
@@ -447,20 +431,17 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public Message sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException {
-		Result<Message> result = self.sendMessageDialogAndGetEvents(senderId, receiverId, msg, contextData);
-
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
+	public String sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
+		Result<String> result = self.sendMessageDialogAndGetEvents(senderId, receiverId, msg, contextData);
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<Message> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
-			throws DbConnectionException, EventException {
+	public Result<String> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
 		try {
 			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
 
@@ -487,15 +468,15 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			message.setMessageThread(messagesThread);
 			saveEntity(message);
 
-			Result<Message> result = new Result<>();
+			Result<String> result = new Result<>();
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("user", String.valueOf(receiverId));
 			parameters.put("message", String.valueOf(message.getId()));
 
-			result.addEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
 					message, null,null, parameters));
 
-			result.setResult(message);
+			result.setResult(message.getContent());
 
 			return result;
 
@@ -707,18 +688,16 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public MessageThread getMessageThread(long id, UserContextData context) throws ResourceCouldNotBeLoadedException, EventException {
+	public MessageThread getMessageThread(long id, UserContextData context) throws ResourceCouldNotBeLoadedException {
 		Result<MessageThread> result = self.getMessageThreadAndGetEvents(id, context);
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
 	@Override
 	@Transactional
 	public Result<MessageThread> getMessageThreadAndGetEvents(long id, UserContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws ResourceCouldNotBeLoadedException {
 
 		MessageThread messageThread = get(MessageThread.class, id);
 		Result<MessageThread> result = new Result<>();
@@ -727,7 +706,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
 
-		result.addEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+		result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
 				context, messageThread, null, null, parameters));
 
 		result.setResult(messageThread);

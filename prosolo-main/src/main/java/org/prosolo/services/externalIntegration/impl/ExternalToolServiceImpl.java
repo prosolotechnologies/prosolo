@@ -18,8 +18,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
@@ -161,11 +159,11 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 								PageContextData lcd = new PageContextData();
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
 								//TODO how to include organization id in event here
-								res.addEvents(assessmentManager
+								res.appendEvents(assessmentManager
 									.updateActivityGradeInAllAssessmentsAndGetEvents(
 											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
 											ta.getTargetCompetence().getId(), ta.getId(),
-											calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEvents());
+											calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
 							}
 						}
 					}
@@ -178,14 +176,8 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					HibernateUtil.close(session);
 				}
 
-				if (res != null && res.getEvents() != null) {
-					try {
-						for (EventData ev : res.getEvents()) {
-							eventFactory.generateEvent(ev);
-						}
-					} catch (EventException ee) {
-						logger.error(ee);
-					}
+				if (res != null) {
+					eventFactory.generateEvents(res.getEventQueue());
 				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"

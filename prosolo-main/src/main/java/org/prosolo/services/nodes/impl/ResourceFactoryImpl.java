@@ -20,7 +20,6 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.data.CommentData;
@@ -29,6 +28,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -103,7 +103,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-                              String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
+                              String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) {
 
         emailAddress = emailAddress.toLowerCase();
 
@@ -129,7 +129,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
         user.setUserType(UserType.REGULAR_USER);
         if(roles == null) {
-            user.addRole(roleManager.getRoleByName("User"));
+            user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
         } else {
             for(Long id : roles) {
                 Role role = (Role) persistence.currentManager().load(Role.class, id);
@@ -448,58 +448,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             e.printStackTrace();
             logger.error(e);
             throw new DbConnectionException("Error while saving user group");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> duplicateCompetence(long compId, UserContextData context)
-            throws DbConnectionException {
-        try {
-            Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
-            User user = (User) persistence.currentManager().load(User.class, context.getActorId());
-
-            Competence1 competence = new Competence1();
-
-            competence.setOrganization(comp.getOrganization());
-            competence.setTitle("Copy of " + comp.getTitle());
-            competence.setDescription(comp.getDescription());
-            competence.setDateCreated(new Date());
-            competence.setTags(new HashSet<Tag>(comp.getTags()));
-            competence.setCreatedBy(user);
-            competence.setDuration(comp.getDuration());
-            competence.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
-            competence.setType(comp.getType());
-            competence.setOriginalVersion(comp);
-            competence.setArchived(false);
-            competence.setPublished(false);
-            saveEntity(competence);
-
-            Result<Competence1> res = new Result<>();
-            res.setResult(competence);
-
-            Competence1 c = new Competence1();
-            c.setId(competence.getId());
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
-
-            List<CompetenceActivity1> activities = comp.getActivities();
-
-            for (CompetenceActivity1 compActivity : activities) {
-                Result<CompetenceActivity1> actRes = activityManager.cloneActivity(
-                        compActivity, competence.getId(), context);
-                competence.getActivities().add(actRes.getResult());
-                res.addEvents(actRes.getEvents());
-            }
-
-            //add Edit privilege to the competence creator
-            res.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
-                    context.getActorId(), competence.getId(),
-                    UserGroupPrivilege.Edit,true, context).getEvents());
-            return res;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while creating competence duplicate");
         }
     }
 

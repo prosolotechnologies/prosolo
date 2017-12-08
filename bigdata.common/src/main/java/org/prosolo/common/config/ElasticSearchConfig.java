@@ -33,9 +33,7 @@ public class ElasticSearchConfig {
 	
 	@Element(name = "shards-number")
 	public int shardsNumber;
-	
-	@Element(name = "documents-index")
-	public String documentsIndex;
+
 	@Element(name = "nodes-index")
 	public String nodesIndex;
 	@Element(name = "users-index")
@@ -55,6 +53,9 @@ public class ElasticSearchConfig {
 
 	@Element(name = "rubrics-index")
 	public String rubricsIndex;
-	
+
+	@Element(name = "jobsLogs-index")
+	public String jobsLogsIndex;
+
 	
 }

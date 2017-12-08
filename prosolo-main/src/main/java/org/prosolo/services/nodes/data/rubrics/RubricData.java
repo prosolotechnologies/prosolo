@@ -31,12 +31,14 @@ public class RubricData extends StandardObservable implements Serializable {
 
     private boolean readyToUse;
 
+    private boolean rubricUsed;
+
     public RubricData() {
         criteria = new ArrayList<>();
         levels = new ArrayList<>();
     }
 
-    public RubricData(Rubric rubric, User creator) {
+    public RubricData(Rubric rubric, User creator, boolean isRubricUsed) {
         this.id = rubric.getId();
         this.name = rubric.getTitle();
         this.organizationId = rubric.getOrganization().getId();
@@ -44,6 +46,7 @@ public class RubricData extends StandardObservable implements Serializable {
             this.creatorFullName = creator.getFullName();
         }
         this.creatorId = rubric.getCreator().getId();
+        this.rubricUsed = isRubricUsed;
     }
 
     private void syncLevel(RubricItemData level) {
@@ -165,5 +168,13 @@ public class RubricData extends StandardObservable implements Serializable {
 
     public boolean isReadyToUseChanged() {
         return changedAttributes.containsKey("readyToUse");
+    }
+
+    public boolean isRubricUsed() {
+        return rubricUsed;
+    }
+
+    public void setRubricUsed(boolean rubricUsed) {
+        this.rubricUsed = rubricUsed;
     }
 }

@@ -9,11 +9,11 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,8 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		String query = 
 				"SELECT socialNetwork " + 
 				"FROM UserSocialNetworks socialNetwork " +
-				"WHERE socialNetwork.user.id = :userId ";
+				"LEFT JOIN FETCH socialNetwork.user user " +
+				"WHERE user.id = :userId ";
 
 		UserSocialNetworks result = (UserSocialNetworks) persistence.currentManager().createQuery(query)
 				.setLong("userId", userId)
@@ -52,34 +53,51 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	public SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link, UserContextData contextData)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		Result<SocialNetworkAccount> result = self.createSocialNetworkAccountAndGetEvents(name, link, contextData);
-
-		for(EventData ev : result.getEvents()){
-			eventFactory.generateEvent(ev);
-		}
+		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
+
 
 	@Override
 	@Transactional
 	public Result<SocialNetworkAccount> createSocialNetworkAccountAndGetEvents(SocialNetworkName name, String link, UserContextData contextData)
-			throws DbConnectionException, EventException {
+			throws DbConnectionException {
 		SocialNetworkAccount account = new SocialNetworkAccount();
 		account.setSocialNetwork(name);
 		account.setLink(link);
 		saveEntity(account);
 
 		Result<SocialNetworkAccount> result = new Result<>();
-		result.addEvent(eventFactory.generateEventData(EventType.UpdatedSocialNetworks, contextData,
+		result.appendEvent(eventFactory.generateEventData(EventType.UpdatedSocialNetworks, contextData,
 				null, null, null, null));
 		result.setResult(account);
 
 		return result;
 	}
 
+	@Transactional(readOnly = false)
+	public UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
+		try {
+			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
+
+			UserSocialNetworksData userSocialNetworksData = new UserSocialNetworksData();
+			userSocialNetworksData.setId(userSocialNetworks.getId());
+			userSocialNetworksData.setUserId(userId);
+
+			for (SocialNetworkAccount account : userSocialNetworks.getSocialNetworkAccounts()) {
+				userSocialNetworksData.setAccount(account);
+			}
+			return userSocialNetworksData;
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+
 	@Override
-	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link, UserContextData contextData) throws ResourceCouldNotBeLoadedException, EventException {
+	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link, UserContextData contextData) throws ResourceCouldNotBeLoadedException {
 		UserSocialNetworks socialNetworks = getSocialNetworks(userId);
 		SocialNetworkAccount account = createSocialNetworkAccount(name, link, contextData);
 
@@ -137,8 +155,13 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional
-	public void saveUserSocialNetworks(UserSocialNetworks userSocialNetworks) throws DbConnectionException {
-		saveEntity(userSocialNetworks);
+	public SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName) {
+		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId,socialNetworkName);
+
+		if(socialNetworkAccount != null){
+			return new SocialNetworkAccountData(socialNetworkAccount);
+		}
+		return null;
 	}
 
 }

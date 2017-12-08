@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -20,7 +19,6 @@ import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
@@ -39,7 +37,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -140,7 +137,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	public void reinitializeSessionData(UserData user, long organizationId) {
 		if (user != null) {
-//			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
 			long orgId = 0;
 			if (organizationId > 0) {
@@ -262,15 +258,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
-				try {
-					Map<String, String> parameters = new HashMap<>();
-					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
-							getUserId(), getOrganizationId(), event.getSession().getId(), null),
-							null, null, null, parameters);
-				} catch (EventException e) {
-					logger.error("Generate event failed.", e);
-				}
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("ip", ipAddress);
+				eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+						getUserId(), getOrganizationId(), event.getSession().getId(), null),
+						null, null, null, parameters);
+
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
 						+ " for user:" + getUserId());

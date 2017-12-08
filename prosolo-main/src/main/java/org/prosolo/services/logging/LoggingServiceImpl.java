@@ -19,7 +19,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.LoggingESService;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
@@ -120,11 +119,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "page");
 		parameters.put("link", link);
 
-		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, context, null, null,null, parameters);
-		} catch (EventException e) {
-			logger.error("Generate event failed.", e);
-		}
+		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null,null, parameters);
 	}
 	
 	@Override
@@ -137,11 +132,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "email");
 		parameters.put("link", link);
 		
-		try {
-			eventFactory.generateEvent(EventType.NAVIGATE, context, null, null, null, parameters);
-		} catch (EventException e) {
-			logger.error("Generate event failed.", e);
-		}
+		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null, null, parameters);
 	}
 
 	@Override

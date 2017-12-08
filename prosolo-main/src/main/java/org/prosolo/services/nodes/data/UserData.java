@@ -30,6 +30,7 @@ public class UserData implements Serializable {
 	private String locationName;
 	private Double longitude;
 	private Double latitude;
+	private String newPassword;
 
 	public UserData() {
 		this.roles = new LinkedList<RoleData>();
@@ -80,6 +81,11 @@ public class UserData implements Serializable {
 		this.avatarUrl = readyAvatar;
 		this.position = position;
 		this.email = email;
+	}
+
+	public UserData(long id, String fullName){
+		this.id = id;
+		this.fullName = fullName;
 	}
 
 	public void addRoleId(long id) {
@@ -246,6 +252,14 @@ public class UserData implements Serializable {
 
 	public void setObjectStatus(ObjectStatus objectStatus) {
 		this.objectStatus = objectStatus;
+	}
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
 	}
 
 	public String getRolesCSV() {

@@ -15,7 +15,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
@@ -89,9 +88,6 @@ public class UsersImportingBean implements Serializable {
 							
 							noUsersCreated++;
 						} catch (UserAlreadyRegisteredException e) {
-							logger.error(e);
-							noUsersDidntCreated++;
-						} catch (EventException e) {
 							logger.error(e);
 							noUsersDidntCreated++;
 						}

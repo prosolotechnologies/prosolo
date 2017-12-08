@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
@@ -12,7 +11,6 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -63,10 +61,8 @@ public class MessagesBean implements Serializable {
 	private MessagesThreadData threadData;
 	private List<MessageData> messages;
 	private String threadId;
-	private String context;
 	private int limit = 5;
 	private boolean loadMore;
-	private boolean noMessageThreads;
 	private long decodedThreadId;
 	//variables used for controlling component displays
 	private boolean archiveView;
@@ -140,11 +136,7 @@ public class MessagesBean implements Serializable {
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
 			if (decodedThreadId > 0) {
 				try {
-					try {
-						thread = messagingManager.getMessageThread(decodedThreadId,userContext);
-					} catch (EventException e) {
-						e.printStackTrace();
-					}
+					thread = messagingManager.getMessageThread(decodedThreadId,userContext);
 
 					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
@@ -178,7 +170,6 @@ public class MessagesBean implements Serializable {
 			this.messages = new LinkedList<MessageData>();
 			loadMessages();
 		}
-		
 		return MessageProcessingResult.OK;
 	}
 	
@@ -192,21 +183,13 @@ public class MessagesBean implements Serializable {
 			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 			//if we were on "newView", set it to false so we do not see user dropdown (no need for full init())
 			newMessageView = false;
-			try {
-				thread = messagingManager.getMessageThread(decodedThreadId, userContext);
-			} catch (EventException e) {
-				e.printStackTrace();
-			}
+			thread = messagingManager.getMessageThread(decodedThreadId, userContext);
 			initializeThreadData(thread);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			
 			PageUtil.fireErrorMessage("There was an error with loading this cnversation");
 		}
-	}
-	
-	public void addNewMessageThread(MessageThread thread) {
-		messagesThreads.add(0, new MessagesThreadData(thread, loggedUser.getUserId()));
 	}
 
 	private void loadMessages() {
@@ -319,7 +302,7 @@ public class MessagesBean implements Serializable {
 
 		}
 	}
-	
+
 	private List<Long> getRecieverIdsFromParameters(String ids) {
 		return Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList());
 	}
@@ -353,16 +336,8 @@ public class MessagesBean implements Serializable {
 		return messages;
 	}
 
-	public String getContext() {
-		return context;
-	}
-
 	public boolean isLoadMore() {
 		return loadMore;
-	}
-
-	public boolean isNoMessageThreads() {
-		return noMessageThreads;
 	}
 
 	public MessagesThreadData getThreadData() {

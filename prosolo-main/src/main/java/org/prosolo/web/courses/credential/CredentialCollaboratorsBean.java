@@ -11,7 +11,6 @@ import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.search.util.credential.LearningStatusFilter;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -121,18 +120,12 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error following " + user.getFullName() + ". Please try again");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
 	private void unfollowUser(UserData user) {
-		try {
-			peopleActionBean.unfollowUserById(user.getId());
-			user.setFollowedByCurrentUser(false);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		peopleActionBean.unfollowUserById(user.getId());
+		user.setFollowedByCurrentUser(false);
 
 		PageUtil.fireSuccessfulInfoMessage("You are not following " + user.getFullName());
 	}

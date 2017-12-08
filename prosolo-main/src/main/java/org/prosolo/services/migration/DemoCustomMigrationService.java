@@ -1,6 +1,7 @@
 package org.prosolo.services.migration;
 
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventQueue;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface DemoCustomMigrationService {
 
     void migrateDataFrom06To11();
 
-    List<EventData> migrateCredentials();
+    EventQueue migrateCredentials();
 }

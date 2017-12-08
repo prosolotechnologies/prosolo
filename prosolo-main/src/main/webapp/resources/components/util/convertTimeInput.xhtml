@@ -12,7 +12,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<h:inputText id="convertTime#{cc.clientId}" placeholder="Date and Time" disabled="#{cc.attrs.disabled}"
+		<h:inputText id="convertTime#{cc.clientId}" pt:data-date-format="#{cc.attrs.format}" placeholder="Date and Time" disabled="#{cc.attrs.disabled}"
 					 styleClass="#{cc.attrs.timeInputClass}">
 		</h:inputText>
 		<script>

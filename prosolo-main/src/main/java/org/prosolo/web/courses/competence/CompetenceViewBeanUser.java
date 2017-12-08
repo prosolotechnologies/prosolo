@@ -5,7 +5,6 @@ import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -53,7 +52,9 @@ public class CompetenceViewBeanUser implements Serializable {
 	private long nextCompToLearn;
 	private boolean mandatoryOrder;
 
-	public void init() {	
+	private String credentialTitle;
+
+	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedCompId > 0) {
 			try {
@@ -77,7 +78,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				commentBean.loadComments(commentsData);
 				
 				if(decodedCredId > 0) {
-					String credTitle = credManager.getCredentialTitle(decodedCredId);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
 //					if(competenceData.isEnrolled()) {
 ////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
 ////								loggedUser.getUserId(), false);
@@ -88,8 +89,6 @@ public class CompetenceViewBeanUser implements Serializable {
 //					} else {
 //						credTitle = credManager.getCredentialTitle(decodedCredId);
 //					}
-					competenceData.setCredentialId(decodedCredId);
-					competenceData.setCredentialTitle(credTitle);
 				}
 				if (justEnrolled) {
 					PageUtil.fireSuccessfulInfoMessage(
@@ -147,8 +146,6 @@ public class CompetenceViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -232,5 +229,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		this.justEnrolled = justEnrolled;
 	}
 
-
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
 }

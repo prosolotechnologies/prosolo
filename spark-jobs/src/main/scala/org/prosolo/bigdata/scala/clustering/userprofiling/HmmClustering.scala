@@ -5,8 +5,8 @@ import java.util
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import be.ac.ulg.montefiore.run.jahmm.{Hmm, ObservationDiscrete, OpdfDiscreteFactory}
 import org.prosolo.bigdata.clustering.QuartileName
-import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
 
@@ -29,8 +29,8 @@ class HmmClustering (val dbName:String) extends Serializable {
 
   val nStates=4
   val learntHmmModels:Map[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]=new HashMap[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]()
-  val sc=SparkContextLoader.getSC
-  val sparkConf=SparkContextLoader.sparkConf
+  val sc=SparkManager.sparkContextLoader.getSC
+  val sparkConf=SparkManager.sparkContextLoader.sparkConf
   val profilesDAO=new ProfilesDAO(dbName)
 
 

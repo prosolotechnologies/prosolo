@@ -39,7 +39,7 @@ public class SendMessageBean implements Serializable {
 	public void sendMessage(long receiverId) {
 		if(receiverId != loggedUserBean.getUserId()) {
 			try {
-				Message message = messagingManager.sendMessageDialog(loggedUserBean.getUserId(),
+				message = messagingManager.sendMessageDialog(loggedUserBean.getUserId(),
 						receiverId, this.message, loggedUserBean.getUserContext());
 
 				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to " + receiverId +
@@ -57,7 +57,7 @@ public class SendMessageBean implements Serializable {
 			}
 		}
 		else {
-			PageUtil.fireErrorMessage("Canno't send message to yourself!");
+			PageUtil.fireErrorMessage("Can not send message to yourself!");
 			logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
 		}
 	}

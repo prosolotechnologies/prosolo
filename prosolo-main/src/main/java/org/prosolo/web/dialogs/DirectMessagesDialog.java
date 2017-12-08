@@ -1,9 +1,7 @@
 package org.prosolo.web.dialogs;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
@@ -65,13 +63,13 @@ public class DirectMessagesDialog implements Serializable {
 	
 	public void sendMessage() {
 		try {
-			Message message = messagingManager.sendMessageDialog(loggedUser.getUserId(), receiver.getId(), this.messageContent,
+			messagingManager.sendMessageDialog(loggedUser.getUserId(), receiver.getId(), this.messageContent,
 					loggedUser.getUserContext());
 			logger.debug("User "+loggedUser.getUserId()+" sent a message to "+receiver+" with content: '"+this.messageContent+"'");
 			
 			List<UserData> participants = new ArrayList<UserData>();
 			participants.add(new UserData(loggedUser.getUserId(), loggedUser.getFullName(), loggedUser.getAvatar()));
-			
+
 			PageUtil.fireSuccessfulInfoMessage("dmcomp:newDirectMessageFormGrowl", "Your message is sent");
 		} catch (Exception e) {
 			logger.error(e);
