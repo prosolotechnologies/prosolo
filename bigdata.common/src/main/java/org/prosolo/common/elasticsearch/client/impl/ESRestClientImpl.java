@@ -1,5 +1,8 @@
 package org.prosolo.common.elasticsearch.client.impl;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -28,6 +31,8 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class ESRestClientImpl implements ESRestClient {
+
+    private static Logger logger = Logger.getLogger(ESRestClientImpl.class);
 
     private final RestHighLevelClient highLevelClient;
     private final RestClient lowLevelClient;
@@ -89,9 +94,23 @@ public class ESRestClientImpl implements ESRestClient {
         return search(sr);
     }
 
-//    public boolean deleteIndex(String indexName) throws IOException {
-//        //TODO es migration - when migrated to 6.0, replace this implementation with delete index request which is supported in this release
-//        Response response = lowLevelClient.performRequest("DELETE", indexName);
-//    }
+    public boolean deleteIndex(String indexName) throws IOException {
+        //TODO es migration - when migrated to 6.0, replace this implementation with delete index request which is supported in this release
+        Response response = lowLevelClient.performRequest("DELETE", indexName);
+        int status = response.getStatusLine().getStatusCode();
+        logger.info("DELETE INDEX RESPONSE STATUS: " + status);
+        String res = EntityUtils.toString(response.getEntity());
+        logger.info("DELETE INDEX RESPONSE BODY: " + res);
+        return status == HttpStatus.SC_OK;
+    }
+
+    public boolean exists(String indexName) throws IOException {
+        Response response = lowLevelClient.performRequest("HEAD", indexName);
+        int status = response.getStatusLine().getStatusCode();
+        logger.info("DELETE INDEX RESPONSE STATUS: " + status);
+        return status == HttpStatus.SC_OK;
+    }
+
+
 
 }
