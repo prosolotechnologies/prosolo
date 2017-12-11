@@ -65,9 +65,19 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	public Result<SocialNetworkAccount> createSocialNetworkAccountAndGetEvents(SocialNetworkName name, String link, UserContextData contextData)
 			throws DbConnectionException {
 		SocialNetworkAccount account = new SocialNetworkAccount();
+		UserSocialNetworks socialNetworks = null;
+		try {
+			socialNetworks = getSocialNetworks(contextData.getActorId());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			e.printStackTrace();
+		}
 		account.setSocialNetwork(name);
 		account.setLink(link);
+		if (account != null) {
+			socialNetworks.addSocialNetworkAccount(account);
+		}
 		saveEntity(account);
+		saveEntity(socialNetworks);
 
 		Result<SocialNetworkAccount> result = new Result<>();
 		result.appendEvent(eventFactory.generateEventData(EventType.UpdatedSocialNetworks, contextData,
@@ -94,15 +104,6 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 		}
 		return null;
-	}
-
-	@Override
-	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link, UserContextData contextData) throws ResourceCouldNotBeLoadedException {
-		UserSocialNetworks socialNetworks = getSocialNetworks(userId);
-		SocialNetworkAccount account = createSocialNetworkAccount(name, link, contextData);
-
-		socialNetworks.addSocialNetworkAccount(account);
-		saveEntity(socialNetworks);
 	}
 
 	@Override
@@ -156,9 +157,9 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional
 	public SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName) {
-		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId,socialNetworkName);
+		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId, socialNetworkName);
 
-		if(socialNetworkAccount != null){
+		if (socialNetworkAccount != null) {
 			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;

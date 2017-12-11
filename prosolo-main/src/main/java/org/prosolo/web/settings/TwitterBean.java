@@ -85,8 +85,7 @@ public class TwitterBean implements Serializable {
 							socialNetworksManager.updateSocialNetworkAccount(twitterAccount, accessToken.getProfileLink());
 						}
 					} else {
-						socialNetworksManager.addSocialNetworkAccount(
-								loggedUser.getUserId(),
+						socialNetworksManager.createSocialNetworkAccount(
 								SocialNetworkName.TWITTER,
 								accessToken.getProfileLink(),
 								loggedUser.getUserContext());

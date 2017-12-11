@@ -109,7 +109,6 @@ public class ProfileSettingsBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while saving account data");
 		}
-		PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 	}
 
 	public void handleFileUpload(FileUploadEvent event) {
@@ -168,21 +167,22 @@ public class ProfileSettingsBean implements Serializable {
 		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = userSocialNetworksData.getSocialNetworkAccountsData();
 		
 		try {
-			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
-				if (socialNetowrkAccountData.isChanged()) {
+			for (SocialNetworkAccountData socialNetworkAccountData : newSocialNetworkAccounts.values()) {
+				if (socialNetworkAccountData.isChanged()) {
 					SocialNetworkAccount account;
-					SocialNetworkAccountData userAccount = socialNetworksManager.getSocialNetworkAccountData(loggedUser.getUserId(), socialNetowrkAccountData.getSocialNetworkName());
-					if (socialNetowrkAccountData.getId() == 0) {
-						account = socialNetworksManager.createSocialNetworkAccount(socialNetowrkAccountData.getSocialNetworkName(),
-								socialNetowrkAccountData.getLinkEdit(),
+					SocialNetworkAccountData userAccount = socialNetworksManager.getSocialNetworkAccountData(loggedUser.getUserId(), socialNetworkAccountData.getSocialNetworkName());
+					if (socialNetworkAccountData.getId() == 0 && userAccount == null) {
+						account = socialNetworksManager.createSocialNetworkAccount(
+								socialNetworkAccountData.getSocialNetworkName(),
+								socialNetworkAccountData.getLinkEdit(),
 								loggedUser.getUserContext());
 						userAccount = new SocialNetworkAccountData(account);
 						userSocialNetworksData.getSocialNetworkAccountsData().put(userAccount.getSocialNetworkName().toString(), userAccount);
 					} else {
 						try {
-							socialNetworksManager.updateSocialNetworkAccount(userAccount.getId(), socialNetowrkAccountData.getLinkEdit());
-							socialNetowrkAccountData.setLink(socialNetowrkAccountData.getLinkEdit());
-							socialNetowrkAccountData.setChanged(false);
+							socialNetworksManager.updateSocialNetworkAccount(userAccount.getId(), socialNetworkAccountData.getLinkEdit());
+							socialNetworkAccountData.setLink(socialNetworkAccountData.getLinkEdit());
+							socialNetworkAccountData.setChanged(false);
 						} catch (ResourceCouldNotBeLoadedException e) {
 							logger.error(e);
 						}

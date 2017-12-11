@@ -20,9 +20,6 @@ public interface SocialNetworksManager extends AbstractManager {
 
 	Result<SocialNetworkAccount> createSocialNetworkAccountAndGetEvents(SocialNetworkName name, String link, UserContextData contextData)
 			throws DbConnectionException;
-	
-	void addSocialNetworkAccount(long userId, SocialNetworkName name, String link, UserContextData contextData)
-			throws ResourceCouldNotBeLoadedException;
 
 	void updateSocialNetworkAccount(long id, String newLink) throws DbConnectionException, ResourceCouldNotBeLoadedException;
 
