@@ -1,6 +1,9 @@
 package org.prosolo.common.elasticsearch.client.impl;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -18,11 +21,13 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.prosolo.common.elasticsearch.client.ESRestClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -94,9 +99,10 @@ public class ESRestClientImpl implements ESRestClient {
         return search(sr);
     }
 
+    @Override
     public boolean deleteIndex(String indexName) throws IOException {
         //TODO es migration - when migrated to 6.0, replace this implementation with delete index request which is supported in this release
-        Response response = lowLevelClient.performRequest("DELETE", indexName);
+        Response response = lowLevelClient.performRequest("DELETE", "/" + indexName);
         int status = response.getStatusLine().getStatusCode();
         logger.info("DELETE INDEX RESPONSE STATUS: " + status);
         String res = EntityUtils.toString(response.getEntity());
@@ -104,13 +110,25 @@ public class ESRestClientImpl implements ESRestClient {
         return status == HttpStatus.SC_OK;
     }
 
+    @Override
     public boolean exists(String indexName) throws IOException {
-        Response response = lowLevelClient.performRequest("HEAD", indexName);
+        Response response = lowLevelClient.performRequest("HEAD", "/" + indexName);
         int status = response.getStatusLine().getStatusCode();
         logger.info("DELETE INDEX RESPONSE STATUS: " + status);
         return status == HttpStatus.SC_OK;
     }
 
-
+    @Override
+    public boolean deleteByQuery(String indexName, String indexType, QueryBuilder qb) throws IOException {
+        HttpEntity entity = new NStringEntity(qb.toString(), ContentType.APPLICATION_JSON);
+        Response response = lowLevelClient.performRequest(
+                "POST",
+                "/" + indexName + "/" + indexType + "/" + "_delete_by_query",
+                Collections.emptyMap(),
+                entity);
+        int status = response.getStatusLine().getStatusCode();
+        logger.info("DELETE INDEX RESPONSE STATUS: " + status);
+        return status == HttpStatus.SC_OK;
+    }
 
 }

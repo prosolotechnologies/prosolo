@@ -6,6 +6,7 @@ import static org.elasticsearch.client.Requests.deleteIndexRequest;
 //import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 import org.elasticsearch.common.settings.Settings;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -44,10 +45,10 @@ public class ESAdministrationImplImpl extends AbstractESIndexerImpl implements
 
 	// @Override
 	public void createIndex(String indexName)
-			throws IndexingServiceNotAvailable {
-		Client client = ElasticSearchConnector.getClient();
-		boolean exists = client.admin().indices().prepareExists(indexName)
-				.execute().actionGet().isExists();
+			throws IndexingServiceNotAvailable, IOException {
+//		boolean exists = client.admin().indices().prepareExists(indexName)
+//				.execute().actionGet().isExists();
+		boolean exists = ElasticSearchConnector.getClient().exists(indexName);
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings
 					.getInstance().config.elasticSearch;

@@ -1,20 +1,17 @@
 package org.prosolo.bigdata.es.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -109,24 +106,17 @@ public class AssociationRulesIndexerImplImpl extends AbstractESIndexerImpl imple
 		TermQueryBuilder termCompetence = QueryBuilders.termQuery("id",
 				competenceid);
 		QueryBuilder boolQuery = QueryBuilders.boolQuery().must(termCompetence);
-		Client client = null;
-		//try {
-			client = ElasticSearchConnector.getClient();
-		//} catch (IndexingServiceNotAvailable e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//}
 		String indexName = ESIndexNames.INDEX_ASSOCRULES;
 		String indexType = ESIndexTypes.COMPETENCE_ACTIVITIES;
 		System.out.println("THIS IS REMOVED FOR TRANSFER TO 2.3");
 
 		//client.prepareDeleteByQuery(indexName).setQuery(boolQuery)
 		//		.setTypes(indexType).execute().actionGet();
-		DeleteByQueryAction.INSTANCE.newRequestBuilder(client);
-		DeleteByQueryRequestBuilder requestBuilder=new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE);
-		requestBuilder.setQuery(boolQuery).execute().actionGet();
-
-
+		try {
+			ElasticSearchConnector.getClient().deleteByQuery(indexName, indexType, boolQuery);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
 	}
 
 }

@@ -15,6 +15,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
@@ -40,4 +41,9 @@ public interface ESRestClient {
 
     public SearchResponse search(SearchSourceBuilder searchSourceBuilder, String index, String type) throws IOException;
 
+    boolean deleteIndex(String indexName) throws IOException;
+
+    boolean exists(String indexName) throws IOException;
+
+    boolean deleteByQuery(String indexName, String indexType, QueryBuilder qb) throws IOException;
 }
