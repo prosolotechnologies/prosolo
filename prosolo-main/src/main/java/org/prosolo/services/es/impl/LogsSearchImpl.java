@@ -4,14 +4,15 @@ package org.prosolo.services.es.impl;/**
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.dal.pojo.LogsFilter;
 import org.prosolo.bigdata.common.dal.pojo.LogsRecord;
@@ -24,6 +25,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -40,6 +42,8 @@ import java.util.List;
 @Service("org.prosolo.services.es.LogsSearch")
 public class LogsSearchImpl implements LogsSearch {
 
+    private static Logger logger = Logger.getLogger(LogsSearchImpl.class);
+
     //@Inject
     private ContextJsonParserService contextParser;
 
@@ -49,7 +53,6 @@ public class LogsSearchImpl implements LogsSearch {
     }
     @Override
     public List<LogsRecord> findLogsByFilter(LogsFilter logsFilter){
-        Client client = ElasticSearchFactory.getClient();
         BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
         int bQueryMinShouldMatch=0;
         if(logsFilter.getCredentials().size()>0){
@@ -103,18 +106,24 @@ public class LogsSearchImpl implements LogsSearch {
             bQueryMinShouldMatch++;
         }
         bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
-        SearchRequestBuilder searchRequestBuilder=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( bQueryBuilder)
-                .setFrom(logsFilter.getFrom())
-                .setSize(logsFilter.getSize())
-                .addSort("timestamp", SortOrder.DESC);
 
-        //System.out.println("QUERY:"+ searchRequestBuilder.toString());
-        SearchResponse sResponse=searchRequestBuilder.execute().actionGet();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(logsFilter.getFrom())
+                .size(logsFilter.getSize())
+                .sort(new FieldSortBuilder("timestamp").order(SortOrder.DESC));
 
-      //  System.out.println("EXECUTED");
-        return buildLogsResults(sResponse);
+        try {
+            //System.out.println("QUERY:"+ searchRequestBuilder.toString());
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+
+            //  System.out.println("EXECUTED");
+            return buildLogsResults(sResponse);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            return null;
+        }
     }
     private BoolQueryBuilder createContextQueryBuilder(List<Long> objectIds, String objectType, int contextLevel){
         BoolQueryBuilder contextQueryBuilder = QueryBuilders.boolQuery();

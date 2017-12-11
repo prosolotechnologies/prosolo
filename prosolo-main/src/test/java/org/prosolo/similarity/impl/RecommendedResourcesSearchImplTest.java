@@ -1,9 +1,11 @@
 package org.prosolo.similarity.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -11,9 +13,14 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
+import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.search.impl.UserTextSearchImpl;
 
 /**
 @author Zoran Jeremic Jun 6, 2015
@@ -22,42 +29,47 @@ import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 
 public class RecommendedResourcesSearchImplTest {
 
+	private static Logger logger = Logger.getLogger(RecommendedResourcesSearchImplTest.class);
+
 	@Test
 	public void testFindMostActiveRecommendedUsers() {
-		Client client=null;
-		try {
-			client = ElasticSearchConnector.getClient();
-		} catch (NoNodeAvailableException e) {
-			e.printStackTrace();
-		}
 		long[] learninggoalsids={100,20};
 		QueryBuilder qb =QueryBuilders.termsQuery("learninggoalid", learninggoalsids);
 		//TermsFilterBuilder learningGoalsTermsFilter = FilterBuilders.termsFilter("learninggoalid", learninggoalsids);
-		String indexName = ESIndexNames.INDEX_RECOMMENDATION_DATA;
-		SearchResponse sr = client.prepareSearch(indexName).setQuery(qb).setFrom(0)
-				.setSize(10).setExplain(true).execute().actionGet();
-		System.out.println("EXECUTED");
-		if (sr != null) {
-			SearchHits searchHits = sr.getHits();
-			Iterator<SearchHit> hitsIter = searchHits.iterator();
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchSourceBuilder
+				.query(qb)
+				.from(0)
+				.size(10)
+				.explain(true);
 
-			while (hitsIter.hasNext()) {
-				SearchHit searchHit = hitsIter.next();
-				System.out.println("Suggested document:" + searchHit.getId() + " title: score:" + searchHit.getScore());
-			//	Map<String, SearchHitField> hitSource = searchHit.getFields();
-				//System.out.println("hits:"+hitSource.toString()+" fields.:"+hitSource.size());
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				List<Object> mostactiveusersObjects=(ArrayList) searchHit.getSource().get("mostactiveusers");
-				 System.out.println("MOST ACTIVE NUMBER:"+mostactiveusersObjects.size()+" "+mostactiveusersObjects.toString());
-				//	Gson gson = new Gson();
-				//	Type listType = new TypeToken<List<Score>>() {}.getType();
-				//	List<Score> recommendedUsers = gson.fromJson(mostactiveusersObjects.toString(), listType);
-			
-				
-				//RecommendedDocument recDoc = new RecommendedDocument(searchHit);
-				//foundDocs.add(recDoc);
+		try {
+			SearchResponse sr = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_RECOMMENDATION_DATA, null);
+			System.out.println("EXECUTED");
+			if (sr != null) {
+				SearchHits searchHits = sr.getHits();
+				Iterator<SearchHit> hitsIter = searchHits.iterator();
+
+				while (hitsIter.hasNext()) {
+					SearchHit searchHit = hitsIter.next();
+					System.out.println("Suggested document:" + searchHit.getId() + " title: score:" + searchHit.getScore());
+				//	Map<String, SearchHitField> hitSource = searchHit.getFields();
+					//System.out.println("hits:"+hitSource.toString()+" fields.:"+hitSource.size());
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					List<Object> mostactiveusersObjects=(ArrayList) searchHit.getSource().get("mostactiveusers");
+				 	System.out.println("MOST ACTIVE NUMBER:"+mostactiveusersObjects.size()+" "+mostactiveusersObjects.toString());
+					//	Gson gson = new Gson();
+					//	Type listType = new TypeToken<List<Score>>() {}.getType();
+					//	List<Score> recommendedUsers = gson.fromJson(mostactiveusersObjects.toString(), listType);
+
+
+					//RecommendedDocument recDoc = new RecommendedDocument(searchHit);
+					//foundDocs.add(recDoc);
+				}
 			}
-			}
+		} catch (IOException e) {
+			logger.error("Error", e);
+		}
 	}
 
 }

@@ -2,7 +2,7 @@ package org.prosolo.services.indexing;/**
  * Created by zoran on 28/09/16.
  */
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -10,20 +10,20 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.elasticsearch.client.ESRestClient;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.client.ESRestClient;
 
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * zoran 28/09/16
@@ -64,6 +64,9 @@ class LogsFilter{
     public void setBeforeDate(Long beforeDate) { this.beforeDate = beforeDate;    }
   }
 public class LoggingESServiceTest {
+
+    private static Logger logger = Logger.getLogger(LoggingESServiceTest.class);
+
     private static ESRestClient client;
     private static List<Long> actors;
     private static List<Long> courses;
@@ -114,7 +117,7 @@ public class LoggingESServiceTest {
         LogsFilter logsFilter=f1;
         BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
         int bQueryMinShouldMatch=0;
-        if(logsFilter.getCredentials().size()>0){
+        if (logsFilter.getCredentials().size()>0) {
             System.out.println("HAS CREDENTIALS:"+logsFilter.getCredentials().size());
             BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCredentials(),"Credential1",1);
 
@@ -122,19 +125,19 @@ public class LoggingESServiceTest {
             bQueryMinShouldMatch++;
         }
 
-        if(logsFilter.getCompetences().size()>0){
+        if (logsFilter.getCompetences().size()>0) {
             System.out.println("HAS COMPETENCES:"+logsFilter.getCompetences().size());
             BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCompetences(),"Competence1",2);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getActivities().size()>0){
+        if (logsFilter.getActivities().size()>0) {
             System.out.println("HAS Activities:"+logsFilter.getActivities().size());
             BoolQueryBuilder contextQueryBuilder = createContextQueryBuilder(logsFilter.getActivities(),"Activity1",3);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getStudents().size()>0){
+        if (logsFilter.getStudents().size()>0) {
             System.out.println("HAS STUDENTS:"+logsFilter.getStudents().size());
             BoolQueryBuilder studentsQueryBuilder=QueryBuilders.boolQuery();
             for(Long studentId: logsFilter.getStudents()){
@@ -144,7 +147,7 @@ public class LoggingESServiceTest {
             bQueryBuilder.should(studentsQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getEventTypes().size()>0){
+        if (logsFilter.getEventTypes().size()>0) {
             System.out.println("HAS EVENT TYPES:"+logsFilter.getEventTypes().size());
             BoolQueryBuilder eventTypesQueryBuilder=QueryBuilders.boolQuery();
             for(EventType eventType:logsFilter.getEventTypes()){
@@ -154,7 +157,7 @@ public class LoggingESServiceTest {
             bQueryBuilder.should(eventTypesQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getAfterDate()>0 && logsFilter.getBeforeDate()>0){
+        if (logsFilter.getAfterDate()>0 && logsFilter.getBeforeDate()>0) {
             System.out.println("HAS AFTER AND BEFORE DATE");
             RangeQueryBuilder datesQueryBuilder=QueryBuilders.rangeQuery("date")
                     .from(logsFilter.getAfterDate())
@@ -165,21 +168,22 @@ public class LoggingESServiceTest {
             bQueryMinShouldMatch++;
         }
 
-
-
         bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
-       SearchRequestBuilder searchRequestBuilder=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-               .setTypes(ESIndexTypes.LOG)
-               .setQuery( bQueryBuilder)
-               .setFrom(logsFilter.getFrom())
-               .setSize(logsFilter.getSize())
-               .addSort("timestamp", SortOrder.DESC);
 
-        System.out.println("QUERY:"+ searchRequestBuilder.toString());
-        SearchResponse sResponse=searchRequestBuilder
-                .execute().actionGet();
-        System.out.println("EXECUTED");
-        printSearchResponse(sResponse);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(logsFilter.getFrom())
+                .size(logsFilter.getSize())
+                .sort(new FieldSortBuilder("timestamp").order(SortOrder.DESC));
+
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
 
     private BoolQueryBuilder createContextQueryBuilder(List<Long> objectIds, String objectType, int contextLevel){
@@ -218,14 +222,20 @@ public class LoggingESServiceTest {
         bQueryBuilder.should(userQueryBuilder);
         bQueryBuilder.minimumNumberShouldMatch(2);
         System.out.println("QUERY:"+ bQueryBuilder.toString());
-        SearchResponse sResponse=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( bQueryBuilder)
-                        .setFrom(0)
-                        .setSize(100)
-                        .execute().actionGet();
-        System.out.println("EXECUTED");
-        printSearchResponse(sResponse);
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(0)
+                .size(100);
+
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
 
 
@@ -243,14 +253,20 @@ public class LoggingESServiceTest {
 
         qb.should(qbL1);
         System.out.println("QUERY:"+ qb.toString());
-        SearchResponse sResponse=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( qb)
-                .setFrom(0)
-                .setSize(100)
-                .execute().actionGet();
-        System.out.println("EXECUTED testLogsFilteringByContext");
-        printSearchResponse(sResponse);
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(qb)
+                .from(0)
+                .size(100);
+
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED testLogsFilteringByContext");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
     private void printSearchResponse(SearchResponse sResponse){
         if(sResponse != null) {

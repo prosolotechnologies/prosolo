@@ -80,11 +80,18 @@ public class ESRestClientImpl implements ESRestClient {
     @Override
     public SearchResponse search(SearchSourceBuilder searchSourceBuilder, String index, String type) throws IOException {
         SearchRequest sr = new SearchRequest(index);
-        sr.types(type);
+        if (type != null) {
+            sr.types(type);
+        }
         sr.source(searchSourceBuilder);
         //this search type is used in all places - if needed, it can be passed as an argument
         sr.searchType(SearchType.DFS_QUERY_THEN_FETCH);
         return search(sr);
     }
+
+//    public boolean deleteIndex(String indexName) throws IOException {
+//        //TODO es migration - when migrated to 6.0, replace this implementation with delete index request which is supported in this release
+//        Response response = lowLevelClient.performRequest("DELETE", indexName);
+//    }
 
 }

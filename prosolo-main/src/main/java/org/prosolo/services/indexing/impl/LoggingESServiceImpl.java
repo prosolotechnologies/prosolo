@@ -8,6 +8,8 @@ import org.elasticsearch.client.Client;
 import org.json.simple.JSONObject;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.client.ESRestClient;
 import org.prosolo.services.indexing.LoggingESService;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +26,11 @@ public class LoggingESServiceImpl implements LoggingESService {
         try{
             String indexName = ESIndexNames.INDEX_LOGS;
             String indexType = ESIndexTypes.LOG;
-            Client client = ElasticSearchFactory.getClient();
-            IndexRequest logIndexRequest=new IndexRequest(indexName,indexType);
-            logIndexRequest.source(logObject);
-            client.index(logIndexRequest);
+            IndexRequest indexReq = new IndexRequest(indexName, indexType).source(logObject);
+            ESRestClient client = ElasticSearchConnector.getClient();
+            //TODO es migration - is mapping necessary
+            //addMapping(client, indexName, indexType);
+            client.index(indexReq);
           }catch(Exception ex){
             logger.error(ex);
         }
