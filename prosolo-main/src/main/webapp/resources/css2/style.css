@@ -578,21 +578,10 @@ input {
   padding-bottom: 30px !important; }
   .credentialCard .credentialCardTop h2 {
     margin: 0; }
-  .credentialCard .credentialCardTop .stagesLinks {
-    list-style: none;
-    margin: 0;
-    padding-top: 10px; }
-    .credentialCard .credentialCardTop .stagesLinks li {
-      display: inline;
-      margin-right: 20px;
-      color: #D5D8DA; }
-      .credentialCard .credentialCardTop .stagesLinks li.active {
-        color: #FCA567;
-        font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif; }
-      .credentialCard .credentialCardTop .stagesLinks li span {
-        color: #859095;
-        font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: 500; }
+  .credentialCard .credentialCardTop .inStages {
+    display: block;
+    padding-top: 10px;
+    color: #FCA567; }
   .credentialCard .credentialCardTop .credentialCardTopOptions {
     flex-shrink: 0; }
     .credentialCard .credentialCardTop .credentialCardTopOptions a, .credentialCard .credentialCardTop .credentialCardTopOptions .btn {
@@ -631,9 +620,13 @@ input {
           background: #64BFCD; }
     .deliveriesList .deliveryItem .deliveryItemRight {
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
       padding: 20px 30px 20px 0; }
       .deliveriesList .deliveryItem .deliveryItemRight a, .deliveriesList .deliveryItem .deliveryItemRight .btn {
         margin-left: 20px; }
+      .deliveriesList .deliveryItem .deliveryItemRight .optMoreMenu a {
+        margin: 0; }
     .deliveriesList .deliveryItem .deliveryItemLeft h3 {
       margin-bottom: 5px; }
       .deliveriesList .deliveryItem .deliveryItemLeft h3 span {
@@ -2454,8 +2447,14 @@ header {
   .previewActiv.previewLinkSmall .content h2 {
     height: 24px; }
 
-.previewActiv .content .meta .duration {
+.previewActiv .content .meta .duration,
+.previewCredComp .content .meta .duration {
   margin-left: 0; }
+
+.previewActiv .content .meta .madeByUser,
+.previewCredComp .content .meta .madeByUser {
+  margin-left: 0;
+  margin-right: 20px; }
 
 .previewCredCompLine,
 .previewActivLine {
@@ -3043,15 +3042,19 @@ header {
       height: 20px;
       line-height: 20px;
       font-size: 13px; }
+      .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .studentsNum,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .admins,
+      .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .studentsNum,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .admins,
+      .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .studentsNum,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .admins,
+      .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .status,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .studentsNum,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .admins {
@@ -3059,19 +3062,29 @@ header {
         padding-left: 30px;
         margin-right: 30px;
         color: #AAB1B5; }
+        .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .studentsNum span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .admins span,
+        .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .studentsNum span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .admins span,
+        .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .studentsNum span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .admins span,
+        .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .status span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .studentsNum span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .admins span {
           color: #363636; }
+      .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
+      .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
+      .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
+      .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage {
+        padding-left: 0;
+        margin-right: 30px; }
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status,
@@ -3498,6 +3511,86 @@ header {
   .activityResultBox li.highlighted {
     background-color: rgba(255, 236, 0, 0.1); }
 
+.submitEvidenceTab input[type="text"] {
+  width: 100%;
+  margin-bottom: 30px; }
+
+.submitEvidenceTab .bootstrap-tagsinput {
+  margin-bottom: 30px; }
+  .submitEvidenceTab .bootstrap-tagsinput input[type="text"] {
+    margin-bottom: 0;
+    min-width: 220px; }
+
+.submitEvidenceTab textarea {
+  width: 100%;
+  margin-bottom: 25px;
+  min-height: 150px; }
+
+.submitEvidenceTab .whiteBox.manageVisibility {
+  margin-bottom: 100px; }
+
+.submitEvidenceTab .whiteBox textarea {
+  margin-bottom: 20px;
+  min-height: 200px; }
+
+.submitEvidenceTab .urlInput {
+  width: 100%;
+  margin-bottom: 20px; }
+
+.submitEvidenceTab .lastRow {
+  padding-bottom: 100px; }
+  .submitEvidenceTab .lastRow .btn {
+    margin-right: 20px; }
+
+.submitEvidenceTab .evidenceActions a {
+  margin-left: 20px; }
+
+.addEvidencePage .submitEvidenceTab .lastRow {
+  padding-bottom: 0; }
+
+.evidenceBox {
+  padding-bottom: 30px; }
+  .evidenceBox .evidenceTop {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px; }
+    .evidenceBox .evidenceTop .evidenceTopLeft {
+      display: flex;
+      align-items: center; }
+      .evidenceBox .evidenceTop .evidenceTopLeft .icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 20px; }
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
+          background: url("../images2/iconFile20.svg") no-repeat center center; }
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.link {
+          background: url("../images2/iconLink20.svg") no-repeat center center; }
+      .evidenceBox .evidenceTop .evidenceTopLeft h3 {
+        margin: 0; }
+    .evidenceBox .evidenceTop .evidenceTopRight {
+      display: flex;
+      align-items: center; }
+      .evidenceBox .evidenceTop .evidenceTopRight .btn {
+        width: 100px;
+        margin-left: 30px; }
+  .evidenceBox.evidenceBoxSmall .evidenceTop {
+    margin-bottom: 0; }
+  .evidenceBox table {
+    margin: 0; }
+    .evidenceBox table .col01 {
+      width: 120px;
+      padding-left: 0; }
+  .evidenceBox .tags {
+    margin-bottom: 0; }
+    .evidenceBox .tags li {
+      margin: 3px 10px 3px 0; }
+
+.sidebarStage {
+  padding: 10px 20px; }
+  .sidebarStage h2 {
+    margin: 0;
+    line-height: 30px; }
+
 .uploadResultBox {
   display: flex;
   flex-direction: column;
@@ -3518,6 +3611,10 @@ header {
   height: 100px;
   width: 100%;
   margin-bottom: 10px; }
+
+.writeResult small {
+  display: block;
+  margin: -10px 0 10px 0; }
 
 .writeResult .btn {
   margin-bottom: 30px; }
@@ -3922,14 +4019,16 @@ header {
 .manageVisibility .maxStudents,
 .newDeliveryModal .maxStudents,
 .deleteUserModal .maxStudents,
-.editOrgForm .maxStudents {
+.editOrgForm .maxStudents,
+.yourEvidencesLibrary .maxStudents {
   margin: 0 0 30px 30px; }
   .assignInstructorModal .maxStudents input,
   .addStudentsModal .maxStudents input,
   .manageVisibility .maxStudents input,
   .newDeliveryModal .maxStudents input,
   .deleteUserModal .maxStudents input,
-  .editOrgForm .maxStudents input {
+  .editOrgForm .maxStudents input,
+  .yourEvidencesLibrary .maxStudents input {
     width: 50px; }
 
 .assignInstructorModal .searchInstructors,
@@ -3937,7 +4036,8 @@ header {
 .manageVisibility .searchInstructors,
 .newDeliveryModal .searchInstructors,
 .deleteUserModal .searchInstructors,
-.editOrgForm .searchInstructors {
+.editOrgForm .searchInstructors,
+.yourEvidencesLibrary .searchInstructors {
   height: 46px;
   margin: 0;
   padding: 0 30px 0 60px;
@@ -3949,7 +4049,8 @@ header {
   .manageVisibility .searchInstructors input,
   .newDeliveryModal .searchInstructors input,
   .deleteUserModal .searchInstructors input,
-  .editOrgForm .searchInstructors input {
+  .editOrgForm .searchInstructors input,
+  .yourEvidencesLibrary .searchInstructors input {
     width: 500px;
     line-height: 32px;
     padding: 8px 0;
@@ -3960,7 +4061,8 @@ header {
   .manageVisibility .searchInstructors .showDrop,
   .newDeliveryModal .searchInstructors .showDrop,
   .deleteUserModal .searchInstructors .showDrop,
-  .editOrgForm .searchInstructors .showDrop {
+  .editOrgForm .searchInstructors .showDrop,
+  .yourEvidencesLibrary .searchInstructors .showDrop {
     float: right;
     padding: 7px 0; }
 
@@ -3969,7 +4071,8 @@ header {
 .manageVisibility .containerInner30,
 .newDeliveryModal .containerInner30,
 .deleteUserModal .containerInner30,
-.editOrgForm .containerInner30 {
+.editOrgForm .containerInner30,
+.yourEvidencesLibrary .containerInner30 {
   padding: 0 30px; }
 
 .assignInstructorModal .startDate,
@@ -3983,7 +4086,9 @@ header {
 .deleteUserModal .startDate,
 .deleteUserModal .endDate,
 .editOrgForm .startDate,
-.editOrgForm .endDate {
+.editOrgForm .endDate,
+.yourEvidencesLibrary .startDate,
+.yourEvidencesLibrary .endDate {
   margin-bottom: 30px; }
   .assignInstructorModal .startDate input,
   .assignInstructorModal .endDate input,
@@ -3996,7 +4101,9 @@ header {
   .deleteUserModal .startDate input,
   .deleteUserModal .endDate input,
   .editOrgForm .startDate input,
-  .editOrgForm .endDate input {
+  .editOrgForm .endDate input,
+  .yourEvidencesLibrary .startDate input,
+  .yourEvidencesLibrary .endDate input {
     width: 100%; }
 
 .assignInstructorModal .checkAll,
@@ -4004,7 +4111,8 @@ header {
 .manageVisibility .checkAll,
 .newDeliveryModal .checkAll,
 .deleteUserModal .checkAll,
-.editOrgForm .checkAll {
+.editOrgForm .checkAll,
+.yourEvidencesLibrary .checkAll {
   padding: 5px 50px 10px 50px;
   margin-bottom: 0;
   border-bottom: 1px solid #EEEFF3; }
@@ -4014,7 +4122,8 @@ header {
 .manageVisibility ul.list,
 .newDeliveryModal ul.list,
 .deleteUserModal ul.list,
-.editOrgForm ul.list {
+.editOrgForm ul.list,
+.yourEvidencesLibrary ul.list {
   max-height: 400px;
   padding-bottom: 50px;
   overflow: scroll;
@@ -4024,14 +4133,16 @@ header {
   .manageVisibility ul.list.hasTopBorder,
   .newDeliveryModal ul.list.hasTopBorder,
   .deleteUserModal ul.list.hasTopBorder,
-  .editOrgForm ul.list.hasTopBorder {
+  .editOrgForm ul.list.hasTopBorder,
+  .yourEvidencesLibrary ul.list.hasTopBorder {
     border-top: 1px solid #EEEFF3; }
   .assignInstructorModal ul.list > li,
   .addStudentsModal ul.list > li,
   .manageVisibility ul.list > li,
   .newDeliveryModal ul.list > li,
   .deleteUserModal ul.list > li,
-  .editOrgForm ul.list > li {
+  .editOrgForm ul.list > li,
+  .yourEvidencesLibrary ul.list > li {
     display: flex;
     justify-content: space-between;
     flex-shrink: 0;
@@ -4042,14 +4153,16 @@ header {
     .manageVisibility ul.list > li .instructorInfo,
     .newDeliveryModal ul.list > li .instructorInfo,
     .deleteUserModal ul.list > li .instructorInfo,
-    .editOrgForm ul.list > li .instructorInfo {
+    .editOrgForm ul.list > li .instructorInfo,
+    .yourEvidencesLibrary ul.list > li .instructorInfo {
       display: flex; }
       .assignInstructorModal ul.list > li .instructorInfo .checkbox,
       .addStudentsModal ul.list > li .instructorInfo .checkbox,
       .manageVisibility ul.list > li .instructorInfo .checkbox,
       .newDeliveryModal ul.list > li .instructorInfo .checkbox,
       .deleteUserModal ul.list > li .instructorInfo .checkbox,
-      .editOrgForm ul.list > li .instructorInfo .checkbox {
+      .editOrgForm ul.list > li .instructorInfo .checkbox,
+      .yourEvidencesLibrary ul.list > li .instructorInfo .checkbox {
         float: left;
         padding-top: 5px;
         margin-right: 10px; }
@@ -4058,7 +4171,8 @@ header {
         .manageVisibility ul.list > li .instructorInfo .checkbox label,
         .newDeliveryModal ul.list > li .instructorInfo .checkbox label,
         .deleteUserModal ul.list > li .instructorInfo .checkbox label,
-        .editOrgForm ul.list > li .instructorInfo .checkbox label {
+        .editOrgForm ul.list > li .instructorInfo .checkbox label,
+        .yourEvidencesLibrary ul.list > li .instructorInfo .checkbox label {
           width: 0;
           padding: 0; }
       .assignInstructorModal ul.list > li .instructorInfo .letterAvatar, .assignInstructorModal ul.list > li .instructorInfo img,
@@ -4071,7 +4185,9 @@ header {
       .deleteUserModal ul.list > li .instructorInfo .letterAvatar,
       .deleteUserModal ul.list > li .instructorInfo img,
       .editOrgForm ul.list > li .instructorInfo .letterAvatar,
-      .editOrgForm ul.list > li .instructorInfo img {
+      .editOrgForm ul.list > li .instructorInfo img,
+      .yourEvidencesLibrary ul.list > li .instructorInfo .letterAvatar,
+      .yourEvidencesLibrary ul.list > li .instructorInfo img {
         float: left;
         margin-right: 20px; }
       .assignInstructorModal ul.list > li .instructorInfo .infoWrap,
@@ -4079,7 +4195,8 @@ header {
       .manageVisibility ul.list > li .instructorInfo .infoWrap,
       .newDeliveryModal ul.list > li .instructorInfo .infoWrap,
       .deleteUserModal ul.list > li .instructorInfo .infoWrap,
-      .editOrgForm ul.list > li .instructorInfo .infoWrap {
+      .editOrgForm ul.list > li .instructorInfo .infoWrap,
+      .yourEvidencesLibrary ul.list > li .instructorInfo .infoWrap {
         display: flex;
         flex-direction: column;
         justify-content: center; }
@@ -4088,14 +4205,16 @@ header {
         .manageVisibility ul.list > li .instructorInfo .infoWrap h3,
         .newDeliveryModal ul.list > li .instructorInfo .infoWrap h3,
         .deleteUserModal ul.list > li .instructorInfo .infoWrap h3,
-        .editOrgForm ul.list > li .instructorInfo .infoWrap h3 {
+        .editOrgForm ul.list > li .instructorInfo .infoWrap h3,
+        .yourEvidencesLibrary ul.list > li .instructorInfo .infoWrap h3 {
           margin: 0; }
     .assignInstructorModal ul.list > li .progressWrapper,
     .addStudentsModal ul.list > li .progressWrapper,
     .manageVisibility ul.list > li .progressWrapper,
     .newDeliveryModal ul.list > li .progressWrapper,
     .deleteUserModal ul.list > li .progressWrapper,
-    .editOrgForm ul.list > li .progressWrapper {
+    .editOrgForm ul.list > li .progressWrapper,
+    .yourEvidencesLibrary ul.list > li .progressWrapper {
       display: flex;
       align-items: center; }
     .assignInstructorModal ul.list > li .assignOpt,
@@ -4103,7 +4222,8 @@ header {
     .manageVisibility ul.list > li .assignOpt,
     .newDeliveryModal ul.list > li .assignOpt,
     .deleteUserModal ul.list > li .assignOpt,
-    .editOrgForm ul.list > li .assignOpt {
+    .editOrgForm ul.list > li .assignOpt,
+    .yourEvidencesLibrary ul.list > li .assignOpt {
       display: flex;
       align-items: center; }
       .assignInstructorModal ul.list > li .assignOpt .buttonWrapper,
@@ -4111,7 +4231,8 @@ header {
       .manageVisibility ul.list > li .assignOpt .buttonWrapper,
       .newDeliveryModal ul.list > li .assignOpt .buttonWrapper,
       .deleteUserModal ul.list > li .assignOpt .buttonWrapper,
-      .editOrgForm ul.list > li .assignOpt .buttonWrapper {
+      .editOrgForm ul.list > li .assignOpt .buttonWrapper,
+      .yourEvidencesLibrary ul.list > li .assignOpt .buttonWrapper {
         width: 150px;
         text-align: right; }
       .assignInstructorModal ul.list > li .assignOpt span,
@@ -4119,7 +4240,8 @@ header {
       .manageVisibility ul.list > li .assignOpt span,
       .newDeliveryModal ul.list > li .assignOpt span,
       .deleteUserModal ul.list > li .assignOpt span,
-      .editOrgForm ul.list > li .assignOpt span {
+      .editOrgForm ul.list > li .assignOpt span,
+      .yourEvidencesLibrary ul.list > li .assignOpt span {
         font-size: 18px;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 500; }
@@ -4128,28 +4250,32 @@ header {
         .manageVisibility ul.list > li .assignOpt span.redText,
         .newDeliveryModal ul.list > li .assignOpt span.redText,
         .deleteUserModal ul.list > li .assignOpt span.redText,
-        .editOrgForm ul.list > li .assignOpt span.redText {
+        .editOrgForm ul.list > li .assignOpt span.redText,
+        .yourEvidencesLibrary ul.list > li .assignOpt span.redText {
           color: #E45E5E; }
       .assignInstructorModal ul.list > li .assignOpt .dropdown-menu,
       .addStudentsModal ul.list > li .assignOpt .dropdown-menu,
       .manageVisibility ul.list > li .assignOpt .dropdown-menu,
       .newDeliveryModal ul.list > li .assignOpt .dropdown-menu,
       .deleteUserModal ul.list > li .assignOpt .dropdown-menu,
-      .editOrgForm ul.list > li .assignOpt .dropdown-menu {
+      .editOrgForm ul.list > li .assignOpt .dropdown-menu,
+      .yourEvidencesLibrary ul.list > li .assignOpt .dropdown-menu {
         margin: -10px 0 0; }
       .assignInstructorModal ul.list > li .assignOpt .makeOwner,
       .addStudentsModal ul.list > li .assignOpt .makeOwner,
       .manageVisibility ul.list > li .assignOpt .makeOwner,
       .newDeliveryModal ul.list > li .assignOpt .makeOwner,
       .deleteUserModal ul.list > li .assignOpt .makeOwner,
-      .editOrgForm ul.list > li .assignOpt .makeOwner {
+      .editOrgForm ul.list > li .assignOpt .makeOwner,
+      .yourEvidencesLibrary ul.list > li .assignOpt .makeOwner {
         display: none; }
     .assignInstructorModal ul.list > li:hover .makeOwner,
     .addStudentsModal ul.list > li:hover .makeOwner,
     .manageVisibility ul.list > li:hover .makeOwner,
     .newDeliveryModal ul.list > li:hover .makeOwner,
     .deleteUserModal ul.list > li:hover .makeOwner,
-    .editOrgForm ul.list > li:hover .makeOwner {
+    .editOrgForm ul.list > li:hover .makeOwner,
+    .yourEvidencesLibrary ul.list > li:hover .makeOwner {
       display: inline; }
 
 .manageVisibility .searchInstructors,

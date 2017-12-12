@@ -250,6 +250,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						cd.setId(id);
 						cd.setTitle(title);
 						cd.setArchived(archived);
+						cd.setLearningStageEnabled(lStageId > 0);
 						List<CredentialData> deliveries;
 						//if learning in stages is enabled, return active deliveries from all stages
 						if (lStageId > 0) {
