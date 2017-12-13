@@ -1491,6 +1491,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList<>();
 		try {
 			String query =
 					"SELECT targetCredential1 " +
@@ -1517,7 +1518,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<TargetCredentialData> resultList = new ArrayList<>();
 
-			List<TargetCredential1> result = persistence.currentManager()
+			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
 					.list();

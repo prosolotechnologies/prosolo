@@ -47,6 +47,7 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = targetCredential1.getCredential().getId();
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
+		this.credential = new CredentialData(targetCredential1.getCredential());
 	}
 
 	public CredentialData getCredential() {
