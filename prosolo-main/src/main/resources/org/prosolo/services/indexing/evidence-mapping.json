@@ -1,7 +1,7 @@
 {
   "evidence":{
-    "properties":{
-      "id":{
+    "properties": {
+      "id": {
         "store": false,
         "type":"long"
       },
@@ -9,9 +9,26 @@
         "store" : false,
         "type" : "long"
       },
-      "name":{
+      "name": {
         "store": false,
         "type": "string"
+      },
+      "type":{
+        "store": false,
+        "type":"string"
+      },
+      "dateCreated": {
+        "store": false,
+        "type":"date",
+        "format":"yyyy/MM/dd HH:mm:ss"
+      },
+      "tags": {
+        "properties":{
+          "title":{
+            "store": false,
+            "type":"string"
+          }
+        }
       }
     }
   }

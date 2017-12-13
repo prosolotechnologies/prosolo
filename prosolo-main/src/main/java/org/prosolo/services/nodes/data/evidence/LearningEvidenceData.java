@@ -1,12 +1,10 @@
 package org.prosolo.services.nodes.data.evidence;
 
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +21,7 @@ public class LearningEvidenceData implements Serializable {
     private String text;
     private LearningEvidenceType type;
     private String url;
-    private Set<Tag> tags;
+    private Set<String> tags;
     private String tagsString;
     private long dateCreated;
     //date when evidence is added to the current competence
@@ -79,11 +77,11 @@ public class LearningEvidenceData implements Serializable {
         this.url = url;
     }
 
-    public Set<Tag> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tag> tags) {
+    public void setTags(Set<String> tags) {
         this.tags = tags;
     }
 

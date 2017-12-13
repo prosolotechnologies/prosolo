@@ -2,6 +2,7 @@ package org.prosolo.web.learningevidence;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -33,6 +34,7 @@ public class LearningEvidencesBean implements Serializable, Paginable {
 
     @Inject private LearningEvidenceManager learningEvidenceManager;
     @Inject private LoggedUserBean loggedUserBean;
+    @Inject private LearningEvidenceTextSearch learningEvidenceTextSearch;
 
     private String page;
 
@@ -76,7 +78,14 @@ public class LearningEvidencesBean implements Serializable, Paginable {
     }
 
     private void getEvidenceSearchResults() {
-
+        extractResult(learningEvidenceTextSearch.searchUserLearningEvidences(
+                loggedUserBean.getOrganizationId(),
+                loggedUserBean.getUserId(),
+                searchTerm,
+                paginationData.getPage() - 1,
+                paginationData.getLimit(),
+                filter.getFilter(),
+                sortOption.getSortOption()));
     }
 
     public void searchEvidences() {

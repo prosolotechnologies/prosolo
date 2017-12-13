@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author stefanvuckovic
@@ -25,11 +26,12 @@ public class LearningEvidenceDataFactory {
         evidenceData.setTitle(evidence.getTitle());
         evidenceData.setText(evidence.getDescription());
         if (tags != null) {
-            evidenceData.setTags(tags);
+            evidenceData.setTags(tags.stream().map(Tag::getTitle).collect(Collectors.toSet()));
             evidenceData.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
         }
         evidenceData.setType(evidence.getType());
         evidenceData.setUrl(evidence.getUrl());
+        evidenceData.setDateCreated(DateUtil.getMillisFromDate(evidence.getDateCreated()));
         if (compEvidence != null) {
             evidenceData.setCompetenceEvidenceId(compEvidence.getId());
             evidenceData.setDateAttached(DateUtil.getMillisFromDate(compEvidence.getDateCreated()));

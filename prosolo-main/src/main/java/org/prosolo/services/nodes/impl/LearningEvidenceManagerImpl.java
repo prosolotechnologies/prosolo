@@ -230,7 +230,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         String query =
                 "SELECT le FROM LearningEvidence le " +
                 "LEFT JOIN fetch le.tags " +
-                "WHERE le.user.id = :userId";
+                "WHERE le.user.id = :userId " +
+                "ORDER BY le.dateCreated DESC";
 
         @SuppressWarnings("unchecked")
         List<LearningEvidence> evidences = persistence.currentManager()
@@ -256,26 +257,33 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 .uniqueResult();
     }
 
-    private List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) {
-        String query =
-                "SELECT comp " +
-                "FROM CompetenceEvidence ce " +
-                "INNER JOIN ce.competence tc " +
-                "INNER JOIN tc.competence comp " +
-                "WHERE ce.evidence.id = :evId " +
-                "AND ce.deleted IS FALSE";
+    @Transactional (readOnly = true)
+    @Override
+    public List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT comp " +
+                            "FROM CompetenceEvidence ce " +
+                            "INNER JOIN ce.competence tc " +
+                            "INNER JOIN tc.competence comp " +
+                            "WHERE ce.evidence.id = :evId " +
+                            "AND ce.deleted IS FALSE";
 
-        @SuppressWarnings("unchecked")
-        List<Competence1> competences = persistence.currentManager()
-                .createQuery(query)
-                .setLong("evId", evidenceId)
-                .list();
+            @SuppressWarnings("unchecked")
+            List<Competence1> competences = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("evId", evidenceId)
+                    .list();
 
-        List<BasicObjectInfo> comps = new ArrayList<>();
-        for (Competence1 comp : competences) {
-            comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle()));
+            List<BasicObjectInfo> comps = new ArrayList<>();
+            for (Competence1 comp : competences) {
+                comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle()));
+            }
+            return comps;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the competences evidence is added to");
         }
-        return comps;
     }
 
 }
