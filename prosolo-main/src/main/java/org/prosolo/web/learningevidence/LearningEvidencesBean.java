@@ -49,6 +49,8 @@ public class LearningEvidencesBean implements Serializable, Paginable {
     private LearningEvidenceLabeledSearchFilter[] filters;
     private LearningEvidenceLabeledSortOption[] sortOptions;
 
+    private List<String> keywords;
+
     public void init() {
         int page = 1;
         if (this.page != null) {
@@ -64,6 +66,7 @@ public class LearningEvidencesBean implements Serializable, Paginable {
         sortOptions = LearningEvidenceLabeledSortOption.values();
         try {
             loadEvidences();
+            keywords = learningEvidenceManager.getKeywordsFromAllUserEvidences(loggedUserBean.getUserId());
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");
@@ -165,5 +168,9 @@ public class LearningEvidencesBean implements Serializable, Paginable {
 
     public void setPage(String page) {
         this.page = page;
+    }
+
+    public List<String> getKeywords() {
+        return keywords;
     }
 }

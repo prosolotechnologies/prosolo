@@ -40,4 +40,6 @@ public interface LearningEvidenceManager {
     PaginatedResult<LearningEvidenceData> getPaginatedUserEvidences(long userId, int offset, int limit) throws DbConnectionException;
 
     List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException;
+
+    List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException;
 }

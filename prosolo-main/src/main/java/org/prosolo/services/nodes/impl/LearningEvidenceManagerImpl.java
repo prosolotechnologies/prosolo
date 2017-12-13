@@ -286,4 +286,27 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         }
     }
 
+    @Transactional (readOnly = true)
+    @Override
+    public List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT DISTINCT t.title " +
+                    "FROM LearningEvidence le " +
+                    "INNER JOIN le.tags t " +
+                    "WHERE le.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<String> tags = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .list();
+
+            return tags;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the evidences keywords");
+        }
+    }
+
 }
