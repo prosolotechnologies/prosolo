@@ -1,0 +1,153 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        ProSolo - Evidences
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="p" value="#{learningEvidencesBean.page}" default="null"/>
+            <f:viewAction action="#{learningEvidencesBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>Evidences</h1>
+    </ui:define>
+
+    <ui:define name="content">
+
+    <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
+
+    <div class="whiteBar">
+        <div class="container">
+            <div class="whiteBarContent">
+                <div class="whiteBarLeft">
+                    <a href="evidence-add.html" class="btn btn-green btn-sm item">Add Evidence</a>
+                    <div class="searchBox">
+                        <h:form id="formSearch">
+                            <p:remoteCommand
+                                    name="execSearchEvidences"
+                                    process="inputSearchEvidences"
+                                    update=":panelEvidences :pagination"
+                                    action="#{learningEvidencesBean.searchEvidences()}">
+                            </p:remoteCommand>
+
+                            <h:inputText id="inputSearchEvidences"
+                                         type="search"
+                                         placeholder="Search Evidences"
+                                         value="#{learningEvidencesBean.searchTerm}"
+                                         onclick="$(this).select();"
+                                         onkeyup="searchListener(execSearchEvidences);">
+                            </h:inputText>
+                        </h:form>
+                    </div>
+                </div>
+                <div class="whiteBarRight">
+                    <div class="dropdown sortDrop item">
+                        <span>Sort:</span>
+                        <h:link
+                                id="linkSortOption"
+                                pt:data-toggle="dropdown"
+                                pt:aria-haspopup="true"
+                                pt:aria-expanded="true">
+                            #{learningEvidencesBean.sortOption.label}
+                            <span class="arrowDown">arrowDown</span>
+                        </h:link>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <ui:repeat var="sortOption" value="#{learningEvidencesBean.sortOptions}">
+                                <li>
+                                    <p:commandLink
+                                            process="@this"
+                                            value="#{sortOption.label}"
+                                            action="#{learningEvidencesBean.applySortOption(sortOption)}"
+                                            update=":panelEvidences :pagination linkSortOption">
+                                    </p:commandLink>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                    </div>
+                    <div class="dropdown showDrop item">
+                        <span>Show:</span>
+                        <h:link
+                                id="linkSearchFilter"
+                                pt:data-toggle="dropdown"
+                                pt:aria-haspopup="true"
+                                pt:aria-expanded="true">
+                            #{learningEvidencesBean.filter.label}
+                            <span class="arrowDown">arrowDown</span>
+                        </h:link>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <ui:repeat var="filter" value="#{learningEvidencesBean.filters}">
+                                <li>
+                                    <p:commandLink
+                                            process="@this"
+                                            value="#{filter.label}"
+                                            action="#{learningEvidencesBean.applySearchFilter(filter)}"
+                                            update=":panelEvidences :pagination linkSearchFilter">
+                                    </p:commandLink>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <ui:fragment rendered="#{empty learningEvidencesBean.evidences}">
+                    <div class="noContentMessage">
+                        <p>
+                            No evidences.
+                        </p>
+                    </div>
+                </ui:fragment>
+                <h:panelGroup id="panelEvidences">
+                    <ui:repeat value="#{learningEvidencesBean.evidences}" var="evidence">
+                        <evidence:evidence
+                            evidence="#{evidence}"
+                            showDetails="false"
+                            showEvidenceManagementOptions="false"
+                        />
+                    </ui:repeat>
+                </h:panelGroup>
+
+                <utilcomp:pagination
+                        id="pagination"
+                        bean="#{learningEvidencesBean}"
+                        updateUrl="true"
+                        toUpdate=":panelEvidences"
+                />
+            </div>
+
+            <div class="col-md-4">
+                <div class="sidebarBlock sidebarBlockKeywords">
+                    <h2>Keywords</h2>
+                    <ul class="tags">
+                        <li><a href="#">analytics</a></li>
+                        <li><a href="#">data</a></li>
+                        <li><a href="#">big data</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    </ui:define>
+</ui:composition>

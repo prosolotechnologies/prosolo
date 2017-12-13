@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,4 +35,6 @@ public interface LearningEvidenceManager {
     List<LearningEvidence> getAllEvidences(long orgId, Session session) throws DbConnectionException;
 
     LearningEvidenceData getLearningEvidence(long evidenceId) throws DbConnectionException;
+
+    PaginatedResult<LearningEvidenceData> getPaginatedUserEvidences(long userId, int offset, int limit) throws DbConnectionException;
 }

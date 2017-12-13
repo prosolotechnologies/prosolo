@@ -2,9 +2,12 @@ package org.prosolo.services.nodes.data.evidence;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,7 +25,15 @@ public class LearningEvidenceData implements Serializable {
     private String url;
     private Set<Tag> tags;
     private String tagsString;
+    private long dateCreated;
+    //date when evidence is added to the current competence
     private long dateAttached;
+    //competences with this evidence
+    private List<BasicObjectInfo> competences;
+
+    public LearningEvidenceData() {
+        competences = new ArrayList<>();
+    }
 
     public String getFileName() {
         return url != null && !url.isEmpty() ? url.substring(url.lastIndexOf("/") + 1) : null;
@@ -98,5 +109,27 @@ public class LearningEvidenceData implements Serializable {
 
     public void setDateAttached(long dateAttached) {
         this.dateAttached = dateAttached;
+    }
+
+    public void setDateCreated(long dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public long getDateCreated() {
+        return dateCreated;
+    }
+
+    public List<BasicObjectInfo> getCompetences() {
+        return competences;
+    }
+
+    public void addCompetence(BasicObjectInfo comp) {
+        if (comp != null) {
+            competences.add(comp);
+        }
+    }
+
+    public void addCompetences(List<BasicObjectInfo> competences) {
+        this.competences.addAll(competences);
     }
 }
