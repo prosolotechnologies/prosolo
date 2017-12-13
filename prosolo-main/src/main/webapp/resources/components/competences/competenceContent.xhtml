@@ -135,7 +135,7 @@
 											<div class="whiteBox evidenceBox evidenceBoxSmall">
 												<div class="evidenceTop">
 													<div class="evidenceTopLeft">
-														<div class="icon text"></div>
+														<div class="icon doc"></div>
 														<h3>#{cc.attrs.bean.evidence.fileName}</h3>
 													</div>
 													<div class="evidenceTopRight">
@@ -335,7 +335,7 @@
 								<div class="whiteBox evidenceBox">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft">
-											<div class="icon #{ev.type eq 'LINK' ? 'link' : 'text'}"></div>
+											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
 											<h3>#{ev.title}</h3>
 										</div>
 										<div class="evidenceTopRight">

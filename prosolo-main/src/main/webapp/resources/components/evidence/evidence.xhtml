@@ -19,7 +19,7 @@
 		<div class="whiteBox evidenceBox">
 			<div class="evidenceTop">
 				<div class="evidenceTopLeft">
-					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : 'text'}"></div>
+					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : cc.attrs.evidence.type eq 'TEXT' ? 'text' : 'doc'}"></div>
 					<h3><a href="evidence-view.html">#{cc.attrs.evidence.title}</a></h3>
 				</div>
 				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">

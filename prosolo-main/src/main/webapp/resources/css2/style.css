@@ -3561,8 +3561,10 @@ header {
         width: 20px;
         height: 20px;
         margin-right: 20px; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.doc {
           background: url("../images2/iconFile20.svg") no-repeat center center; }
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
+          background: url("../images2/iconTextLines20.svg") no-repeat center center; }
         .evidenceBox .evidenceTop .evidenceTopLeft .icon.link {
           background: url("../images2/iconLink20.svg") no-repeat center center; }
       .evidenceBox .evidenceTop .evidenceTopLeft h3 {
@@ -5469,6 +5471,7 @@ header {
 .sliderIconLeft {
   position: absolute;
   left: 0;
+  top: 0;
   height: 210px;
   width: 40px;
   line-height: 210px;
@@ -5482,6 +5485,7 @@ header {
 .sliderIconRight {
   position: absolute;
   right: 0;
+  top: 0;
   height: 210px;
   width: 40px;
   line-height: 210px;
