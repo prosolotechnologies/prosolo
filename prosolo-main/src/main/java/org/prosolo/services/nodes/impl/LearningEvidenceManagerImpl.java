@@ -4,6 +4,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -23,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -231,6 +229,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 "SELECT le FROM LearningEvidence le " +
                 "LEFT JOIN fetch le.tags " +
                 "WHERE le.user.id = :userId " +
+                "AND le.deleted IS FALSE " +
                 "ORDER BY le.dateCreated DESC";
 
         @SuppressWarnings("unchecked")
@@ -249,7 +248,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     private long countUserEvidences(long userId) {
         String query =
                 "SELECT COUNT(le.id) FROM LearningEvidence le " +
-                "WHERE le.user.id = :userId";
+                "WHERE le.user.id = :userId " +
+                "AND le.deleted IS FALSE";
 
         return (Long) persistence.currentManager()
                 .createQuery(query)
@@ -307,6 +307,75 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the evidences keywords");
         }
+    }
+
+    @Transactional (readOnly = true)
+    @Override
+    public LearningEvidenceData getLearningEvidence(long evidenceId, boolean loadTags, boolean loadCompetencesWithEvidence) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT le FROM LearningEvidence le ";
+            if (loadTags) {
+               query +=  "LEFT JOIN fetch le.tags ";
+            }
+            query += "WHERE le.id = :evId " +
+                     "AND le.deleted IS FALSE";
+
+            LearningEvidence evidence = (LearningEvidence) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("evId", evidenceId)
+                    .uniqueResult();
+
+            if (evidence == null) {
+                return null;
+            }
+
+            Set<Tag> tags = loadTags ? evidence.getTags() : null;
+            List<BasicObjectInfo> competences = loadCompetencesWithEvidence ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
+            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, tags, competences);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the learning evidence");
+        }
+    }
+
+    @Override
+    //nt
+    public void deleteLearningEvidence(long evidenceId, UserContextData context) throws DbConnectionException {
+        eventFactory.generateEvents(self.deleteLearningEvidenceAndGetEvents(evidenceId, context).getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> deleteLearningEvidenceAndGetEvents(long evidenceId, UserContextData context) throws DbConnectionException {
+        try {
+            //TODO check if this is the desired behavior
+            deleteAllCompetenceEvidencesForEvidence(evidenceId);
+            LearningEvidence le = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidenceId);
+            le.setDeleted(true);
+
+            LearningEvidence obj = new LearningEvidence();
+            obj.setId(evidenceId);
+
+            Result<Void> res = new Result<>();
+            res.appendEvent(eventFactory.generateEventData(EventType.Delete, context, obj, null, null, null));
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error deleting the learning evidence");
+        }
+    }
+
+    private void deleteAllCompetenceEvidencesForEvidence(long evidenceId) {
+        String q =
+                "UPDATE CompetenceEvidence ce SET ce.deleted = :deleted " +
+                "WHERE ce.evidence.id = :evId";
+
+        persistence.currentManager()
+                .createQuery(q)
+                .setBoolean("deleted", true)
+                .setLong("evId", evidenceId)
+                .executeUpdate();
     }
 
 }

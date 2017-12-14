@@ -42,4 +42,10 @@ public interface LearningEvidenceManager {
     List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException;
 
     List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException;
+
+    LearningEvidenceData getLearningEvidence(long evidenceId, boolean loadTags, boolean loadCompetencesWithEvidence) throws DbConnectionException;
+
+    Result<Void> deleteLearningEvidenceAndGetEvents(long evidenceId, UserContextData context) throws DbConnectionException;
+
+    void deleteLearningEvidence(long evidenceId, UserContextData context) throws DbConnectionException;
 }

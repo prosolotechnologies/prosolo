@@ -10,4 +10,6 @@ import org.prosolo.common.domainmodel.credential.LearningEvidence;
 public interface LearningEvidenceESService {
 
     void saveEvidence(LearningEvidence evidence);
+
+    void deleteEvidence(long orgId, long evidenceId);
 }

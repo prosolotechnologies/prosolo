@@ -35,6 +35,8 @@ public class LearningEvidenceNodeChangeProcessor implements NodeChangeProcessor 
         if (event.getAction() == EventType.Create) {
             LearningEvidence le = (LearningEvidence) session.get(LearningEvidence.class, evidenceId);
             learningEvidenceESService.saveEvidence(le);
+        } else if (event.getAction() == EventType.Delete) {
+            learningEvidenceESService.deleteEvidence(event.getOrganizationId(), evidenceId);
         }
     }
 }

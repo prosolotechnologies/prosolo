@@ -16,6 +16,7 @@ import java.util.Set;
 public class LearningEvidenceData implements Serializable {
 
     private long id;
+    private long userId;
     private long competenceEvidenceId;
     private String title;
     private String text;
@@ -47,6 +48,14 @@ public class LearningEvidenceData implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getCompetenceEvidenceId() {

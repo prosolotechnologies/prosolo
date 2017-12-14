@@ -58,4 +58,14 @@ public class LearningEvidenceESServiceImpl extends AbstractBaseEntityESServiceIm
             logger.error("Error", e);
         }
     }
+
+    @Override
+    public void deleteEvidence(long orgId, long evidenceId) {
+        try {
+            String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_EVIDENCE, orgId);
+            delete(evidenceId + "", fullIndexName, ESIndexTypes.EVIDENCE);
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
+    }
 }

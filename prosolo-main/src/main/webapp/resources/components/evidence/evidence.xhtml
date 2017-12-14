@@ -13,6 +13,7 @@
 		<composite:attribute name="evidence" type="org.prosolo.services.nodes.data.evidence.LearningEvidenceData" required="true"/>
 		<composite:attribute name="showEvidenceManagementOptions" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="showDetails" type="java.lang.Boolean" default="false" />
+        <composite:attribute name="deleteModalId" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -20,7 +21,12 @@
 			<div class="evidenceTop">
 				<div class="evidenceTopLeft">
 					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : cc.attrs.evidence.type eq 'TEXT' ? 'text' : 'doc'}"></div>
-					<h3><a href="evidence-view.html">#{cc.attrs.evidence.title}</a></h3>
+					<h3>
+						<h:link outcome="/evidence">
+							#{cc.attrs.evidence.title}
+							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}"/>
+						</h:link>
+					</h3>
 				</div>
 				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
 					<div class="evidenceTopRight">
@@ -29,14 +35,14 @@
 							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
 								<li>
 									<p:commandLink
-											pt:data-toggle="modal"
-											action="#{cc.attrs.bean.setEvidenceToRemove(cc.attrs.evidence)}"
-											oncomplete="$('#deleteEvidence').modal('show');">
+                                        pt:data-toggle="modal"
+                                        oncomplete="$('##{cc.attrs.deleteModalId}').modal('show')">
 										Delete Evidence
 									</p:commandLink>
 								</li>
 							</ul>
 						</div>
+                        <a href="evidence-edit.html" class="btn btn-green-stroke btn-sm">Edit</a>
 						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
 							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
 						</ui:fragment>
@@ -48,7 +54,7 @@
 			</c:if>
 			<table>
 				<tr>
-					<td class="col01">In Focus Area(s):</td>
+					<td class="col01">In #{msg['label.competence.plural']}:</td>
 					<td>
 						<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
 							<h:link outcome="/competence"

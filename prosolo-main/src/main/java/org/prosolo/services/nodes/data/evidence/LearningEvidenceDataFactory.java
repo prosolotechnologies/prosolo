@@ -23,6 +23,7 @@ public class LearningEvidenceDataFactory {
     public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence compEvidence, Set<Tag> tags) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
+        evidenceData.setUserId(evidence.getUser().getId());
         evidenceData.setTitle(evidence.getTitle());
         evidenceData.setText(evidence.getDescription());
         if (tags != null) {

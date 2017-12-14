@@ -91,7 +91,8 @@
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
 									value="People" outcome="/people" />
 							</li>
-							<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'evidences' ? 'active' : ''}">
+							<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'evidences'
+								or util:getPagePath(view.viewId)  == 'evidence' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('evidences', 'mainmenu');"
 										value="Evidences" outcome="/evidences" />
 							</li>
