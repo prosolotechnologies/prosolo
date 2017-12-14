@@ -2,13 +2,10 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
-                xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-                xmlns:util="http://www.prosolo.com/util"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+                xmlns:h="http://java.sun.com/jsf/html">
 
     <utilcomp:messagesBundle var="msg" />
 
@@ -42,6 +39,17 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link outcome="/evidences">
+                        Evidences
+                    </h:link>
+                </li>
+                <li class="active">#{learningEvidenceBean.evidence.title}</li>
+            </ol>
         </div>
 
         <div class="container">
