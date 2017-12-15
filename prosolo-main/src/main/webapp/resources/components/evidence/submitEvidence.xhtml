@@ -207,6 +207,9 @@
 								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formUrlEvidence:inputTitle" />
 								#{cc.attrs.submitButtonText}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
+								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
+							</ui:fragment>
 						</div>
 					</h:form>
 				</div>
@@ -249,6 +252,9 @@
 								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formTextEvidence:inputTitle" />
 								#{cc.attrs.submitButtonText}
 							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
+								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
+							</ui:fragment>
 						</div>
 					</h:form>
 				</div>
