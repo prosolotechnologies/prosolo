@@ -42,7 +42,10 @@
 								</li>
 							</ul>
 						</div>
-                        <a href="evidence-edit.html" class="btn btn-green-stroke btn-sm">Edit</a>
+                        <h:link outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
+							Edit
+							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
+						</h:link>
 						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
 							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
 						</ui:fragment>

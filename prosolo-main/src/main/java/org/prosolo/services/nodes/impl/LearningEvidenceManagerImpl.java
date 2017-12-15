@@ -77,21 +77,23 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     }
 
     @Override
+    //nt
+    public long postEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<LearningEvidence> res = self.postEvidenceAndGetEvents(evidence, context);
+        eventFactory.generateEvents(res.getEventQueue());
+        return res.getResult().getId();
+    }
+
+    @Override
     @Transactional
     public Result<LearningEvidence> postEvidenceAndGetEvents(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             LearningEvidence ev = new LearningEvidence();
 
             ev.setOrganization((Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId()));
-            ev.setTitle(evidence.getTitle());
-            ev.setDescription(evidence.getText());
-            ev.setType(evidence.getType());
-            if (ev.getType() != LearningEvidenceType.TEXT) {
-                ev.setUrl(evidence.getUrl());
-            }
-            ev.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(evidence.getTagsString())));
             ev.setUser((User) persistence.currentManager().load(User.class, context.getActorId()));
             ev.setDateCreated(new Date());
+            setEvidenceData(ev, evidence);
             saveEntity(ev);
 
             Result<LearningEvidence> result = new Result<>();
@@ -105,8 +107,18 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             throw e;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error saving the competence evidence");
+            throw new DbConnectionException("Error saving the learning evidence");
         }
+    }
+
+    private void setEvidenceData(LearningEvidence evidence, LearningEvidenceData evidenceData) {
+        evidence.setTitle(evidenceData.getTitle());
+        evidence.setDescription(evidenceData.getText());
+        evidence.setType(evidenceData.getType());
+        if (evidence.getType() != LearningEvidenceType.TEXT) {
+            evidence.setUrl(evidenceData.getUrl());
+        }
+        evidence.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(evidenceData.getTagsString())));
     }
 
     @Override
@@ -376,6 +388,35 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 .setBoolean("deleted", true)
                 .setLong("evId", evidenceId)
                 .executeUpdate();
+    }
+
+    @Override
+    //nt
+    public void updateEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<LearningEvidence> res = self.updateEvidenceAndGetEvents(evidence, context);
+        eventFactory.generateEvents(res.getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<LearningEvidence> updateEvidenceAndGetEvents(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
+            LearningEvidence ev = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidence.getId());
+            setEvidenceData(ev, evidence);
+
+            Result<LearningEvidence> result = new Result<>();
+            result.setResult(ev);
+            LearningEvidence eventObject = new LearningEvidence();
+            eventObject.setId(ev.getId());
+            result.appendEvent(eventFactory.generateEventData(EventType.Edit, context, eventObject, null, null, null));
+            return result;
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating the learning evidence");
+        }
     }
 
 }

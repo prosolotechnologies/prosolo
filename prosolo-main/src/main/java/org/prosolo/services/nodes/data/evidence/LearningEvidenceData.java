@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public class LearningEvidenceData implements Serializable {
 
+    private static final long serialVersionUID = -5070671721203793789L;
+
     private long id;
     private long userId;
     private long competenceEvidenceId;

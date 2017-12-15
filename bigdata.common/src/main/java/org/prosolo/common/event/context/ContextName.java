@@ -85,7 +85,8 @@ public enum ContextName {
 	GROUP_JOIN("UserGroup"),
 	USERS(""),
 	NEXT_LEARNING_STAGE_DIALOG("LearningStage"),
-	EVIDENCE("LearningEvidence");
+	EVIDENCE("LearningEvidence"),
+	NEW_EVIDENCE("");
 
     private String objectType; 
     
