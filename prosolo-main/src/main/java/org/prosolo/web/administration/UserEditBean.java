@@ -208,7 +208,7 @@ public class UserEditBean implements Serializable {
 		try {
 			User adminUser = userManager.createNewUser(decodedOrgId, this.user.getName(), this.user.getLastName(),
 					this.user.getEmail(),true, this.user.getPassword(), this.user.getPosition(),
-					null, null, getSelectedRoles());
+					null, null, getSelectedRoles(), false);
 
 			this.user.setId(adminUser.getId());
 

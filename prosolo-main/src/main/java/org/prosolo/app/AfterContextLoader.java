@@ -5,6 +5,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -182,7 +183,7 @@ public class AfterContextLoader implements ServletContextListener {
 							null,
 							Arrays.asList(superAdminRoleId),
 							true);
-		} catch (UserAlreadyRegisteredException e) {
+		} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
 			logger.error(e);
 		}
 	}

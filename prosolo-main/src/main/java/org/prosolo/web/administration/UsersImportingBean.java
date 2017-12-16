@@ -1,28 +1,22 @@
 package org.prosolo.web.administration;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.*;
 
 /**
  * @author Zoran Jeremic 2013-10-06
@@ -82,12 +76,12 @@ public class UsersImportingBean implements Serializable {
 							User user = ServiceLocator
 									.getInstance()
 									.getService(UserManager.class)
-									.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null);
+									.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null, false);
 							
 							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
 							
 							noUsersCreated++;
-						} catch (UserAlreadyRegisteredException e) {
+						} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
 							logger.error(e);
 							noUsersDidntCreated++;
 						}

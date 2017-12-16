@@ -1,9 +1,5 @@
 package org.prosolo.services.lti.impl;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -16,6 +12,9 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.UUID;
 
 @Service("org.prosolo.services.lti.LtiUserManager")
 public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserManager {
@@ -53,7 +52,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			User user = null;
 			String password = UUID.randomUUID().toString();
 			try {
-				user = userManager.createNewUser(0, name, lastName, email, true, password, null, null, null, null);
+				user = userManager.createNewUser(0, name, lastName, email, true, password, null, null, null, null, false);
 			} catch (UserAlreadyRegisteredException e) {
 				user = userManager.getUser(email);
 			}

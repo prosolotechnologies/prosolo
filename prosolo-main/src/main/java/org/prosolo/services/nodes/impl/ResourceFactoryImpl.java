@@ -7,11 +7,9 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -22,13 +20,11 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -97,57 +93,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                 logger.error(e);
             }
         }
-        return user;
-    }
-
-    @Override
-    @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-                              String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) {
-
-        emailAddress = emailAddress.toLowerCase();
-
-        User user = new User();
-        user.setName(name);
-        user.setLastname(lastname);
-
-        user.setEmail(emailAddress);
-        user.setVerified(emailVerified);
-        user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-        if (organizationId > 0) {
-            user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
-        }
-
-        if (password != null) {
-            user.setPassword(passwordEncoder.encode(password));
-            user.setPasswordLength(password.length());
-        }
-
-        user.setSystem(system);
-        user.setPosition(position);
-
-        user.setUserType(UserType.REGULAR_USER);
-        if(roles == null) {
-            user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
-        } else {
-            for(Long id : roles) {
-                Role role = (Role) persistence.currentManager().load(Role.class, id);
-                user.addRole(role);
-            }
-        }
-        user = saveEntity(user);
-
-        try {
-            if (avatarStream != null) {
-                user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
-                user = saveEntity(user);
-            }
-        } catch (IOException e) {
-            logger.error(e);
-        }
-
-        this.flush();
         return user;
     }
 
@@ -242,38 +187,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
             throws DbConnectionException, StaleDataException, IllegalDataStateException {
         return activityManager.updateActivityData(data);
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource)
-            throws DbConnectionException {
-        try {
-            Comment1 comment = new Comment1();
-            comment.setDescription(data.getComment());
-            comment.setCommentedResourceId(data.getCommentedResourceId());
-            comment.setResourceType(resource);
-            comment.setInstructor(data.isInstructor());
-            comment.setManagerComment(data.isManagerComment());
-            //comment.setDateCreated(data.getDateCreated());
-            comment.setPostDate(data.getDateCreated());
-            User user = (User) persistence.currentManager().load(User.class, userId);
-            comment.setUser(user);
-            if(data.getParent() != null) {
-                Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class,
-                        data.getParent().getCommentId());
-                comment.setParentComment(parent);
-            }
-
-            saveEntity(comment);
-
-            return comment;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while saving comment");
-        }
-
     }
 
     @Override

@@ -99,7 +99,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
 				user = userManager.createNewUser(1, fName,
-						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()));
+						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()), false);
 
 				//TODO observer refactor migrate to sequential event processing when there is a possibility to test UTA login
 				try {

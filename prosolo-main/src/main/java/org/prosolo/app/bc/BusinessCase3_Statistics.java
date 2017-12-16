@@ -809,7 +809,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(organizationId, name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null, false);
 			
 			newUser = ServiceLocator
 					.getInstance()
@@ -817,7 +817,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.assignRoleToUser(roleUser, newUser.getId());
 			
 			return newUser;
-		} catch (UserAlreadyRegisteredException e) {
+		} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
 			logger.error(e.getLocalizedMessage());
 		}
 		return null;
