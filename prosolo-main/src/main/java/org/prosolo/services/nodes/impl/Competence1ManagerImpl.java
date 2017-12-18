@@ -37,6 +37,7 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 * if competence has no activities, it can't be published
 			 */
 			if (data.isPublished() && data.getLearningPathType() == LearningPathType.ACTIVITY && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new IllegalDataStateException("Can not publish competency without activities.");
+				throw new IllegalDataStateException("Can not publish " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " without activities.");
 			}
 
 			Competence1 comp = new Competence1();
@@ -187,7 +188,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator,
-		 boolean loadTags, boolean loadActivities)
+		 boolean loadTags, boolean loadLearningPathData)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -228,18 +229,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						Set<Tag> tags = loadTags ? comp.getTags() : null;
 						User createdBy = loadCreator ? comp.getCreatedBy() : null;
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
-						CompetenceData1 compData = null; 
+						CompetenceData1 compData;
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
 									false);
-							if (loadActivities) {
+							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 								List<ActivityData> activities = activityManager
 										.getTargetActivitiesData(compData.getTargetCompId());
 								compData.setActivities(activities);
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
-							if (loadActivities) {
+							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 										compData.getCompetenceId());
 								compData.setActivities(activities);
@@ -314,15 +315,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			targetComp.setUser(user);
 			
 			saveEntity(targetComp);
+
+			if (comp.getLearningPathType() == LearningPathType.ACTIVITY) {
+				List<TargetActivity1> targetActivities = activityManager.createTargetActivities(targetComp);
+				targetComp.setTargetActivities(targetActivities);
 			
-			List<TargetActivity1> targetActivities = activityManager.createTargetActivities(targetComp);
-			targetComp.setTargetActivities(targetActivities);
-			
-			/*
-			 * set first activity as next to learn
-			 */
-			if (!targetActivities.isEmpty()) {
-				targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
+				/*
+				 * set first activity as next to learn
+				 */
+				if (!targetActivities.isEmpty()) {
+					targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
+				}
 			}
 			
 			Competence1 competence = new Competence1();
@@ -679,8 +682,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished)
+	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator,
+															  boolean loadTags, boolean loadLearningPathData, boolean includeNotPublished)
 					throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -694,7 +697,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				CompetenceData1 compData = competenceFactory.getCompetenceData(
 						creator, credComp, tags, true);
 				
-				if(loadActivities) {
+				if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 							credComp.getCompetence().getId());
 					compData.setActivities(activities);
@@ -2261,11 +2264,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			if (!comp.isPublished()) {
 				/*
-				 * check if competence has at least one activity - if not, it can't be published
+				 * if competence has activity learning path, check if competence has at least one activity - if not, it can't be published
 				 */
-				int numberOfActivities = comp.getActivities().size();
-				if (numberOfActivities == 0) {
-					throw new IllegalDataStateException("Can not publish competency without activities.");
+				if (comp.getLearningPathType() == LearningPathType.ACTIVITY) {
+					int numberOfActivities = comp.getActivities().size();
+					if (numberOfActivities == 0) {
+						throw new IllegalDataStateException("Can not publish " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " without activities.");
+					}
 				}
 			
 				comp.setPublished(true);
