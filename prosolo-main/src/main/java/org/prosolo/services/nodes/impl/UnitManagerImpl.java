@@ -25,6 +25,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -556,7 +557,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .uniqueResult();
 
             if (numberOfSubunits != 0 ) {
-                throw new IllegalStateException("Unit can not be deleted since it has subunits");
+                throw new IllegalStateException("Unit can not be deleted since it has " + ResourceBundleUtil.getMessage("label.rubric.plural").toLowerCase());
             }
 
             String query1 =
@@ -953,6 +954,32 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .createQuery(query)
                     .setLong("userId", userId)
                     .setLong("roleId", roleId)
+                    .list();
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsWithUserCapability(long userId, String capability) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT DISTINCT urm.unit.id " +
+                    "FROM UnitRoleMembership urm " +
+                    "INNER JOIN urm.role role " +
+                    "INNER JOIN role.capabilities cap " +
+                        "WITH cap.name = :capability " +
+                    "WHERE urm.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setString("capability", capability)
                     .list();
 
             return result;

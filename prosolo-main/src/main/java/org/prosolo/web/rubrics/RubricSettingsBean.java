@@ -49,7 +49,7 @@ public class RubricSettingsBean implements Serializable {
         try {
             this.decodedId = idEncoder.decodeId(id);
             if (decodedId > 0) {
-                this.rubric = rubricManager.getRubricData(decodedId, true, false, loggedUser.getUserId(), false);
+                this.rubric = rubricManager.getRubricData(decodedId, true, false, loggedUser.getUserId(), false, true);
                 if (this.rubric == null) {
                     PageUtil.notFound();
                 }

@@ -5665,3 +5665,6 @@ footer {
   opacity: .7; }
   #supportLink:hover {
     opacity: 1; }
+#graph {
+  overflow: hidden;
+}

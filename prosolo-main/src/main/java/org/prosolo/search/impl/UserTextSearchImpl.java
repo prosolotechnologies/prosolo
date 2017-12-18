@@ -21,7 +21,6 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
@@ -85,7 +84,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
 
-			String indexName = ESIndexNames.INDEX_USERS + (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "");
+			String indexName = orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId) : ESIndexNames.INDEX_USERS;
 			String indexType = orgId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
 
 			Client client = ElasticSearchFactory.getClient();
@@ -166,8 +165,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			Client client = ElasticSearchFactory.getClient();
 			//if organization id is greater than 0, organization user index should be queried, otherwise
 			//system user index should be queried
-			String indexName = ESIndexNames.INDEX_USERS
-					+ (organizationId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(organizationId) : "");
+			String indexName = organizationId > 0
+					? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId)
+					: ESIndexNames.INDEX_USERS;
 			String indexType = organizationId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
 			esIndexer.addMapping(client, indexName, indexType);
 			QueryBuilder qb = QueryBuilders
@@ -368,11 +368,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
-
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
@@ -552,7 +551,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -568,8 +567,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			InstructorSortOption sortOption, List<Long> excludedIds) {
 		PaginatedResult<InstructorData> response = new PaginatedResult<>();
 		try {
-			String indexName = ESIndexNames.INDEX_USERS
-					+ ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -642,10 +640,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
-		} catch(DbConnectionException dbce) {
-			logger.error(dbce);
 		}
 		return response;
 	}
@@ -660,7 +656,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				return response;
 			}
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -732,7 +728,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -747,7 +743,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -908,7 +904,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return response;
@@ -923,7 +919,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1067,7 +1063,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -1086,7 +1082,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1169,7 +1165,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -1184,7 +1180,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int size = limit;
 			int start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1244,8 +1240,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			start = setStart(page, limit);
 		
 			Client client = ElasticSearchFactory.getClient();
-			String indexName = ESIndexNames.INDEX_USERS
-					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -1312,7 +1307,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1377,7 +1372,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				spee.printStackTrace();
 				logger.error(spee);
 			}
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -1392,7 +1387,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1546,7 +1541,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				logger.error(spee);
 			}
 	
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -1558,7 +1553,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
-			String indexName = ESIndexNames.INDEX_USERS + (orgId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(orgId) : "");
+			String indexName = orgId > 0
+					? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId)
+					: ESIndexNames.INDEX_USERS;
 			String indexType = orgId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
 
 			Client client = ElasticSearchFactory.getClient();
@@ -1612,7 +1609,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				spee.printStackTrace();
 				logger.error(spee);
 			}
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 		}
 		return null;
@@ -1661,8 +1658,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			String indexName = ESIndexNames.INDEX_USERS
-					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 
 			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
@@ -1726,8 +1722,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			String indexName = ESIndexNames.INDEX_USERS
-					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 
 			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);

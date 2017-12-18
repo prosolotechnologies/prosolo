@@ -140,9 +140,11 @@
                </div>
            </div>
            <div class="wallPostBody">
-               <p id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
-               		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
-               </p>
+			   <ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
+				   <p id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
+					   <h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+				   </p>
+			   </ui:fragment>
                <post:attachmentPreview id="link"
                		uniqueId="#{cc.attrs.socialActivity.id}"
 					attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"

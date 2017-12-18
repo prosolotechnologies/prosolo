@@ -20,7 +20,8 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
       session.execute(query, profile, profileFullName,sequence, course, user)
     }
   }
-  def insertUserQuartileFeaturesByProfile(userProfile:mutable.Iterable[(Long,String,Long,Long,String)]): Unit ={
+
+  def insertUserQuartileFeaturesByProfile(userProfile:Iterable[(Long,String,Long,Long,String)]): Unit ={
     val query = s"INSERT INTO $keyspace." + TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE + "(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?) ";
     DBManager.connector.withSessionDo {
       session => {

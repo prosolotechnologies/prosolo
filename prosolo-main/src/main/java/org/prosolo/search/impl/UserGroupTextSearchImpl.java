@@ -19,9 +19,7 @@ import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.UserGroupData;
-import org.prosolo.services.util.roles.RoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,8 +130,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		
 		Client client = ElasticSearchFactory.getClient();
-		String fullIndexName = ESIndexNames.INDEX_USER_GROUP + ElasticsearchUtil
-				.getOrganizationIndexSuffix(orgId);
+		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
 		
 		QueryBuilder qb = QueryBuilders
@@ -241,7 +238,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			Client client = ElasticSearchFactory.getClient();
 
-			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			//search users
@@ -313,7 +310,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				return new SearchHit[0];
 			}
 
-			String indexName = ESIndexNames.INDEX_USER_GROUP + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.USER_GROUP);

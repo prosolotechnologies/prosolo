@@ -289,7 +289,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde)) {
 				//create competence assessment if not already created
 				if (compAssessment == null) {
-					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault);
+					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault, false);
 				}
 				List<Long> participantIds = new ArrayList<>();
 				participantIds.add(studentId);
@@ -314,16 +314,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private CompetenceAssessment createCompetenceAssessment(TargetCompetence1 tComp,
-				CredentialAssessment credAssessment, boolean isDefault)
+				CredentialAssessment credAssessment, boolean isDefault, boolean approved)
 			throws ConstraintViolationException, DataIntegrityViolationException, DbConnectionException{
 		try {
 			CompetenceAssessment compAssessment = new CompetenceAssessment();
-			compAssessment.setApproved(false);
 			compAssessment.setDateCreated(new Date());
 			compAssessment.setCredentialAssessment(credAssessment);
 			//compAssessment.setTitle(targetCompetence.getTitle());
 			compAssessment.setTargetCompetence(tComp);
 			compAssessment.setDefaultAssessment(isDefault);
+			compAssessment.setApproved(approved);
 			saveEntity(compAssessment);
 			return compAssessment;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
@@ -449,17 +449,59 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional
-	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText) {
-		Query updateCredentialAssessmentQuery = persistence.currentManager().createQuery(APPROVE_CREDENTIAL_QUERY)
-				.setLong("credentialAssessmentId", credentialAssessmentId);
-		Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCES_QUERY)
-				.setLong("credentialAssessmentId", credentialAssessmentId);
-		Query updateTargetCredentialQuery = persistence.currentManager().createQuery(UPDATE_TARGET_CREDENTIAL_REVIEW)
-				.setLong("targetCredentialId", targetCredentialId).setString("finalReview", reviewText);
-		updateCredentialAssessmentQuery.executeUpdate();
-		updateCompetenceAssessmentQuery.executeUpdate();
-		updateTargetCredentialQuery.executeUpdate();
+	@Transactional(rollbackFor = Exception.class)
+	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
+								  List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException {
+
+		try {
+			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
+			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getTargetCredential().getUser().getId(), false, false, false);
+
+			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
+
+			if (userNotEnrolled.isPresent()) {
+				throw new IllegalDataStateException("User is not enrolled.");
+			}
+
+			for (CompetenceData1 competenceData1 : competenceData1List) {
+				Optional<CompetenceAssessment> competenceAssessment = getCompetenceAssessment(competenceData1.getTargetCompId(),
+						credentialAssessmentId);
+				if (competenceAssessment.isPresent()) {
+					competenceAssessment.get().setApproved(true);
+				} else {
+					createAndApproveCompetenceAssessment(credentialAssessmentId, competenceData1.getTargetCompId(),
+							credentialAssessment.isDefaultAssessment());
+				}
+			}
+
+			credentialAssessment.setApproved(true);
+
+			//TODO Check if this is needed
+			//credentialAssessment.getTargetCredential().setFinalReview("finalReview");
+		}catch (IllegalDataStateException ex){
+			throw ex;
+		} catch (Exception e) {
+			logger.error("Error ", e);
+			throw new DbConnectionException("Error approving credential assessment.");
+		}
+	}
+
+	private Optional<CompetenceAssessment> getCompetenceAssessment(long targetCompetenceId, long credAssessmentId) {
+		String query = "SELECT ca FROM CompetenceAssessment ca " +
+				"WHERE ca.targetCompetence.id = :tcId " +
+				"AND ca.credentialAssessment.id = :credAssessmentId";
+
+		CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager()
+				.createQuery(query)
+				.setLong("tcId", targetCompetenceId)
+				.setLong("credAssessmentId", credAssessmentId)
+				.uniqueResult();
+
+		if(competenceAssessment == null){
+			return Optional.empty();
+		}
+		return Optional.of(competenceAssessment);
 	}
 
 	@Override
@@ -1477,7 +1519,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					TargetCompetence1.class, targetCompId);
 			CredentialAssessment credAssessment = (CredentialAssessment) persistence.currentManager().load(
 					CredentialAssessment.class, credAssessmentId);
-			CompetenceAssessment compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault);
+			CompetenceAssessment compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault, false);
 			Result<ActivityAssessment> actAssessmentRes = createActivityAssessmentAndGetEvents(targetActivityId, compAssessment.getId(),
 					credAssessmentId, participantIds, senderId, isDefault, grade, true,
 					persistence.currentManager(), context);
@@ -1695,6 +1737,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving assessment data");
+		}
+	}
+
+	@Override
+	@Transactional
+	public long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, boolean isDefault) {
+		try {
+			TargetCompetence1 targetCompetence1 = loadResource(TargetCompetence1.class,targetCompId);
+			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class,credAssessmentId);
+			CompetenceAssessment result = createCompetenceAssessment(targetCompetence1,credentialAssessment,isDefault,true);
+
+			return result.getId();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while creating data");
 		}
 	}
 
