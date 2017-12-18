@@ -578,21 +578,10 @@ input {
   padding-bottom: 30px !important; }
   .credentialCard .credentialCardTop h2 {
     margin: 0; }
-  .credentialCard .credentialCardTop .stagesLinks {
-    list-style: none;
-    margin: 0;
-    padding-top: 10px; }
-    .credentialCard .credentialCardTop .stagesLinks li {
-      display: inline;
-      margin-right: 20px;
-      color: #D5D8DA; }
-      .credentialCard .credentialCardTop .stagesLinks li.active {
-        color: #FCA567;
-        font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif; }
-      .credentialCard .credentialCardTop .stagesLinks li span {
-        color: #859095;
-        font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: 500; }
+  .credentialCard .credentialCardTop .inStages {
+    display: block;
+    padding-top: 10px;
+    color: #FCA567; }
   .credentialCard .credentialCardTop .credentialCardTopOptions {
     flex-shrink: 0; }
     .credentialCard .credentialCardTop .credentialCardTopOptions a, .credentialCard .credentialCardTop .credentialCardTopOptions .btn {
@@ -631,9 +620,13 @@ input {
           background: #64BFCD; }
     .deliveriesList .deliveryItem .deliveryItemRight {
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
       padding: 20px 30px 20px 0; }
       .deliveriesList .deliveryItem .deliveryItemRight a, .deliveriesList .deliveryItem .deliveryItemRight .btn {
         margin-left: 20px; }
+      .deliveriesList .deliveryItem .deliveryItemRight .optMoreMenu a {
+        margin: 0; }
     .deliveriesList .deliveryItem .deliveryItemLeft h3 {
       margin-bottom: 5px; }
       .deliveriesList .deliveryItem .deliveryItemLeft h3 span {
@@ -2454,8 +2447,14 @@ header {
   .previewActiv.previewLinkSmall .content h2 {
     height: 24px; }
 
-.previewActiv .content .meta .duration {
+.previewActiv .content .meta .duration,
+.previewCredComp .content .meta .duration {
   margin-left: 0; }
+
+.previewActiv .content .meta .madeByUser,
+.previewCredComp .content .meta .madeByUser {
+  margin-left: 0;
+  margin-right: 20px; }
 
 .previewCredCompLine,
 .previewActivLine {
@@ -3043,15 +3042,19 @@ header {
       height: 20px;
       line-height: 20px;
       font-size: 13px; }
+      .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .studentsNum,
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .admins,
+      .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .studentsNum,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .admins,
+      .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .studentsNum,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .admins,
+      .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .status,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .studentsNum,
       .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .admins {
@@ -3059,19 +3062,29 @@ header {
         padding-left: 30px;
         margin-right: 30px;
         color: #AAB1B5; }
+        .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .studentsNum span,
         .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .admins span,
+        .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .studentsNum span,
         .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .admins span,
+        .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .studentsNum span,
         .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .admins span,
+        .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .status span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .studentsNum span,
         .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .admins span {
           color: #363636; }
+      .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
+      .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage,
+      .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .deliveryStage,
+      .adminOrganizationsList > li .adminOrganizationsListLeft .competenceInfo .deliveryStage {
+        padding-left: 0;
+        margin-right: 30px; }
       .manageCompetencesList > li .manageCompetencesListLeft .competenceInfo .status,
       .manageCompetencesList > li .adminOrganizationsListLeft .competenceInfo .status,
       .adminOrganizationsList > li .manageCompetencesListLeft .competenceInfo .status,
@@ -3526,9 +3539,14 @@ header {
 
 .submitEvidenceTab .lastRow {
   padding-bottom: 100px; }
+  .submitEvidenceTab .lastRow .btn {
+    margin-right: 20px; }
 
 .submitEvidenceTab .evidenceActions a {
   margin-left: 20px; }
+
+.addEvidencePage .submitEvidenceTab .lastRow {
+  padding-bottom: 0; }
 
 .evidenceBox {
   padding-bottom: 30px; }
@@ -3543,8 +3561,10 @@ header {
         width: 20px;
         height: 20px;
         margin-right: 20px; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.doc {
           background: url("../images2/iconFile20.svg") no-repeat center center; }
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
+          background: url("../images2/iconTextLines20.svg") no-repeat center center; }
         .evidenceBox .evidenceTop .evidenceTopLeft .icon.link {
           background: url("../images2/iconLink20.svg") no-repeat center center; }
       .evidenceBox .evidenceTop .evidenceTopLeft h3 {
@@ -3560,7 +3580,7 @@ header {
   .evidenceBox table {
     margin: 0; }
     .evidenceBox table .col01 {
-      width: 100px;
+      width: 120px;
       padding-left: 0; }
   .evidenceBox .tags {
     margin-bottom: 0; }
@@ -3570,7 +3590,8 @@ header {
 .sidebarStage {
   padding: 10px 20px; }
   .sidebarStage h2 {
-    margin: 0; }
+    margin: 0;
+    line-height: 30px; }
 
 .uploadResultBox {
   display: flex;
@@ -3592,6 +3613,10 @@ header {
   height: 100px;
   width: 100%;
   margin-bottom: 10px; }
+
+.writeResult small {
+  display: block;
+  margin: -10px 0 10px 0; }
 
 .writeResult .btn {
   margin-bottom: 30px; }
@@ -5446,6 +5471,7 @@ header {
 .sliderIconLeft {
   position: absolute;
   left: 0;
+  top: 0;
   height: 210px;
   width: 40px;
   line-height: 210px;
@@ -5459,6 +5485,7 @@ header {
 .sliderIconRight {
   position: absolute;
   right: 0;
+  top: 0;
   height: 210px;
   width: 40px;
   line-height: 210px;
