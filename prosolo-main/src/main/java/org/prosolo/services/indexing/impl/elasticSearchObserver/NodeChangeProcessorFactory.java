@@ -181,6 +181,15 @@ public class NodeChangeProcessorFactory {
                         NodeOperation.Update, session);
 			case UPDATE_DELIVERY_TIMES:
 				return new CredentialNodeChangeProcessor(event, credentialESService, credManager, NodeOperation.Update, session);
+            case LEARNING_STAGE_UPDATE:
+                if (node instanceof Competence1) {
+                    return new CompetenceNodeChangeProcessor(event, competenceESService,
+                            NodeOperation.Update, session);
+                } else if (node instanceof Credential1) {
+                    return new CredentialNodeChangeProcessor(event, credentialESService,
+                            credManager, NodeOperation.Update, session);
+                }
+                break;
             default:
                 return null;
         }
