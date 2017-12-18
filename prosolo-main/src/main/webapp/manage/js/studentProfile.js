@@ -79,8 +79,8 @@ function initCompetenceSlider() {
 		variableWidth: true,
 		slidesToShow : 3,
 		slidesToScroll : 2,
-		prevArrow: '#competencesBlock .sliderIconLeftCred',
-		nextArrow: '#competencesBlock .sliderIconRightCred',
+		prevArrow: '#competencesBlock .sliderIconLeft',
+		nextArrow: '#competencesBlock .sliderIconRight',
 		responsive: [
 		             {
 		            	 breakpoint: 1024,
