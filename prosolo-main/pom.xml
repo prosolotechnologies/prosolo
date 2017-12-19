@@ -19,7 +19,7 @@
 		<el.version>2.2</el.version>
 		<primefaces.version>5.3</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
-		<jetty.version>9.3.7.v20160115</jetty.version>
+		<jetty.version>9.4.6.v20170531</jetty.version>
 
 		<jersey.version>1.19</jersey.version>
 		<jersey2.version>2.23</jersey2.version>

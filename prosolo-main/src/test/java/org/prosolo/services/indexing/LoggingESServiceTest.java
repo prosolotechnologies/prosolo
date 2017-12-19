@@ -143,7 +143,7 @@ public class LoggingESServiceTest {
             for(Long studentId: logsFilter.getStudents()){
                 studentsQueryBuilder.should(QueryBuilders.matchQuery("actorId",studentId));
             }
-            studentsQueryBuilder.minimumNumberShouldMatch(1);
+            studentsQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(studentsQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -153,7 +153,7 @@ public class LoggingESServiceTest {
             for(EventType eventType:logsFilter.getEventTypes()){
                 eventTypesQueryBuilder.should(QueryBuilders.matchQuery("eventType",eventType.name()));
             }
-            eventTypesQueryBuilder.minimumNumberShouldMatch(1);
+            eventTypesQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(eventTypesQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -168,7 +168,7 @@ public class LoggingESServiceTest {
             bQueryMinShouldMatch++;
         }
 
-        bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
+        bQueryBuilder.minimumShouldMatch( bQueryMinShouldMatch);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder
@@ -196,10 +196,10 @@ public class LoggingESServiceTest {
             BoolQueryBuilder objQueryBuilder=QueryBuilders.boolQuery();
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".object_type",objectType));
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".id",objId));
-            objQueryBuilder.minimumNumberShouldMatch(2);
+            objQueryBuilder.minimumShouldMatch(2);
             contextQueryBuilder.should(objQueryBuilder);
         }
-        contextQueryBuilder.minimumNumberShouldMatch(1);
+        contextQueryBuilder.minimumShouldMatch(1);
         return contextQueryBuilder;
     }
 
@@ -211,16 +211,16 @@ public class LoggingESServiceTest {
         for (Long cId:courses) {
             courseQueryBuilder.should(QueryBuilders.matchQuery("courseId",cId));
         }
-        courseQueryBuilder.minimumNumberShouldMatch(1);
+        courseQueryBuilder.minimumShouldMatch(1);
         bQueryBuilder.should(courseQueryBuilder);
         BoolQueryBuilder userQueryBuilder=QueryBuilders.boolQuery();
 
         for (Long aId:actors) {
             userQueryBuilder.should(QueryBuilders.matchQuery("actorId",aId));
         }
-        userQueryBuilder.minimumNumberShouldMatch(1);
+        userQueryBuilder.minimumShouldMatch(1);
         bQueryBuilder.should(userQueryBuilder);
-        bQueryBuilder.minimumNumberShouldMatch(2);
+        bQueryBuilder.minimumShouldMatch(2);
         System.out.println("QUERY:"+ bQueryBuilder.toString());
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -248,7 +248,7 @@ public class LoggingESServiceTest {
 
         QueryBuilder qb1= QueryBuilders.matchQuery("learningContext.context.object_type","Long");
         QueryBuilder qb2= QueryBuilders.matchQuery("learningContext.context.id","1");
-        qbL1.should(qb1).should(qb2).minimumNumberShouldMatch(2);
+        qbL1.should(qb1).should(qb2).minimumShouldMatch(2);
 
 
         qb.should(qbL1);
@@ -275,12 +275,12 @@ public class LoggingESServiceTest {
             SearchHits searchHits = sResponse.getHits();
             if(searchHits != null) {
                 for (SearchHit hit : sResponse.getHits()) {
-                    String actorId=hit.getSource().get("actorId").toString();
-                    String courseId=hit.getSource().get("courseId").toString();
-                    String eventType=hit.getSource().get("eventType").toString();
-                    String learningContext=hit.getSource().get("learningContext").toString();
-                    String timestamp=hit.getSource().get("timestamp").toString();
-                    String date=hit.getSource().get("date").toString();
+                    String actorId=hit.getSourceAsMap().get("actorId").toString();
+                    String courseId=hit.getSourceAsMap().get("courseId").toString();
+                    String eventType=hit.getSourceAsMap().get("eventType").toString();
+                    String learningContext=hit.getSourceAsMap().get("learningContext").toString();
+                    String timestamp=hit.getSourceAsMap().get("timestamp").toString();
+                    String date=hit.getSourceAsMap().get("date").toString();
                    // System.out.println(timestamp);
                     System.out.println("HIT:actor:"+actorId+" course:"+courseId+" eventType:"+eventType+" timestamp:"+timestamp+" date:"+date+" context:"+learningContext);
                 }

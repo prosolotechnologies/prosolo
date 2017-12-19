@@ -1,26 +1,20 @@
 package org.prosolo.similarity.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
-import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
-import org.prosolo.search.impl.UserTextSearchImpl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
 @author Zoran Jeremic Jun 6, 2015
@@ -56,7 +50,7 @@ public class RecommendedResourcesSearchImplTest {
 				//	Map<String, SearchHitField> hitSource = searchHit.getFields();
 					//System.out.println("hits:"+hitSource.toString()+" fields.:"+hitSource.size());
 					@SuppressWarnings({ "unchecked", "rawtypes" })
-					List<Object> mostactiveusersObjects=(ArrayList) searchHit.getSource().get("mostactiveusers");
+					List<Object> mostactiveusersObjects=(ArrayList) searchHit.getSourceAsMap().get("mostactiveusers");
 				 	System.out.println("MOST ACTIVE NUMBER:"+mostactiveusersObjects.size()+" "+mostactiveusersObjects.toString());
 					//	Gson gson = new Gson();
 					//	Type listType = new TypeToken<List<Score>>() {}.getType();

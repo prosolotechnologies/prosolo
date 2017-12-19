@@ -71,10 +71,8 @@ public class ElasticSearchConnector {
 			httpHosts.add(new HttpHost(eshost.host, eshost.httpPort, "http"));
 		}
 
-		RestClient lowLevelRestClient = RestClient.builder(
-				httpHosts.toArray(new HttpHost[httpHosts.size()])).build();
-
-		return ESRestClientImpl.of(lowLevelRestClient);
+		return ESRestClientImpl.of(
+				RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()])));
 	}
 
 	//TODO es migration test local client

@@ -11,9 +11,9 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -124,7 +124,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 			
 				for (SearchHit hit : sResponse.getHits()) {
-					Long id = ((Integer) hit.getSource().get("id")).longValue();
+					Long id = ((Integer) hit.getSourceAsMap().get("id")).longValue();
 					try {
 						User user = defaultManager.loadResource(User.class, id);
 						
@@ -239,7 +239,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				}
 
 				for (SearchHit sh : sResponse.getHits()) {
-					Map<String, Object> fields = sh.getSource();
+					Map<String, Object> fields = sh.getSourceAsMap();
 					User user = new User();
 					user.setId(Long.parseLong(fields.get("id") + ""));
 					user.setName((String) fields.get("name"));
@@ -458,7 +458,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					if (searchHits != null) {
 						for(SearchHit sh : searchHits) {
 							StudentData student = new StudentData();
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
@@ -471,7 +471,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							SearchHits innerHits = sh.getInnerHits().get("credentials");
 							long totalInnerHits = innerHits.getTotalHits();
 							if(totalInnerHits == 1) {
-								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								Map<String, Object> credential = innerHits.getAt(0).getSourceAsMap();
 								
 								if(credential != null) {
 									long instrId = Long.parseLong(credential.get("instructorId").toString());
@@ -588,7 +588,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							SortOrder.ASC : SortOrder.DESC;
 					searchSourceBuilder.sort(field, sortOrder);
 				}
-			
+
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -599,7 +599,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					
 					if (searchHits != null) {
 						for(SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							long id = Long.parseLong(fields.get("id") + "");
 							InstructorData instructor = credInstructorManager.getCredentialInstructor(
 									id, credId, true, true);
@@ -680,7 +680,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 				    		user.setName((String) fields.get("name"));
@@ -802,7 +802,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					
 					if (searchHits != null) {
 						for(SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							StudentData student = new StudentData();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
@@ -815,7 +815,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				    		SearchHits innerHits = sh.getInnerHits().get("credentials");
 							long totalInnerHits = innerHits.getTotalHits();
 							if(totalInnerHits == 1) {
-								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								Map<String, Object> credential = innerHits.getAt(0).getSourceAsMap();
 								student.setProgress(Integer.parseInt(
 										credential.get("progress") + ""));
 								long instId = Long.parseLong(credential.get("instructorId") + "");
@@ -957,7 +957,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
 							StudentData student = new StudentData();
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
@@ -973,7 +973,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							SearchHits innerHits = sh.getInnerHits().get("credentials");
 							long totalInnerHits = innerHits.getTotalHits();
 							if(totalInnerHits == 1) {
-								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								Map<String, Object> credential = innerHits.getAt(0).getSourceAsMap();
 								
 								if(credential != null) {
 									student.setProgress(Integer.parseInt(
@@ -1095,7 +1095,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
 							StudentData student = new StudentData();
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
@@ -1160,7 +1160,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				
 				for (SearchHit sh : sResponse.getHits()) {
-					Map<String, Object> fields = sh.getSource();
+					Map<String, Object> fields = sh.getSourceAsMap();
 					User user = new User();
 					user.setId(Long.parseLong(fields.get("id") + ""));
 					user.setName((String) fields.get("name"));
@@ -1235,7 +1235,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	private UserData getUserDataFromSearchHit(SearchHit sh) {
-		Map<String, Object> fields = sh.getSource();
+		Map<String, Object> fields = sh.getSourceAsMap();
 		User user = new User();
 		user.setId(Long.parseLong(fields.get("id") + ""));
 		user.setName((String) fields.get("name"));
@@ -1292,7 +1292,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
@@ -1425,7 +1425,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
 							StudentData student = new StudentData();
-							Map<String, Object> fields = sh.getSource();
+							Map<String, Object> fields = sh.getSourceAsMap();
 							User user = new User();
 							user.setId(Long.parseLong(fields.get("id") + ""));
 							user.setName((String) fields.get("name"));
@@ -1438,7 +1438,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							SearchHits innerHits = sh.getInnerHits().get("competences");
 							long totalInnerHits = innerHits.getTotalHits();
 							if (totalInnerHits == 1) {
-								Map<String, Object> competence = innerHits.getAt(0).getSource();
+								Map<String, Object> competence = innerHits.getAt(0).getSourceAsMap();
 								
 								if(competence != null) {
 									student.setProgress(Integer.parseInt(

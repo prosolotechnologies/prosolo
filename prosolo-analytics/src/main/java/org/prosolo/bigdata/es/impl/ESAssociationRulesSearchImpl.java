@@ -52,8 +52,8 @@ public class ESAssociationRulesSearchImpl implements ESAssociationRulesSearch {
 			if (sResponse != null) {
 				for (SearchHit hit : sResponse.getHits()) {
 					// int id = (int) hit.getSource().get("id");
-					List activities = (ArrayList) hit.getSource().get("itemset2");
-					List itemset1 = (ArrayList) hit.getSource().get("itemset1");
+					List activities = (ArrayList) hit.getSourceAsMap().get("itemset2");
+					List itemset1 = (ArrayList) hit.getSourceAsMap().get("itemset1");
 					// Checking first if there is some activity in itemset1 that is
 					// not already passed
 					for (Object item1 : itemset1) {
@@ -110,9 +110,9 @@ public class ESAssociationRulesSearchImpl implements ESAssociationRulesSearch {
 			if (sResponse != null) {
 				for (SearchHit hit : sResponse.getHits()) {
 					// int id = (int) hit.getSource().get("id");
-					List activities = (ArrayList) hit.getSource().get("itemset2");
-					System.out.println("SOURCE" + hit.getSource() + " SCORE:"
-							+ hit.getScore() + " sc:" + hit.score());
+					List activities = (ArrayList) hit.getSourceAsMap().get("itemset2");
+					System.out.println("SOURCE" + hit.getSourceAsMap() + " SCORE:"
+							+ hit.getScore() + " sc:" + hit.getScore());
 					// Adding other activities from Itemset2
 					for (Object activity : activities) {
 						Number activityIdNumber = ((Map<String, Integer>) activity)

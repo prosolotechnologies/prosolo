@@ -126,7 +126,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 						try {
 							CredentialData cd = credentialManager
 									.getCredentialDataWithProgressIfExists(id, userId);
@@ -225,9 +225,9 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
-						String title = hit.getSource().get("title").toString();
-						boolean archived = Boolean.parseBoolean(hit.getSource().get("archived").toString());
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+						String title = hit.getSourceAsMap().get("title").toString();
+						boolean archived = Boolean.parseBoolean(hit.getSourceAsMap().get("archived").toString());
 						CredentialData cd = new CredentialData(false);
 						cd.setId(id);
 						cd.setTitle(title);

@@ -81,7 +81,7 @@ public class LogsSearchImpl implements LogsSearch {
             for(Long studentId: logsFilter.getStudents()){
                 studentsQueryBuilder.should(QueryBuilders.matchQuery("actorId",studentId));
             }
-            studentsQueryBuilder.minimumNumberShouldMatch(1);
+            studentsQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(studentsQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -91,7 +91,7 @@ public class LogsSearchImpl implements LogsSearch {
             for(EventType eventType:logsFilter.getEventTypes()){
                 eventTypesQueryBuilder.should(QueryBuilders.matchQuery("eventType",eventType.name()));
             }
-            eventTypesQueryBuilder.minimumNumberShouldMatch(1);
+            eventTypesQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(eventTypesQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -105,7 +105,7 @@ public class LogsSearchImpl implements LogsSearch {
             bQueryBuilder.should(datesQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
+        bQueryBuilder.minimumShouldMatch( bQueryMinShouldMatch);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder
@@ -135,10 +135,10 @@ public class LogsSearchImpl implements LogsSearch {
             BoolQueryBuilder objQueryBuilder=QueryBuilders.boolQuery();
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".object_type",objectType));
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".id",objId));
-            objQueryBuilder.minimumNumberShouldMatch(2);
+            objQueryBuilder.minimumShouldMatch(2);
             contextQueryBuilder.should(objQueryBuilder);
         }
-        contextQueryBuilder.minimumNumberShouldMatch(1);
+        contextQueryBuilder.minimumShouldMatch(1);
         return contextQueryBuilder;
     }
 
@@ -150,13 +150,13 @@ public class LogsSearchImpl implements LogsSearch {
             SearchHits searchHits = sResponse.getHits();
             if(searchHits != null) {
                 for (SearchHit hit : sResponse.getHits()) {
-                    String actorId=hit.getSource().get("actorId").toString();
-                    String courseId=hit.getSource().get("courseId").toString();
-                    String eventTypeString=hit.getSource().get("eventType").toString();
-                    String learningContextString=hit.getSource().get("learningContext").toString();
-                    String timestamp=hit.getSource().get("timestamp").toString();
-                    String sessionId=hit.getSource().get("sessionId").toString();
-                    String date=hit.getSource().get("date").toString();
+                    String actorId=hit.getSourceAsMap().get("actorId").toString();
+                    String courseId=hit.getSourceAsMap().get("courseId").toString();
+                    String eventTypeString=hit.getSourceAsMap().get("eventType").toString();
+                    String learningContextString=hit.getSourceAsMap().get("learningContext").toString();
+                    String timestamp=hit.getSourceAsMap().get("timestamp").toString();
+                    String sessionId=hit.getSourceAsMap().get("sessionId").toString();
+                    String date=hit.getSourceAsMap().get("date").toString();
 
                     GsonBuilder gsonBuilder = new GsonBuilder();
                     gsonBuilder.registerTypeAdapter(LearningContext.class,

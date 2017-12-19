@@ -66,7 +66,7 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     @Override
     public void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
         //delete nodes indexes
-        esAdministration.deleteIndexByName(orgId > 0
+        esAdministration.deleteIndex(orgId > 0
                 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, orgId)
                 : ESIndexNames.INDEX_NODES + "*");
 
@@ -77,20 +77,24 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     @Override
     public void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable {
-        //delete rubrics indexes
-        esAdministration.deleteIndexByName(orgId > 0
-                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId)
-                : ESIndexNames.INDEX_RUBRIC_NAME + "*");
+        try {
+            //delete rubrics indexes
+            esAdministration.deleteIndex(orgId > 0
+                    ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId)
+                    : ESIndexNames.INDEX_RUBRIC_NAME + "*");
 
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_RUBRIC_NAME});
+            createOrganizationsIndexes(orgId, new String[]{ESIndexNames.INDEX_RUBRIC_NAME});
 
-        indexRubrics(orgId);
+            indexRubrics(orgId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
     }
 
     @Override
     public void deleteAndReindexUsersAndGroups(long orgId) throws IndexingServiceNotAvailable {
         //delete all user and user group indexes
-        esAdministration.deleteIndexesByName(
+        esAdministration.deleteIndex(
                 new String[] {
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId) : ESIndexNames.INDEX_USERS + "*",
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId) : ESIndexNames.INDEX_USER_GROUP + "*"

@@ -68,7 +68,7 @@ public class DataSearchImpl  extends AbstractESIndexerImpl implements DataSearch
                 SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
                 if (sResponse != null) {
                     for (SearchHit hit : sResponse.getHits()) {
-                        members.add(Long.valueOf(hit.getSource().get("id").toString()));
+                        members.add(Long.valueOf(hit.getSourceAsMap().get("id").toString()));
                     }
                 }
             } catch (Exception e) {

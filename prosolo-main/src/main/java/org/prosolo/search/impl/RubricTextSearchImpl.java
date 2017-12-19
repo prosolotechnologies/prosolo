@@ -62,8 +62,8 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
                 response.setHitsNumber(sResponse.getHits().getTotalHits());
 
                 for(SearchHit sh : sResponse.getHits()){
-                    logger.info("ID: " + sh.getSource().get("id"));
-                    long id = Long.parseLong(sh.getSource().get("id").toString());
+                    logger.info("ID: " + sh.getSourceAsMap().get("id"));
+                    long id = Long.parseLong(sh.getSourceAsMap().get("id").toString());
                     RubricData rubricData =rubricManager.getOrganizationRubric(id);
                     response.addFoundNode(rubricData);
                 }

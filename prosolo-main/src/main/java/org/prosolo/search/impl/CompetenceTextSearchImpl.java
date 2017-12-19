@@ -143,7 +143,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				
 				for (SearchHit hit : sResponse.getHits()) {
-					Long id = ((Integer) hit.getSource().get("id")).longValue();
+					Long id = ((Integer) hit.getSourceAsMap().get("id")).longValue();
 					
 					try {
 						/*
@@ -261,7 +261,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 						try {
 							CompetenceData1 cd = null;
 							/*
@@ -367,11 +367,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
-						String title = hit.getSource().get("title").toString();
-						boolean published = Boolean.parseBoolean(hit.getSource().get("published").toString());
-						boolean archived = Boolean.parseBoolean(hit.getSource().get("archived").toString());
-						String datePublishedString = (String) hit.getSource().get("datePublished");
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+						String title = hit.getSourceAsMap().get("title").toString();
+						boolean published = Boolean.parseBoolean(hit.getSourceAsMap().get("published").toString());
+						boolean archived = Boolean.parseBoolean(hit.getSourceAsMap().get("archived").toString());
+						String datePublishedString = (String) hit.getSourceAsMap().get("datePublished");
 						Date datePublished = null;
 						if (datePublishedString != null && !datePublishedString.isEmpty()) {
 							datePublished = ElasticsearchUtil.parseDate(datePublishedString);

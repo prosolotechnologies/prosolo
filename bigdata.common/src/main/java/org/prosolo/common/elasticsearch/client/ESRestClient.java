@@ -41,9 +41,11 @@ public interface ESRestClient {
 
     public SearchResponse search(SearchSourceBuilder searchSourceBuilder, String index, String type) throws IOException;
 
-    boolean deleteIndex(String indexName) throws IOException;
+    boolean deleteIndex(String... indexName) throws IOException;
 
     boolean exists(String indexName) throws IOException;
 
     boolean deleteByQuery(String indexName, String indexType, QueryBuilder qb) throws IOException;
+
+    boolean createIndex(String indexName) throws IOException;
 }

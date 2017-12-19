@@ -75,9 +75,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 			
 				for (SearchHit hit : sResponse.getHits()) {
-					logger.info("ID: " + hit.getSource().get("id"));
-					long id = Long.parseLong(hit.getSource().get("id").toString());
-					String name = (String) hit.getSource().get("name");
+					logger.info("ID: " + hit.getSourceAsMap().get("id"));
+					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+					String name = (String) hit.getSourceAsMap().get("name");
 					UserGroupData group = userGroupManager.getUserCountAndCanBeDeletedGroupData(id);
 					group.setId(id);
 					group.setName(name);
@@ -106,9 +106,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 			
 				for (SearchHit hit : sResponse.getHits()) {
-					logger.info("ID: " + hit.getSource().get("id"));
-					long id = Long.parseLong(hit.getSource().get("id").toString());
-					String name = (String) hit.getSource().get("name");
+					logger.info("ID: " + hit.getSourceAsMap().get("id"));
+					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+					String name = (String) hit.getSourceAsMap().get("name");
 					boolean isUserInAGroup = userGroupManager.isUserInGroup(id, userId);
 					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
 					UserGroupData group = new UserGroupData(id, name, userCount, isUserInAGroup);
@@ -176,8 +176,8 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			for(int i = 0; i < groupNumber; i++) {
 				SearchHit hit = groupHits[i];
-				long id = Long.parseLong(hit.getSource().get("id").toString());
-				String name = (String) hit.getSource().get("name");
+				long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+				String name = (String) hit.getSourceAsMap().get("name");
 				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
 				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false, false));
 			}
@@ -347,7 +347,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	private ResourceVisibilityMember extractVisibilityUserResult(SearchHit hit) {
-		Map<String, Object> fields = hit.getSource();
+		Map<String, Object> fields = hit.getSourceAsMap();
 		User user = new User();
 		user.setId(Long.parseLong(fields.get("id") + ""));
 		user.setName((String) fields.get("name"));

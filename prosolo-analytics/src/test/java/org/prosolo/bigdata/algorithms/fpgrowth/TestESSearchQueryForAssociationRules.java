@@ -70,9 +70,9 @@ public class TestESSearchQueryForAssociationRules {
 			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_ASSOCRULES, ESIndexTypes.COMPETENCE_ACTIVITIES);
 			if (sResponse != null) {
 				for (SearchHit hit : sResponse.getHits()) {
-					int id = (int) hit.getSource().get("id");
-					System.out.println("ID:" + id + " :" + hit.getSource()
-							+ " SCORE:" + hit.getScore() + " sc:" + hit.score());
+					int id = (int) hit.getSourceAsMap().get("id");
+					System.out.println("ID:" + id + " :" + hit.getSourceAsMap()
+							+ " SCORE:" + hit.getScore() + " sc:" + hit.getScore());
 				}
 			}
 		} catch (Exception e) {
@@ -100,9 +100,9 @@ public class TestESSearchQueryForAssociationRules {
 
 			if (sResponse != null) {
 				for (SearchHit hit : sResponse.getHits()) {
-					int id = (int) hit.getSource().get("id");
-					System.out.println("ID:" + id + " :" + hit.getSource()
-							+ " SCORE:" + hit.getScore() + " sc:" + hit.score());
+					int id = (int) hit.getSourceAsMap().get("id");
+					System.out.println("ID:" + id + " :" + hit.getSourceAsMap()
+							+ " SCORE:" + hit.getScore() + " sc:" + hit.getScore());
 				}
 			}
 		} catch (Exception e) {
