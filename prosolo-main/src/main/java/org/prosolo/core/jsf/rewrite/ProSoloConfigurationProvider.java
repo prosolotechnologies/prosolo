@@ -91,6 +91,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
+				.addRule(Join.path("/evidences").to("/evidences.xhtml"))
+				.addRule(Join.path("/evidences/{id}/edit").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidences/new").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidences/{id}").to("/evidence.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				//.addRule(Join.path("/assessments").to("/assessments.xhtml"))
 

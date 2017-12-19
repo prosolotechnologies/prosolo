@@ -84,7 +84,9 @@ public enum ContextName {
 	MAKE_OWNER_DIALOG(""),
 	GROUP_JOIN("UserGroup"),
 	USERS(""),
-	NEXT_LEARNING_STAGE_DIALOG("LearningStage");
+	NEXT_LEARNING_STAGE_DIALOG("LearningStage"),
+	EVIDENCE("LearningEvidence"),
+	NEW_EVIDENCE("");
 
     private String objectType; 
     

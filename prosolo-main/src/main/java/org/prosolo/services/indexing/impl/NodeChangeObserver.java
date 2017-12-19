@@ -91,7 +91,8 @@ public class NodeChangeObserver extends EventObserver {
 			TargetCompetence1.class,
 			UserGroup.class,
 			Organization.class,
-			Rubric.class
+			Rubric.class,
+			LearningEvidence.class
 		};
 	}
 

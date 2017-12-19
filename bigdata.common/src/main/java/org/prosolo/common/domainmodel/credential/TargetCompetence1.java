@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.credential;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,6 +33,8 @@ public class TargetCompetence1 extends BaseEntity {
 	private Date dateCompleted;
 	
 	private long nextActivityToLearnId;
+
+	private Set<CompetenceEvidence> evidences;
 	
 	public TargetCompetence1() {
 		targetActivities = new ArrayList<>();
@@ -98,5 +101,13 @@ public class TargetCompetence1 extends BaseEntity {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
+
+	@OneToMany(mappedBy = "competence")
+	public Set<CompetenceEvidence> getEvidences() {
+		return evidences;
+	}
+
+	public void setEvidences(Set<CompetenceEvidence> evidences) {
+		this.evidences = evidences;
+	}
 }
