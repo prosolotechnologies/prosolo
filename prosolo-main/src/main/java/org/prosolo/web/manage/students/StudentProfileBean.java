@@ -139,7 +139,6 @@ public class StudentProfileBean implements Serializable {
 			for (TargetCredential1 targetCred : userCredentials) {
 				CredentialProgressData credProgressData = new CredentialProgressData(targetCred);
 				credentials.add(credProgressData);
-				credentials.add(credProgressData);
 
 				if (first) {
 					selectCredential(credProgressData);
@@ -179,7 +178,6 @@ public class StudentProfileBean implements Serializable {
 					first = false;
 				}
 				
-				competenecesProgress.add(compProgress);
 				competenecesProgress.add(compProgress);
 			}
 			selectedCredential.setCompetences(competenecesProgress);
