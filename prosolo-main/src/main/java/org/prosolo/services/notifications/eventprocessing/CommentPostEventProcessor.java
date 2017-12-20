@@ -78,7 +78,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
 				PageSection section = creatorRole == Role.User ? PageSection.STUDENT : PageSection.MANAGE;
 				if (creatorLink != null && !creatorLink.isEmpty()) {
-					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true, section));
+					receiversData.add(new NotificationReceiverData(resCreatorId, section.getPrefix() + creatorLink, true, section));
 				}
 			}
 			return receiversData;
