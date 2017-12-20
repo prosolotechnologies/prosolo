@@ -40,6 +40,7 @@ public class Notification1 extends BaseEntity {
 	private ResourceType targetType;
 	private long targetId;
 	private boolean notifyByEmail;
+	private NotificationSection section;
 	
 	public Notification1() {
 		
@@ -144,5 +145,13 @@ public class Notification1 extends BaseEntity {
 	public void setObjectOwner(boolean objectOwner) {
 		this.objectOwner = objectOwner;
 	}
-	
+
+	@Enumerated(EnumType.STRING)
+	public NotificationSection getSection() {
+		return section;
+	}
+
+	public void setSection(NotificationSection section) {
+		this.section = section;
+	}
 }
