@@ -37,7 +37,7 @@ public class CommentLikeEventProcessor extends CommentEventProcessor {
 			if (notificationLink != null && !notificationLink.isEmpty()) {
 				PageSection section = getResource().isManagerComment() ? PageSection.MANAGE : PageSection.STUDENT;
 				Long resCreatorId = getResource().getUser().getId();
-				receivers.add(new NotificationReceiverData(resCreatorId, notificationLink, false, section));
+				receivers.add(new NotificationReceiverData(resCreatorId, section.getPrefix() + notificationLink, false, section));
 			}
 			return receivers;
 		} catch(Exception e) {
