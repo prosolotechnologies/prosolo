@@ -160,7 +160,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								activityAssessmentData.getCredAssessmentId(), new ArrayList<>(participantIds),
-								loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
+								loggedUserBean.getUserId(), activityAssessmentData.getType(), grade, true,
 								loggedUserBean.getUserContext());
 				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
 				activityAssessmentData.getGrade().setValue(aa.getPoints());
@@ -169,7 +169,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						activityAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						activityAssessmentData.isDefault(), loggedUserBean.getUserContext());
+						activityAssessmentData.getType(), loggedUserBean.getUserContext());
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 		} catch (IllegalDataStateException e) {

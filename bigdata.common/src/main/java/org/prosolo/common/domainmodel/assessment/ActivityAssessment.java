@@ -18,7 +18,7 @@ public class ActivityAssessment extends BaseEntity {
 	private CompetenceAssessment assessment;
 	private List<ActivityDiscussionParticipant> participants;
 	private List<ActivityDiscussionMessage> messages;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 
 	/**
 	 * Since v0.5. We use points to store assessment points value.
@@ -82,12 +82,14 @@ public class ActivityAssessment extends BaseEntity {
 		return null;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	@OneToOne

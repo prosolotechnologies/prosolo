@@ -19,7 +19,7 @@ public class CompetenceAssessment extends BaseEntity {
 	private List<ActivityAssessment> activityDiscussions;
 	private CredentialAssessment credentialAssessment;
 	private TargetCompetence1 targetCompetence;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 	private int points;
 	
 	@ManyToOne
@@ -71,12 +71,14 @@ public class CompetenceAssessment extends BaseEntity {
 		return null;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	public int getPoints() {

@@ -179,7 +179,7 @@ public class CredentialAssessmentBean implements Serializable {
 			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
 				long competenceAssessmentId = assessmentManager.createAndApproveCompetenceAssessment(
 						fullAssessmentData.getCredAssessmentId(), competenceAssessmentData.getTargetCompetenceId(),
-						fullAssessmentData.isDefaultAssessment());
+						fullAssessmentData.getType());
 				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
 				competenceAssessmentData.setCompetenceAssessmentEncodedId(idEncoder.encodeId(competenceAssessmentId));
 
@@ -329,7 +329,7 @@ public class CredentialAssessmentBean implements Serializable {
 				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								fullAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
-								loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade, true,
+								loggedUserBean.getUserId(), fullAssessmentData.getType(), grade, true,
 								loggedUserBean.getUserContext());
 				currentActivityAssessment.setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
 				currentActivityAssessment.getGrade().setValue(aa.getPoints());
@@ -338,7 +338,7 @@ public class CredentialAssessmentBean implements Serializable {
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						fullAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						fullAssessmentData.isDefaultAssessment(), loggedUserBean.getUserContext());
+						fullAssessmentData.getType(), loggedUserBean.getUserContext());
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 		} catch (IllegalDataStateException e) {

@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -86,7 +87,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					PageUtil.accessDenied();
 				} else {
 					assessmentsSummary = activityManager
-							.getActivityAssessmentsDataForDefaultCredentialAssessment(
+							.getActivityAssessmentsDataForInstructorCredentialAssessment(
 									decodedCredId, decodedActId, access.isCanInstruct(), paginate,
 									paginationData.getPage() - 1, paginationData.getLimit());
 
@@ -349,19 +350,21 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		try {
 			if (competenceAssessmentId > 0) {
 				//if competence assessment exists create assessmentsSummary assessment only
+				//TODO check if always INSTRUCTOR_ASSESSMENT should be used here
 				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
-								loggedUserBean.getUserId(), true, grade, true,
+								loggedUserBean.getUserId(), AssessmentType.INSTRUCTOR_ASSESSMENT, grade, true,
 								loggedUserBean.getUserContext());
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
 				currentResult.getAssessment().getGrade().setValue(aa.getPoints());
 			} else {
 				//if competence assessment does not exist create competence assessment and assessmentsSummary assessment
+				//TODO check if always INSTRUCTOR_ASSESSMENT should be used here
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<>(participantIds), loggedUserBean.getUserId(), grade,
-						true, loggedUserBean.getUserContext());
+						AssessmentType.INSTRUCTOR_ASSESSMENT, loggedUserBean.getUserContext());
 				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
 				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
 				currentResult.getAssessment().getGrade().setValue(assessmentInfo.getGrade());

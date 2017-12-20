@@ -38,7 +38,7 @@ public class ActivityAssessmentData {
 	private boolean automaticGrade;
 	private long targetCompId;
 
-	private boolean isDefault;
+	private AssessmentType type;
 
 	//reference to competence assessment
 	private CompetenceAssessmentData compAssessment;
@@ -67,7 +67,7 @@ public class ActivityAssessmentData {
 		if (data.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC) {
 			data.setRubricVisibilityForStudent(actData.getRubricVisibility());
 		}
-		data.setDefault(credAssessment.isDefaultAssessment());
+		data.setType(credAssessment.getType());
 		data.setCredAssessmentId(credAssessment.getId());
 		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
 
@@ -398,12 +398,12 @@ public class ActivityAssessmentData {
 	}
 
 
-	public boolean isDefault() {
-		return isDefault;
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefault(boolean aDefault) {
-		isDefault = aDefault;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	public CompetenceAssessmentData getCompAssessment() {

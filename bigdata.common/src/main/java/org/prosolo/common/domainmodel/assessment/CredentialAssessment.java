@@ -2,13 +2,7 @@ package org.prosolo.common.domainmodel.assessment;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -25,7 +19,7 @@ public class CredentialAssessment extends BaseEntity {
 	private TargetCredential1 targetCredential;
 	private boolean approved;
 	private List<CompetenceAssessment> competenceAssessments;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 	private int points;
 
 	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
@@ -93,14 +87,6 @@ public class CredentialAssessment extends BaseEntity {
 		this.competenceAssessments = competenceAssessments;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
-	}
-
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
-	}
-
 	public int getPoints() {
 		return points;
 	}
@@ -108,5 +94,14 @@ public class CredentialAssessment extends BaseEntity {
 	public void setPoints(int points) {
 		this.points = points;
 	}
-	
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public AssessmentType getType() {
+		return type;
+	}
+
+	public void setType(AssessmentType type) {
+		this.type = type;
+	}
 }

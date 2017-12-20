@@ -159,7 +159,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			if(updateAssessor) {
 				//update assessor for default assessment if exists
 				long instructorUserId = instructor != null ? instructor.getUser().getId() : 0;
-				assessmentManager.updateDefaultAssessmentAssessor(targetCred.getId(), 
+				assessmentManager.updateInstructorAssessmentAssessor(targetCred.getId(),
 						instructorUserId);
 			}
 			
@@ -516,7 +516,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToAssign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToAssign, 
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToAssign,
 						instructor.getUser().getId());
 			}
 			if (targetCredsToUnassign != null && !targetCredsToUnassign.isEmpty()) {	
@@ -539,7 +539,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToUnassign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToUnassign, 0);
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToUnassign, 0);
 			}
 			return result;	
 		} catch(Exception e) {

@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.util.ImageFormat;
@@ -32,7 +33,7 @@ public class AssessmentDataFull {
 	private String durationString;
 	private long targetCredentialId;
 	private long credentialId;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 	private int points;
 	private int maxPoints;
 
@@ -60,7 +61,7 @@ public class AssessmentDataFull {
 		data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setDefaultAssessment(assessment.isDefaultAssessment());
+		data.setType(assessment.getType());
 		data.setPoints(assessment.getPoints());
 
 		int maxPoints = 0;
@@ -230,12 +231,12 @@ public class AssessmentDataFull {
 		this.credentialId = credentialId;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	public int getPoints() {

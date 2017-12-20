@@ -20,7 +20,10 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
@@ -51,7 +54,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private UrlIdEncoder encoder;
 	@Inject
 	private ActivityAssessmentDataFactory activityAssessmentFactory;
-	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
 	@Inject private Competence1Manager compManager;
 	@Inject private AssessmentManager self;
@@ -179,19 +181,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throws DbConnectionException, IllegalDataStateException {
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
+		//TODO check if this is valid assumption - that assessments can be requested only from peers.
 		Result<Long> res = self.createAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
 				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
-				false, context);
+				AssessmentType.PEER_ASSESSMENT, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 	
 	@Override
 	//nt not transactional
-	public long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId,
-										UserContextData context) throws DbConnectionException, IllegalDataStateException {
+	public long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
+										   UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		Result<Long> res = self.createAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
-				null, true, context);
+				null, AssessmentType.INSTRUCTOR_ASSESSMENT, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
@@ -199,7 +202,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-			String message, boolean defaultAssessment, UserContextData context) throws DbConnectionException,
+			String message, AssessmentType type, UserContextData context) throws DbConnectionException,
 			IllegalDataStateException {
 		Result<Long> result = new Result<>();
 		try {
@@ -219,7 +222,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			//assessment.setTitle(credentialTitle);
 			assessment.setTargetCredential(targetCredential);
-			assessment.setDefaultAssessment(defaultAssessment);
+			assessment.setType(type);
 			saveEntity(assessment);
 
 			int credPoints = 0;
@@ -228,7 +231,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					targetCredential.getCredential().getId(), studentId);
 			for (TargetCompetence1 targetCompetence : targetCompetences) {
 				Result<Integer> res = createCompetenceAndActivityAssessmentsIfNeededAndGetEvents(
-						targetCompetence, assessment, studentId, assessorId, defaultAssessment, context);
+						targetCompetence, assessment, studentId, assessorId, type, context);
 				credPoints += res.getResult();
 				result.appendEvents(res.getEventQueue());
 			}
@@ -259,13 +262,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	 * @param credAssessment
 	 * @param studentId
 	 * @param assessorId
-	 * @param isDefault
+	 * @param type
 	 * @param context
 	 * @return
 	 * @throws ResourceCouldNotBeLoadedException
 	 */
 	private Result<Integer> createCompetenceAndActivityAssessmentsIfNeededAndGetEvents(TargetCompetence1 tComp,
-				CredentialAssessment credAssessment, long studentId, long assessorId, boolean isDefault, UserContextData context)
+				CredentialAssessment credAssessment, long studentId, long assessorId, AssessmentType type, UserContextData context)
 			throws ResourceCouldNotBeLoadedException, ConstraintViolationException,
 			DataIntegrityViolationException {
 		Result<Integer> result = new Result<>();
@@ -283,7 +286,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde)) {
 				//create competence assessment if not already created
 				if (compAssessment == null) {
-					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault, false);
+					compAssessment = createCompetenceAssessment(tComp, credAssessment, type, false);
 				}
 				List<Long> participantIds = new ArrayList<>();
 				participantIds.add(studentId);
@@ -296,7 +299,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				GradeData gd = new GradeData();
 				gd.setValue(grade);
 				result.appendEvents(createActivityAssessmentAndGetEvents(ta.getId(), compAssessment.getId(), credAssessment.getId(),
-						participantIds, 0, isDefault, gd, false, persistence.currentManager(), context).getEventQueue());
+						participantIds, 0, type, gd, false, persistence.currentManager(), context).getEventQueue());
 				compPoints += grade;
 			}
 		}
@@ -308,7 +311,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private CompetenceAssessment createCompetenceAssessment(TargetCompetence1 tComp,
-				CredentialAssessment credAssessment, boolean isDefault, boolean approved)
+				CredentialAssessment credAssessment, AssessmentType type, boolean approved)
 			throws ConstraintViolationException, DataIntegrityViolationException, DbConnectionException{
 		try {
 			CompetenceAssessment compAssessment = new CompetenceAssessment();
@@ -316,7 +319,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			compAssessment.setCredentialAssessment(credAssessment);
 			//compAssessment.setTitle(targetCompetence.getTitle());
 			compAssessment.setTargetCompetence(tComp);
-			compAssessment.setDefaultAssessment(isDefault);
+			compAssessment.setType(type);
 			compAssessment.setApproved(approved);
 			saveEntity(compAssessment);
 			return compAssessment;
@@ -465,7 +468,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					competenceAssessment.get().setApproved(true);
 				} else {
 					createAndApproveCompetenceAssessment(credentialAssessmentId, competenceData1.getTargetCompId(),
-							credentialAssessment.isDefaultAssessment());
+							credentialAssessment.getType());
 				}
 			}
 
@@ -501,23 +504,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	//not transactional and should not be called from transactional methods
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, GradeData grade,
+		    long credAssessmentId, List<Long> participantIds, long senderId, AssessmentType type, GradeData grade,
 		    boolean recalculatePoints, UserContextData context)
 					throws IllegalDataStateException, DbConnectionException {
 		return createActivityDiscussion(targetActivityId, competenceAssessmentId, credAssessmentId, participantIds,
-				senderId, isDefault, grade, recalculatePoints, persistence.currentManager(), context);
+				senderId, type, grade, recalculatePoints, persistence.currentManager(), context);
 	}
 
 	@Override
 	//not transactional and should not be called from transactional methods
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, GradeData grade,
+		    long credAssessmentId, List<Long> participantIds, long senderId, AssessmentType type, GradeData grade,
 		    boolean recalculatePoints, Session session, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException {
 		try {
 			//self invocation
 			Result<ActivityAssessment> result = self.createActivityAssessmentAndGetEvents(targetActivityId,
-					competenceAssessmentId, credAssessmentId, participantIds, senderId, isDefault, grade,
+					competenceAssessmentId, credAssessmentId, participantIds, senderId, type, grade,
 					recalculatePoints, session, context);
 			eventFactory.generateEvents(result.getEventQueue());
 			return result.getResult();
@@ -611,10 +614,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
 																long credAssessmentId, List<Long> participantIds,
-																long senderId, boolean isDefault, GradeData grade,
+																long senderId, AssessmentType type, GradeData grade,
 																boolean recalculatePoints, Session session, UserContextData context)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 		try {
@@ -633,7 +636,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			activityDiscussion.setAssessment(competenceAssessment);
 			activityDiscussion.setTargetActivity(targetActivity);
 			//activityDiscussion.setParticipants(participants);
-			activityDiscussion.setDefaultAssessment(isDefault);
+			activityDiscussion.setType(type);
 
 			int gradeValue = -1;
 			if (grade != null) {
@@ -947,19 +950,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateDefaultAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException {
+	public void updateInstructorAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException {
 		try {
 			String query = "SELECT ca FROM CredentialAssessment ca " +			
 						   "WHERE ca.targetCredential.id = :id " +
-						   "AND ca.defaultAssessment = :boolTrue";
+						   "AND ca.type = :instructorAssessment";
 			
 			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager()
 					.createQuery(query)
 					.setLong("id", targetCredId)
-					.setBoolean("boolTrue", true)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 					.uniqueResult();
 			
-			if(ca == null) {
+			if (ca == null) {
 				return;
 			}
 			User assessor = assessorId > 0 
@@ -974,8 +977,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void updateDefaultAssessmentsAssessor(List<Long> targetCredIds, long assessorId) 
+	@Transactional
+	public void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
 			throws DbConnectionException {
 		try {
 			User assessor = assessorId > 0 
@@ -984,12 +987,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String query = "UPDATE CredentialAssessment ca " +
 						   "SET ca.assessor = :assessor " +
 						   "WHERE ca.targetCredential.id IN (:ids) " +
-						   "AND ca.defaultAssessment = :boolTrue";
+						   "AND ca.type = :instructorAssessment";
 			
 			persistence.currentManager()
 					.createQuery(query)
 					.setParameterList("ids", targetCredIds)
-					.setBoolean("boolTrue", true)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 					.setParameter("assessor", assessor)
 					.executeUpdate();
 		} catch(Exception e) {
@@ -1052,7 +1055,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) 
+	public Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT ca.id " +
@@ -1060,16 +1063,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						   "INNER JOIN ca.targetCredential tc " +
 						   "WHERE tc.credential.id = :credId " +
 						   "AND tc.user.id = :userId " +
-						   "AND ca.defaultAssessment = :boolTrue";
+						   "AND ca.type = :instructorAssessment";
 			
 			Long id = (Long) persistence.currentManager()
 					.createQuery(query)
 					.setLong("credId", credId)
-					.setBoolean("boolTrue", true)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 					.setLong("userId", userId)
 					.uniqueResult();
 			
-			if(id == null) {
+			if (id == null) {
 				return Optional.empty();
 			}
 			return Optional.of(id);
@@ -1173,29 +1176,30 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error while retrieving credential assessment score");
 		}
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) 
-			throws DbConnectionException {
-		try {
-			String query = "SELECT ad FROM ActivityAssessment ad " +	
-						   "WHERE ad.defaultAssessment = :boolTrue " +
-						   "AND ad.targetActivity.id = :tActId";
-			
-			ActivityAssessment ad = (ActivityAssessment) session
-					.createQuery(query)
-					.setLong("tActId", targetActId)
-					.setBoolean("boolTrue", true)
-					.uniqueResult();
-			
-			return ad;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity discussion");
-		}
-	}
+
+	//This method would not work because we can have several instructor activity assessments for one target activity
+//	@Override
+//	@Transactional(readOnly = true)
+//	public ActivityAssessment getInstructorActivityAssessment(long targetActId, Session session)
+//			throws DbConnectionException {
+//		try {
+//			String query = "SELECT ad FROM ActivityAssessment ad " +
+//						   "WHERE ad.defaultAssessment = :boolTrue " +
+//						   "AND ad.targetActivity.id = :tActId";
+//
+//			ActivityAssessment ad = (ActivityAssessment) session
+//					.createQuery(query)
+//					.setLong("tActId", targetActId)
+//					.setBoolean("boolTrue", true)
+//					.uniqueResult();
+//
+//			return ad;
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while retrieving activity discussion");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -1240,7 +1244,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						result.appendEvents(createActivityAssessmentAndGetEvents(
 								targetActId, caId, credAssessmentId,
 								getParticipantIdsForCredentialAssessment(credAssessment), senderId,
-								credAssessment.isDefaultAssessment(), gd, true, session, context).getEventQueue());
+								credAssessment.getType(), gd, true, session, context).getEventQueue());
 					}
 				} else {
 					//if competence assessment does not exist, create competence and activity assessment
@@ -1252,7 +1256,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					result.appendEvents(createCompetenceAndActivityAssessmentAndGetEvents(
 							credAssessmentId, targetCompId, targetActId,
 							getParticipantIdsForCredentialAssessment(credAssessment), senderId, gd,
-							credAssessment.isDefaultAssessment(), context).getEventQueue());
+							credAssessment.getType(), context).getEventQueue());
 				}
 			}
 			return result;
@@ -1340,7 +1344,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId) {
 		try {
 			String query = 
-					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.defaultAssessment, assessment.approved " +
+					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.type, assessment.approved " +
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
 					"WHERE assessment.assessedStudent.id = :assessedStrudentId " +
@@ -1360,7 +1364,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					AssessmentData assessmentData = new AssessmentData();
 					assessmentData.setEncodedAssessmentId(encoder.encodeId((long) record[0]));
 					assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
-					assessmentData.setDefaultAssessment(Boolean.parseBoolean(record[4].toString()));
+					assessmentData.setType((AssessmentType) record[4]);
 					assessmentData.setApproved(Boolean.parseBoolean(record[5].toString()));
 
 					if (record[3] != null)
@@ -1385,7 +1389,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional (readOnly = true)
 	public boolean isUserAssessorOfUserActivity(long userId, long assessedUserId, long activityId,
-												boolean countDefaultAssessment)
+												boolean countInstructorAssessment)
 			throws DbConnectionException {
 		try {
 			List<Long> credentials = activityManager.getIdsOfCredentialsWithActivity(activityId,
@@ -1403,8 +1407,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"AND targetCred.user.id = :userLearningId " +
 					"AND credAssessment.assessor.id = :userId ";
 
-			if (!countDefaultAssessment) {
-				query += "AND credAssessment.defaultAssessment = :boolFalse";
+			if (!countInstructorAssessment) {
+				query += "AND credAssessment.type != :instructorAssessment";
 			}
 
 			Query q = persistence.currentManager()
@@ -1413,8 +1417,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("userId", userId)
 					.setLong("userLearningId", assessedUserId);
 
-			if (!countDefaultAssessment) {
-				q.setBoolean("boolFalse", false);
+			if (!countInstructorAssessment) {
+				q.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
 			}
 
 			Long count = (Long) q.uniqueResult();
@@ -1485,11 +1489,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
 															  long targetActivityId, List<Long> participantIds,
-															  long senderId, GradeData grade, boolean isDefault,
+															  long senderId, GradeData grade, AssessmentType type,
 														      UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		Result<AssessmentBasicData> res = self.createCompetenceAndActivityAssessmentAndGetEvents(credAssessmentId,
-				targetCompId, targetActivityId, participantIds, senderId, grade, isDefault, context);
+				targetCompId, targetActivityId, participantIds, senderId, grade, type, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
@@ -1498,7 +1502,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
 																						  long targetActivityId, List<Long> participantIds,
-																						  long senderId, GradeData grade, boolean isDefault,
+																						  long senderId, GradeData grade, AssessmentType type,
 																						  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
@@ -1507,9 +1511,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					TargetCompetence1.class, targetCompId);
 			CredentialAssessment credAssessment = (CredentialAssessment) persistence.currentManager().load(
 					CredentialAssessment.class, credAssessmentId);
-			CompetenceAssessment compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault, false);
+			CompetenceAssessment compAssessment = createCompetenceAssessment(tComp, credAssessment, type, false);
 			Result<ActivityAssessment> actAssessmentRes = createActivityAssessmentAndGetEvents(targetActivityId, compAssessment.getId(),
-					credAssessmentId, participantIds, senderId, isDefault, grade, true,
+					credAssessmentId, participantIds, senderId, type, grade, true,
 					persistence.currentManager(), context);
 			result.appendEvents(actAssessmentRes.getEventQueue());
 			result.setResult(AssessmentBasicData.of(credAssessmentId, compAssessment.getId(),
@@ -1566,10 +1570,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public AssessmentBasicData getDefaultAssessmentBasicData(long credId, long compId, long actId, long userId)
+	public AssessmentBasicData getInstructorAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException {
 		try {
-			StringBuilder q = new StringBuilder("SELECT ca.id as caid, ca.assessor as assessor, ca.default_assessment ");
+			StringBuilder q = new StringBuilder("SELECT ca.id as caid, ca.assessor as assessor, ca.type ");
 			if (compId > 0) {
 				q.append(", compAssessment.id as compAssessmentId ");
 
@@ -1600,13 +1604,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						"ON ca.target_credential = tCred.id " +
 					 	"AND tCred.credential = :credId " +
 					 "WHERE ca.assessed_student = :userId " +
-					 "AND ca.default_assessment = :boolTrue");
+					 "AND ca.type = :instructorAssessment");
 
 			Query query = persistence.currentManager()
 					.createSQLQuery(q.toString())
 					.setLong("credId", credId)
 					.setLong("userId", userId)
-					.setBoolean("boolTrue", true);
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
 
 			if (compId > 0) {
 				query.setLong("compId", compId);
@@ -1621,7 +1625,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (res != null) {
 				long credAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[0]);
 				long assessorId = Util.convertBigIntegerToLong((BigInteger) res[1]);
-				boolean isDefault = (boolean) res[2];
+				AssessmentType type = AssessmentType.valueOf((String) res[2]);
 				long compAssessmentId = 0L;
 				long activityAssessmentId = 0L;
 				if (compId > 0) {
@@ -1631,8 +1635,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						activityAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[4]);
 					}
 				}
-				return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId,
-						isDefault);
+				return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId, type);
 			}
 			return null;
 		} catch(Exception e) {
@@ -1705,7 +1708,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT credAssessment.defaultAssessment, credAssessment.assessedStudent.id, credAssessment.assessor.id " +
+			String query = "SELECT credAssessment.type, credAssessment.assessedStudent.id, credAssessment.assessor.id " +
 					"FROM ActivityAssessment aas " +
 					"INNER JOIN aas.assessment compAssessment " +
 					"INNER JOIN compAssessment.credentialAssessment credAssessment " +
@@ -1718,7 +1721,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			if (res != null) {
 				Long assessorId = (Long) res[2];
-				return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (boolean) res[0]);
+				return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (AssessmentType) res[0]);
 			}
 
 			return AssessmentBasicData.empty();
@@ -1793,7 +1796,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				"INNER JOIN aa.targetActivity ta " +
 				"INNER JOIN aa.assessment compAssessment " +
 				"INNER JOIN compAssessment.credentialAssessment credAssessment " +
-				"WITH credAssessment.defaultAssessment IS TRUE " +
+				"WITH credAssessment.type = :instructorAssessment " +
 				"INNER JOIN credAssessment.targetCredential tc " +
 				"WITH tc.credential.id = :credId " +
 				"WHERE aa.points >= 0 " +
@@ -1803,6 +1806,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		List<Object[]> usersAssessed = persistence.currentManager()
 				.createQuery(usersAssessedQ)
 				.setLong("credId", deliveryId)
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 				.list();
 		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
@@ -1816,7 +1820,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 							"INNER JOIN aa.targetActivity ta " +
 							"INNER JOIN aa.assessment compAssessment " +
 							"INNER JOIN compAssessment.credentialAssessment credAssessment " +
-							"WITH credAssessment.defaultAssessment IS TRUE " +
+							"WITH credAssessment.type = :instructorAssessment " +
 							"INNER JOIN credAssessment.targetCredential tc " +
 							"WITH tc.credential.id = :credId " +
 							"WHERE ta.activity.id = :actId AND aa.points >= 0";
@@ -1825,18 +1829,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.createQuery(usersAssessedQ)
 					.setLong("credId", deliveryId)
 					.setLong("actId", activityId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 					.uniqueResult();
 		} catch (Exception e) {
 			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
+	@Override
 	@Transactional
-	public long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, boolean isDefault) {
+	public long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, AssessmentType type) {
 		try {
 			TargetCompetence1 targetCompetence1 = loadResource(TargetCompetence1.class,targetCompId);
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class,credAssessmentId);
-			CompetenceAssessment result = createCompetenceAssessment(targetCompetence1,credentialAssessment,isDefault,true);
+			CompetenceAssessment result = createCompetenceAssessment(targetCompetence1,credentialAssessment, type,true);
 
 			return result.getId();
 		} catch (Exception e) {

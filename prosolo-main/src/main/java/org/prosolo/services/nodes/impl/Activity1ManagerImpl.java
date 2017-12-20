@@ -4,6 +4,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -1333,7 +1334,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder query = new StringBuilder(
 					"SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 						"u.id as uId, u.name, u.lastname, u.avatar_url, " +
-						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence " +
+						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence, targetAct.completed " +
 						"FROM target_activity1 targetAct " +
 						"INNER JOIN target_competence1 targetComp " +
 						"ON (targetAct.target_competence = targetComp.id) " +
@@ -1350,7 +1351,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"INNER JOIN target_credential1 tCred " +
 						"ON tCred.id = credAssessment.target_credential " +
 						"AND tCred.credential = :credId) " +
-						"ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
+						"ON targetAct.id = ad.target_activity AND ad.type = :instructorAssessment " +
 						"LEFT JOIN activity_discussion_participant p " +
 						"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
 						"LEFT JOIN activity_discussion_message msg " +
@@ -1384,7 +1385,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.setLong("actId", actId)
 					.setLong("credId", credId)
 					.setString("resType", CommentedResourceType.ActivityResult.name())
-					.setBoolean("boolTrue", true);
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
 
 			if (targetActivityId > 0) {
 				q.setLong("tActId", targetActivityId);
@@ -1429,8 +1430,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 					ActivityAssessmentData ad = ard.getAssessment();
 					ad.setTargetActivityId(tActId);
-					//if result is posted activity is completed by student
-					ad.setCompleted(true);
+					ad.setCompleted((Boolean) row[19]);
 					ad.setUserId(userId);
 					ad.setActivityId(actId);
 					ad.setCompetenceId(compId);
@@ -1465,13 +1465,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							GradingMode.valueOf((String) row[14]), rubricId, ((Character) row[16]).charValue() == 'T'));
 
 					//load additional assessment data
-					AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,
+					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
 							compId, 0, ard.getUser().getId());
 					if (abd != null) {
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
 						ad.setCredAssessmentId(abd.getCredentialAssessmentId());
 						ad.setAssessorId(abd.getAssessorId());
-						ad.setDefault(abd.isDefault());
+						ad.setType(abd.getType());
 					}
 				}
 			}
@@ -1545,8 +1545,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForDefaultCredentialAssessment(long credId, long actId, boolean isInstructor,
-																												   boolean paginate, int page, int limit)
+	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForInstructorCredentialAssessment(long credId, long actId, boolean isInstructor,
+																									  boolean paginate, int page, int limit)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {
 			//check if activity is part of a crecential
