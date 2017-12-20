@@ -12,6 +12,7 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,9 @@ public class CommentLikeEventProcessor extends CommentEventProcessor {
 			Role role = getResource().isManagerComment() ? Role.Manager : Role.User;
 			String notificationLink = getNotificationLink(role);
 			if (notificationLink != null && !notificationLink.isEmpty()) {
+				PageSection section = getResource().isManagerComment() ? PageSection.MANAGE : PageSection.STUDENT;
 				Long resCreatorId = getResource().getUser().getId();
-				receivers.add(new NotificationReceiverData(resCreatorId, notificationLink,false));
+				receivers.add(new NotificationReceiverData(resCreatorId, notificationLink, false, section));
 			}
 			return receivers;
 		} catch(Exception e) {

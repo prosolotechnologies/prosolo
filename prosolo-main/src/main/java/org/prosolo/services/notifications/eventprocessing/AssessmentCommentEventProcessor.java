@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 public class AssessmentCommentEventProcessor extends NotificationEventProcessor {
 	
@@ -58,8 +59,9 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 			boolean studentSection = id == assessmentInfo.getStudentId()
 					|| !assessmentInfo.isDefault() && id == assessmentInfo.getAssessorId();
 			String prefix = studentSection ? "" : "/manage";
+			PageSection section = prefix == "" ? PageSection.STUDENT : PageSection.MANAGE;
 			boolean isObjectOwner = id == assessmentInfo.getStudentId();
-			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner));
+			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner, section));
 		}
 		return receivers;
 	}

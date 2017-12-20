@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 public class SocialActivityLikeEventProcessor extends NotificationEventProcessor {
 
@@ -39,7 +40,7 @@ public class SocialActivityLikeEventProcessor extends NotificationEventProcessor
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
 			Long resCreatorId = socialActivity.getActor().getId();
-			receivers.add(new NotificationReceiverData(resCreatorId, getNotificationLink(), false));
+			receivers.add(new NotificationReceiverData(resCreatorId, getNotificationLink(), false, PageSection.STUDENT));
 			return receivers;
 		} catch(Exception e) {
 			logger.error(e);

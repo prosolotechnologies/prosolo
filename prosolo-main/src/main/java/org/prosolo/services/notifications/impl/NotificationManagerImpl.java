@@ -3,10 +3,7 @@ package org.prosolo.services.notifications.impl;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -19,16 +16,22 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
+import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator1;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailGenerator;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailGeneratorFactory;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.services.notifications.factory.NotificationDataFactory;
+import org.prosolo.services.notifications.factory.NotificationSectionDataFactory;
+import org.prosolo.web.util.page.PageSection;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,18 +48,24 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	private NotificationEmailGeneratorFactory notificationEmailGeneratorFactory;
 	@Inject
 	private EmailSender emailSender;
+	@Inject
+	private RoleManager roleManager;
+	@Inject
+	private NotificationSectionDataFactory notificationSectionDataFactory;
  	
 	@Override
 	@Transactional (readOnly = true)
-	public Integer getNumberOfUnreadNotifications(long userId) {
+	public Integer getNumberOfUnreadNotifications(long userId, NotificationSection section) {
 		  String query=
 		   "SELECT COUNT(notification1) " +
 		   "FROM Notification1 notification1 " +
 		   "WHERE notification1.receiver.id = :userId " +
-		    "AND notification1.read = false " ;
+	       "AND notification1.read = false " +
+	       "AND notification1.section =:section" ;
 		  
 		  long resNumber = (long) persistence.currentManager().createQuery(query)
 		     .setLong("userId", userId)
+			 .setString("section",section.toString())
 		     .uniqueResult();
 		  
 		    return (int) resNumber;
@@ -99,7 +108,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	public Notification1 createNotification(long actorId, 
 			long receiverId, NotificationType type, Date date, 
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
-			boolean notifyByEmail, boolean isObjectOwner, Session session) throws DbConnectionException {
+			boolean notifyByEmail, boolean isObjectOwner, Session session, PageSection section) throws DbConnectionException {
 		try {
 			User actor = (User) session.load(User.class, actorId);
 			User receiver = (User) session.load(User.class, receiverId);
@@ -116,8 +125,10 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			notification.setTargetType(targetType);
 			notification.setLink(link);
 			notification.setObjectOwner(isObjectOwner);
+			notification.setSection(notificationSectionDataFactory.getSection(section));
+
 			session.save(notification);
-			
+
 			return notification;
 		} catch(Exception e) {
 			logger.error(e);
@@ -129,21 +140,22 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	@Override
 	@Transactional (readOnly = true)
 	public List<NotificationData> getNotificationsForUser(long userId, int page, int limit, 
-			List<NotificationType> typesToInclude, Locale locale) throws DbConnectionException {
+			List<NotificationType> typesToInclude, Locale locale, NotificationSection section) throws DbConnectionException {
 		try {
 			boolean shouldFilterTypes = typesToInclude != null && !typesToInclude.isEmpty();
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.append("SELECT DISTINCT notification " +
 								"FROM Notification1 notification " +
 								"INNER JOIN FETCH notification.actor actor " +
-								"WHERE notification.receiver.id = :userId ");
+								"WHERE notification.receiver.id = :userId " +
+								"AND notification.section =:section ");
 			if(shouldFilterTypes) {
 				queryBuilder.append("AND notification.type IN (:types) ");
 			}
 			queryBuilder.append("ORDER BY notification.dateCreated DESC");
 		  	
 			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
-			  	.setLong("userId", userId);
+			  	.setLong("userId", userId).setString("section",section.toString());
 			
 			if(shouldFilterTypes) {
 				q.setParameterList("types", typesToInclude);
@@ -175,7 +187,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 							null,
 							objectTitle, 
 							targetTitle, 
-							locale);
+							locale,
+							notification.getSection());
 					notificationData.add(nd);
 				}
 			}
@@ -237,7 +250,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 							notification.getTargetType(), persistence.currentManager());
 				}
 	  			return notificationDataFactory.getNotificationData(notification, receiver,
-	  					objectTitle, targetTitle, locale);
+	  					objectTitle, targetTitle, locale, notification.getSection());
 		  	}
 		  	return null;
 		} catch(Exception e) {
@@ -313,5 +326,5 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
 	}
-	
+
 }

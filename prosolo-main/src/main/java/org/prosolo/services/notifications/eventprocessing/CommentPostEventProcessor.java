@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.User, usersToExclude);
 					for (Long id : users) {
-						receiversData.add(new NotificationReceiverData(id, userSectionLink, false));
+						receiversData.add(new NotificationReceiverData(id, userSectionLink, false, PageSection.STUDENT));
 					}
 					usersToExclude.addAll(users);
 				}
@@ -66,7 +67,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 							Role.Manager,
 							usersToExclude);
 					for (long id : managers) {
-						receiversData.add(new NotificationReceiverData(id, manageSectionLink, false));
+						receiversData.add(new NotificationReceiverData(id, manageSectionLink, false, PageSection.MANAGE));
 					}
 				}
 				/*
@@ -75,8 +76,9 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				Role creatorRole = commentManager.getCommentedResourceCreatorRole(
 						getResource().getResourceType(), getResource().getCommentedResourceId());
 				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
+				PageSection section = creatorRole == Role.User ? PageSection.STUDENT : PageSection.MANAGE;
 				if (creatorLink != null && !creatorLink.isEmpty()) {
-					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true));
+					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true, section));
 				}
 			}
 			return receiversData;

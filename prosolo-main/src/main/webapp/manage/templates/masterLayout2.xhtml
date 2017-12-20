@@ -167,15 +167,15 @@
 							pt:data-toggle="dropdown" 
 							pt:aria-haspopup="true" 
 							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
+							action="#{managerNotificationsBean.markNotificationsAsRead}"
 							process="@this"
 							update="notificationLoop @this">
 							
 							Notifications
 							
-							<h:panelGroup id="unreadNotificationsDot">
+							<h:panelGroup id="unreadNotificationsDot"  >
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									class="#{managerNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 					
@@ -183,9 +183,9 @@
 							class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
 							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
 								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
+									<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}

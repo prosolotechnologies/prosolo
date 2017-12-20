@@ -13,6 +13,8 @@ import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.notification.ManagerNotificationsBean;
+import org.prosolo.web.notification.StudentNotificationsBean;
 import org.prosolo.web.notification.TopNotificationsBean1;
 import org.springframework.stereotype.Service;
 
@@ -34,15 +36,20 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 	@Override
 	public void updateNotificationData(long notificationId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
 		if (userSession != null) {
-			TopNotificationsBean1 topNotificationsBean1 = (TopNotificationsBean1) userSession.getAttribute("topNotificationsBean1");
+			StudentNotificationsBean studentNotificationsBean = (StudentNotificationsBean) userSession.getAttribute("studentNotificationsBean");
+			ManagerNotificationsBean managerNotificationsBean = (ManagerNotificationsBean) userSession.getAttribute("managerNotificationsBean");
 			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
-
-			if (topNotificationsBean1 != null) {
+			NotificationData notificationData = notificationManager
+					.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
+			if (studentNotificationsBean != null) {
 				try {
-					NotificationData notificationData = (NotificationData) notificationManager
-							.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
-					
-					topNotificationsBean1.addNotification(notificationData, session);
+					studentNotificationsBean.addNotification(notificationData, session);
+				} catch (DbConnectionException e) {
+					logger.error(e);
+				}
+			} else if (managerNotificationsBean != null) {
+				try {
+					managerNotificationsBean.addNotification(notificationData, session);
 				} catch (DbConnectionException e) {
 					logger.error(e);
 				}
