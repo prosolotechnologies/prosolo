@@ -9,7 +9,8 @@
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
-		<composite:attribute name="bean"/>
+		<composite:attribute name="gradeActionMethodName" required="true"/>
+		<composite:attribute name="gradeAction" required="true" method-signature="void #{cc.attrs.gradeActionMethodName}()"/>
 		<composite:attribute name="assessment" required="true" type="org.prosolo.services.nodes.data.assessments.ActivityAssessmentData"/>
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="minGrade" required="true"/>
@@ -92,7 +93,7 @@
 							</ui:fragment>
 							<p:commandLink
 									styleClass="btn btn-green"
-									action="#{cc.attrs.bean.updateGrade()}"
+									action="#{cc.attrs.gradeAction}"
 									update="#{cc.attrs.toUpdate} @(.validationMsgSelector)"
 									oncomplete="if (args &amp;&amp; !args.validationFailed) { hidePopupSidebar('#cbp-spmenu-s2') }">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>

@@ -2,25 +2,22 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.ActivityAssessmentBean;
 import org.prosolo.web.courses.activity.ActivityResultBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -32,7 +29,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @ManagedBean(name = "credentialActivityAssessmentsBeanManager")
 @Component("credentialActivityAssessmentsBeanManager")
@@ -49,7 +48,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ActivityResultBean actResultBean;
-	@Inject private RubricManager rubricManager;
+	@Inject private ActivityAssessmentBean activityAssessmentBean;
 
 	private String actId;
 	private long decodedActId;
@@ -114,37 +113,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	public boolean canUserEditDelivery() {
 		return access.isCanEdit();
-	}
-
-	public int getMinGrade() {
-		if (!assessmentsSummary.getStudentResults().isEmpty()) {
-			ActivityResultData res = assessmentsSummary.getStudentResults().get(0);
-			return res.getAssessment().getGrade().getMinGrade();
-		}
-		return 0;
-	}
-
-	public int getMaxGrade() {
-		if (!assessmentsSummary.getStudentResults().isEmpty()) {
-			ActivityResultData res = assessmentsSummary.getStudentResults().get(0);
-			return res.getAssessment().getGrade().getMaxGrade();
-		}
-		return 0;
-	}
-
-	private void initRubricIfNotInitialized() {
-		try {
-			if (currentResult.getAssessment().getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentResult.getAssessment().getGrade().isRubricInitialized()) {
-				currentResult.getAssessment().getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
-						currentResult.getAssessment().getActivityId(),
-						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						true));
-				currentResult.getAssessment().getGrade().setRubricInitialized(true);
-			}
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
-		}
 	}
 	
 	public void initIndividualResponse() {
@@ -284,112 +252,15 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	}
 
 	public void updateGrade() {
-		updateGrade(true);
-	}
-
-	public void updateGrade(boolean retry) {
 		try {
-			if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
-				createAssessment(currentResult.getTargetActivityId(),
-						currentResult.getAssessment().getCompAssessmentId(),
-						currentResult.getAssessment().getTargetCompId(), true);
-			} else {
-				int newGrade = assessmentManager.updateGradeForActivityAssessment(
-						currentResult.getAssessment().getCredAssessmentId(),
-						currentResult.getAssessment().getCompAssessmentId(),
-						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade(), loggedUserBean.getUserContext());
-				if (newGrade >= 0) {
-					currentResult.getAssessment().getGrade().setValue(newGrade);
-				}
-			}
-			if (!currentResult.getAssessment().getGrade().isAssessed()) {
+			boolean assessedPreviously = activityAssessmentBean.getActivityAssessmentData().getGrade().isAssessed();
+			activityAssessmentBean.updateGrade();
+			if (!assessedPreviously) {
 				//if student was not previously assessed number of assessed students should be increased by 1
 				assessmentsSummary.setNumberOfAssessedStudents(assessmentsSummary.getNumberOfAssessedStudents() + 1);
-				currentResult.getAssessment().getGrade().setAssessed(true);
 			}
-
-			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (IllegalDataStateException e) {
-			if (retry) {
-				//if this exception is thrown, data is repopulated and we should retry updating grade
-				updateGrade(false);
-			} else {
-				logger.error("Error after retry: " + e);
-				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
-			}
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error updating the grade");
-		}
-	}
-
-	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
-								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException {
-		GradeData grade = updateGrade
-				? currentResult != null ? currentResult.getAssessment().getGrade() : null
-				: null;
-
-		// creating a set as there might be duplicates with ids
-		Set<Long> participantIds = new HashSet<>();
-
-		// adding the student as a participant
-		participantIds.add(currentResult.getUser().getId());
-
-		// adding the logged in user (the message poster) as a participant. It can happen that some other user,
-		// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
-		participantIds.add(loggedUserBean.getUserId());
-
-		// if assessor is set, add him to the discussion
-		if (currentResult.getAssessment().getAssessorId() > 0) {
-			participantIds.add(currentResult.getAssessment().getAssessorId());
-		}
-
-		try {
-			if (competenceAssessmentId > 0) {
-				//if competence assessment exists create assessmentsSummary assessment only
-				//TODO check if always INSTRUCTOR_ASSESSMENT should be used here
-				ActivityAssessment aa =
-						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
-								loggedUserBean.getUserId(), AssessmentType.INSTRUCTOR_ASSESSMENT, grade, true,
-								loggedUserBean.getUserContext());
-				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
-				currentResult.getAssessment().getGrade().setValue(aa.getPoints());
-			} else {
-				//if competence assessment does not exist create competence assessment and assessmentsSummary assessment
-				//TODO check if always INSTRUCTOR_ASSESSMENT should be used here
-				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
-						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
-						new ArrayList<>(participantIds), loggedUserBean.getUserId(), grade,
-						AssessmentType.INSTRUCTOR_ASSESSMENT, loggedUserBean.getUserContext());
-				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
-				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
-				currentResult.getAssessment().getGrade().setValue(assessmentInfo.getGrade());
-			}
-		} catch (IllegalDataStateException e) {
-			/*
-				this means that assessment is created in the meantime - this should be handled better because this
-				exception does not have to mean that this is the case. Return to this when exceptions are rethinked.
-			 */
-			/*
-				if competence assessment is already set, get assessmentsSummary assessment id and set it, otherwise get both
-				competence assessment and assessmentsSummary assessment ids.
-			 */
-			if (competenceAssessmentId > 0) {
-				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
-						assessmentManager.getActivityAssessmentId(competenceAssessmentId, targetActivityId)));
-			} else {
-				AssessmentBasicData assessmentInfo = assessmentManager.getCompetenceAndActivityAssessmentIds(
-						targetCompetenceId, targetActivityId, currentResult.getAssessment().getCredAssessmentId());
-				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
-				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
-			}
-			logger.error(e);
-			//rethrow exception so caller of this method can react in appropriate way
-			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -489,11 +360,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	public ActivityResultData getCurrentResult() {
 		return currentResult;
-	}
-
-	public void setCurrentResult(ActivityResultData currentResult) {
-		this.currentResult = currentResult;
-		initRubricIfNotInitialized();
 	}
 
 	public String getTargetActId() {

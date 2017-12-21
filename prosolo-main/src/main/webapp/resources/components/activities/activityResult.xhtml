@@ -92,7 +92,7 @@
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}
@@ -101,7 +101,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
@@ -277,7 +277,7 @@
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
@@ -286,7 +286,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
