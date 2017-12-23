@@ -40,7 +40,7 @@ public class DeliveryStartBean implements Serializable {
 		try {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserContext()).getId();
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("New " + ResourceBundleUtil.getLabel("delivery") + " has been created");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("New " + ResourceBundleUtil.getLabel("delivery").toLowerCase() + " has been created");
 			//TODO it would probably be better to move redirection logic to the appropriate beans that know which section to redirect to
 			//find out which section we are currently in and redirect there
 			PageSection section = PageUtil.getSectionForView();

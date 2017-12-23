@@ -175,6 +175,8 @@ ul {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
+  .btn.active {
+    box-shadow: none; }
 
 .btn-sm {
   line-height: 30px; }
@@ -3547,6 +3549,82 @@ header {
 
 .addEvidencePage .submitEvidenceTab .lastRow {
   padding-bottom: 0; }
+
+.assessmentsStar {
+  height: 20px;
+  line-height: 21px;
+  display: flex;
+  align-items: center; }
+  .assessmentsStar .star {
+    width: 20px;
+    height: 20px;
+    margin: 0; }
+    .assessmentsStar .star.starGreen {
+      background: url("../images2/iconAssessmentGreen20.svg") no-repeat center center; }
+    .assessmentsStar .star.starYellow {
+      background: url("../images2/iconAssessmentYellow20.svg") no-repeat center center; }
+    .assessmentsStar .star.starOrange {
+      background: url("../images2/iconAssessmentOrange20.svg") no-repeat center center; }
+    .assessmentsStar .star.starRed {
+      background: url("../images2/iconAssessmentRed20.svg") no-repeat center center; }
+    .assessmentsStar .star.starEmpty {
+      background: url("../images2/iconAssessment20.svg") no-repeat center center; }
+  .assessmentsStar span {
+    font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    color: #363636;
+    padding-left: 10px; }
+
+.assessmentsTab .assessmentsBox {
+  padding-bottom: 30px; }
+  .assessmentsTab .assessmentsBox .assessmentsBoxTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 30px; }
+    .assessmentsTab .assessmentsBox .assessmentsBoxTop .user32 {
+      margin-bottom: 0; }
+  .assessmentsTab .assessmentsBox .requestedText {
+    color: #AAB1B5;
+    margin: 0; }
+
+.assessmentsTab .col-md-3 .btn {
+  width: 100%; }
+
+.assessmentRadios label span {
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  margin-right: 5px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px; }
+  .assessmentRadios label span.red {
+    background-color: #E64040; }
+  .assessmentRadios label span.orange {
+    background-color: #F5A623; }
+  .assessmentRadios label span.yellow {
+    background-color: #E6D500; }
+  .assessmentRadios label span.green {
+    background-color: #A7D379; }
+
+.assessmentsSidebar {
+  list-style: none; }
+  .assessmentsSidebar li {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    border-top: 1px solid #EEEFF3;
+    padding: 10px; }
+    .assessmentsSidebar li:last-child {
+      border-bottom: 1px solid #EEEFF3; }
+    .assessmentsSidebar li .right {
+      display: flex;
+      align-content: center; }
+      .assessmentsSidebar li .right .assessmentsStar {
+        margin-left: 10px; }
+    .assessmentsSidebar li h3 {
+      margin: 0; }
 
 .evidenceBox {
   padding-bottom: 30px; }
