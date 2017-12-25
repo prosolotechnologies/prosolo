@@ -16,6 +16,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.w3c.dom.events.EventException;

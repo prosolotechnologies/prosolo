@@ -71,7 +71,7 @@
 
 							<ui:fragment rendered="#{startedLearning and
 		                		cc.attrs.bean.competenceData.progress lt 100}">
-								<h:link rendered="#{cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder}"
+								<h:link rendered="#{cc.attrs.bean.competenceData.learningPathType eq 'ACTIVITY' and (cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder)}"
 										value="Resume"
 										styleClass="btn btn-green btn-sm"
 										outcome="activity"
@@ -86,7 +86,7 @@
 											 disable="#{empty param['credId']}"></f:param>
 								</h:link>
 								<ui:fragment
-										rendered="#{!(cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder)}">
+										rendered="#{cc.attrs.bean.competenceData.learningPathType eq 'ACTIVITY' and !(cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 									<a href="javascript:void(0);"
 									   class="btn btn-green btn-sm"
 									   disabled="disabled"
