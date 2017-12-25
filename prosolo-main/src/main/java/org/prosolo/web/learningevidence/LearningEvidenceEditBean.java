@@ -82,9 +82,9 @@ public class LearningEvidenceEditBean implements Serializable {
                 learningEvidenceManager.updateEvidence(getEvidence(), loggedUserBean.getUserContext());
                 PageUtil.fireSuccessfulInfoMessage("Evidence saved");
             } else {
-                long evId = learningEvidenceManager.postEvidence(getEvidence(), loggedUserBean.getUserContext());
+                learningEvidenceManager.postEvidence(getEvidence(), loggedUserBean.getUserContext());
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Evidence successfully posted");
-                PageUtil.redirect("/evidences/" + idEncoder.encodeId(evId) + "/edit");
+                PageUtil.redirect("/evidences");
             }
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.error("Error", e);

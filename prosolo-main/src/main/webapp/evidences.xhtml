@@ -144,12 +144,14 @@
 
                 <div class="col-md-4">
                     <div class="sidebarBlock sidebarBlockKeywords">
-                        <h2>Keywords</h2>
-                        <ul class="tags">
-                            <ui:repeat value="#{learningEvidencesBean.keywords}" var="kw">
-                                <li><a href="javascript:void(0);" onclick="addKeywordToSearch('#{kw}')">#{kw}</a></li>
-                            </ui:repeat>
-                        </ul>
+                        <ui:fragment rendered="#{not empty learningEvidencesBean.keywords}">
+                            <h2>Keywords</h2>
+                            <ul class="tags">
+                                <ui:repeat value="#{learningEvidencesBean.keywords}" var="kw">
+                                    <li><a href="javascript:void(0);" onclick="addKeywordToSearch('#{kw}')">#{kw}</a></li>
+                                </ui:repeat>
+                            </ul>
+                        </ui:fragment>
                     </div>
                 </div>
 
