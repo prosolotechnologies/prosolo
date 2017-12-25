@@ -371,7 +371,7 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getActiveDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
-			long userId) throws DbConnectionException;
+			long userId, CredentialSearchFilterManager filter) throws DbConnectionException;
 	
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 
@@ -461,4 +461,5 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
+
 }

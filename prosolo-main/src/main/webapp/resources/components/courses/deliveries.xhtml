@@ -3,19 +3,22 @@
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-		xmlns:util="http://www.prosolo.com/util">
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:h="http://java.sun.com/jsf/html">
 
 	<composite:interface>
+		<composite:attribute name="id"/>
 		<composite:attribute name="activeDeliveries" required="true" />
 		<composite:attribute name="pendingDeliveries" required="true" />
 		<composite:attribute name="pastDeliveries" required="true" />
 		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
+		<composite:attribute name="bean" />
 	</composite:interface>
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
-		<div class="col-md-12">
+		<h:panelGroup class="col-md-12" layout="block" id="deliveriesPanel">
 			<h2>Active #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.activeDeliveries}">
@@ -29,6 +32,7 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.activeDeliveries}">
 					<courses:deliveryItems
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.activeDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
@@ -48,6 +52,7 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.pendingDeliveries}">
 					<courses:deliveryItems
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.pendingDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
@@ -67,12 +72,13 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.pastDeliveries}">
 					<courses:deliveryItems
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.pastDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
 					/>
 				</ui:fragment>
 			</div>
-		</div>
+		</h:panelGroup>
 	</composite:implementation>
 </ui:component>

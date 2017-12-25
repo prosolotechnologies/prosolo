@@ -2521,7 +2521,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException {
-		return getDeliveries(credId, true);
+		return getDeliveries(credId, true, CredentialSearchFilterManager.ACTIVE);
 	}
 
 	@Override
@@ -2561,15 +2561,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId,
-																								long userId) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false);
+																								long userId, CredentialSearchFilterManager filter ) throws DbConnectionException {
+		List<CredentialData> credentials = getDeliveries(credId, false, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyActive)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyActive, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
@@ -2581,6 +2581,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (onlyActive) {
 				query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
 						"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now))");
+			}
+
+			if (filter.equals(CredentialSearchFilterManager.ACTIVE)) {
+				query.append(" AND del.archived IS FALSE");
+			} else if (filter.equals(CredentialSearchFilterManager.ARCHIVED)) {
+				query.append(" AND del.archived IS TRUE");
 			}
 
 			Query q = persistence.currentManager()
@@ -3585,9 +3591,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	 @Override
-	 @Transactional
-	 public EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException {
+	@Override
+	@Transactional
+	public EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException {
 		try {
 			List<Credential1> creds = getAllCredentialsWithLearningStagesEnabled(orgId);
 			EventQueue queue = EventQueue.newEventQueue();
@@ -3599,9 +3605,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error disabling learning in stages for credentials in organization: " + orgId);
 		}
-	 }
+	}
 
-	 private EventQueue disableLearningInStagesForCredential(Credential1 cred, UserContextData context) {
+	private EventQueue disableLearningInStagesForCredential(Credential1 cred, UserContextData context) {
 		 cred.setLearningStage(null);
 		 cred.setFirstLearningStageCredential(null);
 
