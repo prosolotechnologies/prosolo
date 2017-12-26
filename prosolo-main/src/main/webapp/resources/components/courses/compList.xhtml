@@ -194,30 +194,32 @@
 								</ul>
 							</h:panelGroup>
 						</div>
-						
-						<h:panelGroup id="panelExpandActivityList">
-							<h:panelGroup rendered="#{comp.activitiesInitialized}">
-								<a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+
+						<ui:fragment rendered="#{comp.learningPathType eq 'ACTIVITY'}">
+							<h:panelGroup id="panelExpandActivityList">
+								<h:panelGroup rendered="#{comp.activitiesInitialized}">
+									<a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+										<span class="textShow">Show Activities</span>
+										<span class="arrowDown">down</span>
+										<span class="textHide">Hide Activities</span>
+										<span class="arrowUp">up</span>
+									</a>
+								</h:panelGroup>
+
+								<p:commandLink
+									rendered="#{!comp.activitiesInitialized}"
+									styleClass="collapseButton collapsed"
+									process="@this"
+									action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
+									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+									oncomplete="$('#comp#{comp.competenceId}').collapse();">
 									<span class="textShow">Show Activities</span>
 									<span class="arrowDown">down</span>
 									<span class="textHide">Hide Activities</span>
 									<span class="arrowUp">up</span>
-								</a>
+								</p:commandLink>
 							</h:panelGroup>
-							
-							<p:commandLink  
-								rendered="#{!comp.activitiesInitialized}"
-								styleClass="collapseButton collapsed"
-								process="@this"
-								action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
-								update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
-								oncomplete="$('#comp#{comp.competenceId}').collapse();">
-								<span class="textShow">Show Activities</span>
-								<span class="arrowDown">down</span>
-								<span class="textHide">Hide Activities</span>
-								<span class="arrowUp">up</span>
-							</p:commandLink>
-						</h:panelGroup>
+						</ui:fragment>
 					</div>
 				</article>
 
