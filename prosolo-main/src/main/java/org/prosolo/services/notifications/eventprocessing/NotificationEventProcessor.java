@@ -25,9 +25,7 @@ public abstract class NotificationEventProcessor {
 
     protected Event event;
     protected Session session;
-
     protected NotificationManager notificationManager;
-    protected UserManager userManager;
     private NotificationsSettingsManager notificationsSettingsManager;
     protected UrlIdEncoder idEncoder;
 
@@ -40,18 +38,6 @@ public abstract class NotificationEventProcessor {
         this.notificationManager = notificationManager;
         this.notificationsSettingsManager = notificationsSettingsManager;
         this.idEncoder = idEncoder;
-    }
-
-    public NotificationEventProcessor(Event event, Session session,
-                                      NotificationManager notificationManager,
-                                      NotificationsSettingsManager notificationsSettingsManager,
-                                      UrlIdEncoder idEncoder, UserManager userManager) {
-        this.event = event;
-        this.session = session;
-        this.notificationManager = notificationManager;
-        this.notificationsSettingsManager = notificationsSettingsManager;
-        this.idEncoder = idEncoder;
-        this.userManager = userManager;
     }
 
     public List<Notification1> getNotificationList() {

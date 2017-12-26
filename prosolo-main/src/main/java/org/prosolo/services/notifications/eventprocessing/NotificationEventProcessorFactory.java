@@ -11,7 +11,6 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +39,6 @@ public class NotificationEventProcessorFactory {
 	private CredentialManager credentialManager;
 	@Inject
 	private ContextJsonParserService contextJsonParserService;
-	@Inject
-	private UserManager userManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -82,7 +79,7 @@ public class NotificationEventProcessorFactory {
 					notificationsSettingsManager, idEncoder);
 		case AssessmentRequested:
 			return new AssessmentRequestEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, userManager);
+					notificationsSettingsManager, idEncoder);
 		case AnnouncementPublished:
 			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder, credentialManager);

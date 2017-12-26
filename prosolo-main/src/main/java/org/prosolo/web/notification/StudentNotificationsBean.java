@@ -17,12 +17,6 @@ import javax.faces.bean.ManagedBean;
 @Scope("session")
 public class StudentNotificationsBean extends TopNotificationsBean1 {
 
-    @PostConstruct
-    public void init(){
-        initNotificationsNo();
-        fetchNotifications();
-    }
-
     @Override
     public NotificationSection getSection() {
         return NotificationSection.STUDENT;

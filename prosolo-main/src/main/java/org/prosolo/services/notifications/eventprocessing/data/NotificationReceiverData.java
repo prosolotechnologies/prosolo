@@ -11,19 +11,13 @@ public class NotificationReceiverData implements Serializable {
 	private final long receiverId;
 	private final String notificationLink;
 	private final boolean objectOwner;
-	private PageSection pageSection;
+	private final PageSection pageSection;
 	
 	public NotificationReceiverData(long receiverId, String notificationLink, boolean objectOwner, PageSection pageSection) {
 		this.receiverId = receiverId;
 		this.notificationLink = notificationLink;
 		this.objectOwner = objectOwner;
 		this.pageSection = pageSection;
-	}
-
-	public NotificationReceiverData(long receiverId, String notificationLink, boolean objectOwner) {
-		this.receiverId = receiverId;
-		this.notificationLink = notificationLink;
-		this.objectOwner = objectOwner;
 	}
 
 	public long getReceiverId() {
@@ -42,7 +36,4 @@ public class NotificationReceiverData implements Serializable {
 		return pageSection;
 	}
 
-	public void setPageSection(PageSection pageSection) {
-		this.pageSection = pageSection;
-	}
 }

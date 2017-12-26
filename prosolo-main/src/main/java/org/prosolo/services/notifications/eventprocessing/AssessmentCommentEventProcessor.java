@@ -38,7 +38,6 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		long assessmentId = event.getTarget().getId();
-		String link = getNotificationLink();
 		List<Long> participantIds;
 		AssessmentBasicData assessmentInfo;
 		try {
@@ -58,10 +57,10 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 			 */
 			boolean studentSection = id == assessmentInfo.getStudentId()
 					|| !assessmentInfo.isDefault() && id == assessmentInfo.getAssessorId();
-			String prefix = studentSection ? "" : "/manage";
-			PageSection section = prefix == "" ? PageSection.STUDENT : PageSection.MANAGE;
+			PageSection section = studentSection ? PageSection.STUDENT : PageSection.MANAGE;
+			String link = getNotificationLink(section);
 			boolean isObjectOwner = id == assessmentInfo.getStudentId();
-			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner, section));
+			receivers.add(new NotificationReceiverData(id, link, isObjectOwner, section));
 		}
 		return receivers;
 	}
@@ -86,8 +85,8 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		return Long.parseLong(event.getParameters().get("credentialId"));
 	}
 
-	private String getNotificationLink() {
-		return "/credentials/" +
+	private String getNotificationLink(PageSection section) {
+		return section.getPrefix() + "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialAssessmentId")));

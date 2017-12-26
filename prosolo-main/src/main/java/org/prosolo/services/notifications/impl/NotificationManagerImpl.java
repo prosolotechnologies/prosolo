@@ -301,20 +301,21 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	@Transactional (readOnly = true)
-	public int getNumberOfNotificationsForUser(long userId, List<NotificationType> types) 
+	public int getNumberOfNotificationsForUser(long userId, List<NotificationType> types, NotificationSection section)
 			throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder();
 		    queryBuilder.append("SELECT cast(COUNT(notification.id) as int) " +
 							    "FROM Notification1 notification " +
-								"WHERE notification.receiver.id = :userId ");
+								"WHERE notification.receiver.id = :userId " +
+								"AND notification.section = :section");
 		    
 		    if(types != null && !types.isEmpty()) {
 		    	queryBuilder.append("AND notification.type IN (:types)");
 		    }
 			
 			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
-			  	.setLong("userId", userId);
+			  	.setLong("userId", userId).setString("section",section.toString());
 			if(types != null && !types.isEmpty()) {
 				q.setParameterList("types", types);
 			}

@@ -12,10 +12,16 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+
 @Component
 public class NotificationDataFactory {
 	
 	private static Logger logger = Logger.getLogger(NotificationDataFactory.class);
+
+	@Inject
+	NotificationSectionDataFactory notificationSectionDataFactory;
 
 	public NotificationData getNotificationData(Notification1 notification, User receiver, 
 			String objectTitle, String targetTitle, Locale locale, NotificationSection section) {
@@ -26,7 +32,6 @@ public class NotificationDataFactory {
 		n.setNotificationType(notification.getType());
 		UserData actor = new UserData(notification.getActor());
 		n.setActor(actor);
-		NotificationSectionDataFactory notificationSectionDataFactory = new NotificationSectionDataFactory();
 		n.setSection(notificationSectionDataFactory.getSectionData(section));
 
 		if (receiver != null) {

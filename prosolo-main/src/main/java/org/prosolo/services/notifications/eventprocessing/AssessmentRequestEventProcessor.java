@@ -21,8 +21,8 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	private static Logger logger = Logger.getLogger(AssessmentRequestEventProcessor.class);
 	
 	public AssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
-										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, UserManager userManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, userManager);
+										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 
 	@Override

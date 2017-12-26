@@ -39,20 +39,32 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 			StudentNotificationsBean studentNotificationsBean = (StudentNotificationsBean) userSession.getAttribute("studentNotificationsBean");
 			ManagerNotificationsBean managerNotificationsBean = (ManagerNotificationsBean) userSession.getAttribute("managerNotificationsBean");
 			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
-			NotificationData notificationData = notificationManager
-					.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
-			if (studentNotificationsBean != null) {
-				try {
-					studentNotificationsBean.addNotification(notificationData, session);
-				} catch (DbConnectionException e) {
-					logger.error(e);
-				}
-			} else if (managerNotificationsBean != null) {
-				try {
-					managerNotificationsBean.addNotification(notificationData, session);
-				} catch (DbConnectionException e) {
-					logger.error(e);
-				}
+			NotificationData notificationData = new NotificationData();
+
+			if(studentNotificationsBean != null || managerNotificationsBean != null) {
+				notificationData = notificationManager
+						.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
+			}
+
+			switch (notificationData.getSection()) {
+				case STUDENT:
+					if (studentNotificationsBean != null) {
+						try {
+							studentNotificationsBean.addNotification(notificationData, session);
+						} catch (DbConnectionException e) {
+							logger.error(e);
+						}
+					}
+					break;
+				case MANAGE:
+					if (managerNotificationsBean != null) {
+						try {
+							managerNotificationsBean.addNotification(notificationData, session);
+						} catch (DbConnectionException e) {
+							logger.error(e);
+						}
+					}
+					break;
 			}
 		}
 	}

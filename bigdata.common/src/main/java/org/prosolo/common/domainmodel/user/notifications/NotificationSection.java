@@ -8,7 +8,6 @@ package org.prosolo.common.domainmodel.user.notifications;
 public enum NotificationSection {
 
     MANAGE,
-    STUDENT,
-    ADMIN
+    STUDENT
 
 }

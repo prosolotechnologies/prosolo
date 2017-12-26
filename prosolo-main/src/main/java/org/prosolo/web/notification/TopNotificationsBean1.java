@@ -1,6 +1,7 @@
 package org.prosolo.web.notification;
 
 import java.util.*;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -31,6 +32,12 @@ public abstract class TopNotificationsBean1 {
 	private int refreshRate = Settings.getInstance().config.application.notificationsRefreshRate;
 	private String domainPrefix = CommonSettings.getInstance().config.appConfig.domain.substring(0, CommonSettings.getInstance().config.appConfig.domain.length()-1);
 
+	@PostConstruct
+	public void init(){
+		initNotificationsNo();
+		fetchNotifications();
+	}
+
 	public void initNotificationsNo() {
 		logger.debug("Initializing unread notifications number.");
 
@@ -50,7 +57,7 @@ public abstract class TopNotificationsBean1 {
 	}
 
 	public synchronized void addNotification(NotificationData notificationData, Session session) {
-		if (notificationDatas == null || notificationDatas.size() == 0) {
+		if (notificationDatas == null) {
 			fetchNotifications();
 		} else {
 			notificationDatas.addFirst(notificationData);

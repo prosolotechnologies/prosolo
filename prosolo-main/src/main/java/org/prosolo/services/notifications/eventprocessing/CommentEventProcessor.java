@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 public abstract class CommentEventProcessor extends NotificationEventProcessor {
 
@@ -86,7 +87,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 	@Override
 	abstract long getObjectId();
 
-	protected final String getNotificationLink(Role role) {
+	protected final String getNotificationLink(PageSection section) {
 		LearningContext learningContext = null;
 		Context competenceContext = null;
 		switch(commentedResourceType) {
@@ -96,7 +97,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 				competenceContext = learningContext.getSubContextWithName(ContextName.COMPETENCE);
 				long compId = competenceContext != null ? competenceContext.getId() : 0;
 				if (compId > 0) {
-					return "/competences/" +
+					return  section.getPrefix() + "/competences/" +
 							idEncoder.encodeId(compId) + "/" +
 							idEncoder.encodeId(resource.getCommentedResourceId())+
 							"?comment=" +  idEncoder.encodeId(resource.getId());
@@ -105,11 +106,11 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 				}
 				break;
 			case Competence:
-				return "/competences/" +
+				return 	section.getPrefix() + "/competences/" +
 						idEncoder.encodeId(resource.getCommentedResourceId()) +
 						"?comment=" +  idEncoder.encodeId(resource.getId());
 			case SocialActivity:
-				return "/posts/" +
+				return section.getPrefix() + "/posts/" +
 					idEncoder.encodeId(resource.getCommentedResourceId()) +
 					"?comment=" +  idEncoder.encodeId(resource.getId());
 			case ActivityResult:
@@ -139,7 +140,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 				}
 
 				if (activityId > 0) {
-					if (role == Role.User) {
+					if (section.equals(PageSection.STUDENT)) {
 						/*
 						this has to be done because there are pages from which activity response can be commented
 						where competence id is not passed and not available in context
@@ -148,14 +149,14 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 							competenceId = activityManager.getCompetenceIdForActivity(activityId);
 						}
 						if (credentialId == 0) {
-							return "/competences/" +
+							return section.getPrefix() + "/competences/" +
 									idEncoder.encodeId(competenceId) + "/" +
 									idEncoder.encodeId(activityId) + "/" +
 									"responses/" +
 									idEncoder.encodeId(resource.getCommentedResourceId()) +
 									"?comment=" + idEncoder.encodeId(resource.getId());
 						} else {
-							return "/credentials/" +
+							return section.getPrefix() + "/credentials/" +
 									idEncoder.encodeId(credentialId) + "/" +
 									idEncoder.encodeId(competenceId) + "/" +
 									idEncoder.encodeId(activityId) + "/" +
@@ -173,7 +174,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 						the assessment for other credential.
 						 */
 						if (credentialId > 0) {
-							return "/manage/credentials/"
+							return PageSection.MANAGE.getPrefix() + "/credentials/"
 									+ idEncoder.encodeId(credentialId) + "/assessments/activities/"
 									+ idEncoder.encodeId(activityId) + "/"
 									+ idEncoder.encodeId(resource.getCommentedResourceId())

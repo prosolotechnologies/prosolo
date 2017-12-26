@@ -45,7 +45,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				List<Long> usersToExclude = new ArrayList<>();
 				usersToExclude.add(resCreatorId);
 
-				String userSectionLink = getNotificationLink(Role.User);
+				String userSectionLink = getNotificationLink(PageSection.STUDENT);
 				//if link is null or empty it means there is no enough information to create notification
 				if (userSectionLink != null && !userSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as regular users
@@ -58,7 +58,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 					usersToExclude.addAll(users);
 				}
 
-				String manageSectionLink = getNotificationLink(Role.Manager);
+				String manageSectionLink = getNotificationLink(PageSection.MANAGE);
 				//if link is null or empty it means there is no enough information to create notification
 				if (manageSectionLink != null && !manageSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as managers
@@ -78,7 +78,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
 				PageSection section = creatorRole == Role.User ? PageSection.STUDENT : PageSection.MANAGE;
 				if (creatorLink != null && !creatorLink.isEmpty()) {
-					receiversData.add(new NotificationReceiverData(resCreatorId, section.getPrefix() + creatorLink, true, section));
+					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true, section));
 				}
 			}
 			return receiversData;
