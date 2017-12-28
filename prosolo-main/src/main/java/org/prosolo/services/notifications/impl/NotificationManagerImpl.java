@@ -308,7 +308,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		    queryBuilder.append("SELECT cast(COUNT(notification.id) as int) " +
 							    "FROM Notification1 notification " +
 								"WHERE notification.receiver.id = :userId " +
-								"AND notification.section = :section");
+								"AND notification.section = :section ");
 		    
 		    if(types != null && !types.isEmpty()) {
 		    	queryBuilder.append("AND notification.type IN (:types)");

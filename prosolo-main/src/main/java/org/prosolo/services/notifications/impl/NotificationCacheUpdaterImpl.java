@@ -44,28 +44,29 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 			if(studentNotificationsBean != null || managerNotificationsBean != null) {
 				notificationData = notificationManager
 						.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
+
+				switch (notificationData.getSection()) {
+					case STUDENT:
+						if (studentNotificationsBean != null) {
+							try {
+								studentNotificationsBean.addNotification(notificationData, session);
+							} catch (DbConnectionException e) {
+								logger.error(e);
+							}
+						}
+						break;
+					case MANAGE:
+						if (managerNotificationsBean != null) {
+							try {
+								managerNotificationsBean.addNotification(notificationData, session);
+							} catch (DbConnectionException e) {
+								logger.error(e);
+							}
+						}
+						break;
+				}
 			}
 
-			switch (notificationData.getSection()) {
-				case STUDENT:
-					if (studentNotificationsBean != null) {
-						try {
-							studentNotificationsBean.addNotification(notificationData, session);
-						} catch (DbConnectionException e) {
-							logger.error(e);
-						}
-					}
-					break;
-				case MANAGE:
-					if (managerNotificationsBean != null) {
-						try {
-							managerNotificationsBean.addNotification(notificationData, session);
-						} catch (DbConnectionException e) {
-							logger.error(e);
-						}
-					}
-					break;
-			}
 		}
 	}
 	

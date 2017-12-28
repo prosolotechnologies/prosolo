@@ -110,9 +110,9 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 						idEncoder.encodeId(resource.getCommentedResourceId()) +
 						"?comment=" +  idEncoder.encodeId(resource.getId());
 			case SocialActivity:
-				return section.getPrefix() + "/posts/" +
-					idEncoder.encodeId(resource.getCommentedResourceId()) +
-					"?comment=" +  idEncoder.encodeId(resource.getId());
+				return 	section.getPrefix() + "/posts/" +
+						idEncoder.encodeId(resource.getCommentedResourceId()) +
+						"?comment=" +  idEncoder.encodeId(resource.getId());
 			case ActivityResult:
 				learningContext = contextJsonParserService.
 					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
@@ -149,14 +149,14 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 							competenceId = activityManager.getCompetenceIdForActivity(activityId);
 						}
 						if (credentialId == 0) {
-							return section.getPrefix() + "/competences/" +
+							return 	section.getPrefix() + "/competences/" +
 									idEncoder.encodeId(competenceId) + "/" +
 									idEncoder.encodeId(activityId) + "/" +
 									"responses/" +
 									idEncoder.encodeId(resource.getCommentedResourceId()) +
 									"?comment=" + idEncoder.encodeId(resource.getId());
 						} else {
-							return section.getPrefix() + "/credentials/" +
+							return 	section.getPrefix() + "/credentials/" +
 									idEncoder.encodeId(credentialId) + "/" +
 									idEncoder.encodeId(competenceId) + "/" +
 									idEncoder.encodeId(activityId) + "/" +
@@ -174,7 +174,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 						the assessment for other credential.
 						 */
 						if (credentialId > 0) {
-							return PageSection.MANAGE.getPrefix() + "/credentials/"
+							return 	section.getPrefix() + "/credentials/"
 									+ idEncoder.encodeId(credentialId) + "/assessments/activities/"
 									+ idEncoder.encodeId(activityId) + "/"
 									+ idEncoder.encodeId(resource.getCommentedResourceId())
