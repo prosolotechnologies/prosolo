@@ -306,7 +306,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     "SELECT DISTINCT t.title " +
                     "FROM LearningEvidence le " +
                     "INNER JOIN le.tags t " +
-                    "WHERE le.user.id = :userId";
+                    "WHERE le.user.id = :userId " +
+                    "AND le.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
             List<String> tags = persistence.currentManager()
