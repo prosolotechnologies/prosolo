@@ -25,18 +25,6 @@ public class TargetCompetenceData implements Serializable {
     private LearningResourceType learningResourceType;
     private long competenceId;
 
-    public TargetCompetenceData(Long id, String description, String title, boolean hiddenFromProfile,
-            long duration, LearningResourceType learningResourceType, 
-            long competenceId) {
-        this.id = id;
-        this.description = description;
-        this.title = title;
-        this.hiddenFromProfile = hiddenFromProfile;
-        this.duration = duration;
-        this.learningResourceType = learningResourceType;
-        this.competenceId = competenceId;
-        calculateDurationString();
-    }
     public void calculateDurationString() {
         durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
     }
@@ -49,6 +37,7 @@ public class TargetCompetenceData implements Serializable {
         this.duration = targetCompetence1.getCompetence().getDuration();
         this.learningResourceType = targetCompetence1.getCompetence().getType();
         this.competenceId = targetCompetence1.getCompetence().getId();
+        calculateDurationString();
     }
 
     public Long getId() {

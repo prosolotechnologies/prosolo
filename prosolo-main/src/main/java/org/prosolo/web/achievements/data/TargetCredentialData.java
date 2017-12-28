@@ -27,20 +27,6 @@ public class TargetCredentialData implements Serializable {
 	
 	private long nextCompetenceToLearnId;
 
-	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
-			long duration, long credentialId,
-			int progress, long nextCompetenceToLearnId) {
-		this.id = id;
-		this.title = title;
-		this.description = description;
-		this.hiddenFromProfile = hiddenFromProfile;
-		this.duration = duration;
-		this.credentialId = credentialId;
-		this.progress = progress;
-		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
-		calculateDurationString();
-	}
-
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
@@ -54,6 +40,7 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = targetCredential1.getCredential().getId();
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
+		calculateDurationString();
 	}
 
 	public CredentialData getCredential() {
