@@ -161,9 +161,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 								//TODO how to include organization id in event here
 								res.appendEvents(assessmentManager
 									.updateActivityGradeInAllAssessmentsAndGetEvents(
-											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-											ta.getTargetCompetence().getId(), ta.getId(),
-											calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
+											userId, activityId, calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
 							}
 						}
 					}

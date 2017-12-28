@@ -349,6 +349,7 @@ public class ActivityDataFactory {
 		data.setActivityId(activity.getId());
 		data.setTargetActivityId(targetActivity.getId());
 		data.setOrder(order);
+		data.setCommonScore(targetActivity.getCommonScore());
 		data.setTitle(activity.getTitle());
 		data.setDescription(activity.getDescription());
 		data.setDurationHours((int) (activity.getDuration() / 60));
@@ -458,6 +459,7 @@ public class ActivityDataFactory {
 		Activity1 activ = activity.getActivity();
 		act.setActivityId(activ.getId());
 		act.setTargetActivityId(activity.getId());
+		act.setCommonScore(activity.getCommonScore());
 		act.setTitle(activ.getTitle());
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);

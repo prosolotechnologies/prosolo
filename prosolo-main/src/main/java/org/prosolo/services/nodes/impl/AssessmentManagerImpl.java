@@ -24,13 +24,13 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
-import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -60,69 +60,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private Activity1Manager activityManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
 	@Inject private CredentialManager credManager;
-	
-	private static final String PENDING_ASSESSMENTS_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " + 
-			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
-				"AND credentialAssessment.assessor.id = :assessorId " + 
-				"AND credentialAssessment.approved = false " +
-			"ORDER BY credentialAssessment.dateCreated DESC";
-	
-	private static final String APPROVED_ASSESSMENTS_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " +
-			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
-				"AND credentialAssessment.assessor.id = :assessorId " + 
-				"AND credentialAssessment.approved = true " +
-			"ORDER BY credentialAssessment.dateCreated DESC";
-	
-	private static final String ALL_ASSESSMENTS_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " +
-			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
-				"AND credentialAssessment.assessor.id = :assessorId " +
-			"ORDER BY credentialAssessment.dateCreated DESC";
 
-	private static final String ALL_ASSESSMENTS_FOR_USER_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " + 
-			"WHERE credentialAssessment.assessedStudent.id = :studentId ";
-	
-	private static final String ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " +
-			"WHERE credentialAssessment.assessedStudent.id = :studentId " +
-				"AND credentialAssessment.approved = false ";
-	
-	private static final String ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY = 
-			"FROM CredentialAssessment AS credentialAssessment " +
-			"WHERE credentialAssessment.assessedStudent.id = :studentId " +
-			"AND credentialAssessment.approved = true ";
-
-	private static final String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER = 
-			"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " + 
-			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
-				"AND credentialAssessment.assessedStudent.id = :assessedStudentId";
-	
-	private static final String ALL_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId ";
-	
-	private static final String PENDING_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = false ";
-	
-	private static final String APPROVED_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = true ";
-	
-	private static final String ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-			+ "credentialAssessment.targetCredential.credential.id = :credentialId";
-	
-	private static final String PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-			+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.approved = false";
-	
-	private static final String APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-			+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.approved = true";
-	
 	private static final String APPROVE_CREDENTIAL_QUERY = 
 			"UPDATE CredentialAssessment set approved = true " +
 			"WHERE id = :credentialAssessmentId";
@@ -130,50 +68,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private static final String APPROVE_COMPETENCES_QUERY = 
 			"UPDATE CompetenceAssessment SET approved = true"
 			+ " WHERE credentialAssessment.id = :credentialAssessmentId";
-	
-	private static final String APPROVE_COMPETENCE_QUERY = 
-			"UPDATE CompetenceAssessment " +
-			"SET approved = true " +  
-			"WHERE id = :competenceAssessmentId";
-	
-	private static final String UPDATE_TARGET_CREDENTIAL_REVIEW = 
-			"UPDATE TargetCredential1 " + 
-			"SET finalReview = :finalReview " +
-			"WHERE id = :targetCredentialId";
-	
-	private static final String MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER = 
-			"UPDATE ActivityDiscussionParticipant " +
-			"SET read = true " +
-			"WHERE participant.id = :userId " + 
-				"AND activityDiscussion.id = :activityDiscussionId";
-	
-	private static final String ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED = 
-			"SELECT id " + 
-			"FROM CredentialAssessment " +
-			"WHERE targetCredential.id = :tagretCredentialId " + 
-				"AND assessedStudent.id = :assessedStudentId";
-	
-	private static final String GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE = 
-			"SELECT SUM(CASE WHEN ad.points > 0 THEN ad.points ELSE 0 END) " +
-			"FROM ActivityAssessment ad " +
-			"LEFT JOIN ad.assessment compAssessment " +
-			"WHERE compAssessment.id = :compAssessmentId";
-	
-	private static final String UPDATE_COMPETENCE_ASSESSMENT_POINTS = 
-			"UPDATE CompetenceAssessment " + 
-			"SET points = :points " +
-			"WHERE id = :compAssessmentId";
-	
-	private static final String GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL = 
-			"SELECT SUM(compAssessment.points) " +
-			"FROM CompetenceAssessment compAssessment " +
-			"LEFT JOIN compAssessment.credentialAssessment credAssessment " +
-			"WHERE credAssessment.id = :credAssessmentId";
-	
-	private static final String UPDATE_CREDENTIAL_ASSESSMENT_POINTS = 
-			"UPDATE CredentialAssessment " + 
-			"SET points = :points " +
-			"WHERE id = :credAssessmentId";
 
 	@Override
 	//not transactional - should not be called from another transaction
@@ -182,7 +76,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
 		//TODO check if this is valid assumption - that assessments can be requested only from peers.
-		Result<Long> res = self.createAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
+		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
 				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
 				AssessmentType.PEER_ASSESSMENT, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -193,7 +87,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt not transactional
 	public long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
 										   UserContextData context) throws DbConnectionException, IllegalDataStateException {
-		Result<Long> res = self.createAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
+		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
 				null, AssessmentType.INSTRUCTOR_ASSESSMENT, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
@@ -201,11 +95,25 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-			String message, AssessmentType type, UserContextData context) throws DbConnectionException,
+	public Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
+														  String message, AssessmentType type, UserContextData context) throws DbConnectionException,
 			IllegalDataStateException {
 		Result<Long> result = new Result<>();
 		try {
+			/*
+			if assessment is not tutor assessment we should check if it already exists for given assessor and if it does
+			return that assessment
+			 */
+			if (type != AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				if (assessorId <= 0) {
+					throw new IllegalDataStateException("Assessor must be assigned");
+				}
+				Optional<CredentialAssessment> ca = getCredentialAssessment(targetCredential.getId(), studentId, assessorId);
+				if (ca.isPresent()) {
+					result.setResult(ca.get().getId());
+					return result;
+				}
+			}
 			User student = (User) persistence.currentManager().load(User.class, studentId);
 			User assessor = null;
 			if (assessorId > 0) {
@@ -226,13 +134,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			saveEntity(assessment);
 
 			int credPoints = 0;
-			//return only enrolled competences for student
-			List<TargetCompetence1> targetCompetences = compManager.getTargetCompetencesForCredentialAndUser(
-					targetCredential.getCredential().getId(), studentId);
-			for (TargetCompetence1 targetCompetence : targetCompetences) {
-				Result<Integer> res = createCompetenceAndActivityAssessmentsIfNeededAndGetEvents(
-						targetCompetence, assessment, studentId, assessorId, type, context);
-				credPoints += res.getResult();
+
+			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
+					targetCredential.getCredential().getId(), studentId, false, false, true);
+			for (CompetenceData1 comp : comps) {
+				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
+						comp, studentId, assessorId, type, context);
+				credPoints += res.getResult().getPoints();
+				CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
+				cca.setCredentialAssessment(assessment);
+				cca.setCompetenceAssessment(res.getResult());
+				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
 			}
 			if (credPoints > 0) {
@@ -240,97 +152,145 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			result.setResult(assessment.getId());
 			return result;
+		} catch (IllegalDataStateException e) {
+			throw e;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while creating assessment for a credential");
 		}
 	}
 
 	/**
-	 * Creates competence assessment and activity assessment for all competence activities if needed and returns
-	 * competence assessment points.
+	 * Returns credential assessment for given target credential, student and assessor if it exists and it's type is
+	 * not instructor assessment
 	 *
-	 * Activity assessment is created for all those completed activities with autograde option and all
-	 * graded external activities.
+	 * @param targetCredentialId
+	 * @param studentId
+	 * @param assessorId
+	 * @return
+	 */
+	private Optional<CredentialAssessment> getCredentialAssessment(long targetCredentialId, long studentId, long assessorId) {
+		String query =
+				"SELECT ca FROM CredentialAssessment ca " +
+				"WHERE ca.type != :instructorAssessment " +
+				"AND ca.targetCredential.id = :tcId " +
+				"AND ca.assessedStudent.id = :studentId " +
+				"AND ca.assessor.id = :assessorId";
+
+		CredentialAssessment credentialAssessment = (CredentialAssessment) persistence.currentManager()
+				.createQuery(query)
+				.setLong("tcId", targetCredentialId)
+				.setLong("studentId", studentId)
+				.setLong("assessorId", assessorId)
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.uniqueResult();
+
+		return Optional.ofNullable(credentialAssessment);
+	}
+
+	/**
+	 * Returns existing competence assessment from given assessor if it exists and if assessment type is not instructor
+	 * assessment, otherwise it creates new competence assessment and returns it.
 	 *
-	 * Competence assessment is created when at least one activity assessment should be created as explained above.
-	 *
-	 * @param tComp
-	 * @param credAssessment
+	 * @param comp
 	 * @param studentId
 	 * @param assessorId
 	 * @param type
 	 * @param context
 	 * @return
-	 * @throws ResourceCouldNotBeLoadedException
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
 	 */
-	private Result<Integer> createCompetenceAndActivityAssessmentsIfNeededAndGetEvents(TargetCompetence1 tComp,
-				CredentialAssessment credAssessment, long studentId, long assessorId, AssessmentType type, UserContextData context)
-			throws ResourceCouldNotBeLoadedException, ConstraintViolationException,
-			DataIntegrityViolationException {
-		Result<Integer> result = new Result<>();
-		CompetenceAssessment compAssessment = null;
-		int compPoints = 0;
-		ActivityExternalAutogradeVisitor visitor = new ActivityExternalAutogradeVisitor();
-		for (TargetActivity1 ta : tComp.getTargetActivities()) {
-			/*
-			 * if common score is set or activity is completed and automatic grading mode by activity completion is set
-			 * we create activity assessment with appropriate grade
-			 */
-			//check if autograding is set based on activity completion or external tool is responsible for grading
-			ta.getActivity().accept(visitor);
-			boolean externalAutograde = visitor.isAutogradeByExternalGrade();
-			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde)) {
-				//create competence assessment if not already created
-				if (compAssessment == null) {
-					compAssessment = createCompetenceAssessment(tComp, credAssessment, type, false);
-				}
-				List<Long> participantIds = new ArrayList<>();
-				participantIds.add(studentId);
-				if (assessorId > 0) {
-					participantIds.add(assessorId);
-				}
-				int grade = ta.isCompleted() && ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde
-						? ta.getActivity().getMaxPoints()
-						: ta.getCommonScore();
-				GradeData gd = new GradeData();
-				gd.setValue(grade);
-				result.appendEvents(createActivityAssessmentAndGetEvents(ta.getId(), compAssessment.getId(), credAssessment.getId(),
-						participantIds, 0, type, gd, false, persistence.currentManager(), context).getEventQueue());
-				compPoints += grade;
-			}
-		}
-		if (compAssessment != null) {
-			compAssessment.setPoints(compPoints);
-		}
-		result.setResult(compPoints);
-		return result;
-	}
-
-	private CompetenceAssessment createCompetenceAssessment(TargetCompetence1 tComp,
-				CredentialAssessment credAssessment, AssessmentType type, boolean approved)
-			throws ConstraintViolationException, DataIntegrityViolationException, DbConnectionException{
+	private Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
+															long assessorId, AssessmentType type, UserContextData context)
+			throws IllegalDataStateException, DbConnectionException{
 		try {
+			Result<CompetenceAssessment> res = new Result<>();
+
+			/*
+			if assessment is not tutor assessment we should check if it already exists for given assessor and if it does
+			return that assessment
+			 */
+			if (type != AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				if (assessorId <= 0) {
+					throw new IllegalDataStateException("Assessor must be assigned");
+				}
+				Optional<CompetenceAssessment> ca = getCompetenceAssessment(comp.getCompetenceId(), studentId, assessorId);
+				if (ca.isPresent()) {
+					res.setResult(ca.get());
+					return res;
+				}
+			}
 			CompetenceAssessment compAssessment = new CompetenceAssessment();
 			compAssessment.setDateCreated(new Date());
-			compAssessment.setCredentialAssessment(credAssessment);
 			//compAssessment.setTitle(targetCompetence.getTitle());
-			compAssessment.setTargetCompetence(tComp);
+			compAssessment.setCompetence((Competence1) persistence.currentManager().load(Competence1.class, comp.getCompetenceId()));
+			compAssessment.setStudent((User) persistence.currentManager().load(User.class, studentId));
+			if (comp.isEnrolled()) {
+				compAssessment.setTargetCompetence((TargetCompetence1) persistence.currentManager().load(TargetCompetence1.class, comp.getTargetCompId()));
+			}
+			if (assessorId > 0) {
+				compAssessment.setAssessor((User) persistence.currentManager().load(User.class, assessorId));
+			}
 			compAssessment.setType(type);
-			compAssessment.setApproved(approved);
 			saveEntity(compAssessment);
-			return compAssessment;
-		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			logger.error(e);
+			res.setResult(compAssessment);
+
+			int compPoints = 0;
+			List<Long> participantIds = new ArrayList<>();
+			participantIds.add(studentId);
+			if (assessorId > 0) {
+				participantIds.add(assessorId);
+			}
+			for (ActivityData act : comp.getActivities()) {
+				Result<ActivityAssessment> actAssessment = createActivityAssessmentAndGetEvents(
+						act, compAssessment.getId(), participantIds, type, context, persistence.currentManager());
+				res.appendEvents(actAssessment.getEventQueue());
+				compPoints += actAssessment.getResult().getPoints() >= 0
+						? actAssessment.getResult().getPoints()
+						: 0;
+			}
+
+			if (compPoints > 0) {
+				compAssessment.setPoints(compPoints);
+			}
+			return res;
+		} catch (IllegalDataStateException e) {
 			throw e;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving competency assessment");
 		}
+	}
+
+	/**
+	 * Returns competence assessment for given competence, student and assessor if it exists and it's type is
+	 * not instructor assessment
+	 *
+	 * @param competenceId
+	 * @param studentId
+	 * @param assessorId
+	 * @return
+	 */
+	private Optional<CompetenceAssessment> getCompetenceAssessment(long competenceId, long studentId, long assessorId) {
+		String query =
+				"SELECT ca FROM CompetenceAssessment ca " +
+				"WHERE ca.type != :instructorAssessment " +
+				"AND ca.competence.id = :cId " +
+				"AND ca.student.id = :studentId " +
+				"AND ca.assessor.id = :assessorId";
+
+		CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager()
+				.createQuery(query)
+				.setLong("cId", competenceId)
+				.setLong("studentId", studentId)
+				.setLong("assessorId", assessorId)
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.uniqueResult();
+
+		return Optional.ofNullable(competenceAssessment);
 	}
 
 	@Override
@@ -399,11 +359,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		String orderByClause = "ORDER BY credentialAssessment.dateCreated DESC";
 
 		if (searchForApproved && searchForPending) {
-			queryString = ALL_ASSESSMENTS_FOR_USER_QUERY;
+			queryString =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :studentId ";
 		} else if (searchForApproved && !searchForPending) {
-			queryString = ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY;
+			queryString =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :studentId " +
+					"AND credentialAssessment.approved = true ";
 		} else if (!searchForApproved && searchForPending) {
-			queryString = ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY;
+			queryString =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :studentId " +
+					"AND credentialAssessment.approved = false ";
 		}
 
 		if(credId > 0){
@@ -425,12 +393,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			boolean searchForApproved) {
 		Query query = null;
 		if (searchForApproved && searchForPending) {
+			String ALL_ASSESSMENTS_QUERY =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+					"AND credentialAssessment.assessor.id = :assessorId " +
+					"ORDER BY credentialAssessment.dateCreated DESC";
 			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_QUERY)
 					.setLong("credentialId", credentialId).setLong("assessorId", assessorId);
 		} else if (searchForApproved && !searchForPending) {
+			String APPROVED_ASSESSMENTS_QUERY =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+					"AND credentialAssessment.assessor.id = :assessorId " +
+					"AND credentialAssessment.approved = true " +
+					"ORDER BY credentialAssessment.dateCreated DESC";
 			query = persistence.currentManager().createQuery(APPROVED_ASSESSMENTS_QUERY)
 					.setLong("credentialId", credentialId).setLong("assessorId", assessorId);
 		} else if (!searchForApproved && searchForPending) {
+			String PENDING_ASSESSMENTS_QUERY =
+					"FROM CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+					"AND credentialAssessment.assessor.id = :assessorId " +
+					"AND credentialAssessment.approved = false " +
+					"ORDER BY credentialAssessment.dateCreated DESC";
 			query = persistence.currentManager().createQuery(PENDING_ASSESSMENTS_QUERY)
 					.setLong("credentialId", credentialId).setLong("assessorId", assessorId);
 		}
@@ -440,6 +425,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public Long countAssessmentsForUserAndCredential(long userId, long credentialId) {
+		String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER =
+				"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " +
+				"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+				"AND credentialAssessment.assessedStudent.id = :assessedStudentId";
 		Query query = persistence.currentManager().createQuery(ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER)
 				.setLong("credentialId", credentialId).setLong("assessedStudentId", userId);
 		return (Long) query.uniqueResult();
@@ -452,8 +441,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		try {
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
+			//TODO assessment refactor use comp assessments reference to target competence if we keep it
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
-					.getTargetCredential().getCredential().getId(), credentialAssessment.getTargetCredential().getUser().getId(), false, false, false);
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getAssessedStudent().getId(), false, false, false);
 
 			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
 
@@ -462,14 +452,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			for (CompetenceData1 competenceData1 : competenceData1List) {
-				Optional<CompetenceAssessment> competenceAssessment = getCompetenceAssessment(competenceData1.getTargetCompId(),
-						credentialAssessmentId);
-				if (competenceAssessment.isPresent()) {
-					competenceAssessment.get().setApproved(true);
-				} else {
-					createAndApproveCompetenceAssessment(credentialAssessmentId, competenceData1.getTargetCompId(),
-							credentialAssessment.getType());
-				}
+				CompetenceAssessment competenceAssessment = getCompetenceAssessmentForCredentialAssessment(
+						competenceData1.getCompetenceId(), credentialAssessment.getAssessedStudent().getId(), credentialAssessmentId);
+					competenceAssessment.setApproved(true);
 			}
 
 			credentialAssessment.setApproved(true);
@@ -484,51 +469,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private Optional<CompetenceAssessment> getCompetenceAssessment(long targetCompetenceId, long credAssessmentId) {
-		String query = "SELECT ca FROM CompetenceAssessment ca " +
-				"WHERE ca.targetCompetence.id = :tcId " +
-				"AND ca.credentialAssessment.id = :credAssessmentId";
+	private CompetenceAssessment getCompetenceAssessmentForCredentialAssessment(long competenceId, long studentId, long credAssessmentId) {
+		String query =
+				"SELECT ca FROM CredentialCompetenceAssessment cca " +
+				"INNER JOIN cca.competenceAssessment ca " +
+					"WITH ca.competence.id = :compId " +
+					"AND ca.student.id = :studentId " +
+				"WHERE cca.credentialAssessment.id = :credAssessmentId";
 
-		CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager()
+		return (CompetenceAssessment) persistence.currentManager()
 				.createQuery(query)
-				.setLong("tcId", targetCompetenceId)
+				.setLong("compId", competenceId)
+				.setLong("studentId", studentId)
 				.setLong("credAssessmentId", credAssessmentId)
 				.uniqueResult();
-
-		if(competenceAssessment == null){
-			return Optional.empty();
-		}
-		return Optional.of(competenceAssessment);
-	}
-
-	@Override
-	//not transactional and should not be called from transactional methods
-	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, AssessmentType type, GradeData grade,
-		    boolean recalculatePoints, UserContextData context)
-					throws IllegalDataStateException, DbConnectionException {
-		return createActivityDiscussion(targetActivityId, competenceAssessmentId, credAssessmentId, participantIds,
-				senderId, type, grade, recalculatePoints, persistence.currentManager(), context);
-	}
-
-	@Override
-	//not transactional and should not be called from transactional methods
-	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-		    long credAssessmentId, List<Long> participantIds, long senderId, AssessmentType type, GradeData grade,
-		    boolean recalculatePoints, Session session, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException {
-		try {
-			//self invocation
-			Result<ActivityAssessment> result = self.createActivityAssessmentAndGetEvents(targetActivityId,
-					competenceAssessmentId, credAssessmentId, participantIds, senderId, type, grade,
-					recalculatePoints, session, context);
-			eventFactory.generateEvents(result.getEventQueue());
-			return result.getResult();
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			throw new IllegalDataStateException("Activity assessment already exists");
-		}
 	}
 
 	/**
@@ -615,73 +569,51 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
-																long credAssessmentId, List<Long> participantIds,
-																long senderId, AssessmentType type, GradeData grade,
-																boolean recalculatePoints, Session session, UserContextData context)
+	public Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
+																List<Long> participantIds, AssessmentType type,
+															    UserContextData context, Session session)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 		try {
 			Result<ActivityAssessment> result = new Result<>();
 			Date now = new Date();
-			ActivityAssessment activityDiscussion = new ActivityAssessment();
-			activityDiscussion.setDateCreated(now);
-			TargetActivity1 targetActivity = loadResource(TargetActivity1.class, targetActivityId, session);
-			//TargetActivity1 targetActivity = (TargetActivity1) persistence.currentManager().load(TargetActivity1.class, targetActivityId);
-			//GradingOptions go = targetActivity.getActivity().getGradingOptions();
-			// merge(targetActivity);
-			CompetenceAssessment competenceAssessment = loadResource(CompetenceAssessment.class,
-					competenceAssessmentId, session);
-			// merge(competenceAssessment);
+			ActivityAssessment activityAssessment = new ActivityAssessment();
+			activityAssessment.setDateCreated(now);
 
-			activityDiscussion.setAssessment(competenceAssessment);
-			activityDiscussion.setTargetActivity(targetActivity);
+			activityAssessment.setAssessment((CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId));
+			activityAssessment.setActivity((Activity1) session.load(Activity1.class, act.getActivityId()));
+			if (act.isEnrolled()) {
+				activityAssessment.setTargetActivity((TargetActivity1) session.load(TargetActivity1.class, act.getTargetActivityId()));
+			}
 			//activityDiscussion.setParticipants(participants);
-			activityDiscussion.setType(type);
+			activityAssessment.setType(type);
 
-			int gradeValue = -1;
-			if (grade != null) {
-				gradeValue = calculateGrade(grade);
-				if (gradeValue >= 0) {
-					activityDiscussion.setPoints(gradeValue);
-				}
-			}
+			activityAssessment.setPoints(calculateAutomaticGrade(act));
 
-			saveEntity(activityDiscussion, session);
+			saveEntity(activityAssessment, session);
 
-			//if grading by rubric, save rubric criteria assessments
-			if (grade != null && grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
-				gradeByRubric(grade, activityDiscussion.getId(), session);
-			}
 			//List<ActivityDiscussionParticipant> participants = new ArrayList<>();
 			for (Long userId : participantIds) {
 				ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 				User user = loadResource(User.class, userId, session);
-				participant.setActivityDiscussion(activityDiscussion);
+				participant.setActivityDiscussion(activityAssessment);
 				participant.setDateCreated(now);
-				if (userId != senderId) {
-					participant.setRead(false);
-				} else {
-					participant.setRead(true);
-				}
+				//there are no unread messages at the moment of assessment creation
+				participant.setRead(true);
+
 				participant.setParticipant(user);
 				saveEntity(participant, session);
-				activityDiscussion.addParticipant(participant);
-			}
-			session.flush();
-			if (recalculatePoints && gradeValue > 0) {
-				recalculateScoreForCompetenceAssessment(competenceAssessmentId, session);
-				recalculateScoreForCredentialAssessment(credAssessmentId, session);
+				activityAssessment.addParticipant(participant);
 			}
 
-			if (gradeValue >= 0) {
+			if (activityAssessment.getPoints() >= 0) {
 				ActivityAssessment aa = new ActivityAssessment();
-				aa.setId(activityDiscussion.getId());
+				aa.setId(activityAssessment.getId());
 				Map<String, String> params = new HashMap<>();
-				params.put("grade", gradeValue + "");
+				params.put("grade", activityAssessment.getPoints() + "");
 				result.appendEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context, aa, null, null, params));
 			}
 
-			result.setResult(activityDiscussion);
+			result.setResult(activityAssessment);
 			return result;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
 			//it means that unique constraint is violated
@@ -694,34 +626,54 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	/**
+	 * Returns grade that should be set for new activity assessment when activity is autograded
+	 *
+	 * @param activity
+	 * @return
+	 */
+	private int calculateAutomaticGrade(ActivityData activity) {
+		/*
+		 * if user is enrolled and common score is set or activity is completed and automatic grading mode by activity completion is set
+		 * grade should be calculated
+		 */
+		if (!activity.isEnrolled()) {
+			return -1;
+		}
+
+		return activity.isCompleted() && activity.getGradingMode() == GradingMode.AUTOMATIC && !activity.isAcceptGrades()
+				? activity.getMaxPoints()
+				: activity.getCommonScore() >= 0 ? activity.getCommonScore() : -1;
+	}
+
 	@Override
 	@Transactional
-	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
+	public ActivityDiscussionMessageData addCommentToDiscussion(long activityAssessmentId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException {
-		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
-		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
+		ActivityAssessment assessment = get(ActivityAssessment.class, activityAssessmentId);
+		ActivityDiscussionParticipant sender = assessment.getParticipantByUserId(senderId);
 		
 		if (sender == null) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 			User user = loadResource(User.class, senderId);
-			participant.setActivityDiscussion(discussion);
+			participant.setActivityDiscussion(assessment);
 			participant.setDateCreated(new Date());
 			participant.setRead(true);
 			participant.setParticipant(user);
 			saveEntity(participant);
 			sender = participant;
-			discussion.addParticipant(participant);
+			assessment.addParticipant(participant);
 		}
 		
 		Date now = new Date();
 		// create new comment
 		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
 		// can happen if there are no messages in discussion
-		if (discussion.getMessages() == null) {
-			discussion.setMessages(new ArrayList<>());
+		if (assessment.getMessages() == null) {
+			assessment.setMessages(new ArrayList<>());
 		}
-		discussion.getMessages().add(message);
-		message.setDiscussion(discussion);
+		assessment.getMessages().add(message);
+		message.setDiscussion(assessment);
 		message.setDateCreated(now);
 		message.setLastUpdated(now);
 		message.setSender(sender);
@@ -730,12 +682,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		// sees messages, mark discussion as 'seen'
 		sender.setRead(true);
 		// all other participants have not yet 'seen' this message
-		for (ActivityDiscussionParticipant participant : discussion.getParticipants()) {
+		for (ActivityDiscussionParticipant participant : assessment.getParticipants()) {
 			if (participant.getParticipant().getId() != senderId) {
 				participant.setRead(false);
 			}
 		}
-		saveEntity(discussion);
+		saveEntity(assessment);
 		// save the message
 		saveEntity(message);
 		// update the discussion, updating all participants along the way
@@ -764,31 +716,39 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public void approveCompetence(long decodedCompetenceAssessmentId) {
+	public void approveCompetence(long competenceAssessmentId) {
+		String APPROVE_COMPETENCE_QUERY =
+				"UPDATE CompetenceAssessment " +
+				"SET approved = true " +
+				"WHERE id = :competenceAssessmentId";
 		Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCE_QUERY)
-				.setLong("competenceAssessmentId", decodedCompetenceAssessmentId);
+				.setLong("competenceAssessmentId", competenceAssessmentId);
 		updateCompetenceAssessmentQuery.executeUpdate();
 	}
 
 	@Override
-	public void markDiscussionAsSeen(long userId, long discussionId) {
+	public void markDiscussionAsSeen(long userId, long activityAssessmentId) {
+		String MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER =
+				"UPDATE ActivityDiscussionParticipant " +
+				"SET read = true " +
+				"WHERE participant.id = :userId " +
+				"AND activityDiscussion.id = :activityDiscussionId";
 		Query updateCompetenceAssessmentQuery = persistence.currentManager()
-				.createQuery(MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER).setLong("userId", userId)
-				.setLong("activityDiscussionId", discussionId);
+				.createQuery(MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER)
+				.setLong("userId", userId)
+				.setLong("activityDiscussionId", activityAssessmentId);
 		updateCompetenceAssessmentQuery.executeUpdate();
-	}
-
-	public UrlIdEncoder getEncoder() {
-		return encoder;
-	}
-
-	public void setEncoder(UrlIdEncoder encoder) {
-		this.encoder = encoder;
 	}
 
 	@Override
 	@Transactional
+	//TODO assessment refactor this query does not have to return unique result
 	public Long getAssessmentIdForUser(long userId, long targetCredentialId) {
+		String ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED =
+				"SELECT id " +
+				"FROM CredentialAssessment " +
+				"WHERE targetCredential.id = :tagretCredentialId " +
+				"AND assessedStudent.id = :assessedStudentId";
 		Query query = persistence.currentManager().createQuery(ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED)
 				.setLong("tagretCredentialId", targetCredentialId).setLong("assessedStudentId", userId);
 		return (Long) query.uniqueResult();
@@ -817,19 +777,25 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		String credentialCondition = "AND credentialAssessment.targetCredential.credential.id = :credId ";
 
 		if (searchForApproved && searchForPending) {
-			queryString = ALL_ASSESSMENTS_FOR_USER_NUMBER;
+			queryString =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :assessedStudentId ";
 		} else if (searchForApproved && !searchForPending) {
-			queryString = APPROVED_ASSESSMENTS_FOR_USER_NUMBER;
+			queryString =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = true ";
 		} else if (!searchForApproved && searchForPending) {
-			queryString = PENDING_ASSESSMENTS_FOR_USER_NUMBER;
+			queryString =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " +
+					"WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = false ";
 		}
 
-		if(credId > 0){
+		if (credId > 0){
 			queryString = queryString + credentialCondition;
 			query = persistence.currentManager().createQuery(queryString)
 					.setLong("assessedStudentId", studentId)
 					.setLong("credId",credId);
-		}else{
+		} else {
 			query = persistence.currentManager().createQuery(queryString)
 					.setLong("assessedStudentId", studentId);
 		}
@@ -854,12 +820,26 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			boolean searchForPending, boolean searchForApproved) {
 		Query query = null;
 		if (searchForApproved && searchForPending) {
+			String ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
+					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
+					+ "credentialAssessment.targetCredential.credential.id = :credentialId";
 			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
 					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
 		} else if (searchForApproved && !searchForPending) {
+			String APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
+					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
+					+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
+					+ "credentialAssessment.approved = true";
 			query = persistence.currentManager().createQuery(APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
 					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
 		} else if (!searchForApproved && searchForPending) {
+			String PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
+					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
+					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
+					+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
+					+ "credentialAssessment.approved = false";
 			query = persistence.currentManager().createQuery(PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
 					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
 		}
@@ -899,57 +879,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
-	public Long getAssessorIdForActivityDiscussion(long activityDiscussionId) 
-			throws DbConnectionException {
-		try {
-			String query = "SELECT credAssessment.assessor.id FROM ActivityAssessment ad " +
-						   "INNER JOIN ad.assessment compAssessment " +
-						   "INNER JOIN compAssessment.credentialAssessment credAssessment " +
-						   "WHERE ad.id = :discussionId";
-			
-			Long res = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("discussionId", activityDiscussionId)
-					.uniqueResult();
-			
-			if(res == null) {
-				return 0L;
-			}
-			return res;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment info");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException {
-		try {
-			String query = "SELECT credA.assessor.id FROM CompetenceAssessment ca " +
-						   "INNER JOIN ca.credentialAssessment credA " +			
-						   "WHERE ca.id = :id";
-			
-			Long res = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("id", compAssessmentId)
-					.uniqueResult();
-			
-			if(res == null) {
-				return 0;
-			}
-			return res;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment id");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void updateInstructorAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException {
 		try {
 			String query = "SELECT ca FROM CredentialAssessment ca " +			
@@ -969,13 +899,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					? (User) persistence.currentManager().load(User.class, assessorId)
 					: null;
 			ca.setAssessor(assessor);
+
+			//update assessor for all competence assessments that are part of credential assessment
+			updateCredentialCompetenceAssessmentsAssessor(ca.getId(), assessor);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating assessor");
 		}
 	}
-	
+
+	private void updateCredentialCompetenceAssessmentsAssessor(long credAssessmentId, User assessor) {
+		String q =
+				"UPDATE credential_competence_assessment cca " +
+						"INNER JOIN competence_assessment ca ON cca.competence_assessment = ca.id " +
+						"SET ca.assessor = :assessorId " +
+						"WHERE cca.credential_assessment = :credAssessmentId";
+
+		persistence.currentManager().createSQLQuery(q)
+				.setLong("assessorId", assessor != null ? assessor.getId() : null)
+				.setLong("credAssessmentId", credAssessmentId)
+				.executeUpdate();
+	}
+
 	@Override
 	@Transactional
 	public void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
@@ -995,28 +941,47 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 					.setParameter("assessor", assessor)
 					.executeUpdate();
+
+			updateCredentialsCompetenceAssessmentsAssessor(targetCredIds, assessor);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating assessor");
 		}
 	}
-	
+
+	private void updateCredentialsCompetenceAssessmentsAssessor(List<Long> targetCredIds, User assessor) {
+		String q =
+				"UPDATE credential_competence_assessment cca " +
+				"INNER JOIN competence_assessment ca ON cca.competence_assessment = ca.id " +
+				"INNER JOIN credential_assessment credA ON cca.credential_assessment = credA.id " +
+					"WITH credA.targetCredential.id IN (:ids) " +
+					"AND ca.type = :instructorAssessment " +
+				"SET ca.assessor = :assessorId";
+
+		persistence.currentManager().createSQLQuery(q)
+				.setLong("assessorId", assessor != null ? assessor.getId() : null)
+				.setParameterList("ids", targetCredIds)
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.executeUpdate();
+	}
+
+
 	@Override
 	//nt
-	public int updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
-												 long activityAssessmentId, GradeData grade, UserContextData context)
+	public int updateGradeForActivityAssessment(
+			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
-		Result<Integer> res = self.updateGradeForActivityAssessmentAndGetEvents(credentialAssessmentId, compAssessmentId,
+		Result<Integer> res = self.updateGradeForActivityAssessmentAndGetEvents(
 				activityAssessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
 	@Override
-	@Transactional(readOnly = false)
-	public Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId, long compAssessmentId,
-																	 long activityAssessmentId, GradeData grade, UserContextData context)
+	@Transactional
+	public Result<Integer> updateGradeForActivityAssessmentAndGetEvents(
+			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<Integer> result = new Result<>();
@@ -1033,9 +998,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ad);
 
-				//recalculate competence and credential assessment score
-				recalculateScoreForCompetenceAssessment(compAssessmentId);
-				recalculateScoreForCredentialAssessment(credentialAssessmentId);
+				//recalculate competence assessment score
+				recalculateScoreForCompetenceAssessment(ad.getAssessment().getId());
 
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(ad.getId());
@@ -1084,12 +1048,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional
 	public int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session)
 			throws DbConnectionException {
 		try {
 			int points = calculateCompetenceAssessmentScore(compAssessmentId, session);
 
+			String UPDATE_COMPETENCE_ASSESSMENT_POINTS =
+					"UPDATE CompetenceAssessment " +
+					"SET points = :points " +
+					"WHERE id = :compAssessmentId";
 			session.createQuery(UPDATE_COMPETENCE_ASSESSMENT_POINTS)
 					.setLong("compAssessmentId", compAssessmentId)
 					.setInteger("points", points)
@@ -1113,6 +1081,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	private int calculateCompetenceAssessmentScore(long compAssessmentId, Session session) throws DbConnectionException {
 		try {
+			String GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE =
+					"SELECT SUM(CASE WHEN ad.points > 0 THEN ad.points ELSE 0 END) " +
+					"FROM ActivityAssessment ad " +
+					"LEFT JOIN ad.assessment compAssessment " +
+					"WHERE compAssessment.id = :compAssessmentId";
 			Long points = (Long) session.createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
 					.setLong("compAssessmentId", compAssessmentId)
 					.uniqueResult();
@@ -1129,52 +1102,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional (readOnly = false)
 	public int recalculateScoreForCompetenceAssessment(long compAssessmentId) throws DbConnectionException {
 		return recalculateScoreForCompetenceAssessment(compAssessmentId, persistence.currentManager());
-	}
-
-	@Override
-	@Transactional
-	public int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session)
-			throws DbConnectionException {
-		try {
-			int points = calculateCredentialAssessmentScore(credAssessmentId, session);
-
-			session.createQuery(UPDATE_CREDENTIAL_ASSESSMENT_POINTS)
-					.setLong("credAssessmentId", credAssessmentId)
-					.setInteger("points", points)
-					.executeUpdate();
-
-			return points;
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while recalculating score");
-		}
-	}
-	
-	public int recalculateScoreForCredentialAssessment(long credAssessmentId) throws DbConnectionException {
-		return recalculateScoreForCredentialAssessment(credAssessmentId, persistence.currentManager());
-	}
-
-	@Override
-	@Transactional (readOnly = true)
-	public int calculateCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException {
-		return calculateCredentialAssessmentScore(credAssessmentId, persistence.currentManager());
-	}
-
-	private int calculateCredentialAssessmentScore(long credAssessmentId, Session session) throws DbConnectionException {
-		try {
-			Long points = (Long) session.createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
-					.setLong("credAssessmentId", credAssessmentId)
-					.uniqueResult();
-
-			return points != null ? points.intValue() : 0;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential assessment score");
-		}
 	}
 
 	//This method would not work because we can have several instructor activity assessments for one target activity
@@ -1200,73 +1127,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //			throw new DbConnectionException("Error while retrieving activity discussion");
 //		}
 //	}
-	
-	@Override
-	@Transactional(readOnly = false)
-	public Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
-													long compId, long targetCompId, long targetActId, int score,
-													Session session, UserContextData context)
-			throws DbConnectionException {
-		return updateActivityGradeInAllAssessmentsAndGetEvents(userId, senderId, compId, targetCompId, targetActId,
-				score, session, context, true);
-	}
 
-	//retry option means that in case of constraint violation, method will be recursively called once more
-	private Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
-																		long compId, long targetCompId, long targetActId, int score,
-																		Session session, UserContextData context, boolean retry)
+	@Override
+	@Transactional
+	public Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
+																		 Session session, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 
-			List<Long> credAssessmentIds = getCredentialAssessmentIdsForUserAndCompetence(userId, compId, session);
-
-			for (long credAssessmentId : credAssessmentIds) {
-				long caId = getCompetenceAssessmentId(targetCompId, credAssessmentId, session);
-
-				if (caId > 0) {
-					//if comp assessment exists create or update activity assessment only.
-					ActivityAssessment as = null;
-					as = getActivityAssessment(caId, targetActId, session);
-					if (as != null) {
-						// if activity assessment exists, just update the grade
-						GradeData gd = new GradeData();
-						gd.setValue(score);
-						result.appendEvents(updateGradeForActivityAssessmentAndGetEvents(
-								credAssessmentId, caId, as.getId(), gd, context).getEventQueue());
-					} else {
-						// if activity assessment does not exist, create one
-						CredentialAssessment credAssessment = (CredentialAssessment) session.load(
-								CredentialAssessment.class, credAssessmentId);
-
-						GradeData gd = new GradeData();
-						gd.setValue(score);
-						result.appendEvents(createActivityAssessmentAndGetEvents(
-								targetActId, caId, credAssessmentId,
-								getParticipantIdsForCredentialAssessment(credAssessment), senderId,
-								credAssessment.getType(), gd, true, session, context).getEventQueue());
-					}
-				} else {
-					//if competence assessment does not exist, create competence and activity assessment
-					CredentialAssessment credAssessment = (CredentialAssessment) session.load(
-							CredentialAssessment.class, credAssessmentId);
-
-					GradeData gd = new GradeData();
-					gd.setValue(score);
-					result.appendEvents(createCompetenceAndActivityAssessmentAndGetEvents(
-							credAssessmentId, targetCompId, targetActId,
-							getParticipantIdsForCredentialAssessment(credAssessment), senderId, gd,
-							credAssessment.getType(), context).getEventQueue());
-				}
+			List<Long> activityAssessmentIds = getActivityAssessmentIdsForStudentActivity(activityId, studentId, session);
+			for (long aaId : activityAssessmentIds) {
+				GradeData gd = new GradeData();
+				gd.setValue(score);
+				result.appendEvents(updateGradeForActivityAssessmentAndGetEvents(
+						aaId, gd, context).getEventQueue());
 			}
 			return result;
-		} catch (ConstraintViolationException|DataIntegrityViolationException|IllegalDataStateException e) {
-			logger.error(e);
-			if (retry) {
-				return updateActivityGradeInAllAssessmentsAndGetEvents(userId, senderId, compId, targetCompId, targetActId,
-						score, session, context, false);
-			}
-			throw new DbConnectionException("Error while updating activity grade");
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1274,70 +1151,43 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private List<Long> getParticipantIdsForCredentialAssessment(CredentialAssessment credAssessment) {
-		List<Long> participants = new ArrayList<>();
-		User assessor = credAssessment.getAssessor();
-		if (assessor != null) {
-			participants.add(assessor.getId());
-		}
-		participants.add(credAssessment.getAssessedStudent().getId());
-		return participants;
-	}
-
-	private List<Long> getCredentialAssessmentIdsForUserAndCompetence(long userId, long compId, Session session) {
-		String q1 = "SELECT ca.id FROM CredentialAssessment ca " +
-				"INNER JOIN ca.targetCredential tc " +
-				"INNER JOIN tc.credential c " +
-				"INNER JOIN c.competences credComp " +
-				"WITH credComp.competence.id = :compId " +
-				"WHERE ca.assessedStudent.id = :userId";
+	private List<Long> getActivityAssessmentIdsForStudentActivity(long activityId, long studentId, Session session) {
+		String q =
+				"SELECT aa.id FROM ActivityAssessment aa " +
+				"INNER JOIN aa.assessment ca " +
+				"WITH ca.student.id = :studentId " +
+				"WHERE aa.activity.id = :actId";
 
 		@SuppressWarnings("unchecked")
-		List<Long> credAssessmentIds = session
-				.createQuery(q1)
-				.setLong("userId", userId)
-				.setLong("compId", compId)
+		List<Long> ids = session.createQuery(q)
+				.setLong("studentId", studentId)
+				.setLong("actId", activityId)
 				.list();
-
-		return credAssessmentIds;
-	}
-
-	private long getCompetenceAssessmentId(long targetCompetenceId, long credAssessmentId, Session session) {
-		String query = "SELECT ca.id FROM CompetenceAssessment ca " +
-				"WHERE ca.targetCompetence.id = :tcId " +
-				"AND ca.credentialAssessment.id = :credAssessmentId";
-
-		Long caId = (Long) session
-				.createQuery(query)
-				.setLong("tcId", targetCompetenceId)
-				.setLong("credAssessmentId", credAssessmentId)
-				.uniqueResult();
-
-		return caId != null ? caId : 0;
+		return ids;
 	}
 	
-	private ActivityAssessment getActivityAssessment(long compAssessmentId, long targetActId, Session session)
-			throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT assessment " + 
-					"FROM ActivityAssessment assessment " +	
-					"WHERE assessment.targetActivity.id = :taId " +
-						"AND assessment.assessment.id = :compAssessmentId";
-			
-			ActivityAssessment as = (ActivityAssessment) session
-					.createQuery(query)
-					.setLong("taId", targetActId)
-					.setLong("compAssessmentId", compAssessmentId)
-					.uniqueResult();
-			
-			return as;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment");
-		}
-	}
+//	private ActivityAssessment getActivityAssessment(long compAssessmentId, long targetActId, Session session)
+//			throws DbConnectionException {
+//		try {
+//			String query =
+//					"SELECT assessment " +
+//					"FROM ActivityAssessment assessment " +
+//					"WHERE assessment.targetActivity.id = :taId " +
+//						"AND assessment.assessment.id = :compAssessmentId";
+//
+//			ActivityAssessment as = (ActivityAssessment) session
+//					.createQuery(query)
+//					.setLong("taId", targetActId)
+//					.setLong("compAssessmentId", compAssessmentId)
+//					.uniqueResult();
+//
+//			return as;
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while retrieving activity assessment");
+//		}
+//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1392,30 +1242,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 												boolean countInstructorAssessment)
 			throws DbConnectionException {
 		try {
-			List<Long> credentials = activityManager.getIdsOfCredentialsWithActivity(activityId,
-					CredentialType.Delivery);
-			//if activity is not a part of at least one credential, there can't be an assessment for this activity
-			if (credentials.isEmpty()) {
-				return false;
-			}
-
 			String query =
-					"SELECT COUNT(credAssessment.assessor.id) " +
-					"FROM CredentialAssessment credAssessment " +
-					"INNER JOIN credAssessment.targetCredential targetCred " +
-					"WHERE targetCred.credential.id IN (:credIds) " +
-					"AND targetCred.user.id = :userLearningId " +
-					"AND credAssessment.assessor.id = :userId ";
+					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
+					"INNER JOIN aa.assessment ca " +
+							"WITH ca.student.id = :studentId " +
+							"AND ca.assessor.id = :assessorId " +
+					"WHERE aa.activity.id = :activityId ";
 
 			if (!countInstructorAssessment) {
-				query += "AND credAssessment.type != :instructorAssessment";
+				query += "AND aa.type != :instructorAssessment";
 			}
 
 			Query q = persistence.currentManager()
 					.createQuery(query)
-					.setParameterList("credIds", credentials)
-					.setLong("userId", userId)
-					.setLong("userLearningId", assessedUserId);
+					.setLong("studentId", assessedUserId)
+					.setLong("assessorId", userId)
+					.setLong("activityId", activityId);
 
 			if (!countInstructorAssessment) {
 				q.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
@@ -1451,22 +1293,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (ids != null) {
 				return ids;
 			}
-			return new ArrayList<Long>();
+			return new ArrayList<>();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving activity assessment");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT credAssessment.assessedStudent.id FROM ActivityAssessment aas " +
-						   "INNER JOIN aas.assessment compAssessment " +
-						   "INNER JOIN compAssessment.credentialAssessment credAssessment " +
+			String query = "SELECT ca.student.id FROM ActivityAssessment aas " +
+						   "INNER JOIN aas.assessment ca " +
 						   "WHERE aas.id = :actAssessmentId";
 			
 			Long res = (Long) persistence.currentManager()
@@ -1474,7 +1315,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("actAssessmentId", activityAssessmentId)
 					.uniqueResult();
 			
-			if(res == null) {
+			if (res == null) {
 				return 0L;
 			}
 			return res;
@@ -1482,49 +1323,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving assessed student id");
-		}
-	}
-
-	@Override
-	//nt
-	public AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
-															  long targetActivityId, List<Long> participantIds,
-															  long senderId, GradeData grade, AssessmentType type,
-														      UserContextData context)
-			throws DbConnectionException, IllegalDataStateException {
-		Result<AssessmentBasicData> res = self.createCompetenceAndActivityAssessmentAndGetEvents(credAssessmentId,
-				targetCompId, targetActivityId, participantIds, senderId, grade, type, context);
-		eventFactory.generateEvents(res.getEventQueue());
-		return res.getResult();
-	}
-
-	@Override
-	@Transactional
-	public Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
-																						  long targetActivityId, List<Long> participantIds,
-																						  long senderId, GradeData grade, AssessmentType type,
-																						  UserContextData context)
-			throws DbConnectionException, IllegalDataStateException {
-		try {
-			Result<AssessmentBasicData> result = new Result<>();
-			TargetCompetence1 tComp = (TargetCompetence1) persistence.currentManager().load(
-					TargetCompetence1.class, targetCompId);
-			CredentialAssessment credAssessment = (CredentialAssessment) persistence.currentManager().load(
-					CredentialAssessment.class, credAssessmentId);
-			CompetenceAssessment compAssessment = createCompetenceAssessment(tComp, credAssessment, type, false);
-			Result<ActivityAssessment> actAssessmentRes = createActivityAssessmentAndGetEvents(targetActivityId, compAssessment.getId(),
-					credAssessmentId, participantIds, senderId, type, grade, true,
-					persistence.currentManager(), context);
-			result.appendEvents(actAssessmentRes.getEventQueue());
-			result.setResult(AssessmentBasicData.of(credAssessmentId, compAssessment.getId(),
-					actAssessmentRes.getResult().getId(), actAssessmentRes.getResult().getPoints()));
-			return result;
-		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			throw new IllegalDataStateException("Competency assessment already exists");
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while creating assessment");
 		}
 	}
 
@@ -1544,7 +1342,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment score");
+			throw new DbConnectionException("Error retrieving the competence assessment score");
 		}
 	}
 
@@ -1552,24 +1350,27 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional(readOnly = true)
 	public int getCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException {
 		try {
-			String query = "SELECT ca.points FROM CredentialAssessment ca " +
-					"WHERE ca.id = :credAssessmentId";
-
-			Integer res = (Integer) persistence.currentManager()
-					.createQuery(query)
+			String GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL =
+					"SELECT SUM(compAssessment.points) " +
+					"FROM CredentialCompetenceAssessment cca " +
+					"INNER JOIN cca.competenceAssessment compAssessment " +
+					"WHERE cca.credentialAssessment.id = :credAssessmentId";
+			Long points = (Long) persistence.currentManager()
+					.createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
 					.setLong("credAssessmentId", credAssessmentId)
 					.uniqueResult();
 
-			return res != null ? res : 0;
-		} catch(Exception e) {
+			return points != null ? points.intValue() : 0;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential assessment score");
+			throw new DbConnectionException("Error retrieving the credential assessment score");
 		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
+	//TODO assessment refactor check if this query works
 	public AssessmentBasicData getInstructorAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException {
 		try {
@@ -1585,18 +1386,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			q.append("FROM credential_assessment ca ");
 
 			if (compId > 0) {
-				q.append("LEFT JOIN (competence_assessment compAssessment " +
-						 "INNER JOIN target_competence1 tc " +
-							"ON compAssessment.target_competence = tc.id " +
-						 	"AND tc.competence = :compId) " +
-						 "ON compAssessment.credential_assessment = ca.id ");
+				q.append("LEFT JOIN (credential_competence_assessment cca " +
+						 "INNER JOIN competence_assessment compAssessment " +
+						 "ON cca.competence_assessment = compAssessment.id " +
+						 "AND compAssessment.competence = :compId) " +
+						 "ON cca.credential_assessment = ca.id ");
 
 				if (actId > 0) {
-					q.append("LEFT JOIN (activity_assessment aa " +
-							 "INNER JOIN target_activity1 ta " +
-								"ON aa.target_activity = ta.id " +
-							 	"AND ta.activity = :actId) " +
-							 "ON aa.competence_assessment = compAssessment.id ");
+					q.append("LEFT JOIN activity_assessment aa " +
+							 "ON aa.competence_assessment = compAssessment.id " +
+							 "AND aa.activity = :actId ");
 				}
 			}
 
@@ -1641,65 +1440,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment info");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public long getActivityAssessmentId(long compAssessmentId, long targetActId)
-			throws DbConnectionException {
-		try {
-			String query =
-					"SELECT assessment.id " +
-							"FROM ActivityAssessment assessment " +
-							"WHERE assessment.targetActivity.id = :taId " +
-							"AND assessment.assessment.id = :compAssessmentId";
-
-			Long id = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("taId", targetActId)
-					.setLong("compAssessmentId", compAssessmentId)
-					.uniqueResult();
-
-			return id != null ? id : 0;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment id");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public AssessmentBasicData getCompetenceAndActivityAssessmentIds(long targetCompetenceId, long targetActivityId,
-																	 long credAssessmentId)
-			throws  DbConnectionException {
-		try {
-			String query = "SELECT ca.id, aa.id FROM CompetenceAssessment ca " +
-					"LEFT JOIN ca.activityDiscussions aa " +
-						"WITH aa.targetActivity.id = :taId " +
-					"WHERE ca.targetCompetence.id = :tcId " +
-					"AND ca.credentialAssessment.id = :credAssessmentId";
-
-			Object[] ids = (Object[]) persistence.currentManager()
-					.createQuery(query)
-					.setLong("taId", targetActivityId)
-					.setLong("tcId", targetCompetenceId)
-					.setLong("credAssessmentId", credAssessmentId)
-					.uniqueResult();
-
-			if (ids == null) {
-				return AssessmentBasicData.empty();
-			} else {
-				Long caId = (Long) ids[0];
-				Long aaId = (Long) ids[1];
-				return AssessmentBasicData.of(0, caId != null ? caId : 0, aaId != null ? aaId : 0);
-			}
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment info");
+			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
@@ -1708,10 +1449,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT credAssessment.type, credAssessment.assessedStudent.id, credAssessment.assessor.id " +
+			String query = "SELECT ca.type, ca.student.id, ca.assessor.id " +
 					"FROM ActivityAssessment aas " +
-					"INNER JOIN aas.assessment compAssessment " +
-					"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+					"INNER JOIN aas.assessment ca " +
 					"WHERE aas.id = :actAssessmentId";
 
 			Object[] res = (Object[]) persistence.currentManager()
@@ -1762,9 +1502,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			return credentialAssessmentsSummaryData;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving assessment data");
+			throw new DbConnectionException("Error retrieving the assessment data");
 		}
 	}
 
@@ -1790,17 +1530,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
+	//TODO assessment refactor check if query works
 	private Map<Long, Long> getNumberOfAssessedStudentsForEachActivityInCredential(long deliveryId) {
 		String usersAssessedQ =
-				"SELECT ta.activity.id, COUNT(aa.id) FROM ActivityAssessment aa " +
-				"INNER JOIN aa.targetActivity ta " +
+				"SELECT aa.activity.id, COUNT(aa.id) FROM ActivityAssessment aa " +
 				"INNER JOIN aa.assessment compAssessment " +
-				"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+				"INNER JOIN compAssessment.credentialAssessments credAssessment " +
 				"WITH credAssessment.type = :instructorAssessment " +
 				"INNER JOIN credAssessment.targetCredential tc " +
 				"WITH tc.credential.id = :credId " +
 				"WHERE aa.points >= 0 " +
-				"GROUP BY ta.activity.id";
+				"GROUP BY aa.activity.id";
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> usersAssessed = persistence.currentManager()
@@ -1813,17 +1553,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
+	//TODO assessment refactor check if this query works
 	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException {
 		try {
 			String usersAssessedQ =
 					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
-							"INNER JOIN aa.targetActivity ta " +
 							"INNER JOIN aa.assessment compAssessment " +
-							"INNER JOIN compAssessment.credentialAssessment credAssessment " +
+							"INNER JOIN compAssessment.credentialAssessments credAssessment " +
 							"WITH credAssessment.type = :instructorAssessment " +
 							"INNER JOIN credAssessment.targetCredential tc " +
 							"WITH tc.credential.id = :credId " +
-							"WHERE ta.activity.id = :actId AND aa.points >= 0";
+							"WHERE aa.activity.id = :actId AND aa.points >= 0";
 
 			return (Long) persistence.currentManager()
 					.createQuery(usersAssessedQ)
@@ -1833,21 +1573,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.uniqueResult();
 		} catch (Exception e) {
 			throw new DbConnectionException("Error retrieving assessment info");
-		}
-	}
-
-	@Override
-	@Transactional
-	public long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, AssessmentType type) {
-		try {
-			TargetCompetence1 targetCompetence1 = loadResource(TargetCompetence1.class,targetCompId);
-			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class,credAssessmentId);
-			CompetenceAssessment result = createCompetenceAssessment(targetCompetence1,credentialAssessment, type,true);
-
-			return result.getId();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while creating data");
 		}
 	}
 

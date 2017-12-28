@@ -151,12 +151,12 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	private Result<Void> setInstructorForStudent(TargetCredential1 targetCred, CredentialInstructor instructor,
 			long formerInstructorUserId, boolean updateAssessor, UserContextData context) {
 		Result<Void> result = new Result<>();
-		if(targetCred != null) {
+		if (targetCred != null) {
 			boolean assigned = instructor != null;
 			targetCred.setAssignedToInstructor(assigned);
 			targetCred.setInstructor(instructor);
 			
-			if(updateAssessor) {
+			if (updateAssessor) {
 				//update assessor for default assessment if exists
 				long instructorUserId = instructor != null ? instructor.getUser().getId() : 0;
 				assessmentManager.updateInstructorAssessmentAssessor(targetCred.getId(),

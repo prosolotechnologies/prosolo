@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -38,18 +39,6 @@ public interface AssessmentManager {
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
 						   List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException;
 
-	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-												long credAssessmentId, List<Long> participantIds,
-												long senderId, AssessmentType type, GradeData grade,
-												boolean recalculatePoints, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException;
-
-	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
-												long credAssessmentId, List<Long> participantIds,
-												long senderId, AssessmentType type, GradeData grade,
-												boolean recalculatePoints, Session session, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException;
-
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
 
@@ -74,18 +63,13 @@ public interface AssessmentManager {
 	List<ActivityDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
 				long assessorId) throws DbConnectionException;
 
-	Long getAssessorIdForActivityDiscussion(long activityDiscussionId)
-			throws DbConnectionException;
-
-	long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException;
-
 	void updateInstructorAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;
 
 	void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
 			throws DbConnectionException;
 
-	int updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
-										  long activityAssessmentId, GradeData grade, UserContextData context)
+	int updateGradeForActivityAssessment(
+			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
 
 	Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
@@ -96,15 +80,8 @@ public interface AssessmentManager {
 
 	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
 
-	int recalculateScoreForCredentialAssessment(long credAssessmentId) throws DbConnectionException;
-
-	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session) throws DbConnectionException;
-
-	int calculateCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
-
-	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
-																 long compId, long targetCompId, long targetActId,
-																 int score, Session session, UserContextData context)
+	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
+																 Session session, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -140,32 +117,31 @@ public interface AssessmentManager {
 	Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
 
-	AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
-															  long targetActivityId, List<Long> participantIds,
-															  long senderId, GradeData grade, AssessmentType type,
-															  UserContextData context)
+	/**
+	 * Returns existing assessment id from given assessor if it exists and assessment type is not instructor assessment,
+	 * otherwise creates new credential assessment and returns its id
+	 *
+	 * @param targetCredential
+	 * @param studentId
+	 * @param assessorId
+	 * @param message
+	 * @param type
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws IllegalDataStateException
+	 */
+	Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
+												   String message, AssessmentType type, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-											  String message, AssessmentType type, UserContextData context)
-			throws DbConnectionException, IllegalDataStateException;
-
-	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
-																	long credAssessmentId, List<Long> participantIds,
-																	long senderId, AssessmentType type, GradeData grade,
-																	boolean recalculatePoints, Session session,
-																	UserContextData context)
+	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
+																	List<Long> participantIds, AssessmentType type,
+																	UserContextData context, Session session)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-	Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId,
-															  long compAssessmentId, long activityAssessmentId, GradeData grade,
+	Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long activityAssessmentId, GradeData grade,
 															  UserContextData context) throws DbConnectionException;
-
-	Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
-																				  long targetActivityId, List<Long> participantIds,
-																				  long senderId, GradeData grade, AssessmentType type,
-																				  UserContextData context)
-			throws DbConnectionException, IllegalDataStateException;
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
 
@@ -174,11 +150,6 @@ public interface AssessmentManager {
 	AssessmentBasicData getInstructorAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException;
 
-	long getActivityAssessmentId(long compAssessmentId, long targetActId) throws DbConnectionException;
-
-	AssessmentBasicData getCompetenceAndActivityAssessmentIds(long targetCompetenceId, long targetActivityId,
-															  long credAssessmentId) throws  DbConnectionException;
-
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
 			throws DbConnectionException;
 
@@ -186,5 +157,4 @@ public interface AssessmentManager {
 
 	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
 
-	long createAndApproveCompetenceAssessment(long credAssessmentId, long targetCompId, AssessmentType type);
 }
