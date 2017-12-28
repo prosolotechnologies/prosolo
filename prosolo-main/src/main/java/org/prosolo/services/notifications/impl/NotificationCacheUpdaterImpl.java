@@ -39,10 +39,9 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 			StudentNotificationsBean studentNotificationsBean = (StudentNotificationsBean) userSession.getAttribute("studentNotificationsBean");
 			ManagerNotificationsBean managerNotificationsBean = (ManagerNotificationsBean) userSession.getAttribute("managerNotificationsBean");
 			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
-			NotificationData notificationData = new NotificationData();
 
 			if(studentNotificationsBean != null || managerNotificationsBean != null) {
-				notificationData = notificationManager
+				NotificationData notificationData = notificationManager
 						.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
 
 				switch (notificationData.getSection()) {
