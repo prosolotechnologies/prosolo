@@ -226,7 +226,7 @@
 										</div>
 										
 										<div class="metaRight">
-											<ui:fragment rendered="#{cc.attrs.credential.durationString ne null}">
+											<ui:fragment rendered="#{targetCredential.durationString ne null}">
 												<div class="duration">#{targetCredential.durationString}</div>
 											</ui:fragment>
 										</div>
@@ -276,7 +276,7 @@
 										</h:panelGroup>
 										
 										<div class="metaRight">
-											<ui:fragment rendered="#{cc.attrs.credential.durationString ne null}">
+											<ui:fragment rendered="#{targetCompetence.durationString ne null}">
 												<div class="duration">#{targetCompetence.durationString}</div>
 											</ui:fragment>
 										</div>
@@ -363,7 +363,7 @@
 		                                </div>
 		                                
 		                                <div class="metaRight">
-											<ui:fragment rendered="#{cc.attrs.credential.durationString ne null}">
+											<ui:fragment rendered="#{inProgressCredential.durationString ne null}">
 												<div class="duration">#{inProgressCredential.durationString}</div>
 											</ui:fragment>
 										</div>
