@@ -3,7 +3,10 @@ package org.prosolo.services.nodes.data.assessments;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 import java.util.LinkedList;
@@ -52,7 +55,7 @@ public class ActivityAssessmentData {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
-		data.setUserId(credAssessment.getAssessedStudent().getId());
+		data.setUserId(compAssessment.getStudent().getId());
 		data.setTargetCompId(actData.getTargetCompetenceId());
 		//populateIds(data,targetActivity,compAssessment);
 		data.setResultType(actData.getResultData().getResultType());
@@ -67,50 +70,45 @@ public class ActivityAssessmentData {
 		if (data.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC) {
 			data.setRubricVisibilityForStudent(actData.getRubricVisibility());
 		}
-		data.setType(credAssessment.getType());
+		data.setType(compAssessment.getType());
 		data.setCredAssessmentId(credAssessment.getId());
-		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
 
-		if (credAssessment.getAssessor() != null) {
-			data.setAssessorId(credAssessment.getAssessor().getId());
+		if (compAssessment.getAssessor() != null) {
+			data.setAssessorId(compAssessment.getAssessor().getId());
 		}
-		//if competence assessment exists
-		if (compAssessment != null) {
-			data.setCompAssessmentId(compAssessment.getId());
 
-			ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
-			if (activityDiscussion != null) {
-				data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
+		data.setCompAssessmentId(compAssessment.getId());
 
-				ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
+		data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
 
-				if (currentParticipant != null) {
-					data.setParticipantInDiscussion(true);
-					data.setAllRead(currentParticipant.isRead());
-				} else {
-					// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-					data.setAllRead(false);
-					data.setParticipantInDiscussion(false);
-				}
+		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
-				List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+		if (currentParticipant != null) {
+			data.setParticipantInDiscussion(true);
+			data.setAllRead(currentParticipant.isRead());
+		} else {
+			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+			data.setAllRead(false);
+			data.setParticipantInDiscussion(false);
+		}
 
-				if (CollectionUtils.isNotEmpty(messages)) {
-					data.setNumberOfMessages(activityDiscussion.getMessages().size());
-					for (ActivityDiscussionMessage activityMessage : messages) {
-						ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
-								compAssessment, encoder);
-						data.addDiscussionMessageSorted(messageData);
-					}
-				}
-				data.setMessagesInitialized(true);
-				data.getGrade().setValue(activityDiscussion.getPoints());
-				if(data.getGrade().getValue() < 0) {
-					data.getGrade().setValue(0);
-				} else {
-					data.getGrade().setAssessed(true);
-				}
+		List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+
+		if (CollectionUtils.isNotEmpty(messages)) {
+			data.setNumberOfMessages(activityDiscussion.getMessages().size());
+			for (ActivityDiscussionMessage activityMessage : messages) {
+				ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+						compAssessment.getAssessor(), encoder);
+				data.addDiscussionMessageSorted(messageData);
 			}
+		}
+		data.setMessagesInitialized(true);
+		data.getGrade().setValue(activityDiscussion.getPoints());
+		if (data.getGrade().getValue() < 0) {
+			data.getGrade().setValue(0);
+		} else {
+			data.getGrade().setAssessed(true);
 		}
 
 		return data;
@@ -302,7 +300,7 @@ public class ActivityAssessmentData {
 	public void setCredentialId(Long credentialId) {
 		this.credentialId = credentialId;
 	}
-	
+
 	public boolean isMessagesInitialized() {
 		return messagesInitialized;
 	}

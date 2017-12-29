@@ -12,7 +12,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
@@ -163,19 +162,7 @@ public class CredentialAssessmentBean implements Serializable {
 
 	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
 		try {
-			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
-				long competenceAssessmentId = assessmentManager.createAndApproveCompetenceAssessment(
-						fullAssessmentData.getCredAssessmentId(), competenceAssessmentData.getTargetCompetenceId(),
-						fullAssessmentData.getType());
-				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
-				competenceAssessmentData.setCompetenceAssessmentEncodedId(idEncoder.encodeId(competenceAssessmentId));
-
-				for(ActivityAssessmentData activityAssessmentData : competenceAssessmentData.getActivityAssessmentData()){
-					activityAssessmentData.setCompAssessmentId(competenceAssessmentId);
-				}
-			} else {
-				assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
-			}
+			assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
 			competenceAssessmentData.setApproved(true);
 
 			PageUtil.fireSuccessfulInfoMessage("You have successfully approved the competence for "
@@ -214,9 +201,6 @@ public class CredentialAssessmentBean implements Serializable {
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
 			seenActivityAssessment.ifPresent(data -> data.setAllRead(true));
-		} else {
-//			logger.error("User " + loggedUserBean.getUserId() + " tried to add comment without discussion id");
-//			PageUtil.fireErrorMessage("Unable to add comment");
 		}
 	}
 

@@ -1,12 +1,11 @@
 package org.prosolo.common.domainmodel.assessment;
 
-import java.util.List;
-
-import javax.persistence.*;
-
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class CredentialAssessment extends BaseEntity {
@@ -18,15 +17,14 @@ public class CredentialAssessment extends BaseEntity {
 	private User assessedStudent;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
-	private List<CompetenceAssessment> competenceAssessments;
+	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
-	private int points;
 
 	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
 		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
-			for (CompetenceAssessment ca : competenceAssessments) {
-				if (ca.getTargetCompetence().getCompetence().getId() == compId){
-					return ca;
+			for (CredentialCompetenceAssessment cca : competenceAssessments) {
+				if (cca.getCompetenceAssessment().getCompetence().getId() == compId) {
+					return cca.getCompetenceAssessment();
 				}
 			}
 		}
@@ -78,21 +76,13 @@ public class CredentialAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy="credentialAssessment",cascade = CascadeType.ALL, orphanRemoval = true)
-	public List<CompetenceAssessment> getCompetenceAssessments() {
+	@OneToMany(mappedBy="credentialAssessment")
+	public Set<CredentialCompetenceAssessment> getCompetenceAssessments() {
 		return competenceAssessments;
 	}
 
-	public void setCompetenceAssessments(List<CompetenceAssessment> competenceAssessments) {
+	public void setCompetenceAssessments(Set<CredentialCompetenceAssessment> competenceAssessments) {
 		this.competenceAssessments = competenceAssessments;
-	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
 	}
 
 	@Enumerated(EnumType.STRING)

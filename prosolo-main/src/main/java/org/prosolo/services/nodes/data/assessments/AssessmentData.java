@@ -39,7 +39,7 @@ public class AssessmentData {
 		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
 		//TODO optimize, denormalize?
 		OptionalInt number = assessment.getCompetenceAssessments().stream()
-			.map(competenceAssessment -> competenceAssessment.getActivityDiscussions())
+			.map(competenceAssessment -> competenceAssessment.getCompetenceAssessment().getActivityDiscussions())
 			.flatMap(discussions -> discussions.stream())
 			.mapToInt(discussion -> discussion.getMessages().size())
 			.reduce(Integer::sum);

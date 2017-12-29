@@ -1,16 +1,14 @@
 package org.prosolo.common.domainmodel.assessment;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+
+import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class CompetenceAssessment extends BaseEntity {
@@ -19,7 +17,7 @@ public class CompetenceAssessment extends BaseEntity {
 	
 	private boolean approved;
 	private List<ActivityAssessment> activityDiscussions;
-	private TargetCompetence1 targetCompetence;
+	//private TargetCompetence1 targetCompetence;
 	private Competence1 competence;
 	private User student;
 	private User assessor;
@@ -76,19 +74,19 @@ public class CompetenceAssessment extends BaseEntity {
 		this.activityDiscussions = activityDiscussions;
 	}
 
-	@OneToOne(fetch=FetchType.LAZY)
-	public TargetCompetence1 getTargetCompetence() {
-		return targetCompetence;
-	}
-
-	public void setTargetCompetence(TargetCompetence1 targetCompetence) {
-		this.targetCompetence = targetCompetence;
-	}
+//	@OneToOne(fetch=FetchType.LAZY)
+//	public TargetCompetence1 getTargetCompetence() {
+//		return targetCompetence;
+//	}
+//
+//	public void setTargetCompetence(TargetCompetence1 targetCompetence) {
+//		this.targetCompetence = targetCompetence;
+//	}
 	
 	public ActivityAssessment getDiscussionByActivityId(long activityId) {
-		if(activityDiscussions != null && !activityDiscussions.isEmpty()) {
-			for(ActivityAssessment discussion : activityDiscussions) {
-				if(discussion.getTargetActivity().getActivity().getId() == activityId){
+		if (activityDiscussions != null && !activityDiscussions.isEmpty()) {
+			for (ActivityAssessment discussion : activityDiscussions) {
+				if (discussion.getActivity().getId() == activityId) {
 					return discussion;
 				}
 			}

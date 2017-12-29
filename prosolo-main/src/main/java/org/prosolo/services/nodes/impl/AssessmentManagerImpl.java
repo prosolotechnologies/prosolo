@@ -61,14 +61,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private AssessmentDataFactory assessmentDataFactory;
 	@Inject private CredentialManager credManager;
 
-	private static final String APPROVE_CREDENTIAL_QUERY = 
-			"UPDATE CredentialAssessment set approved = true " +
-			"WHERE id = :credentialAssessmentId";
-	
-	private static final String APPROVE_COMPETENCES_QUERY = 
-			"UPDATE CompetenceAssessment SET approved = true"
-			+ " WHERE credentialAssessment.id = :credentialAssessmentId";
-
 	@Override
 	//not transactional - should not be called from another transaction
 	public long requestAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
@@ -133,22 +125,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			assessment.setType(type);
 			saveEntity(assessment);
 
-			int credPoints = 0;
-
 			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
 					targetCredential.getCredential().getId(), studentId, false, false, true);
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
 						comp, studentId, assessorId, type, context);
-				credPoints += res.getResult().getPoints();
 				CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
 				cca.setCredentialAssessment(assessment);
 				cca.setCompetenceAssessment(res.getResult());
 				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
-			}
-			if (credPoints > 0) {
-				assessment.setPoints(credPoints);
 			}
 			result.setResult(assessment.getId());
 			return result;
@@ -228,9 +214,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			//compAssessment.setTitle(targetCompetence.getTitle());
 			compAssessment.setCompetence((Competence1) persistence.currentManager().load(Competence1.class, comp.getCompetenceId()));
 			compAssessment.setStudent((User) persistence.currentManager().load(User.class, studentId));
-			if (comp.isEnrolled()) {
-				compAssessment.setTargetCompetence((TargetCompetence1) persistence.currentManager().load(TargetCompetence1.class, comp.getTargetCompId()));
-			}
+//			if (comp.isEnrolled()) {
+//				compAssessment.setTargetCompetence((TargetCompetence1) persistence.currentManager().load(TargetCompetence1.class, comp.getTargetCompId()));
+//			}
 			if (assessorId > 0) {
 				compAssessment.setAssessor((User) persistence.currentManager().load(User.class, assessorId));
 			}
@@ -301,7 +287,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
 				assessment.getTargetCredential().getUser().getId(), false, false, true);
-		return AssessmentDataFull.fromAssessment(assessment, userComps, encoder, userId, dateFormat);
+		return AssessmentDataFull.fromAssessment(assessment, getCredentialAssessmentScore(id), userComps, encoder, userId, dateFormat);
 	}
 
 	@Override
@@ -581,9 +567,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			activityAssessment.setAssessment((CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId));
 			activityAssessment.setActivity((Activity1) session.load(Activity1.class, act.getActivityId()));
-			if (act.isEnrolled()) {
-				activityAssessment.setTargetActivity((TargetActivity1) session.load(TargetActivity1.class, act.getTargetActivityId()));
-			}
+//			if (act.isEnrolled()) {
+//				activityAssessment.setTargetActivity((TargetActivity1) session.load(TargetActivity1.class, act.getTargetActivityId()));
+//			}
 			//activityDiscussion.setParticipants(participants);
 			activityAssessment.setType(type);
 

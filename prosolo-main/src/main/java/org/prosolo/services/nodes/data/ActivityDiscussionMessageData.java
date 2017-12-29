@@ -48,16 +48,14 @@ public class ActivityDiscussionMessageData {
 		this.senderInsructor = senderInsructor;
 	}
 	
-	public static ActivityDiscussionMessageData from(ActivityDiscussionMessage activityMessage, CompetenceAssessment compAssessment, UrlIdEncoder encoder) {
+	public static ActivityDiscussionMessageData from(ActivityDiscussionMessage activityMessage, User assessor, UrlIdEncoder encoder) {
 		ActivityDiscussionMessageData data = new ActivityDiscussionMessageData();
 		data.setContent(activityMessage.getContent());
 		data.setEncodedMessageId(encoder.encodeId(activityMessage.getId()));
 		data.setEncodedSenderId(encoder.encodeId(activityMessage.getSender().getParticipant().getId()));
 		data.setSenderFullName(activityMessage.getSender().getParticipant().getName()+" "+activityMessage.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size120x120));
-		if(compAssessment != null) {
-			data.setSenderInsructor(isSenderAssessor(activityMessage,compAssessment));
-		}
+		data.setSenderInsructor(isSenderAssessor(activityMessage, assessor));
 		data.setDateCreated(activityMessage.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(activityMessage.getDateCreated()));
 		data.setDateUpdated(activityMessage.getLastUpdated());
@@ -65,8 +63,7 @@ public class ActivityDiscussionMessageData {
 		return data;
 	}
 	private static boolean isSenderAssessor(ActivityDiscussionMessage activityMessage,
-			CompetenceAssessment compAssessment) {
-		User assessor = compAssessment.getCredentialAssessment().getAssessor();
+			User assessor) {
 		User messageSender = activityMessage.getSender().getParticipant();
 		return assessor == null ? false : assessor.getId() == messageSender.getId();
 	}
