@@ -30,6 +30,9 @@
 	                    <div class="status #{styleUtilBean.getStyleClassBasedOnDeliveryStatus(delivery.deliveryStatus)}"></div>
 	                    <h3><span>#{msg['label.delivery']} title:</span> #{delivery.title}</h3>
 	                    <div class="deliveryMeta">
+							<h:panelGroup layout="block" styleClass="deliveryStage" rendered="#{delivery.learningStageEnabled}">
+								<div class="stage"><span>Stage:</span> #{delivery.learningStage.title}</div>
+							</h:panelGroup>
 	                        <div class="deliveryTime">
 	                            <div class="start"><span>Start:</span>
 									<utilcomp:convertTimeOutput
