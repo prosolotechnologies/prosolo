@@ -176,22 +176,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return Optional.ofNullable(credentialAssessment);
 	}
 
-	/**
-	 * Returns existing competence assessment from given assessor if it exists and if assessment type is not instructor
-	 * assessment, otherwise it creates new competence assessment and returns it.
-	 *
-	 * @param comp
-	 * @param studentId
-	 * @param assessorId
-	 * @param type
-	 * @param context
-	 * @return
-	 * @throws IllegalDataStateException
-	 * @throws DbConnectionException
-	 */
-	private Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
+	@Override
+	@Transactional (readOnly = true)
+	public Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
 															long assessorId, AssessmentType type, UserContextData context)
-			throws IllegalDataStateException, DbConnectionException{
+			throws IllegalDataStateException, DbConnectionException {
 		try {
 			Result<CompetenceAssessment> res = new Result<>();
 
@@ -290,25 +279,25 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return AssessmentDataFull.fromAssessment(assessment, getCredentialAssessmentScore(id), userComps, encoder, userId, dateFormat);
 	}
 
-	@Override
-	@Transactional
-	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
-			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat) {
-		Query query = getAssessmentForCredentialQuery(credentialId, assessorId, searchForPending, searchForApproved);
-		// if we don't search for pending or for approved, return empty list
-		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
-			return Lists.newArrayList();
-		} else {
-			@SuppressWarnings("unchecked")
-			List<CredentialAssessment> assessments = query.list();
-			List<AssessmentData> assesmentData = new ArrayList<>(assessments.size());
-			for (CredentialAssessment credAssessment : assessments) {
-				assesmentData.add(AssessmentData.fromAssessment(credAssessment, idEncoder, simpleDateFormat));
-			}
-			return assesmentData;
-		}
-	}
+//	@Override
+//	@Transactional
+//	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
+//			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat) {
+//		Query query = getAssessmentForCredentialQuery(credentialId, assessorId, searchForPending, searchForApproved);
+//		// if we don't search for pending or for approved, return empty list
+//		if (query == null) {
+//			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+//			return Lists.newArrayList();
+//		} else {
+//			@SuppressWarnings("unchecked")
+//			List<CredentialAssessment> assessments = query.list();
+//			List<AssessmentData> assesmentData = new ArrayList<>(assessments.size());
+//			for (CredentialAssessment credAssessment : assessments) {
+//				assesmentData.add(AssessmentData.fromAssessment(credAssessment, idEncoder, simpleDateFormat));
+//			}
+//			return assesmentData;
+//		}
+//	}
 
 	@Override
 	@Transactional
@@ -375,7 +364,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return query;
 	}
 
-	private Query getAssessmentForCredentialQuery(long credentialId, long assessorId, boolean searchForPending,
+	/*private Query getAssessmentForCredentialQuery(long credentialId, long assessorId, boolean searchForPending,
 			boolean searchForApproved) {
 		Query query = null;
 		if (searchForApproved && searchForPending) {
@@ -406,7 +395,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("credentialId", credentialId).setLong("assessorId", assessorId);
 		}
 		return query;
-	}
+	}*/
 
 	@Override
 	@Transactional
@@ -427,7 +416,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		try {
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
-			//TODO assessment refactor use comp assessments reference to target competence if we keep it
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
 					.getTargetCredential().getCredential().getId(), credentialAssessment.getAssessedStudent().getId(), false, false, false);
 
@@ -447,7 +435,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			//TODO Check if this is needed
 			//credentialAssessment.getTargetCredential().setFinalReview("finalReview");
-		}catch (IllegalDataStateException ex){
+		} catch (IllegalDataStateException ex){
 			throw ex;
 		} catch (Exception e) {
 			logger.error("Error ", e);
@@ -788,49 +776,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		return query;
 	}
-
-	@Override
-	public int countAssessmentsForAssessorAndCredential(long decodedCredentialId, long assessorId,
-			boolean searchForPending, boolean searchForApproved) {
-		Query query = getAssessmentNumberForAssessorQuery(decodedCredentialId, assessorId, searchForPending, searchForApproved);
-		// if we don't search for pending or for approved, return empty list
-		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
-			return 0;
-		} else {
-			return ((Long) query.uniqueResult()).intValue();
-		}
-	}
-
-	private Query getAssessmentNumberForAssessorQuery(long decodedCredentialId, long assessorId,
-			boolean searchForPending, boolean searchForApproved) {
-		Query query = null;
-		if (searchForApproved && searchForPending) {
-			String ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
-					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-					+ "credentialAssessment.targetCredential.credential.id = :credentialId";
-			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
-					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
-		} else if (searchForApproved && !searchForPending) {
-			String APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
-					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-					+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
-					+ "credentialAssessment.approved = true";
-			query = persistence.currentManager().createQuery(APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
-					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
-		} else if (!searchForApproved && searchForPending) {
-			String PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER =
-					"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-					+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
-					+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
-					+ "credentialAssessment.approved = false";
-			query = persistence.currentManager().createQuery(PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER)
-					.setLong("assessorId", assessorId).setLong("credentialId", decodedCredentialId);
-		}
-		return query;
-	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -849,7 +794,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("discussionId", activityDiscussionId)
 					.list();
 			
-			if(res != null) {
+			if (res != null) {
 				List<ActivityDiscussionMessageData> msgs = new ArrayList<>();
 				for(ActivityDiscussionMessage msg : res) {
 					msgs.add(activityAssessmentFactory.getActivityDiscussionMessage(msg, assessorId));
@@ -903,7 +848,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						"WHERE cca.credential_assessment = :credAssessmentId";
 
 		persistence.currentManager().createSQLQuery(q)
-				.setLong("assessorId", assessor != null ? assessor.getId() : null)
+				.setParameter("assessorId", assessor != null ? assessor.getId() : null)
 				.setLong("credAssessmentId", credAssessmentId)
 				.executeUpdate();
 	}
@@ -941,12 +886,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				"UPDATE credential_competence_assessment cca " +
 				"INNER JOIN competence_assessment ca ON cca.competence_assessment = ca.id " +
 				"INNER JOIN credential_assessment credA ON cca.credential_assessment = credA.id " +
-					"WITH credA.targetCredential.id IN (:ids) " +
+					"AND credA.target_credential IN (:ids) " +
 					"AND ca.type = :instructorAssessment " +
 				"SET ca.assessor = :assessorId";
 
 		persistence.currentManager().createSQLQuery(q)
-				.setLong("assessorId", assessor != null ? assessor.getId() : null)
+				.setParameter("assessorId", assessor != null ? assessor.getId() : null)
 				.setParameterList("ids", targetCredIds)
 				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 				.executeUpdate();
@@ -1085,7 +1030,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 	
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional
 	public int recalculateScoreForCompetenceAssessment(long compAssessmentId) throws DbConnectionException {
 		return recalculateScoreForCompetenceAssessment(compAssessmentId, persistence.currentManager());
 	}
@@ -1289,31 +1234,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId) 
-			throws DbConnectionException {
-		try {
-			String query = "SELECT ca.student.id FROM ActivityAssessment aas " +
-						   "INNER JOIN aas.assessment ca " +
-						   "WHERE aas.id = :actAssessmentId";
-			
-			Long res = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("actAssessmentId", activityAssessmentId)
-					.uniqueResult();
-			
-			if (res == null) {
-				return 0L;
-			}
-			return res;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessed student id");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
 	public int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException {
 		try {
 			String query = "SELECT ca.points FROM CompetenceAssessment ca " +
@@ -1356,7 +1276,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	//TODO assessment refactor check if this query works
 	public AssessmentBasicData getInstructorAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException {
 		try {
@@ -1516,12 +1435,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
-	//TODO assessment refactor check if query works
 	private Map<Long, Long> getNumberOfAssessedStudentsForEachActivityInCredential(long deliveryId) {
 		String usersAssessedQ =
 				"SELECT aa.activity.id, COUNT(aa.id) FROM ActivityAssessment aa " +
 				"INNER JOIN aa.assessment compAssessment " +
-				"INNER JOIN compAssessment.credentialAssessments credAssessment " +
+				"INNER JOIN compAssessment.credentialAssessments cca " +
+				"INNER JOIN cca.credentialAssessment credAssessment " +
 				"WITH credAssessment.type = :instructorAssessment " +
 				"INNER JOIN credAssessment.targetCredential tc " +
 				"WITH tc.credential.id = :credId " +
@@ -1539,13 +1458,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	//TODO assessment refactor check if this query works
 	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException {
 		try {
 			String usersAssessedQ =
 					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
 							"INNER JOIN aa.assessment compAssessment " +
-							"INNER JOIN compAssessment.credentialAssessments credAssessment " +
+							"INNER JOIN compAssessment.credentialAssessments cca " +
+							"INNER JOIN cca.credentialAssessment credAssessment " +
 							"WITH credAssessment.type = :instructorAssessment " +
 							"INNER JOIN credAssessment.targetCredential tc " +
 							"WITH tc.credential.id = :credId " +

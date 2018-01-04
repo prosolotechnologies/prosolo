@@ -151,7 +151,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
 						int calculatedScore = calculateScoreBasedOnCalculationType(ta, act.getScoreCalculation(),
 							scaledGrade);
-						if(calculatedScore >= 0) {
+						if (calculatedScore >= 0) {
 							int prevScore = ta.getCommonScore();
 							ta.setCommonScore(calculatedScore);
 							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);

@@ -39,7 +39,6 @@ public class ActivityAssessmentData {
 	private ActivityResultType resultType;
 	//for external activities where acceptGrades = true
 	private boolean automaticGrade;
-	private long targetCompId;
 
 	private AssessmentType type;
 
@@ -56,7 +55,6 @@ public class ActivityAssessmentData {
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
 		data.setUserId(compAssessment.getStudent().getId());
-		data.setTargetCompId(actData.getTargetCompetenceId());
 		//populateIds(data,targetActivity,compAssessment);
 		data.setResultType(actData.getResultData().getResultType());
 		data.setResult(actData.getResultData().getResult());
@@ -72,6 +70,7 @@ public class ActivityAssessmentData {
 		}
 		data.setType(compAssessment.getType());
 		data.setCredAssessmentId(credAssessment.getId());
+		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
 
 		if (compAssessment.getAssessor() != null) {
 			data.setAssessorId(compAssessment.getAssessor().getId());
@@ -371,14 +370,6 @@ public class ActivityAssessmentData {
 
 	public void setAutomaticGrade(boolean automaticGrade) {
 		this.automaticGrade = automaticGrade;
-	}
-
-	public long getTargetCompId() {
-		return targetCompId;
-	}
-
-	public void setTargetCompId(long targetCompId) {
-		this.targetCompId = targetCompId;
 	}
 
 	/**

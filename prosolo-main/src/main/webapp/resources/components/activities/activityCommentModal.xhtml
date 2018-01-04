@@ -5,7 +5,8 @@
 			  xmlns:p="http://primefaces.org/ui"
 			  template="templates/masterLayout2.xhtml"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-			  xmlns:composite="http://java.sun.com/jsf/composite">
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="toUpdate" default=""/>
@@ -156,12 +157,12 @@
 												action="#{activityAssessmentBean.addCommentToActivityDiscussion()}"
 												type="button" styleClass="btn btn-sm btn-green hidden"
 												name="button"
-												update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityAssessmentBean.activityAssessmentData.targetActivityId}) #{cc.attrs.toUpdate}">
+												update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
 											Submit
 											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"
-													 value="name:result_private_conversation_dialog|id:#{activityAssessmentBean.activityAssessmentData.targetActivityId}" />
+													 value="name:result_private_conversation_dialog|id:#{util:decodeId(activityAssessmentBean.activityAssessmentData.encodedDiscussionId)}" />
 										</p:commandLink>
 
 									</div>

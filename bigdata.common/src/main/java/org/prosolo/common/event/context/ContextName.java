@@ -56,7 +56,7 @@ public enum ContextName {
 	UPLOAD_RESULT_DIALOG(""),
 	RESULT("TargetActivity1"),
 	RESULTS(""),
-	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1"),
+	RESULT_PRIVATE_CONVERSATION_DIALOG("ActivityAssessment"),
 	STUDENTS(""),
 	EDIT_DIALOG(""),
 	USER_GROUPS_DIALOG("User"),

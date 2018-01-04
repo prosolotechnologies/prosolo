@@ -120,6 +120,8 @@ public class CredentialAssessmentBean implements Serializable {
 					}
 				}
 			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 

@@ -6,12 +6,14 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,9 +30,6 @@ public interface AssessmentManager {
 
 	long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
                                     UserContextData context) throws DbConnectionException, IllegalDataStateException;
-
-	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
-			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
 
 	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
@@ -56,9 +55,6 @@ public interface AssessmentManager {
 			int numberPerPage,long credId);
 
 	int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved, long credId);
-
-	int countAssessmentsForAssessorAndCredential(long decodedCredentialId, long assessorId, boolean searchForPending,
-			boolean searchForApproved);
 
 	List<ActivityDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
 				long assessorId) throws DbConnectionException;
@@ -114,9 +110,6 @@ public interface AssessmentManager {
 	 */
 	List<Long> getParticipantIds(long activityAssessmentId);
 
-	Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId)
-			throws DbConnectionException;
-
 	/**
 	 * Returns existing assessment id from given assessor if it exists and assessment type is not instructor assessment,
 	 * otherwise creates new credential assessment and returns its id
@@ -156,5 +149,22 @@ public interface AssessmentManager {
 	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;
 
 	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
+
+	/**
+	 * Returns existing competence assessment from given assessor if it exists and if assessment type is not instructor
+	 * assessment, otherwise it creates new competence assessment and returns it.
+	 *
+	 * @param comp
+	 * @param studentId
+	 * @param assessorId
+	 * @param type
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
+																					long assessorId, AssessmentType type, UserContextData context)
+			throws IllegalDataStateException, DbConnectionException;
 
 }
