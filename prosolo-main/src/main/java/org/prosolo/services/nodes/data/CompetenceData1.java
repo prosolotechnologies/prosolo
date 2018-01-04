@@ -6,6 +6,8 @@ import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
@@ -64,6 +66,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private long numberOfStudents;
 
 	private LearningPathType learningPathType = LearningPathType.ACTIVITY;
+
+	//target competence data
+	//if evidence based learning path, student can post evidences
+	private List<LearningEvidenceData> evidences;
+
+	//learning stage info
+	private boolean learningStageEnabled;
+	private LearningStageData learningStage;
 	
 	//by default competence can be unpublished
 	private boolean canUnpublish = true;
@@ -73,6 +83,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		tags = new HashSet<>();
+		evidences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 
@@ -498,5 +509,29 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public void setLearningPathType(LearningPathType learningPathType) {
 		observeAttributeChange("learningPathType", this.learningPathType, learningPathType);
 		this.learningPathType = learningPathType;
+	}
+
+	public List<LearningEvidenceData> getEvidences() {
+		return evidences;
+	}
+
+	public void setEvidences(List<LearningEvidenceData> evidences) {
+		this.evidences = evidences;
+	}
+
+	public boolean isLearningStageEnabled() {
+		return learningStageEnabled;
+	}
+
+	public void setLearningStageEnabled(boolean learningStageEnabled) {
+		this.learningStageEnabled = learningStageEnabled;
+	}
+
+	public LearningStageData getLearningStage() {
+		return learningStage;
+	}
+
+	public void setLearningStage(LearningStageData learningStage) {
+		this.learningStage = learningStage;
 	}
 }

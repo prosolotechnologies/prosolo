@@ -3,6 +3,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -44,6 +45,8 @@ public class NodeChangeProcessorFactory {
     private CredentialManager credManager;
     @Inject
     private RubricsESService rubricsESService;
+    @Inject
+    private LearningEvidenceESService learningEvidenceESService;
 
     public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
         EventType type = event.getAction();
@@ -105,6 +108,8 @@ public class NodeChangeProcessorFactory {
                             organizationManager, event, session);
                 } else if (node instanceof Rubric) {
                     return new RubricNodeChangeProcessor(event, rubricsESService, session);
+                } else if (node instanceof LearningEvidence) {
+                    return new LearningEvidenceNodeChangeProcessor(event, learningEvidenceESService, session);
                 } else {
                     return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
                 }

@@ -1,0 +1,19 @@
+{
+  "evidence":{
+    "properties":{
+      "id":{
+        "store": false,
+        "type":"long"
+      },
+      "userId" : {
+        "store" : false,
+        "type" : "long"
+      },
+      "name":{
+        "store": false,
+        "type": "string"
+      }
+    }
+  }
+
+}

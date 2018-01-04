@@ -1,0 +1,102 @@
+package org.prosolo.services.nodes.data.evidence;
+
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
+
+/**
+ * @author stefanvuckovic
+ * @date 2017-12-04
+ * @since 1.2.0
+ */
+public class LearningEvidenceData implements Serializable {
+
+    private long id;
+    private long competenceEvidenceId;
+    private String title;
+    private String text;
+    private LearningEvidenceType type;
+    private String url;
+    private Set<Tag> tags;
+    private String tagsString;
+    private long dateAttached;
+
+    public String getFileName() {
+        return url != null && !url.isEmpty() ? url.substring(url.lastIndexOf("/") + 1) : null;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getCompetenceEvidenceId() {
+        return competenceEvidenceId;
+    }
+
+    public void setCompetenceEvidenceId(long competenceEvidenceId) {
+        this.competenceEvidenceId = competenceEvidenceId;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LearningEvidenceType getType() {
+        return type;
+    }
+
+    public void setType(LearningEvidenceType type) {
+        this.type = type;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public String getTagsString() {
+        return tagsString;
+    }
+
+    public void setTagsString(String tagsString) {
+        this.tagsString = tagsString;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public long getDateAttached() {
+        return dateAttached;
+    }
+
+    public void setDateAttached(long dateAttached) {
+        this.dateAttached = dateAttached;
+    }
+}
