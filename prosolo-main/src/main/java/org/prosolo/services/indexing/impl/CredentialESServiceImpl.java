@@ -102,7 +102,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 				System.out.println("JSON: " + builder.prettyPrint().string());
 				indexNode(
 						builder, String.valueOf(cred.getId()),
-						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, cred.getOrganization().getId()),
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, cred.getOrganization().getId()),
 						ESIndexTypes.CREDENTIAL);
 			}
 		} catch (IOException e) {
@@ -230,7 +230,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 			
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -246,7 +246,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -263,7 +263,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 			
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -279,7 +279,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 			
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -295,7 +295,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -309,7 +309,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 					.startObject()
 					.field("archived", archived)
 					.endObject();
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", doc);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -325,7 +325,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -356,7 +356,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 		builder.endObject();
 
 		partialUpdate(
-				ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+				ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 				ESIndexTypes.CREDENTIAL, credId + "", builder);
 	}
 
@@ -378,7 +378,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId),
 					ESIndexTypes.CREDENTIAL, delivery.getId() + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);

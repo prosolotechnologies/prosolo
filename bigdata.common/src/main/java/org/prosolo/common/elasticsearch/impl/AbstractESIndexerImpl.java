@@ -117,24 +117,6 @@ public class AbstractESIndexerImpl implements AbstractESIndexer {
 	}
 
 	@Override
-	public void addMapping(Client client, String indexName,String indexType) {
-		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
-		String mapping = null;
-
-		try {
-			mapping = copyToStringFromClasspath(mappingPath);
-		} catch (IOException e1) {
-			logger.error("Exception happened during mapping:"+mappingPath,e1);
-		}
-
-		try {
-			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
-		} catch (NoNodeAvailableException e) {
-			logger.error(e);
-		}
-	}
-
-	@Override
 	public String getIndexTypeForNode(BaseEntity node) {
 		String indexType = null;
 
@@ -157,10 +139,12 @@ public class AbstractESIndexerImpl implements AbstractESIndexer {
 			indexName = ESIndexNames.INDEX_USERS;
 		} else if(node instanceof UserGroup) {
 			indexName = ESIndexNames.INDEX_USER_GROUP;
-		} else if(node instanceof Rubric){
+		} else if (node instanceof Rubric) {
 			indexName = ESIndexNames.INDEX_RUBRIC_NAME;
-		} else {
-			indexName = ESIndexNames.INDEX_NODES;
+		} else if (node instanceof Credential1) {
+			indexName = ESIndexNames.INDEX_CREDENTIALS;
+		} else if (node instanceof Competence1) {
+			indexName = ESIndexNames.INDEX_COMPETENCES;
 		}
 		return indexName;
 	}

@@ -51,23 +51,23 @@ public class ESIndexerImpl implements ESIndexer {
 //		Collection<String> links=StringUtil.pullLinks(content);
 // 	}
 	
-	@Override
-	public void addMapping(Client client, String indexName,String indexType) {
-		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
-		String mapping = null;
-		
-		try {
-			mapping = copyToStringFromClasspath(mappingPath);
-		} catch (IOException e1) {
-			logger.error("Exception happened during mapping:"+mappingPath,e1);
-		}
-		
-		try {
-			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
-		} catch (NoNodeAvailableException e) {
-			logger.error(e);
-		}
-	}
+//	@Override
+//	public void addMapping(Client client, String indexName,String indexType) {
+//		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
+//		String mapping = null;
+//
+//		try {
+//			mapping = copyToStringFromClasspath(mappingPath);
+//		} catch (IOException e1) {
+//			logger.error("Exception happened during mapping:"+mappingPath,e1);
+//		}
+//
+//		try {
+//			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
+//		} catch (NoNodeAvailableException e) {
+//			logger.error(e);
+//		}
+//	}
 	
 //	@Override
 //	public void indexFileUploadedByTargetActivity(TargetActivity targetActivity, long userId){

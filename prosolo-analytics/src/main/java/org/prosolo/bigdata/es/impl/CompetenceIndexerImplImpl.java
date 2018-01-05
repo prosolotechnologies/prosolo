@@ -41,7 +41,7 @@ public class CompetenceIndexerImplImpl extends AbstractESIndexerImpl implements
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_COMPETENCES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -79,7 +79,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
 				indexNode(builder, String.valueOf(competence.getId()),
-						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, competence.getOrganization().getId()),
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, competence.getOrganization().getId()),
 						ESIndexTypes.COMPETENCE);
 			}
 		} catch (Exception e) {
@@ -166,7 +166,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			builder.field("visibleToAll", value);
 			builder.endObject();
 			
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -181,7 +181,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			addUsersWithPrivileges(builder, compId, session);
 			builder.endObject();
 			
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -197,7 +197,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(comp.getDatePublished()));
 			}
 			doc.endObject();
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, comp.getId() + "", doc);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -213,7 +213,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -229,7 +229,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -245,7 +245,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -259,7 +259,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			    .startObject()
 		        .field("archived", archived)
 		        .endObject();
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -274,7 +274,7 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			builder.field("creatorId", newOwnerId);
 			builder.endObject();
 
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);

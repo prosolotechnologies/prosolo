@@ -34,8 +34,10 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.elasticsearch.client.ESRestClient;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 
@@ -154,19 +156,9 @@ public class ESRestClientImpl implements ESRestClient {
                         elasticSearchConfig.replicasNumber)
                 .put("index.number_of_shards",
                         elasticSearchConfig.shardsNumber);
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder().startObject("settings");
-        XContentParser settingsParser = JsonXContent.jsonXContent
-                .createParser(NamedXContentRegistry.EMPTY, elasticsearchSettings.build().toString());
-        jsonBuilder.copyCurrentStructure(settingsParser);
-        jsonBuilder.endObject();
-        jsonBuilder.startObject("mappings");
-        XContentParser mappingsParser = JsonXContent.jsonXContent
-                .createParser(NamedXContentRegistry.EMPTY, getMappingString(indexName));
-        jsonBuilder.copyCurrentStructure(mappingsParser);
-        jsonBuilder.endObject();
+        String indexSettings = getCreateIndexRequestBody(elasticsearchSettings.build().toString(), getMappingString(indexName));
 
-        HttpEntity entity = new NStringEntity(jsonBuilder.string(), ContentType.APPLICATION_JSON);
-
+        HttpEntity entity = new NStringEntity(indexSettings, ContentType.APPLICATION_JSON);
         Response response = highLevelClient.getLowLevelClient().performRequest("PUT", "/" + indexName, Collections.emptyMap(), entity);
 
         int status = response.getStatusLine().getStatusCode();
@@ -174,9 +166,33 @@ public class ESRestClientImpl implements ESRestClient {
         return status == HttpStatus.SC_OK;
     }
 
+    private String getCreateIndexRequestBody(String settingsJson, String mappingsJson) {
+        //this is an option to insert existing json string (field, object, array) to XContentBuilder
+//        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
+//        XContentParser settingsParser = JsonXContent.jsonXContent
+//                .createParser(NamedXContentRegistry.EMPTY, settingsJson);
+//        jsonBuilder.copyCurrentStructure(settingsParser);
+        String indexSettings = "";
+        if (settingsJson != null && !settingsJson.isEmpty()) {
+            indexSettings = "\"settings\": " + settingsJson;
+        }
+
+        if (mappingsJson != null && !mappingsJson.isEmpty()) {
+            if (!indexSettings.isEmpty()) {
+                //add comma between settings and mappings objects
+                indexSettings += ", ";
+            }
+            indexSettings += "\"mappings\": " + mappingsJson;
+        }
+        //put everything in one object and return
+        return "{" + indexSettings + "}";
+    }
+
     private String getMappingString(String indexName) {
         if (indexName.startsWith(ESIndexNames.INDEX_CREDENTIALS)) {
-           return getMappingString(ESIndexTypes.CREDENTIAL);
+            return getMappingStringForType(ESIndexTypes.CREDENTIAL);
+        } else if (indexName.startsWith(ESIndexNames.INDEX_COMPETENCES)) {
+            return getMappingStringForType(ESIndexTypes.COMPETENCE);
         } else if (indexName.startsWith(ESIndexNames.INDEX_USERS)) {
             if (indexName.equals(ESIndexNames.INDEX_USERS)) {
                 return getMappingStringForType(ESIndexTypes.USER);

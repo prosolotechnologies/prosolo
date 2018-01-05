@@ -85,7 +85,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			limit = setLimit(limit, loadOneMore);
 
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
 					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 			
@@ -160,7 +160,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*")
 					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 
@@ -357,7 +357,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -551,7 +551,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				bQueryBuilder.must(qb);
@@ -634,7 +634,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -716,7 +716,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -884,7 +884,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -1043,7 +1043,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -1132,7 +1132,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			int start = setStart(page, limit);
 
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(term.toLowerCase()) + "*")
 					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 			
@@ -1190,7 +1190,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -1253,7 +1253,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -1329,7 +1329,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -1699,7 +1699,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		if (searchTerm != null && !searchTerm.isEmpty()) {
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 					.defaultOperator(Operator.AND)
 					.field("name").field("lastname");
 

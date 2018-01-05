@@ -13,9 +13,8 @@ public class ESIndexNames {
  
 	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static final String INDEX_LOGS = CommonSettings.getInstance().config.elasticSearch.logsIndex+CommonSettings.getInstance().config.getNamespaceSufix();;
-	public static String INDEX_NODES=CommonSettings.getInstance().config.elasticSearch.nodesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
-	public static String INDEX_CREDENTIALS=CommonSettings.getInstance().config.elasticSearch.nodesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
-	public static String INDEX_COMPETENCES=CommonSettings.getInstance().config.elasticSearch.nodesIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
+	public static String INDEX_CREDENTIALS=CommonSettings.getInstance().config.elasticSearch.credentialsIndex + CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
+	public static String INDEX_COMPETENCES=CommonSettings.getInstance().config.elasticSearch.competencesIndex + CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
 	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"users";
 	public static String INDEX_RECOMMENDATION_DATA=CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static String INDEX_USER_GROUP = CommonSettings.getInstance().config.elasticSearch.userGroupIndex + CommonSettings.getInstance().config.getNamespaceSufix();
@@ -52,7 +51,7 @@ public class ESIndexNames {
 	 * @return
 	 */
 	public static List<String> getRecreatableIndexes() {
-		return Arrays.asList(INDEX_USERS, INDEX_NODES, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+		return Arrays.asList(INDEX_USERS, INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
 	}
 
 	public static List<String> getSystemIndexes() {
@@ -60,7 +59,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getOrganizationIndexes() {
-		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+		return Arrays.asList(INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
 	}
 
 	/**

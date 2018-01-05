@@ -50,7 +50,8 @@
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
 		<documents-index>documents</documents-index>
-		<nodes-index>nodes</nodes-index>
+		<credentials-index>credentials</credentials-index>
+		<competences-index>competences</competences-index>
 		<users-index>users</users-index>
 		<associationrules-index>associationrules</associationrules-index>
 		<recommendationdata-index>recommendationdata</recommendationdata-index>

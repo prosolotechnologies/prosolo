@@ -1,13 +1,16 @@
 {
 	"analysis": {
 		"analyzer": {
-			"ci_analyzer": {
-				"tokenizer": "keyword",
-				"filter":  [ "lowercase" ]
-			},
 			"whitespace_lowercase_analyzer": {
 				"tokenizer": "whitespace",
 				"filter":  [ "lowercase" ]
+			}
+		},
+		"normalizer": {
+			"ci_normalizer": {
+				"type": "custom",
+				"char_filter": [],
+				"filter": ["lowercase"]
 			}
 		}
 	}

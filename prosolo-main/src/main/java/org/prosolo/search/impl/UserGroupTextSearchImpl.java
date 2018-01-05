@@ -131,7 +131,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		
 		QueryBuilder qb = QueryBuilders
-				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -150,7 +150,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				.query(bQueryBuilder)
 				.from(start)
 				.size(size)
-				.sort(new FieldSortBuilder("name").order(SortOrder.ASC));
+				.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
 		return ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId), ESIndexTypes.USER_GROUP);
 	}
 	
@@ -237,7 +237,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
@@ -269,8 +269,8 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					.query(bQueryBuilder)
 					.size(limit)
 					.fetchSource(includes, null)
-					.sort(new FieldSortBuilder("lastname").order(SortOrder.ASC))
-					.sort(new FieldSortBuilder("name").order(SortOrder.ASC));
+					.sort(new FieldSortBuilder("lastname.sort").order(SortOrder.ASC))
+					.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
 
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse userResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER);
@@ -287,8 +287,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			return userHits;
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
 		return new SearchHit[0];
 	}
@@ -301,7 +300,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 					.defaultOperator(Operator.AND)
 					.field("name");
 			
@@ -324,7 +323,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			searchSourceBuilder
 					.query(bqBuilder)
 					.size(limit)
-					.sort(new FieldSortBuilder("name").order(SortOrder.ASC));
+					.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
 			SearchResponse groupResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId), ESIndexTypes.USER_GROUP);
 
 			SearchHit[] groupHits = null;

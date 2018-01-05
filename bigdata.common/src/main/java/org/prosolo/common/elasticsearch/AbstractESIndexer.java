@@ -18,7 +18,7 @@ public interface AbstractESIndexer {
 
 	String getIndexTypeForNode(BaseEntity resource);
 
-	public void deleteNodeFromES(BaseEntity resource);
+	void deleteNodeFromES(BaseEntity resource);
 
 	String getIndexNameForNode(BaseEntity resource);
 
@@ -27,10 +27,5 @@ public interface AbstractESIndexer {
 
 	void partialUpdate(String indexName, String indexType, String docId,
                        XContentBuilder partialDoc);
-
-	void addMapping(Client client, String indexName, String indexType);
-
-	 
- 
 
 }

@@ -88,7 +88,7 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
 
         QueryBuilder queryBuilder = QueryBuilders
                 .queryStringQuery(searchString.toLowerCase() + "*")
-                .useDisMax(true).field("name");
+                .field("name");
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.filter(queryBuilder);

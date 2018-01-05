@@ -75,7 +75,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
@@ -115,7 +115,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					: SortOrder.DESC;
 			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.CREDENTIAL);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId), ESIndexTypes.CREDENTIAL);
 			
 			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -182,7 +182,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 
@@ -214,7 +214,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					: SortOrder.DESC;
 			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.CREDENTIAL);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId), ESIndexTypes.CREDENTIAL);
 
 			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -255,7 +255,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	 */
 	private QueryBuilder configureAndGetSearchFilter(CredentialSearchConfig config, long userId, List<Long> unitIds) {
 		BoolQueryBuilder bf = QueryBuilders.boolQuery();
-		bf.filter(QueryBuilders.termQuery("type", config.getType().toString().toLowerCase()));
+		bf.filter(QueryBuilders.termQuery("type", config.getType().toString()));
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		if (config.getType() == CredentialType.Delivery) {
 			if (config.shouldIncludeResourcesWithViewPrivilege()) {

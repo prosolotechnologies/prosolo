@@ -41,7 +41,7 @@ public class CredentialIndexerImplImpl extends AbstractESIndexerImpl implements
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_CREDENTIALS, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

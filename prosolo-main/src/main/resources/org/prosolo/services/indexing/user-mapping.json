@@ -7,21 +7,21 @@
 			},
 			"name": {
 				"store": false,
-				"type": "string",
+				"type": "text",
 				"analyzer": "whitespace_lowercase_analyzer"
 			},
 			"lastname": {
 				"store": false,
-				"type": "string",
+				"type": "text",
 				"analyzer": "whitespace_lowercase_analyzer"
 			},
 			"avatar": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 			"position": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 			"assigned": {
 				"store": false,

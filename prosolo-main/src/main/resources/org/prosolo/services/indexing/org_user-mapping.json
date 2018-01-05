@@ -7,17 +7,29 @@
 			},
 			"url": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 			"name": {
 				"store": false,
-				"type": "string",
-				"analyzer": "whitespace_lowercase_analyzer"
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"lastname": {
 				"store": false,
-				"type": "string",
-				"analyzer": "whitespace_lowercase_analyzer"
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"system": {
 				"store": false,
@@ -25,12 +37,12 @@
 			},
 			"avatar": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 
 			"position": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 
 			"location": {

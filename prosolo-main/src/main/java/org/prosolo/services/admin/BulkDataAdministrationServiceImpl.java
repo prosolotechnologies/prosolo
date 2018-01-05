@@ -65,12 +65,14 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     @Override
     public void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
-        //delete nodes indexes
-        esAdministration.deleteIndex(orgId > 0
-                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, orgId)
-                : ESIndexNames.INDEX_NODES + "*");
+        //delete credentials and competences indexes
+        esAdministration.deleteIndex(
+                new String[] {
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, orgId) : ESIndexNames.INDEX_CREDENTIALS + "*",
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, orgId) : ESIndexNames.INDEX_COMPETENCES + "*"
+                });
 
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_NODES});
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_CREDENTIALS, ESIndexNames.INDEX_COMPETENCES});
 
         indexNodes(orgId);
     }

@@ -23,17 +23,17 @@
 			},
 			"title":{
 				"store": false,
-				"type":"string",
+				"type":"text",
 				"fields": {
 					"sort": {
-						"type":  "string",
-						"analyzer": "ci_analyzer"
+						"type":  "keyword",
+						"normalizer": "ci_normalizer"
 					}
    	 			}
 			},
 			"description":{
 				"store": false,
-				"type":"string"
+				"type":"text"
 			},
 			"dateCreated":{
 				"store": false,
@@ -49,13 +49,13 @@
 				"properties":{
 					"title":{
 						"store": false,
-						"type":"string"
+						"type":"keyword"
 					} 
 				}
 			},
 			"type":{
 				"store": false,
-				"type":"string"
+				"type":"keyword"
 			},
 			"creatorId":{
 				"store": false,

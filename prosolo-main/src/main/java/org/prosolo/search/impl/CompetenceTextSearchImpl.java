@@ -78,7 +78,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if (searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("title");
 				
@@ -137,7 +137,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				}
 			}
 			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
-			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -181,7 +181,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
@@ -250,7 +250,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					: SortOrder.DESC;
 			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if(sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -305,7 +305,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 				
@@ -356,7 +356,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					: SortOrder.DESC;
 			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId), ESIndexTypes.COMPETENCE);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
@@ -446,8 +446,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			 * for example: if competence is user created and user has edit privilege for that competence
 			 * but university created type is set in config object, user should not see this competence
 			 */
-			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()
-					.toLowerCase()));
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()));
 			
 			boolFilter.should(editorAndTypeFilter);
 		}
