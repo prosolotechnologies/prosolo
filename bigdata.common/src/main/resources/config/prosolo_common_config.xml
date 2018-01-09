@@ -60,6 +60,7 @@
 
 		<rubrics-index>rubrics</rubrics-index>
 		<jobsLogs-index>jobslogs</jobsLogs-index>
+		<evidences-index>evidence</evidences-index>
 
 	</elastic-search-config>
 	<mysql-config>

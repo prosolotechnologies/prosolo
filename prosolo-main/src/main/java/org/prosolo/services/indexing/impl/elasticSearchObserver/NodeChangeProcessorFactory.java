@@ -130,6 +130,8 @@ public class NodeChangeProcessorFactory {
                             userEntityESService, ctxJsonParserService, session);
                 } else if (node instanceof Rubric) {
                     return new RubricNodeChangeProcessor(event, rubricsESService, session);
+                } else if (node instanceof LearningEvidence) {
+                    return new LearningEvidenceNodeChangeProcessor(event, learningEvidenceESService, session);
                 }
                 return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
             case Attach:

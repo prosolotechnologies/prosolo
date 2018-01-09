@@ -14,7 +14,6 @@ import java.util.Set;
  * @since 1.2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user", "title"})})
 public class LearningEvidence extends BaseEntity {
 
     private Organization organization;
@@ -22,6 +21,7 @@ public class LearningEvidence extends BaseEntity {
     private LearningEvidenceType type;
     private String url;
     private Set<Tag> tags;
+    private Set<CompetenceEvidence> competences;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     public Organization getOrganization() {
@@ -66,5 +66,14 @@ public class LearningEvidence extends BaseEntity {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @OneToMany(mappedBy = "evidence", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    public Set<CompetenceEvidence> getCompetences() {
+        return competences;
+    }
+
+    public void setCompetences(Set<CompetenceEvidence> competences) {
+        this.competences = competences;
     }
 }

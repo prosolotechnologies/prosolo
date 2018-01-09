@@ -2,13 +2,10 @@ package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -21,6 +18,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.learningevidence.SubmitEvidenceBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -30,13 +28,10 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @ManagedBean(name = "competenceViewBean")
@@ -56,6 +51,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private UploadManager uploadManager;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
+	@Inject private SubmitEvidenceBean submitEvidenceBean;
 
 	private String credId;
 	private long decodedCredId;
@@ -68,8 +64,6 @@ public class CompetenceViewBeanUser implements Serializable {
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
-	//when student is already learning the competence, he can upload evidences if appropriate learning path is set
-	private LearningEvidenceData evidence;
 	private LearningEvidenceData evidenceToRemove;
 
 	private long nextCompToLearn;
@@ -114,7 +108,7 @@ public class CompetenceViewBeanUser implements Serializable {
 //					}
 				}
 				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE && competenceData.isEnrolled()) {
-					evidence = new LearningEvidenceData();
+					submitEvidenceBean.init(new LearningEvidenceData());
 				}
 				if (justEnrolled) {
 					PageUtil.fireSuccessfulInfoMessage(
@@ -179,64 +173,46 @@ public class CompetenceViewBeanUser implements Serializable {
 		this.evidenceToRemove = evidenceToRemove;
 	}
 
-	public void resetEvidence() {
-		evidence = new LearningEvidenceData();
-	}
-
 	public void prepareExistingEvidenceSearch() {
 		if (!learningEvidenceSearchBean.isInitialized()) {
 			learningEvidenceSearchBean.init(competenceData.getEvidences().stream().map(LearningEvidenceData::getId).collect(Collectors.toList()));
 		}
-		resetEvidence();
-	}
-
-	public void handleFileUpload(FileUploadEvent event) {
-		UploadedFile uploadedFile = event.getFile();
-		try {
-			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
-			evidence.setUrl(fullPath);
-		} catch (Exception e) {
-			logger.error("Error", e);
-		}
-	}
-
-	public void removeUploadedEvidence() {
-		evidence.setUrl(null);
+		submitEvidenceBean.resetEvidence();
 	}
 
 	public void postFileEvidence() {
-		postEvidence(LearningEvidenceType.FILE);
+		submitEvidenceBean.preparePostFileEvidence();
+		postEvidence();
 	}
 
 	public void postUrlEvidence() {
-		postEvidence(LearningEvidenceType.LINK);
+
+		submitEvidenceBean.preparePostUrlEvidence();
+		postEvidence();
+
 	}
 
 	public void postTextEvidence() {
-		evidence.setUrl(null);
-		postEvidence(LearningEvidenceType.TEXT);
+		submitEvidenceBean.preparePostTextEvidence();
+		postEvidence();
 	}
 
 	public void postExistingEvidence(LearningEvidenceData evidence) {
-		this.evidence = evidence;
-		postEvidence(null);
+		submitEvidenceBean.preparePostExistingEvidence(evidence);
+		postEvidence();
 	}
 
-	private void postEvidence(LearningEvidenceType evidenceType) {
+	private void postEvidence() {
 		try {
-			if (evidenceType != null) {
-				evidence.setType(evidenceType);
-			}
 			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
-					competenceData.getTargetCompId(), evidence, loggedUser.getUserContext());
+					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());
 			competenceData.getEvidences().add(newEvidence);
 			if (learningEvidenceSearchBean.isInitialized()) {
 				//if evidence search bean is initialized exclude just added evidence from search and reset search
 				learningEvidenceSearchBean.excludeEvidenceFromFutureSearches(newEvidence.getId());
 				learningEvidenceSearchBean.resetAndSearch();
 			}
-			resetEvidence();
+			submitEvidenceBean.resetEvidence();
 			PageUtil.fireSuccessfulInfoMessage("Evidence successfully added");
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
 			logger.error("Error", e);
@@ -272,14 +248,6 @@ public class CompetenceViewBeanUser implements Serializable {
 	/*
 	VALIDATORS
 	 */
-
-	public void validateFileEvidence(FacesContext context, UIComponent component, Object value) {
-		if (evidence.getUrl() == null || evidence.getUrl().isEmpty()) {
-				FacesMessage msg = new FacesMessage("File must be uploaded");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				throw new ValidatorException(msg);
-		}
-	}
 	
 	/*
 	 * GETTERS / SETTERS
@@ -365,7 +333,4 @@ public class CompetenceViewBeanUser implements Serializable {
 		return credentialTitle;
 	}
 
-	public LearningEvidenceData getEvidence() {
-		return evidence;
-	}
 }

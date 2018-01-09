@@ -4,19 +4,19 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
-import org.prosolo.common.domainmodel.credential.LearningEvidence;
-import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,10 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author stefanvuckovic
@@ -68,7 +66,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev);
-            res.setResult(learningEvidenceDataFactory.getLearningEvidenceData(ev, ce, ev.getTags()));
+            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags()));
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
             throw e;
@@ -79,21 +77,23 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     }
 
     @Override
+    //nt
+    public long postEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<LearningEvidence> res = self.postEvidenceAndGetEvents(evidence, context);
+        eventFactory.generateEvents(res.getEventQueue());
+        return res.getResult().getId();
+    }
+
+    @Override
     @Transactional
     public Result<LearningEvidence> postEvidenceAndGetEvents(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             LearningEvidence ev = new LearningEvidence();
 
             ev.setOrganization((Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId()));
-            ev.setTitle(evidence.getTitle());
-            ev.setDescription(evidence.getText());
-            ev.setType(evidence.getType());
-            if (ev.getType() != LearningEvidenceType.TEXT) {
-                ev.setUrl(evidence.getUrl());
-            }
-            ev.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(evidence.getTagsString())));
             ev.setUser((User) persistence.currentManager().load(User.class, context.getActorId()));
             ev.setDateCreated(new Date());
+            setEvidenceData(ev, evidence);
             saveEntity(ev);
 
             Result<LearningEvidence> result = new Result<>();
@@ -107,8 +107,18 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             throw e;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error saving the competence evidence");
+            throw new DbConnectionException("Error saving the learning evidence");
         }
+    }
+
+    private void setEvidenceData(LearningEvidence evidence, LearningEvidenceData evidenceData) {
+        evidence.setTitle(evidenceData.getTitle());
+        evidence.setDescription(evidenceData.getText());
+        evidence.setType(evidenceData.getType());
+        if (evidence.getType() != LearningEvidenceType.TEXT) {
+            evidence.setUrl(evidenceData.getUrl());
+        }
+        evidence.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(evidenceData.getTagsString())));
     }
 
     @Override
@@ -152,7 +162,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     .list();
             List<LearningEvidenceData> evidenceData = new ArrayList<>();
             for (CompetenceEvidence ce : evidence) {
-                evidenceData.add(learningEvidenceDataFactory.getLearningEvidenceData(
+                evidenceData.add(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(
                         ce.getEvidence(), ce, loadTags ? ce.getEvidence().getTags() : null));
             }
             return evidenceData;
@@ -207,6 +217,206 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the evidence");
+        }
+    }
+
+    @Override
+    @Transactional (readOnly = true)
+    public PaginatedResult<LearningEvidenceData> getPaginatedUserEvidences(long userId, int offset, int limit) throws DbConnectionException {
+        try {
+            PaginatedResult<LearningEvidenceData> res = new PaginatedResult<>();
+            res.setHitsNumber(countUserEvidences(userId));
+            if (res.getHitsNumber() > 0) {
+                res.setFoundNodes(getUserEvidences(userId, offset, limit));
+            }
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the user evidences");
+        }
+    }
+
+    private List<LearningEvidenceData> getUserEvidences(long userId, int offset, int limit) {
+        String query =
+                "SELECT le FROM LearningEvidence le " +
+                "LEFT JOIN fetch le.tags " +
+                "WHERE le.user.id = :userId " +
+                "AND le.deleted IS FALSE " +
+                "ORDER BY le.dateCreated DESC";
+
+        @SuppressWarnings("unchecked")
+        List<LearningEvidence> evidences = persistence.currentManager()
+                .createQuery(query)
+                .setLong("userId", userId)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .list();
+
+        return evidences.stream()
+                .map(ev -> learningEvidenceDataFactory.getLearningEvidenceData(ev, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId())))
+                .collect(Collectors.toList());
+    }
+
+    private long countUserEvidences(long userId) {
+        String query =
+                "SELECT COUNT(le.id) FROM LearningEvidence le " +
+                "WHERE le.user.id = :userId " +
+                "AND le.deleted IS FALSE";
+
+        return (Long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("userId", userId)
+                .uniqueResult();
+    }
+
+    @Transactional (readOnly = true)
+    @Override
+    public List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT comp " +
+                            "FROM CompetenceEvidence ce " +
+                            "INNER JOIN ce.competence tc " +
+                            "INNER JOIN tc.competence comp " +
+                            "WHERE ce.evidence.id = :evId " +
+                            "AND ce.deleted IS FALSE";
+
+            @SuppressWarnings("unchecked")
+            List<Competence1> competences = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("evId", evidenceId)
+                    .list();
+
+            List<BasicObjectInfo> comps = new ArrayList<>();
+            for (Competence1 comp : competences) {
+                comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle()));
+            }
+            return comps;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the competences evidence is added to");
+        }
+    }
+
+    @Transactional (readOnly = true)
+    @Override
+    public List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT DISTINCT t.title " +
+                    "FROM LearningEvidence le " +
+                    "INNER JOIN le.tags t " +
+                    "WHERE le.user.id = :userId " +
+                    "AND le.deleted IS FALSE";
+
+            @SuppressWarnings("unchecked")
+            List<String> tags = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .list();
+
+            return tags;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the evidences keywords");
+        }
+    }
+
+    @Transactional (readOnly = true)
+    @Override
+    public LearningEvidenceData getLearningEvidence(long evidenceId, boolean loadTags, boolean loadCompetencesWithEvidence) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT le FROM LearningEvidence le ";
+            if (loadTags) {
+               query +=  "LEFT JOIN fetch le.tags ";
+            }
+            query += "WHERE le.id = :evId " +
+                     "AND le.deleted IS FALSE";
+
+            LearningEvidence evidence = (LearningEvidence) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("evId", evidenceId)
+                    .uniqueResult();
+
+            if (evidence == null) {
+                return null;
+            }
+
+            Set<Tag> tags = loadTags ? evidence.getTags() : null;
+            List<BasicObjectInfo> competences = loadCompetencesWithEvidence ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
+            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, tags, competences);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the learning evidence");
+        }
+    }
+
+    @Override
+    //nt
+    public void deleteLearningEvidence(long evidenceId, UserContextData context) throws DbConnectionException {
+        eventFactory.generateEvents(self.deleteLearningEvidenceAndGetEvents(evidenceId, context).getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> deleteLearningEvidenceAndGetEvents(long evidenceId, UserContextData context) throws DbConnectionException {
+        try {
+            //TODO check if this is the desired behavior
+            deleteAllCompetenceEvidencesForEvidence(evidenceId);
+            LearningEvidence le = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidenceId);
+            le.setDeleted(true);
+
+            LearningEvidence obj = new LearningEvidence();
+            obj.setId(evidenceId);
+
+            Result<Void> res = new Result<>();
+            res.appendEvent(eventFactory.generateEventData(EventType.Delete, context, obj, null, null, null));
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error deleting the learning evidence");
+        }
+    }
+
+    private void deleteAllCompetenceEvidencesForEvidence(long evidenceId) {
+        String q =
+                "UPDATE CompetenceEvidence ce SET ce.deleted = :deleted " +
+                "WHERE ce.evidence.id = :evId";
+
+        persistence.currentManager()
+                .createQuery(q)
+                .setBoolean("deleted", true)
+                .setLong("evId", evidenceId)
+                .executeUpdate();
+    }
+
+    @Override
+    //nt
+    public void updateEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<LearningEvidence> res = self.updateEvidenceAndGetEvents(evidence, context);
+        eventFactory.generateEvents(res.getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<LearningEvidence> updateEvidenceAndGetEvents(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
+            LearningEvidence ev = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidence.getId());
+            setEvidenceData(ev, evidence);
+
+            Result<LearningEvidence> result = new Result<>();
+            result.setResult(ev);
+            LearningEvidence eventObject = new LearningEvidence();
+            eventObject.setId(ev.getId());
+            result.appendEvent(eventFactory.generateEventData(EventType.Edit, context, eventObject, null, null, null));
+            return result;
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating the learning evidence");
         }
     }
 

@@ -8,7 +8,8 @@
 		xmlns:post="http://java.sun.com/jsf/composite/components/post"
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-		xmlns:f="http://java.sun.com/jsf/core">
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -46,296 +47,23 @@
 					</c:if>
 
 					<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
-						<style>
-							.mce-tinymce.mce-container {
-								margin-bottom: 25px;
-							}
-						</style>
 						<h2>Submit Evidence</h2>
-						<div class="whiteBox">
-							<ul class="nav nav-tabs pageSubmenu" role="tablist">
-								<li role="presentation" class="active">
-									<p:commandLink
-									    pt:role="tab"
-									    pt:data-toggle="tab"
-										process="@this"
-									    action="#{cc.attrs.bean.resetEvidence()}"
-										update=":#{cc.clientId}:formFileEvidence"
-										oncomplete="$('#uploadTabLink').tab('show');">
-										Upload File
-									</p:commandLink>
-								</li>
-								<li role="presentation">
-									<p:commandLink href="javascript:void(0);"
-									    pt:role="tab"
-									    pt:data-toggle="tab"
-									    process="@this"
-									    action="#{cc.attrs.bean.resetEvidence()}"
-									    update=":#{cc.clientId}:formUrlEvidence"
-									    oncomplete="$('#urlTabLink').tab('show');">
-										URL
-									</p:commandLink>
-								</li>
-								<li role="presentation">
-									<p:commandLink
-									    pt:role="tab"
-									    pt:data-toggle="tab"
-									    process="@this"
-									    action="#{cc.attrs.bean.resetEvidence()}"
-									    update=":#{cc.clientId}:formTextEvidence"
-									    oncomplete="$('#textTabLink').tab('show');">
-										Text
-									</p:commandLink>
-								</li>
-								<li role="presentation">
-									<p:commandLink
-									    pt:role="tab"
-									    pt:data-toggle="tab"
-									    process="@this"
-									    action="#{cc.attrs.bean.prepareExistingEvidenceSearch()}"
-									    update=":#{cc.clientId}:panelExistingEvidence"
-									    oncomplete="$('#documentTabLink').tab('show');">
-										Existing Document
-									</p:commandLink>
-								</li>
-							</ul>
-							<a id="uploadTabLink" href="#upload" style="display: none;"></a>
-							<a id="urlTabLink" href="#url" style="display: none;"></a>
-							<a id="textTabLink" href="#text" style="display: none;"></a>
-							<a id="documentTabLink" href="#document" style="display: none;"></a>
-						</div>
-						<div class="tab-content">
-							<div role="tabpanel" class="tab-pane fade in active submitEvidenceTab" id="upload">
-								<h:form id="formFileEvidence" enctype="multipart/form-data">
-									<h:inputText
-											id="inputTitle"
-											value="#{cc.attrs.bean.evidence.title}"
-											placeholder="Evidence Title"
-											required="true"
-											requiredMessage="Title is required"
-											autocomplete="off"
-									/>
-									<small class="redText"><h:message for="inputTitle"></h:message></small>
+						<evidence:submitEvidence
+								id="submitEvidence"
+								bean="#{cc.attrs.bean}"
+								includeExistingEvidencesOption="true"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences"
+								learningContext="#{cc.attrs.learningContext}"
+								submitButtonText="Submit"
+						/>
 
-									<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{cc.attrs.bean.evidence.text}"></h:inputTextarea>
-									<script>
-                                        initTinyMCE(escapeColons('##{cc.clientId}:formFileEvidence:textareaEvidenceText'));
-									</script>
-									<h:panelGroup id="panelUploadEvidence">
-										<ui:fragment rendered="#{empty cc.attrs.bean.evidence.url}">
-											<utilcomp:fileUpload
-													uploadFileInfo="Upload File"
-													fileUploadListenerMethodName="handleFileUpload"
-													fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-													disabled="false"
-													toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
-											/>
-										</ui:fragment>
-										<ui:fragment rendered="#{not empty cc.attrs.bean.evidence.url}">
-											<div class="whiteBox evidenceBox evidenceBoxSmall">
-												<div class="evidenceTop">
-													<div class="evidenceTopLeft">
-														<div class="icon text"></div>
-														<h3>#{cc.attrs.bean.evidence.fileName}</h3>
-													</div>
-													<div class="evidenceTopRight">
-														<div class="dropdown optMoreMenu">
-															<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
-															<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
-																<li>
-																	<p:commandLink
-																		process="@this"
-																		action="#{cc.attrs.bean.removeUploadedEvidence()}"
-																	    update=":#{cc.clientId}:formFileEvidence:panelUploadEvidence">
-																		Remove
-																	</p:commandLink>
-																</li>
-															</ul>
-														</div>
-													</div>
-												</div>
-											</div>
-										</ui:fragment>
-									</h:panelGroup>
-									<h:inputHidden id="inputHiddenFileEvidence" value="0" validator="#{cc.attrs.bean.validateFileEvidence}"/>
-									<small class="redText"><h:message for="inputHiddenFileEvidence"></h:message></small>
-
-									<h:inputText styleClass="tagsInputEvidence"
-												 id="inputKeywords"
-												 value="#{cc.attrs.bean.evidence.tagsString}"
-												 placeholder="Keywords - Type and press 'Enter'"
-												 pt:data-role="tagsinput"
-												 autocomplete="off">
-									</h:inputText>
-									<script>$('.tagsInputEvidence').tagsinput();</script>
-
-									<div class="lastRow">
-										<p:commandLink styleClass="btn btn-green"
-													   onclick="copyTextFromTinyMCEToTextarea(escapeColons('##{cc.clientId}:formFileEvidence:textareaEvidenceText'));"
-													   action="#{cc.attrs.bean.postFileEvidence()}"
-													   update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:formFileEvidence :#{cc.clientId}:panelEvidences">
-											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-											<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-											<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formFileEvidence:inputTitle" />
-											Submit
-										</p:commandLink>
-									</div>
-								</h:form>
-							</div>
-							<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="url">
-								<h:form id="formUrlEvidence">
-									<h:inputText
-											id="inputTitle"
-											value="#{cc.attrs.bean.evidence.title}"
-											placeholder="Evidence Title"
-											required="true"
-											requiredMessage="Title is required"
-											autocomplete="off"
-									/>
-									<small class="redText"><h:message for="inputTitle"></h:message></small>
-
-									<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{cc.attrs.bean.evidence.text}"></h:inputTextarea>
-									<script>
-                                        initTinyMCE(escapeColons('##{cc.clientId}:formUrlEvidence:textareaEvidenceText'));
-									</script>
-
-									<h:inputText id="inputUrl"
-												 styleClass="urlInput"
-												 placeholder="http://..."
-												 required="true"
-												 requiredMessage="URL is required"
-												 validator="urlValidator"
-												 autocomplete="off"
-												 value="#{cc.attrs.bean.evidence.url}"/>
-									<small class="redText"><h:message for="inputUrl" /></small>
-
-									<h:inputText styleClass="tagsInputEvidence"
-												 id="inputKeywords"
-												 value="#{cc.attrs.bean.evidence.tagsString}"
-												 placeholder="Keywords - Type and press 'Enter'"
-												 pt:data-role="tagsinput"
-												 autocomplete="off">
-									</h:inputText>
-									<script>$('.tagsInputEvidence').tagsinput();</script>
-
-									<div class="lastRow">
-										<p:commandLink styleClass="btn btn-green"
-													   onclick="copyTextFromTinyMCEToTextarea(escapeColons('##{cc.clientId}:formUrlEvidence:textareaEvidenceText'));"
-													   action="#{cc.attrs.bean.postUrlEvidence()}"
-													   update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:formUrlEvidence :#{cc.clientId}:panelEvidences">
-											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-											<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-											<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formUrlEvidence:inputTitle" />
-											Submit
-										</p:commandLink>
-									</div>
-								</h:form>
-							</div>
-							<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="text">
-								<h:form id="formTextEvidence">
-									<h:inputText
-											id="inputTitle"
-											value="#{cc.attrs.bean.evidence.title}"
-											placeholder="Evidence Title"
-											required="true"
-											requiredMessage="Required field"
-											autocomplete="off"
-									/>
-									<small class="redText"><h:message for="inputTitle"></h:message></small>
-
-									<h:inputTextarea id="textareaEvidenceText"
-													 placeholder="Type here..."
-													 value="#{cc.attrs.bean.evidence.text}"
-													 required="true"
-												     requiredMessage="Required field"></h:inputTextarea>
-									<script>
-                                        initTinyMCE(escapeColons('##{cc.clientId}:formTextEvidence:textareaEvidenceText'));
-									</script>
-									<small class="redText"><h:message for="textareaEvidenceText"></h:message></small>
-
-									<h:inputText styleClass="tagsInputEvidence"
-												 id="inputKeywords"
-												 value="#{cc.attrs.bean.evidence.tagsString}"
-												 placeholder="Keywords - Type and press 'Enter'"
-												 pt:data-role="tagsinput"
-												 autocomplete="off">
-									</h:inputText>
-									<script>$('.tagsInputEvidence').tagsinput();</script>
-
-									<div class="lastRow">
-										<p:commandLink styleClass="btn btn-green"
-													   onclick="copyTextFromTinyMCEToTextarea(escapeColons('##{cc.clientId}:formTextEvidence:textareaEvidenceText'));"
-													   action="#{cc.attrs.bean.postTextEvidence()}"
-													   update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:formTextEvidence :#{cc.clientId}:panelEvidences">
-											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-											<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-											<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formTextEvidence:inputTitle" />
-											Submit
-										</p:commandLink>
-									</div>
-								</h:form>
-							</div>
-							<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="document">
-								<h:panelGroup layout="block" id="panelExistingEvidence" styleClass="whiteBox manageVisibility">
-									<div class="innerWrapper">
-										<h3>Your Evidence Library</h3>
-									</div>
-									<div class="searchInstructors">
-										<h:form id="formSearchEvidences">
-											<p:remoteCommand
-													name="execSearchEvidences"
-													process="inputEvidenceSearch"
-													update=":#{cc.clientId}:panelEvidenceSearchResults :#{cc.clientId}:pagination"
-													action="#{learningEvidenceSearchBean.search()}">
-											</p:remoteCommand>
-
-											<h:inputText id="inputEvidenceSearch"
-														 type="search"
-														 placeholder="Search Evidences"
-														 value="#{learningEvidenceSearchBean.searchTerm}"
-														 onclick="$(this).select();"
-														 onkeyup="searchListener(execSearchEvidences);"
-														 autocomplete="off">
-											</h:inputText>
-										</h:form>
-									</div>
-									<h:panelGroup id="panelEvidenceSearchResults">
-										<ul class="list">
-											<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-												<li class="noPeople">No evidences</li>
-											</ui:fragment>
-											<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
-												<li>
-													<div>#{ev.title}</div>
-													<div class="evidenceActions">
-														<a href="#" target="_blank">View</a>
-														<p:commandLink
-																process="@this"
-																action="#{cc.attrs.bean.postExistingEvidence(ev)}"
-															    update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:panelExistingEvidence">
-																Add
-														</p:commandLink>
-													</div>
-												</li>
-											</ui:repeat>
-										</ul>
-									</h:panelGroup>
-									<utilcomp:pagination
-											id="pagination"
-											bean="#{learningEvidenceSearchBean}"
-											updateUrl="false"
-											toUpdate=":#{cc.clientId}:panelEvidenceSearchResults"
-									/>
-								</h:panelGroup>
-							</div>
-						</div>
 						<h2>Your Evidences</h2>
 						<h:panelGroup id="panelEvidences">
 							<ui:repeat value="#{cc.attrs.bean.competenceData.evidences}" var="ev">
 								<div class="whiteBox evidenceBox">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft">
-											<div class="icon #{ev.type eq 'LINK' ? 'link' : 'text'}"></div>
+											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
 											<h3>#{ev.title}</h3>
 										</div>
 										<div class="evidenceTopRight">
@@ -364,7 +92,7 @@
 											<td>
 												<ul class="tags">
 													<ui:repeat value="#{ev.tags}" var="kw">
-														<li>#{kw.title}</li>
+														<li>#{kw}</li>
 													</ui:repeat>
 												</ul>
 											</td>
@@ -446,7 +174,7 @@
 							<p:commandLink styleClass="btn btn-red"
 							   	process="@this"
 								action="#{cc.attrs.bean.removeEvidenceFromCompetence()}"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:panelExistingEvidence"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence"
 								oncomplete="$('#deleteEvidence').modal('hide')">
 								Remove
 							</p:commandLink>
