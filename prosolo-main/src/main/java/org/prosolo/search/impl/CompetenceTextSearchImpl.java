@@ -127,10 +127,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			if (!sortTitleAsc.equals(SortingOption.NONE)) {
 				switch (sortTitleAsc) {
 					case ASC:
-						searchSourceBuilder.sort(new FieldSortBuilder("title").order(SortOrder.ASC));
+						searchSourceBuilder.sort(new FieldSortBuilder("title.sort").order(SortOrder.ASC));
 						break;
 					case DESC:
-						searchSourceBuilder.sort(new FieldSortBuilder("title").order(SortOrder.DESC));
+						searchSourceBuilder.sort(new FieldSortBuilder("title.sort").order(SortOrder.DESC));
 						break;
 					default:
 						break;
@@ -252,7 +252,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {

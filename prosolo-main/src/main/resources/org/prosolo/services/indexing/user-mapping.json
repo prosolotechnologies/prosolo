@@ -8,12 +8,24 @@
 			"name": {
 				"store": false,
 				"type": "text",
-				"analyzer": "whitespace_lowercase_analyzer"
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"lastname": {
 				"store": false,
 				"type": "text",
-				"analyzer": "whitespace_lowercase_analyzer"
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"avatar": {
 				"store": false,

@@ -17,6 +17,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.NestedSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
@@ -64,13 +65,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	private static Logger logger = Logger.getLogger(UserTextSearchImpl.class);
 	
 	@Inject private DefaultManager defaultManager;
-	@Inject private ESIndexer esIndexer;
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private RoleManager roleManager;
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserManager userManager;
-	@Inject private UserGroupManager userGroupManager;
 
 	@Override
 	@Transactional
@@ -109,8 +108,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.query(bQueryBuilder)
 						.from(start)
 						.size(limit)
-						.sort(new FieldSortBuilder("lastname").order(SortOrder.ASC))
-						.sort(new FieldSortBuilder("name").order(SortOrder.ASC));
+						.sort(new FieldSortBuilder("lastname.sort").order(SortOrder.ASC))
+						.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
 
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId) : ESIndexNames.INDEX_USERS;
@@ -185,8 +184,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.query(bQueryBuilder)
 					.from(start)
 					.size(size)
-					.sort(new FieldSortBuilder("lastname").order(SortOrder.ASC))
-					.sort(new FieldSortBuilder("name").order(SortOrder.ASC))
+					.sort(new FieldSortBuilder("lastname.sort").order(SortOrder.ASC))
+					.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC))
 					.aggregation(AggregationBuilders.count("docCount").field("id"))
 					.fetchSource(includes, null);
 
@@ -396,15 +395,18 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				 * set instructor assign filter as a post filter so it does not influence
 				 * aggregation results
 				 */
-				if (filter == CredentialMembersSearchFilterValue.Unassigned) {
+				if (filter == CredentialMembersSearchFilterValue.Unassigned || filter == CredentialMembersSearchFilterValue.Assigned) {
 					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
-					assignFilter.must(QueryBuilders.termQuery("credentials.instructorId", 0));
+					if (filter == CredentialMembersSearchFilterValue.Unassigned) {
+						assignFilter.must(QueryBuilders.termQuery("credentials.instructorId", 0));
+					} else {
+						assignFilter.mustNot(QueryBuilders.termQuery("credentials.instructorId", 0));
+					}
 					/*
 					 * need to add this condition again or post filter will be applied on other 
 					 * credentials for users matched by query
 					 */
 					assignFilter.must(QueryBuilders.termQuery("credentials.id", credId));
-					//TODO es migration - check if InnerHitBuilder works
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
 							assignFilter, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchSourceBuilder.postFilter(nestedFilter);
@@ -418,12 +420,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					 * credentials for users matched by query
 					 */
 					completedF.must(QueryBuilders.termQuery("credentials.id", credId));
-					//TODO es migration - check if InnerHitBuilder works
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
 							completedF, ScoreMode.None).innerHit(new InnerHitBuilder());
 					searchSourceBuilder.postFilter(nestedFilter);
 			    } else {
-					//TODO es migration - check if InnerHitBuilder works
 					nestedFilter1.innerHit(new InnerHitBuilder());
 				}
 				
@@ -432,16 +432,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						org.prosolo.services.util.SortingOption.ASC ? 
 						SortOrder.ASC : SortOrder.DESC;
 				for (String field : sortOption.getSortFields()) {
-					String nestedDoc = null;
-					int dotIndex = field.indexOf(".");
-					if (dotIndex != -1) {
-						nestedDoc = field.substring(0, dotIndex);
-					}
-					if (nestedDoc != null) {
+					if (sortOption.isNestedSort()) {
+						String nestedDoc = field.substring(0, field.indexOf("."));
 						BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
 						credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
 						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
-						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(nestedDoc).setNestedFilter(credFilter);
+						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder)
+								.setNestedSort(new NestedSortBuilder(nestedDoc).setFilter(credFilter));
+						//setting nested path and nested filter is deprecated
+						//.setNestedPath(nestedDoc).setNestedFilter(credFilter);
 						searchSourceBuilder.sort(sortB);
 					} else {
 						searchSourceBuilder.sort(field, sortOrder);
@@ -528,13 +527,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				}
 			} catch (SearchPhaseExecutionException spee) {
 				spee.printStackTrace();
-				logger.error(spee);
+				logger.error("Error", spee);
 			}
 	
 		} catch (Exception e1) {
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
-		return null;
+		return response;
 	}
 	
 	/*
@@ -668,8 +667,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.fetchSource(includes, null)
 						.from(0).size(1000);
 				
-				searchSourceBuilder.sort("lastname", SortOrder.ASC);
-				searchSourceBuilder.sort("name", SortOrder.ASC);
+				searchSourceBuilder.sort("lastname.sort", SortOrder.ASC);
+				searchSourceBuilder.sort("name.sort", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -718,7 +717,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
-						.field("name").field("lastname");
+						.field("name.sort").field("lastname.sort");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -790,8 +789,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					searchSourceBuilder.postFilter(nestedFilter);
 				}
 				searchSourceBuilder.sort("credentials.instructorId", SortOrder.DESC);
-				searchSourceBuilder.sort("lastname", SortOrder.ASC);
-				searchSourceBuilder.sort("name", SortOrder.ASC);
+				searchSourceBuilder.sort("lastname.sort", SortOrder.ASC);
+				searchSourceBuilder.sort("name.sort", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1082,8 +1081,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.size(limit);
 				
 				//add sorting
-				searchSourceBuilder.sort("lastname", SortOrder.ASC);
-				searchSourceBuilder.sort("name", SortOrder.ASC);
+				searchSourceBuilder.sort("lastname.sort", SortOrder.ASC);
+				searchSourceBuilder.sort("name.sort", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1149,8 +1148,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.fetchSource(includes, null)
 					.from(start)
 					.size(size)
-					.sort("lastname", SortOrder.ASC)
-					.sort("name", SortOrder.ASC);
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC);
 
 			//System.out.println(srb.toString());
 			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
@@ -1210,8 +1209,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.fetchSource(includes, null)
 					.from(start)
 					.size(limit)
-					.sort("lastname", SortOrder.ASC)
-					.sort("name", SortOrder.ASC);
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC);
 
 			//System.out.println(searchRequestBuilder.toString());
 			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
@@ -1280,8 +1279,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.query(bqb)
 						.fetchSource(includes, null)
 						.size(3)
-						.sort("lastname", SortOrder.ASC)
-						.sort("name", SortOrder.ASC);
+						.sort("lastname.sort", SortOrder.ASC)
+						.sort("name.sort", SortOrder.ASC);
 
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -1331,7 +1330,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
 						.defaultOperator(Operator.AND)
-						.field("name").field("lastname");
+						.field("name.sort").field("lastname.sort");
 				
 				bQueryBuilder.must(qb);
 			}
@@ -1407,8 +1406,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						BoolQueryBuilder compFilter = QueryBuilders.boolQuery();
 						compFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", compId));
 						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
-						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(
-								nestedDoc).setNestedFilter(compFilter);
+						//TODO check if nested sort builder is configured properly
+						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder)
+								.setNestedSort(new NestedSortBuilder(nestedDoc).setFilter(compFilter));
+								//.setNestedPath(nestedDoc).setNestedFilter(compFilter);
 						searchSourceBuilder.sort(sortB);
 					} else {
 						searchSourceBuilder.sort(field, sortOrder);
@@ -1514,8 +1515,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				searchSourceBuilder
 						.query(bqb)
 						.fetchSource(includes, null)
-						.sort("lastname", SortOrder.ASC)
-						.sort("name", SortOrder.ASC)
+						.sort("lastname.sort", SortOrder.ASC)
+						.sort("name.sort", SortOrder.ASC)
 						.size(limit);
 
 				String indexName = orgId > 0
@@ -1612,8 +1613,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			searchSourceBuilder
 					.query(bQueryBuilder)
 					.fetchSource(includes, null)
-					.sort("lastname", SortOrder.ASC)
-					.sort("name", SortOrder.ASC)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC)
 					.from(start)
 					.size(limit);
 
@@ -1669,8 +1670,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			searchSourceBuilder
 					.query(bQueryBuilder)
 					.fetchSource(includes, null)
-					.sort("lastname", SortOrder.ASC)
-					.sort("name", SortOrder.ASC)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC)
 					.from(start)
 					.size(limit);
 

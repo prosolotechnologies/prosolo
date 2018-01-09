@@ -138,8 +138,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 			getCredentialMembers();
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 		}
 	}
 	

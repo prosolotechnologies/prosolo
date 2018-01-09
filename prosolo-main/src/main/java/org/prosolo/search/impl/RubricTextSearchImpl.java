@@ -98,7 +98,7 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
                 .query(boolQueryBuilder)
                 .from(start)
                 .size(size)
-                .sort(new FieldSortBuilder("name").order(SortOrder.ASC));
+                .sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
 
         //System.out.println(searchRequestBuilder.toString());
         return ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId), ESIndexTypes.RUBRIC);
