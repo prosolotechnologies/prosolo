@@ -7,12 +7,20 @@ package org.prosolo.services.nodes.data;
  */
 public class BasicObjectInfo {
 
-    private long id;
-    private String title;
+    private final long id;
+    private final String title;
+    private final String description;
 
     public BasicObjectInfo(long id, String title) {
         this.id = id;
         this.title = title;
+        this.description = null;
+    }
+
+    public BasicObjectInfo(long id, String title, String description) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
     }
 
     public long getId() {
@@ -21,5 +29,9 @@ public class BasicObjectInfo {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

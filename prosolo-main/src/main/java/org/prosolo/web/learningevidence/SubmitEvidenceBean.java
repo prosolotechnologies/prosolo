@@ -47,6 +47,10 @@ public class SubmitEvidenceBean implements Serializable {
         evidence = new LearningEvidenceData();
     }
 
+    public void setEvidence(LearningEvidenceData evidence) {
+        this.evidence = evidence;
+    }
+
     public void removeUploadedEvidence() {
         evidence.setUrl(null);
     }
