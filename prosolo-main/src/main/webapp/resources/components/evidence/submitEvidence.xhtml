@@ -358,7 +358,7 @@
 								<div class="modal-footer alignLeft">
 									<p:commandLink
 											styleClass="btn btn-green"
-											action="#{cc.attrs.bean.postExistingEvidence(submitEvidenceBean.evidence)}"
+											action="#{cc.attrs.bean.postEvidence()}"
 											update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
 											oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
 										Add

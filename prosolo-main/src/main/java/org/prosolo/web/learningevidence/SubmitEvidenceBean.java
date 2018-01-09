@@ -79,10 +79,6 @@ public class SubmitEvidenceBean implements Serializable {
         evidence.setType(LearningEvidenceType.TEXT);
     }
 
-    public void preparePostExistingEvidence(LearningEvidenceData evidence) {
-        this.evidence = evidence;
-    }
-
     /*
 	VALIDATORS
 	 */
