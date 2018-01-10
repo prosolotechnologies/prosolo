@@ -161,7 +161,7 @@ public class ActivityAssessmentBean implements Serializable {
 
 	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-			newComment.setSenderInsructor(true);
+			newComment.setSenderInstructor(true);
 		}
 		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);

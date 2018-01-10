@@ -1440,7 +1440,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setActivityId(actId);
 					ad.setCompetenceId(compId);
 					ad.setCredentialId(credId);
-					//TODO check if it is valid assumption that this assessment would always be Instructor assessment
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
 					if (assessmentId != null) {
 						ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));

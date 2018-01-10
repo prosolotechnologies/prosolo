@@ -67,7 +67,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throws DbConnectionException, IllegalDataStateException {
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
-		//TODO check if this is valid assumption - that assessments can be requested only from peers.
 		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
 				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
 				AssessmentType.PEER_ASSESSMENT, context);
