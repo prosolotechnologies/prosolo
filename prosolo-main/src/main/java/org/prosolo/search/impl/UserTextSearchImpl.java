@@ -509,8 +509,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
-											.getDefaultCredentialAssessmentId(credId, user.getId());
-									if(credAssessmentId.isPresent()) {
+											.getInstructorCredentialAssessmentId(credId, user.getId());
+									if (credAssessmentId.isPresent()) {
 										student.setAssessmentId(credAssessmentId.get());
 									}
 //									@SuppressWarnings("unchecked")
