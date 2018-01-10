@@ -53,6 +53,11 @@ circle.focus {
     stroke-width: 6px;
 }
 
+circle.selected {
+    stroke: blue;
+    stroke-width: 6px;
+}
+
 text {
     fill: #000;
     font: 10px sans-serif;
