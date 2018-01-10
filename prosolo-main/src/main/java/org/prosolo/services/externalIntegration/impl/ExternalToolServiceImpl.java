@@ -151,7 +151,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
 						int calculatedScore = calculateScoreBasedOnCalculationType(ta, act.getScoreCalculation(),
 							scaledGrade);
-						if(calculatedScore >= 0) {
+						if (calculatedScore >= 0) {
 							int prevScore = ta.getCommonScore();
 							ta.setCommonScore(calculatedScore);
 							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
@@ -161,9 +161,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 								//TODO how to include organization id in event here
 								res.appendEvents(assessmentManager
 									.updateActivityGradeInAllAssessmentsAndGetEvents(
-											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-											ta.getTargetCompetence().getId(), ta.getId(),
-											calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
+											userId, activityId, calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
 							}
 						}
 					}

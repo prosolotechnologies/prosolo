@@ -232,11 +232,11 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return courseId;
 	}
 	private Long extractCourseIdFromContext(Context context){
-		if(context==null){
+		if (context == null) {
 			return 0l;
-		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
+		} else if (ContextName.CREDENTIAL.equals(context.getName())) {
 			return context.getId();
-		}else return extractCourseIdFromContext(context.getContext());
+		} else return extractCourseIdFromContext(context.getContext());
 	}
 
 

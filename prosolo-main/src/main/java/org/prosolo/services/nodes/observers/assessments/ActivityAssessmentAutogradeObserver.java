@@ -63,8 +63,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 				PageContextData lcd = new PageContextData();
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
 				result = assessmentManager.updateActivityGradeInAllAssessmentsAndGetEvents(
-						userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-						ta.getTargetCompetence().getId(), ta.getId(), ta.getActivity().getMaxPoints(), session,
+						userId, ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
 						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
 			}
 			transaction.commit();

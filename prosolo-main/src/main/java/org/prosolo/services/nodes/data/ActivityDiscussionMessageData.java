@@ -1,14 +1,13 @@
 package org.prosolo.services.nodes.data;
 
-import java.util.Date;
-
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+
+import java.util.Date;
 
 public class ActivityDiscussionMessageData {
 	
@@ -17,7 +16,7 @@ public class ActivityDiscussionMessageData {
 	private String senderFullName;
 	private String encodedSenderId;
 	private String encodedMessageId;
-	private boolean senderInsructor;
+	private boolean senderInstructor;
 	private Date dateCreated;
 	private Date dateUpdated;
 	private String dateCreatedFormat;
@@ -41,23 +40,23 @@ public class ActivityDiscussionMessageData {
 	public void setSenderFullName(String senderFullName) {
 		this.senderFullName = senderFullName;
 	}
-	public boolean isSenderInsructor() {
-		return senderInsructor;
+
+	public boolean isSenderInstructor() {
+		return senderInstructor;
 	}
-	public void setSenderInsructor(boolean senderInsructor) {
-		this.senderInsructor = senderInsructor;
+
+	public void setSenderInstructor(boolean senderInstructor) {
+		this.senderInstructor = senderInstructor;
 	}
-	
-	public static ActivityDiscussionMessageData from(ActivityDiscussionMessage activityMessage, CompetenceAssessment compAssessment, UrlIdEncoder encoder) {
+
+	public static ActivityDiscussionMessageData from(ActivityDiscussionMessage activityMessage, User assessor, UrlIdEncoder encoder) {
 		ActivityDiscussionMessageData data = new ActivityDiscussionMessageData();
 		data.setContent(activityMessage.getContent());
 		data.setEncodedMessageId(encoder.encodeId(activityMessage.getId()));
 		data.setEncodedSenderId(encoder.encodeId(activityMessage.getSender().getParticipant().getId()));
 		data.setSenderFullName(activityMessage.getSender().getParticipant().getName()+" "+activityMessage.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size120x120));
-		if(compAssessment != null) {
-			data.setSenderInsructor(isSenderAssessor(activityMessage,compAssessment));
-		}
+		data.setSenderInstructor(isSenderAssessor(activityMessage, assessor));
 		data.setDateCreated(activityMessage.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(activityMessage.getDateCreated()));
 		data.setDateUpdated(activityMessage.getLastUpdated());
@@ -65,8 +64,7 @@ public class ActivityDiscussionMessageData {
 		return data;
 	}
 	private static boolean isSenderAssessor(ActivityDiscussionMessage activityMessage,
-			CompetenceAssessment compAssessment) {
-		User assessor = compAssessment.getCredentialAssessment().getAssessor();
+			User assessor) {
 		User messageSender = activityMessage.getSender().getParticipant();
 		return assessor == null ? false : assessor.getId() == messageSender.getId();
 	}
