@@ -19,6 +19,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.achievements.data.TargetCredentialData;
+import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -100,14 +101,15 @@ public class ProfileBean {
 		if (StringUtils.isNotBlank(studentId)) {
 			if ( decodedStudentId != loggedUserBean.getUserId()) {
 				try {
-					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedStudentId, this.message);
-					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedStudentId+" with content: '"+message+"'");
+					MessageData messageData = messagingManager.sendMessage(0, loggedUserBean.getUserId(), decodedStudentId, this.message, loggedUserBean.getUserContext());
+					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedStudentId+" with content: '"+messageData+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();
 					
 					participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName()));
 					
-					final Message message1 = message;
+					final Message message1 = new Message();
+					message1.setId(messageData.getId());
 
 					UserContextData userContext = loggedUserBean.getUserContext();
 					taskExecutor.execute(() -> {

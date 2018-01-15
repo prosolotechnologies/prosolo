@@ -42,12 +42,12 @@
 					
 					<h:panelGroup layout="block" 
 						styleClass="noContent"
-						rendered="#{empty messagesBean.messagesThreads}">
+						rendered="#{empty messagesBean.messageThreads}">
                  
                           	No messages
 					</h:panelGroup>
 
-					<ui:repeat value="#{messagesBean.messagesThreads}"
+					<ui:repeat value="#{messagesBean.messageThreads}"
 						var="messageThreadData" varStatus="iterator">
 						
 						<h:link outcome="/messages" class="item"

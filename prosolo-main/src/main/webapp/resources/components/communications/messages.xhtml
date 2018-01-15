@@ -43,10 +43,10 @@
 			}
 			
 			function setRecipient(name,id) {
-				setupNewMessageThreadRecievers([{name:'newThreadRecipients', value:id}])
+				setupNewMessageThreadRecievers([{name:'receiverId', value:id}])
 				resetPeopleSearchParameters()
 				$("#messages\\:messageRecievingUserName").val(name)
-				$("[id*='#messages\\:newMessageContentTextarea']").focus()
+				$('#messages\\:messageContentTextarea2').focus();
 			}
 		</script>
 		
@@ -92,9 +92,9 @@
                     	</p:commandLink>
                 	</div>
                 	
-					<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0}" layout="block" class="messagesList">
+					<h:panelGroup rendered="#{messagesBean.messageThreads.size() > 0}" layout="block" class="messagesList">
 						<ul>
-							<ui:repeat value="#{messagesBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
+							<ui:repeat value="#{messagesBean.messageThreads}" var="messageThreadData" varStatus="iterator">
 								<li thread-readed="#{messageThreadData.readed}" thread-id="#{messageThreadData.id}" 
 			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 			                		 	
@@ -125,33 +125,35 @@
 			                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
 			                                </div>
 			                            </div>
-			                            
-			                            <h:panelGroup rendered="#{!messageThreadData.readed}" id="markerSpan" class="unread hidden" />
+
+			                            <h:panelGroup rendered="#{!messageThreadData.readed}" class="unread" />
 		                            </p:commandLink>
 								</li>
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
 		                
-		            <h:panelGroup rendered="#{messagesBean.messagesThreads.size() == 0}" layout="block" class="messagesList">
+		            <h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="messagesList">
 						<div class="noMessagesList">
 							No Messages.
 						</div>
 	                </h:panelGroup>
 				</h:panelGroup>
-	                
-				<!-- displayed when there are no messages *** TRY TO MERGE THESE TWO!!! -->
-				<h:panelGroup rendered="#{messagesBean.messagesThreads.size() == 0 and !messagesBean.newMessageView}" layout="block" class="col-md-6 messageColumn">
-					<section class="whiteBox messagesPane noSelected">
-						<h2>No message selected.</h2>
-					</section>
-				</h:panelGroup>
-				
-				<!-- displayed when there are messages-->
-				<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" class="col-md-6 messageColumn">
-					<section class="whiteBox messagesPane"></section>
-				</h:panelGroup>
-	
+
+				<ui:fragment rendered="#{!messagesBean.newMessageView}">
+					<!-- displayed when there are no messages -->
+					<h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="col-md-6 messageColumn">
+						<section class="whiteBox messagesPane noSelected">
+							<h2>No message selected.</h2>
+						</section>
+					</h:panelGroup>
+
+					<!-- displayed when there are messages-->
+					<h:panelGroup rendered="#{messagesBean.messageThreads.size() > 0}" layout="block" class="col-md-6 messageColumn">
+						<section class="whiteBox messagesPane"></section>
+					</h:panelGroup>
+				</ui:fragment>
+
 	              
 				<!-- BEGIN MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
 				<h:form id="messagesForm" prependId="false">
@@ -167,7 +169,7 @@
               
               		<p:growl id="messagesFormGrowl" showDetail="true" />
               		
-					<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" id="messagesContainer" class="col-md-6 messageColumn">
+					<h:panelGroup rendered="#{messagesBean.messageThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" id="messagesContainer" class="col-md-6 messageColumn">
 						<section class="whiteBox messagesPane">
 							<div class="messagePaneHead">
 								<h2>#{messagesBean.threadData.participantsListWithoutLoggedUser}</h2>
@@ -213,20 +215,16 @@
 	                    	<!-- BEGIN : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
 	                    	<div class="greyBar"></div>
 	                    	<!-- END : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
-	                    	<ui:remove>
-		                    	<h:panelGroup layout="block" rendered="#{messagesBean.loadMore}">
-											<p:commandButton value="Load earlier messages" 
-											update=":#{cc.clientId}:messagesForm"
-											actionListener="#{messagesBean.increaseLimit()}"
-											process="@this"/>
-		                    	</h:panelGroup>
-		                    	<h:panelGroup layout="block" rendered="#{!messagesBean.loadMore and messagesBean.messages.size() > 5}">
-											<p:commandButton value="Hide earlier messages" 
-											update=":#{cc.clientId}:messagesForm"
-											actionListener="#{messagesBean.resetLimit()}"
-											process="@this"/>
-		                    	</h:panelGroup>
-	                    	</ui:remove>
+
+							<ui:fragment rendered="#{messagesBean.loadMore}">
+								<div class="loadMoreThreads">
+									<p:commandLink value="Load more..."
+												   update=":#{cc.clientId}:messagesForm"
+												   action="#{messagesBean.loadMore()}"
+												   process="@this" />
+								</div>
+							</ui:fragment>
+
 	                    	<div class="innerWrapper">
 	                    		<!-- FIRST SHOW MESSAGES THAT ARE READ -->
 	                    		<ui:repeat value="#{messagesBean.readMessages}" var="message" varStatus="iterator">
@@ -354,7 +352,7 @@
 							</div>
 							
 							<h:panelGroup id="typeBoxNewMessageThread" layout="block">
-		                        <h:panelGroup styleClass="media typeBox" layout="block" rendered="#{messagesBean.newMessageThreadParticipantIds.size() > 0}">
+		                        <h:panelGroup styleClass="media typeBox" layout="block" rendered="#{messagesBean.receiverId > 0}">
 		                            <div class="media-left">
 										<utilcomp:userAvatar
 											avatar="#{loggeduser.avatar}"

@@ -152,11 +152,11 @@
 							autoStart="true" />
 					</h:form>
 					
-					<h:link id="messagesLink" class="iconMessages active"
+					<h:link id="messagesLink" class="iconMessages #{topInboxBean.hasUnreadMessages ? 'active' : ''}"
 						onclick="sendLogPageNavigation('messages','mainmenu');"
 						outcome="/manage/messages">
 						Messages
-						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+						<span class="#{topInboxBean.hasUnreadMessages ? 'unreadDot' : ''}">
 							unreadDot
 						</span>
 					</h:link>

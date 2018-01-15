@@ -1,14 +1,13 @@
 package org.prosolo.services.interaction.impl;
 
-import java.io.Serializable;
-
-import javax.servlet.http.HttpSession;
-
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.web.notification.TopInboxBean;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 
 /**
  * @author Nikola Milikic
@@ -26,7 +25,7 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			
 			if (topInboxBean != null) {
-				topInboxBean.addUnreadThread(messagesThread.getId());
+				topInboxBean.markMessageUnread();
 			}
 		}
 	}
@@ -38,7 +37,7 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			
 			if (topInboxBean != null) {
-				topInboxBean.addUnreadThread(messagesThread.getId());
+				topInboxBean.markMessageUnread();
 			}
 		}
 	}

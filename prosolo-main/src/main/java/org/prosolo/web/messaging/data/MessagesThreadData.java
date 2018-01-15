@@ -3,16 +3,14 @@ package org.prosolo.web.messaging.data;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.activityWall.UserDataFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
  * @author Zoran Jeremic 2013-05-19
@@ -25,17 +23,17 @@ public class MessagesThreadData implements Serializable {
 	private long id;
 	private Date lastUpdated;
 	private List<MessageData> messages;
-	private List<UserData> participants;
-	private List<UserData> participantsWithoutLoggedUser;
+	private List<MessagesThreadParticipantData> participants;
+	private List<MessagesThreadParticipantData> participantsWithoutLoggedUser;
 	private String participantsList;
 	private String participantsListWithoutLoggedUser;
 	private MessageData latestReceived;
 	private boolean readed;
 	
 	public MessagesThreadData() {
-		messages = new ArrayList<MessageData>();
-		participants = new ArrayList<UserData>();
-		participantsWithoutLoggedUser = new ArrayList<UserData>();
+		messages = new ArrayList<>();
+		participants = new ArrayList<>();
+		participantsWithoutLoggedUser = new ArrayList<>();
 	}
 	
 	public MessagesThreadData(MessageThread thread, long userId) {
@@ -44,39 +42,25 @@ public class MessagesThreadData implements Serializable {
 		this.id = thread.getId();
 		this.subject = thread.getSubject();
 		this.lastUpdated = thread.getLastUpdated();
+		ThreadParticipant participant = thread.getParticipant(userId);
+		this.readed = participant.isRead();
 
-		for (ThreadParticipant participant : thread.getParticipants()) {
-			User user = participant.getUser();
-			UserData userData = UserDataFactory.createUserData(user);
-			
-			participants.add(userData);
-			
-			if (user.getId() != userId) {
-				participantsWithoutLoggedUser.add(userData);
-			}
-		}
-		
-		Collections.sort(participants);
-		Collections.sort(participantsWithoutLoggedUser);
-		
-		int i = 0;
-		StringBuffer buffer = new StringBuffer();
-		
-		for (UserData userData : participantsWithoutLoggedUser) {
-			buffer.append(userData.getName());
-			
-			if (i > 0) {
-				buffer.append(", ");
-			}
-			
-			i++;
-		}
-		this.participantsListWithoutLoggedUser = buffer.toString();
-		
-		List<MessageData> messagesData = new ArrayList<MessageData>();
-		
+
+		this.participants = thread.getParticipants().stream().map(tp -> new MessagesThreadParticipantData(tp)).sorted().collect(Collectors.toList());
+		this.participantsWithoutLoggedUser = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessagesThreadParticipantData(tp)).sorted().collect(Collectors.toList());
+		this.participantsList = thread.getParticipants().stream()
+				.map(tp -> tp.getUser().getName() + " " + tp.getUser().getLastname())
+				.collect(Collectors.joining(", "));
+
+		this.participantsListWithoutLoggedUser = participantsWithoutLoggedUser.stream()
+				.map(UserData::getName)
+				.collect(Collectors.joining(", "));
+
+		List<MessageData> messagesData = new ArrayList<>();
 		for (Message m : thread.getMessages()) {
-			messagesData.add(new MessageData(m, userId));
+			boolean read = !m.getCreatedTimestamp().after(participant.getLastReadMessage().getCreatedTimestamp());
+
+			messagesData.add(new MessageData(m, read));
 		}
 		this.messages = messagesData;
 	}
@@ -131,7 +115,7 @@ public class MessagesThreadData implements Serializable {
 	public void setMessages(List<MessageData> messages) {
 		this.messages = messages;
 	}
-	
+
 	public void addMessage(MessageData message) {
 		if (!this.messages.contains(message)) {
 			this.messages.add(message);
@@ -154,28 +138,37 @@ public class MessagesThreadData implements Serializable {
 		this.latestReceived = lReceived;
 	}
 
-	public List<UserData> getParticipants() {
+	public List<MessagesThreadParticipantData> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(List<UserData> participants) {
+	public void setParticipants(List<MessagesThreadParticipantData> participants) {
 		this.participants = participants;
 	}
 	
-	public boolean containsParticipant(long userId) {
-		for (UserData u : participants) {
-			if (u.getId() == userId) {
-				return true;
+	public MessagesThreadParticipantData getParticipant(long userId) {
+		for (MessagesThreadParticipantData participant : participants) {
+			if (participant.getId() == userId) {
+				return participant;
 			}
 		}
-		return false;
+		return null;
 	}
 
-	public List<UserData> getParticipantsWithoutLoggedUser() {
+	public MessagesThreadParticipantData getParticipantThatIsNotUser(long userId) {
+		for (MessagesThreadParticipantData participant : participants) {
+			if (participant.getId() != userId) {
+				return participant;
+			}
+		}
+		return null;
+	}
+
+	public List<MessagesThreadParticipantData> getParticipantsWithoutLoggedUser() {
 		return participantsWithoutLoggedUser;
 	}
 
-	public void setParticipantsWithoutLoggedUser(List<UserData> participantsWithoutLoggedUser) {
+	public void setParticipantsWithoutLoggedUser(List<MessagesThreadParticipantData> participantsWithoutLoggedUser) {
 		this.participantsWithoutLoggedUser = participantsWithoutLoggedUser;
 	}
 

@@ -132,11 +132,6 @@ public class PageUtil {
 		}
 	}
 
-	public static void sendToAccessDeniedPage() throws IOException {
-		FacesContext context = FacesContext.getCurrentInstance();
-		context.getExternalContext().dispatch("accessDenied");
-	}
-	
 	/**
 	 * Returns section for current view.
 	 * Example: if current view is '/manage/credential.xhtml method will return 

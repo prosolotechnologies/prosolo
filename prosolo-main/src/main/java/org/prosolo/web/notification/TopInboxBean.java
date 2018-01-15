@@ -1,23 +1,16 @@
 package org.prosolo.web.notification;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
 
 @ManagedBean(name = "topInboxBean")
 @Component("topInboxBean")
@@ -28,70 +21,32 @@ public class TopInboxBean implements Serializable {
 	protected static Logger logger = Logger.getLogger(TopInboxBean.class);
 
 	private int refreshRate = Settings.getInstance().config.application.messagesInboxRefreshRate;
-	private List<Long> unreadThreadIds = new ArrayList<>();
-	
+
 	@Autowired
 	private MessagingManager messagingManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
 
+	private boolean hasUnreadMessages;
+
 	@PostConstruct
 	public void checkUnreadMessages() {
-
-		List<MessageThread> unreadThreads = messagingManager.getUnreadMessageThreads(loggedUser.getUserId());
-
-		if (CollectionUtils.isNotEmpty(unreadThreads)) {
-			for(MessageThread thread : unreadThreads) {
-				unreadThreadIds.add(thread.getId());
-			}
-		}
+		this.hasUnreadMessages = messagingManager.userHasUnreadMessages(loggedUser.getUserId());
 	}
 
-	public void readMessagesAndRedirect() {
-		//simple "action" attribute from command link would not initialize view bean?
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("messages?faces-redirect=true");
-		} catch (IOException e) {
-			logger.error("Error redirecting", e);
-		}
+	public void markMessageRead() {
+		hasUnreadMessages = false;
 	}
-	
-	public void markThreadRead(Long id) {
-		unreadThreadIds.remove(id);
+
+	public void markMessageUnread() {
+		hasUnreadMessages = true;
 	}
-	
-	public void addUnreadThread(Long id) {
-		unreadThreadIds.add(id);
+
+	public boolean isHasUnreadMessages() {
+		return hasUnreadMessages;
 	}
 
 	public int getRefreshRate() {
 		return refreshRate;
 	}
-
-	public MessagingManager getMessagingManager() {
-		return messagingManager;
-	}
-
-	public void setMessagingManager(MessagingManager messagingManager) {
-		this.messagingManager = messagingManager;
-	}
-
-	public LoggedUserBean getLoggedUser() {
-		return loggedUser;
-	}
-
-	public void setLoggedUser(LoggedUserBean loggedUser) {
-		this.loggedUser = loggedUser;
-	}
-
-	public List<Long> getUnreadThreadIds() {
-		return unreadThreadIds;
-	}
-
-	public void setUnreadThreadIds(List<Long> unreadThreadIds) {
-		this.unreadThreadIds = unreadThreadIds;
-	}
-	
-	
-
 }
