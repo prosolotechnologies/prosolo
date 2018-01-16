@@ -10,6 +10,8 @@ import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.*;
+import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
+import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -360,27 +362,42 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             checkIfRequestIsValid(rubric, editMode);
 
-            if (rubric.isReadyToUseChanged()) {
-                rub.setReadyToUse(rubric.isReadyToUse());
+            rub.setReadyToUse(rubric.isReadyToUse());
+            if (rubric.isRubricTypeChanged()) {
+                changeRubricType(rubric.getId(), rubric.getRubricType());
             }
 
             Level lvl;
-            for (RubricItemData level : rubric.getLevels()) {
+            for (RubricLevelData level : rubric.getLevels()) {
                 switch (level.getStatus()) {
                     case CREATED:
-                        lvl = new Level();
-                        lvl.setTitle(level.getName());
-                        lvl.setPoints(level.getPoints());
-                        lvl.setOrder(level.getOrder());
-                        lvl.setRubric(rub);
+                        lvl = rubricDataFactory.getLevel(rubric.getRubricType(), rub, level);
                         saveEntity(lvl);
                         level.setId(lvl.getId());
                         break;
                     case CHANGED:
                         lvl = (Level) persistence.currentManager().load(Level.class, level.getId());
                         lvl.setTitle(level.getName());
-                        lvl.setPoints(level.getPoints());
                         lvl.setOrder(level.getOrder());
+                        lvl.accept(new LevelVisitor<Void> () {
+
+                            @Override
+                            public Void visit(Level lev) {
+                                return null;
+                            }
+
+                            @Override
+                            public Void visit(PointLevel lev) {
+                                lev.setPoints(level.getPoints());
+                                return null;
+                            }
+
+                            @Override
+                            public Void visit(PointRangeLevel level) {
+                                //TODO implement when needed
+                                return null;
+                            }
+                        });
                         break;
                     case REMOVED:
                         deleteById(Level.class, level.getId(), persistence.currentManager());
@@ -394,19 +411,27 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             for (RubricCriterionData criterion : rubric.getCriteria()) {
                 switch (criterion.getStatus()) {
                     case CREATED:
-                        cat = new Criterion();
-                        cat.setTitle(criterion.getName());
-                        cat.setPoints(criterion.getPoints());
-                        cat.setOrder(criterion.getOrder());
-                        cat.setRubric(rub);
+                        cat = rubricDataFactory.getCriterion(rubric.getRubricType(), rub, criterion);
                         saveEntity(cat);
                         criterion.setId(cat.getId());
                         break;
                     case CHANGED:
                         cat = (Criterion) persistence.currentManager().load(Criterion.class, criterion.getId());
                         cat.setTitle(criterion.getName());
-                        cat.setPoints(criterion.getPoints());
                         cat.setOrder(criterion.getOrder());
+                        cat.accept(new CriterionVisitor<Void>() {
+
+                            @Override
+                            public Void visit(Criterion c) {
+                                return null;
+                            }
+
+                            @Override
+                            public Void visit(PointCriterion c) {
+                                c.setPoints(criterion.getPoints());
+                                return null;
+                            }
+                        });
                         break;
                     case REMOVED:
                         deleteById(Criterion.class, criterion.getId(), persistence.currentManager());
@@ -467,6 +492,38 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         }
     }
 
+    private void changeRubricType(long id, RubricType rubricType) {
+        Rubric rub = (Rubric) persistence.currentManager().load(Rubric.class, id);
+        rub.setRubricType(rubricType);
+        changeRubricCriteriaType(id, rubricType);
+        changeRubricLevelsType(id, rubricType);
+    }
+
+    private void changeRubricCriteriaType(long rubricId, RubricType rubricType) {
+        String q =
+                "UPDATE criterion c SET c.dtype = :type " +
+                "WHERE c.rubric = :rubricId";
+        Class<? extends Criterion> criterionClass = rubricDataFactory.getCriterionClassForRubricType(rubricType);
+        persistence.currentManager()
+                .createSQLQuery(q)
+                .setLong("rubricId", rubricId)
+                .setString("type", criterionClass.getSimpleName())
+                .executeUpdate();
+    }
+
+    private void changeRubricLevelsType(long rubricId, RubricType rubricType) {
+        String q =
+                "UPDATE level l SET l.dtype = :type " +
+                "WHERE l.rubric = :rubricId";
+        Class<? extends Level> levelClass = rubricDataFactory.getLevelClassForRubricType(rubricType);
+        persistence.currentManager()
+                .createSQLQuery(q)
+                .setLong("rubricId", rubricId)
+                .setString("type", levelClass.getSimpleName())
+                .executeUpdate();
+    }
+
+
     private void checkIfRequestIsValid(RubricData rubric, EditMode editMode) throws OperationForbiddenException{
         boolean rubricUsed = isRubricUsed(rubric.getId());
             /*
@@ -485,12 +542,13 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 /*
                 following changes are allowed only in full edit mode:
                 - changing the 'ready' status for the rubric
+                - changing the rubric type
                 - creating new criteria and levels
                 - removing existing criteria and levels
                 - changing criteria and level weights/points
                  */
 
-            boolean notAllowedChangesMade = rubric.isReadyToUseChanged();
+            boolean notAllowedChangesMade = rubric.isReadyToUseChanged() || rubric.isRubricTypeChanged();
 
             if (!notAllowedChangesMade) {
                 notAllowedChangesMade = rubric.getCriteria()
@@ -589,11 +647,11 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActivityRubricCriterionData> getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
+    public RubricGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException {
         try {
             String query =
-                    "SELECT cat, catLvl, act.maxPoints ";
+                    "SELECT cat, catLvl, act.maxPoints, rubric.rubricType ";
             if (loadGrades && activityAssessmentId > 0) {
                 query += ", ass ";
             }
@@ -626,6 +684,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
             //max points for activity
             int maxPoints = (int) res.get(0)[2];
+            RubricType rubricType = (RubricType) res.get(0)[3];
 
             List<ActivityRubricCriterionData> criteria = new ArrayList<>();
             Criterion crit = null;
@@ -651,9 +710,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             }
 
             //calculate absolute points based on activity maximum points set
-            rubricDataFactory.calculatePointsForCriteriaAndLevels(criteria, maxPoints);
-
-            return criteria;
+            return rubricDataFactory.getRubricGradeData(rubricType, criteria, maxPoints);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");

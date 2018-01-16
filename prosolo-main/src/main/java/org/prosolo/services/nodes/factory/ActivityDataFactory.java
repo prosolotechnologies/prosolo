@@ -88,6 +88,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			data.setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
@@ -231,6 +232,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			act.setRubricId(activity.getRubric().getId());
 			act.setRubricVisibility(activity.getRubricVisibility());
+			act.setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		act.setActivityType(getActivityType(activity));
@@ -374,6 +376,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			data.setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.setRubricType(activity.getRubric().getRubricType());
 		}
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
@@ -476,6 +479,7 @@ public class ActivityDataFactory {
 		if (activ.getRubric() != null) {
 			act.setRubricId(activ.getRubric().getId());
 			act.setRubricVisibility(activ.getRubricVisibility());
+			act.setRubricType(activ.getRubric().getRubricType());
 		}
 
 		setBasicTypeSpecificData(activ, act);

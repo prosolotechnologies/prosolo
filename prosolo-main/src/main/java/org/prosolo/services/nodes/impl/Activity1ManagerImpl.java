@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
@@ -193,13 +194,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		activity.setGradingMode(data.getGradingMode());
 		switch (data.getGradingMode()) {
 			case AUTOMATIC:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				break;
 			case MANUAL:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				if (updateRubric) {
 					activity.setRubric(getRubricToSet(data));
 				}
@@ -212,12 +211,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 			case NONGRADED:
-				activity.setMaxPoints(0);
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 		}
+		activity.setMaxPoints(
+				isPointBasedActivity(activity.getGradingMode(), activity.getRubric())
+					? (data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()))
+					: 0);
+	}
+
+	private boolean isPointBasedActivity(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode != GradingMode.NONGRADED && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {

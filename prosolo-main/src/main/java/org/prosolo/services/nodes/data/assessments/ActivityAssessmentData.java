@@ -410,4 +410,5 @@ public class ActivityAssessmentData {
 	public void setRubricVisibilityForStudent(ActivityRubricVisibility rubricVisibilityForStudent) {
 		this.rubricVisibilityForStudent = rubricVisibilityForStudent;
 	}
+
 }

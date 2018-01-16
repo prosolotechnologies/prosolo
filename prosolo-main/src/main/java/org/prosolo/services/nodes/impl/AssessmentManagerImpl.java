@@ -30,6 +30,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.PointRubricGradeData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
@@ -473,8 +474,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			case MANUAL_SIMPLE:
 				return grade.getValue();
 			case MANUAL_RUBRIC:
-				return grade.getRubricCriteria().stream()
-						.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
+				//TODO grading refactor temporary solution
+				if (grade.getRubric() instanceof PointRubricGradeData) {
+					PointRubricGradeData prg = (PointRubricGradeData) grade;
+					return prg.getCriteria().stream()
+							.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
+				}
 			default:
 				return -1;
 		}
@@ -488,9 +493,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			 */
 			boolean criteriaAssessmentsExist = grade.isAssessed();
 			if (criteriaAssessmentsExist) {
-				updateCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
+				updateCriteriaAssessments(grade.getRubric().getCriteria(), activityAssessmentId, session);
 			} else {
-				createCriteriaAssessments(grade.getRubricCriteria(), activityAssessmentId, session);
+				createCriteriaAssessments(grade.getRubric().getCriteria(), activityAssessmentId, session);
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -922,6 +927,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //
 				ad.setPoints(gradeValue);
 				//if grading by rubric, save rubric criteria assessments
+				//TODO grading refactor change this, we should rely on polymorphism
 				if (grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
 					gradeByRubric(grade, ad.getId(), persistence.currentManager());
 				}

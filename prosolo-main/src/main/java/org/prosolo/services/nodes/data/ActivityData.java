@@ -5,6 +5,7 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -91,6 +92,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private GradingMode gradingMode;
 	private long rubricId;
 	private String rubricName;
+	private RubricType rubricType;
 	private ActivityRubricVisibility rubricVisibility;
 
 	//indicates that competence was once published
@@ -764,5 +766,13 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public int getCommonScore() {
 		return commonScore;
+	}
+
+	public RubricType getRubricType() {
+		return rubricType;
+	}
+
+	public void setRubricType(RubricType rubricType) {
+		this.rubricType = rubricType;
 	}
 }

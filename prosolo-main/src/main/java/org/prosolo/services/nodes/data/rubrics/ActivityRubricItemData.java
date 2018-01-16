@@ -13,8 +13,6 @@ public class ActivityRubricItemData implements Serializable {
 
     private long id;
     private String name;
-    private double weight;
-    private int points;
     private int order;
 
     public long getId() {
@@ -31,22 +29,6 @@ public class ActivityRubricItemData implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
     }
 
     public int getOrder() {

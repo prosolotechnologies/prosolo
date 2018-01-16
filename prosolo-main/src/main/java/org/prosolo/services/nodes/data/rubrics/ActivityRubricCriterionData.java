@@ -8,11 +8,11 @@ import java.util.List;
  * @date 2017-10-13
  * @since 1.0.0
  */
-public class ActivityRubricCriterionData extends ActivityRubricItemData {
+public class ActivityRubricCriterionData<T extends ActivityRubricLevelData> extends ActivityRubricItemData {
 
     private static final long serialVersionUID = -4078621694036398105L;
 
-    private List<ActivityRubricLevelData> levels;
+    private List<T> levels;
     //currently selected level for a student
     private long levelId;
     private String comment;
@@ -21,11 +21,11 @@ public class ActivityRubricCriterionData extends ActivityRubricItemData {
         levels = new ArrayList<>();
     }
 
-    public List<ActivityRubricLevelData> getLevels() {
+    public List<T> getLevels() {
         return levels;
     }
 
-    public void setLevels(List<ActivityRubricLevelData> levels) {
+    public void setLevels(List<T> levels) {
         this.levels = levels;
     }
 
@@ -37,7 +37,7 @@ public class ActivityRubricCriterionData extends ActivityRubricItemData {
         this.levelId = levelId;
     }
 
-    public void addLevel(ActivityRubricLevelData level) {
+    public void addLevel(T level) {
         levels.add(level);
     }
 

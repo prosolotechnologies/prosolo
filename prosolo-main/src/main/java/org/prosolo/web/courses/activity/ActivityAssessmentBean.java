@@ -67,7 +67,7 @@ public class ActivityAssessmentBean implements Serializable {
 	private void initRubricIfNotInitialized() {
 		try {
 			if (activityAssessmentData.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !activityAssessmentData.getGrade().isRubricInitialized()) {
-				activityAssessmentData.getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
+				activityAssessmentData.getGrade().setRubric(rubricManager.getRubricDataForActivity(
 						activityAssessmentData.getActivityId(),
 						idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
 						true));

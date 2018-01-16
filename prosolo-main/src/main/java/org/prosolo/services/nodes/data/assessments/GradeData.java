@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data.assessments;
 
 import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.RubricGradeData;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,9 +16,13 @@ public class GradeData implements Serializable {
 	private Integer value;
 	//assessment mode
 	private GradingMode gradingMode;
-	private List<ActivityRubricCriterionData> rubricCriteria;
+	private RubricGradeData rubric;
 	private boolean rubricInitialized;
 	private boolean assessed;
+
+	//public abstract int getGivenGrade();
+	//public abstract boolean isAssessed();
+	//public abstract GradingMode getGradingMode();
 	
 	public int getMinGrade() {
 		return minGrade;
@@ -67,14 +72,6 @@ public class GradeData implements Serializable {
 		this.gradingMode = gradingMode;
 	}
 
-	public List<ActivityRubricCriterionData> getRubricCriteria() {
-		return rubricCriteria;
-	}
-
-	public void setRubricCriteria(List<ActivityRubricCriterionData> rubricCriteria) {
-		this.rubricCriteria = rubricCriteria;
-	}
-
 	public boolean isRubricInitialized() {
 		return rubricInitialized;
 	}
@@ -82,5 +79,12 @@ public class GradeData implements Serializable {
 	public void setRubricInitialized(boolean rubricInitialized) {
 		this.rubricInitialized = rubricInitialized;
 	}
-	
+
+	public void setRubric(RubricGradeData rubric) {
+		this.rubric = rubric;
+	}
+
+	public RubricGradeData getRubric() {
+		return rubric;
+	}
 }

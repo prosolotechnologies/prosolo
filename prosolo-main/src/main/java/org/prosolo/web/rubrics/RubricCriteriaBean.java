@@ -2,15 +2,18 @@ package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricItemData;
+import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.rubrics.data.LabeledRubricType;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -42,7 +45,9 @@ public class RubricCriteriaBean implements Serializable {
 
 	private RubricData rubric;
 	private List<RubricCriterionData> criteriaToRemove;
-	private List<RubricItemData> levelsToRemove;
+	private List<RubricLevelData> levelsToRemove;
+
+	private LabeledRubricType[] rubricTypes;
 
 	private EditMode editMode = EditMode.LIMITED;
 
@@ -51,6 +56,7 @@ public class RubricCriteriaBean implements Serializable {
 		try {
 			if (decodedRubricId > 0) {
 				initData();
+				rubricTypes = LabeledRubricType.values();
 			} else {
 				PageUtil.notFound();
 			}
@@ -146,7 +152,7 @@ public class RubricCriteriaBean implements Serializable {
 	}
 
 	public void addEmptyLevel() {
-		RubricItemData level = new RubricItemData(ObjectStatus.CREATED);
+		RubricLevelData level = new RubricLevelData(ObjectStatus.CREATED);
 		level.setOrder(rubric.getLevels().size() + 1);
 		rubric.addNewLevel(level);
 	}
@@ -202,9 +208,9 @@ public class RubricCriteriaBean implements Serializable {
 				}
 			}
 
-			Iterator<RubricItemData> levelIt = rubric.getLevels().iterator();
+			Iterator<RubricLevelData> levelIt = rubric.getLevels().iterator();
 			while (levelIt.hasNext()) {
-				RubricItemData lvl = levelIt.next();
+				RubricLevelData lvl = levelIt.next();
 				if (lvl.getStatus() == ObjectStatus.REMOVED) {
 					levelIt.remove();
 				}
@@ -225,5 +231,7 @@ public class RubricCriteriaBean implements Serializable {
 		return rubric;
 	}
 
-
+	public LabeledRubricType[] getRubricTypes() {
+		return rubricTypes;
+	}
 }

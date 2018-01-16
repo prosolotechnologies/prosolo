@@ -4592,6 +4592,9 @@ header {
       .manageRubricsList > li .manageRubricsListRight .optMoreMenu {
         margin-left: 20px; }
 
+.rubricsSelect {
+  padding-bottom: 30px; }
+
 .rubricsTop {
   padding-bottom: 30px; }
   .rubricsTop .rubricsCategories .rubricsCategoriesList,
@@ -4616,14 +4619,15 @@ header {
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="text"],
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem input[type="text"] {
         width: auto;
-        flex-grow: 1; }
+        flex-grow: 1;
+        margin-right: 5px; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem input[type="number"],
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem input[type="number"] {
         width: 80px;
         flex-shrink: 0;
-        margin: 0 5px 0 10px; }
+        margin: 0 5px; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem .percentage,
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem .percentage,
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .percentage,
