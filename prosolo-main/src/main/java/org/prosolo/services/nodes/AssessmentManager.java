@@ -63,7 +63,7 @@ public interface AssessmentManager {
 																			 String comment,UserContextData context,
 																			 long credentialAssessmentId,
 																			 long credentialId)
-			throws DbConnectionException, ResourceCouldNotBeLoadedException;
+			throws ResourceCouldNotBeLoadedException;
 
 	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;

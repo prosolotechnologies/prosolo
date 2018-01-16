@@ -70,9 +70,9 @@ public interface MessagingManager extends AbstractManager {
 
 	List<MessageThread> getUnreadMessageThreads(long id);
 
-	MessageThread getMessageThread(long id,UserContextData context) throws ResourceCouldNotBeLoadedException;
+	MessageThread getAndMarkMessageThreadAsRead(long id,UserContextData context) throws ResourceCouldNotBeLoadedException;
 
-	Result<MessageThread> getMessageThreadAndGetEvents(long id,UserContextData context)
+	Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id,UserContextData context)
 			throws ResourceCouldNotBeLoadedException;
 
 }

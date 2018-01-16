@@ -107,11 +107,8 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     public void publishAnnouncement() {
         try {
             UserContextData context = loggedUser.getUserContext();
-            AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+            announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
                     newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, context);
-
-            created.setCreatorAvatarUrl(loggedUser.getAvatar());
-            created.setCreatorFullName(loggedUser.getFullName());
 
             PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
             resetNewAnnouncementValues();

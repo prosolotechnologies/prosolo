@@ -136,7 +136,7 @@ public class MessagesBean implements Serializable {
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
 			if (decodedThreadId > 0) {
 				try {
-					thread = messagingManager.getMessageThread(decodedThreadId,userContext);
+					thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId,userContext);
 
 					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
@@ -183,7 +183,7 @@ public class MessagesBean implements Serializable {
 			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 			//if we were on "newView", set it to false so we do not see user dropdown (no need for full init())
 			newMessageView = false;
-			thread = messagingManager.getMessageThread(decodedThreadId, userContext);
+			thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId, userContext);
 			initializeThreadData(thread);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);

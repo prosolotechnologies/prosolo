@@ -688,15 +688,15 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public MessageThread getMessageThread(long id, UserContextData context) throws ResourceCouldNotBeLoadedException {
-		Result<MessageThread> result = self.getMessageThreadAndGetEvents(id, context);
+	public MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context) throws ResourceCouldNotBeLoadedException {
+		Result<MessageThread> result = self.getAndMarkMessageThreadAsReadAndGetEvents(id, context);
 		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<MessageThread> getMessageThreadAndGetEvents(long id, UserContextData context)
+	public Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context)
 			throws ResourceCouldNotBeLoadedException {
 
 		MessageThread messageThread = get(MessageThread.class, id);

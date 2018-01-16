@@ -711,8 +711,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
 																UserContextData context,
 																long credentialAssessmentId,
-																long credentialId)
-			throws ResourceCouldNotBeLoadedException {
+																long credentialId) throws ResourceCouldNotBeLoadedException {
 
 		Result<ActivityDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId,senderId,
 				comment, context,credentialAssessmentId,credentialId);
@@ -727,7 +726,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 																					String comment,UserContextData context,
 																					long credentialAssessmentId,
 																					long credentialId)
-			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+			throws ResourceCouldNotBeLoadedException {
 
 		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);

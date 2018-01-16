@@ -55,14 +55,9 @@ public class ProfileSettingsBean implements Serializable {
 	@Inject
 	private AvatarProcessor avatarProcessor;
 	@Inject
-	@Qualifier("taskExecutor")
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
 	private SocialNetworksManager socialNetworksManager;
 	@Inject
 	private UserOauthTokensManager oauthAccessTokenManager;
-	@Inject
-	private UserDataFactory userDataFactory;
 
 	//URL PARAMS
 	private boolean twitterConnected;
