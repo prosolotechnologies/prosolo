@@ -35,9 +35,9 @@ public interface MessagingManager extends AbstractManager {
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context);
+	MessageThread getLatestMessageThread(long userId, boolean archived, UserContextData context);
 
-	Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, String page, UserContextData context)
+	Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, UserContextData context)
 			throws DbConnectionException;
 
 	//Result<Message> sendMessageAndGetEvents(UserContextData context, long recieverId, String msg) throws DbConnectionException;
@@ -70,9 +70,8 @@ public interface MessagingManager extends AbstractManager {
 
 	List<MessageThread> getUnreadMessageThreads(long id);
 
-	MessageThread getAndMarkMessageThreadAsRead(long id,UserContextData context) throws ResourceCouldNotBeLoadedException;
+	MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context);
 
-	Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id,UserContextData context)
-			throws ResourceCouldNotBeLoadedException;
+	Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context);
 
 }

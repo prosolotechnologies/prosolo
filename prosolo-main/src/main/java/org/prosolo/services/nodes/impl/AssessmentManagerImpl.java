@@ -711,8 +711,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
 																UserContextData context,
 																long credentialAssessmentId,
-																long credentialId) throws ResourceCouldNotBeLoadedException {
-
+																long credentialId) {
 		Result<ActivityDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId,senderId,
 				comment, context,credentialAssessmentId,credentialId);
 
@@ -725,65 +724,67 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
 																					String comment,UserContextData context,
 																					long credentialAssessmentId,
-																					long credentialId)
-			throws ResourceCouldNotBeLoadedException {
+																					long credentialId){
+		try {
+			ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
+			ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
 
-		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
-		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
-
-		if (sender == null) {
-			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
-			User user = loadResource(User.class, senderId);
-			participant.setActivityDiscussion(discussion);
-			participant.setDateCreated(new Date());
-			participant.setRead(true);
-			participant.setParticipant(user);
-			saveEntity(participant);
-			sender = participant;
-			discussion.addParticipant(participant);
-		}
-
-		Date now = new Date();
-		// create new comment
-		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
-		// can happen if there are no messages in discussion
-		if (discussion.getMessages() == null) {
-			discussion.setMessages(new ArrayList<>());
-		}
-		discussion.getMessages().add(message);
-		message.setDiscussion(discussion);
-		message.setDateCreated(now);
-		message.setLastUpdated(now);
-		message.setSender(sender);
-		message.setContent(comment);
-		// for now, only way to send message is through the dialog where user
-		// sees messages, mark discussion as 'seen'
-		sender.setRead(true);
-		// all other participants have not yet 'seen' this message
-		for (ActivityDiscussionParticipant participant : discussion.getParticipants()) {
-			if (participant.getParticipant().getId() != senderId) {
-				participant.setRead(false);
+			if (sender == null) {
+				ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
+				User user = loadResource(User.class, senderId);
+				participant.setActivityDiscussion(discussion);
+				participant.setDateCreated(new Date());
+				participant.setRead(true);
+				participant.setParticipant(user);
+				saveEntity(participant);
+				sender = participant;
+				discussion.addParticipant(participant);
 			}
+
+			Date now = new Date();
+			// create new comment
+			ActivityDiscussionMessage message = new ActivityDiscussionMessage();
+			// can happen if there are no messages in discussion
+			if (discussion.getMessages() == null) {
+				discussion.setMessages(new ArrayList<>());
+			}
+			discussion.getMessages().add(message);
+			message.setDiscussion(discussion);
+			message.setDateCreated(now);
+			message.setLastUpdated(now);
+			message.setSender(sender);
+			message.setContent(comment);
+			// for now, only way to send message is through the dialog where user
+			// sees messages, mark discussion as 'seen'
+			sender.setRead(true);
+			// all other participants have not yet 'seen' this message
+			for (ActivityDiscussionParticipant participant : discussion.getParticipants()) {
+				if (participant.getParticipant().getId() != senderId) {
+					participant.setRead(false);
+				}
+			}
+			saveEntity(discussion);
+			saveEntity(message);
+
+			ActivityDiscussionMessage message1 = new ActivityDiscussionMessage();
+			message1.setId(message.getId());
+			ActivityAssessment discussion1 = new ActivityAssessment();
+			discussion1.setId(discussion.getId());
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+			parameters.put("credentialAssessmentId", credentialAssessmentId + "");
+
+			Result<ActivityDiscussionMessageData> result = new Result<>();
+
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentComment, context,
+					message1, discussion1, null, parameters));
+
+			result.setResult(ActivityDiscussionMessageData.from(message, null, encoder));
+
+			return result;
+		} catch (ResourceCouldNotBeLoadedException e){
+			throw new DbConnectionException("Error while deleting organization");
 		}
-		saveEntity(discussion);
-		saveEntity(message);
-
-		ActivityDiscussionMessage message1 = new ActivityDiscussionMessage();
-		message1.setId(message.getId());
-		ActivityAssessment discussion1 = new ActivityAssessment();
-		discussion1.setId(discussion.getId());
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("credentialId", credentialId + "");
-		parameters.put("credentialAssessmentId", credentialAssessmentId + "");
-
-		Result<ActivityDiscussionMessageData> result = new Result<>();
-
-		result.appendEvent(eventFactory.generateEventData(EventType.AssessmentComment, context,
-				message1, discussion1, null, parameters));
-
-		result.setResult(ActivityDiscussionMessageData.from(message, null, encoder));
-
-		return result;
 	}
 
 	@Override

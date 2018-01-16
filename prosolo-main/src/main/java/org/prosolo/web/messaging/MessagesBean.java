@@ -122,7 +122,7 @@ public class MessagesBean implements Serializable {
 
 		if (decodedThreadId == 0) {
 			try {
-				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, page, userContext);
+				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, userContext);
 			} catch (Exception e) {
 				logger.error(e);
 			}

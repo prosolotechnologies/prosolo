@@ -56,14 +56,12 @@ public interface AssessmentManager {
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
 														 UserContextData context,
 														 long credentialAssessmentId,
-														 long credentialId)
-			throws ResourceCouldNotBeLoadedException;
+														 long credentialId);
 
 	Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
 																			 String comment,UserContextData context,
 																			 long credentialAssessmentId,
-																			 long credentialId)
-			throws ResourceCouldNotBeLoadedException;
+																			 long credentialId);
 
 	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;

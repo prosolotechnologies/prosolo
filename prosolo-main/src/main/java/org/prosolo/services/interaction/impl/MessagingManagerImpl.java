@@ -384,8 +384,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public MessageThread getLatestMessageThread(long userId, boolean archived, String page, UserContextData context) {
-		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId,archived,page,context);
+	public MessageThread getLatestMessageThread(long userId, boolean archived, UserContextData context) {
+		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId, archived, context);
 
 		eventFactory.generateEvents(result.getEventQueue());
 
@@ -394,7 +394,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived,String page, UserContextData context)
+	public Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, UserContextData context)
 			throws DbConnectionException {
 		String query =
 				"SELECT DISTINCT thread " +
@@ -688,7 +688,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	public MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context) throws ResourceCouldNotBeLoadedException {
+	public MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context) {
 		Result<MessageThread> result = self.getAndMarkMessageThreadAsReadAndGetEvents(id, context);
 		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
@@ -696,22 +696,24 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context)
-			throws ResourceCouldNotBeLoadedException {
+	public Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context){
+		try {
+			MessageThread messageThread = get(MessageThread.class, id);
+			Result<MessageThread> result = new Result<>();
 
-		MessageThread messageThread = get(MessageThread.class, id);
-		Result<MessageThread> result = new Result<>();
+			MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread, context.getActorId());
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
 
-		MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread, context.getActorId());
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
+			result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+					context, messageThread, null, null, parameters));
 
-		result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
-				context, messageThread, null, null, parameters));
+			result.setResult(messageThread);
 
-		result.setResult(messageThread);
-
-		return result;
+			return result;
+		} catch (ResourceCouldNotBeLoadedException e){
+			throw new DbConnectionException("Error while loading message thread");
+		}
 	}
 
 	private MessageThread findMessageThread(long threadId) {

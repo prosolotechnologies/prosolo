@@ -134,7 +134,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(readOnly = true)
 	public SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName) {
 		String query = 
 				"SELECT accounts " + 

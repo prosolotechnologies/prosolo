@@ -273,12 +273,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
+	public Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
 				//TODO add context
-				addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				Result<Void> r = addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -288,11 +291,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
+	public Result<Void> removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
-				removeUserFromTheGroupAndGetEvents(group, userId, context);
+				Result<Void> r = removeUserFromTheGroupAndGetEvents(group, userId, context);
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -314,27 +320,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 																	List<Long> groupsToAddUserTo, UserContextData context)
 			throws DbConnectionException {
 		try {
-			addUserToGroups(userId, groupsToAddUserTo);
-			removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
-
-			User user = new User();
-			user.setId(user.getId());
 			Result<Void> result = new Result<>();
+			Result<Void> addResult = addUserToGroups(userId, groupsToAddUserTo);
+			Result<Void> removeResult = removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
 
-			for(long id : groupsToAddUserTo) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				result.appendEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, context,
-						user, group,null, null));
-			}
-			for(long id : groupsToRemoveUserFrom) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				result.appendEvent(eventFactory.generateEventData(
-						EventType.REMOVE_USER_FROM_GROUP,
-						context,
-						user, group,null, null));
-			}
+			result.appendEvents(addResult.getEventQueue());
+			result.appendEvents(removeResult.getEventQueue());
 
 			return result;
 		} catch(Exception e) {

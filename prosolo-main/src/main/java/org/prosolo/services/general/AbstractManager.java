@@ -53,8 +53,6 @@ public interface AbstractManager extends Serializable {
 	
 	void fullCacheClear();
 
-
-
 	 <T extends BaseEntity> boolean deleteById(Class<T> clazz, long id, Session session)
 			throws ResourceCouldNotBeLoadedException;
 
