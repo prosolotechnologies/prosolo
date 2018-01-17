@@ -56,7 +56,7 @@ public enum ContextName {
 	UPLOAD_RESULT_DIALOG(""),
 	RESULT("TargetActivity1"),
 	RESULTS(""),
-	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1"),
+	RESULT_PRIVATE_CONVERSATION_DIALOG("ActivityAssessment"),
 	STUDENTS(""),
 	EDIT_DIALOG(""),
 	USER_GROUPS_DIALOG("User"),
@@ -84,7 +84,9 @@ public enum ContextName {
 	MAKE_OWNER_DIALOG(""),
 	GROUP_JOIN("UserGroup"),
 	USERS(""),
-	NEXT_LEARNING_STAGE_DIALOG("LearningStage");
+	NEXT_LEARNING_STAGE_DIALOG("LearningStage"),
+	EVIDENCE("LearningEvidence"),
+	NEW_EVIDENCE("");
 
     private String objectType; 
     

@@ -35,4 +35,6 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 
 	void updateCompetenceOwner(long organizationId, long compId, long newOwnerId);
 
+	void updateLearningStageInfo(Competence1 comp);
+
 }

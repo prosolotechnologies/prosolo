@@ -27,6 +27,7 @@
 		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
 		<composite:attribute name="studentCanEditResponse" default="false" />
 		<composite:attribute name="gradeLink" default=""/>
+		<composite:attribute name="credId" default="0" />
 		<composite:attribute name="role" default="USER" />
 	</composite:interface>
 	
@@ -40,10 +41,19 @@
 							avatar="#{cc.attrs.resultData.user.avatarUrl}"
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
-							<h:link outcome="/profile">
-								#{cc.attrs.resultData.user.fullName}
-								<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
-							</h:link>
+							<c:if test="#{cc.attrs.role eq 'USER'}">
+								<h:link outcome="/profile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+								</h:link>
+							</c:if>
+							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
+								<h:link outcome="/manage/studentProfile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="cred" value="#{util:encodeId(cc.attrs.credId)}" />
+								</h:link>
+							</c:if>
 						</h3>
 					</div>
 		           <div class="timestamp">
@@ -78,11 +88,11 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Private conversation:</span>
+						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}
@@ -91,7 +101,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
@@ -137,7 +147,7 @@
 							oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
 							<span class="icon"></span>
 							#{cc.attrs.resultData.resultComments.numberOfComments} #{cc.attrs.resultData.resultComments.numberOfComments eq 1 ? 'comment' : 'comments'}
-		           		</p:commandLink>
+						</p:commandLink>
 						<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
 							<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
 								<a class="commentsNumber" role="button" data-toggle="collapse"
@@ -154,21 +164,21 @@
 					</h:panelGroup>
 				</div>
 				<post:comments
-		      		id="comments"
-		      		comments="#{cc.attrs.resultData.resultComments}"
-		      		uniqueId="#{cc.attrs.resultData.targetActivityId}"
-		      		commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-		      		showSortOptions="false"
-		      		isCollapsible="true"
-		      		growlToUpdate="#{cc.attrs.growlToUpdate}"
-		      		learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
-		      		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
-		      		toUpdateOnCommentSave=""
-	    		/>
+					id="comments"
+					comments="#{cc.attrs.resultData.resultComments}"
+					uniqueId="#{cc.attrs.resultData.targetActivityId}"
+					commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+					showSortOptions="false"
+					isCollapsible="true"
+					growlToUpdate="#{cc.attrs.growlToUpdate}"
+					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
+					toUpdateOnCommentSave=""
+				/>
 			</div>
 		</c:if>
 		
-		<c:if test="#{cc.attrs.resultType eq 'TEXT'}">
+		<c:if test="#{cc.attrs.resultType eq 'TEXT' or cc.attrs.resultType eq 'NONE'}">
 			<article id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultText">
 				<div class="activityResultHead">
 					<div class="user32">
@@ -176,10 +186,19 @@
 							avatar="#{cc.attrs.resultData.user.avatarUrl}"
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
-							<h:link outcome="/profile">
-	                     		#{cc.attrs.resultData.user.fullName}
-	                     		<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
-							</h:link>
+							<c:if test="#{cc.attrs.role eq 'USER'}">
+								<h:link outcome="/profile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+								</h:link>
+							</c:if>
+							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
+								<h:link outcome="/manage/studentProfile">
+									#{cc.attrs.resultData.user.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="cred" value="#{util:encodeId(cc.attrs.credId)}" />
+								</h:link>
+							</c:if>
 						</h3>
 					</div>
 					<div class="timestamp">
@@ -188,50 +207,52 @@
 				</div>
 				
 				<div class="activityResultTextContent">
-					<div class="commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}">
-						<h:outputText escape="false" value="#{cc.attrs.resultData.result}" />
-					</div>
-					
-					<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
-						<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
-						<script>
-						tinymce.init({
-							theme: "modern",
-						    skin: 'light',
-						    height : "400",
-							selector:'.activityResultTextContent textarea',
-							font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
-					    	plugins: 'link media code image',
-							menubar:false,
-						    statusbar: false,
-						    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
-						});
-						</script>
-						
-						<div class="editComment hidden editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}">
-							<h:form>
-								<h:inputTextarea value="#{cc.attrs.resultData.result}" />
-								
-								<ui:remove>
-									<div class="contentEditableComment" contenteditable="true"
-										strip-br="true">#{cc.attrs.resultData.result}</div>
-								</ui:remove>
-								
-								<p:commandLink styleClass="btn btn-sm btn-green"
-									action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
-									onclick="$('.activityResultTextContent textarea').val(tinyMCE.activeEditor.getContent());"
-									update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-									<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-			                      	Submit
-			                    </p:commandLink>
-
-								<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke"
-									onclick="$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');">
-									Cancel
-								</a>
-							</h:form>
+					<ui:fragment rendered="#{cc.attrs.resultType eq 'TEXT'}">
+						<div class="commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}">
+							<h:outputText escape="false" value="#{cc.attrs.resultData.result}" />
 						</div>
+					
+						<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+							<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+							<script>
+							tinymce.init({
+								theme: "modern",
+								skin: 'light',
+								height : "400",
+								selector:'.activityResultTextContent textarea',
+								font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+								plugins: 'link media code image',
+								menubar:false,
+								statusbar: false,
+								toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
+							});
+							</script>
+
+							<div class="editComment hidden editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}">
+								<h:form>
+									<h:inputTextarea value="#{cc.attrs.resultData.result}" />
+
+									<ui:remove>
+										<div class="contentEditableComment" contenteditable="true"
+											strip-br="true">#{cc.attrs.resultData.result}</div>
+									</ui:remove>
+
+									<p:commandLink styleClass="btn btn-sm btn-green"
+										action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
+										onclick="$('.activityResultTextContent textarea').val(tinyMCE.activeEditor.getContent());"
+										update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
+										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+										<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+										Submit
+									</p:commandLink>
+
+									<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke"
+										onclick="$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');">
+										Cancel
+									</a>
+								</h:form>
+							</div>
+						</ui:fragment>
 					</ui:fragment>
 				</div>
 				
@@ -252,11 +273,11 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Private conversation:</span>
+						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
@@ -265,7 +286,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
@@ -298,49 +319,53 @@
 				</c:if>
 				
 				<div class="activityResultFooter">
-					<h:panelGroup id="panelToggleComments">
-						<p:commandLink
-							rendered="#{!cc.attrs.resultData.resultComments.initialized}"
-							styleClass="commentsNumber" pt:role="button"
-							pt:data-toggle="collapse"
-							href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-							pt:aria-expanded="false"
-							pt:aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-							action="#{activityResultBean.initializeResultCommentsIfNotInitialized(cc.attrs.resultData)}"
-							update="comments panelToggleComments"
-							oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
-							<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} comments
-						</p:commandLink>
-						<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
-							<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
-								<a class="commentsNumber" role="button" data-toggle="collapse"
-									href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-									aria-expanded="false"
-									aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
-									<span class="icon"></span>
-									#{cc.attrs.resultData.resultComments.numberOfComments} comments
-								</a>
-							</h:panelGroup>
+					<c:if test="#{cc.attrs.resultType ne 'NONE'}">
+						<h:panelGroup id="panelToggleComments">
+							<p:commandLink
+								rendered="#{!cc.attrs.resultData.resultComments.initialized}"
+								styleClass="commentsNumber" pt:role="button"
+								pt:data-toggle="collapse"
+								href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+								pt:aria-expanded="false"
+								pt:aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+								action="#{activityResultBean.initializeResultCommentsIfNotInitialized(cc.attrs.resultData)}"
+								update="comments panelToggleComments"
+								oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
+								<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} comments
+							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
+								<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
+									<a class="commentsNumber" role="button" data-toggle="collapse"
+										href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+										aria-expanded="false"
+										aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
+										<span class="icon"></span>
+										#{cc.attrs.resultData.resultComments.numberOfComments} comments
+									</a>
+								</h:panelGroup>
+							</ui:fragment>
+						</h:panelGroup>
+						<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+							<a href="javascript:void(0)" class="edit editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}"
+								onclick="
+									$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');
+									$(this).addClass('hidden');
+									return false;"><span class="icon"></span>Edit</a>
 						</ui:fragment>
-					</h:panelGroup>
-					<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
-						<a href="javascript:void(0)" class="edit editResponseBtn#{util:encodeId(cc.attrs.resultData.targetActivityId)}"
-							onclick="
-								$('.editComment#{util:encodeId(cc.attrs.resultData.targetActivityId)}, .commentText#{util:encodeId(cc.attrs.resultData.targetActivityId)}').toggleClass('hidden');
-							    $(this).addClass('hidden');
-						    	return false;"><span class="icon"></span>Edit</a>
-					</ui:fragment>
+					</c:if>
 				</div>
-				
-				<post:comments id="comments"
-					comments="#{cc.attrs.resultData.resultComments}"
-					uniqueId="#{cc.attrs.resultData.targetActivityId}"
-					commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-					showSortOptions="false" isCollapsible="true"
-					growlToUpdate="#{cc.attrs.growlToUpdate}"
-					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
-					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
-					toUpdateOnCommentSave="" />
+
+				<c:if test="#{cc.attrs.resultType ne 'NONE'}">
+					<post:comments id="comments"
+						comments="#{cc.attrs.resultData.resultComments}"
+						uniqueId="#{cc.attrs.resultData.targetActivityId}"
+						commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+						showSortOptions="false" isCollapsible="true"
+						growlToUpdate="#{cc.attrs.growlToUpdate}"
+						learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+						toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
+						toUpdateOnCommentSave="" />
+				</c:if>
 			</article>
 		</c:if>
 	</composite:implementation>

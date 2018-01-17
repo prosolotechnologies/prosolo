@@ -2,7 +2,7 @@ package org.prosolo.web.achievements.data;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
 
@@ -21,19 +21,12 @@ public class TargetCompetenceData implements Serializable {
     private String title;
     private boolean hiddenFromProfile;
     private long duration;
+    private String durationString;
     private LearningResourceType learningResourceType;
     private long competenceId;
 
-    public TargetCompetenceData(Long id, String description, String title, boolean hiddenFromProfile,
-            long duration, LearningResourceType learningResourceType, 
-            long competenceId) {
-        this.id = id;
-        this.description = description;
-        this.title = title;
-        this.hiddenFromProfile = hiddenFromProfile;
-        this.duration = duration;
-        this.learningResourceType = learningResourceType;
-        this.competenceId = competenceId;
+    public void calculateDurationString() {
+        durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
     }
 
     public TargetCompetenceData(TargetCompetence1 targetCompetence1){
@@ -44,6 +37,7 @@ public class TargetCompetenceData implements Serializable {
         this.duration = targetCompetence1.getCompetence().getDuration();
         this.learningResourceType = targetCompetence1.getCompetence().getType();
         this.competenceId = targetCompetence1.getCompetence().getId();
+        calculateDurationString();
     }
 
     public Long getId() {
@@ -106,4 +100,11 @@ public class TargetCompetenceData implements Serializable {
         this.competenceId = competenceId;
     }
 
+    public String getDurationString() {
+        return durationString;
+    }
+
+    public void setDurationString(String durationString) {
+        this.durationString = durationString;
+    }
 }

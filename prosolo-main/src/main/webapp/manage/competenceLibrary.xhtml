@@ -141,6 +141,9 @@
 			                            	</h:link>
 			                            </h2>
 			                            <div class="competenceInfo">
+											<h:panelGroup layout="block" styleClass="deliveryStage" rendered="#{comp.learningStageEnabled}">
+												<div class="stage">Stage: <span>#{comp.learningStage.title}</span></div>
+											</h:panelGroup>
 			                                <div class="status">
 			                                    Published#{comp.scheduledPublish ? ' Scheduled for' : ''}:
 												<span>

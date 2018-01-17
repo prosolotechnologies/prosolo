@@ -51,14 +51,14 @@ public class BulkDataAdministrationBean implements Serializable {
         }).start();
 	}
 
-    public void deleteAndReindexNodes(long orgId) {
+    public void deleteAndReindexLearningContent(long orgId) {
         new Thread(() -> {
             try {
-                logger.info("Delete and reindex nodes (credentials and competencies) started");
-                bulkDataAdministrationService.deleteAndReindexNodes(orgId);
-                logger.info("Delete and reindex nodes finished");
+                logger.info("Delete and reindex learning content (credentials, competencies and learning evidences) started");
+                bulkDataAdministrationService.deleteAndReindexLearningContent(orgId);
+                logger.info("Delete and reindex learning content finished");
             } catch (IndexingServiceNotAvailable e) {
-                logger.error(e);
+                logger.error("Error", e);
             }
         }).start();
     }

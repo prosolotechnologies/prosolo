@@ -21,7 +21,7 @@ public class UrlValidator implements Validator {
 		org.prosolo.web.validators.UrlValidator urlValidator = 
 				new org.prosolo.web.validators.UrlValidator(null);
 		try {
-			urlValidator.performValidation(value, "Url is not valid");
+			urlValidator.performValidation(value, "URL is not valid");
 		} catch(Exception e) {
 			FacesMessage msg = new FacesMessage(e.getMessage());
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);

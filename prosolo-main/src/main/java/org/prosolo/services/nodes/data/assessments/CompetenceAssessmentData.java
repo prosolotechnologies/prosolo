@@ -19,7 +19,6 @@ public class CompetenceAssessmentData {
 	private long competenceAssessmentId;
 	private String competenceAssessmentEncodedId;
 	private long competenceId;
-	private long targetCompetenceId;
 	private List<ActivityAssessmentData> activityAssessmentData;
 	private int points;
 	private int maxPoints;
@@ -52,20 +51,17 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+				UrlIdEncoder encoder, long userId) {
 
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		data.setTitle(cd.getTitle());
 		data.setCompetenceId(cd.getCompetenceId());
-		data.setTargetCompetenceId(cd.getTargetCompId());
 		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-		if (compAssessment != null) {
-			data.setCompetenceAssessmentId(compAssessment.getId());
-			data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
-			data.setApproved(compAssessment.isApproved());
-			data.setPoints(compAssessment.getPoints());
-		} else if (!cd.isEnrolled()) {
-			//if user is not enrolled in a competency readOnly should be set to true
+		data.setCompetenceAssessmentId(compAssessment.getId());
+		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
+		data.setApproved(compAssessment.isApproved());
+		data.setPoints(compAssessment.getPoints());
+		if (!cd.isEnrolled()) {
 			data.setReadOnly(true);
 		}
 
@@ -156,11 +152,4 @@ public class CompetenceAssessmentData {
 		this.competenceId = competenceId;
 	}
 
-	public long getTargetCompetenceId() {
-		return targetCompetenceId;
-	}
-
-	public void setTargetCompetenceId(long targetCompetenceId) {
-		this.targetCompetenceId = targetCompetenceId;
-	}
 }
