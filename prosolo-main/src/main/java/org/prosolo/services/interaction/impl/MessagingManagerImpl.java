@@ -387,9 +387,12 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public MessageThread getLatestMessageThread(long userId, boolean archived, UserContextData context) {
 		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId, archived, context);
 
-		eventFactory.generateEvents(result.getEventQueue());
-
-		return result.getResult();
+		if(result != null) {
+			eventFactory.generateEvents(result.getEventQueue());
+			return result.getResult();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -423,11 +426,10 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 					context, messageThread, null, null, parameters));
 
 			res.setResult(messageThread);
+			return res;
 		} else {
 			return null;
 		}
-
-		return res;
 	}
 
 	@Override
