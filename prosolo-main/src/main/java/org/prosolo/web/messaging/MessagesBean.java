@@ -121,22 +121,18 @@ public class MessagesBean implements Serializable {
 		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
 
 		if (decodedThreadId == 0) {
-			try {
-				thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, userContext);
-			} catch (Exception e) {
-				logger.error(e);
-			}
+			thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, userContext);
 
 			if (thread != null) {
 				return initializeThreadData(thread);
 			}
 			else return MessageProcessingResult.NO_MESSAGES;
 		}
-		
+
 		if (loggedUser != null && loggedUser.isLoggedIn()) {
 			if (decodedThreadId > 0) {
 				try {
-					thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId,userContext);
+					thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId, userContext);
 
 					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
@@ -145,13 +141,12 @@ public class MessagesBean implements Serializable {
 					else {
 						return initializeThreadData(thread);
 					}
-				} catch (ResourceCouldNotBeLoadedException e) {
+				} catch (Exception e) {
 					logger.error(e);
 					return MessageProcessingResult.ERROR;
 				}
 			}
-		} 
-		else {
+		} else {
 			logger.info("Not logged-in user tried to open messages page with thread id: " + threadId);
 			return MessageProcessingResult.FORBIDDEN;
 		}
@@ -185,9 +180,8 @@ public class MessagesBean implements Serializable {
 			newMessageView = false;
 			thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId, userContext);
 			initializeThreadData(thread);
-		} catch (ResourceCouldNotBeLoadedException e) {
+		} catch (Exception e) {
 			logger.error(e);
-			
 			PageUtil.fireErrorMessage("There was an error with loading this cnversation");
 		}
 	}
