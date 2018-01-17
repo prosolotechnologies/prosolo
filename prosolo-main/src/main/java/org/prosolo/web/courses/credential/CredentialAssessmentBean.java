@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
@@ -21,7 +20,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.ActivityAssessmentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -50,8 +48,6 @@ public class CredentialAssessmentBean implements Serializable {
 	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
-	private RubricManager rubricManager;
-	@Inject
 	private ActivityAssessmentBean activityAssessmentBean;
 
 	// PARAMETERS
@@ -66,9 +62,6 @@ public class CredentialAssessmentBean implements Serializable {
 
 	private String credentialTitle;
 	private List<AssessmentData> otherAssessments;
-
-	// adding new comment
-	private String newCommentValue;
 
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
@@ -134,10 +127,6 @@ public class CredentialAssessmentBean implements Serializable {
 		return true;
 	}
 
-	public boolean isCurrentUserAssessedStudent() {
-		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
-	}
-
 	public void approveCredential() {
 		try {
 			UserContextData userContext = loggedUserBean.getUserContext();
@@ -183,7 +172,6 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-
 	public void markDiscussionRead() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
@@ -221,7 +209,6 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-
 	public boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
 			return false;
@@ -229,11 +216,6 @@ public class CredentialAssessmentBean implements Serializable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private void cleanupCommentData() {
-		newCommentValue = "";
-
-	}
-	
 	private boolean isInManageSection() {
 		String currentUrl = PageUtil.getRewriteURL();
 		return currentUrl.contains("/manage/");
@@ -297,14 +279,6 @@ public class CredentialAssessmentBean implements Serializable {
 
 	public void setReviewText(String reviewText) {
 		this.reviewText = reviewText;
-	}
-
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
 	}
 
 }
