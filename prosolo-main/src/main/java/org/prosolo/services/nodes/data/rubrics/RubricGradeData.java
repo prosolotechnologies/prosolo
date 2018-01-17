@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data.rubrics;
 
 import com.jcabi.immutable.Array;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.GradingMode;
 
@@ -34,4 +35,6 @@ public abstract class RubricGradeData<T extends ActivityRubricCriterionData> ext
         //we know that student is assessed when there is a level selected for one criterion
         return criteria.get(0).getLevelId() > 0;
     }
+
+    public abstract RubricType getRubricType();
 }

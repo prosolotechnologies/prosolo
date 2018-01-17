@@ -698,7 +698,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                     }
                     crit = c;
                     if (loadGrades && activityAssessmentId > 0) {
-                        assessment = (CriterionAssessment) row[3];
+                        assessment = (CriterionAssessment) row[4];
                     }
                     levels.clear();
                 }

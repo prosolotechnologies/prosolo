@@ -476,9 +476,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			case MANUAL_RUBRIC:
 				//TODO grading refactor temporary solution
 				if (grade.getRubric() instanceof PointRubricGradeData) {
-					PointRubricGradeData prg = (PointRubricGradeData) grade;
+					PointRubricGradeData prg = (PointRubricGradeData) grade.getRubric();
 					return prg.getCriteria().stream()
 							.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
+				} else {
+					return 0;
 				}
 			default:
 				return -1;
@@ -934,8 +936,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ad);
 
-				//recalculate competence assessment score
-				recalculateScoreForCompetenceAssessment(ad.getAssessment().getId());
+				if (gradeValue > 0) {
+					//recalculate competence assessment score
+					recalculateScoreForCompetenceAssessment(ad.getAssessment().getId());
+				}
 
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(ad.getId());

@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.data.rubrics;
 
+import org.prosolo.common.domainmodel.rubric.RubricType;
+
 import java.util.List;
 
 /**
@@ -17,4 +19,10 @@ public class DescriptiveRubricGradeData extends RubricGradeData<ActivityRubricCr
 //    public int getGivenGrade() {
 //        return -1;
 //    }
+
+
+    @Override
+    public RubricType getRubricType() {
+        return RubricType.DESCRIPTIVE;
+    }
 }

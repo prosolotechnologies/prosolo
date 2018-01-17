@@ -349,7 +349,7 @@
 															</c:if>
 															<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent)}">
 																<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor()}">
-																	<p:commandLink rendered="#{activityAssessment.grade.maxGrade ne 0}"
+																	<p:commandLink rendered="#{activityAssessment.grade.gradingMode ne 'NONGRADED'}"
 																			styleClass="grade gradeModalLink_#{activityAssessment.activityId}"
 																			action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(activityAssessment)}"
 																			update=":#{cc.clientId}:activityGradePanel:gradePanel :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
@@ -357,7 +357,7 @@
 																		#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
 																		#{activityAssessment.grade.maxGrade}
 																	</p:commandLink>
-																	<ui:fragment rendered="#{activityAssessment.grade.maxGrade eq 0}">
+																	<ui:fragment rendered="#{activityAssessment.grade.gradingMode eq 'NONGRADED'}">
 																		<a href="javascript:void(0);" class="grade"
 																		   data-toggle="tooltip"
 																		   title="Nongraded activity">
@@ -506,18 +506,20 @@
 				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
 				<h2>Grade</h2>
 				<h:panelGroup id="panelRubricAssessment">
-					<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria}" var="c">
+					<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubric.criteria}" var="c">
 						<h3>#{c.name}</h3>
 						<ul class="levelsList">
 							<ui:repeat value="#{c.levels}" var="l">
 								<li class="#{c.levelId eq l.id ? 'checked' : ''}">
-									#{l.name} <span class="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</span> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+									#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubric.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
 								</li>
 							</ui:repeat>
 						</ul>
 						<p><strong>Comments:</strong> #{c.comment}</p>
 					</ui:repeat>
-					<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.value != null and activityAssessmentBean.activityAssessmentData.grade.assessed ? activityAssessmentBean.activityAssessmentData.grade.value : '-'}</strong></p>
+					<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.rubric.rubricType eq 'POINT'}">
+						<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.value != null and activityAssessmentBean.activityAssessmentData.grade.assessed ? activityAssessmentBean.activityAssessmentData.grade.value : '-'}</strong></p>
+					</c:if>
 				</h:panelGroup>
 			</div>
 		</c:if>
@@ -529,8 +531,6 @@
 					gradeAction="#{cc.attrs.bean.updateGrade}"
 					assessment="#{activityAssessmentBean.activityAssessmentData}"
 					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) :assessmentPreview:assessCredentialForm"
-					minGrade="#{not empty activityAssessmentBean.activityAssessmentData ? activityAssessmentBean.activityAssessmentData.grade.minGrade : 0}"
-					maxGrade="#{not empty activityAssessmentBean.activityAssessmentData ? activityAssessmentBean.activityAssessmentData.grade.maxGrade : 0}"
 					learningContext="#{cc.attrs.learningContext}"
 			/>
 		</c:if>

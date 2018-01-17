@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.data.rubrics;
 
+import org.prosolo.common.domainmodel.rubric.RubricType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,5 +91,10 @@ public class PointRubricGradeData extends RubricGradeData<PointActivityRubricCri
                 .mapToInt(c -> c.getLevels().stream()
                         .filter(lvl -> lvl.getId() == c.getLevelId())
                         .findFirst().get().getPoints()).sum();
+    }
+
+    @Override
+    public RubricType getRubricType() {
+        return RubricType.POINT;
     }
 }

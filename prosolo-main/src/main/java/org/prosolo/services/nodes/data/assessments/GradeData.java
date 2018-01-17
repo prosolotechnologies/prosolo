@@ -23,6 +23,7 @@ public class GradeData implements Serializable {
 	//public abstract int getGivenGrade();
 	//public abstract boolean isAssessed();
 	//public abstract GradingMode getGradingMode();
+	//public abstract isPointBasedGrading();
 	
 	public int getMinGrade() {
 		return minGrade;
