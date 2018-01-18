@@ -135,6 +135,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
 			}
+
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", targetCredential.getCredential().getId() + "");
+			CredentialAssessment assessment1 = new CredentialAssessment();
+			assessment1.setId(assessment.getId());
+			User assessor1 = new User();
+			assessor1.setId(assessorId);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+					null, parameters));
+
 			result.setResult(assessment.getId());
 			return result;
 		} catch (IllegalDataStateException e) {

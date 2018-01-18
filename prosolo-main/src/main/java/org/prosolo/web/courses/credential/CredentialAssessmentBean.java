@@ -127,6 +127,10 @@ public class CredentialAssessmentBean implements Serializable {
 		return true;
 	}
 
+	public boolean isCurrentUserAssessedStudent() {
+		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
+	}
+
 	public void approveCredential() {
 		try {
 			UserContextData userContext = loggedUserBean.getUserContext();
