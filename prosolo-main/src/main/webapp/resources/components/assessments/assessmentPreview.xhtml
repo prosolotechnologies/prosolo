@@ -275,7 +275,7 @@
 											</h:panelGroup>
 
 											<p:commandLink styleClass="linkApprove"
-														   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment)}"
+														   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentId)}"
 														   update="@form :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl "
 														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 												Approve<span></span>

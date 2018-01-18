@@ -156,10 +156,11 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-	public void approveCompetence(String encodedCompetenceAssessmentId) {
+	public void approveCompetence(long competenceAssessmentId) {
 		try {
-			assessmentManager.approveCompetence(idEncoder.decodeId(encodedCompetenceAssessmentId));
-			markCompetenceApproved(encodedCompetenceAssessmentId);
+			assessmentManager.approveCompetence(competenceAssessmentId);
+			markCompetenceApproved(competenceAssessmentId);
+
 			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
 					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
@@ -168,9 +169,9 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-	private void markCompetenceApproved(String encodedCompetenceAssessmentId) {
+	private void markCompetenceApproved(long competenceAssessmentId) {
 		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
-			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(encodedCompetenceAssessmentId)) {
+			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
 				competenceAssessment.setApproved(true);
 			}
 		}
