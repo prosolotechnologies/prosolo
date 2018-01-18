@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -496,6 +497,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             res.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
                     context.getActorId(), competence.getId(),
                     UserGroupPrivilege.Edit,true, context).getEvents());
+
+            //add competence to all units where competence creator is manager
+            res.addEvents(ServiceLocator.getInstance().getService(Competence1Manager.class).addCompetenceToDefaultUnits(competence.getId(), context));
+
             return res;
         } catch(Exception e) {
             logger.error(e);

@@ -174,7 +174,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param context
 	 * @return
 	 */
-	private List<EventData> addCompetenceToDefaultUnits(long compId, UserContextData context) {
+	@Override
+	public List<EventData> addCompetenceToDefaultUnits(long compId, UserContextData context) {
 		long managerRoleId = roleManager.getRoleIdByName(SystemRoleNames.MANAGER);
 		List<Long> unitsWithManagerRole = unitManager.getUserUnitIdsInRole(context.getActorId(), managerRoleId);
 		List<EventData> events = new ArrayList<>();

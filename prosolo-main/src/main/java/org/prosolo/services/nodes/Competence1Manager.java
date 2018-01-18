@@ -38,7 +38,9 @@ public interface Competence1Manager {
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
 													  UserContextData context) throws DbConnectionException,
 			IllegalDataStateException;
-	
+
+	List<EventData> addCompetenceToDefaultUnits(long compId, UserContextData context);
+
 	/**
 	 * Updates competence.
 	 * 
