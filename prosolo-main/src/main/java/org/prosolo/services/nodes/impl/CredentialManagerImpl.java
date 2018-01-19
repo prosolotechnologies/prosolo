@@ -1703,9 +1703,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT targetCredential.user.id " +
-							"FROM TargetCredential1 targetCredential " +
-							"WHERE targetCredential.credential.id = :credentialId " +
-							"AND targetCredential.progress < 100";
+					"FROM TargetCredential1 targetCredential " +
+					"WHERE targetCredential.credential.id = :credentialId " +
+						"AND targetCredential.progress < 100";
 
 			@SuppressWarnings("unchecked")
 			List<Long> res = persistence.currentManager().createQuery(query)

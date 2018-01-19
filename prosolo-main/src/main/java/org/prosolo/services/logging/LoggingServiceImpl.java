@@ -521,10 +521,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if(Arrays.asList(interactions).contains(eventType)){
 				System.out.println("TARGET USER SHOULD BE EXTRACTED FOR THIS EVENT:"+logObject.toString());
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
-
-			}else{
-				System.out.println("We are not interested in this interaction for target user id:"+eventType.name());
 			}
+
 			logObject.put("targetUserId", targetUserId);
 
 			Object timestamp = logObject.get("timestamp");

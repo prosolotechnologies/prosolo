@@ -316,10 +316,12 @@
                                 <h2 class="modal-title">#{organizationEditBean.createLearningStageUseCase ? 'Add' : 'Rename'} Learning Stage</h2>
                             </div>
                             <div class="modal-body alignLeft">
-                                <h:inputText id="inputLearningStage" value="#{organizationEditBean.selectedLearningStage.title}"
-                                    placeholder="Learning stage name"
-                                    required="true" requiredMessage="Learning stage name is required"
-                                    validator="#{organizationEditBean.validateLearningStage}"></h:inputText>
+                                <h:inputText id="inputLearningStage"
+                                             value="#{organizationEditBean.selectedLearningStage.title}"
+                                             placeholder="Learning stage name"
+                                             required="true" requiredMessage="Learning stage name is required"
+                                             validator="#{organizationEditBean.validateLearningStage}"
+                                             autocomplete="off" />
                                 <small class="redText bottom5 topMinus20 displayBlock"><h:message id="inputLearninStageMsg" for="inputLearningStage"></h:message></small>
                             </div>
                             <div class="modal-footer alignLeft">
