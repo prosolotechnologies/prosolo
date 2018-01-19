@@ -12,10 +12,10 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.rubrics.RubricGradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -64,7 +64,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private CompetenceData1 competenceData;
 	//TODO grading refactor on a page rubricCriteria is expected, not rubricGradeData
 	//private List<ActivityRubricCriterionData> rubricCriteria;
-	private RubricGradeData rubricGradeData;
+	private RubricCriteriaGradeData rubricGradeData;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -461,7 +461,7 @@ public class ActivityViewBeanUser implements Serializable {
 		return access;
 	}
 
-	public RubricGradeData getRubricGradeData() {
+	public RubricCriteriaGradeData getRubricGradeData() {
 		return rubricGradeData;
 	}
 }

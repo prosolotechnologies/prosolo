@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data.assessments;
+package org.prosolo.services.nodes.data.assessments.grading;
 
 /**
  * @author stefanvuckovic

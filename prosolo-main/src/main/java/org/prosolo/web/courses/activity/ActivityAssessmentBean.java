@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -13,7 +14,7 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.GradingMode;
+import org.prosolo.services.nodes.data.assessments.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -61,18 +62,61 @@ public class ActivityAssessmentBean implements Serializable {
 	//prepare for grading
 	public void prepareActivityAssessmentForGrading(ActivityAssessmentData actAssessment) {
 		this.activityAssessmentData = actAssessment;
-		initRubricIfNotInitialized();
+		initializeGradeData();
 	}
 
-	private void initRubricIfNotInitialized() {
+	private void initializeGradeData() {
 		try {
-			if (activityAssessmentData.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !activityAssessmentData.getGrade().isRubricInitialized()) {
-				activityAssessmentData.getGrade().setRubric(rubricManager.getRubricDataForActivity(
-						activityAssessmentData.getActivityId(),
-						idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
-						true));
-				activityAssessmentData.getGrade().setRubricInitialized(true);
-			}
+			GradeData gradeData = activityAssessmentData.getGrade();
+			gradeData.accept(new GradeDataVisitor<Void>() {
+
+				@Override
+				public Void visit(ManualSimpleGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(AutomaticGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(ExternalToolAutoGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(CompletionAutoGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(NongradedGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(RubricGradeData gradeData) {
+					if (!gradeData.isInitialized()) {
+						Activity1 a = new Activity1();
+						gradeData.setRubricCriteria(rubricManager.getRubricDataForActivity(
+								activityAssessmentData.getActivityId(),
+								idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
+								true));
+					}
+					return null;
+				}
+
+				@Override
+				public Void visit(DescriptiveRubricGradeData gradeData) {
+					return null;
+				}
+
+				@Override
+				public Void visit(PointRubricGradeData gradeData) {
+					return null;
+				}
+			});
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
@@ -197,19 +241,15 @@ public class ActivityAssessmentBean implements Serializable {
 
 	public void updateGrade() throws DbConnectionException {
 		try {
-			int newGrade = assessmentManager.updateGradeForActivityAssessment(
+			activityAssessmentData.setGrade(assessmentManager.updateGradeForActivityAssessment(
 					idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
-					activityAssessmentData.getGrade(), loggedUserBean.getUserContext());
-			if (newGrade >= 0) {
-				activityAssessmentData.getGrade().setValue(newGrade);
-			}
+					activityAssessmentData.getGrade(), loggedUserBean.getUserContext()));
 
 			if (activityAssessmentData.getCompAssessment() != null) {
 				activityAssessmentData.getCompAssessment().setPoints(
 						assessmentManager.getCompetenceAssessmentScore(
 								activityAssessmentData.getCompAssessmentId()));
 			}
-			activityAssessmentData.getGrade().setAssessed(true);
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (DbConnectionException e) {

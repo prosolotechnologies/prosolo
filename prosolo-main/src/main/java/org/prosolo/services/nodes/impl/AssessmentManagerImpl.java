@@ -29,8 +29,7 @@ import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
-import org.prosolo.services.nodes.data.rubrics.PointRubricGradeData;
+import org.prosolo.services.nodes.data.assessments.grading.*;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
@@ -459,94 +458,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.uniqueResult();
 	}
 
-	/**
-	 * Returns negative value if grade should not be updated and positive value (which is a new grade)
-	 * if grade should be updated
-	 *
-	 * @param grade
-	 * @return
-	 */
-	private int calculateGrade(GradeData grade) {
-		if (grade.getGradingMode() == null) {
-			return grade.getValue();
-		}
-		switch (grade.getGradingMode()) {
-			case MANUAL_SIMPLE:
-				return grade.getValue();
-			case MANUAL_RUBRIC:
-				//TODO grading refactor temporary solution
-				if (grade.getRubric() instanceof PointRubricGradeData) {
-					PointRubricGradeData prg = (PointRubricGradeData) grade.getRubric();
-					return prg.getCriteria().stream()
-							.mapToInt(c -> c.getLevels().stream().filter(lvl -> lvl.getId() == c.getLevelId()).findFirst().get().getPoints()).sum();
-				} else {
-					return 0;
-				}
-			default:
-				return -1;
-		}
-	}
-
-	private void gradeByRubric(GradeData grade, long activityAssessmentId, Session session)
-			throws DbConnectionException {
-		try {
-			/*
-			check if criteria assessments should be created or updated
-			 */
-			boolean criteriaAssessmentsExist = grade.isAssessed();
-			if (criteriaAssessmentsExist) {
-				updateCriteriaAssessments(grade.getRubric().getCriteria(), activityAssessmentId, session);
-			} else {
-				createCriteriaAssessments(grade.getRubric().getCriteria(), activityAssessmentId, session);
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error saving the grade");
-		}
-	}
-
-	private void createCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
-		try {
-			for (ActivityRubricCriterionData criterion : rubricCriteria) {
-				CriterionAssessment ca = new CriterionAssessment();
-				ca.setAssessment((ActivityAssessment) session
-						.load(ActivityAssessment.class, activityAssessmentId));
-				ca.setCriterion((Criterion) session
-						.load(Criterion.class, criterion.getId()));
-				ca.setLevel((Level) session
-						.load(Level.class, criterion.getLevelId()));
-				ca.setComment(criterion.getComment());
-				saveEntity(ca, session);
-			}
-		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			//criteria assessments exist so they need to be updated instead
-			logger.info("DB Constraint error caught: criteria assessments already exist, so they can't be created");
-			updateCriteriaAssessments(rubricCriteria, activityAssessmentId, session);
-		}
-	}
-
-	private void updateCriteriaAssessments(List<ActivityRubricCriterionData> rubricCriteria, long activityAssessmentId, Session session) {
-		for (ActivityRubricCriterionData crit : rubricCriteria) {
-			CriterionAssessment ca = getCriterionAssessment(crit.getId(), activityAssessmentId, session);
-			ca.setLevel((Level) session
-					.load(Level.class, crit.getLevelId()));
-			ca.setComment(crit.getComment());
-		}
-	}
-
-	private CriterionAssessment getCriterionAssessment(long criterionId, long assessmentId, Session session) {
-		String q =
-				"SELECT ca FROM CriterionAssessment ca " +
-				"WHERE ca.criterion.id = :critId " +
-				"AND ca.assessment.id = :assessmentId";
-
-		return (CriterionAssessment) session
-				.createQuery(q)
-				.setLong("critId", criterionId)
-				.setLong("assessmentId", assessmentId)
-				.uniqueResult();
-	}
-
 	@Override
 	@Transactional
 	public Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
@@ -906,10 +817,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	//nt
-	public int updateGradeForActivityAssessment(
+	public GradeData updateGradeForActivityAssessment(
 			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
-		Result<Integer> res = self.updateGradeForActivityAssessmentAndGetEvents(
+		Result<GradeData> res = self.updateGradeForActivityAssessmentAndGetEvents(
 				activityAssessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
@@ -917,22 +828,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public Result<Integer> updateGradeForActivityAssessmentAndGetEvents(
+	public Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(
 			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
-			Result<Integer> result = new Result<>();
-			int gradeValue = calculateGrade(grade);
+			Result<GradeData> result = new Result<>();
+			int gradeValue = grade.calculateGrade();
+			//non negative grade means that grade is given, that user is assessed
 			if (gradeValue >= 0) {
 				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
 						ActivityAssessment.class, activityAssessmentId);
 //
 				ad.setPoints(gradeValue);
-				//if grading by rubric, save rubric criteria assessments
-				//TODO grading refactor change this, we should rely on polymorphism
-				if (grade.getGradingMode() == org.prosolo.services.nodes.data.assessments.GradingMode.MANUAL_RUBRIC) {
-					gradeByRubric(grade, ad.getId(), persistence.currentManager());
-				}
+
+				setAdditionalGradeData(grade, ad.getId());
 
 				saveEntity(ad);
 
@@ -946,8 +855,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
 				result.appendEvent(eventFactory.generateEventData(
-						EventType.GRADE_ADDED, context, aa, null, null, params));
-				result.setResult(gradeValue);
+						EventType.GRADE_ADDED, context, aa, null,null, params));
+				result.setResult(grade);
 			}
 			return result;
 		} catch (Exception e) {
@@ -956,7 +865,113 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error while updating grade");
 		}
 	}
-	
+
+	private void setAdditionalGradeData(GradeData grade, long activityAssessmentId) {
+		grade.accept(new GradeDataVisitor<Void>() {
+
+			@Override
+			public Void visit(ManualSimpleGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(AutomaticGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(ExternalToolAutoGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(CompletionAutoGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(NongradedGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(RubricGradeData gradeData) {
+				gradeByRubric(gradeData, activityAssessmentId);
+				return null;
+			}
+
+			@Override
+			public Void visit(DescriptiveRubricGradeData gradeData) {
+				return null;
+			}
+
+			@Override
+			public Void visit(PointRubricGradeData gradeData) {
+				return null;
+			}
+		});
+	}
+
+	private void gradeByRubric(RubricGradeData grade, long activityAssessmentId)
+			throws DbConnectionException {
+		try {
+			/*
+			check if criteria assessments should be created or updated
+			 */
+			boolean criteriaAssessmentsExist = grade.isAssessed();
+			if (criteriaAssessmentsExist) {
+				updateCriteriaAssessments(grade.getRubricCriteria().getCriteria(), activityAssessmentId, persistence.currentManager());
+			} else {
+				createCriteriaAssessments(grade.getRubricCriteria().getCriteria(), activityAssessmentId, persistence.currentManager());
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving the grade");
+		}
+	}
+
+	private void createCriteriaAssessments(List<RubricCriterionGradeData> rubricCriteria, long activityAssessmentId, Session session) {
+		try {
+			for (RubricCriterionGradeData criterion : rubricCriteria) {
+				CriterionAssessment ca = new CriterionAssessment();
+				ca.setAssessment((ActivityAssessment) session
+						.load(ActivityAssessment.class, activityAssessmentId));
+				ca.setCriterion((Criterion) session
+						.load(Criterion.class, criterion.getId()));
+				ca.setLevel((Level) session
+						.load(Level.class, criterion.getLevelId()));
+				ca.setComment(criterion.getComment());
+				saveEntity(ca, session);
+			}
+		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
+			//criteria assessments exist so they need to be updated instead
+			logger.info("DB Constraint error caught: criteria assessments already exist, so they can't be created");
+			updateCriteriaAssessments(rubricCriteria, activityAssessmentId, session);
+		}
+	}
+
+	private void updateCriteriaAssessments(List<RubricCriterionGradeData> rubricCriteria, long activityAssessmentId, Session session) {
+		for (RubricCriterionGradeData crit : rubricCriteria) {
+			CriterionAssessment ca = getCriterionAssessment(crit.getId(), activityAssessmentId, session);
+			ca.setLevel((Level) session
+					.load(Level.class, crit.getLevelId()));
+			ca.setComment(crit.getComment());
+		}
+	}
+
+	private CriterionAssessment getCriterionAssessment(long criterionId, long assessmentId, Session session) {
+		String q =
+				"SELECT ca FROM CriterionAssessment ca " +
+						"WHERE ca.criterion.id = :critId " +
+						"AND ca.assessment.id = :assessmentId";
+
+		return (CriterionAssessment) session
+				.createQuery(q)
+				.setLong("critId", criterionId)
+				.setLong("assessmentId", assessmentId)
+				.uniqueResult();
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId)
@@ -1070,16 +1085,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
-																		 Session session, UserContextData context)
+	public Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
+																				 Session session, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 
 			List<Long> activityAssessmentIds = getActivityAssessmentIdsForStudentActivity(activityId, studentId, session);
 			for (long aaId : activityAssessmentIds) {
-				GradeData gd = new GradeData();
-				gd.setValue(score);
+				GradeData gd = new AutomaticGradeData(score);
 				result.appendEvents(updateGradeForActivityAssessmentAndGetEvents(
 						aaId, gd, context).getEventQueue());
 			}

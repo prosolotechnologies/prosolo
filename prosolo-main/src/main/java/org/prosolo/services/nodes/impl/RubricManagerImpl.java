@@ -26,6 +26,9 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriterionGradeData;
 import org.prosolo.services.nodes.data.rubrics.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
@@ -647,7 +650,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
 
     @Override
     @Transactional(readOnly = true)
-    public RubricGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
+    public RubricCriteriaGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException {
         try {
             String query =
@@ -686,7 +689,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             int maxPoints = (int) res.get(0)[2];
             RubricType rubricType = (RubricType) res.get(0)[3];
 
-            List<ActivityRubricCriterionData> criteria = new ArrayList<>();
+            List<RubricCriterionGradeData> criteria = new ArrayList<>();
             Criterion crit = null;
             CriterionAssessment assessment = null;
             List<CriterionLevel> levels = new ArrayList<>();
@@ -710,7 +713,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             }
 
             //calculate absolute points based on activity maximum points set
-            return rubricDataFactory.getRubricGradeData(rubricType, criteria, maxPoints);
+            return ActivityAssessmentData.getRubricCriteriaGradeData(rubricType, criteria, maxPoints);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");

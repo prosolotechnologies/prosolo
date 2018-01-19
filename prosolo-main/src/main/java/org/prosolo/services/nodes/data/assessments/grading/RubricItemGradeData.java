@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data.rubrics;
+package org.prosolo.services.nodes.data.assessments.grading;
 
 import java.io.Serializable;
 
@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @date 2017-10-16
  * @since 1.0.0
  */
-public class ActivityRubricItemData implements Serializable {
+public class RubricItemGradeData implements Serializable {
 
     private static final long serialVersionUID = 3807175760781397473L;
 

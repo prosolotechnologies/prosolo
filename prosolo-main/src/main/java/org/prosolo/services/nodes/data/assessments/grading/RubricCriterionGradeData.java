@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data.rubrics;
+package org.prosolo.services.nodes.data.assessments.grading;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
  * @date 2017-10-13
  * @since 1.0.0
  */
-public class ActivityRubricCriterionData<T extends ActivityRubricLevelData> extends ActivityRubricItemData {
+public class RubricCriterionGradeData<T extends RubricLevelGradeData> extends RubricItemGradeData {
 
     private static final long serialVersionUID = -4078621694036398105L;
 
@@ -17,7 +17,7 @@ public class ActivityRubricCriterionData<T extends ActivityRubricLevelData> exte
     private long levelId;
     private String comment;
 
-    public ActivityRubricCriterionData() {
+    public RubricCriterionGradeData() {
         levels = new ArrayList<>();
     }
 

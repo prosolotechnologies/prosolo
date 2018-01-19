@@ -1,11 +1,11 @@
-package org.prosolo.services.nodes.data.rubrics;
+package org.prosolo.services.nodes.data.assessments.grading;
 
 /**
  * @author stefanvuckovic
  * @date 2018-01-11
  * @since 1.2.0
  */
-public class PointActivityRubricCriterionData extends ActivityRubricCriterionData<PointActivityRubricLevelData> {
+public class PointRubricLevelGradeData extends RubricLevelGradeData {
 
     private double weight;
     private int points;

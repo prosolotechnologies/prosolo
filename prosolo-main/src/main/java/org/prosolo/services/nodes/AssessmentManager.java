@@ -15,6 +15,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -64,8 +65,8 @@ public interface AssessmentManager {
 	void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
 			throws DbConnectionException;
 
-	int updateGradeForActivityAssessment(
-			long activityAssessmentId, GradeData grade, UserContextData context)
+	GradeData updateGradeForActivityAssessment(
+            long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
 
 	Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
@@ -76,8 +77,8 @@ public interface AssessmentManager {
 
 	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
 
-	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
-																 Session session, UserContextData context)
+	Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
+                                                                          Session session, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -133,7 +134,7 @@ public interface AssessmentManager {
 																	UserContextData context, Session session)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-	Result<Integer> updateGradeForActivityAssessmentAndGetEvents(long activityAssessmentId, GradeData grade,
+	Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(long activityAssessmentId, GradeData grade,
 															  UserContextData context) throws DbConnectionException;
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;

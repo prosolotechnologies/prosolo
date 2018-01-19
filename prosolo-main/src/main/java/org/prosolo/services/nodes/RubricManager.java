@@ -9,9 +9,9 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
-import org.prosolo.services.nodes.data.rubrics.RubricGradeData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricGradeData;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -75,7 +75,7 @@ public interface RubricManager extends AbstractManager {
 
     String getRubricName(long id) throws DbConnectionException;
 
-    RubricGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
+    RubricCriteriaGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException;
 
 }
