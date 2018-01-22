@@ -239,13 +239,31 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	@Override
+	public void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException {
+		Result<Void> result = self.removeUserFromTheGroupAndGetEvents(groupId, userId, context);
+
+		eventFactory.generateEvents(result.getEventQueue());
+	}
+
+	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException {
+	public Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
+			throws DbConnectionException {
 		try {
 			Optional<UserGroupUser> groupUser = getUserGroupUser(groupId, userId);
 			if(groupUser.isPresent()) {
 				delete(groupUser.get());
 			}
+			Result<Void> result = new Result<>();
+			User u = new User();
+			u.setId(userId);
+			UserGroup group = new UserGroup();
+			group.setId(groupId);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.REMOVE_USER_FROM_GROUP,
+					context, u, group, null, null));
+
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -255,61 +273,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
+	public Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
-			for(Long user : userIds) {
-				//TODO add context
-				addUserToTheGroupAndGetEvents(groupId, user, UserContextData.empty());
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while adding users to the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void removeUsersFromTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
-		try {
-			for(Long user : userIds) {
-				removeUserFromTheGroup(groupId, user);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while removing users from the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void updateGroupUsers(long groupId, List<Long> usersToAdd, List<Long> usersToRemove)
-			throws DbConnectionException {
-		try {
-			if (usersToAdd != null && !usersToAdd.isEmpty()) {
-				addUsersToTheGroup(groupId, usersToAdd);
-			}
-			
-			if (usersToRemove != null && !usersToRemove.isEmpty()) {
-				removeUsersFromTheGroup(groupId, usersToRemove);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while updating group users");
-		}
-		
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
-		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
 				//TODO add context
-				addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				Result<Void> r = addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -319,11 +291,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException {
+	public Result<Void> removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
-				removeUserFromTheGroup(group, userId);
+				Result<Void> r = removeUserFromTheGroupAndGetEvents(group, userId, context);
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -332,19 +307,35 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
 	public void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo) throws DbConnectionException {
+			List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException {
+		Result<Void> result = self.updateUserParticipationInGroupsAndGetEvents(userId,groupsToRemoveUserFrom,groupsToAddUserTo,context);
+
+		eventFactory.generateEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateUserParticipationInGroupsAndGetEvents(long userId, List<Long> groupsToRemoveUserFrom,
+																	List<Long> groupsToAddUserTo, UserContextData context)
+			throws DbConnectionException {
 		try {
-			addUserToGroups(userId, groupsToAddUserTo);
-			removeUserFromGroups(userId, groupsToRemoveUserFrom);
+			Result<Void> result = new Result<>();
+			Result<Void> addResult = addUserToGroups(userId, groupsToAddUserTo);
+			Result<Void> removeResult = removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
+
+			result.appendEvents(addResult.getEventQueue());
+			result.appendEvents(removeResult.getEventQueue());
+
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while updating user groups");
 		}
+
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
     public long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException {
@@ -934,6 +925,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.error(e);
 			throw new DbConnectionException("Error while adding the user to the group");
 		}
+	}
+
+	@Override
+	public void addUserToTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException {
+		Result<Void> result = self.addUserToTheGroupAndGetEvents(groupId, userId, context);
+
+		eventFactory.generateEvents(result.getEventQueue());
 	}
 
 	private void saveNewUserToUserGroup(long userId, UserGroup userGroup, Session session) {

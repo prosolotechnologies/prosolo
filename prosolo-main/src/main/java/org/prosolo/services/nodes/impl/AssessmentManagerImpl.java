@@ -135,6 +135,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
 			}
+
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", targetCredential.getCredential().getId() + "");
+			CredentialAssessment assessment1 = new CredentialAssessment();
+			assessment1.setId(assessment.getId());
+			User assessor1 = new User();
+			assessor1.setId(assessorId);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+					null, parameters));
+
 			result.setResult(assessment.getId());
 			return result;
 		} catch (IllegalDataStateException e) {
@@ -409,11 +420,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
-	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
-								  List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException {
+	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
+								  long assessedStudentId, long credentialId) throws DbConnectionException, IllegalDataStateException {
+		Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId,targetCredentialId,reviewText,
+				context,assessedStudentId,credentialId);
 
+		eventFactory.generateEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
+													  UserContextData context, long assessedStudentId, long credentialId)
+			throws DbConnectionException, IllegalDataStateException {
 		try {
+			Result<Void> result = new Result<>();
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
 					.getTargetCredential().getCredential().getId(), credentialAssessment.getAssessedStudent().getId(), false, false, false);
@@ -427,18 +448,27 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			for (CompetenceData1 competenceData1 : competenceData1List) {
 				CompetenceAssessment competenceAssessment = getCompetenceAssessmentForCredentialAssessment(
 						competenceData1.getCompetenceId(), credentialAssessment.getAssessedStudent().getId(), credentialAssessmentId);
-					competenceAssessment.setApproved(true);
+				competenceAssessment.setApproved(true);
 			}
 
 			credentialAssessment.setApproved(true);
 
+			User student = new User();
+			student.setId(assessedStudentId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+					credentialAssessment, student, null, parameters));
+
+			return result;
 			//TODO Check if this is needed
 			//credentialAssessment.getTargetCredential().setFinalReview("finalReview");
-		} catch (IllegalDataStateException ex){
+		} catch (IllegalDataStateException ex) {
 			throw ex;
 		} catch (Exception e) {
-			logger.error("Error ", e);
-			throw new DbConnectionException("Error approving credential assessment.");
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while approving assessment");
 		}
 	}
 
@@ -538,52 +568,83 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
+	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
+																UserContextData context,
+																long credentialAssessmentId,
+																long credentialId) {
+		Result<ActivityDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId,senderId,
+				comment, context,credentialAssessmentId,credentialId);
+
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
+ 	}
+
+	@Override
 	@Transactional
-	public ActivityDiscussionMessageData addCommentToDiscussion(long activityAssessmentId, long senderId, String comment)
-			throws ResourceCouldNotBeLoadedException {
-		ActivityAssessment assessment = get(ActivityAssessment.class, activityAssessmentId);
-		ActivityDiscussionParticipant sender = assessment.getParticipantByUserId(senderId);
-		
-		if (sender == null) {
-			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
-			User user = loadResource(User.class, senderId);
-			participant.setActivityDiscussion(assessment);
-			participant.setDateCreated(new Date());
-			participant.setRead(true);
-			participant.setParticipant(user);
-			saveEntity(participant);
-			sender = participant;
-			assessment.addParticipant(participant);
-		}
-		
-		Date now = new Date();
-		// create new comment
-		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
-		// can happen if there are no messages in discussion
-		if (assessment.getMessages() == null) {
-			assessment.setMessages(new ArrayList<>());
-		}
-		assessment.getMessages().add(message);
-		message.setDiscussion(assessment);
-		message.setDateCreated(now);
-		message.setLastUpdated(now);
-		message.setSender(sender);
-		message.setContent(comment);
-		// for now, only way to send message is through the dialog where user
-		// sees messages, mark discussion as 'seen'
-		sender.setRead(true);
-		// all other participants have not yet 'seen' this message
-		for (ActivityDiscussionParticipant participant : assessment.getParticipants()) {
-			if (participant.getParticipant().getId() != senderId) {
-				participant.setRead(false);
+	public Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long activityAssessmentId, long senderId,
+																					String comment,UserContextData context,
+																					long credentialAssessmentId,
+																					long credentialId){
+		try {
+			ActivityAssessment assessment = get(ActivityAssessment.class, activityAssessmentId);
+			ActivityDiscussionParticipant sender = assessment.getParticipantByUserId(senderId);
+
+			if (sender == null) {
+				ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
+				User user = loadResource(User.class, senderId);
+				participant.setActivityDiscussion(assessment);
+				participant.setDateCreated(new Date());
+				participant.setRead(true);
+				participant.setParticipant(user);
+				saveEntity(participant);
+				sender = participant;
+				assessment.addParticipant(participant);
 			}
+
+			Date now = new Date();
+			// create new comment
+			ActivityDiscussionMessage message = new ActivityDiscussionMessage();
+			// can happen if there are no messages in discussion
+			if (assessment.getMessages() == null) {
+				assessment.setMessages(new ArrayList<>());
+			}
+			assessment.getMessages().add(message);
+			message.setDiscussion(assessment);
+			message.setDateCreated(now);
+			message.setLastUpdated(now);
+			message.setSender(sender);
+			message.setContent(comment);
+			// for now, only way to send message is through the dialog where user
+			// sees messages, mark discussion as 'seen'
+			sender.setRead(true);
+			// all other participants have not yet 'seen' this message
+			for (ActivityDiscussionParticipant participant : assessment.getParticipants()) {
+				if (participant.getParticipant().getId() != senderId) {
+					participant.setRead(false);
+				}
+			}
+			saveEntity(assessment);
+			saveEntity(message);
+
+			ActivityDiscussionMessage message1 = new ActivityDiscussionMessage();
+			message1.setId(message.getId());
+			ActivityAssessment discussion1 = new ActivityAssessment();
+			discussion1.setId(assessment.getId());
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+			parameters.put("credentialAssessmentId", credentialAssessmentId + "");
+
+			Result<ActivityDiscussionMessageData> result = new Result<>();
+
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentComment, context,
+					message1, discussion1, null, parameters));
+
+			result.setResult(ActivityDiscussionMessageData.from(message, null, encoder));
+
+			return result;
+		} catch (ResourceCouldNotBeLoadedException e){
+			throw new DbConnectionException("Error while loading user");
 		}
-		saveEntity(assessment);
-		// save the message
-		saveEntity(message);
-		// update the discussion, updating all participants along the way
-		//merge(discussion);
-		return ActivityDiscussionMessageData.from(message, null, encoder);
 	}
 
 	@Override

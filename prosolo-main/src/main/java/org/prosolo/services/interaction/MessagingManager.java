@@ -16,7 +16,11 @@ import java.util.List;
 
 public interface MessagingManager extends AbstractManager {
 
-	Message sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context) throws ResourceCouldNotBeLoadedException;
+	void sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
+			throws ResourceCouldNotBeLoadedException;
+
+	Result<Void> sendMessagesAndGetEvents(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
+			throws ResourceCouldNotBeLoadedException;
 
 	List<Message> getMessagesForThread(long threadId, int page, int limit, Date fromTime);
 
@@ -31,13 +35,28 @@ public interface MessagingManager extends AbstractManager {
 
 	boolean markThreadAsRead(long threadId, long userId);
 
-	MessageThread getLatestMessageThread(long userId, boolean archived);
+	MessageThread getLatestMessageThread(long userId, boolean archived, UserContextData context);
+
+	Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, UserContextData context)
+			throws DbConnectionException;
 
 	//Result<Message> sendMessageAndGetEvents(UserContextData context, long recieverId, String msg) throws DbConnectionException;
 
 	//Message sendMessage(UserContextData context, long recieverId, String msg) throws DbConnectionException, EventException;
 
+	String sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
+
+	Result<String> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
+
 	Message sendMessage(long senderId, long recieverId, String msg) throws DbConnectionException;
+
+	Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
+
+	Result<Message> sendMessageParticipantsSetAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException;
 
 	ThreadParticipant findParticipation(long threadId, long userId);
 
@@ -50,5 +69,9 @@ public interface MessagingManager extends AbstractManager {
 	void markThreadDeleted(long threadId, long userId);
 
 	List<MessageThread> getUnreadMessageThreads(long id);
+
+	MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context);
+
+	Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context);
 
 }

@@ -36,11 +36,22 @@ public interface AssessmentManager {
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,
-						   List<CompetenceAssessmentData> competenceAssessmentDataList) throws IllegalDataStateException;
+	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
+								  long assessedStudentId, long credentialId) throws DbConnectionException, IllegalDataStateException;
 
-	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
-			throws ResourceCouldNotBeLoadedException;
+	Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
+											   UserContextData context, long assessedStudentId, long credentialId)
+			throws DbConnectionException, IllegalDataStateException;
+
+	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
+														 UserContextData context,
+														 long credentialAssessmentId,
+														 long credentialId);
+
+	Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
+																			 String comment,UserContextData context,
+																			 long credentialAssessmentId,
+																			 long credentialId);
 
 	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;

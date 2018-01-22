@@ -5,7 +5,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -39,7 +38,6 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private EventFactory eventFactory;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;

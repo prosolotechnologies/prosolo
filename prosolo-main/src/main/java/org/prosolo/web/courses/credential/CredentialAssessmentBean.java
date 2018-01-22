@@ -3,13 +3,9 @@ package org.prosolo.web.courses.credential;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
@@ -26,7 +22,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.ActivityAssessmentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -34,7 +29,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,10 +50,7 @@ public class CredentialAssessmentBean implements Serializable {
 	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
-	@Inject private ActivityAssessmentBean activityAssessmentBean;
+	private ActivityAssessmentBean activityAssessmentBean;
 
 	// PARAMETERS
 	private String id;
@@ -74,14 +65,11 @@ public class CredentialAssessmentBean implements Serializable {
 	private String credentialTitle;
 	private List<AssessmentData> otherAssessments;
 
-	// adding new comment
-	private String newCommentValue;
-
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
 
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
-		
+
 		if (decodedId > 0 && decodedAssessmentId > 0) {
 			if (isInManageSection()) {
 				// for managers, load all other assessments
@@ -95,11 +83,11 @@ public class CredentialAssessmentBean implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					try {
-					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-					credentialTitle = fullAssessmentData.getTitle();
+						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+						credentialTitle = fullAssessmentData.getTitle();
 
-					otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
 
 					} catch (Exception e) {
 						logger.error("Error while loading assessment data", e);
@@ -148,17 +136,16 @@ public class CredentialAssessmentBean implements Serializable {
 	public boolean isCurrentUserAssessedStudent() {
 		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
-	
+
 	public void approveCredential() {
 		try {
+			UserContextData userContext = loggedUserBean.getUserContext();
+
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText,fullAssessmentData.getCompetenceAssessmentData());
-
-			fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-					loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-
-			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
+					fullAssessmentData.getTargetCredentialId(), reviewText,userContext, fullAssessmentData.getAssessedStrudentId(),
 					fullAssessmentData.getCredentialId());
+
+			markCredentialApproved();
 
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
@@ -168,35 +155,32 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
+	private void markCredentialApproved() {
+		fullAssessmentData.setApproved(true);
+		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
+			compAssessmentData.setApproved(true);
+		}
+	}
+
+	public void approveCompetence(long competenceAssessmentId) {
 		try {
-			assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
-			competenceAssessmentData.setApproved(true);
+			assessmentManager.approveCompetence(competenceAssessmentId);
+			markCompetenceApproved(competenceAssessmentId);
 
-			PageUtil.fireSuccessfulInfoMessage("You have successfully approved the competence for "
-					+ fullAssessmentData.getStudentFullName());
-
+			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
+					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
-	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, long assessedStudentId, long credentialId) {
-		UserContextData context = loggedUserBean.getUserContext();
-		taskExecutor.execute(() -> {
-			User student = new User();
-			student.setId(assessedStudentId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, context, assessment, student, null, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
+	private void markCompetenceApproved(long competenceAssessmentId) {
+		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
+			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
+				competenceAssessment.setApproved(true);
 			}
-		});
+		}
 	}
 
 	public void markDiscussionRead() {
@@ -225,7 +209,7 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 		return Optional.empty();
 	}
-	
+
 	public void updateGrade() {
 		try {
 			activityAssessmentBean.updateGrade();
@@ -235,7 +219,6 @@ public class CredentialAssessmentBean implements Serializable {
 			logger.error("Error", e);
 		}
 	}
-	
 
 	public boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
@@ -244,11 +227,6 @@ public class CredentialAssessmentBean implements Serializable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private void cleanupCommentData() {
-		newCommentValue = "";
-
-	}
-	
 	private boolean isInManageSection() {
 		String currentUrl = PageUtil.getRewriteURL();
 		return currentUrl.contains("/manage/");
@@ -257,6 +235,7 @@ public class CredentialAssessmentBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
+
 	public long getDecodedId() {
 		return decodedId;
 	}
@@ -311,14 +290,6 @@ public class CredentialAssessmentBean implements Serializable {
 
 	public void setReviewText(String reviewText) {
 		this.reviewText = reviewText;
-	}
-
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
 	}
 
 }

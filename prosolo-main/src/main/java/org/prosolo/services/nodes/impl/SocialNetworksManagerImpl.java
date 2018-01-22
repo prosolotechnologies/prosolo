@@ -1,11 +1,15 @@
 package org.prosolo.services.nodes.impl;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
@@ -13,10 +17,17 @@ import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
+
 @Service("org.prosolo.services.nodes.SocialNetworksManager")
 public class SocialNetworksManagerImpl extends AbstractManagerImpl implements SocialNetworksManager {
 
 	private static final long serialVersionUID = 1492068723251986359L;
+
+	@Inject
+	private EventFactory eventFactory;
+	@Inject
+	private SocialNetworksManager self;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -41,6 +52,41 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	@Override
+	public SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link, UserContextData contextData)
+			throws DbConnectionException {
+		Result<SocialNetworkAccount> result = self.createSocialNetworkAccountAndGetEvents(name, link, contextData);
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
+	}
+
+
+	@Override
+	@Transactional
+	public Result<SocialNetworkAccount> createSocialNetworkAccountAndGetEvents(SocialNetworkName name, String link, UserContextData contextData)
+			throws DbConnectionException {
+		SocialNetworkAccount account = new SocialNetworkAccount();
+		UserSocialNetworks socialNetworks = null;
+		try {
+			socialNetworks = getSocialNetworks(contextData.getActorId());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			e.printStackTrace();
+		}
+		account.setSocialNetwork(name);
+		account.setLink(link);
+		if (account != null) {
+			socialNetworks.addSocialNetworkAccount(account);
+		}
+		saveEntity(account);
+		saveEntity(socialNetworks);
+
+		Result<SocialNetworkAccount> result = new Result<>();
+		result.appendEvent(eventFactory.generateEventData(EventType.UpdatedSocialNetworks, contextData,
+				null, null, null, null));
+		result.setResult(account);
+
+		return result;
+	}
+
 	@Transactional(readOnly = false)
 	public UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
 		try {
@@ -58,24 +104,6 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 		}
 		return null;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link) {
-		SocialNetworkAccount account = new SocialNetworkAccount();
-		account.setSocialNetwork(name);
-		account.setLink(link);
-		return saveEntity(account);
-	}
-
-	@Override
-	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link) throws ResourceCouldNotBeLoadedException {
-		UserSocialNetworks socialNetworks = getSocialNetworks(userId);
-		SocialNetworkAccount account = createSocialNetworkAccount(name, link);
-		
-		socialNetworks.addSocialNetworkAccount(account);
-		saveEntity(socialNetworks);
 	}
 
 	@Override
@@ -106,7 +134,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(readOnly = true)
 	public SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName) {
 		String query = 
 				"SELECT accounts " + 
@@ -127,10 +155,11 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	@Override
+	@Transactional
 	public SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName) {
-		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId,socialNetworkName);
+		SocialNetworkAccount socialNetworkAccount = getSocialNetworkAccount(userId, socialNetworkName);
 
-		if(socialNetworkAccount != null){
+		if (socialNetworkAccount != null) {
 			return new SocialNetworkAccountData(socialNetworkAccount);
 		}
 		return null;

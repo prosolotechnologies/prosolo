@@ -2,14 +2,10 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
@@ -19,15 +15,12 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Bojan
@@ -50,10 +43,7 @@ public class ActivityAssessmentBean implements Serializable {
 	@Inject
 	private AssessmentManager assessmentManager;
 	@Inject
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
-	@Inject private RubricManager rubricManager;
+	private RubricManager rubricManager;
 
 	private ActivityAssessmentData activityAssessmentData;
 	// adding new comment
@@ -189,17 +179,16 @@ public class ActivityAssessmentBean implements Serializable {
 	private void addComment() {
 		try {
 			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
+			UserContextData userContext = loggedUserBean.getUserContext();
+
 			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
-					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue);
+					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue,userContext,
+					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
 
 			addNewCommentToAssessmentData(newComment);
-
-			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
-					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
-					activityAssessmentData.getCredentialId());
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error saving assessment message", e);
-			PageUtil.fireErrorMessage("Error while adding new assessment message");
+		} catch (Exception e){
+			logger.error("Error approving assessment data", e);
+			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
@@ -209,28 +198,6 @@ public class ActivityAssessmentBean implements Serializable {
 		}
 		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
-	}
-
-	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId, long assessmentCommentId,
-											  long credentialId) {
-		UserContextData context = loggedUserBean.getUserContext();
-		taskExecutor.execute(() -> {
-			// User recipient = new User();
-			// recipient.setId(recepientId);
-			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
-			adm.setId(assessmentCommentId);
-			ActivityAssessment aa = new ActivityAssessment();
-			aa.setId(actAssessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			parameters.put("credentialAssessmentId", credAssessmentId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, context,
-						adm, aa, null, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
-			}
-		});
 	}
 
 	private void cleanupCommentData() {

@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
@@ -78,6 +79,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 		competences = new ArrayList<>();
 		learningStages = new ArrayList<>();
 		this.listenChanges = listenChanges;
+	}
+
+	public CredentialData(Credential1 credential){
+		this.id = credential.getId();
+		this.title = credential.getTitle();
 	}
 
 	/**
