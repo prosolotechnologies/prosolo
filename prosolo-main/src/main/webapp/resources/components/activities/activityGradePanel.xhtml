@@ -41,33 +41,33 @@
 									<div class="sliderWrapper">
 										<input type="text" id="gradeSlider" class="gradeSlider" />
 									</div>
-									<h:inputText value="#{cc.attrs.assessment.grade.value}" id="gradeValue" class="sliderValueInput" />
+									<h:inputText value="#{cc.attrs.assessment.grade.newGrade}" id="gradeValue" class="sliderValueInput" />
 									<script>
-										var gradeSlider = $("#gradeSlider").bootstrapSlider({
-											id: 'gradeSlider',
-											min: #{cc.attrs.assessment.grade.minGrade},
-											max: #{cc.attrs.assessment.grade.maxGrade},
-											value: #{cc.attrs.assessment.grade.value > 0 ? cc.attrs.assessment.grade.value : 0},
-											tooltip: 'hide'
-										});
-										gradeSlider.bootstrapSlider('on', 'change', function(){
-											$('.sliderValueInput').val(gradeSlider.bootstrapSlider('getValue'));
-										});
-										$('.sliderValueInput').bind('propertychange change click keyup input paste', function() {
-											gradeSlider.bootstrapSlider('setValue', parseInt($(this).val()));
-										});
+                                        var gradeSlider = $("#gradeSlider").bootstrapSlider({
+                                            id: 'gradeSlider',
+                                            min: #{cc.attrs.assessment.grade.minGrade},
+                                            max: #{cc.attrs.assessment.grade.maxGrade},
+                                            value: #{cc.attrs.assessment.grade.newGrade > 0 ? cc.attrs.assessment.grade.newGrade : 0},
+                                            tooltip: 'hide'
+                                        });
+                                        gradeSlider.bootstrapSlider('on', 'change', function(){
+                                            $('.sliderValueInput').val(gradeSlider.bootstrapSlider('getValue'));
+                                        });
+                                        $('.sliderValueInput').bind('propertychange change click keyup input paste', function() {
+                                            gradeSlider.bootstrapSlider('setValue', parseInt($(this).val()));
+                                        });
 									</script>
 								</div>
 								<!-- manual grading - NO rubrics end -->
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.assessment.grade.gradingMode eq 'MANUAL_RUBRIC'}">
 								<!-- manual grading - WITH rubrics start -->
-								<ui:repeat value="#{cc.attrs.assessment.grade.rubric.criteria}" var="c">
+								<ui:repeat value="#{cc.attrs.assessment.grade.rubricCriteria.criteria}" var="c">
 									<h3>#{c.name}</h3>
 									<div class="radioGroup">
 										<ui:repeat value="#{c.levels}" var="l">
 											<div class="radio">
-												<c:if test="#{cc.attrs.assessment.grade.rubric.rubricType eq 'POINT'}">
+												<c:if test="#{cc.attrs.assessment.grade.rubricType eq 'POINT'}">
 													<input type="radio" jsf:id="lvlRadio" data-points="#{l.points}"
 														   name="#{hiddenLvlRadio.clientId}"
 														   value="#{l.id}"
@@ -75,14 +75,14 @@
 														   onchange="sumAndDisplayPoints()"
 													/>
 												</c:if>
-												<c:if test="#{cc.attrs.assessment.grade.rubric.rubricType eq 'DESCRIPTIVE'}">
+												<c:if test="#{cc.attrs.assessment.grade.rubricType eq 'DESCRIPTIVE'}">
 													<input type="radio" jsf:id="lvlRadio"
 														   name="#{hiddenLvlRadio.clientId}"
 														   value="#{l.id}"
 														   jsf:checked="#{c.levelId eq l.id ? true : false}"
 													/>
 												</c:if>
-												<h:outputLabel for="lvlRadio">#{l.name} <h:panelGroup rendered="#{cc.attrs.assessment.grade.rubric.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
+												<h:outputLabel for="lvlRadio">#{l.name} <h:panelGroup rendered="#{cc.attrs.assessment.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
 											</div>
 										</ui:repeat>
 										<h:inputHidden id="categoryLevelSelection" binding="#{hiddenLvlRadio}" value="#{c.levelId}" validator="greaterThanZeroValidator">
@@ -96,8 +96,8 @@
 									</div>
 									<h:inputTextarea placeholder="Type comments here (optional)..." value="#{c.comment}"/>
 								</ui:repeat>
-								<c:if test="#{cc.attrs.assessment.grade.rubric.rubricType eq 'POINT'}">
-									<p class="totalPoints"><strong>Total Points: <span id="spanTotalPoints">#{cc.attrs.assessment.grade.value != null and cc.attrs.assessment.grade.assessed ? cc.attrs.assessment.grade.value : '-'}</span></strong></p>
+								<c:if test="#{cc.attrs.assessment.grade.pointBasedGrading == true}">
+									<p class="totalPoints"><strong>Total Points: <span id="spanTotalPoints">#{cc.attrs.assessment.grade.currentGrade != null and cc.attrs.assessment.grade.isAssessed() ? cc.attrs.assessment.grade.currentGrade : '-'}</span></strong></p>
 								</c:if>
 								<!-- manual grading - WITH rubrics end -->
 							</ui:fragment>

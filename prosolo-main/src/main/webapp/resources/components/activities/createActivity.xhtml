@@ -216,35 +216,6 @@
 												</div>
 											</div>
 
-											<div class="formLine maxPointsSelector" style="#{activityEditBean.pointBasedActivity ? '' : 'display: none;'}">
-												<label>Max points</label>
-												<div class="formLineRight">
-
-													<h:inputText disabled="#{activityEditBean.limitedEdit}" id="maxPoints"
-																 styleClass="maxPointsInputSelector"
-																 value="#{activityEditBean.activityData.maxPointsString}"
-																 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off"
-																 validator="#{activityEditBean.validateMaxPoints}">
-														<f:attribute name="gradingModeComp" value="#{selectGradingMode}" />
-														<f:attribute name="rubricComp" value="#{selectRubric}" />
-														<f:convertNumber integerOnly="true" />
-													</h:inputText>
-													<h:panelGroup layout="block" id="panelAcceptGrades" styleClass="checkbox checkLine checkAcceptGradesPanelSelector" style="#{activityEditBean.activityData.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
-														<ui:fragment rendered="#{activityEditBean.activityData.activityType eq 'EXTERNAL_TOOL'}">
-															<h:selectBooleanCheckbox disabled="#{activityEditBean.limitedEdit}" styleClass="checkAcceptGradesSelector"
-																					 id="checkAcceptGrades" value="#{activityEditBean.activityData.acceptGrades}">
-															</h:selectBooleanCheckbox>
-															<h:outputLabel for="checkAcceptGrades"
-																		   id="checkAcceptGradesLabel">
-																Accept grades (grade will be sent by the external activity)
-															</h:outputLabel>
-														</ui:fragment>
-													</h:panelGroup>
-
-													<small class="redText"><h:message for="maxPoints" /></small>
-												</div>
-											</div>
-
 											<div class="formLine rubricSelector" style="#{activityEditBean.activityData.gradingMode eq 'MANUAL' ? '' : 'display: none;'}">
 												<label>Rubric</label>
 												<div class="formLineRight">
@@ -291,6 +262,36 @@
 													</div>
 												</div>
 											</div>
+
+											<div class="formLine maxPointsSelector" style="#{activityEditBean.pointBasedActivity ? '' : 'display: none;'}">
+												<label>Max points</label>
+												<div class="formLineRight">
+
+													<h:inputText disabled="#{activityEditBean.limitedEdit}" id="maxPoints"
+																 styleClass="maxPointsInputSelector"
+																 value="#{activityEditBean.activityData.maxPointsString}"
+																 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off"
+																 validator="#{activityEditBean.validateMaxPoints}">
+														<f:attribute name="gradingModeComp" value="#{selectGradingMode}" />
+														<f:attribute name="rubricComp" value="#{selectRubric}" />
+														<f:convertNumber integerOnly="true" />
+													</h:inputText>
+													<h:panelGroup layout="block" id="panelAcceptGrades" styleClass="checkbox checkLine checkAcceptGradesPanelSelector" style="#{activityEditBean.activityData.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
+														<ui:fragment rendered="#{activityEditBean.activityData.activityType eq 'EXTERNAL_TOOL'}">
+															<h:selectBooleanCheckbox disabled="#{activityEditBean.limitedEdit}" styleClass="checkAcceptGradesSelector"
+																					 id="checkAcceptGrades" value="#{activityEditBean.activityData.acceptGrades}">
+															</h:selectBooleanCheckbox>
+															<h:outputLabel for="checkAcceptGrades"
+																		   id="checkAcceptGradesLabel">
+																Accept grades (grade will be sent by the external activity)
+															</h:outputLabel>
+														</ui:fragment>
+													</h:panelGroup>
+
+													<small class="redText"><h:message for="maxPoints" /></small>
+												</div>
+											</div>
+
 										</div>
 										<!--<script>determineVisibilityBasedOnGradingMode();</script>-->
 									</div>

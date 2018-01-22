@@ -332,18 +332,22 @@
 
 
 															<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
-																<p:commandLink rendered="#{activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment)}"
+																<p:commandLink rendered="#{activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade)}"
 																			   styleClass="grade"
 																			   action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(activityAssessment)}"
 																			   update=":#{cc.clientId}:panelRubricAssessment :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 																			   oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
-																	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																	#{activityAssessment.grade.maxGrade}
-																</p:commandLink>
-																<ui:fragment rendered="#{not (activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment))}">
-																	<span class="grade">
-																		#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																	<ui:fragment rendered="#{activityAssessment.grade.pointBasedGrading}">
+																		#{activityAssessment.grade.currentGrade != null and activityAssessment.grade.isAssessed() ? activityAssessment.grade.currentGrade : '-'}  /
 																		#{activityAssessment.grade.maxGrade}
+																	</ui:fragment>
+																</p:commandLink>
+																<ui:fragment rendered="#{not (activityAssessment.grade.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade))}">
+																	<span class="grade">
+																		<ui:fragment rendered="#{activityAssessment.grade.pointBasedGrading}">
+																			#{activityAssessment.grade.currentGrade != null and activityAssessment.grade.isAssessed() ? activityAssessment.grade.currentGrade : '-'}  /
+																			#{activityAssessment.grade.maxGrade}
+																		</ui:fragment>
 																	</span>
 																</ui:fragment>
 															</c:if>
@@ -354,15 +358,15 @@
 																			action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(activityAssessment)}"
 																			update=":#{cc.clientId}:activityGradePanel:gradePanel :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 																			oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
-																		#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																		#{activityAssessment.grade.maxGrade}
+																		<ui:fragment rendered="#{activityAssessment.grade.pointBasedGrading}">
+																			#{activityAssessment.grade.currentGrade != null and activityAssessment.grade.isAssessed() ? activityAssessment.grade.currentGrade : '-'}  /
+																			#{activityAssessment.grade.maxGrade}
+																		</ui:fragment>
 																	</p:commandLink>
 																	<ui:fragment rendered="#{activityAssessment.grade.gradingMode eq 'NONGRADED'}">
 																		<a href="javascript:void(0);" class="grade"
 																		   data-toggle="tooltip"
 																		   title="Nongraded activity">
-																			#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																			#{activityAssessment.grade.maxGrade}
 																		</a>
 																	</ui:fragment>
 																</ui:fragment>
@@ -373,8 +377,10 @@
 																			disabled="disabled"
 																			data-toggle="tooltip"
 																			title="Only assessor can update the grade">
-																		#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
-																		#{activityAssessment.grade.maxGrade}
+																		<ui:fragment rendered="#{activityAssessment.grade.pointBasedGrading}">
+																			#{activityAssessment.grade.currentGrade != null and activityAssessment.grade.isAssessed() ? activityAssessment.grade.currentGrade : '-'}  /
+																			#{activityAssessment.grade.maxGrade}
+																		</ui:fragment>
 																	</a>
 																</ui:fragment>
 															</c:if>
@@ -506,19 +512,19 @@
 				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
 				<h2>Grade</h2>
 				<h:panelGroup id="panelRubricAssessment">
-					<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubric.criteria}" var="c">
+					<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
 						<h3>#{c.name}</h3>
 						<ul class="levelsList">
 							<ui:repeat value="#{c.levels}" var="l">
 								<li class="#{c.levelId eq l.id ? 'checked' : ''}">
-									#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubric.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+									#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
 								</li>
 							</ui:repeat>
 						</ul>
 						<p><strong>Comments:</strong> #{c.comment}</p>
 					</ui:repeat>
-					<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.rubric.rubricType eq 'POINT'}">
-						<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.value != null and activityAssessmentBean.activityAssessmentData.grade.assessed ? activityAssessmentBean.activityAssessmentData.grade.value : '-'}</strong></p>
+					<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.pointBasedGrading == true}">
+						<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.currentGrade != null and activityAssessmentBean.activityAssessmentData.grade.isAssessed() ? activityAssessmentBean.activityAssessmentData.grade.currentGrade : '-'}</strong></p>
 					</c:if>
 				</h:panelGroup>
 			</div>

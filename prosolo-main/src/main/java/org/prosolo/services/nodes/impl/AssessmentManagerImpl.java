@@ -833,6 +833,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throws DbConnectionException {
 		try {
 			Result<GradeData> result = new Result<>();
+			boolean wasAssessed = grade.isAssessed();
 			int gradeValue = grade.calculateGrade();
 			//non negative grade means that grade is given, that user is assessed
 			if (gradeValue >= 0) {
@@ -841,7 +842,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //
 				ad.setPoints(gradeValue);
 
-				setAdditionalGradeData(grade, ad.getId());
+				setAdditionalGradeData(grade, ad.getId(), wasAssessed);
 
 				saveEntity(ad);
 
@@ -866,7 +867,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private void setAdditionalGradeData(GradeData grade, long activityAssessmentId) {
+	private void setAdditionalGradeData(GradeData grade, long activityAssessmentId, boolean isAssessed) {
 		grade.accept(new GradeDataVisitor<Void>() {
 
 			@Override
@@ -896,7 +897,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			@Override
 			public Void visit(RubricGradeData gradeData) {
-				gradeByRubric(gradeData, activityAssessmentId);
+				gradeByRubric(gradeData, activityAssessmentId, isAssessed);
 				return null;
 			}
 
@@ -912,14 +913,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		});
 	}
 
-	private void gradeByRubric(RubricGradeData grade, long activityAssessmentId)
+	private void gradeByRubric(RubricGradeData grade, long activityAssessmentId, boolean isAssessed)
 			throws DbConnectionException {
 		try {
 			/*
 			check if criteria assessments should be created or updated
 			 */
-			boolean criteriaAssessmentsExist = grade.isAssessed();
-			if (criteriaAssessmentsExist) {
+			if (isAssessed) {
 				updateCriteriaAssessments(grade.getRubricCriteria().getCriteria(), activityAssessmentId, persistence.currentManager());
 			} else {
 				createCriteriaAssessments(grade.getRubricCriteria().getCriteria(), activityAssessmentId, persistence.currentManager());

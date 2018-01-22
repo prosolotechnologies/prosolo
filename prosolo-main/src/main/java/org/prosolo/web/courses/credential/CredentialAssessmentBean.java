@@ -16,6 +16,8 @@ import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -125,9 +127,13 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-	public boolean isUserAllowedToSeeRubric(ActivityAssessmentData activityAssessment) {
-		return activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
-				|| (activityAssessment.getGrade().isAssessed() && activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
+	public boolean isUserAllowedToSeeRubric(GradeData gradeData) {
+		if (gradeData instanceof RubricGradeData) {
+			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
+			return rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
+					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
+		}
+		return false;
 	}
 
 	public boolean allCompetencesStarted() {
