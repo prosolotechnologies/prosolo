@@ -1,17 +1,5 @@
 package org.prosolo.web.lti;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
@@ -31,6 +19,17 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 @ManagedBean(name = "ltiproviderlaunchbean")
 @Component("ltiproviderlaunchbean")
 @Scope("request")
@@ -43,13 +42,11 @@ public class LTIProviderLaunchBean implements Serializable {
 	@Inject
 	private LtiToolManager toolManager;
 	@Inject 
-	private LtiUserManager userManager;
+	private LtiUserManager ltiUserManager;
 	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private AuthenticationService authenticationService;
-//	@Inject
-//	private CourseManager courseManager;
 	@Inject
 	private LtiToolLaunchValidator toolLaunchValidator;
 	@Inject
@@ -76,7 +73,8 @@ public class LTIProviderLaunchBean implements Serializable {
 	
 	private void launch(LTILaunchMessage msg) throws Exception{
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-		HttpSession session=(HttpSession) externalContext.getSession(false);
+		HttpSession session = (HttpSession) externalContext.getSession(false);
+
 		//if there is a different user logged in in same browser, we must invalidate his session first or exception will be thrown
 		applicationBean.unregisterSession(session);
 		
@@ -87,8 +85,8 @@ public class LTIProviderLaunchBean implements Serializable {
 		User user = getUserForLaunch(tool, msg);
 		logger.info("User for LTI launch logged in, user email "+user.getEmail());
 		boolean loggedIn = login(user);
-		
-		if(loggedIn) {
+
+		if (loggedIn) {
 			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
 //			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId(), page, "name:lti_launch|context:/name:lti_tool|id:" + msg.getId() + "/", null);
 			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).
@@ -130,8 +128,15 @@ public class LTIProviderLaunchBean implements Serializable {
     
 	private User getUserForLaunch(LtiTool tool, LTILaunchMessage msg) throws Exception{
 		try{
-			return userManager.getUserForLaunch(tool.getToolSet().getConsumer().getId(), msg.getUserID(), 
-				msg.getUserFirstName(), msg.getUserLastName(), msg.getUserEmail(), tool.getLearningGoalId());
+			return ltiUserManager.getUserForLaunch(
+					tool.getToolSet().getConsumer().getId(),
+					msg.getUserID(),
+					msg.getUserFirstName(),
+					msg.getUserLastName(),
+					msg.getUserEmail(),
+					tool.getOrganization().getId(),
+					tool.getUnit() != null ? tool.getUnit().getId() : 0,
+					tool.getUserGroup() != null ? tool.getUserGroup().getId() : 0);
 		}catch(Exception e){
 			throw new Exception("User can not be found");
 		}
