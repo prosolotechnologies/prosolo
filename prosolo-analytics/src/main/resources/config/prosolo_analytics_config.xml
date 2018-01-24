@@ -50,7 +50,13 @@
 					<schedule>0 0 6 * * ?</schedule><!--0 0 6 * * ? Executes every day at 6AM-->
 				</job>
 			</class>
-
+			<class name="org.prosolo.bigdata.jobs.GenerateNotificationsJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 1 * * ?</schedule><!--0 0 6 * * ? Executes every day at 1AM-->
+				</job>
+			</class>
 			<class name="org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob">
 				<job>
 					<activated>false</activated>

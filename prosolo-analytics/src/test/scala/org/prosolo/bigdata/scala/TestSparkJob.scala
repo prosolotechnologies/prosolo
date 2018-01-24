@@ -6,6 +6,7 @@ import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringM
 import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
+import org.prosolo.bigdata.scala.emails.NotificationsEmailManager
 /**
   *
   * @author Zoran Jeremic
@@ -15,7 +16,8 @@ import org.elasticsearch.spark.rdd.EsSpark
 
 object TestSparkJob extends App {
 
-  UserProfileClusteringManager.runClustering()
+  //UserProfileClusteringManager.runClustering()
+  NotificationsEmailManager.runAnalyser();
  //testESInsert()
   def testESInsert(): Unit ={
     val sparkSession:SparkSession=SparkManager.sparkContextLoader.getSparkSession

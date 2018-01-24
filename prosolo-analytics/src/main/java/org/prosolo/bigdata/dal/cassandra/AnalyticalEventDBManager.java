@@ -19,8 +19,10 @@ import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 public interface AnalyticalEventDBManager {
 	void updateAnalyticsEventCounter(AnalyticsEvent event);
 
-	List<ActivityAccessCount> findAllActivitiesForCompetence(long competenceId,
-			List<Long> ignoredActivities);
+    void insertNotificationDataRecord(AnalyticsEvent event);
+
+    List<ActivityAccessCount> findAllActivitiesForCompetence(long competenceId,
+                                                             List<Long> ignoredActivities);
 
 	void insertAnalyticsEventRecord(AnalyticsEvent event);
 
