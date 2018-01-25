@@ -1,6 +1,8 @@
 package org.prosolo.web.courses.credential;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.nodes.data.AssessmentTypeConfig;
 import org.prosolo.web.courses.LearningResourceAssessmentSettingsBean;
 
@@ -23,5 +25,12 @@ public abstract class CompoundLearningResourceAssessmentSettingsBean extends Lea
             types.add(new AssessmentTypeConfig(0, at, instructorAssessment, instructorAssessment));
         }
         return types;
+    }
+
+    @Override
+    public boolean isPointBasedResource(GradingMode gradingMode, long rubricId, RubricType rubricType) {
+        return gradingMode == GradingMode.MANUAL
+                && (rubricId == 0 || rubricType == RubricType.POINT
+                || rubricType == RubricType.POINT_RANGE);
     }
 }

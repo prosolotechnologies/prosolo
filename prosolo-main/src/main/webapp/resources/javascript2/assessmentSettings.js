@@ -14,11 +14,11 @@ function showOrHideRubricVisibilityRadioButtons(rubricElem, visibilityContainerS
     }
 }
 
-function gradingModeChanged(gradingModeEl) {
-    setVisibilityBasedOnGradingMode($(gradingModeEl));
+function gradingModeChanged(gradingModeEl, resource) {
+    setVisibilityBasedOnGradingMode($(gradingModeEl), resource);
 }
 
-function setVisibilityBasedOnGradingMode(gradingModeEl) {
+function setVisibilityBasedOnGradingMode(gradingModeEl, resource) {
     var gm = gradingModeEl.val();
     switch (gm) {
         case 'NONGRADED' :
@@ -29,10 +29,16 @@ function setVisibilityBasedOnGradingMode(gradingModeEl) {
             resetRubricInputs();
             //reset accept grades
             $('.checkAcceptGradesSelector').removeAttr('checked');
+            $('.gradingModeNote').hide();
             break;
         case 'AUTOMATIC' :
             $('.rubricSelector').hide();
-            $('.checkAcceptGradesPanelSelector, .maxPointsSelector').show();
+            if (resource === 'ACTIVITY') {
+                $('.checkAcceptGradesPanelSelector, .maxPointsSelector').show();
+            } else {
+                $('.maxPointsSelector').hide();
+                $('.gradingModeNote').show();
+            }
             //reset rubric inputs
             resetRubricInputs();
             break;
@@ -42,6 +48,7 @@ function setVisibilityBasedOnGradingMode(gradingModeEl) {
             $('.checkAcceptGradesPanelSelector').hide();
             //reset accept grades
             $('.checkAcceptGradesSelector').removeAttr('checked');
+            $('.gradingModeNote').hide();
             break;
     }
 }
@@ -68,8 +75,8 @@ function resetRubricInputs() {
     $('.rubricPickerSelector').val(0).change();
 }
 
-function determineVisibilityBasedOnGradingMode() {
-    setVisibilityBasedOnGradingMode($('select.gradingModeSelector'));
+function determineVisibilityBasedOnGradingMode(resource) {
+    setVisibilityBasedOnGradingMode($('select.gradingModeSelector'), resource);
 }
 
 

@@ -96,7 +96,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
@@ -113,7 +113,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 

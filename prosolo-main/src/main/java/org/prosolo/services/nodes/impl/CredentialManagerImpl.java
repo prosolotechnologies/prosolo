@@ -143,7 +143,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cac.setCredential(cred);
 					cac.setAssessmentType(atc.getType());
 					cac.setEnabled(atc.isEnabled());
-					saveEntity(atc);
+					saveEntity(cac);
 				}
 			}
 
@@ -2330,7 +2330,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CompetenceData1> data = new ArrayList<>();
 		for (Competence1 competence : competences) {
-			data.add(competenceFactory.getCompetenceData(null, competence,
+			data.add(competenceFactory.getCompetenceData(null, competence, null,
 					competence.getTags(), false));
 		}
 		return data;

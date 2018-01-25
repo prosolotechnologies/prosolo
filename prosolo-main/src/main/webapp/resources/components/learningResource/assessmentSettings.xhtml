@@ -34,7 +34,7 @@
 				<ui:fragment rendered="#{not cc.attrs.bean.limitedEdit}">
 					<div class="formLineRight">
 						<h:selectOneMenu binding="#{selectGradingMode}" value="#{cc.attrs.bean.assessmentSettings.gradingMode}" styleClass="selectpicker gradingModeSelector"
-										 onchange="gradingModeChanged(this);">
+										 onchange="gradingModeChanged(this, '#{cc.attrs.resource}');">
 							<f:selectItems value="#{cc.attrs.bean.gradingModes}" var="gm" itemLabel="#{gm.description}" itemValue="#{gm.gradingMode}" />
 						</h:selectOneMenu>
 						<script>
@@ -42,6 +42,10 @@
 						</script>
 					</div>
 				</ui:fragment>
+
+				<p class="gradingModeNote" style="#{(cc.attrs.resource eq 'CREDENTIAL' or cc.attrs.resource eq 'COMPETENCE') and cc.attrs.bean.assessmentSettings.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
+					#{msg['label.'.concat(cc.attrs.resource.toLowerCase())]} points is calculated as a sum of #{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.competence'].toLowerCase() : 'activity'} points
+				</p>
 
 				<br/>
 

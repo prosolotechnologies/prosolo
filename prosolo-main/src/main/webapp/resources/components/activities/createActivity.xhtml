@@ -293,7 +293,7 @@
 					              	  	onclick="copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:description');copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-					              	  	oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode();}">
+					              	  	oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode('ACTIVITY');}">
 					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 				              	  		Save changes
 					              	</p:commandLink>

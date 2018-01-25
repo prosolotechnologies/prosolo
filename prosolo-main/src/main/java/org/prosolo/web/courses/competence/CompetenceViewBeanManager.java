@@ -63,7 +63,7 @@ public class CompetenceViewBeanManager implements Serializable {
 						.addPrivilege(UserGroupPrivilege.Edit)
 						.addPrivilege(UserGroupPrivilege.Instruct);
 				RestrictedAccessResult<CompetenceData1> result = competenceManager
-						.getCompetenceDataWithAccessRightsInfo(decodedCredId, decodedCompId, true, true, true,
+						.getCompetenceDataWithAccessRightsInfo(decodedCredId, decodedCompId, true, false, true, true,
 								loggedUser.getUserId(), req, false);
 				
 				unpackResult(result);

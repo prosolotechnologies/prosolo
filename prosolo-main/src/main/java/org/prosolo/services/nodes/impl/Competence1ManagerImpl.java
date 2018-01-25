@@ -15,6 +15,8 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -79,6 +81,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private UnitManager unitManager;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -128,7 +131,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 
+			setAssessmentRelatedData(comp, data, true);
+
 			saveEntity(comp);
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					CompetenceAssessmentConfig cac = new CompetenceAssessmentConfig();
+					cac.setCompetence(comp);
+					cac.setAssessmentType(atc.getType());
+					cac.setEnabled(atc.isEnabled());
+					saveEntity(cac);
+				}
+			}
 
 			if (data.getLearningPathType() == LearningPathType.ACTIVITY && data.getActivities() != null) {
 				for (ActivityData bad : data.getActivities()) {
@@ -170,6 +185,31 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving competence");
 		}
+	}
+
+	private void setAssessmentRelatedData(Competence1 competence, CompetenceData1 data, boolean updateRubric) throws IllegalDataStateException {
+		competence.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
+			case AUTOMATIC:
+				competence.setRubric(null);
+				break;
+			case MANUAL:
+				if (updateRubric) {
+					competence.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
+				}
+				break;
+			case NONGRADED:
+				competence.setRubric(null);
+				break;
+		}
+		competence.setMaxPoints(
+				isPointBasedCompetence(competence.getGradingMode(), competence.getRubric())
+						? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
+						: 0);
+	}
+
+	private boolean isPointBasedCompetence(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode == GradingMode.MANUAL && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	/**
@@ -243,7 +283,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 								compData.setActivities(activities);
 							}
 						} else {
-							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
+							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
 							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 										compData.getCompetenceId());
@@ -352,14 +392,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
-			boolean loadCreator, boolean loadTags, boolean loadActivities, long userId, 
+			boolean loadCreator, boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId,
 			ResourceAccessRequirements req, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
 			if(req == null) {
 				throw new IllegalArgumentException();
 			}
-			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadTags, loadActivities, 
+			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
 					shouldTrackChanges);
 			
 			ResourceAccessData access = getResourceAccessData(compId, userId, req);
@@ -380,20 +420,21 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, DbConnectionException {
 		try {
 			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
 			
-			if(comp == null) {
+			if (comp == null) {
 				throw new ResourceNotFoundException();
 			}
 			
 			User creator = loadCreator ? comp.getCreatedBy() : null;
+			Set<CompetenceAssessmentConfig> assessmentConfig = loadAssessmentConfig ? comp.getAssessmentConfig() : null;
 			Set<Tag> tags = loadTags ? comp.getTags() : null;
 			
 			CompetenceData1 compData = competenceFactory.getCompetenceData(
-					creator, comp, tags, shouldTrackChanges);
+					creator, comp, assessmentConfig, tags, shouldTrackChanges);
 
 			//activities should be loaded only if learning path is activity based
 			if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadActivities) {
@@ -627,6 +668,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.getActivities().clear();
 				compToUpdate.setDuration(0);
 			}
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					if (atc.hasObjectChanged()) {
+						CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
+						cac.setEnabled(atc.isEnabled());
+					}
+				}
+			}
+			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
 	    
 	    return compToUpdate;
@@ -699,7 +750,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				Set<Tag> tags = loadTags ? credComp.getCompetence().getTags() : null;
 				
 				CompetenceData1 compData = competenceFactory.getCompetenceData(
-						creator, credComp, tags, true);
+						creator, credComp, null, tags, true);
 				
 				if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
@@ -1042,7 +1093,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
+				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, false, true, true, userId,
 						req, false);
 			}
 				
@@ -1472,7 +1523,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					compData = competenceFactory.getCompetenceDataWithProgress(creator, comp, null, 
 							paramProgress.intValue(), nextActId.longValue(), false);
 				} else {
-					compData = competenceFactory.getCompetenceData(creator, comp, null, false);
+					compData = competenceFactory.getCompetenceData(creator, comp, null, null, false);
 				}
 				if(paramBookmarkId != null) {
 					compData.setBookmarkedByCurrentUser(true);
@@ -1512,7 +1563,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
 
-				compData = competenceFactory.getCompetenceData(creator, comp, null, false);
+				compData = competenceFactory.getCompetenceData(creator, comp, null, null, false);
 
 				if(paramBookmarkId != null) {
 					compData.setBookmarkedByCurrentUser(true);
@@ -1870,7 +1921,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			List<CompetenceData1> res = new ArrayList<>();
 			for(Competence1 c : comps) {
-				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, false);
+				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, null, false);
 				cd.setNumberOfStudents(countNumberOfStudentsLearningCompetence(cd.getCompetenceId()));
 				res.add(cd);
 			}
@@ -1975,7 +2026,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		competence.setOriginalVersion(versionOf);
 		competence.setLearningStage(lStage);
 		competence.setFirstLearningStageCompetence(firstStageComp);
+		//set assessment related data
+		competence.setGradingMode(original.getGradingMode());
+		competence.setMaxPoints(original.getMaxPoints());
+		competence.setRubric(original.getRubric());
 		saveEntity(competence);
+		for (CompetenceAssessmentConfig cac : original.getAssessmentConfig()) {
+			CompetenceAssessmentConfig compAssessmentConfig = new CompetenceAssessmentConfig();
+			compAssessmentConfig.setCompetence(competence);
+			compAssessmentConfig.setAssessmentType(cac.getAssessmentType());
+			compAssessmentConfig.setEnabled(cac.isEnabled());
+			saveEntity(compAssessmentConfig);
+		}
 		/*
 		if this line is put before saveEntity and there is an exception thrown so competence can't be saved, hibernate would still issue
 		insert statements for saving competence tags which would lead to another exception because competence is not saved.
@@ -2119,7 +2181,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
 					req, true);
 			
 			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(compId);

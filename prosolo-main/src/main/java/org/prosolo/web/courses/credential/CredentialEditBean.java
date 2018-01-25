@@ -26,6 +26,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.LearningResourceAssessmentSettingsBean;
@@ -125,14 +126,12 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 
 	@Override
 	public List<Long> getAllUnitsResourceIsConnectedTo() {
-		return unitIds;
-	}
-
-	@Override
-	public boolean isPointBasedResource(GradingMode gradingMode, long rubricId, RubricType rubricType) {
-		return gradingMode == GradingMode.MANUAL
-				&& (rubricId == 0 || rubricType == RubricType.POINT
-				|| rubricType == RubricType.POINT_RANGE);
+		if (decodedId > 0) {
+			return unitIds;
+		} else {
+			//if new credential is being created, we return units where credential creator is added as manager
+			return unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), SystemRoleNames.MANAGER);
+		}
 	}
 
 	@Override

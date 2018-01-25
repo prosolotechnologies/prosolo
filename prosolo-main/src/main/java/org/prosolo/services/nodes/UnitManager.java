@@ -126,6 +126,8 @@ public interface UnitManager extends AbstractManager{
 
     List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
 
+    List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException;
+
     List<Long> getUserUnitIdsWithUserCapability(long userId, String capability) throws DbConnectionException;
 
     List<UnitData> getUnitsWithRubricSelectionInfo(long organizationId, long rubricId)
