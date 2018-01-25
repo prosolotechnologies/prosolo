@@ -7,7 +7,9 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
@@ -26,6 +28,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.LearningResourceAssessmentSettingsBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -42,7 +45,7 @@ import java.util.*;
 @ManagedBean(name = "credentialEditBean")
 @Component("credentialEditBean")
 @Scope("view")
-public class CredentialEditBean implements Serializable {
+public class CredentialEditBean extends CompoundLearningResourceAssessmentSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 3430513767875001534L;
 
@@ -92,6 +95,7 @@ public class CredentialEditBean implements Serializable {
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error loading the page");
 			}
+			credentialData.setAssessmentTypes(getAssessmentTypes());
 		} else {
 			try {
 				decodedId = idEncoder.decodeId(id);
@@ -105,6 +109,35 @@ public class CredentialEditBean implements Serializable {
 				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		}
+
+		loadAssessmentData();
+	}
+
+	@Override
+	public boolean isLimitedEdit() {
+		return isDelivery();
+	}
+
+	@Override
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return credentialData.getAssessmentSettings();
+	}
+
+	@Override
+	public List<Long> getAllUnitsResourceIsConnectedTo() {
+		return unitIds;
+	}
+
+	@Override
+	public boolean isPointBasedResource(GradingMode gradingMode, long rubricId, RubricType rubricType) {
+		return gradingMode == GradingMode.MANUAL
+				&& (rubricId == 0 || rubricType == RubricType.POINT
+				|| rubricType == RubricType.POINT_RANGE);
+	}
+
+	@Override
+	public boolean isPointBasedResource() {
+		return isPointBasedResource(credentialData.getAssessmentSettings().getGradingMode(), credentialData.getAssessmentSettings().getRubricId(), credentialData.getAssessmentSettings().getRubricType());
 	}
 
 	public boolean hasDeliveryStarted() {
@@ -667,5 +700,4 @@ public class CredentialEditBean implements Serializable {
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;
 	}
-	
 }

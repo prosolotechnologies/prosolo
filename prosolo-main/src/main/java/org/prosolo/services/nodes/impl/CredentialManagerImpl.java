@@ -16,6 +16,8 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -40,8 +42,8 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -96,6 +98,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private LearningResourceLearningStageDataFactory learningResourceLearningStageDataFactory;
 	@Inject
 	private OrganizationManager orgManager;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -122,15 +125,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDateCreated(new Date());
 			cred.setCompetenceOrderMandatory(data.isMandatoryFlow());
 			cred.setDuration(data.getDuration());
-			cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
-			cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
+			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
 			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 
 			if (data.isLearningStageEnabled()) {
 				cred.setLearningStage((LearningStage) persistence.currentManager().load(LearningStage.class, data.getLearningStage().getId()));
 			}
 
+			setAssessmentRelatedData(cred, data, true);
+
 			saveEntity(cred);
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					CredentialAssessmentConfig cac = new CredentialAssessmentConfig();
+					cac.setCredential(cred);
+					cac.setAssessmentType(atc.getType());
+					cac.setEnabled(atc.isEnabled());
+					saveEntity(atc);
+				}
+			}
 
 			if (data.getCompetences() != null) {
 				for (CompetenceData1 cd : data.getCompetences()) {
@@ -171,6 +186,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
 		}
+	}
+
+	private void setAssessmentRelatedData(Credential1 credential, CredentialData data, boolean updateRubric) throws IllegalDataStateException {
+		credential.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
+			case AUTOMATIC:
+				credential.setRubric(null);
+				break;
+			case MANUAL:
+				if (updateRubric) {
+					credential.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
+				}
+				break;
+			case NONGRADED:
+				credential.setRubric(null);
+				break;
+		}
+		credential.setMaxPoints(
+				isPointBasedCredential(credential.getGradingMode(), credential.getRubric())
+						? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
+						: 0);
+	}
+
+	private boolean isPointBasedCredential(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode == GradingMode.MANUAL && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	/**
@@ -267,7 +307,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null,
 							null, false, paramProgress.intValue(), nextCompId.longValue());
 				} else {
-					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
 				}
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -325,7 +365,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
 
-				credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+				credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
 
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -349,7 +389,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
-				return getCredentialData(credentialId, true, true, userId, AccessMode.USER);
+				return getCredentialData(credentialId, true, false, true, userId, AccessMode.USER);
 			}
 
 			return credData;
@@ -425,7 +465,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataForEdit(long credentialId) throws DbConnectionException {
 		try {
-			CredentialData cd = getCredentialData(credentialId, true, true, 0, AccessMode.MANAGER);
+			CredentialData cd = getCredentialData(credentialId, true, true, true, 0, AccessMode.MANAGER);
 			/*
 			if learning in stages is enabled for credential, learning stages with credential info for each stage are loaded
 			but if learning in stages is not enabled, only learning stages are retrieved.
@@ -471,8 +511,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
-																	boolean loadCompetences, long userId,
-																	AccessMode accessMode)
+															   boolean loadAssessmentConfig,
+															   boolean loadCompetences, long userId,
+															   AccessMode accessMode)
 			throws ResourceNotFoundException, DbConnectionException {
 		try {
 			Credential1 cred = getCredential(credentialId, loadCreatorData);
@@ -482,7 +523,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
-			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, cred.getTags(),
+			Set<CredentialAssessmentConfig> assessmentConfig = loadAssessmentConfig ? cred.getAssessmentConfig() : null;
+			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, assessmentConfig, cred.getTags(),
 					cred.getHashtags(), true);
 
 			if (loadCompetences) {
@@ -677,6 +719,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					credToUpdate.setLearningStage(null);
 				}
 			}
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					if (atc.hasObjectChanged()) {
+						CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
+						cac.setEnabled(atc.isEnabled());
+					}
+				}
+			}
+			setAssessmentRelatedData(credToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 
 			List<CompetenceData1> comps = data.getCompetences();
 			if (comps != null) {
@@ -2548,7 +2600,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, true));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2597,7 +2649,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, true));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2763,7 +2815,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, false);
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, false);
 			cd.setDeliveries(getActiveDeliveries(c.getId()));
 			res.add(cd);
 		}
@@ -3051,7 +3103,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, false));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, false));
 			}
 
 			return deliveries;
@@ -3283,7 +3335,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, true);
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, true);
 			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
 			if (cd.isLearningStageEnabled()) {
 				cd.setDeliveries(getActiveDeliveriesFromAllStages(c.getId()));
@@ -3577,6 +3629,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDeliveryStart(deliveryStart);
 			cred.setDeliveryEnd(deliveryEnd);
 			cred.setVisibleToAll(original.isVisibleToAll());
+			//set assessment related data
+			cred.setGradingMode(original.getGradingMode());
+			cred.setMaxPoints(original.getMaxPoints());
+			cred.setRubric(original.getRubric());
+			saveEntity(cred);
+			for (CredentialAssessmentConfig cac : original.getAssessmentConfig()) {
+				CredentialAssessmentConfig credAssessmentConf = new CredentialAssessmentConfig();
+				credAssessmentConf.setCredential(cred);
+				credAssessmentConf.setAssessmentType(cac.getAssessmentType());
+				credAssessmentConf.setEnabled(cac.isEnabled());
+				saveEntity(credAssessmentConf);
+			}
 
 			return cred;
 		} catch (Exception e) {

@@ -1,13 +1,16 @@
 package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.nodes.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
@@ -16,6 +19,8 @@ import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -23,8 +28,9 @@ public class CredentialDataFactory {
 
 	@Inject private CredentialDeliveryStatusFactory deliveryStatusFactory;
 	
-	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
-			Set<Tag> hashtags, boolean shouldTrackChanges) {
+	public CredentialData getCredentialData(User createdBy, Credential1 credential,
+											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags,
+											Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null) {
 			return null;
 		}
@@ -36,6 +42,14 @@ public class CredentialDataFactory {
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
+		if (assessmentConfig != null) {
+			List<AssessmentTypeConfig> types = new ArrayList<>();
+			for (CredentialAssessmentConfig cac : assessmentConfig) {
+				types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+			}
+			cred.setAssessmentTypes(types);
+		}
+
 		if (tags != null) {
 			cred.setTags(credential.getTags());
 			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
@@ -77,6 +91,16 @@ public class CredentialDataFactory {
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
 					credential.getDeliveryStart(), credential.getDeliveryEnd()));
 		}
+
+		cred.getAssessmentSettings().setMaxPoints(credential.getMaxPoints());
+		cred.getAssessmentSettings().setMaxPointsString(credential.getMaxPoints() > 0 ? String.valueOf(credential.getMaxPoints()) : "");
+		cred.getAssessmentSettings().setGradingMode(credential.getGradingMode());
+		//set rubric data
+		if (credential.getRubric() != null) {
+			cred.getAssessmentSettings().setRubricId(credential.getRubric().getId());
+			cred.getAssessmentSettings().setRubricName(credential.getRubric().getTitle());
+			cred.getAssessmentSettings().setRubricType(credential.getRubric().getRubricType());
+		}
 		
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();
@@ -91,7 +115,7 @@ public class CredentialDataFactory {
 		}
 		Credential1 c = credential.getCredential();
 		//get credential specific data
-		CredentialData cred = getCredentialData(createdBy, c, tags, hashtags, false);
+		CredentialData cred = getCredentialData(createdBy, c, null, tags, hashtags, false);
 		
 		//set target credential specific data
 		cred.setEnrolled(true);
@@ -130,7 +154,7 @@ public class CredentialDataFactory {
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
 			long nextCompToLearnId) {
-		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
+		CredentialData cred = getCredentialData(createdBy, credential, null, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
 		cred.setEnrolled(true);

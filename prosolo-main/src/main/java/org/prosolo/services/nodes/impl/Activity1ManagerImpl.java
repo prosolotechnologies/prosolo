@@ -62,6 +62,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private Activity1Manager self;
 	@Inject private TagManager tagManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -190,8 +191,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 		}
 
-		activity.setGradingMode(data.getGradingMode());
-		switch (data.getGradingMode()) {
+		activity.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
 			case AUTOMATIC:
 				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
 				activity.setRubric(null);
@@ -199,9 +200,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				break;
 			case MANUAL:
 				if (updateRubric) {
-					activity.setRubric(getRubricToSet(data));
+					activity.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
 				}
-				if (data.getRubricId() > 0) {
+				if (data.getAssessmentSettings().getRubricId() > 0) {
 					activity.setRubricVisibility(data.getRubricVisibility());
 				} else {
 					activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
@@ -217,29 +218,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 		activity.setMaxPoints(
 				isPointBasedActivity(activity.getGradingMode(), activity.getRubric())
-					? (data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()))
+					? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
 					: 0);
 	}
 
 	private boolean isPointBasedActivity(GradingMode gradingMode, Rubric rubric) {
 		return gradingMode != GradingMode.NONGRADED && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
-	}
-
-	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
-		//set rubric data
-		Rubric rubric = null;
-		if (activityData.getRubricId() > 0) {
-			/*
-			set a lock on a rubric so we can be sure that status will not change between read
-			and update
-			 */
-			rubric = (Rubric) persistence.currentManager().load(
-					Rubric.class, activityData.getRubricId(), LockOptions.UPGRADE);
-			if (!rubric.isReadyToUse()) {
-				throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
-			}
-		}
-		return rubric;
 	}
 
 	@Override
@@ -718,7 +702,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (!compOncePublished) {
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 
-				setAssessmentRelatedData(actToUpdate, data, data.isRubricChanged());
+				setAssessmentRelatedData(actToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 			}
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());

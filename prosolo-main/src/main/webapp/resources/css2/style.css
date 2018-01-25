@@ -853,6 +853,15 @@ input {
 .activityExternal .iconType {
   background: url("../images2/iconExternal20.svg") no-repeat; }
 
+.evidenceLink .iconType {
+  background: url("../images2/iconLink20.svg") no-repeat center center; }
+
+.evidenceDoc .iconType {
+  background: url("../images2/iconFile20.svg") no-repeat center center; }
+
+.evidenceText .iconType {
+  background: url("../images2/iconTextLines20.svg") no-repeat center center; }
+
 .editOptions {
   display: flex;
   align-items: center; }
@@ -2981,155 +2990,353 @@ header {
         position: absolute;
         top: 10px;
         left: 30px; }
-  .summaryCard .assessmentActivityList > ul {
-    margin: 0;
-    padding: 0;
-    list-style: none; }
-    .summaryCard .assessmentActivityList > ul > li {
+
+.assessmentActivityList > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+  .assessmentActivityList > ul > li {
+    display: flex;
+    justify-content: space-between;
+    line-height: 20px;
+    padding: 10px 30px;
+    border-top: 1px solid #EEEFF3; }
+    .assessmentActivityList > ul > li .iconType,
+    .assessmentActivityList > ul > li .check {
+      flex-shrink: 0;
+      margin-right: 20px; }
+    .assessmentActivityList > ul > li > a {
+      flex-grow: 1;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      color: #859095; }
+      .assessmentActivityList > ul > li > a:hover {
+        color: #363636; }
+    .assessmentActivityList > ul > li .activityOptions {
       display: flex;
-      justify-content: space-between;
-      line-height: 20px;
-      padding: 10px 30px;
-      border-top: 1px solid #EEEFF3; }
-      .summaryCard .assessmentActivityList > ul > li .iconType,
-      .summaryCard .assessmentActivityList > ul > li .check {
+      justify-content: flex-end;
+      width: 210px;
+      margin-left: 30px;
+      position: relative; }
+      .assessmentActivityList > ul > li .activityOptions .commentsIcon {
         flex-shrink: 0;
-        margin-right: 20px; }
-      .summaryCard .assessmentActivityList > ul > li > a {
-        flex-grow: 1;
+        position: relative;
+        width: 50px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
         font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: 400;
-        color: #859095; }
-        .summaryCard .assessmentActivityList > ul > li > a:hover {
+        font-weight: 400; }
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover {
           color: #363636; }
-      .summaryCard .assessmentActivityList > ul > li .activityOptions {
-        display: flex;
-        justify-content: flex-end;
-        width: 210px;
-        margin-left: 30px;
-        position: relative; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon {
-          flex-shrink: 0;
-          position: relative;
-          width: 50px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover {
-            color: #363636; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconComments20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover::before {
-            opacity: 1; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .studentsCompleted {
-          flex-shrink: 0;
-          position: relative;
-          width: 55px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .studentsCompleted::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconUser20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses {
-          flex-shrink: 0;
-          position: relative;
-          width: 95px;
-          margin-left: 30px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400;
-          text-align: right; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconResult20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses.disabledResponses::after {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            opacity: .7;
-            z-index: 100; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .download,
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult {
-          flex-shrink: 0;
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon::before {
+          content: '';
+          display: block;
           width: 20px;
           height: 20px;
-          text-indent: -10000px;
-          opacity: .5; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .download:hover,
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult:hover {
-            opacity: 1; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .download {
-          background: url("../images2/iconDownload20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult {
-          background: url("../images2/iconResult20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .grade {
-          flex-shrink: 0;
-          position: relative;
-          width: 100px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400;
-          text-align: right; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade:hover {
-            color: #363636; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconAssessment20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade:hover::before {
-            opacity: 1; }
-      .summaryCard .assessmentActivityList > ul > li.hasNewComments .activityOptions .commentsIcon::before {
-        background: url("../images2/iconComments20Orange.svg") no-repeat;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconComments20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover::before {
+          opacity: 1; }
+      .assessmentActivityList > ul > li .activityOptions .studentsCompleted {
+        flex-shrink: 0;
+        position: relative;
+        width: 55px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400; }
+        .assessmentActivityList > ul > li .activityOptions .studentsCompleted::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconUser20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .assessedResponses {
+        flex-shrink: 0;
+        position: relative;
+        width: 95px;
+        margin-left: 30px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400;
+        text-align: right; }
+        .assessmentActivityList > ul > li .activityOptions .assessedResponses::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconResult20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .assessedResponses.disabledResponses::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: #fff;
+          opacity: .7;
+          z-index: 100; }
+      .assessmentActivityList > ul > li .activityOptions .download,
+      .assessmentActivityList > ul > li .activityOptions .viewResult {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        text-indent: -10000px;
+        opacity: .5; }
+        .assessmentActivityList > ul > li .activityOptions .download:hover,
+        .assessmentActivityList > ul > li .activityOptions .viewResult:hover {
+          opacity: 1; }
+      .assessmentActivityList > ul > li .activityOptions .download {
+        background: url("../images2/iconDownload20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .viewResult {
+        background: url("../images2/iconResult20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .grade {
+        flex-shrink: 0;
+        position: relative;
+        width: 100px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400;
+        text-align: right; }
+        .assessmentActivityList > ul > li .activityOptions .grade:hover {
+          color: #363636; }
+        .assessmentActivityList > ul > li .activityOptions .grade::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconAssessment20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .grade:hover::before {
+          opacity: 1; }
+    .assessmentActivityList > ul > li.hasNewComments .activityOptions .commentsIcon::before {
+      background: url("../images2/iconComments20Orange.svg") no-repeat;
+      opacity: 1; }
+  .assessmentActivityList > ul .competenceScore {
+    font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500; }
+
+.summaryAssessmentsCompetence,
+.summaryAssessmentsHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 20px;
+  padding: 30px !important; }
+  .summaryAssessmentsCompetence h2,
+  .summaryAssessmentsHead h2 {
+    margin: 0 !important; }
+  .summaryAssessmentsCompetence .iconType,
+  .summaryAssessmentsCompetence .check,
+  .summaryAssessmentsHead .iconType,
+  .summaryAssessmentsHead .check {
+    flex-shrink: 0;
+    margin-right: 20px; }
+  .summaryAssessmentsCompetence > a,
+  .summaryAssessmentsHead > a {
+    flex-grow: 1;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    color: #859095; }
+    .summaryAssessmentsCompetence > a:hover,
+    .summaryAssessmentsHead > a:hover {
+      color: #363636; }
+  .summaryAssessmentsCompetence .activityOptions,
+  .summaryAssessmentsHead .activityOptions {
+    display: flex;
+    justify-content: flex-end;
+    width: 210px;
+    margin-left: 30px;
+    position: relative; }
+    .summaryAssessmentsCompetence .activityOptions .commentsIcon,
+    .summaryAssessmentsHead .activityOptions .commentsIcon {
+      flex-shrink: 0;
+      position: relative;
+      width: 50px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon:hover,
+      .summaryAssessmentsHead .activityOptions .commentsIcon:hover {
+        color: #363636; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon::before,
+      .summaryAssessmentsHead .activityOptions .commentsIcon::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconComments20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon:hover::before,
+      .summaryAssessmentsHead .activityOptions .commentsIcon:hover::before {
         opacity: 1; }
-    .summaryCard .assessmentActivityList > ul .competenceScore {
-      font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 500; }
+    .summaryAssessmentsCompetence .activityOptions .studentsCompleted,
+    .summaryAssessmentsHead .activityOptions .studentsCompleted {
+      flex-shrink: 0;
+      position: relative;
+      width: 55px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .studentsCompleted::before,
+      .summaryAssessmentsHead .activityOptions .studentsCompleted::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconUser20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .assessedResponses,
+    .summaryAssessmentsHead .activityOptions .assessedResponses {
+      flex-shrink: 0;
+      position: relative;
+      width: 95px;
+      margin-left: 30px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      text-align: right; }
+      .summaryAssessmentsCompetence .activityOptions .assessedResponses::before,
+      .summaryAssessmentsHead .activityOptions .assessedResponses::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconResult20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .assessedResponses.disabledResponses::after,
+      .summaryAssessmentsHead .activityOptions .assessedResponses.disabledResponses::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        opacity: .7;
+        z-index: 100; }
+    .summaryAssessmentsCompetence .activityOptions .download,
+    .summaryAssessmentsCompetence .activityOptions .viewResult,
+    .summaryAssessmentsHead .activityOptions .download,
+    .summaryAssessmentsHead .activityOptions .viewResult {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      text-indent: -10000px;
+      opacity: .5; }
+      .summaryAssessmentsCompetence .activityOptions .download:hover,
+      .summaryAssessmentsCompetence .activityOptions .viewResult:hover,
+      .summaryAssessmentsHead .activityOptions .download:hover,
+      .summaryAssessmentsHead .activityOptions .viewResult:hover {
+        opacity: 1; }
+    .summaryAssessmentsCompetence .activityOptions .download,
+    .summaryAssessmentsHead .activityOptions .download {
+      background: url("../images2/iconDownload20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .viewResult,
+    .summaryAssessmentsHead .activityOptions .viewResult {
+      background: url("../images2/iconResult20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .grade,
+    .summaryAssessmentsHead .activityOptions .grade {
+      flex-shrink: 0;
+      position: relative;
+      width: 100px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      text-align: right; }
+      .summaryAssessmentsCompetence .activityOptions .grade:hover,
+      .summaryAssessmentsHead .activityOptions .grade:hover {
+        color: #363636; }
+      .summaryAssessmentsCompetence .activityOptions .grade::before,
+      .summaryAssessmentsHead .activityOptions .grade::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconAssessment20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .grade:hover::before,
+      .summaryAssessmentsHead .activityOptions .grade:hover::before {
+        opacity: 1; }
+    .summaryAssessmentsCompetence .activityOptions .aksedAssessment,
+    .summaryAssessmentsHead .activityOptions .aksedAssessment {
+      flex-shrink: 0;
+      position: relative;
+      width: 55px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .aksedAssessment::before,
+      .summaryAssessmentsHead .activityOptions .aksedAssessment::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconAssessment20.svg") no-repeat;
+        opacity: .5; }
+      .summaryAssessmentsCompetence .activityOptions .aksedAssessment.active::before,
+      .summaryAssessmentsHead .activityOptions .aksedAssessment.active::before {
+        background: url("../images2/iconAssessment20Orange.svg") no-repeat;
+        opacity: 1; }
+  .summaryAssessmentsCompetence.hasNewComments .activityOptions .commentsIcon::before,
+  .summaryAssessmentsHead.hasNewComments .activityOptions .commentsIcon::before {
+    background: url("../images2/iconComments20Orange.svg") no-repeat;
+    opacity: 1; }
 
 .disabledOverlay {
   display: none;
@@ -5198,6 +5405,9 @@ header {
   padding-top: 30px;
   font-size: 13px; }
 
+.messagesList .loadMoreThreads {
+  text-align: center; }
+
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
@@ -5268,6 +5478,8 @@ header {
           width: 80px; }
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
+    .messageColumn .messagesPane .loadMoreMsgs {
+      text-align: center; }
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }

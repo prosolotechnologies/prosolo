@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -25,6 +26,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
@@ -32,6 +34,7 @@ import org.prosolo.services.nodes.data.assessments.grading.RubricCriterionGradeD
 import org.prosolo.services.nodes.data.rubrics.*;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -718,6 +721,23 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");
         }
+    }
+
+    public Rubric getRubricForLearningResource(LearningResourceAssessmentSettings assessmentSettings) throws IllegalDataStateException {
+        //set rubric data
+        Rubric rubric = null;
+        if (assessmentSettings.getRubricId() > 0) {
+			/*
+			set a lock on a rubric so we can be sure that status will not change between read
+			and update
+			 */
+            rubric = (Rubric) persistence.currentManager().load(
+                    Rubric.class, assessmentSettings.getRubricId(), LockOptions.UPGRADE);
+            if (!rubric.isReadyToUse()) {
+                throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
+            }
+        }
+        return rubric;
     }
 
 }

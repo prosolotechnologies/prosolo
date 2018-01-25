@@ -100,11 +100,11 @@ public class ActivityAssessmentData {
 
 		data.setGrade(
 				getGradeData(
-						actData.getGradingMode(),
-						actData.getMaxPoints(),
+						actData.getAssessmentSettings().getGradingMode(),
+						actData.getAssessmentSettings().getMaxPoints(),
 						activityDiscussion.getPoints(),
-						actData.getRubricId(),
-						actData.getRubricType(),
+						actData.getAssessmentSettings().getRubricId(),
+						actData.getAssessmentSettings().getRubricType(),
 						actData.getRubricVisibility(),
 						actData.isAcceptGrades()));
 

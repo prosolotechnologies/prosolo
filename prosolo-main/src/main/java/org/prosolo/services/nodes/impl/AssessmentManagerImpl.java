@@ -562,8 +562,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return -1;
 		}
 
-		return activity.isCompleted() && activity.getGradingMode() == GradingMode.AUTOMATIC && !activity.isAcceptGrades()
-				? activity.getMaxPoints()
+		return activity.isCompleted() && activity.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC && !activity.isAcceptGrades()
+				? activity.getAssessmentSettings().getMaxPoints()
 				: activity.getCommonScore() >= 0 ? activity.getCommonScore() : -1;
 	}
 

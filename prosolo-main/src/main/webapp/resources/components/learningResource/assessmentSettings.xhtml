@@ -1,0 +1,127 @@
+<ui:component
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+
+	<composite:interface>
+		<composite:attribute name="bean" type="org.prosolo.web.courses.LearningResourceAssessmentSettingsBean"></composite:attribute>
+		<composite:attribute name="resource" required="true" />
+		<composite:attribute name="showAcceptGrades" required="true" />
+		<composite:attribute name="acceptGradesValue" />
+		<composite:attribute name="panelAcceptGradesId" />
+	</composite:interface>
+	
+	<composite:implementation>
+
+		<script src="#{request.contextPath}/resources/javascript2/assessmentSettings.js"></script>
+
+		<div class="formLine">
+			<label>Grading</label>
+			<div class="formLineRight">
+				<ui:fragment rendered="#{cc.attrs.bean.limitedEdit}">
+					<ul class="addedItems">
+						<li>
+							#{cc.attrs.bean.gradingModes[0].description}
+						</li>
+					</ul>
+				</ui:fragment>
+				<ui:fragment rendered="#{not cc.attrs.bean.limitedEdit}">
+					<div class="formLineRight">
+						<h:selectOneMenu binding="#{selectGradingMode}" value="#{cc.attrs.bean.assessmentSettings.gradingMode}" styleClass="selectpicker gradingModeSelector"
+										 onchange="gradingModeChanged(this);">
+							<f:selectItems value="#{cc.attrs.bean.gradingModes}" var="gm" itemLabel="#{gm.description}" itemValue="#{gm.gradingMode}" />
+						</h:selectOneMenu>
+						<script>
+                            $('.selectpicker').selectpicker('refresh');
+						</script>
+					</div>
+				</ui:fragment>
+
+				<br/>
+
+				<div class="rubricSelector" style="#{cc.attrs.bean.assessmentSettings.gradingMode eq 'MANUAL' ? '' : 'display: none;'}">
+					<label>Rubric:</label>
+					<div class="formLineRight">
+						<ui:fragment rendered="#{cc.attrs.bean.limitedEdit}">
+							<ul class="addedItems bottom20">
+								<li>
+									<ui:fragment rendered="#{cc.attrs.bean.assessmentSettings.rubricId gt 0}">
+										<h:link outcome="/manage/rubric-criteria">
+											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.assessmentSettings.rubricId)}"/>
+											#{cc.attrs.bean.assessmentSettings.rubricName}
+										</h:link>
+									</ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.bean.assessmentSettings.rubricId le 0}">
+										None
+									</ui:fragment>
+
+								</li>
+							</ul>
+						</ui:fragment>
+						<ui:fragment rendered="#{not cc.attrs.bean.limitedEdit}">
+							<h:selectOneMenu binding="#{selectRubric}" value="#{cc.attrs.bean.assessmentSettings.rubricId}" styleClass="selectpicker bottom20 rubricPickerSelector"
+											 onchange="rubricChanged(this,'.radioGroup')">
+								<f:selectItem itemValue="0" itemLabel="None" pt:data-rubric-type="NONE"/>
+								<f:selectItems value="#{cc.attrs.bean.rubrics}" var="r" itemLabel="#{r.name}" itemValue="#{r.id}" pt:data-rubric-type="#{r.rubricType}" />
+							</h:selectOneMenu>
+							<script>
+                                $('.selectpicker').selectpicker('refresh');
+							</script>
+						</ui:fragment>
+
+						<ui:fragment rendered="#{cc.attrs.resource eq 'ACTIVITY'}">
+							<div class="radioGroup" style="#{cc.attrs.bean.assessmentSettings.rubricId > 0 ? '' : 'display: none;'}">
+								<ui:repeat value="#{activityEditBean.rubricVisibilityTypes}" var="vis">
+									<div class="radio">
+										<input type="radio" jsf:id="visType"
+											   name="#{hiddenVisType.clientId}"
+											   jsf:disabled="#{activityEditBean.limitedEdit}"
+											   value="#{vis.visibility}"
+											   jsf:checked="#{vis.visibility eq activityEditBean.activityData.rubricVisibility ? true : false}" />
+										<h:outputLabel for="visType" value="#{vis.description}" />
+									</div>
+								</ui:repeat>
+								<h:inputHidden id="rubricVisibilityType" binding="#{hiddenVisType}" value="#{activityEditBean.activityData.rubricVisibility}"
+											   rendered="#{facesContext.currentPhaseId.ordinal ne 6}" />
+							</div>
+						</ui:fragment>
+					</div>
+				</div>
+
+				<div class="maxPointsSelector" style="#{cc.attrs.bean.pointBasedResource ? '' : 'display: none;'}">
+					<label>Points:</label>
+					<h:inputText disabled="#{cc.attrs.bean.limitedEdit}" id="maxPoints"
+								 styleClass="maxPointsInputSelector bottom20"
+								 value="#{cc.attrs.bean.assessmentSettings.maxPointsString}"
+								 placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off"
+								 validator="#{cc.attrs.bean.validateMaxPoints}">
+						<f:attribute name="gradingModeComp" value="#{selectGradingMode}" />
+						<f:attribute name="rubricComp" value="#{selectRubric}" />
+						<f:convertNumber integerOnly="true" />
+					</h:inputText>
+					<c:if test="#{cc.attrs.resource eq 'ACTIVITY'}">
+						<h:panelGroup layout="block" id="#{cc.attrs.panelAcceptGradesId}" styleClass="checkbox checkLine checkAcceptGradesPanelSelector" style="#{cc.attrs.bean.assessmentSettings.gradingMode eq 'AUTOMATIC' ? '' : 'display: none;'}">
+							<ui:fragment rendered="#{cc.attrs.showAcceptGrades}">
+								<h:selectBooleanCheckbox disabled="#{cc.attrs.bean.limitedEdit}" styleClass="checkAcceptGradesSelector"
+														 id="checkAcceptGrades" value="#{cc.attrs.acceptGradesValue}">
+								</h:selectBooleanCheckbox>
+								<h:outputLabel for="checkAcceptGrades"
+											   id="checkAcceptGradesLabel">
+									Accept grades (grade will be sent by the external activity)
+								</h:outputLabel>
+							</ui:fragment>
+						</h:panelGroup>
+					</c:if>
+
+					<small class="redText"><h:message for="maxPoints" /></small>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

@@ -3,12 +3,14 @@ package org.prosolo.services.nodes;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.assessments.grading.RubricGradeData;
@@ -77,5 +79,7 @@ public interface RubricManager extends AbstractManager {
 
     RubricCriteriaGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException;
+
+    Rubric getRubricForLearningResource(LearningResourceAssessmentSettings assessmentSettings) throws IllegalDataStateException;
 
 }
