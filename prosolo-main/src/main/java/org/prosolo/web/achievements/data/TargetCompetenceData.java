@@ -2,7 +2,7 @@ package org.prosolo.web.achievements.data;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
 
@@ -21,6 +21,7 @@ public class TargetCompetenceData implements Serializable {
     private String title;
     private boolean hiddenFromProfile;
     private long duration;
+    private String durationString;
     private LearningResourceType learningResourceType;
     private long competenceId;
 
@@ -34,6 +35,10 @@ public class TargetCompetenceData implements Serializable {
         this.duration = duration;
         this.learningResourceType = learningResourceType;
         this.competenceId = competenceId;
+        calculateDurationString();
+    }
+    public void calculateDurationString() {
+        durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
     }
 
     public TargetCompetenceData(TargetCompetence1 targetCompetence1){
@@ -106,4 +111,11 @@ public class TargetCompetenceData implements Serializable {
         this.competenceId = competenceId;
     }
 
+    public String getDurationString() {
+        return durationString;
+    }
+
+    public void setDurationString(String durationString) {
+        this.durationString = durationString;
+    }
 }
