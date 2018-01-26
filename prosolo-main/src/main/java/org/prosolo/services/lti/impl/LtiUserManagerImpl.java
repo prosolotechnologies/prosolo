@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,8 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			}
 			return user;
 		} catch (Exception e) {
-			throw new DbConnectionException("Error while logging user in");
+			 throw new DbConnectionException("Error while logging user in");
+
 		}
 	}
 
@@ -61,7 +63,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 		try {
 			User user;
 			try {
-				long roleId = roleManager.getRoleIdByName("Student");
+				long roleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
 				user = userManager.createNewUser(organizationId, name, lastName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(roleId));
 
 				if (unitId > 0) {
@@ -94,7 +96,8 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 				.setLong("id", consumerId)
 				.setString("userId", userId);
 		} catch (Exception e) {
-			throw new DbConnectionException("User cannot be retrieved");
+			//throw new DbConnectionException("User cannot be retrieved");
+			return null;
 		}
 	}
 

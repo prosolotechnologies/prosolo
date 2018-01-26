@@ -1,5 +1,6 @@
 package org.prosolo.web.lti;
 
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
@@ -72,14 +73,15 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 	
 	private void launch(LTILaunchMessage msg) throws Exception{
+		Gson g=new Gson();
+		System.out.println("MESSAGE LAUNCH:"+g.toJson(msg));
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		HttpSession session = (HttpSession) externalContext.getSession(false);
-
 		//if there is a different user logged in in same browser, we must invalidate his session first or exception will be thrown
 		applicationBean.unregisterSession(session);
-		
 		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
-		LtiTool tool = toolManager.getLtiToolForLaunch(msg.getId());
+		//LtiTool tool = toolManager.getLtiToolForLaunch(msg.getId());
+		LtiTool tool = toolManager.getToolDetails(msg.getId());
 		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), request);
 		logger.info("Tool launch valid, tool id: "+tool.getId());
 		User user = getUserForLaunch(tool, msg);

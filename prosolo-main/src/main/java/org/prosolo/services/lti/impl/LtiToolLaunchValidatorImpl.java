@@ -21,6 +21,7 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	@Override
 	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException{
 		if (tool == null){
+
 			throw new LtiToolAccessDeniedException();
 		}
 		if(!tool.isEnabled()){
@@ -40,6 +41,8 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 			secret = consumer.getSecretLtiTwo();
 		}
 		if(consumer == null || !key.equals(consumerKey) ){
+			if(consumer==null) System.out.println("CONSUMER IS NULL");
+			System.out.println("KEY:"+key+" CONSUMER KEY:"+consumerKey);
 			throw new LtiToolAccessDeniedException();
 		}
 		try{
