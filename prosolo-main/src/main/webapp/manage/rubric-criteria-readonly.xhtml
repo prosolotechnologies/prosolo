@@ -19,18 +19,18 @@
                             </ui:fragment>
                             <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
                                 <h2>#{cat.name} -
-                                    <h:outputLabel value="#{cat.points}">
+                                    <h:outputText value="#{cat.points}">
                                         <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
-                                    </h:outputLabel>%
+                                    </h:outputText>%
                                 </h2>
-                                <table class="rubricsTable readOnly">
-                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
-                                        <tr>
-                                            <td class="col01">#{lvl.name}</td>
+                                <table class="rubricsTable readOnly rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
+                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl" varStatus="status">
+                                        <tr class="rubricItem0#{status.index+1}">
+                                            <td class="col01"><span class="rubricColor"></span>#{lvl.name}</td>
                                             <td class="col02">
-                                                <h:outputLabel value="#{lvl.points}">
+                                                <h:outputText value="#{lvl.points}">
                                                     <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
-                                                </h:outputLabel>%
+                                                </h:outputText>%
                                             </td>
                                             <td class="col03">#{cat.levels[lvl].description}</td>
                                         </tr>

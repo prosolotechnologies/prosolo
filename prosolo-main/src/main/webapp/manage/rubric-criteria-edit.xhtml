@@ -137,11 +137,12 @@
                             <div class="col-md-6 rubricsLevels">
                                 <h2>Levels</h2>
                                 <p>Specify criteria levels. Each criterion will have all levels specified. A level score should be given as a percentage (that will be applied to a criterion score).</p>
-                                <h:panelGroup layout="block" id="panelLevels" styleClass="rubricsLevelsList">
+                                <h:panelGroup layout="block" id="panelLevels" styleClass="rubricsLevelsList rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
                                     <h:inputHidden id="inputHiddenLevelUniqueName" validator="uniqueNameValidator" />
                                     <ui:repeat id="levelList" value="#{rubricCriteriaBean.rubric.levels}" var="l" varStatus="status">
                                         <div class="listItemWrapper">
-                                            <div class="listItem">
+                                            <div class="listItem rubricItem0#{status.index+1}">
+                                                <span class="rubricColor"></span>
                                                 <h:inputText id="inputLevelName"
                                                              autocomplete="off"
                                                              pt:data-unique-name="true"
@@ -231,10 +232,10 @@
                             <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
                                 <h3 data-criterion-order="#{cat.order}"></h3>
                                 <script>copyCriterionNameAndWeight(#{cat.order});</script>
-                                <table class="rubricsTable">
-                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
-                                        <tr>
-                                            <td class="col01" data-level-order="#{lvl.order}"></td>
+                                <table class="rubricsTable rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
+                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl" varStatus="status">
+                                        <tr class="rubricItem0#{status.index+1}">
+                                            <td class="col01" data-level-order="#{lvl.order}"><span class="rubricColor"></span><span class="name"></span></td>
                                             <script>copyLevelName(#{lvl.order});</script>
                                             <td class="col02" data-level-order="#{lvl.order}"></td>
                                             <script>copyLevelWeight(#{lvl.order});</script>
