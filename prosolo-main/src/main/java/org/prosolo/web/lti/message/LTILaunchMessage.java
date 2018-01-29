@@ -42,6 +42,7 @@ public class LTILaunchMessage extends LTIMessage {
         resultUrl = new LtiMessageParameter(null);
         resultSourcedId = new LtiMessageParameter(null);
         launchPresentationReturnURL = new LtiMessageParameter(null);
+        roles=new LtiMessageParameter(null);
     }
 
     public String getMessageType() {
