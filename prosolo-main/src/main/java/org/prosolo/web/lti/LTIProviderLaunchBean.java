@@ -147,7 +147,7 @@ public class LTIProviderLaunchBean implements Serializable {
 					msg.getUserLastName(),
 					msg.getUserEmail(),
 					tool.getUnit() != null ? tool.getUnit().getId() : 0,
-					roleName,
+					LTIToProSoloRoleMapper.getRole(roleName),
 					tool.getUserGroup() != null ? tool.getUserGroup().getId() : 0,
 					contextData);
 		} catch (Exception e) {
