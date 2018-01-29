@@ -17,6 +17,6 @@ public class GlobalUrlBuilder extends ToolLaunchUrlBuilder{
 
 	@Override
 	public String getLaunchUrl(LtiTool tool, long userId) {
-		return "";
+		return "/";
 	}
 }
