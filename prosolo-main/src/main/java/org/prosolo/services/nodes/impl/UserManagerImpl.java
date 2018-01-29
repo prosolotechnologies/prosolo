@@ -813,7 +813,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
-	public boolean createNewUserAndConnectToResources(
+	public User createNewUserAndConnectToResources(
 												   String name, String lastname, String emailAddress,
 												   String password, String position, long unitId,
 												   long unitRoleId, long userGroupId,
@@ -824,7 +824,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userGroupId, context);
 
 		if (res.getResult() != null) {
-			//generate events
 			eventFactory.generateEvents(res.getEventQueue());
 			//taskExecutor.execute(() -> {
 				//TODO for now, we do not send emails
@@ -854,9 +853,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 //				}
 			//});
 
-			return true;
+			return res.getResult().getUser();
 		}
-		return false;
+		return null;
 	}
 
 	@Override

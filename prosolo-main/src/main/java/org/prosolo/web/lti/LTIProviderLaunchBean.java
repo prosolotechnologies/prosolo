@@ -5,11 +5,13 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.LtiUserManager;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.message.LTILaunchMessage;
@@ -72,32 +74,31 @@ public class LTIProviderLaunchBean implements Serializable {
 		}
 	}
 	
-	private void launch(LTILaunchMessage msg) throws Exception{
-		Gson g=new Gson();
-		System.out.println("MESSAGE LAUNCH:"+g.toJson(msg));
+	private void launch(LTILaunchMessage msg) throws Exception {
+		logger.info("LTI provider launch: " + new Gson().toJson(msg));
+
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-		HttpSession session = (HttpSession) externalContext.getSession(false);
-		//if there is a different user logged in in same browser, we must invalidate his session first or exception will be thrown
-		applicationBean.unregisterSession(session);
-		HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
-		//LtiTool tool = toolManager.getLtiToolForLaunch(msg.getId());
 		LtiTool tool = toolManager.getToolDetails(msg.getId());
-		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), request);
+
+		// validating the tool, the method will throw an exception if not valid
+		toolLaunchValidator.validateLaunch(tool, msg.getConsumerKey(), getVersion(msg.getLtiVersion()), (HttpServletRequest) externalContext.getRequest());
 		logger.info("Tool launch valid, tool id: "+tool.getId());
+
+		// fetching or creating a user
 		User user = getUserForLaunch(tool, msg);
-		logger.info("User for LTI launch logged in, user email "+user.getEmail());
+
 		boolean loggedIn = login(user);
 
 		if (loggedIn) {
-			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-//			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId(), page, "name:lti_launch|context:/name:lti_tool|id:" + msg.getId() + "/", null);
-			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).
-					getLaunchUrl(tool, user.getId());
-			logger.info("Redirecting to "+url);
-			//externalContext.redirect(externalContext.getRequestContextPath() + "/index.xhtml");
+			logger.info("User for LTI launch logged in, user email " + user.getEmail());
+
+			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).getLaunchUrl(tool, user.getId());
+
+			logger.info("Redirecting user to "+url);
+			PageUtil.redirect(url);
 			externalContext.redirect(externalContext.getRequestContextPath() + "/" + url);
 		} else {
-			throw new Exception("User loggin unsuccessful");
+			throw new Exception("User login unsuccessful");
 		}
 	}
 	
@@ -118,28 +119,38 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 
 	private boolean login(User user) throws AuthenticationException {
+		//if there is a different user logged in, invalidate his session
+		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+		applicationBean.unregisterSession(session);
+
 		boolean loggedIn = authenticationService.loginOpenId(user.getEmail());
-		if(loggedIn){
+		if (loggedIn) {
 			loggedUserBean.init(user.getEmail());
 			return true;
 		}
 		return false;
 	}
-	
-	
-    
-	private User getUserForLaunch(LtiTool tool, LTILaunchMessage msg) throws Exception{
-		try{
+
+
+	private User getUserForLaunch(LtiTool tool, LTILaunchMessage msg) throws Exception {
+		try {
+			UserContextData contextData = UserContextData.ofOrganization(tool.getOrganization().getId());
+
+			// get role from the LTI message if present
+			String roles = msg.getRoles();	// it more roles are present, fetch only the first one (for now)
+			String roleName = roles != null ? roles.split(",")[0] : SystemRoleNames.USER;
+
 			return ltiUserManager.getUserForLaunch(
 					tool.getToolSet().getConsumer().getId(),
 					msg.getUserID(),
 					msg.getUserFirstName(),
 					msg.getUserLastName(),
 					msg.getUserEmail(),
-					tool.getOrganization().getId(),
 					tool.getUnit() != null ? tool.getUnit().getId() : 0,
-					tool.getUserGroup() != null ? tool.getUserGroup().getId() : 0);
-		}catch(Exception e){
+					roleName,
+					tool.getUserGroup() != null ? tool.getUserGroup().getId() : 0,
+					contextData);
+		} catch (Exception e) {
 			throw new Exception("User can not be found");
 		}
 	}

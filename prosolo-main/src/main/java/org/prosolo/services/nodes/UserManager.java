@@ -113,8 +113,8 @@ public interface UserManager extends AbstractManager {
 			throws DbConnectionException;
 
 	/**
-	 * Creates account for a users if it does not exist, recreates deleted user account and if user exists
-	 * it only updates his roles (adds role with {@code unitRoleId} id if not already added.
+	 * Creates account for a user if it does not exist, revokes deleted user account (if it was deleted)
+	 * and if user exists it only updates his roles (adds role with {@code unitRoleId} id if not already added.
 	 *
 	 * Also it adds user to the unit with {@code unitId} id with role ({@code unitRoleId}) if {@code unitId}
 	 * and {@code unitRoleId} are greater than 0; adds user to the user group ({@code userGroupId})
@@ -132,7 +132,7 @@ public interface UserManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	boolean createNewUserAndConnectToResources(
+	User createNewUserAndConnectToResources(
 											String name, String lastname, String emailAddress,
 											String password, String position, long unitId,
 											long unitRoleId, long userGroupId, UserContextData context)

@@ -1,8 +1,5 @@
 package org.prosolo.services.lti.impl;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
@@ -13,6 +10,9 @@ import org.prosolo.services.lti.exceptions.LtiToolDisabledException;
 import org.prosolo.services.oauth.OauthService;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
 @Service("org.prosolo.services.lti.LtiToolLaunchValidator")
 public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	
@@ -20,34 +20,34 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	
 	@Override
 	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException{
-		if (tool == null){
+		if (tool == null) {
 
 			throw new LtiToolAccessDeniedException();
 		}
-		if(!tool.isEnabled()){
+		if (!tool.isEnabled()) {
 			throw new LtiToolDisabledException();
 		}
-		if(tool.isDeleted()){
+		if (tool.isDeleted()) {
 			throw new LtiToolDeletedException();
 		}
 		LtiConsumer consumer = tool.getToolSet().getConsumer();
 		String key = null;
 		String secret = null;
-		if(LtiVersion.V1.equals(version)){
+		if (LtiVersion.V1.equals(version)) {
 			key = consumer.getKeyLtiOne();
 			secret = consumer.getSecretLtiOne();
-		}else{
+		} else {
 			key = consumer.getKeyLtiTwo();
 			secret = consumer.getSecretLtiTwo();
 		}
-		if(consumer == null || !key.equals(consumerKey) ){
-			if(consumer==null) System.out.println("CONSUMER IS NULL");
-			System.out.println("KEY:"+key+" CONSUMER KEY:"+consumerKey);
+		if (consumer == null || !key.equals(consumerKey)) {
+			if (consumer == null) System.out.println("CONSUMER IS NULL");
+			System.out.println("KEY:" + key + " CONSUMER KEY:" + consumerKey);
 			throw new LtiToolAccessDeniedException();
 		}
-		try{
+		try {
 			oauthService.validatePostRequest(request, tool.getLaunchUrl(), key, secret);
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new LtiToolAccessDeniedException();
 		}
 	}
