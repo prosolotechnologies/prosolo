@@ -2,10 +2,12 @@ package org.prosolo.services.lti.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiUser;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -14,6 +16,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,9 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 	private UnitManager unitManager;
 	@Inject
 	private UserGroupManager userGroupManager;
+
+	@Inject
+	private EventFactory eventFactory;
 
 	@Override
 	@Transactional
@@ -72,8 +78,11 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 					if (userGroupId > 0) {
 						userGroupManager.addUserToTheGroup(userGroupId, user.getId(), UserContextData.empty());
 					}
+					eventFactory.generateEvent(
+							EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null);
+
 				}
-			} catch (UserAlreadyRegisteredException e) {
+				} catch (UserAlreadyRegisteredException e) {
 				user = userManager.getUser(email);
 			}
 			return user;

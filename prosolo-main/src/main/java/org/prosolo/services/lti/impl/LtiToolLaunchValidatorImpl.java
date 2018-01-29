@@ -41,8 +41,6 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 			secret = consumer.getSecretLtiTwo();
 		}
 		if(consumer == null || !key.equals(consumerKey) ){
-			if(consumer==null) System.out.println("CONSUMER IS NULL");
-			System.out.println("KEY:"+key+" CONSUMER KEY:"+consumerKey);
 			throw new LtiToolAccessDeniedException();
 		}
 		try{

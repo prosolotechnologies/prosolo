@@ -236,6 +236,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
 			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException {
+		System.out.println("CREATE NEW USER CALLED");
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
