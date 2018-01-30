@@ -224,7 +224,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, id);
-			delete(group);
+			//delete(group);
+			// we should not delete group from the DB as event processors will need to load it
+			markAsDeleted(group);
 			
 			//generate delete event
 			UserGroup deletedGroup = new UserGroup();
