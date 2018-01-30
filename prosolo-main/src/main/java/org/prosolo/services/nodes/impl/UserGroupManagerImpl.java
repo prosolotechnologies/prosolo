@@ -155,7 +155,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"FROM UserGroup g " +
 				"WHERE g.unit.id = :unitId " +
 					"AND g.name LIKE :term " +
-					"AND g.deleted IS FALSE";
+					"AND g.deleted IS FALSE ";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			Long result = (Long) persistence.currentManager()
@@ -373,7 +373,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"LEFT JOIN g.credentialUserGroups credGroup " +
 					"LEFT JOIN g.competenceUserGroups compGroup " +
 					"WHERE g.id = :groupId " +
-						"AND g.deleted IS FALSE";
+						"AND g.deleted IS FALSE ";
 
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
@@ -426,7 +426,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"FROM CredentialUserGroup credGroup " +
 					"LEFT JOIN credGroup.userGroup g " +
 					"WHERE g.id = :groupId " +
-						"AND g.deleted IS FALSE";
+						"AND g.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CredentialUserGroup> credGroups = persistence.currentManager()
 					.createQuery(query)
@@ -456,7 +456,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"SELECT credGroup " +
 					"FROM CredentialUserGroup credGroup " +
 					"WHERE credGroup.credential.id = :credId " +
-						"AND credGroup.userGroup.deleted IS FALSE";
+						"AND credGroup.userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CredentialUserGroup> credGroups = session
 					.createQuery(query)
@@ -486,7 +486,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"SELECT compGroup " +
 					"FROM CompetenceUserGroup compGroup " +
 					"WHERE compGroup.competence.id = :compId " +
-						"AND compGroup.userGroup.deleted IS FALSE";
+						"AND compGroup.userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CompetenceUserGroup> compGroups = session
 					.createQuery(query)
@@ -510,7 +510,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"FROM CompetenceUserGroup compGroup " +
 					"LEFT JOIN compGroup.userGroup g " +
 					"WHERE g.id = :groupId " +
-						"AND g.deleted IS FALSE";
+						"AND g.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CompetenceUserGroup> compGroups = persistence.currentManager()
 					.createQuery(query)
@@ -566,7 +566,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"FROM CredentialUserGroup credGroup " +
 					"INNER JOIN fetch credGroup.userGroup userGroup " +
 					"WHERE credGroup.credential.id = :credId " +
-						"AND userGroup.deleted IS FALSE");
+						"AND userGroup.deleted IS FALSE ");
     		if (!returnDefaultGroups) {
     			query.append("AND userGroup.defaultGroup = :defaultGroup ");
     		}
@@ -607,7 +607,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"LEFT JOIN fetch userGroup.users users " +
 					"WHERE credGroup.credential.id = :credId " +
 						"AND userGroup.defaultGroup = :defaultGroup " +
-						"AND userGroup.deleted IS FALSE");
+						"AND userGroup.deleted IS FALSE ");
 
 			if (privilege != null) {
 				query.append("AND credGroup.privilege = :priv ");
@@ -891,7 +891,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"WHERE cug.competence.id = :compId " +
 					"AND cug.privilege = :priv " +
 					"AND cug.inherited = :boolFalse " +
-					"AND ug.deleted IS FALSE";
+					"AND ug.deleted IS FALSE ";
 
 		return (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
@@ -912,7 +912,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"WITH ugu.user.id = :userId " +
 				"WHERE cug.credential.id = :credId " +
 					"AND cug.privilege = :priv " +
-					"AND ug.deleted IS FALSE";
+					"AND ug.deleted IS FALSE ";
 
 		return (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
@@ -1012,7 +1012,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 						"WITH user.id = :userId " +
 					"WHERE credGroup.credential.id = :credId " +
 						"AND userGroup.defaultGroup = :defaultGroup " +
-						"AND userGroup.deleted IS FALSE";
+						"AND userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<Long> users = persistence.currentManager()
 					.createQuery(query)
@@ -1164,7 +1164,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"WHERE credGroup.credential.id = :credId " +
 					"AND credGroup.privilege = :priv " +
 					"AND userGroup.defaultGroup = :default " +
-					"AND userGroup.deleted IS FALSE";
+					"AND userGroup.deleted IS FALSE ";
 
 		CredentialUserGroup credGroup = (CredentialUserGroup) persistence.currentManager()
 				.createQuery(query)
@@ -1234,7 +1234,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"WHERE compGroup.competence.id = :compId " +
 						"AND userGroup.defaultGroup IS TRUE " +
 						"AND compGroup.privilege = :priv " +
-						"AND userGroup.deleted IS FALSE";
+						"AND userGroup.deleted IS FALSE ";
 
 			Query q = persistence.currentManager()
 					.createQuery(query)
@@ -1289,7 +1289,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							"INNER JOIN compGroup.userGroup userGroup " +
 							"WHERE compGroup.competence.id = :compId " +
 								"AND compGroup.privilege = :priv " +
-								"AND userGroup.deleted IS FALSE");
+								"AND userGroup.deleted IS FALSE ");
 
 			if (!returnDefaultGroups) {
 				query.append("AND userGroup.defaultGroup = :defaultGroup ");
@@ -1322,7 +1322,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"LEFT JOIN groupUser.group g " +
 				"WHERE groupUser.user.id = :userId " +
 					"AND g.id = :groupId " +
-					"AND g.deleted IS FALSE";
+					"AND g.deleted IS FALSE ";
 		UserGroupUser groupUser = (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
 				.setLong("groupId", groupId)
@@ -1892,7 +1892,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 						   "FROM CredentialUserGroup credGroup " +
     					   "INNER JOIN credGroup.userGroup ug " +
     					   "WHERE credGroup.credential.id = :credId " +
-							   "AND ug.deleted IS FALSE");
+							   "AND ug.deleted IS FALSE ");
     		if (!returnDefaultGroups) {
     			query.append("AND ug.defaultGroup = :defaultGroup ");
     		}
@@ -2077,10 +2077,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					"FROM UserGroupUser ugu " +
 					"INNER JOIN ugu.group g " +
 					"WHERE ugu.user.id = :userId " +
-						"AND g.deleted IS FALSE";
+						"AND g.deleted IS FALSE ";
 
 			if (!returnDefaultGroupIds) {
-				q += "AND g.defaultGroup IS FALSE";
+				q += "AND g.defaultGroup IS FALSE ";
 			}
 
 			@SuppressWarnings("unchecked")
