@@ -9,7 +9,7 @@ public abstract class LtiMessageBuilder {
 		LTIMessage msg = getLtiMessageSpecific();
 		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));
 		try{
-			msg.setId(PageUtil.getPostParameter(LTIConstants.TOOL_ID));
+			msg.setId(PageUtil.getGetParameter(LTIConstants.TOOL_ID));
 		}catch(Exception ex){
 			msg.setId("1");
 		}

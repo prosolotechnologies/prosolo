@@ -139,7 +139,6 @@ public class LTIProviderLaunchBean implements Serializable {
 			// get role from the LTI message if present
 			String roles = msg.getRoles();	// it more roles are present, fetch only the first one (for now)
 			String roleName = roles != null ? roles.split(",")[0] : SystemRoleNames.USER;
-
 			return ltiUserManager.getUserForLaunch(
 					tool.getToolSet().getConsumer().getId(),
 					msg.getUserID(),

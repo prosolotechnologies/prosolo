@@ -37,8 +37,8 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			 * we must use get() instead of load() here, since load will yield an exception if there is no user,
 			 * where get() returns null in such case
 			 */
-			User user = (User) persistence.currentManager().get(User.class, userId);
-
+			//User user = (User) persistence.currentManager().get(User.class, userId);
+			User user = getUser(ltiConsumerId, userId);
 			if (user == null) {
 				long unitRoleId = roleManager.getRoleIdByName(roleName);
 				user = userManager.createNewUserAndConnectToResources(name, lastName, email, UUID.randomUUID().toString(), null, unitId, unitRoleId, userGroupId, context);
@@ -55,5 +55,25 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			 throw new DbConnectionException("Error while logging user in");
 		}
 	}
+	private User getUser(long consumerId, String userId) {
+		try {
+			String queryString =
+					"SELECT user " +
+							"FROM LtiUser ltiuser " +
+							"INNER JOIN  ltiuser.user user " +
+							"INNER JOIN ltiuser.consumer c " +
+							"WHERE ltiuser.userId = :userId " +
+							"AND c.id = :id";
+
+			return (User) persistence.currentManager().createQuery(queryString)
+					.setLong("id", consumerId)
+					.setString("userId", userId);
+		} catch (Exception e) {
+			return null;
+			//e.printStackTrace();
+			//throw new DbConnectionException("User cannot be retrieved");
+		}
+	}
+
 
 }

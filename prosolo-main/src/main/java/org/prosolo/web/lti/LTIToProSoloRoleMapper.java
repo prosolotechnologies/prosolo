@@ -42,6 +42,8 @@ public class LTIToProSoloRoleMapper {
 
             // LTI Context Roles
             //{"Learner", SystemRoleNames.USER},    // already defined
+            {"Learner", SystemRoleNames.USER},
+            {"Instructor", SystemRoleNames.INSTRUCTOR},
             {"urn:lti:role:ims/lis/Learner/Learner", SystemRoleNames.USER},
             {"urn:lti:role:ims/lis/Learner/NonCreditLearner", SystemRoleNames.USER},
             {"urn:lti:role:ims/lis/Learner/GuestLearner", SystemRoleNames.USER},
