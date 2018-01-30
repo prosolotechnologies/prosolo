@@ -196,7 +196,7 @@
                                                             rendered="#{not rubricCriteriaBean.limitedEdit}"
                                                             value="Remove"
                                                             action="#{rubricCriteriaBean.removeLevel(status.index)}"
-                                                            update=":formMain:panelLevels :formMain:panelPreview"
+                                                            update=":formMain:panelLevels :formMain:panelPreview :formMain:newLevelBtn"
                                                             styleClass="removeX"
                                                             pt:data-toggle="tooltip" title="" data-original-title="Remove">
                                                         remove
@@ -216,14 +216,14 @@
                                     <small class="redText"><h:message for="inputHiddenLevelsEmpty"/></small>
                                     <script>linkLevelLabels();</script>
                                 </h:panelGroup>
-                                <div class="addButtonWrapper">
+                                <h:panelGroup layout="block" id="newLevelBtn" class="addButtonWrapper">
                                     <p:commandLink
-                                            rendered="#{not rubricCriteriaBean.limitedEdit}"
+                                            rendered="#{(not rubricCriteriaBean.limitedEdit) and (rubricCriteriaBean.rubric.levels.size() lt rubricCriteriaBean.maxNumberOfLevels)}"
                                             action="#{rubricCriteriaBean.addEmptyLevel()}"
-                                            update=":formMain:panelLevels :formMain:panelPreview">
+                                            update=":formMain:panelLevels :formMain:panelPreview :formMain:newLevelBtn">
                                         Add Level
                                     </p:commandLink>
-                                </div>
+                                </h:panelGroup>
                             </div>
                         </h:panelGroup>
 
