@@ -2012,7 +2012,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
+	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
 			throws DbConnectionException {
 		try {
 			String q = "SELECT g.id " +

@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -860,7 +861,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional
+	@Transactional  (propagation = Propagation.REQUIRES_NEW)
 	public Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(
 														   String name, String lastname, String emailAddress,
 														   String password, String position, long unitId,
@@ -890,6 +891,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 							context).getEventQueue());
 				}
 			}
+			persistence.currentManager().flush();
 
 			return res;
 		} catch (DbConnectionException e) {

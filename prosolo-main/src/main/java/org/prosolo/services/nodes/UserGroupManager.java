@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -247,6 +248,9 @@ public interface UserGroupManager extends AbstractManager {
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
 
-	List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
-			throws DbConnectionException;
+
+
+
+    List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
+            throws DbConnectionException;
 }
