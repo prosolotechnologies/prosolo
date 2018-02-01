@@ -30,13 +30,18 @@ public class AutomaticGradeData implements GradeData {
     }
 
     @Override
+    public void updateCurrentGrade(int grade) {
+        gradeInfo.setCurrentGrade(grade);
+    }
+
+    @Override
     public int calculateGrade() {
         return gradeInfo.getCurrentGrade();
     }
 
     @Override
     public GradingMode getGradingMode() {
-        return null;
+        return GradingMode.AUTOMATIC;
     }
 
     @Override

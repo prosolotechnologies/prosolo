@@ -1,8 +1,7 @@
-package org.prosolo.web.courses.activity;
+package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
@@ -10,9 +9,9 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.grading.*;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
+import org.prosolo.services.nodes.data.assessments.grading.GradingMode;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,91 +29,40 @@ import java.util.Date;
 @ManagedBean(name = "activityAssessmentBean")
 @Component("activityAssessmentBean")
 @Scope("view")
-public class ActivityAssessmentBean implements Serializable {
+public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 
-	private static final long serialVersionUID = 6856037710094495683L;
+	private static final long serialVersionUID = 7672087897659151474L;
 
 	private static Logger logger = Logger.getLogger(ActivityAssessmentBean.class);
 
-	@Inject
-	private UrlIdEncoder idEncoder;
-	@Inject
-	private LoggedUserBean loggedUserBean;
 	@Inject
 	private AssessmentManager assessmentManager;
 	@Inject
 	private RubricManager rubricManager;
 
 	private ActivityAssessmentData activityAssessmentData;
-	// adding new comment
-	private String newCommentValue;
+
+	@Override
+	public GradeData getGradeData() {
+		return activityAssessmentData != null ? activityAssessmentData.getGrade() : null;
+	}
+
+	@Override
+	public RubricCriteriaGradeData getRubricForLearningResource() {
+		return rubricManager.getRubricDataForActivity(
+				activityAssessmentData.getActivityId(),
+				idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
+				true);
+	}
 
 	//prepare for grading
-	public void prepareActivityAssessmentForGrading(ActivityAssessmentData actAssessment) {
+	public void prepareLearningResourceAssessmentForGrading(ActivityAssessmentData actAssessment) {
 		this.activityAssessmentData = actAssessment;
 		initializeGradeData();
 	}
 
-	private void initializeGradeData() {
-		try {
-			GradeData gradeData = activityAssessmentData.getGrade();
-			gradeData.accept(new GradeDataVisitor<Void>() {
-
-				@Override
-				public Void visit(ManualSimpleGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(AutomaticGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(ExternalToolAutoGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(CompletionAutoGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(NongradedGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(RubricGradeData gradeData) {
-					if (!gradeData.isInitialized()) {
-						Activity1 a = new Activity1();
-						gradeData.setRubricCriteria(rubricManager.getRubricDataForActivity(
-								activityAssessmentData.getActivityId(),
-								idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
-								true));
-					}
-					return null;
-				}
-
-				@Override
-				public Void visit(DescriptiveRubricGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(PointRubricGradeData gradeData) {
-					return null;
-				}
-			});
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
-		}
-	}
-
 	//prepare for commenting
-	public void prepareActivityAssessmentForCommenting(ActivityAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {
 		try {
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
@@ -133,16 +81,13 @@ public class ActivityAssessmentBean implements Serializable {
 		}
 	}
 
-	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
-		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
-	}
-
 	/*
 	ACTIONS
 	 */
 
 	//comment actions
 
+	@Override
 	public void editComment(String newContent, String activityMessageEncodedId) {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
@@ -166,23 +111,14 @@ public class ActivityAssessmentBean implements Serializable {
 		}
 	}
 
-	public void addCommentToActivityDiscussion() {
-		try {
-			addComment();
-			cleanupCommentData();
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
-		}
-	}
-
-	private void addComment() {
+	@Override
+	protected void addComment() {
 		try {
 			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
 			UserContextData userContext = loggedUserBean.getUserContext();
 
 			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
-					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue,userContext,
+					activityAssessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext,
 					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
 
 			addNewCommentToAssessmentData(newComment);
@@ -200,20 +136,18 @@ public class ActivityAssessmentBean implements Serializable {
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
-	private void cleanupCommentData() {
-		newCommentValue = "";
-	}
-
 	// grading actions
 
+	@Override
 	public void updateGrade() throws DbConnectionException {
 		try {
 			activityAssessmentData.setGrade(assessmentManager.updateGradeForActivityAssessment(
 					idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
 					activityAssessmentData.getGrade(), loggedUserBean.getUserContext()));
 
-			if (activityAssessmentData.getCompAssessment() != null) {
-				activityAssessmentData.getCompAssessment().setPoints(
+			if (activityAssessmentData.getCompAssessment() != null
+					&& activityAssessmentData.getCompAssessment().getGradeData().getGradingMode() == GradingMode.AUTOMATIC) {
+				activityAssessmentData.getCompAssessment().getGradeData().updateCurrentGrade(
 						assessmentManager.getCompetenceAssessmentScore(
 								activityAssessmentData.getCompAssessmentId()));
 			}
@@ -230,14 +164,6 @@ public class ActivityAssessmentBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
-	}
 
 	public ActivityAssessmentData getActivityAssessmentData() {
 		return activityAssessmentData;

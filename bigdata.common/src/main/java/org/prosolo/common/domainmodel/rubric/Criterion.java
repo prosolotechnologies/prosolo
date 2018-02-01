@@ -23,7 +23,9 @@ public class Criterion extends BaseEntity {
     private Set<CriterionLevel> levels;
 
     //criterion assessments
-    private Set<CriterionAssessment> assessments;
+    private Set<ActivityCriterionAssessment> assessments;
+    private Set<CompetenceCriterionAssessment> compAssessments;
+    private Set<CredentialCriterionAssessment> credAssessments;
 
 //    @Column(name = "points", nullable = false)
 //    public double getPoints() {
@@ -66,11 +68,29 @@ public class Criterion extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "criterion")
-    public Set<CriterionAssessment> getAssessments() {
+    public Set<ActivityCriterionAssessment> getAssessments() {
         return assessments;
     }
 
-    public void setAssessments(Set<CriterionAssessment> assessments) {
+    public void setAssessments(Set<ActivityCriterionAssessment> assessments) {
         this.assessments = assessments;
+    }
+
+    @OneToMany(mappedBy = "criterion")
+    public Set<CompetenceCriterionAssessment> getCompAssessments() {
+        return compAssessments;
+    }
+
+    public void setCompAssessments(Set<CompetenceCriterionAssessment> compAssessments) {
+        this.compAssessments = compAssessments;
+    }
+
+    @OneToMany(mappedBy = "criterion")
+    public Set<CredentialCriterionAssessment> getCredAssessments() {
+        return credAssessments;
+    }
+
+    public void setCredAssessments(Set<CredentialCriterionAssessment> credAssessments) {
+        this.credAssessments = credAssessments;
     }
 }

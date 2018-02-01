@@ -27,6 +27,11 @@ public class ManualSimpleGradeData implements GradeData {
     }
 
     @Override
+    public void updateCurrentGrade(int grade) {
+        gradeInfo.setCurrentGrade(grade);
+    }
+
+    @Override
     public int calculateGrade() {
         //set new grade as current
         gradeInfo.setCurrentGrade(newGrade);
@@ -58,5 +63,9 @@ public class ManualSimpleGradeData implements GradeData {
 
     public void setNewGrade(int newGrade) {
         this.newGrade = newGrade;
+    }
+
+    public int getMinGrade() {
+        return gradeInfo.getMinGrade();
     }
 }

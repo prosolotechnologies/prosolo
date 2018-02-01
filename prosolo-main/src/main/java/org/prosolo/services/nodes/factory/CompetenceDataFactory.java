@@ -123,6 +123,16 @@ public class CompetenceDataFactory {
 		}
 		comp.setLearningStageEnabled(learningStagesEnabled);
 
+		comp.getAssessmentSettings().setMaxPoints(competence.getMaxPoints());
+		comp.getAssessmentSettings().setMaxPointsString(competence.getMaxPoints() > 0 ? String.valueOf(competence.getMaxPoints()) : "");
+		comp.getAssessmentSettings().setGradingMode(competence.getGradingMode());
+		//set rubric data
+		if (competence.getRubric() != null) {
+			comp.getAssessmentSettings().setRubricId(competence.getRubric().getId());
+			comp.getAssessmentSettings().setRubricName(competence.getRubric().getTitle());
+			comp.getAssessmentSettings().setRubricType(competence.getRubric().getRubricType());
+		}
+
 		comp.setOrder(order);
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 

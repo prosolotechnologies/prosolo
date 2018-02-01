@@ -29,6 +29,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.GradeDataFactory;
 import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.assessments.grading.RubricCriterionGradeData;
 import org.prosolo.services.nodes.data.rubrics.*;
@@ -688,39 +689,129 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                 return null;
             }
 
-            //max points for activity
-            int maxPoints = (int) res.get(0)[2];
-            RubricType rubricType = (RubricType) res.get(0)[3];
-
-            List<RubricCriterionGradeData> criteria = new ArrayList<>();
-            Criterion crit = null;
-            CriterionAssessment assessment = null;
-            List<CriterionLevel> levels = new ArrayList<>();
-            for (Object[] row : res) {
-                Criterion c = (Criterion) row[0];
-                if (crit == null || crit.getId() != c.getId()) {
-                    if (crit != null) {
-                        criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
-                    }
-                    crit = c;
-                    if (loadGrades && activityAssessmentId > 0) {
-                        assessment = (CriterionAssessment) row[4];
-                    }
-                    levels.clear();
-                }
-                levels.add((CriterionLevel) row[1]);
-            }
-            //add the last criterion
-            if (crit != null) {
-                criteria.add(rubricDataFactory.getActivityRubricCriterionData(crit, assessment, levels));
-            }
-
-            //calculate absolute points based on activity maximum points set
-            return ActivityAssessmentData.getRubricCriteriaGradeData(rubricType, criteria, maxPoints);
+            return getRubricCriteriaGradeData(res, loadGrades, activityAssessmentId);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the rubric data");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RubricCriteriaGradeData getRubricDataForCompetence(long compId, long compAssessmentId, boolean loadGrades)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cat, catLvl, comp.maxPoints, rubric.rubricType ";
+            if (loadGrades && compAssessmentId > 0) {
+                query += ", ass ";
+            }
+            query += "FROM Competence1 comp " +
+                    "INNER JOIN comp.rubric rubric " +
+                    "INNER JOIN rubric.criteria cat " +
+                    "INNER JOIN cat.levels catLvl " +
+                    "INNER JOIN fetch catLvl.level lvl ";
+
+            if (loadGrades && compAssessmentId > 0) {
+                query += "LEFT JOIN cat.compAssessments ass " +
+                        "WITH ass.assessment.id = :assessmentId ";
+            }
+            query += "WHERE comp.id = :compId " +
+                    "ORDER BY cat.order, lvl.order";
+
+            Query q = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("compId", compId);
+
+            if (loadGrades && compAssessmentId > 0) {
+                q.setLong("assessmentId", compAssessmentId);
+            }
+
+            List<Object[]> res = q.list();
+
+            if (res.isEmpty()) {
+                return null;
+            }
+
+            return getRubricCriteriaGradeData(res, loadGrades, compAssessmentId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the rubric data");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RubricCriteriaGradeData getRubricDataForCredential(long credId, long credAssessmentId, boolean loadGrades)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cat, catLvl, cred.maxPoints, rubric.rubricType ";
+            if (loadGrades && credAssessmentId > 0) {
+                query += ", ass ";
+            }
+            query += "FROM Credential1 cred " +
+                    "INNER JOIN cred.rubric rubric " +
+                    "INNER JOIN rubric.criteria cat " +
+                    "INNER JOIN cat.levels catLvl " +
+                    "INNER JOIN fetch catLvl.level lvl ";
+
+            if (loadGrades && credAssessmentId > 0) {
+                query += "LEFT JOIN cat.credAssessments ass " +
+                        "WITH ass.assessment.id = :assessmentId ";
+            }
+            query += "WHERE cred.id = :credId " +
+                    "ORDER BY cat.order, lvl.order";
+
+            Query q = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credId", credId);
+
+            if (loadGrades && credAssessmentId > 0) {
+                q.setLong("assessmentId", credAssessmentId);
+            }
+
+            List<Object[]> res = q.list();
+
+            if (res.isEmpty()) {
+                return null;
+            }
+
+            return getRubricCriteriaGradeData(res, loadGrades, credAssessmentId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the rubric data");
+        }
+    }
+
+    private RubricCriteriaGradeData getRubricCriteriaGradeData(List<Object[]> res, boolean loadGrades, long assessmentId) {
+        int maxPoints = (int) res.get(0)[2];
+        RubricType rubricType = (RubricType) res.get(0)[3];
+
+        List<RubricCriterionGradeData> criteria = new ArrayList<>();
+        Criterion crit = null;
+        CriterionAssessment assessment = null;
+        List<CriterionLevel> levels = new ArrayList<>();
+        for (Object[] row : res) {
+            Criterion c = (Criterion) row[0];
+            if (crit == null || crit.getId() != c.getId()) {
+                if (crit != null) {
+                    criteria.add(GradeDataFactory.getRubricCriterionGradeData(crit, assessment, levels));
+                }
+                crit = c;
+                if (loadGrades && assessmentId > 0) {
+                    assessment = (CriterionAssessment) row[4];
+                }
+                levels.clear();
+            }
+            levels.add((CriterionLevel) row[1]);
+        }
+        //add the last criterion
+        if (crit != null) {
+            criteria.add(GradeDataFactory.getRubricCriterionGradeData(crit, assessment, levels));
+        }
+
+        return GradeDataFactory.getRubricCriteriaGradeData(rubricType, criteria, maxPoints);
     }
 
     public Rubric getRubricForLearningResource(LearningResourceAssessmentSettings assessmentSettings) throws IllegalDataStateException {

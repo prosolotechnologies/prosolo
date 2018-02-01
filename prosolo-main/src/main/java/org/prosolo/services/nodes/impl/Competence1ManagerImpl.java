@@ -12,6 +12,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -2082,7 +2083,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) 
+	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type)
 			throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder(

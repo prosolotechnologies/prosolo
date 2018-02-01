@@ -80,6 +80,12 @@ public interface RubricManager extends AbstractManager {
     RubricCriteriaGradeData getRubricDataForActivity(long actId, long activityAssessmentId, boolean loadGrades)
             throws DbConnectionException;
 
+    RubricCriteriaGradeData getRubricDataForCompetence(long compId, long compAssessmentId, boolean loadGrades)
+            throws DbConnectionException;
+
+    RubricCriteriaGradeData getRubricDataForCredential(long credId, long credAssessmentId, boolean loadGrades)
+            throws DbConnectionException;
+
     Rubric getRubricForLearningResource(LearningResourceAssessmentSettings assessmentSettings) throws IllegalDataStateException;
 
 }

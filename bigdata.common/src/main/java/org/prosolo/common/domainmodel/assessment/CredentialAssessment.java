@@ -19,6 +19,7 @@ public class CredentialAssessment extends BaseEntity {
 	private boolean approved;
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
+	private int points;
 
 	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
 		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
@@ -93,5 +94,13 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setType(AssessmentType type) {
 		this.type = type;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
 	}
 }

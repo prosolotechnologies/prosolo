@@ -30,6 +30,7 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeDataFactory;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -1441,7 +1442,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
 					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
-					ad.setGrade(ActivityAssessmentData.getGradeData(
+					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
 							GradingMode.valueOf((String) row[14]),
 							(int) row[12],
 							(int) row[17],

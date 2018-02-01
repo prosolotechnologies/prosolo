@@ -99,7 +99,7 @@ public class ActivityAssessmentData {
 		data.setMessagesInitialized(true);
 
 		data.setGrade(
-				getGradeData(
+				GradeDataFactory.getGradeDataForActivity(
 						actData.getAssessmentSettings().getGradingMode(),
 						actData.getAssessmentSettings().getMaxPoints(),
 						activityDiscussion.getPoints(),
@@ -109,106 +109,6 @@ public class ActivityAssessmentData {
 						actData.isAcceptGrades()));
 
 		return data;
-	}
-
-	public static GradeData getGradeData(GradingMode gradingMode,
-										  int maxPoints,
-										  int currentGrade,
-										  long rubricId,
-										  RubricType rubricType,
-										  ActivityRubricVisibility rubricVisibilityForStudent,
-										  boolean acceptGrades) {
-		GradeData gd = getGradeDataObject(gradingMode, rubricId, rubricType, acceptGrades);
-		gd.accept(new GradeDataVisitor<Void>() {
-			@Override
-			public Void visit(ManualSimpleGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				gradeData.setNewGrade(currentGrade);
-				return null;
-			}
-
-			@Override
-			public Void visit(AutomaticGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				return null;
-			}
-
-			@Override
-			public Void visit(ExternalToolAutoGradeData gradeData) {
-				return null;
-			}
-
-			@Override
-			public Void visit(CompletionAutoGradeData gradeData) {
-				return null;
-			}
-
-			@Override
-			public Void visit(NongradedGradeData gradeData) {
-				return null;
-			}
-
-			@Override
-			public Void visit(RubricGradeData gradeData) {
-				gradeData.setRubricVisibilityForStudent(rubricVisibilityForStudent);
-				return null;
-			}
-
-			@Override
-			public Void visit(DescriptiveRubricGradeData gradeData) {
-				gradeData.setCurrentGrade(currentGrade);
-				return null;
-			}
-
-			@Override
-			public Void visit(PointRubricGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				return null;
-			}
-		});
-
-		return gd;
-	}
-
-	public static GradeData getGradeDataObject(org.prosolo.common.domainmodel.credential.GradingMode gradingMode, long rubricId, RubricType rubricType, boolean acceptGrades) {
-		switch (gradingMode) {
-			case NONGRADED:
-				return new NongradedGradeData();
-			case AUTOMATIC:
-				if (acceptGrades) {
-					return new ExternalToolAutoGradeData();
-				}
-				return new CompletionAutoGradeData();
-			case MANUAL:
-				if (rubricId > 0) {
-					switch (rubricType) {
-						case DESCRIPTIVE:
-							return new DescriptiveRubricGradeData();
-						case POINT:
-							return new PointRubricGradeData();
-						case POINT_RANGE:
-							//TODO implement when needed
-							return null;
-					}
-				}
-				return new ManualSimpleGradeData();
-			default:
-				return null;
-		}
-	}
-
-	public static RubricCriteriaGradeData getRubricCriteriaGradeData(RubricType rubricType, List<RubricCriterionGradeData> criteria, int maxPoints) {
-		switch (rubricType) {
-			case DESCRIPTIVE:
-				return new DescriptiveRubricCriteriaGradeData(criteria);
-			case POINT:
-				List<PointRubricCriterionGradeData> pointCriteria = new ArrayList<>();
-				criteria.forEach(c -> pointCriteria.add((PointRubricCriterionGradeData) c));
-				return new PointRubricCriteriaGradeData(pointCriteria, maxPoints);
-			default:
-				//TODO implement point range case when needed
-				return null;
-		}
 	}
 
 //	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {

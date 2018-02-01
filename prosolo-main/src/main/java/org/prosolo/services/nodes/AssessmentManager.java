@@ -82,11 +82,11 @@ public interface AssessmentManager {
 
 	Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
-	int calculateCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
+	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	int recalculateScoreForCompetenceAssessment(long compAssessmentId) throws DbConnectionException;
+	int recalculateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException;
 
-	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
+	int recalculateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
 	Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
                                                                           Session session, UserContextData context)
@@ -150,7 +150,7 @@ public interface AssessmentManager {
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
 
-	int getCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
+	int getAutomaticCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
 
 	AssessmentBasicData getInstructorAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException;
@@ -178,5 +178,21 @@ public interface AssessmentManager {
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
 																					long assessorId, AssessmentType type, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
+
+	GradeData updateGradeForCompetenceAssessment(
+			long assessmentId, GradeData grade, UserContextData context)
+			throws DbConnectionException;
+
+	Result<GradeData> updateGradeForCompetenceAssessmentAndGetEvents(
+			long assessmentId, GradeData grade, UserContextData context)
+			throws DbConnectionException;
+
+	GradeData updateGradeForCredentialAssessment(
+			long assessmentId, GradeData grade, UserContextData context)
+			throws DbConnectionException;
+
+	Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
+			long assessmentId, GradeData grade, UserContextData context)
+			throws DbConnectionException;
 
 }

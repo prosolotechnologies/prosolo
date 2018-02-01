@@ -1,25 +1,29 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.assessments;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
+import org.prosolo.services.nodes.data.assessments.grading.GradingMode;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.assessments.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.activity.ActivityAssessmentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -36,7 +40,7 @@ import java.util.Optional;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean implements Serializable {
+public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -51,6 +55,8 @@ public class CredentialAssessmentBean implements Serializable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private ActivityAssessmentBean activityAssessmentBean;
+	@Inject private CompetenceAssessmentBean compAssessmentBean;
+	@Inject private RubricManager rubricManager;
 
 	// PARAMETERS
 	private String id;
@@ -64,6 +70,8 @@ public class CredentialAssessmentBean implements Serializable {
 
 	private String credentialTitle;
 	private List<AssessmentData> otherAssessments;
+
+	private LearningResourceType currentResType;
 
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
@@ -115,10 +123,197 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+		compAssessmentBean.prepareLearningResourceAssessmentForGrading(assessment);
+		currentResType = LearningResourceType.COMPETENCE;
+	}
+
+	public void prepareLearningResourceAssessmentForGrading(ActivityAssessmentData assessment) {
+		activityAssessmentBean.prepareLearningResourceAssessmentForGrading(assessment);
+		currentResType = LearningResourceType.ACTIVITY;
+	}
+
+	public long getCurrentAssessmentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return idEncoder.decodeId(activityAssessmentBean.getActivityAssessmentData().getEncodedDiscussionId());
+			case COMPETENCE:
+				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceAssessmentId();
+			case CREDENTIAL:
+				return fullAssessmentData.getCredAssessmentId();
+		}
+		return 0;
+	}
+
+	public GradeData getCurrentGradeData() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getGrade();
+			case COMPETENCE:
+				return compAssessmentBean.getCompetenceAssessmentData().getGradeData();
+			case CREDENTIAL:
+				return fullAssessmentData.getGradeData();
+		}
+		return null;
+	}
+
+	public boolean hasStudentCompletedCurrentResource() {
+		if (currentResType == null) {
+			return false;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().isCompleted();
+			case COMPETENCE:
+				//for now
+				return true;
+			case CREDENTIAL:
+				//for now
+				return true;
+		}
+		return false;
+	}
+
+	public long getCurrentAssessmentCompetenceId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
+			case COMPETENCE:
+				//for now
+				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
+		}
+		return 0;
+	}
+
+	//LearningResourceAssessmentBean impl
+
+	@Override
+	public GradeData getGradeData() {
+		return fullAssessmentData != null ? fullAssessmentData.getGradeData() : null;
+	}
+
+	@Override
+	public RubricCriteriaGradeData getRubricForLearningResource() {
+		return rubricManager.getRubricDataForCredential(
+				fullAssessmentData.getCredentialId(),
+				fullAssessmentData.getCredAssessmentId(),
+				true);
+	}
+
+	//prepare for grading
+	public void prepareLearningResourceAssessmentForGrading(AssessmentDataFull assessment) {
+		currentResType = LearningResourceType.CREDENTIAL;
+		initializeGradeData();
+	}
+
+	//prepare for commenting
+//	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {
+//		try {
+//			if (!assessment.isMessagesInitialized()) {
+//				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
+//					assessment.populateDiscussionMessages(assessmentManager
+//							.getActivityDiscussionMessages(
+//									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+//									assessment.getAssessorId()));
+//				}
+//				assessment.setMessagesInitialized(true);
+//			}
+//			activityAssessmentData = assessment;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+//		}
+//	}
+
+	/*
+	ACTIONS
+	 */
+
+	//comment actions
+
+	@Override
+	public void editComment(String newContent, String activityMessageEncodedId) {
+//		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
+//		try {
+//			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
+//			ActivityDiscussionMessageData msg = null;
+//			for (ActivityDiscussionMessageData messageData : activityAssessmentData
+//					.getActivityDiscussionMessageData()) {
+//				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
+//					msg = messageData;
+//					break;
+//				}
+//			}
+//			msg.setDateUpdated(new Date());
+//			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
+//			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+//			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
+//			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
+//		} catch (ResourceCouldNotBeLoadedException e) {
+//			logger.error("Error editing message with id : " + activityMessageId, e);
+//			PageUtil.fireErrorMessage("Error editing message");
+//		}
+	}
+
+	@Override
+	protected void addComment() {
+//		try {
+//			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
+//			UserContextData userContext = loggedUserBean.getUserContext();
+//
+//			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
+//					activityAssessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext,
+//					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
+//
+//			addNewCommentToAssessmentData(newComment);
+//		} catch (Exception e){
+//			logger.error("Error approving assessment data", e);
+//			PageUtil.fireErrorMessage("Error approving the assessment");
+//		}
+	}
+
+//	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
+//		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
+//			newComment.setSenderInstructor(true);
+//		}
+//		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
+//		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
+//	}
+
+	// grading actions
+
+	@Override
+	public void updateGrade() throws DbConnectionException {
+		try {
+			fullAssessmentData.setGradeData(assessmentManager.updateGradeForCredentialAssessment(
+					fullAssessmentData.getCredAssessmentId(),
+					fullAssessmentData.getGradeData(), loggedUserBean.getUserContext()));
+
+			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error updating the grade");
+			throw e;
+		}
+	}
+
+	//LearningResourceAssessmentBean impl end
+
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData) {
 		if (gradeData instanceof RubricGradeData) {
 			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
-			return rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
+			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
 					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
 		}
 		return false;
@@ -210,13 +405,32 @@ public class CredentialAssessmentBean implements Serializable {
 		return Optional.empty();
 	}
 
-	public void updateGrade() {
+	public void updateAssessmentGrade() {
 		try {
-			activityAssessmentBean.updateGrade();
-			fullAssessmentData.setPoints(assessmentManager.getCredentialAssessmentScore(
-					fullAssessmentData.getCredAssessmentId()));
+			switch (currentResType) {
+				case ACTIVITY:
+					activityAssessmentBean.updateGrade();
+					//update credential assessment grade only if grading mode is automatic
+					updateCredentialCurrentGradeIfNeeded();
+					break;
+				case COMPETENCE:
+					compAssessmentBean.updateGrade();
+					//update credential assessment grade only if grading mode is automatic
+					updateCredentialCurrentGradeIfNeeded();
+					break;
+				case CREDENTIAL:
+					updateGrade();
+					break;
+			}
 		} catch (Exception e) {
 			logger.error("Error", e);
+		}
+	}
+
+	private void updateCredentialCurrentGradeIfNeeded() {
+		if (fullAssessmentData.getGradeData().getGradingMode() == GradingMode.AUTOMATIC) {
+			fullAssessmentData.getGradeData().updateCurrentGrade(assessmentManager.getAutomaticCredentialAssessmentScore(
+					fullAssessmentData.getCredAssessmentId()));
 		}
 	}
 
@@ -292,4 +506,7 @@ public class CredentialAssessmentBean implements Serializable {
 		this.reviewText = reviewText;
 	}
 
+	public LearningResourceType getCurrentResType() {
+		return currentResType;
+	}
 }

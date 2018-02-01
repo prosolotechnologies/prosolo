@@ -11,6 +11,8 @@ public interface GradeData {
 	 */
 	int getCurrentGrade();
 
+	void updateCurrentGrade(int grade);
+
 	/**
 	 * Calculates new grade, sets it as current grade and returns it
 	 *

@@ -31,6 +31,11 @@ public class PointRubricGradeData extends RubricGradeData<PointRubricCriteriaGra
     }
 
     @Override
+    public void updateCurrentGrade(int grade) {
+        gradeInfo.setCurrentGrade(grade);
+    }
+
+    @Override
     public int calculateGrade() throws IllegalStateException {
         if (!isInitialized()) {
             throw new IllegalStateException("Rubric grade data is not fully initialized so grade can't be calculated");

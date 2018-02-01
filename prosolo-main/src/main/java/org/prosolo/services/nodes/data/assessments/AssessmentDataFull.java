@@ -2,8 +2,11 @@ package org.prosolo.services.nodes.data.assessments;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -33,8 +36,7 @@ public class AssessmentDataFull {
 	private long targetCredentialId;
 	private long credentialId;
 	private AssessmentType type;
-	private int points;
-	private int maxPoints;
+	private GradeData gradeData;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -61,16 +63,35 @@ public class AssessmentDataFull {
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
-		data.setPoints(credAssessmentPoints);
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceData1 compData : userComps) {
 			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId);
-			maxPoints += cas.getMaxPoints();
+			//only for automatic grading max points is sum of competences max points
+			if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
+				maxPoints += cas.getGradeData().getMaxGrade();
+			}
 			compDatas.add(cas);
 		}
-		data.setMaxPoints(maxPoints);
+		if (assessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
+			maxPoints = assessment.getTargetCredential().getCredential().getMaxPoints();
+		}
+		//set grade data
+		long rubricId = assessment.getTargetCredential().getCredential().getRubric() != null
+				? assessment.getTargetCredential().getCredential().getRubric().getId()
+				: 0;
+		RubricType rubricType = assessment.getTargetCredential().getCredential().getRubric() != null
+				? assessment.getTargetCredential().getCredential().getRubric().getRubricType()
+				: null;
+
+		data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
+				assessment.getTargetCredential().getCredential().getGradingMode(),
+				maxPoints,
+				credAssessmentPoints,
+				rubricId,
+				rubricType
+		));
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		return data;
@@ -238,22 +259,6 @@ public class AssessmentDataFull {
 		this.type = type;
 	}
 
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
-	}
-
-	public int getMaxPoints() {
-		return maxPoints;
-	}
-
-	public void setMaxPoints(int maxPoints) {
-		this.maxPoints = maxPoints;
-	}
-
 	public CompetenceAssessmentData findCompetenceAssessmentData(long compAssessmentId) {
 		for (CompetenceAssessmentData compAssessment : competenceAssessmentData) {
 			if (compAssessment.getCompetenceAssessmentId() == compAssessmentId) {
@@ -279,4 +284,11 @@ public class AssessmentDataFull {
 		this.credAssessmentId = credAssessmentId;
 	}
 
+	public void setGradeData(GradeData gradeData) {
+		this.gradeData = gradeData;
+	}
+
+	public GradeData getGradeData() {
+		return gradeData;
+	}
 }

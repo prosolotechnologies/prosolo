@@ -32,6 +32,11 @@ public class DescriptiveRubricGradeData extends RubricGradeData<DescriptiveRubri
     }
 
     @Override
+    public void updateCurrentGrade(int grade) {
+       this.currentGrade = grade;
+    }
+
+    @Override
     public int calculateGrade() {
         if (!isInitialized()) {
             throw new IllegalStateException("Rubric grade data is not fully initialized so grade can't be calculated");

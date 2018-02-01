@@ -101,7 +101,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
+									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
@@ -285,7 +285,7 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
+									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
 								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">

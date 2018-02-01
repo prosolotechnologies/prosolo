@@ -18,6 +18,9 @@ public class NongradedGradeData implements GradeData {
     }
 
     @Override
+    public void updateCurrentGrade(int grade) {}
+
+    @Override
     public int calculateGrade() {
         return -1;
     }

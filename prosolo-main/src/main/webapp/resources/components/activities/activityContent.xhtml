@@ -66,10 +66,10 @@
 					<c:if test="#{cc.attrs.role eq 'USER'}">
 						<div class="sidebarBlock">
 							<p class="sidebarStrokeText">
-								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.maxPoints gt 0}">
-									The activity is worth <strong>#{cc.attrs.bean.competenceData.activityToShowWithDetails.maxPoints} #{cc.attrs.bean.competenceData.activityToShowWithDetails.maxPoints eq 1 ? 'point' : 'points'}</strong>.<br/>
+								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints gt 0}">
+									The activity is worth <strong>#{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints} #{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints eq 1 ? 'point' : 'points'}</strong>.<br/>
 								</ui:fragment>
-								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.rubricId gt 0 and cc.attrs.bean.userAllowedToSeeRubric}">
+								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.rubricId gt 0 and cc.attrs.bean.userAllowedToSeeRubric}">
 									A rubric used for grading can be previewed
 									<p:commandLink
 											pt:data-toggle="modal"

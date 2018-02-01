@@ -2,8 +2,11 @@ package org.prosolo.services.nodes.data.assessments;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 import java.util.ArrayList;
@@ -17,8 +20,7 @@ public class CompetenceAssessmentData {
 	private String competenceAssessmentEncodedId;
 	private long competenceId;
 	private List<ActivityAssessmentData> activityAssessmentData;
-	private int points;
-	private int maxPoints;
+	private GradeData gradeData;
 	//if true, activity assessments can't be graded and messages can't be posted
 	private boolean readOnly;
 
@@ -57,7 +59,6 @@ public class CompetenceAssessmentData {
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
-		data.setPoints(compAssessment.getPoints());
 		if (!cd.isEnrolled()) {
 			data.setReadOnly(true);
 		}
@@ -67,11 +68,29 @@ public class CompetenceAssessmentData {
 		for (ActivityData ad : cd.getActivities()) {
 			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
 					credAssessment, encoder, userId);
-			maxPoints += assessmentData.getGrade().getMaxGrade();
+			if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
+				maxPoints += assessmentData.getGrade().getMaxGrade();
+			}
 			assessmentData.setCompAssessment(data);
 			activityAssessmentData.add(assessmentData);
 		}
-		data.setMaxPoints(maxPoints);
+		if (cd.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC) {
+			maxPoints = cd.getAssessmentSettings().getMaxPoints();
+		}
+		//set grade data
+		long rubricId = compAssessment.getCompetence().getRubric() != null
+				? compAssessment.getCompetence().getRubric().getId()
+				: 0;
+		RubricType rubricType = compAssessment.getCompetence().getRubric() != null
+				? compAssessment.getCompetence().getRubric().getRubricType()
+				: null;
+		data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
+				compAssessment.getCompetence().getGradingMode(),
+				maxPoints,
+				compAssessment.getPoints(),
+				rubricId,
+				rubricType
+		));
 		data.setActivityAssessmentData(activityAssessmentData);
 
 		return data;
@@ -117,22 +136,6 @@ public class CompetenceAssessmentData {
 		this.activityAssessmentData = activityAssessmentData;
 	}
 
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
-	}
-
-	public int getMaxPoints() {
-		return maxPoints;
-	}
-
-	public void setMaxPoints(int maxPoints) {
-		this.maxPoints = maxPoints;
-	}
-
 	public boolean isReadOnly() {
 		return readOnly;
 	}
@@ -149,4 +152,11 @@ public class CompetenceAssessmentData {
 		this.competenceId = competenceId;
 	}
 
+	public GradeData getGradeData() {
+		return gradeData;
+	}
+
+	public void setGradeData(GradeData gradeData) {
+		this.gradeData = gradeData;
+	}
 }

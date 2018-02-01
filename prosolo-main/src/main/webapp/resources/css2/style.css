@@ -1704,15 +1704,22 @@ input {
   -moz-box-shadow: none;
   box-shadow: none; }
 
-#askAssessment .assessmentModalMetaRight {
+#askAssessment .assessmentModalMetaRight,
+#approveAssessment .assessmentModalMetaRight {
   position: absolute; }
-  #askAssessment .assessmentModalMetaRight .btn {
+  #askAssessment .assessmentModalMetaRight .btn,
+  #approveAssessment .assessmentModalMetaRight .btn {
     position: absolute;
     right: 0;
     top: 0; }
 
-#askAssessment .alert {
+#askAssessment .alert,
+#approveAssessment .alert {
   margin: 10px 30px; }
+
+#askAssessment .resultLine,
+#approveAssessment .resultLine {
+  padding-bottom: 20px; }
 
 #newAnnouncementModal .modal-body textarea {
   height: 200px; }
@@ -2785,6 +2792,56 @@ header {
     padding-top: 1px;
     font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500; }
+  .whiteBarContent .whiteBarLeft .commentsIcon {
+    flex-shrink: 0;
+    position: relative;
+    padding-left: 30px;
+    color: #859095;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400; }
+    .whiteBarContent .whiteBarLeft .commentsIcon:hover {
+      color: #363636; }
+    .whiteBarContent .whiteBarLeft .commentsIcon::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: url("../images2/iconComments20.svg") no-repeat;
+      opacity: .5;
+      transition: all 0.2s ease;
+      -webkit-transition: all 0.2s ease; }
+    .whiteBarContent .whiteBarLeft .commentsIcon:hover::before {
+      opacity: 1; }
+    .whiteBarContent .whiteBarLeft .commentsIcon.hasNewComments::before {
+      background: url("../images2/iconComments20Orange.svg") no-repeat;
+      opacity: 1; }
+  .whiteBarContent .whiteBarLeft .grade {
+    flex-shrink: 0;
+    position: relative;
+    width: 100px;
+    padding-left: 30px;
+    color: #859095;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400; }
+    .whiteBarContent .whiteBarLeft .grade:hover {
+      color: #363636; }
+    .whiteBarContent .whiteBarLeft .grade::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: url("../images2/iconAssessment20.svg") no-repeat;
+      opacity: .5;
+      transition: all 0.2s ease;
+      -webkit-transition: all 0.2s ease; }
+    .whiteBarContent .whiteBarLeft .grade:hover::before {
+      opacity: 1; }
 
 .whiteBarContent .whiteBarRight {
   display: flex;
@@ -3170,9 +3227,13 @@ header {
   .summaryAssessmentsHead .activityOptions {
     display: flex;
     justify-content: flex-end;
-    width: 210px;
+    align-items: center;
     margin-left: 30px;
     position: relative; }
+    .summaryAssessmentsCompetence .activityOptions .linkApprove, .summaryAssessmentsCompetence .activityOptions .tagApproved,
+    .summaryAssessmentsHead .activityOptions .linkApprove,
+    .summaryAssessmentsHead .activityOptions .tagApproved {
+      margin-top: 0; }
     .summaryAssessmentsCompetence .activityOptions .commentsIcon,
     .summaryAssessmentsHead .activityOptions .commentsIcon {
       flex-shrink: 0;
@@ -4765,6 +4826,96 @@ header {
 .noPeopleMessage {
   padding: 0 30px 30px 30px; }
 
+.rubricColor {
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  margin-right: 5px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px; }
+
+.rubricColors.has2Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has2Colors .rubricItem02 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has3Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has3Colors .rubricItem02 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has3Colors .rubricItem03 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has4Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has4Colors .rubricItem02 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has4Colors .rubricItem03 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has4Colors .rubricItem04 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has5Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has5Colors .rubricItem02 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has5Colors .rubricItem03 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has5Colors .rubricItem04 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has5Colors .rubricItem05 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has6Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has6Colors .rubricItem02 .rubricColor {
+  background-color: #7CE254; }
+
+.rubricColors.has6Colors .rubricItem03 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has6Colors .rubricItem04 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has6Colors .rubricItem05 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has6Colors .rubricItem06 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has7Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has7Colors .rubricItem02 .rubricColor {
+  background-color: #7CE254; }
+
+.rubricColors.has7Colors .rubricItem03 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has7Colors .rubricItem04 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has7Colors .rubricItem05 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has7Colors .rubricItem06 .rubricColor {
+  background-color: #EA7D31; }
+
+.rubricColors.has7Colors .rubricItem07 .rubricColor {
+  background-color: #E2453D; }
+
 .manageRubricsList {
   list-style: none;
   padding: 0; }
@@ -4820,7 +4971,8 @@ header {
     .rubricsTop .rubricsLevels .rubricsLevelsList .listItem {
       display: flex;
       justify-content: space-between;
-      align-items: center; }
+      align-items: center;
+      position: relative; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem input[type="text"],
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem input[type="text"],
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="text"],
@@ -4845,6 +4997,15 @@ header {
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .removeX,
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem .removeX {
         margin-left: 20px; }
+      .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem .rubricColor,
+      .rubricsTop .rubricsCategories .rubricsLevelsList .listItem .rubricColor,
+      .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .rubricColor,
+      .rubricsTop .rubricsLevels .rubricsLevelsList .listItem .rubricColor {
+        position: absolute;
+        left: 2px;
+        top: 5px;
+        width: 2px;
+        height: 32px; }
   .rubricsTop .addButtonWrapper {
     padding-bottom: 30px; }
 
@@ -5037,7 +5198,6 @@ header {
   position: relative;
   padding: 0;
   width: 100%;
-  margin-top: 20px;
   list-style-type: none; }
   .timeline:before {
     position: absolute;
@@ -5074,10 +5234,12 @@ header {
     top: -30px;
     margin-top: 0; }
   .timeline .flag-wrapper {
-    text-align: center;
-    position: relative; }
+    text-align: left;
+    position: relative;
+    width: 100%; }
   .timeline .flag {
     position: relative;
+    width: 100%;
     display: inline-block;
     background: white;
     font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -5101,7 +5263,10 @@ header {
   .timeline .time {
     background: #64BFCD;
     display: inline-block;
-    padding: 8px; }
+    padding: 8px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px; }
   .timeline .desc {
     position: relative;
     margin: 10px 0 0 0;
@@ -5128,10 +5293,16 @@ header {
     .timeline .direction-r .desc {
       position: relative;
       padding: 10px;
-      z-index: 15; }
+      z-index: 15;
+      text-align: left; }
+    .timeline .direction-l .flag,
+    .timeline .direction-r .flag {
+      text-align: left !important; }
   .timeline .direction-l .circle,
   .timeline .direction-l .time {
     background: #FCA567; }
+  .timeline .direction-l .flag-wrapper, .timeline .direction-l .flag {
+    text-align: right; }
 
 .discussion h2 {
   display: inline-block; }
@@ -6162,6 +6333,18 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
+.socialTab .graphWrapper {
+  height: 400px;
+  padding-bottom: 30px; }
+
+.socialTab .user32 {
+  margin-bottom: 30px; }
+
+.socialTab .tablesWrapper {
+  padding-bottom: 1px; }
+  .socialTab .tablesWrapper table th, .socialTab .tablesWrapper table td {
+    width: 33.3%; }
+
 /*---------------------------------------------------------------------*/
 /*--- 05. FOOTER ---*/
 /*---------------------------------------------------------------------*/
@@ -6203,8 +6386,7 @@ footer {
 @media (min-width: 768px) {
   .timeline {
     width: 700px;
-    margin: 0 auto;
-    margin-top: 20px; }
+    margin: 0 auto; }
     .timeline li:after {
       content: "";
       display: block;
@@ -6218,15 +6400,15 @@ footer {
     .timeline .flag-wrapper {
       display: inline-block; }
     .timeline .flag {
-      font-size: 18px;
-      max-width: 250px; }
+      font-size: 18px; }
     .timeline .time-wrapper {
       display: inline;
       vertical-align: middle;
       margin: 0; }
     .timeline .time {
       padding: 5px 10px;
-      margin-top: 5px; }
+      margin-top: 5px;
+      margin-bottom: 10px; }
     .timeline .direction-l {
       position: relative;
       width: 330px;
@@ -6235,23 +6417,16 @@ footer {
       .timeline .direction-l .circle {
         left: auto;
         right: -28px; }
-      .timeline .direction-l .time-wrapper {
-        float: left; }
     .timeline .direction-r {
       position: relative;
       width: 330px;
       float: right;
-      text-align: left; }
-      .timeline .direction-r .time-wrapper {
-        float: right; } }
+      text-align: left; } }
 
 @media (min-width: 992px) {
   .timeline {
     width: 840px;
-    margin: 0 auto;
-    margin-top: 20px; }
-    .timeline .flag {
-      max-width: 310px; }
+    margin: 0 auto; }
     .timeline .direction-l {
       position: relative;
       width: 400px;
