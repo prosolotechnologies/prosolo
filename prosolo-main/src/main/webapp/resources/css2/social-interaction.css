@@ -49,13 +49,13 @@ circle.four {
 }
 
 circle.focus {
-    stroke: violet;
-    stroke-width: 6px;
+    stroke: green;
+    stroke-width: 3px;
 }
 
 circle.selected {
     stroke: blue;
-    stroke-width: 6px;
+    stroke-width: 3px;
 }
 
 text {
