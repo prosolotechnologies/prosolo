@@ -907,7 +907,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							   String password, String position, boolean system, InputStream avatarStream,
 						       String avatarFilename, List<Long> roles, UserContextData context)
-			throws UserAlreadyRegisteredException, DbConnectionException {
+			throws /*UserAlreadyRegisteredException, */DbConnectionException {
+		Result<User> res = new Result<>();
 		try {
 			if (checkIfUserExists(emailAddress)) {
 				throw new UserAlreadyRegisteredException("User with email address " + emailAddress + " is already registered.");
@@ -954,19 +955,20 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				logger.error(e);
 			}
 
-			Result<User> res = new Result<>();
+
 			res.setResult(user);
 
 			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 
-			return res;
+
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error("Error", e);
-			throw e;
+			//throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving new user account");
 		}
+		return res;
 	}
 
 	/**
@@ -1003,55 +1005,58 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roleIds = new ArrayList<>();
 				roleIds.add(roleId);
 			}
-
+		if (!checkIfUserExists(emailAddress)) {
 			Result<User> newUserRes = createNewUser(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
 					password, position, system, avatarStream, avatarFilename, roleIds, context);
 			Result<UserCreationData> res = new Result<>();
 			res.setResult(new UserCreationData(newUserRes.getResult(), true));
 			res.appendEvents(newUserRes.getEventQueue());
 			return res;
-		} catch (UserAlreadyRegisteredException e) {
-			try {
-				Result<UserCreationData> res = new Result<>();
+		}else{
+			Result<UserCreationData> res = new Result<>();
 				/*
 				TODO for now we only consider user if he is a part of the passed organization already
 				That should be revisited when there can be two users with same email address and different
 				organization
 				 */
-				User user = getUser(context.getOrganizationId(), emailAddress.toLowerCase());
-				if (user != null) {
-					if (user.isDeleted()) {
-						res.appendEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
-								context).getEventQueue());
-						res.setResult(new UserCreationData(user, true));
-						return res;
-					} else {
-						res.setResult(new UserCreationData(user, false));
-						if (roleId > 0) {
-							boolean roleAlreadyAdded = false;
-							for (Role role : user.getRoles()) {
-								if (role.getId() == roleId) {
-									roleAlreadyAdded = true;
-									break;
-								}
+			User user = getUser(context.getOrganizationId(), emailAddress.toLowerCase());
+			if (user != null) {
+				if (user.isDeleted()) {
+					res.appendEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
+							context).getEventQueue());
+					res.setResult(new UserCreationData(user, true));
+					return res;
+				} else {
+					res.setResult(new UserCreationData(user, false));
+					if (roleId > 0) {
+						boolean roleAlreadyAdded = false;
+						for (Role role : user.getRoles()) {
+							if (role.getId() == roleId) {
+								roleAlreadyAdded = true;
+								break;
 							}
-							//add new role if user does not have it already
-							if (!roleAlreadyAdded) {
-								user.getRoles().add(
-										(Role) persistence.currentManager().load(Role.class, roleId));
-								User us = new User(user.getId());
-								res.appendEvent(eventFactory.generateEventData(
-										EventType.USER_ROLES_UPDATED, context, us, null, null, null));
-							}
+						}
+						//add new role if user does not have it already
+						if (!roleAlreadyAdded) {
+							user.getRoles().add(
+									(Role) persistence.currentManager().load(Role.class, roleId));
+							User us = new User(user.getId());
+							res.appendEvent(eventFactory.generateEventData(
+									EventType.USER_ROLES_UPDATED, context, us, null, null, null));
 						}
 					}
 				}
+			}
 
-				return res;
+			return res;
+		}
+		/*} catch (UserAlreadyRegisteredException e) {
+			try {
+
 			} catch (Exception ex) {
 				logger.error("Error", ex);
 				throw new DbConnectionException("Error while updating user data");
-			}
+			}*/
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			throw e;
