@@ -175,6 +175,8 @@ ul {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
+  .btn.active {
+    box-shadow: none; }
 
 .btn-sm {
   line-height: 30px; }
@@ -324,6 +326,9 @@ h3 {
 
 .redText {
   color: #E45E5E !important; }
+
+.lightText {
+  color: #AAB1B5 !important; }
 
 .displayBlock {
   display: block; }
@@ -848,6 +853,15 @@ input {
 .activityExternal .iconType {
   background: url("../images2/iconExternal20.svg") no-repeat; }
 
+.evidenceLink .iconType {
+  background: url("../images2/iconLink20.svg") no-repeat center center; }
+
+.evidenceDoc .iconType {
+  background: url("../images2/iconFile20.svg") no-repeat center center; }
+
+.evidenceText .iconType {
+  background: url("../images2/iconTextLines20.svg") no-repeat center center; }
+
 .editOptions {
   display: flex;
   align-items: center; }
@@ -1020,6 +1034,8 @@ input {
     .modal-content .modal-footer .btn + .btn {
       margin-left: 10px; }
 
+#whyAddEvidence .assessmentModalMeta,
+#whyAddEvidence .messageModalMeta,
 #askAssessment .assessmentModalMeta,
 #askAssessment .messageModalMeta,
 #approveAssessment .assessmentModalMeta,
@@ -1034,6 +1050,10 @@ input {
   display: flex;
   flex-direction: column;
   padding: 0 30px; }
+  #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine,
+  #whyAddEvidence .assessmentModalMeta .messageModalMetaLine,
+  #whyAddEvidence .messageModalMeta .assessmentModalMetaLine,
+  #whyAddEvidence .messageModalMeta .messageModalMetaLine,
   #askAssessment .assessmentModalMeta .assessmentModalMetaLine,
   #askAssessment .assessmentModalMeta .messageModalMetaLine,
   #askAssessment .messageModalMeta .assessmentModalMetaLine,
@@ -1052,6 +1072,10 @@ input {
   #newAnnouncementModal .messageModalMeta .messageModalMetaLine {
     display: flex;
     padding-top: 10px; }
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine:last-child,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine:last-child,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine:last-child,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine:last-child,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child,
     #askAssessment .assessmentModalMeta .messageModalMetaLine:last-child,
     #askAssessment .messageModalMeta .assessmentModalMetaLine:last-child,
@@ -1069,6 +1093,22 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine:last-child,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine:last-child {
       padding-bottom: 10px; }
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1137,6 +1177,22 @@ input {
       display: flex;
       line-height: 32px;
       align-items: center; }
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
@@ -1202,6 +1258,10 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
         margin: 0; }
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
@@ -1219,6 +1279,10 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
       width: 80px; }
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1236,6 +1300,14 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
       width: 30px; }
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
     #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
@@ -1269,6 +1341,22 @@ input {
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
       flex-grow: 1; }
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
@@ -1334,6 +1422,14 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
         margin-right: 15px; }
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
       #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
@@ -1375,6 +1471,14 @@ input {
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none; }
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
@@ -1408,6 +1512,14 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
         top: 30px; }
+        #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
@@ -1441,6 +1553,22 @@ input {
         #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
           height: 52px; }
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
           #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
           #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
@@ -1507,6 +1635,14 @@ input {
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #whyAddEvidence .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
           #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
@@ -1541,6 +1677,7 @@ input {
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
 
+#whyAddEvidence .modal-body input[type="text"],
 #askAssessment .modal-body input[type="text"],
 #approveAssessment .modal-body input[type="text"],
 #message .modal-body input[type="text"],
@@ -1553,6 +1690,7 @@ input {
   -moz-box-shadow: none;
   box-shadow: none; }
 
+#whyAddEvidence .modal-body textarea,
 #askAssessment .modal-body textarea,
 #approveAssessment .modal-body textarea,
 #message .modal-body textarea,
@@ -1566,15 +1704,22 @@ input {
   -moz-box-shadow: none;
   box-shadow: none; }
 
-#askAssessment .assessmentModalMetaRight {
+#askAssessment .assessmentModalMetaRight,
+#approveAssessment .assessmentModalMetaRight {
   position: absolute; }
-  #askAssessment .assessmentModalMetaRight .btn {
+  #askAssessment .assessmentModalMetaRight .btn,
+  #approveAssessment .assessmentModalMetaRight .btn {
     position: absolute;
     right: 0;
     top: 0; }
 
-#askAssessment .alert {
+#askAssessment .alert,
+#approveAssessment .alert {
   margin: 10px 30px; }
+
+#askAssessment .resultLine,
+#approveAssessment .resultLine {
+  padding-bottom: 20px; }
 
 #newAnnouncementModal .modal-body textarea {
   height: 200px; }
@@ -2190,6 +2335,14 @@ header {
   .inProgressHead h2 {
     margin: 0; }
 
+.assessmentsSidebarHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px; }
+  .assessmentsSidebarHead h2 {
+    margin: 0; }
+
 .noInProgress {
   text-align: center;
   padding-bottom: 30px; }
@@ -2639,6 +2792,56 @@ header {
     padding-top: 1px;
     font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500; }
+  .whiteBarContent .whiteBarLeft .commentsIcon {
+    flex-shrink: 0;
+    position: relative;
+    padding-left: 30px;
+    color: #859095;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400; }
+    .whiteBarContent .whiteBarLeft .commentsIcon:hover {
+      color: #363636; }
+    .whiteBarContent .whiteBarLeft .commentsIcon::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: url("../images2/iconComments20.svg") no-repeat;
+      opacity: .5;
+      transition: all 0.2s ease;
+      -webkit-transition: all 0.2s ease; }
+    .whiteBarContent .whiteBarLeft .commentsIcon:hover::before {
+      opacity: 1; }
+    .whiteBarContent .whiteBarLeft .commentsIcon.hasNewComments::before {
+      background: url("../images2/iconComments20orange.svg") no-repeat;
+      opacity: 1; }
+  .whiteBarContent .whiteBarLeft .grade {
+    flex-shrink: 0;
+    position: relative;
+    width: 100px;
+    padding-left: 30px;
+    color: #859095;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400; }
+    .whiteBarContent .whiteBarLeft .grade:hover {
+      color: #363636; }
+    .whiteBarContent .whiteBarLeft .grade::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: url("../images2/iconAssessment20.svg") no-repeat;
+      opacity: .5;
+      transition: all 0.2s ease;
+      -webkit-transition: all 0.2s ease; }
+    .whiteBarContent .whiteBarLeft .grade:hover::before {
+      opacity: 1; }
 
 .whiteBarContent .whiteBarRight {
   display: flex;
@@ -2844,155 +3047,357 @@ header {
         position: absolute;
         top: 10px;
         left: 30px; }
-  .summaryCard .assessmentActivityList > ul {
-    margin: 0;
-    padding: 0;
-    list-style: none; }
-    .summaryCard .assessmentActivityList > ul > li {
+
+.assessmentActivityList > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+  .assessmentActivityList > ul > li {
+    display: flex;
+    justify-content: space-between;
+    line-height: 20px;
+    padding: 10px 30px;
+    border-top: 1px solid #EEEFF3; }
+    .assessmentActivityList > ul > li .iconType,
+    .assessmentActivityList > ul > li .check {
+      flex-shrink: 0;
+      margin-right: 20px; }
+    .assessmentActivityList > ul > li > a {
+      flex-grow: 1;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      color: #859095; }
+      .assessmentActivityList > ul > li > a:hover {
+        color: #363636; }
+    .assessmentActivityList > ul > li .activityOptions {
       display: flex;
-      justify-content: space-between;
-      line-height: 20px;
-      padding: 10px 30px;
-      border-top: 1px solid #EEEFF3; }
-      .summaryCard .assessmentActivityList > ul > li .iconType,
-      .summaryCard .assessmentActivityList > ul > li .check {
+      justify-content: flex-end;
+      width: 210px;
+      margin-left: 30px;
+      position: relative; }
+      .assessmentActivityList > ul > li .activityOptions .commentsIcon {
         flex-shrink: 0;
-        margin-right: 20px; }
-      .summaryCard .assessmentActivityList > ul > li > a {
-        flex-grow: 1;
+        position: relative;
+        width: 50px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
         font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: 400;
-        color: #859095; }
-        .summaryCard .assessmentActivityList > ul > li > a:hover {
+        font-weight: 400; }
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover {
           color: #363636; }
-      .summaryCard .assessmentActivityList > ul > li .activityOptions {
-        display: flex;
-        justify-content: flex-end;
-        width: 210px;
-        margin-left: 30px;
-        position: relative; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon {
-          flex-shrink: 0;
-          position: relative;
-          width: 50px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover {
-            color: #363636; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconComments20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover::before {
-            opacity: 1; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .studentsCompleted {
-          flex-shrink: 0;
-          position: relative;
-          width: 55px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .studentsCompleted::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconUser20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses {
-          flex-shrink: 0;
-          position: relative;
-          width: 95px;
-          margin-left: 30px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400;
-          text-align: right; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconResult20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .assessedResponses.disabledResponses::after {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            opacity: .7;
-            z-index: 100; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .download,
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult {
-          flex-shrink: 0;
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon::before {
+          content: '';
+          display: block;
           width: 20px;
           height: 20px;
-          text-indent: -10000px;
-          opacity: .5; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .download:hover,
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult:hover {
-            opacity: 1; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .download {
-          background: url("../images2/iconDownload20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .viewResult {
-          background: url("../images2/iconResult20.svg") no-repeat; }
-        .summaryCard .assessmentActivityList > ul > li .activityOptions .grade {
-          flex-shrink: 0;
-          position: relative;
-          width: 100px;
-          margin-left: 20px;
-          padding-left: 30px;
-          color: #859095;
-          font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-weight: 400;
-          text-align: right; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade:hover {
-            color: #363636; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade::before {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: url("../images2/iconAssessment20.svg") no-repeat;
-            opacity: .5;
-            transition: all 0.2s ease;
-            -webkit-transition: all 0.2s ease; }
-          .summaryCard .assessmentActivityList > ul > li .activityOptions .grade:hover::before {
-            opacity: 1; }
-      .summaryCard .assessmentActivityList > ul > li.hasNewComments .activityOptions .commentsIcon::before {
-        background: url("../images2/iconComments20Orange.svg") no-repeat;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconComments20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .commentsIcon:hover::before {
+          opacity: 1; }
+      .assessmentActivityList > ul > li .activityOptions .studentsCompleted {
+        flex-shrink: 0;
+        position: relative;
+        width: 55px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400; }
+        .assessmentActivityList > ul > li .activityOptions .studentsCompleted::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconUser20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .assessedResponses {
+        flex-shrink: 0;
+        position: relative;
+        width: 95px;
+        margin-left: 30px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400;
+        text-align: right; }
+        .assessmentActivityList > ul > li .activityOptions .assessedResponses::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconResult20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .assessedResponses.disabledResponses::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: #fff;
+          opacity: .7;
+          z-index: 100; }
+      .assessmentActivityList > ul > li .activityOptions .download,
+      .assessmentActivityList > ul > li .activityOptions .viewResult {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        text-indent: -10000px;
+        opacity: .5; }
+        .assessmentActivityList > ul > li .activityOptions .download:hover,
+        .assessmentActivityList > ul > li .activityOptions .viewResult:hover {
+          opacity: 1; }
+      .assessmentActivityList > ul > li .activityOptions .download {
+        background: url("../images2/iconDownload20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .viewResult {
+        background: url("../images2/iconResult20.svg") no-repeat; }
+      .assessmentActivityList > ul > li .activityOptions .grade {
+        flex-shrink: 0;
+        position: relative;
+        width: 100px;
+        margin-left: 20px;
+        padding-left: 30px;
+        color: #859095;
+        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400;
+        text-align: right; }
+        .assessmentActivityList > ul > li .activityOptions .grade:hover {
+          color: #363636; }
+        .assessmentActivityList > ul > li .activityOptions .grade::before {
+          content: '';
+          display: block;
+          width: 20px;
+          height: 20px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: url("../images2/iconAssessment20.svg") no-repeat;
+          opacity: .5;
+          transition: all 0.2s ease;
+          -webkit-transition: all 0.2s ease; }
+        .assessmentActivityList > ul > li .activityOptions .grade:hover::before {
+          opacity: 1; }
+    .assessmentActivityList > ul > li.hasNewComments .activityOptions .commentsIcon::before {
+      background: url("../images2/iconComments20Orange.svg") no-repeat;
+      opacity: 1; }
+  .assessmentActivityList > ul .competenceScore {
+    font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500; }
+
+.summaryAssessmentsCompetence,
+.summaryAssessmentsHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 20px;
+  padding: 30px !important; }
+  .summaryAssessmentsCompetence h2,
+  .summaryAssessmentsHead h2 {
+    margin: 0 !important; }
+  .summaryAssessmentsCompetence .iconType,
+  .summaryAssessmentsCompetence .check,
+  .summaryAssessmentsHead .iconType,
+  .summaryAssessmentsHead .check {
+    flex-shrink: 0;
+    margin-right: 20px; }
+  .summaryAssessmentsCompetence > a,
+  .summaryAssessmentsHead > a {
+    flex-grow: 1;
+    font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    color: #859095; }
+    .summaryAssessmentsCompetence > a:hover,
+    .summaryAssessmentsHead > a:hover {
+      color: #363636; }
+  .summaryAssessmentsCompetence .activityOptions,
+  .summaryAssessmentsHead .activityOptions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-left: 30px;
+    position: relative; }
+    .summaryAssessmentsCompetence .activityOptions .linkApprove, .summaryAssessmentsCompetence .activityOptions .tagApproved,
+    .summaryAssessmentsHead .activityOptions .linkApprove,
+    .summaryAssessmentsHead .activityOptions .tagApproved {
+      margin-top: 0; }
+    .summaryAssessmentsCompetence .activityOptions .commentsIcon,
+    .summaryAssessmentsHead .activityOptions .commentsIcon {
+      flex-shrink: 0;
+      position: relative;
+      width: 50px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon:hover,
+      .summaryAssessmentsHead .activityOptions .commentsIcon:hover {
+        color: #363636; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon::before,
+      .summaryAssessmentsHead .activityOptions .commentsIcon::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconComments20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .commentsIcon:hover::before,
+      .summaryAssessmentsHead .activityOptions .commentsIcon:hover::before {
         opacity: 1; }
-    .summaryCard .assessmentActivityList > ul .competenceScore {
-      font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 500; }
+    .summaryAssessmentsCompetence .activityOptions .studentsCompleted,
+    .summaryAssessmentsHead .activityOptions .studentsCompleted {
+      flex-shrink: 0;
+      position: relative;
+      width: 55px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .studentsCompleted::before,
+      .summaryAssessmentsHead .activityOptions .studentsCompleted::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconUser20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .assessedResponses,
+    .summaryAssessmentsHead .activityOptions .assessedResponses {
+      flex-shrink: 0;
+      position: relative;
+      width: 95px;
+      margin-left: 30px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      text-align: right; }
+      .summaryAssessmentsCompetence .activityOptions .assessedResponses::before,
+      .summaryAssessmentsHead .activityOptions .assessedResponses::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconResult20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .assessedResponses.disabledResponses::after,
+      .summaryAssessmentsHead .activityOptions .assessedResponses.disabledResponses::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        opacity: .7;
+        z-index: 100; }
+    .summaryAssessmentsCompetence .activityOptions .download,
+    .summaryAssessmentsCompetence .activityOptions .viewResult,
+    .summaryAssessmentsHead .activityOptions .download,
+    .summaryAssessmentsHead .activityOptions .viewResult {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      text-indent: -10000px;
+      opacity: .5; }
+      .summaryAssessmentsCompetence .activityOptions .download:hover,
+      .summaryAssessmentsCompetence .activityOptions .viewResult:hover,
+      .summaryAssessmentsHead .activityOptions .download:hover,
+      .summaryAssessmentsHead .activityOptions .viewResult:hover {
+        opacity: 1; }
+    .summaryAssessmentsCompetence .activityOptions .download,
+    .summaryAssessmentsHead .activityOptions .download {
+      background: url("../images2/iconDownload20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .viewResult,
+    .summaryAssessmentsHead .activityOptions .viewResult {
+      background: url("../images2/iconResult20.svg") no-repeat; }
+    .summaryAssessmentsCompetence .activityOptions .grade,
+    .summaryAssessmentsHead .activityOptions .grade {
+      flex-shrink: 0;
+      position: relative;
+      width: 100px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      text-align: right; }
+      .summaryAssessmentsCompetence .activityOptions .grade:hover,
+      .summaryAssessmentsHead .activityOptions .grade:hover {
+        color: #363636; }
+      .summaryAssessmentsCompetence .activityOptions .grade::before,
+      .summaryAssessmentsHead .activityOptions .grade::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconAssessment20.svg") no-repeat;
+        opacity: .5;
+        transition: all 0.2s ease;
+        -webkit-transition: all 0.2s ease; }
+      .summaryAssessmentsCompetence .activityOptions .grade:hover::before,
+      .summaryAssessmentsHead .activityOptions .grade:hover::before {
+        opacity: 1; }
+    .summaryAssessmentsCompetence .activityOptions .aksedAssessment,
+    .summaryAssessmentsHead .activityOptions .aksedAssessment {
+      flex-shrink: 0;
+      position: relative;
+      width: 55px;
+      margin-left: 20px;
+      padding-left: 30px;
+      color: #859095;
+      font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400; }
+      .summaryAssessmentsCompetence .activityOptions .aksedAssessment::before,
+      .summaryAssessmentsHead .activityOptions .aksedAssessment::before {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: url("../images2/iconAssessment20.svg") no-repeat;
+        opacity: .5; }
+      .summaryAssessmentsCompetence .activityOptions .aksedAssessment.active::before,
+      .summaryAssessmentsHead .activityOptions .aksedAssessment.active::before {
+        background: url("../images2/iconAssessment20Orange.svg") no-repeat;
+        opacity: 1; }
+  .summaryAssessmentsCompetence.hasNewComments .activityOptions .commentsIcon::before,
+  .summaryAssessmentsHead.hasNewComments .activityOptions .commentsIcon::before {
+    background: url("../images2/iconComments20Orange.svg") no-repeat;
+    opacity: 1; }
 
 .disabledOverlay {
   display: none;
@@ -3548,6 +3953,82 @@ header {
 .addEvidencePage .submitEvidenceTab .lastRow {
   padding-bottom: 0; }
 
+.assessmentsStar {
+  height: 20px;
+  line-height: 21px;
+  display: flex;
+  align-items: center; }
+  .assessmentsStar .star {
+    width: 20px;
+    height: 20px;
+    margin: 0; }
+    .assessmentsStar .star.starGreen {
+      background: url("../images2/iconAssessmentGreen20.svg") no-repeat center center; }
+    .assessmentsStar .star.starYellow {
+      background: url("../images2/iconAssessmentYellow20.svg") no-repeat center center; }
+    .assessmentsStar .star.starOrange {
+      background: url("../images2/iconAssessmentOrange20.svg") no-repeat center center; }
+    .assessmentsStar .star.starRed {
+      background: url("../images2/iconAssessmentRed20.svg") no-repeat center center; }
+    .assessmentsStar .star.starEmpty {
+      background: url("../images2/iconAssessment20.svg") no-repeat center center; }
+  .assessmentsStar span {
+    font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    color: #363636;
+    padding-left: 10px; }
+
+.assessmentsTab .assessmentsBox {
+  padding-bottom: 30px; }
+  .assessmentsTab .assessmentsBox .assessmentsBoxTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 30px; }
+    .assessmentsTab .assessmentsBox .assessmentsBoxTop .user32 {
+      margin-bottom: 0; }
+  .assessmentsTab .assessmentsBox .requestedText {
+    color: #AAB1B5;
+    margin: 0; }
+
+.assessmentsTab .col-md-3 .btn {
+  width: 100%; }
+
+.assessmentRadios label span {
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  margin-right: 5px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px; }
+  .assessmentRadios label span.red {
+    background-color: #E64040; }
+  .assessmentRadios label span.orange {
+    background-color: #F5A623; }
+  .assessmentRadios label span.yellow {
+    background-color: #E6D500; }
+  .assessmentRadios label span.green {
+    background-color: #A7D379; }
+
+.assessmentsSidebar {
+  list-style: none; }
+  .assessmentsSidebar li {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    border-top: 1px solid #EEEFF3;
+    padding: 10px; }
+    .assessmentsSidebar li:last-child {
+      border-bottom: 1px solid #EEEFF3; }
+    .assessmentsSidebar li .right {
+      display: flex;
+      align-content: center; }
+      .assessmentsSidebar li .right .assessmentsStar {
+        margin-left: 10px; }
+    .assessmentsSidebar li h3 {
+      margin: 0; }
+
 .evidenceBox {
   padding-bottom: 30px; }
   .evidenceBox .evidenceTop {
@@ -3581,7 +4062,8 @@ header {
     margin: 0; }
     .evidenceBox table .col01 {
       width: 120px;
-      padding-left: 0; }
+      padding-left: 0;
+      vertical-align: top; }
   .evidenceBox .tags {
     margin-bottom: 0; }
     .evidenceBox .tags li {
@@ -4344,6 +4826,96 @@ header {
 .noPeopleMessage {
   padding: 0 30px 30px 30px; }
 
+.rubricColor {
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  margin-right: 5px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px; }
+
+.rubricColors.has2Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has2Colors .rubricItem02 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has3Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has3Colors .rubricItem02 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has3Colors .rubricItem03 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has4Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has4Colors .rubricItem02 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has4Colors .rubricItem03 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has4Colors .rubricItem04 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has5Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has5Colors .rubricItem02 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has5Colors .rubricItem03 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has5Colors .rubricItem04 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has5Colors .rubricItem05 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has6Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has6Colors .rubricItem02 .rubricColor {
+  background-color: #7CE254; }
+
+.rubricColors.has6Colors .rubricItem03 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has6Colors .rubricItem04 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has6Colors .rubricItem05 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has6Colors .rubricItem06 .rubricColor {
+  background-color: #E2453D; }
+
+.rubricColors.has7Colors .rubricItem01 .rubricColor {
+  background-color: #54BB2A; }
+
+.rubricColors.has7Colors .rubricItem02 .rubricColor {
+  background-color: #7CE254; }
+
+.rubricColors.has7Colors .rubricItem03 .rubricColor {
+  background-color: #B9E54A; }
+
+.rubricColors.has7Colors .rubricItem04 .rubricColor {
+  background-color: #E3D546; }
+
+.rubricColors.has7Colors .rubricItem05 .rubricColor {
+  background-color: #F5A623; }
+
+.rubricColors.has7Colors .rubricItem06 .rubricColor {
+  background-color: #EA7D31; }
+
+.rubricColors.has7Colors .rubricItem07 .rubricColor {
+  background-color: #E2453D; }
+
 .manageRubricsList {
   list-style: none;
   padding: 0; }
@@ -4378,6 +4950,9 @@ header {
       .manageRubricsList > li .manageRubricsListRight .optMoreMenu {
         margin-left: 20px; }
 
+.rubricsSelect {
+  padding-bottom: 30px; }
+
 .rubricsTop {
   padding-bottom: 30px; }
   .rubricsTop .rubricsCategories .rubricsCategoriesList,
@@ -4396,20 +4971,22 @@ header {
     .rubricsTop .rubricsLevels .rubricsLevelsList .listItem {
       display: flex;
       justify-content: space-between;
-      align-items: center; }
+      align-items: center;
+      position: relative; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem input[type="text"],
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem input[type="text"],
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="text"],
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem input[type="text"] {
         width: auto;
-        flex-grow: 1; }
+        flex-grow: 1;
+        margin-right: 5px; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem input[type="number"],
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem input[type="number"],
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem input[type="number"] {
         width: 80px;
         flex-shrink: 0;
-        margin: 0 5px 0 10px; }
+        margin: 0 5px; }
       .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem .percentage,
       .rubricsTop .rubricsCategories .rubricsLevelsList .listItem .percentage,
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .percentage,
@@ -4420,6 +4997,15 @@ header {
       .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .removeX,
       .rubricsTop .rubricsLevels .rubricsLevelsList .listItem .removeX {
         margin-left: 20px; }
+      .rubricsTop .rubricsCategories .rubricsCategoriesList .listItem .rubricColor,
+      .rubricsTop .rubricsCategories .rubricsLevelsList .listItem .rubricColor,
+      .rubricsTop .rubricsLevels .rubricsCategoriesList .listItem .rubricColor,
+      .rubricsTop .rubricsLevels .rubricsLevelsList .listItem .rubricColor {
+        position: absolute;
+        left: 2px;
+        top: 5px;
+        width: 2px;
+        height: 32px; }
   .rubricsTop .addButtonWrapper {
     padding-bottom: 30px; }
 
@@ -4606,6 +5192,117 @@ header {
       margin: 0; }
   .assessmentCommentsModal .discussion .addComment {
     margin: 0; }
+
+/* Timeline for Focus Area */
+.timeline {
+  position: relative;
+  padding: 0;
+  width: 100%;
+  list-style-type: none; }
+  .timeline:before {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    content: ' ';
+    display: block;
+    width: 2px;
+    height: 100%;
+    margin-left: -1px;
+    background: #d5d5d5;
+    background: -moz-linear-gradient(top, rgba(213, 213, 213, 0) 0%, #d5d5d5 8%, #d5d5d5 92%, rgba(213, 213, 213, 0) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, #7db9e8));
+    background: -webkit-linear-gradient(top, rgba(213, 213, 213, 0) 0%, #d5d5d5 8%, #d5d5d5 92%, rgba(213, 213, 213, 0) 100%);
+    background: -o-linear-gradient(top, rgba(213, 213, 213, 0) 0%, #d5d5d5 8%, #d5d5d5 92%, rgba(213, 213, 213, 0) 100%);
+    background: -ms-linear-gradient(top, rgba(213, 213, 213, 0) 0%, #d5d5d5 8%, #d5d5d5 92%, rgba(213, 213, 213, 0) 100%);
+    background: linear-gradient(to bottom, rgba(213, 213, 213, 0) 0%, #d5d5d5 8%, #d5d5d5 92%, rgba(213, 213, 213, 0) 100%);
+    z-index: 5; }
+  .timeline li {
+    padding: 2em 0; }
+  .timeline .circle {
+    width: 16px;
+    height: 16px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    position: absolute;
+    background: #64BFCD;
+    z-index: 5;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    top: -30px;
+    margin-top: 0; }
+  .timeline .flag-wrapper {
+    text-align: left;
+    position: relative;
+    width: 100%; }
+  .timeline .flag {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+    background: white;
+    font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #363636;
+    z-index: 15;
+    padding: 6px 10px;
+    text-align: left;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15); }
+  .timeline .time-wrapper {
+    display: block;
+    position: relative;
+    z-index: 14;
+    line-height: 1em;
+    vertical-align: middle;
+    color: #fff; }
+  .timeline .time {
+    background: #64BFCD;
+    display: inline-block;
+    padding: 8px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px; }
+  .timeline .desc {
+    position: relative;
+    margin: 10px 0 0 0;
+    padding: 1em;
+    background: #fefefe;
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+    z-index: 15;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px; }
+    .timeline .desc li {
+      padding: 0; }
+  .timeline .direction-l,
+  .timeline .direction-r {
+    float: none;
+    width: 100%;
+    text-align: center; }
+    .timeline .direction-l .time-wrapper,
+    .timeline .direction-r .time-wrapper {
+      float: none; }
+    .timeline .direction-l .desc,
+    .timeline .direction-r .desc {
+      position: relative;
+      padding: 10px;
+      z-index: 15;
+      text-align: left; }
+    .timeline .direction-l .flag,
+    .timeline .direction-r .flag {
+      text-align: left !important; }
+  .timeline .direction-l .circle,
+  .timeline .direction-l .time {
+    background: #FCA567; }
+  .timeline .direction-l .flag-wrapper, .timeline .direction-l .flag {
+    text-align: right; }
 
 .discussion h2 {
   display: inline-block; }
@@ -4879,6 +5576,9 @@ header {
   padding-top: 30px;
   font-size: 13px; }
 
+.messagesList .loadMoreThreads {
+  text-align: center; }
+
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
@@ -4949,6 +5649,8 @@ header {
           width: 80px; }
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
+    .messageColumn .messagesPane .loadMoreMsgs {
+      text-align: center; }
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }
@@ -5631,6 +6333,25 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
+.socialTab .graphWrapper {
+  height: 400px;
+  padding-bottom: 30px;
+  border: solid 1px #eee;
+  margin-bottom: 30px;}
+
+.socialTab .graphWrapper .background {
+  fill: none;
+  pointer-events: all;
+}
+
+.socialTab .user32 {
+  margin-bottom: 30px; }
+
+.socialTab .tablesWrapper {
+  padding-bottom: 1px; }
+  .socialTab .tablesWrapper table th, .socialTab .tablesWrapper table td {
+    width: 33.3%; }
+
 /*---------------------------------------------------------------------*/
 /*--- 05. FOOTER ---*/
 /*---------------------------------------------------------------------*/
@@ -5665,6 +6386,61 @@ footer {
   opacity: .7; }
   #supportLink:hover {
     opacity: 1; }
-#graph {
-  overflow: hidden;
-}
+
+/*---------------------------------------------------------------------*/
+/*--- 05. RESPONSIVE ---*/
+/*---------------------------------------------------------------------*/
+@media (min-width: 768px) {
+  .timeline {
+    width: 700px;
+    margin: 0 auto; }
+    .timeline li:after {
+      content: "";
+      display: block;
+      height: 0;
+      clear: both;
+      visibility: hidden; }
+    .timeline .circle {
+      left: -28px;
+      right: auto;
+      top: 10px; }
+    .timeline .flag-wrapper {
+      display: inline-block; }
+    .timeline .flag {
+      font-size: 18px; }
+    .timeline .time-wrapper {
+      display: inline;
+      vertical-align: middle;
+      margin: 0; }
+    .timeline .time {
+      padding: 5px 10px;
+      margin-top: 5px;
+      margin-bottom: 10px; }
+    .timeline .direction-l {
+      position: relative;
+      width: 330px;
+      float: left;
+      text-align: right; }
+      .timeline .direction-l .circle {
+        left: auto;
+        right: -28px; }
+    .timeline .direction-r {
+      position: relative;
+      width: 330px;
+      float: right;
+      text-align: left; } }
+
+@media (min-width: 992px) {
+  .timeline {
+    width: 840px;
+    margin: 0 auto; }
+    .timeline .direction-l {
+      position: relative;
+      width: 400px;
+      float: left;
+      text-align: right; }
+    .timeline .direction-r {
+      position: relative;
+      width: 400px;
+      float: right;
+      text-align: left; } }

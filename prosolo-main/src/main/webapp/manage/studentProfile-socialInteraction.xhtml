@@ -5,53 +5,65 @@
 	xmlns:p="http://primefaces.org/ui">
 
 	<div role="tabpanel" class="tab-pane fade" id="social">
-		<div class="whiteBox">
-			<h2>Social interaction graph</h2>
-		
-			<div class="socialGraph">
+		<div class="whiteBox socialTab">
+			<h3>Social interaction graph</h3>
+
+			<div id="noDataMessage"></div>
+
+			<div id="interactionGraph">
 				<h:form id="socialInteractionDataForm">
-					<p:remoteCommand name="updateSocialInteractionDataRegion" update="socialInteractionData" oncomplete="loadSocialInteractionGraph()" />
-					<h:panelGroup layout="block" id="socialInteractionData">
-						<div id="social-interaction"
-							 data-api="#{socialInteractionBean.servicesDomain}"
-							 data-student-id="#{studentProfileBean.student.id}"
-							 data-student-name="#{studentProfileBean.student.name}"
-							 data-student-avatar="#{studentProfileBean.student.avatar}"
-							 data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
-							 class="container manage">
-							<div id="graph"></div>
-						</div>
-					</h:panelGroup>
+					<p:remoteCommand name="loadSocialInteractionGraphRemote" update="@form" oncomplete="loadSocialInteractionGraph()" />
+					<span id="socialInteractionData"
+								  data-api="#{socialInteractionBean.servicesDomain}"
+								  data-student-id="#{studentProfileBean.student.id}"
+								  data-student-name="#{studentProfileBean.student.name}"
+								  data-student-avatar="#{studentProfileBean.student.avatar}"
+								  data-course-id="#{studentProfileBean.getSelectedCredentialId()}"></span>
+					<div id="graph" class="graphWrapper"></div>
 				</h:form>
 
-				<div class="clear"></div>
-
-				<div id="social-interaction-info" style="display: none;">
-					<div>
-						<h3>Selected student</h3>
-						<div class="user32">
-							<span class="studentAvatar"></span>
-							<span class="studentName"></span>
-						</div>
-					</div>
-
-					<div>
-						<div>
-							<h3>Social interactions by type</h3>
-							<span class="interactionsByType">
-
-							</span>
-						</div>
-					</div>
-
-					<div>
-						<div>
-							<h3>Social interactions by peers</h3>
-							<span class="interactionsByPeers">
-
-							</span>
-						</div>
-					</div>
+				<h3>Selected student:</h3>
+				<div class="user32">
+					<a href="#"><img src="" class="img-circle selectedStudentAvatar" width="32" height="32" alt="" /></a>
+					<h3><span class="selectedStudentName"></span></h3>
+				</div>
+				<div class="tablesWrapper">
+					<h3>Social interactions by type</h3>
+					<table class="interactionsByType">
+						<tr>
+							<th>Type</th>
+							<th>OUT</th>
+							<th>IN</th>
+						</tr>
+						<tr>
+							<td>COMMENT</td>
+							<td>2 (11%)</td>
+							<td>4 (21%)</td>
+						</tr>
+						<tr>
+							<td>LIKE</td>
+							<td>1 (5%)</td>
+							<td>12 (63%)</td>
+						</tr>
+					</table>
+					<h3>Social interactions by peers</h3>
+					<table class="interactionsByPeers">
+						<tr>
+							<th>Student</th>
+							<th>OUT</th>
+							<th>IN</th>
+						</tr>
+						<tr>
+							<td>Walter White</td>
+							<td>2 (11%)</td>
+							<td>4 (21%)</td>
+						</tr>
+						<tr>
+							<td>Jesse Pinkman</td>
+							<td>1 (5%)</td>
+							<td>12 (63%)</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 		</div>
