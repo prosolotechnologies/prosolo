@@ -23,6 +23,7 @@ public class CredentialAssessment extends BaseEntity {
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
 	private int points;
+	private String review;
 	private Set<CredentialAssessmentDiscussionParticipant> participants;
 	private Set<CredentialAssessmentMessage> messages;
 
@@ -140,5 +141,14 @@ public class CredentialAssessment extends BaseEntity {
 			}
 		}
 		return null;
+	}
+
+	@Column(length = 90000)
+	public String getReview() {
+		return review;
+	}
+
+	public void setReview(String review) {
+		this.review = review;
 	}
 }

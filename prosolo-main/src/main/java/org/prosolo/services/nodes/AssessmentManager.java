@@ -36,11 +36,10 @@ public interface AssessmentManager {
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
-								  long assessedStudentId, long credentialId) throws DbConnectionException, IllegalDataStateException;
+	void approveCredential(long credentialAssessmentId, String reviewText, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
 
-	Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
-											   UserContextData context, long assessedStudentId, long credentialId)
+	Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, String reviewText, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	AssessmentDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,

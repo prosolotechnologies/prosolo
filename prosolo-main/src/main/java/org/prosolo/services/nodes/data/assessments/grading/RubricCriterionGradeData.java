@@ -21,6 +21,13 @@ public class RubricCriterionGradeData<T extends RubricLevelGradeData> extends Ru
         levels = new ArrayList<>();
     }
 
+    public T getSelectedLevel() {
+        if (levelId <= 0) {
+            return null;
+        }
+        return levels.stream().filter(l -> l.getId() == levelId).findFirst().get();
+    }
+
     public List<T> getLevels() {
         return levels;
     }

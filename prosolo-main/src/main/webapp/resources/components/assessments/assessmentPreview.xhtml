@@ -103,9 +103,11 @@
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.allCompetencesStarted()}">
 								<p:commandLink
 									styleClass="btn btn-green btn-sm item"
+									pt:data-toggle="modal"
 									value="Approve"
-									update="@form :assessmentPreview:competenceAssessmentPanel"
-									action="#{cc.attrs.bean.approveCredential()}"
+									action="#{cc.attrs.bean.prepareCredentialForApprove()}"
+									update=":#{cc.clientId}:formApproveCredential:panelCredentialResult"
+									oncomplete="$('#approveAssessment').modal('show')"
 								/>
 
 								<ui:remove>
@@ -574,6 +576,74 @@
 					learningContext="#{cc.attrs.learningContext}"
 					gradePanelSidebarId="gradeSidebar"
 			/>
+
+			<h:form id="formApproveCredential">
+				<div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+								<h2 class="modal-title" id="apprAssessment">Approve Assessment</h2>
+							</div>
+							<div class="assessmentModalMeta">
+								<div class="assessmentModalMetaLine">
+									<div class="assessmentModalMetaLeft">
+										Credential:
+									</div>
+									<div class="assessmentModalMetaRight">
+										<h3>#{cc.attrs.bean.credentialTitle}</h3>
+									</div>
+								</div>
+								<div class="assessmentModalMetaLine">
+									<div class="assessmentModalMetaLeft">
+										Student:
+									</div>
+									<div class="assessmentModalMetaRight">
+										<utilcomp:userAvatar
+												avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+												fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
+										<h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
+									</div>
+								</div>
+							</div>
+							<div class="alert alert-warning" role="alert">
+								Please enter the review description.
+							</div>
+							<div class="modal-body alignLeft">
+								<h:inputTextarea
+									placeholder="Type a review that will be shown on student's profile..."
+									value="#{cc.attrs.bean.fullAssessmentData.review}"
+								/>
+								<h:panelGroup layout="block" id="panelCredentialResult" styleClass="resultLine">
+									Result:
+									<strong>
+										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'NONGRADED'}">
+											-
+										</ui:fragment>
+										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading}">
+											#{cc.attrs.bean.fullAssessmentData.gradeData.isAssessed() ? cc.attrs.bean.fullAssessmentData.gradeData.currentGrade : '-'}
+										</ui:fragment>
+										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode ne 'NONGRADED' and not cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading and cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.fullAssessmentData.gradeData.rubricType eq 'DESCRIPTIVE'}">
+											<ui:repeat value="#{cc.attrs.bean.fullAssessmentData.gradeData.rubricCriteria.criteria}" var="crit">
+												<br/> #{crit.name}: #{crit.selectedLevel.name}
+											</ui:repeat>
+										</ui:fragment>
+									</strong>
+								</h:panelGroup>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink
+										styleClass="btn btn-green"
+										value="Submit"
+										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel"
+										action="#{cc.attrs.bean.approveCredential()}"
+										oncomplete="$('#approveAssessment').modal('hide')"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
 		</c:if>
 
 

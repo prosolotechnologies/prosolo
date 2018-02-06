@@ -462,18 +462,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText,UserContextData context,
-								  long assessedStudentId, long credentialId) throws DbConnectionException, IllegalDataStateException {
-		Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId,targetCredentialId,reviewText,
-				context,assessedStudentId,credentialId);
+	public void approveCredential(long credentialAssessmentId, String reviewText, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException {
+		Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId, reviewText, context);
 
 		eventFactory.generateEvents(result.getEventQueue());
 	}
 
 	@Override
 	@Transactional
-	public Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, long targetCredentialId, String reviewText,
-													  UserContextData context, long assessedStudentId, long credentialId)
+	public Result<Void> approveCredentialAndGetEvents(long credentialAssessmentId, String reviewText, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Void> result = new Result<>();
@@ -494,23 +492,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			credentialAssessment.setApproved(true);
+			credentialAssessment.setReview(reviewText);
 
 			User student = new User();
-			student.setId(assessedStudentId);
+			student.setId(credentialAssessment.getAssessedStudent().getId());
 			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
+			parameters.put("credentialId", credentialAssessment.getTargetCredential().getCredential().getId() + "");
 
 			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
 					credentialAssessment, student, null, parameters));
 
 			return result;
-			//TODO Check if this is needed
-			//credentialAssessment.getTargetCredential().setFinalReview("finalReview");
 		} catch (IllegalDataStateException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while approving assessment");
+			throw new DbConnectionException("Error approving the assessment");
 		}
 	}
 

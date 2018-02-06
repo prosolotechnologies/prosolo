@@ -35,7 +35,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 	protected abstract void addComment();
 	public abstract void updateGrade() throws DbConnectionException;
 
-	public void initializeGradeData() {
+	protected void initializeGradeData() {
 		try {
 			GradeData gradeData = getGradeData();
 			gradeData.accept(new GradeDataVisitor<Void>() {

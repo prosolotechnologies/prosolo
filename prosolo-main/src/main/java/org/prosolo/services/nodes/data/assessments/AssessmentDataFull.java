@@ -46,6 +46,7 @@ public class AssessmentDataFull {
 	private boolean participantInDiscussion;
 	private int numberOfMessages;
 	private boolean messagesInitialized;
+	private String review;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -57,6 +58,7 @@ public class AssessmentDataFull {
 		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
+		data.setReview(assessment.getReview());
 		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
@@ -352,5 +354,13 @@ public class AssessmentDataFull {
 
 	public List<AssessmentDiscussionMessageData> getMessages() {
 		return messages;
+	}
+
+	public String getReview() {
+		return review;
+	}
+
+	public void setReview(String review) {
+		this.review = review;
 	}
 }

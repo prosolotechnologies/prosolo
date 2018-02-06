@@ -69,7 +69,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private String assessmentId;
 	private long decodedAssessmentId;
 	private AssessmentDataFull fullAssessmentData;
-	private String reviewText;
 
 	private String credentialTitle;
 	private List<AssessmentData> otherAssessments;
@@ -252,6 +251,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return null;
 	}
 
+	public void prepareCredentialForApprove() {
+		initializeGradeData();
+	}
+
 	//LearningResourceAssessmentBean impl
 
 	@Override
@@ -392,8 +395,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			UserContextData userContext = loggedUserBean.getUserContext();
 
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText,userContext, fullAssessmentData.getAssessedStrudentId(),
-					fullAssessmentData.getCredentialId());
+					fullAssessmentData.getReview(), userContext);
 
 			markCredentialApproved();
 
@@ -592,14 +594,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public void setFullAssessmentData(AssessmentDataFull fullAssessmentData) {
 		this.fullAssessmentData = fullAssessmentData;
-	}
-
-	public String getReviewText() {
-		return reviewText;
-	}
-
-	public void setReviewText(String reviewText) {
-		this.reviewText = reviewText;
 	}
 
 	public LearningResourceType getCurrentResType() {
