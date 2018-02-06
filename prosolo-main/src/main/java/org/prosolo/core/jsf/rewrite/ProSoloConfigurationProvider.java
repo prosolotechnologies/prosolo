@@ -91,6 +91,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
+				.addRule(Join.path("/evidences").to("/evidences.xhtml"))
+				.addRule(Join.path("/evidences/{id}/edit").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidences/new").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidences/{id}").to("/evidence.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				//.addRule(Join.path("/assessments").to("/assessments.xhtml"))
 
@@ -126,9 +130,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/privacy").to("/manage/credential-privacy.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/who-can-learn").to("/manage/credential-who-can-learn.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/instructors").to("/manage/credential-instructors.xhtml"))
-				/* instructor viewing all assessment request for a given credential where he is instructor (manage-credential-assessments.html)*/
-				.addRule(Join.path("/manage/credentials/{id}/assessments").to("/manage/credential-assessments.xhtml"))
-				/* instructor viewing single assessment where he is instructor (manage-assessment-preview.html) */ 
+				.addRule(Join.path("/manage/credentials/{id}/assessments").to("/manage/credential-delivery-assessments.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/assessments/activities/{activityId}").to("/manage/credential-delivery-assessments-activity.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/assessments/activities/{actId}/{targetActId}").to("/manage/credential-delivery-activity-assessment.xhtml"))
+				/* instructor viewing single assessment where he is instructor (manage-assessment-preview.html) */
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assessmentId}").to("/manage/credential-assessment.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assId}").to("/manage/assessment-preview.xhtml"))
@@ -160,19 +165,15 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/competences/{compId}/{id}/edit").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/newActivity").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}").to("/manage/activity.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses").to("/manage/activity-responses.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/{actId}").to("/manage/activity.xhtml"))
-				.addRule(Join.path("/manage/competences/{compId}/{actId}/responses").to("/manage/activity-responses.xhtml"))
-				.addRule(Join.path("/manage/competences/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
-				
+
 				//manage library
 				.addRule(Join.path("/manage/library").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
 				.addRule(Join.path("/manage/groups").to("/manage/students-groups.xhtml"))
-				.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
+				//.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
 				
 				//admin
 				.addRule(Join.path("/admin/notfound").to("/admin/404.xhtml"))

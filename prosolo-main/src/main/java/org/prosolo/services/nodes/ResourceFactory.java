@@ -67,6 +67,4 @@ public interface ResourceFactory extends AbstractManager {
 	
 	UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException;
 	
-	Result<Competence1> duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
-
 }

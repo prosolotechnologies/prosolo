@@ -25,6 +25,7 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
@@ -77,25 +78,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 				userNickPowell, null, null, params));
 
 		//create organization
+		OrganizationData orgData = new OrganizationData();
+		orgData.setTitle("Org 1");
+		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.createNewOrganizationAndGetEvents("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty()));
-
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			logger.error(e);
-//		}
+				.createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
 
 		Unit unit = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class)
 				.createNewUnitAndGetEvents("Unit 1", org.getId(), 0, UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
-
-//		//to give time indexes to be created after the ogranisation is saved
-//		try {
-//			Thread.sleep(1500);
-//		} catch (InterruptedException e) {
-//			logger.error(e);
-//		}
-
 
 		User userRichardAnderson = extractResultAndAddEvents(events, createUser(org.getId(), "Richard", "Anderson", "richard.anderson@gmail.com", genericPassword, genericPosition, "male2.png", roleUser));
 		User userKevinMitchell = extractResultAndAddEvents(events, createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", genericPassword, genericPosition, "male3.png", roleUser));
@@ -123,13 +113,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		User userAngelicaFallon = extractResultAndAddEvents(events, createUser(org.getId(), "Angelica", "Fallon", "angelica.fallon@gmail.com", genericPassword, genericPosition, "female16.png", roleUser));
 		User userIdaFritz = extractResultAndAddEvents(events, createUser(org.getId(), "Ida", "Fritz", "ida.fritz@gmail.com", genericPassword, genericPosition, "female17.png", roleUser));
 		User userRachelWiggins = extractResultAndAddEvents(events, createUser(org.getId(), "Rachel", "Wiggins", "rachel.wiggins@gmail.com", genericPassword, genericPosition, "female20.png", roleUser));
-
-//		// allow users to be added to indexes
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			logger.error(e);
-//		}
 
 		// Adding roles to the users
 		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell.getId());
@@ -459,8 +442,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					ActivityResultType.TEXT);
 
 			publishCredential(cred1, cred1.getCreatedBy());
-
-			Thread.sleep(1000);
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -922,12 +903,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class)
 				.saveNewCredentialAndGetEvents(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
-
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 
 		extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()

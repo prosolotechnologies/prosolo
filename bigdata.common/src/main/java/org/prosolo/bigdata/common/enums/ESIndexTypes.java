@@ -22,4 +22,6 @@ public class ESIndexTypes {
 
 	public static final String RUBRIC = "rubric";
 
+	public static final String EVIDENCE = "evidence";
+
 }

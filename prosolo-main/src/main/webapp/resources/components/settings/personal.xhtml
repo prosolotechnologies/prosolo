@@ -34,7 +34,7 @@
 									<div class="formLineRight">
 										<h:inputText id="editName" class="editName"
 													 placeholder="Enter your first name"
-													 value="#{profileSettings.accountData.firstName}" />
+													 value="#{profileSettings.accountData.name}" />
 									</div>
 								</div>
 								
@@ -113,7 +113,7 @@
 									<div class="formLine">
 										<label>LinkedIn profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
+											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
 										</div>
 									</div>
 									
@@ -121,7 +121,7 @@
 										<label>Twitter profile URL</label>
 										
 										<div class="formLineRight">
-											<h:inputText id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
+											<h:inputText id="twitterProfileUrl" value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
 											
 											<div class="twitterBtnBox">
 												<h:panelGroup id="twitter">
@@ -152,7 +152,7 @@
 														function saveChangesClick() {
 															var newLink = $('##{cc.clientId}\\:socialNetworksSettingsForm\\:twitterProfileUrl').val();
 															console.log(newLink);
-															if(#{!profileSettings.connectedToTwitter} || '#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}' === newLink) {
+															if(#{!profileSettings.connectedToTwitter} || '#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}' === newLink) {
 																$('##{cc.clientId}\\:socialNetworksSettingsForm\\:saveChangesLink').click();
 															} else {
 																$('#saveChangesTwitterWarningLink').click();
@@ -167,14 +167,14 @@
 									<div class="formLine">
 										<label>Facebook profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
+											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
 										</div>
 									</div>
 									
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
+											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									
@@ -211,14 +211,14 @@
 
 									<div class="yourPhotoContent">
 										<h:graphicImage styleClass="img-circle"
-											rendered="#{not empty profileSettings.accountData.avatarPath}"
+											rendered="#{not empty profileSettings.accountData.avatarUrl}"
 											width="100" height="100" alt=""
-											value="#{profileSettings.accountData.avatarPath}" />
+											value="#{profileSettings.accountData.avatarUrl}" />
 
 										<h:panelGroup
-											rendered="#{empty profileSettings.accountData.avatarPath}"
+											rendered="#{empty profileSettings.accountData.avatarUrl}"
 											class="letterAvatar letterAvatar100 img-circle">
-											#{util:initials(profileSettings.accountData.firstName.concat(" ").concat(profileSettings.accountData.lastName))}
+											#{util:initials(profileSettings.accountData.name.concat(" ").concat(profileSettings.accountData.lastName))}
 										</h:panelGroup>
 
 										<div class="chooseBtnBox">
@@ -291,7 +291,7 @@
 	                      <p>Your Twitter account is connected to ProSolo. If you change your Twitter profile URL, you will need to connect the new account to ProSolo. Are you sure you want to continue?</p>
 	                  </div>
 	                  <div class="modal-footer">
-	                  	  <h:inputHidden id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
+	                  	  <h:inputHidden id="twitterProfileUrl" value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
 	                  	  <p:commandLink
 	                  	  	value="Save Changes"
 	                  	  	styleClass="btn btn-green"

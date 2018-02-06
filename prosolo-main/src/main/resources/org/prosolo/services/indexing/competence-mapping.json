@@ -65,6 +65,14 @@
 				"store": false,
 				"type":"boolean"
 			},
+			"learningStageId": {
+				"store": false,
+				"type": "long"
+			},
+			"firstStageCompetenceId": {
+				"store": false,
+				"type": "long"
+			},
 			"usersWithEditPrivilege": {
 				"properties": {
 					"id": {

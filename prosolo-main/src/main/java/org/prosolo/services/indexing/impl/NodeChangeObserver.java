@@ -74,7 +74,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ADD_COMPETENCE_TO_UNIT,
 			EventType.REMOVE_COMPETENCE_FROM_UNIT,
 			EventType.Account_Activated,
-			EventType.UPDATE_DELIVERY_TIMES
+			EventType.UPDATE_DELIVERY_TIMES,
+			EventType.LEARNING_STAGE_UPDATE
 		};
 	}
 
@@ -90,7 +91,8 @@ public class NodeChangeObserver extends EventObserver {
 			TargetCompetence1.class,
 			UserGroup.class,
 			Organization.class,
-			Rubric.class
+			Rubric.class,
+			LearningEvidence.class
 		};
 	}
 

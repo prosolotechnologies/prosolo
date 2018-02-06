@@ -38,7 +38,7 @@
 						<p:commandLink value="Reindex Content"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexNodes(0)}"	/>
+									   action="#{bulkDataAdministration.deleteAndReindexLearningContent(0)}"	/>
 						<p:commandLink value="Reindex #{msg['label.rubric.plural']}"
 									   pt:role="button"
 									   styleClass="btn btn-green"
@@ -52,6 +52,12 @@
 										   action="#{otherSettingsBean.migrateDemoServer()}"
 										   oncomplete="" />
 						</ui:remove>
+						<p:commandLink value="Migrate Assessments"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   onclick=""
+									   action="#{otherSettingsBean.migrateAssessments()}"
+									   update=":growlMain" />
 						<div class="clear top30"></div>
 					</div>
 				</div>

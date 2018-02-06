@@ -14,6 +14,7 @@ import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
+import org.prosolo.web.util.page.PageSection;
 
 public class AnnouncementPublishedEventProcessor extends NotificationEventProcessor {
 
@@ -58,7 +59,7 @@ public class AnnouncementPublishedEventProcessor extends NotificationEventProces
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		String link = getNotificationLink();
 		for(long id : users) {
-			receivers.add(new NotificationReceiverData(id, link, false));
+			receivers.add(new NotificationReceiverData(id, link, false, PageSection.STUDENT));
 		}
 		return receivers;
 	}

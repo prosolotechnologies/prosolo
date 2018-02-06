@@ -5,11 +5,13 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,16 @@ public class CompetenceDataFactory {
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
 		comp.setDatePublished(competence.getDatePublished());
+		comp.setLearningPathType(competence.getLearningPathType());
+
+		boolean learningStagesEnabled = false;
+		if (competence.getLearningStage() != null) {
+			learningStagesEnabled = true;
+			LearningStage ls = competence.getLearningStage();
+			comp.setLearningStage(new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false));
+		}
+		comp.setLearningStageEnabled(learningStagesEnabled);
+
 		comp.setCompStatus();
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
@@ -82,6 +94,16 @@ public class CompetenceDataFactory {
 		comp.setEnrolled(true);
 		comp.setProgress(tc.getProgress());
 		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
+		comp.setLearningPathType(competence.getLearningPathType());
+
+		boolean learningStagesEnabled = false;
+		if (competence.getLearningStage() != null) {
+			learningStagesEnabled = true;
+			LearningStage ls = competence.getLearningStage();
+			comp.setLearningStage(new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false));
+		}
+		comp.setLearningStageEnabled(learningStagesEnabled);
+
 		comp.setOrder(order);
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 

@@ -21,7 +21,6 @@ public enum EventType {
 	Edit, 
 	Edit_Profile, 
 	Edit_Draft,
-	View_Profile, 
 	Create,
 	Create_Manager,
 	Create_Draft,

@@ -3,7 +3,6 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -44,8 +43,6 @@ public class CredentialKeywordsBean {
 	@Autowired
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
-	private EventFactory eventFactory;
 
 	private String id;
 	private List<String> tags;
@@ -145,14 +142,6 @@ public class CredentialKeywordsBean {
 
 	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
 		this.taskExecutor = taskExecutor;
-	}
-
-	public EventFactory getEventFactory() {
-		return eventFactory;
-	}
-
-	public void setEventFactory(EventFactory eventFactory) {
-		this.eventFactory = eventFactory;
 	}
 	
 	public long getDecodedId() {

@@ -1170,4 +1170,44 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while retrieving user organization");
 		}
 	}
+
+	@Override
+	public void saveAccountChanges(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData,contextData);
+		eventFactory.generateEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public Result<Void> saveAccountChangesAndGetEvents(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+
+		User user = loadResource(User.class, contextData.getActorId());
+
+		user.setName(accountData.getName());
+		user.setLastname(accountData.getLastName());
+		user.setPosition(accountData.getPosition());
+
+		if (accountData.getLocationName() == null ||
+				accountData.getLocationName().isEmpty()) {
+			user.setLocationName(null);
+			user.setLatitude(null);
+			user.setLongitude(null);
+		} else {
+			user.setLocationName(accountData.getLocationName());
+			user.setLatitude(accountData.getLatitude());
+			user.setLongitude(accountData.getLongitude());
+		}
+
+		Result<Void> result = new Result<>();
+
+		saveEntity(user);
+
+		result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+				null, null, null, null));
+
+		return result;
+	}
+
 }

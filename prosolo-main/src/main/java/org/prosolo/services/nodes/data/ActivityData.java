@@ -87,11 +87,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int difficulty;
 
 	//assessment
+	private int commonScore = -1;
 	private GradingMode gradingMode;
 	private long rubricId;
 	private String rubricName;
 	private ActivityRubricVisibility rubricVisibility;
-	
+
 	//indicates that competence was once published
 	private boolean oncePublished;
 	
@@ -755,5 +756,13 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setGradingMode(GradingMode gradingMode) {
 		observeAttributeChange("gradingMode", this.gradingMode, gradingMode);
 		this.gradingMode = gradingMode;
+	}
+
+	public void setCommonScore(int commonScore) {
+		this.commonScore = commonScore;
+	}
+
+	public int getCommonScore() {
+		return commonScore;
 	}
 }

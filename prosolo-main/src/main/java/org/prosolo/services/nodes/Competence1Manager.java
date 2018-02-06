@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -15,7 +16,10 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.w3c.dom.events.EventException;
 
 import java.util.List;
 
@@ -111,9 +115,9 @@ public interface Competence1Manager {
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
-	
+
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished)
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
@@ -324,6 +328,12 @@ public interface Competence1Manager {
 			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 	
 	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
+
+	Result<Competence1> duplicateCompetenceAndGetEvents(long compId, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Competence1> getOrCreateCompetenceInLearningStageAndGetEvents(long basedOnCompId, long learningStageId, UserContextData context)
+			throws DbConnectionException;
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
 	
@@ -375,7 +385,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all unfinished competences (competences that has progress != 100)
@@ -386,7 +396,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Update whether a competence should be visible on the profile or not.
@@ -399,5 +409,11 @@ public interface Competence1Manager {
 
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
-	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
+	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
+
+	EventQueue disableLearningStagesForOrganizationCompetences(long orgId, UserContextData context) throws DbConnectionException;
+
+	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
+
+	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
 }

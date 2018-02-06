@@ -34,7 +34,7 @@
                 <div>#{studentProfileBean.student.position}</div>
                 <div>#{studentProfileBean.student.location}</div>
                 <ul class="socialLinks">
-                	<ui:repeat value="#{studentProfileBean.socialNetworksData.socialNetworkAccountsData.entrySet().toArray()}" 
+                	<ui:repeat value="#{studentProfileBean.userSocialNetworksData.socialNetworkAccountsData.entrySet().toArray()}"
                 			var="socialNetworkData" varStatus="iterator">
                 		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
 	                      <li class="#{studentProfileBean.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
@@ -67,9 +67,9 @@
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-graph.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-main.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
 
  	<ui:param name="learningContext" value="name:user|id:#{studentProfileBean.decodedId}"></ui:param>
  	

@@ -70,7 +70,6 @@
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
 									or util:getPagePath(view.viewId)  == 'competenceLibrary'
 									or util:getPagePath(view.viewId)  == 'credential'
-									or util:getPagePath(view.viewId)  == 'create-credential'
 									or util:getPagePath(view.viewId)  == 'credential-students'
 									or util:getPagePath(view.viewId)  == 'credential-students-compare'
 									or util:getPagePath(view.viewId)  == 'credential-keywords'
@@ -92,28 +91,33 @@
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
 									value="People" outcome="/people" />
 							</li>
+							<li role="presentation" class="#{util:getPagePath(view.viewId)  eq 'evidences'
+								or util:getPagePath(view.viewId)  eq 'evidence'
+								or util:getPagePath(view.viewId) eq 'evidence-edit'
+								? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('evidences', 'mainmenu');"
+										value="Evidences" outcome="/evidences" />
+							</li>
 						</ul>
 					</nav>
 				</div>
 				<div class="headerTopRight">
-					<div class="dropdown createMenu">
-						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="true">
-							Create
-						</a>
-						
-						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-							<li>
-								<h:link value="New #{msg['label.credential']}"
-									outcome="/create-credential.xhtml" />
-							</li>
-							<li>
-								<h:link value="New #{msg['label.competence']}"
-									outcome="/create-competence.xhtml" />
-							</li>
-						</ul>
-					</div>
-					
+					<ui:remove>
+						<div class="dropdown createMenu">
+							<a class="btn btn-orange btn-sm" data-toggle="dropdown"
+								aria-haspopup="true" aria-expanded="true">
+								Create
+							</a>
+
+							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="New #{msg['label.competence']}"
+										outcome="/create-competence.xhtml" />
+								</li>
+							</ul>
+						</div>
+					</ui:remove>
+
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" 
 							process="@this"
@@ -133,11 +137,11 @@
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="notificationsIcon"
-							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}" 
+							styleClass="iconNotifications #{studentNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
 							pt:data-toggle="dropdown" 
 							pt:aria-haspopup="true" 
 							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
+							action="#{studentNotificationsBean.markNotificationsAsRead}"
 							process="@this"
 							update="notificationLoop @this">
 							
@@ -145,7 +149,7 @@
 							
 							<h:panelGroup id="unreadNotificationsDot">
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									class="#{studentNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 					
@@ -153,9 +157,9 @@
 							class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
 							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationDatas}">
 								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
+									<h:outputLink value="#{studentNotificationsBean.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}

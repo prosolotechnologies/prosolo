@@ -20,7 +20,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
-import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,7 +76,7 @@ public class UserEditBean implements Serializable {
 	private long decodedOrgId;
 	private String id;
 	private long decodedId;
-	private AccountData accountData;
+	private UserData accountData;
 	private UserData userToDelete;
 	private UserData user;
 	private UserData newOwner = new UserData();
@@ -115,7 +114,7 @@ public class UserEditBean implements Serializable {
 	private void initDataForPasswordEdit() {
 		decodedId = idEncoder.decodeId(id);
 		user = userManager.getUserData(decodedId);
-		accountData = new AccountData();
+		accountData = new UserData();
 		usersToExclude.add(user);
 	}
 
@@ -154,7 +153,7 @@ public class UserEditBean implements Serializable {
 			if (decodedId > 0) {
 				user = userManager.getUserWithRoles(decodedId, decodedOrgId);
 				if (user != null) {
-					accountData = new AccountData();
+					accountData = new UserData();
 				} else {
 					user = new UserData();
 					PageUtil.fireErrorMessage("Admin cannot be found");
@@ -293,7 +292,7 @@ public class UserEditBean implements Serializable {
 		this.allRoles = allRoles;
 	}
 
-	public AccountData getAccountData() {
+	public UserData getAccountData() {
 		return accountData;
 	}
 

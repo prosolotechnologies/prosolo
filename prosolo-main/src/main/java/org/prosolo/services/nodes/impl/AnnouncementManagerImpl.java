@@ -1,35 +1,39 @@
 package org.prosolo.services.nodes.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.SeenAnnouncement;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.AnnouncementManager")
 public class AnnouncementManagerImpl extends AbstractManagerImpl implements AnnouncementManager {
 	
 	@Inject
 	private UrlIdEncoder idEncoder;
+	@Inject
+	private EventFactory eventFactory;
+	@Inject
+	private AnnouncementManager self;
 
 	private static final long serialVersionUID = 1L;
 	private static final String GET_ANNOUNCEMENTS_FOR_CREDENTIAL = 
@@ -49,11 +53,54 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	
 	
 	@Override
-	@Transactional
-	public AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode mode) {
-		return persistAnnouncement(credentialId, title, text, creatorId);
+	public AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode mode,
+											   UserContextData context)
+			throws ResourceCouldNotBeLoadedException {
+
+		Result<AnnouncementData> result = self.createAnnouncementAndGetEvents(credentialId, title, text, creatorId, mode, context);
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
 	}
-	
+
+	@Override
+	@Transactional
+	public Result<AnnouncementData> createAnnouncementAndGetEvents(Long credentialId, String title, String text, Long creatorId,
+																   AnnouncementPublishMode publishMode,
+																   UserContextData context)
+			throws DbConnectionException {
+
+		Announcement announcement = new Announcement();
+		announcement.setTitle(title);
+		announcement.setText(text);
+		announcement.setDateCreated(new Date());
+		//create and add creator
+		try {
+			User user = loadResource(User.class, creatorId);
+			announcement.setCreatedBy(user);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+		//create and add credential
+		Credential1 credential = new Credential1();
+		credential.setId(credentialId);
+		announcement.setCredential(credential);
+		Announcement newAnnouncement = saveEntity(announcement);
+
+		Result<AnnouncementData> result = new Result<>();
+		Announcement announcement1 = new Announcement();
+		announcement1.setId(announcement.getId());
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("credentialId", credentialId + "");
+		parameters.put("publishMode", publishMode.getText());
+
+		result.appendEvent(eventFactory.generateEventData(EventType.AnnouncementPublished, context,
+				announcement1, credential, null, parameters));
+
+		result.setResult(mapToData(newAnnouncement));
+
+		return result;
+	}
+
 
 	@Override
 	@Transactional(readOnly=true)
@@ -166,30 +213,6 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		data.setCreationTime(DateUtil.getMillisFromDate(original.getDateCreated()));
 		data.setEncodedId(idEncoder.encodeId(original.getId()));
 		return data;
-	}
-
-	private AnnouncementData persistAnnouncement(Long credentialId, String title, String text, Long creatorId) throws DbConnectionException {
-		try {
-			Announcement announcement = new Announcement();
-			announcement.setTitle(title);
-			announcement.setText(text);
-			announcement.setDateCreated(new Date());
-			//create and add creator
-			try {
-				User user = loadResource(User.class, creatorId);
-				announcement.setCreatedBy(user);
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			}
-			//create and add credential
-			Credential1 credential = loadResource(Credential1.class, credentialId);
-			announcement.setCredential(credential);
-			Announcement newAnnouncement = saveEntity(announcement);
-			return mapToData(newAnnouncement);
-		} catch (Exception e) {
-			logger.error("Error",e);
-			throw new DbConnectionException("Error while saving announcement data");
-		}
 	}
 
 	private void persistSeenAnnouncement(Long announcementId, Long userId) {

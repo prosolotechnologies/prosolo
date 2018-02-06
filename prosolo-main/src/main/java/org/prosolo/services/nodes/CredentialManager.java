@@ -14,11 +14,11 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -77,6 +77,10 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences, long userId, AccessMode accessMode)
 					throws ResourceNotFoundException, DbConnectionException;
+
+	CredentialData getCredentialDataForEdit(long credentialId) throws DbConnectionException;
+
+	List<LearningResourceLearningStage> getCredentialLearningStagesData(long orgId, long firstStageCredId) throws DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -210,7 +214,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCredentialData> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all completed credentials (credentials that has progress == 100)
@@ -220,7 +224,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
@@ -230,7 +234,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCredentialData> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 
 		
 	/**
@@ -363,6 +367,8 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException;
+
+	List<CredentialData> getActiveDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
 			long userId) throws DbConnectionException;
@@ -438,4 +444,21 @@ public interface CredentialManager extends AbstractManager {
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
 
+	Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException;
+
+	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
+
+	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
+
+	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
+
+	/**
+	 * Disables learning in stages for all original credentials, but not for deliveries
+	 *
+	 * @param orgId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
 }

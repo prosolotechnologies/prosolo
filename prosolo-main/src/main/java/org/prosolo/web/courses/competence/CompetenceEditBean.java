@@ -17,6 +17,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.competence.util.LearningPathDescription;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
@@ -61,6 +62,8 @@ public class CompetenceEditBean implements Serializable {
 	private int activityForRemovalIndex;
 	
 	private PublishedStatus[] compStatusArray;
+
+	private LearningPathDescription[] learningPaths;
 	
 	private String credTitle;
 	
@@ -101,6 +104,7 @@ public class CompetenceEditBean implements Serializable {
 				}
 			}
 			initializeStatuses();
+			learningPaths = LearningPathDescription.values();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -536,5 +540,9 @@ public class CompetenceEditBean implements Serializable {
 
 	public long getDecodedCredId() {
 		return decodedCredId;
+	}
+
+	public LearningPathDescription[] getLearningPaths() {
+		return learningPaths;
 	}
 }

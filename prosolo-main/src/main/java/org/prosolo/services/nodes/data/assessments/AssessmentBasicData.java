@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.data.assessments;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+
 /**
  * Created by stefanvuckovic on 5/18/17.
  */
@@ -11,7 +13,7 @@ public class AssessmentBasicData {
     private final long studentId;
     private final long assessorId;
     private final int grade;
-    private final boolean isDefault;
+    private final AssessmentType type;
 
     private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId, int grade) {
         this.credentialAssessmentId = credentialAssessmentId;
@@ -20,27 +22,27 @@ public class AssessmentBasicData {
         this.studentId = 0;
         this.assessorId = 0;
         this.grade = grade;
-        this.isDefault = false;
+        this.type = null;
     }
 
     private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId,
-                                long assessorId, boolean isDefault) {
+                                long assessorId, AssessmentType type) {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
         this.studentId = 0;
         this.assessorId = assessorId;
-        this.isDefault = isDefault;
+        this.type = type;
         this.grade = -1;
     }
 
-    private AssessmentBasicData(long studentId, long assessorId, boolean isDefault) {
+    private AssessmentBasicData(long studentId, long assessorId, AssessmentType type) {
         this.credentialAssessmentId = 0;
         this.competenceAssessmentId = 0;
         this.activityAssessmentId = 0;
         this.studentId = studentId;
         this.assessorId = assessorId;
-        this.isDefault = isDefault;
+        this.type = type;
         this.grade = -1;
     }
 
@@ -55,13 +57,13 @@ public class AssessmentBasicData {
     }
 
     public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
-                                         long activityAssessmentId, long assessorId, boolean isDefault) {
+                                         long activityAssessmentId, long assessorId, AssessmentType type) {
         return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId,
-                assessorId, isDefault);
+                assessorId, type);
     }
 
-    public static AssessmentBasicData of(long studentId, long assessorId, boolean isDefault) {
-        return new AssessmentBasicData(studentId, assessorId, isDefault);
+    public static AssessmentBasicData of(long studentId, long assessorId, AssessmentType type) {
+        return new AssessmentBasicData(studentId, assessorId, type);
     }
 
     public static AssessmentBasicData empty() {
@@ -84,8 +86,8 @@ public class AssessmentBasicData {
         return assessorId;
     }
 
-    public boolean isDefault() {
-        return isDefault;
+    public AssessmentType getType() {
+        return type;
     }
 
     public long getStudentId() {

@@ -57,5 +57,8 @@ public class ElasticSearchConfig {
 	@Element(name = "jobsLogs-index")
 	public String jobsLogsIndex;
 
+	@Element(name = "evidences-index")
+	public String evidencesIndex;
+
 	
 }

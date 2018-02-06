@@ -9,9 +9,11 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 public class AssessmentRequestEventProcessor extends NotificationEventProcessor {
 	
@@ -19,7 +21,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	private static Logger logger = Logger.getLogger(AssessmentRequestEventProcessor.class);
 	
 	public AssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 
@@ -32,7 +34,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), 
-				false));
+				false, PageSection.STUDENT));
 		return receivers;
 	}
 

@@ -1,15 +1,14 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /** For all fields that can be updated changes can be tracked */
 public class CredentialData extends StandardObservable implements Serializable {
@@ -24,6 +23,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	 */
 	private long version = -1;
 	private long id;
+	private long organizationId;
 	private String title;
 	private String description;
 	private Set<Tag> tags;
@@ -66,11 +66,24 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	//for original
 	private List<CredentialData> deliveries;
+
+	//learning in stages
+	private boolean learningStageEnabled;
+	private LearningStageData learningStage;
+	private long firstLearningStageCredentialId;
+	private boolean learningStagesInitialized;
+	private List<LearningResourceLearningStage> learningStages;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
+		learningStages = new ArrayList<>();
 		this.listenChanges = listenChanges;
+	}
+
+	public CredentialData(Credential1 credential){
+		this.id = credential.getId();
+		this.title = credential.getTitle();
 	}
 
 	/**
@@ -88,6 +101,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 			}
 		}
 		return changed;
+	}
+
+	public boolean isFirstStageCredential() {
+		return getId() == getFirstLearningStageCredentialId();
 	}
 	
 	public boolean hasMoreCompetences(int index) {
@@ -345,8 +362,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.type = type;
 	}
 
-	public boolean isTitleChanged() {
-		return changedAttributes.containsKey("title");
+	public boolean isLearningStageEnabledChanged() {
+		return changedAttributes.containsKey("learningStageEnabled");
 	}
 
 	public boolean isDescriptionChanged() {
@@ -385,6 +402,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("deliveryStartTime");
 	}
 
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
 	public long getDeliveryStartBeforeUpdate() {
 		Long delStartTime = (Long) changedAttributes.get("deliveryStartTime");
 		//if not null return this value, if it is null it means it is not changed so original value can be returned
@@ -399,6 +420,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		Long delEndTime = (Long) changedAttributes.get("deliveryEndTime");
 		//if not null return this value, if it is null it means it is not changed so original value can be returned
 		return delEndTime != null ? delEndTime : deliveryEndTime;
+	}
+
+	public LearningStageData getLearningStageBeforeUpdate() {
+		return (LearningStageData) changedAttributes.get("learningStage");
 	}
 
 	public List<CredentialData> getDeliveries() {
@@ -457,5 +482,59 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setDeliveryOfTitle(String deliveryOfTitle) {
 		this.deliveryOfTitle = deliveryOfTitle;
+	}
+
+	public boolean isLearningStageEnabled() {
+		return learningStageEnabled;
+	}
+
+	public void setLearningStageEnabled(boolean learningStageEnabled) {
+		observeAttributeChange("learningStageEnabled", this.learningStageEnabled, learningStageEnabled);
+		this.learningStageEnabled = learningStageEnabled;
+	}
+
+	public LearningStageData getLearningStage() {
+		return learningStage;
+	}
+
+	public void setLearningStage(LearningStageData learningStage) {
+		observeAttributeChange("learningStage", this.learningStage, learningStage);
+		this.learningStage = learningStage;
+	}
+
+	public List<LearningResourceLearningStage> getLearningStages() {
+		return learningStages;
+	}
+
+	public void addLearningStage(LearningResourceLearningStage ls) {
+		this.learningStages.add(ls);
+	}
+
+	public void addLearningStages(Collection<LearningResourceLearningStage> learningStages) {
+		this.learningStages.addAll(learningStages);
+	}
+
+	public long getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setOrganizationId(long organizationId) {
+		this.organizationId = organizationId;
+	}
+
+	public long getFirstLearningStageCredentialId() {
+		return firstLearningStageCredentialId;
+	}
+
+	public void setFirstLearningStageCredentialId(long firstLearningStageCredentialId) {
+		this.firstLearningStageCredentialId = firstLearningStageCredentialId;
+	}
+
+	public boolean isLearningStagesInitialized() {
+		return learningStagesInitialized;
+	}
+
+	public void setLearningStagesInitialized(boolean learningStagesInitialized) {
+		this.learningStagesInitialized = learningStagesInitialized;
 	}
 }

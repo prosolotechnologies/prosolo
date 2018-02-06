@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
@@ -139,4 +140,10 @@ public interface UserManager extends AbstractManager {
 			throws DbConnectionException;
 
 	long getUserOrganizationId(long userId) throws DbConnectionException;
+
+	void saveAccountChanges(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException;
+
+	Result<Void> saveAccountChangesAndGetEvents(UserData accountData, UserContextData contextData)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException;
 }

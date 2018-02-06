@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 
 public class CredentialProgressData implements Serializable {
 
@@ -20,10 +21,10 @@ public class CredentialProgressData implements Serializable {
 		
 	}
 	
-	public CredentialProgressData(TargetCredential1 credential){
+	public CredentialProgressData(TargetCredentialData credential){
 		this.id = credential.getId();
-		this.credentialId=credential.getCredential().getId();
-		this.name = credential.getCredential().getTitle();
+		this.credentialId=credential.getCredentialId();
+		this.name = credential.getTitle();
 		this.progress = credential.getProgress();
 	}
 
