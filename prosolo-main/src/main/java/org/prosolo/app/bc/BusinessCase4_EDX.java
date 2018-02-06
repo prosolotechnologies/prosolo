@@ -2,6 +2,7 @@ package org.prosolo.app.bc;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
@@ -14,6 +15,7 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -778,6 +780,12 @@ public class BusinessCase4_EDX extends BusinessCase {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userAngelicaFallon.getId(), org.getId(), null, null)));
 
 		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events);
+
+		try {
+			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndInitElasticSearchIndexes();
+		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
+			logger.error(indexingServiceNotAvailable);
+		}
 	}
 
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {
