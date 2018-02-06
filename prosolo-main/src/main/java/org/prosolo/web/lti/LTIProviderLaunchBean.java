@@ -28,7 +28,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,8 +94,7 @@ public class LTIProviderLaunchBean implements Serializable {
 			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).getLaunchUrl(tool, user.getId());
 
 			logger.info("Redirecting user to "+url);
-		 	PageUtil.redirect(url);
-			externalContext.redirect(externalContext.getRequestContextPath() + "/" + url);
+			PageUtil.redirect(url);
 		} else {
 			throw new Exception("User login unsuccessful");
 		}
@@ -107,13 +105,9 @@ public class LTIProviderLaunchBean implements Serializable {
 		String url = PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		if (url != null) {
 			String returnURL = buildReturnURL(url, message);
-			try {
-				logger.info("Redirecting to "+returnURL);
-				externalContext.redirect(returnURL);
-			} catch (IOException ex) {
-				logger.error(ex);
-			}
-		}else{
+			logger.info("Redirecting to "+returnURL);
+			PageUtil.redirect(returnURL);
+		} else {
 			logger.info("LTI consumer did not send return url to redirect user back");
 		}
 	}
