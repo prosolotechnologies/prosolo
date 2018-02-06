@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,14 @@ public class CompetenceAssessment extends BaseEntity {
 	private int points;
 
 	private Set<CredentialCompetenceAssessment> credentialAssessments;
+	private Set<CompetenceAssessmentDiscussionParticipant> participants;
+	private Set<CompetenceAssessmentMessage> messages;
+
+	public CompetenceAssessment() {
+		this.credentialAssessments = new HashSet<>();
+		this.participants = new HashSet<>();
+		this.messages = new HashSet<>();
+	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
@@ -119,5 +128,33 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setCredentialAssessments(Set<CredentialCompetenceAssessment> credentialAssessments) {
 		this.credentialAssessments = credentialAssessments;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	public Set<CompetenceAssessmentDiscussionParticipant> getParticipants() {
+		return participants;
+	}
+
+	public void setParticipants(Set<CompetenceAssessmentDiscussionParticipant> participants) {
+		this.participants = participants;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public Set<CompetenceAssessmentMessage> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(Set<CompetenceAssessmentMessage> messages) {
+		this.messages = messages;
+	}
+
+	public CompetenceAssessmentDiscussionParticipant getParticipantByUserId(long id) {
+		for (CompetenceAssessmentDiscussionParticipant participant : getParticipants()) {
+			if (participant.getParticipant().getId() == id) {
+				return participant;
+			}
+		}
+		return null;
 	}
 }

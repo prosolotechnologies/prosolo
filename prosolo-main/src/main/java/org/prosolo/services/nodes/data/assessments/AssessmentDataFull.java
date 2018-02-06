@@ -1,10 +1,13 @@
 package org.prosolo.services.nodes.data.assessments;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -13,6 +16,7 @@ import org.prosolo.web.util.AvatarUtils;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class AssessmentDataFull {
@@ -37,6 +41,11 @@ public class AssessmentDataFull {
 	private long credentialId;
 	private AssessmentType type;
 	private GradeData gradeData;
+	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
+	private boolean allRead = true; 	// whether user has read all the messages in the thread
+	private boolean participantInDiscussion;
+	private int numberOfMessages;
+	private boolean messagesInitialized;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -94,6 +103,18 @@ public class AssessmentDataFull {
 		));
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
+
+		data.setNumberOfMessages(assessment.getMessages().size());
+		CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
+		if (currentParticipant != null) {
+			data.setParticipantInDiscussion(true);
+			data.setAllRead(currentParticipant.isRead());
+		} else {
+			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+			data.setAllRead(false);
+			data.setParticipantInDiscussion(false);
+		}
+
 		return data;
 	}
 
@@ -290,5 +311,46 @@ public class AssessmentDataFull {
 
 	public GradeData getGradeData() {
 		return gradeData;
+	}
+
+	public void setParticipantInDiscussion(boolean participantInDiscussion) {
+		this.participantInDiscussion = participantInDiscussion;
+	}
+
+	public boolean isParticipantInDiscussion() {
+		return participantInDiscussion;
+	}
+
+	public void setAllRead(boolean allRead) {
+		this.allRead = allRead;
+	}
+
+	public boolean isAllRead() {
+		return allRead;
+	}
+
+	public void populateDiscussionMessages(List<AssessmentDiscussionMessageData> msgs) {
+		messages.clear();
+		messages.addAll(msgs);
+	}
+
+	public int getNumberOfMessages() {
+		return numberOfMessages;
+	}
+
+	public void setNumberOfMessages(int numberOfMessages) {
+		this.numberOfMessages = numberOfMessages;
+	}
+
+	public boolean isMessagesInitialized() {
+		return messagesInitialized;
+	}
+
+	public void setMessagesInitialized(boolean messagesInitialized) {
+		this.messagesInitialized = messagesInitialized;
+	}
+
+	public List<AssessmentDiscussionMessageData> getMessages() {
+		return messages;
 	}
 }

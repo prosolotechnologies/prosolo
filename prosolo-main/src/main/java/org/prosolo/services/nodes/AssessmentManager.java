@@ -12,7 +12,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
@@ -43,22 +43,46 @@ public interface AssessmentManager {
 											   UserContextData context, long assessedStudentId, long credentialId)
 			throws DbConnectionException, IllegalDataStateException;
 
-	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
-														 UserContextData context,
-														 long credentialAssessmentId,
-														 long credentialId);
+	AssessmentDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment,
+                                                           UserContextData context,
+                                                           long credentialAssessmentId,
+                                                           long credentialId);
 
-	Result<ActivityDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
-																			 String comment,UserContextData context,
-																			 long credentialAssessmentId,
-																			 long credentialId);
+	Result<AssessmentDiscussionMessageData> addCommentToDiscussionAndGetEvents(long actualDiscussionId, long senderId,
+                                                                               String comment, UserContextData context,
+                                                                               long credentialAssessmentId,
+                                                                               long credentialId);
 
 	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;
 
+	AssessmentDiscussionMessageData addCommentToCompetenceAssessmentDiscussion(
+			long assessmentId, long senderId, String comment, UserContextData context,
+			long credentialAssessmentId, long credentialId);
+
+	Result<AssessmentDiscussionMessageData> addCommentToCompetenceAssessmentAndGetEvents(
+			long assessmentId, long senderId, String comment, UserContextData context,
+			long credentialAssessmentId, long credentialId);
+
+	AssessmentDiscussionMessageData addCommentToCredentialAssessmentDiscussion(
+			long assessmentId, long senderId, String comment, UserContextData context);
+
+	void editCredentialAssessmentMessage(long messageId, long userId, String newContent)
+			throws DbConnectionException;
+
+	Result<AssessmentDiscussionMessageData> addCommentToCredentialAssessmentAndGetEvents(
+			long assessmentId, long senderId, String comment, UserContextData context);
+
+	void editCompetenceAssessmentMessage(long messageId, long userId, String newContent)
+			throws DbConnectionException;
+
 	void approveCompetence(long decodedCompetenceAssessmentId);
 
-	void markDiscussionAsSeen(long userId, long discussionId);
+	void markActivityAssessmentDiscussionAsSeen(long userId, long discussionId);
+
+	void markCompetenceAssessmentDiscussionAsSeen(long userId, long assessmentId);
+
+	void markCredentialAssessmentDiscussionAsSeen(long userId, long assessmentId);
 
 	Long getAssessmentIdForUser(long userId, long targetCredentialId);
 
@@ -68,8 +92,14 @@ public interface AssessmentManager {
 
 	int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved, long credId);
 
-	List<ActivityDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
-				long assessorId) throws DbConnectionException;
+	List<AssessmentDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
+                                                                        long assessorId) throws DbConnectionException;
+
+	List<AssessmentDiscussionMessageData> getCompetenceAssessmentDiscussionMessages(
+			long assessmentId) throws DbConnectionException;
+
+	List<AssessmentDiscussionMessageData> getCredentialAssessmentDiscussionMessages(
+			long assessmentId) throws DbConnectionException;
 
 	void updateInstructorAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;
 
@@ -120,7 +150,11 @@ public interface AssessmentManager {
 	 *
 	 * @return list of participant ids
 	 */
-	List<Long> getParticipantIds(long activityAssessmentId);
+	List<Long> getActivityDiscussionParticipantIds(long activityAssessmentId);
+
+	List<Long> getCompetenceDiscussionParticipantIds(long assessmentId);
+
+	List<Long> getCredentialDiscussionParticipantIds(long assessmentId);
 
 	/**
 	 * Returns existing assessment id from given assessor if it exists and assessment type is not instructor assessment,
@@ -156,6 +190,12 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 
 	AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
+			throws DbConnectionException;
+
+	AssessmentBasicData getBasicAssessmentInfoForCompetenceAssessment(long assessmentId)
+			throws DbConnectionException;
+
+	AssessmentBasicData getBasicAssessmentInfoForCredentialAssessment(long assessmentId)
 			throws DbConnectionException;
 
 	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;

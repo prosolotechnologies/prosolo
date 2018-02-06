@@ -6,7 +6,6 @@
 			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 			  xmlns:util="http://www.prosolo.com/util"
-			  xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
 			  xmlns:c="http://java.sun.com/jsp/jstl/core"
 			  xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
@@ -31,19 +30,31 @@
                 $("div.modal-backdrop.fade.in").remove()
             }
 
-            function markDiscussionAsSeen(discussionId, parentElement) {
-                markActivityDiscussionRead([ {
-                    name : 'encodedActivityDiscussionId',
-                    value : discussionId
-                } ])
-                $(parentElement).removeClass("hasNewComments");
-            }
-
-            function updateNumberOfMessages(elementId) {
-                var numberOfComments = $('#' + elementId).find(
-                    'div.comments li').length;
-                $('#' + elementId).parent().find('a.commentsIcon').text(
-                    numberOfComments);
+            function markDiscussionAsSeen(assessmentId, el, resource) {
+                switch (resource) {
+					case 'ACTIVITY':
+						markActivityDiscussionRead
+							([{
+								name: 'assessmentEncId',
+								value: assessmentId
+							}]);
+						break;
+					case 'COMPETENCE':
+					    markCompetenceAssessmentDiscussionRead
+							([{
+								name: 'assessmentEncId',
+								value: assessmentId
+							}]);
+						break;
+                    case 'CREDENTIAL':
+                        markCredentialAssessmentDiscussionRead
+                        ([{
+                            name: 'assessmentEncId',
+                            value: assessmentId
+                        }]);
+                        break;
+                }
+                $(el).removeClass("hasNewComments");
             }
 
             //comment form hide/show
@@ -65,8 +76,12 @@
 
 		</script>
 		<h:form prependId="false" id="remoteCommandForm">
-			<p:remoteCommand action="#{cc.attrs.bean.markDiscussionRead()}"
+			<p:remoteCommand process="@this" action="#{cc.attrs.bean.markActivityAssessmentDiscussionRead()}"
 							 name="markActivityDiscussionRead"></p:remoteCommand>
+			<p:remoteCommand process="@this" action="#{cc.attrs.bean.markCompetenceAssessmentDiscussionRead()}"
+							 name="markCompetenceAssessmentDiscussionRead"/>
+			<p:remoteCommand process="@this" action="#{cc.attrs.bean.markCredentialAssessmentDiscussionRead()}"
+							 name="markCredentialAssessmentDiscussionRead"/>
 		</h:form>
 
 		<div class="whiteBar">
@@ -152,7 +167,13 @@
 									#{cc.attrs.bean.fullAssessmentData.gradeData.currentGrade} /
 									#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 							</ui:remove>
-							<a href="#" class="item commentsIcon hasNewComments" data-toggle="modal" data-target="#assessmentCommentsModal1">5</a>
+							<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}" pt:data-toggle="modal"
+										   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this, 'CREDENTIAL')"
+										   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
+										   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
+										   oncomplete="$('#assessmentCommentsModal1').modal('show');">
+								#{cc.attrs.bean.fullAssessmentData.numberOfMessages}
+							</p:commandLink>
 							<assessment:gradeLabel
 									assessment="#{cc.attrs.bean.fullAssessmentData}"
 									assessmentBean="#{cc.attrs.bean}"
@@ -273,7 +294,7 @@
 						<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 							<ui:fragment rendered="#{not competenceAssessment.readOnly}">
 								<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
-									<div class="summaryAssessmentsHead">
+									<div class="summaryAssessmentsHead #{(!competenceAssessment.participantInDiscussion or competenceAssessment.allRead or competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 										<h2>
 											<h:link outcome="competence">
 												#{competenceAssessment.title}
@@ -296,7 +317,13 @@
 														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 												Approve<span></span>
 											</p:commandLink>
-											<a href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal">5</a>
+											<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+														   onclick="markDiscussionAsSeen('#{util:encodeId(competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
+														   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(competenceAssessment)}"
+														   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
+														   oncomplete="$('#assessmentCommentsModal1').modal('show');">
+												#{competenceAssessment.numberOfMessages}
+											</p:commandLink>
 											<assessment:gradeLabel
 													assessment="#{competenceAssessment}"
 													assessmentBean="#{cc.attrs.bean}"
@@ -350,10 +377,9 @@
 																	<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
 																</h:link>
 															</ui:fragment>
-
 															<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-																		   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
-																		   action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(activityAssessment)}"
+																		   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement, 'ACTIVITY')"
+																		   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 																		   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 																		   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 																#{activityAssessment.numberOfMessages}
@@ -496,8 +522,17 @@
 
 		</div>
 
-		<activities:activityCommentModal id="commentModal"
-										 toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) :assessmentPreview:assessCredentialForm"
+		<assessment:assessmentCommentModal
+				id="commentModal"
+			    toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+				messages="#{cc.attrs.bean.currentAssessmentMessages}"
+				bean="#{cc.attrs.bean.currentAssessmentBean}"
+				learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
+					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:activity|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('/')))
+					: cc.attrs.bean.currentResType eq 'COMPETENCE'
+						? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId))
+						: cc.attrs.learningContext}"
+
 		/>
 
 		<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
@@ -505,20 +540,22 @@
 				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
 				<h2>Grade</h2>
 				<h:panelGroup id="panelRubricAssessment">
-					<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
-						<h3>#{c.name}</h3>
-						<ul class="levelsList">
-							<ui:repeat value="#{c.levels}" var="l">
-								<li class="#{c.levelId eq l.id ? 'checked' : ''}">
-									#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
-								</li>
-							</ui:repeat>
-						</ul>
-						<p><strong>Comments:</strong> #{c.comment}</p>
-					</ui:repeat>
-					<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.pointBasedGrading == true}">
-						<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.currentGrade != null and activityAssessmentBean.activityAssessmentData.grade.isAssessed() ? activityAssessmentBean.activityAssessmentData.grade.currentGrade : '-'}</strong></p>
-					</c:if>
+					<ui:fragment rendered="#{activityAssessmentBean.activityAssessmentData.grade.gradingMode eq 'MANUAL_RUBRIC'}">
+						<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
+							<h3>#{c.name}</h3>
+							<ul class="levelsList">
+								<ui:repeat value="#{c.levels}" var="l">
+									<li class="#{c.levelId eq l.id ? 'checked' : ''}">
+										#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+									</li>
+								</ui:repeat>
+							</ul>
+							<p><strong>Comments:</strong> #{c.comment}</p>
+						</ui:repeat>
+						<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.pointBasedGrading == true}">
+							<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.currentGrade != null and activityAssessmentBean.activityAssessmentData.grade.isAssessed() ? activityAssessmentBean.activityAssessmentData.grade.currentGrade : '-'}</strong></p>
+						</c:if>
+					</ui:fragment>
 				</h:panelGroup>
 			</div>
 		</c:if>

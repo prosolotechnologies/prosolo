@@ -1,10 +1,13 @@
 package org.prosolo.common.domainmodel.assessment;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,6 +23,13 @@ public class CredentialAssessment extends BaseEntity {
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
 	private int points;
+	private Set<CredentialAssessmentDiscussionParticipant> participants;
+	private Set<CredentialAssessmentMessage> messages;
+
+	public CredentialAssessment() {
+		this.participants = new HashSet<>();
+		this.messages = new HashSet<>();
+	}
 
 	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
 		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
@@ -102,5 +112,33 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setPoints(int points) {
 		this.points = points;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	public Set<CredentialAssessmentDiscussionParticipant> getParticipants() {
+		return participants;
+	}
+
+	public void setParticipants(Set<CredentialAssessmentDiscussionParticipant> participants) {
+		this.participants = participants;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public Set<CredentialAssessmentMessage> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(Set<CredentialAssessmentMessage> messages) {
+		this.messages = messages;
+	}
+
+	public CredentialAssessmentDiscussionParticipant getParticipantByUserId(long id) {
+		for (CredentialAssessmentDiscussionParticipant participant : getParticipants()) {
+			if (participant.getParticipant().getId() == id) {
+				return participant;
+			}
+		}
+		return null;
 	}
 }

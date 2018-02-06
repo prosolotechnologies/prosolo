@@ -3,16 +3,13 @@ package org.prosolo.services.nodes.data.assessments;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.common.domainmodel.credential.GradingMode;
-import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.assessments.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class ActivityAssessmentData {
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion; 	// whether user is participant in the discussion
 	private boolean messagesInitialized;
-	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
+	private List<AssessmentDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
 	private List<String> downloadResourceUrls;
 	private long assessorId;
 	private long compAssessmentId;
@@ -91,7 +88,7 @@ public class ActivityAssessmentData {
 		if (CollectionUtils.isNotEmpty(messages)) {
 			data.setNumberOfMessages(activityDiscussion.getMessages().size());
 			for (ActivityDiscussionMessage activityMessage : messages) {
-				ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+				AssessmentDiscussionMessageData messageData = AssessmentDiscussionMessageData.from(activityMessage,
 						compAssessment.getAssessor(), encoder);
 				data.addDiscussionMessageSorted(messageData);
 			}
@@ -153,14 +150,14 @@ public class ActivityAssessmentData {
 //		}
 //	}
 
-	public void populateDiscussionMessages(List<ActivityDiscussionMessageData> msgs) {
+	public void populateDiscussionMessages(List<AssessmentDiscussionMessageData> msgs) {
 		activityDiscussionMessageData.clear();
 		activityDiscussionMessageData.addAll(msgs);
 	}
 
-	public void addDiscussionMessageSorted(ActivityDiscussionMessageData msg) {
+	public void addDiscussionMessageSorted(AssessmentDiscussionMessageData msg) {
 		int index = 0;
-		for (ActivityDiscussionMessageData m : activityDiscussionMessageData) {
+		for (AssessmentDiscussionMessageData m : activityDiscussionMessageData) {
 			if (m.getDateUpdated().before(msg.getDateUpdated())) {
 				break;
 			} else {
@@ -199,7 +196,7 @@ public class ActivityAssessmentData {
 		this.activityType = activityType;
 	}
 
-	public List<ActivityDiscussionMessageData> getActivityDiscussionMessageData() {
+	public List<AssessmentDiscussionMessageData> getActivityDiscussionMessageData() {
 		return activityDiscussionMessageData;
 	}
 

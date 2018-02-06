@@ -2,13 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -16,7 +10,6 @@ import org.prosolo.web.util.page.PageUtil;
 
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author stefanvuckovic
@@ -96,7 +89,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 		}
 	}
 
-	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
+	public boolean isCurrentUserMessageSender(AssessmentDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
 
@@ -104,7 +97,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 	ACTIONS
 	 */
 
-	public void addCommentToActivityDiscussion() {
+	public void addCommentToAssessmentDiscussion() {
 		try {
 			addComment();
 			cleanupCommentData();

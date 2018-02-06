@@ -1,6 +1,8 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentMessage;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessmentMessage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
@@ -9,7 +11,7 @@ import org.prosolo.web.util.AvatarUtils;
 
 import java.util.Date;
 
-public class ActivityDiscussionMessageData {
+public class AssessmentDiscussionMessageData {
 	
 	private String content;
 	private String senderAvatarUrl;
@@ -49,8 +51,8 @@ public class ActivityDiscussionMessageData {
 		this.senderInstructor = senderInstructor;
 	}
 
-	public static ActivityDiscussionMessageData from(ActivityDiscussionMessage activityMessage, User assessor, UrlIdEncoder encoder) {
-		ActivityDiscussionMessageData data = new ActivityDiscussionMessageData();
+	public static AssessmentDiscussionMessageData from(ActivityDiscussionMessage activityMessage, User assessor, UrlIdEncoder encoder) {
+		AssessmentDiscussionMessageData data = new AssessmentDiscussionMessageData();
 		data.setContent(activityMessage.getContent());
 		data.setEncodedMessageId(encoder.encodeId(activityMessage.getId()));
 		data.setEncodedSenderId(encoder.encodeId(activityMessage.getSender().getParticipant().getId()));
@@ -67,6 +69,46 @@ public class ActivityDiscussionMessageData {
 			User assessor) {
 		User messageSender = activityMessage.getSender().getParticipant();
 		return assessor == null ? false : assessor.getId() == messageSender.getId();
+	}
+
+	public static AssessmentDiscussionMessageData from(CompetenceAssessmentMessage message, long assessorId, UrlIdEncoder encoder) {
+		AssessmentDiscussionMessageData data = new AssessmentDiscussionMessageData();
+		data.setContent(message.getContent());
+		data.setEncodedMessageId(encoder.encodeId(message.getId()));
+		data.setEncodedSenderId(encoder.encodeId(message.getSender().getParticipant().getId()));
+		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
+		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
+		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setDateCreated(message.getDateCreated());
+		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
+		data.setDateUpdated(message.getLastUpdated());
+		data.setDateUpdatedFormat(DateUtil.createUpdateTime(message.getLastUpdated()));
+		return data;
+	}
+
+	private static boolean isSenderAssessor(CompetenceAssessmentMessage activityMessage, long assessorId) {
+		User messageSender = activityMessage.getSender().getParticipant();
+		return assessorId == 0 ? false : assessorId == messageSender.getId();
+	}
+
+	public static AssessmentDiscussionMessageData from(CredentialAssessmentMessage message, long assessorId, UrlIdEncoder encoder) {
+		AssessmentDiscussionMessageData data = new AssessmentDiscussionMessageData();
+		data.setContent(message.getContent());
+		data.setEncodedMessageId(encoder.encodeId(message.getId()));
+		data.setEncodedSenderId(encoder.encodeId(message.getSender().getParticipant().getId()));
+		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
+		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
+		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setDateCreated(message.getDateCreated());
+		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
+		data.setDateUpdated(message.getLastUpdated());
+		data.setDateUpdatedFormat(DateUtil.createUpdateTime(message.getLastUpdated()));
+		return data;
+	}
+
+	private static boolean isSenderAssessor(CredentialAssessmentMessage message, long assessorId) {
+		User messageSender = message.getSender().getParticipant();
+		return assessorId == 0 ? false : assessorId == messageSender.getId();
 	}
 	
 	

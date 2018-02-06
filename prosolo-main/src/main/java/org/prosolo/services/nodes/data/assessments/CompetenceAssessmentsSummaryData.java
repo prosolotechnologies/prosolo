@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.data.assessments;
 
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,4 +50,5 @@ public class CompetenceAssessmentsSummaryData implements Serializable {
     public void setActivitiesAssessmentSummaryData(List<ActivityAssessmentsSummaryData> activitiesAssessmentSummaryData) {
         this.activitiesAssessmentSummaryData = activitiesAssessmentSummaryData;
     }
+
 }

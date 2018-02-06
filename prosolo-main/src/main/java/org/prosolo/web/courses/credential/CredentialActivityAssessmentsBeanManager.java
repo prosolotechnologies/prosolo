@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
@@ -243,7 +243,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 //		}
 	}
 	
-	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
+	public boolean isCurrentUserMessageSender(AssessmentDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
 	
@@ -269,7 +269,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
 
 		if (!StringUtils.isBlank(encodedActivityDiscussionId)) {
-			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUserId(),
+			assessmentManager.markActivityAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					idEncoder.decodeId(encodedActivityDiscussionId));
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);

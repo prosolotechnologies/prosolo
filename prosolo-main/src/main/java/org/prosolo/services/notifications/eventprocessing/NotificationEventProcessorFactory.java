@@ -2,7 +2,11 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
@@ -72,8 +76,17 @@ public class NotificationEventProcessorFactory {
 			return new FollowUserEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder, followResourceManager);
 		case AssessmentComment:
-			return new AssessmentCommentEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, assessmentManager);
+			BaseEntity target = event.getTarget();
+			if (target instanceof ActivityAssessment) {
+				return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager);
+			} else if (target instanceof CompetenceAssessment) {
+				return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager);
+			} else if (target instanceof CredentialAssessment) {
+				return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager);
+			}
 		case AssessmentApproved:
 			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder);

@@ -7,7 +7,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.nodes.data.assessments.grading.GradingMode;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -92,8 +91,8 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
-			ActivityDiscussionMessageData msg = null;
-			for (ActivityDiscussionMessageData messageData : activityAssessmentData
+			AssessmentDiscussionMessageData msg = null;
+			for (AssessmentDiscussionMessageData messageData : activityAssessmentData
 					.getActivityDiscussionMessageData()) {
 				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
 					msg = messageData;
@@ -117,7 +116,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
 			UserContextData userContext = loggedUserBean.getUserContext();
 
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
+			AssessmentDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
 					activityAssessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext,
 					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
 
@@ -128,7 +127,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		}
 	}
 
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
+	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
 			newComment.setSenderInstructor(true);
 		}

@@ -92,7 +92,7 @@
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}

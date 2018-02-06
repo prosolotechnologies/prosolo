@@ -7,9 +7,11 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
@@ -33,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,6 +136,17 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.ACTIVITY;
 	}
 
+	//prepare for commenting
+	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {
+		activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(assessment);
+		currentResType = LearningResourceType.ACTIVITY;
+	}
+
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+		compAssessmentBean.prepareLearningResourceAssessmentForCommenting(assessment);
+		currentResType = LearningResourceType.COMPETENCE;
+	}
+
 	public long getCurrentAssessmentId() {
 		if (currentResType == null) {
 			return 0;
@@ -188,10 +202,39 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			case ACTIVITY:
 				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
 			case COMPETENCE:
-				//for now
 				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
 		}
 		return 0;
+	}
+
+	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getActivityDiscussionMessageData();
+			case COMPETENCE:
+				return compAssessmentBean.getCompetenceAssessmentData().getMessages();
+			case CREDENTIAL:
+				return fullAssessmentData.getMessages();
+		}
+		return null;
+	}
+
+	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean;
+			case COMPETENCE:
+				return compAssessmentBean;
+			case CREDENTIAL:
+				return this;
+		}
+		return null;
 	}
 
 	//LearningResourceAssessmentBean impl
@@ -216,24 +259,23 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	//prepare for commenting
-//	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {
-//		try {
-//			if (!assessment.isMessagesInitialized()) {
-//				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
-//					assessment.populateDiscussionMessages(assessmentManager
-//							.getActivityDiscussionMessages(
-//									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
-//									assessment.getAssessorId()));
-//				}
-//				assessment.setMessagesInitialized(true);
-//			}
-//			activityAssessmentData = assessment;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
-//		}
-//	}
+	public void prepareLearningResourceAssessmentForCommenting() {
+		try {
+			if (!fullAssessmentData.isMessagesInitialized()) {
+				if (fullAssessmentData.getCredAssessmentId() > 0) {
+					fullAssessmentData.populateDiscussionMessages(assessmentManager
+							.getCredentialAssessmentDiscussionMessages(
+									fullAssessmentData.getCredAssessmentId()));
+				}
+				fullAssessmentData.setMessagesInitialized(true);
+			}
+			currentResType = LearningResourceType.CREDENTIAL;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+		}
+	}
 
 	/*
 	ACTIONS
@@ -242,53 +284,51 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	//comment actions
 
 	@Override
-	public void editComment(String newContent, String activityMessageEncodedId) {
-//		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
-//		try {
-//			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
-//			ActivityDiscussionMessageData msg = null;
-//			for (ActivityDiscussionMessageData messageData : activityAssessmentData
-//					.getActivityDiscussionMessageData()) {
-//				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
-//					msg = messageData;
-//					break;
-//				}
-//			}
-//			msg.setDateUpdated(new Date());
-//			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
-//			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
-//			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
-//			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
-//		} catch (ResourceCouldNotBeLoadedException e) {
-//			logger.error("Error editing message with id : " + activityMessageId, e);
-//			PageUtil.fireErrorMessage("Error editing message");
-//		}
+	public void editComment(String newContent, String messageEncodedId) {
+		long messageId = idEncoder.decodeId(messageEncodedId);
+		try {
+			assessmentManager.editCredentialAssessmentMessage(messageId, loggedUserBean.getUserId(), newContent);
+			AssessmentDiscussionMessageData msg = null;
+			for (AssessmentDiscussionMessageData messageData : fullAssessmentData.getMessages()) {
+				if (messageData.getEncodedMessageId().equals(messageEncodedId)) {
+					msg = messageData;
+					break;
+				}
+			}
+			msg.setDateUpdated(new Date());
+			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
+			//because comment is edited now, it should be added as first in a list because list is sorted by last edit date
+			fullAssessmentData.getMessages().remove(msg);
+			fullAssessmentData.getMessages().add(0, msg);
+		} catch (DbConnectionException e) {
+			logger.error("Error editing message with id : " + messageId, e);
+			PageUtil.fireErrorMessage("Error editing message");
+		}
 	}
 
 	@Override
 	protected void addComment() {
-//		try {
-//			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
-//			UserContextData userContext = loggedUserBean.getUserContext();
-//
-//			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
-//					activityAssessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext,
-//					activityAssessmentData.getCredAssessmentId(),activityAssessmentData.getCredentialId());
-//
-//			addNewCommentToAssessmentData(newComment);
-//		} catch (Exception e){
-//			logger.error("Error approving assessment data", e);
-//			PageUtil.fireErrorMessage("Error approving the assessment");
-//		}
+		try {
+			long assessmentId = fullAssessmentData.getCredAssessmentId();
+			UserContextData userContext = loggedUserBean.getUserContext();
+
+			AssessmentDiscussionMessageData newComment = assessmentManager.addCommentToCredentialAssessmentDiscussion(
+					assessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext);
+
+			addNewCommentToAssessmentData(newComment);
+		} catch (Exception e){
+			logger.error("Error approving assessment data", e);
+			PageUtil.fireErrorMessage("Error approving the assessment");
+		}
 	}
 
-//	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
-//		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-//			newComment.setSenderInstructor(true);
-//		}
-//		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
-//		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
-//	}
+	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
+		if (loggedUserBean.getUserId() == fullAssessmentData.getAssessorId()) {
+			newComment.setSenderInstructor(true);
+		}
+		fullAssessmentData.getMessages().add(0, newComment);
+		fullAssessmentData.setNumberOfMessages(fullAssessmentData.getNumberOfMessages() + 1);
+	}
 
 	// grading actions
 
@@ -378,12 +418,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
-	public void markDiscussionRead() {
-		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
+	public void markActivityAssessmentDiscussionRead() {
+		String encodedActivityDiscussionId = getEncodedAssessmentIdFromRequest();
 
 		if (!StringUtils.isBlank(encodedActivityDiscussionId)) {
-			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUserId(),
+			assessmentManager.markActivityAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					idEncoder.decodeId(encodedActivityDiscussionId));
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
@@ -404,6 +443,48 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 		return Optional.empty();
 	}
+
+	public void markCompetenceAssessmentDiscussionRead() {
+		String encodedAssessmentId = getEncodedAssessmentIdFromRequest();
+
+		if (!StringUtils.isBlank(encodedAssessmentId)) {
+			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
+			assessmentManager.markCompetenceAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
+					assessmentId);
+			Optional<CompetenceAssessmentData> compAssessment = getCompetenceAssessmentById(
+					assessmentId);
+			compAssessment.ifPresent(data -> data.setAllRead(true));
+		}
+	}
+
+	public void markCredentialAssessmentDiscussionRead() {
+		String encodedAssessmentId = getEncodedAssessmentIdFromRequest();
+
+		if (!StringUtils.isBlank(encodedAssessmentId)) {
+			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
+			assessmentManager.markCredentialAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
+					assessmentId);
+			fullAssessmentData.setAllRead(true);
+		}
+	}
+
+	private Optional<CompetenceAssessmentData> getCompetenceAssessmentById(long assessmentId) {
+		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
+			for (CompetenceAssessmentData ca : competenceAssessmentData) {
+				if (assessmentId == ca.getCompetenceAssessmentId()) {
+					return Optional.of(ca);
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	private String getEncodedAssessmentIdFromRequest() {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		return params.get("assessmentEncId");
+	}
+
 
 	public void updateAssessmentGrade() {
 		try {
