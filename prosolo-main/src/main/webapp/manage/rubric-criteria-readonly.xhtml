@@ -18,20 +18,25 @@
                                 </div>
                             </ui:fragment>
                             <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
-                                <h2>#{cat.name} -
-                                    <h:outputLabel value="#{cat.points}">
-                                        <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
-                                    </h:outputLabel>%
+                                <h2>#{cat.name}
+                                    <ui:fragment rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT' or rubricCriteriaBean.rubric.rubricType eq 'POINT_RANGE'}">
+                                        -
+                                        <h:outputLabel value="#{cat.points}">
+                                            <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                                        </h:outputLabel>%
+                                    </ui:fragment>
                                 </h2>
                                 <table class="rubricsTable readOnly">
                                     <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
                                         <tr>
                                             <td class="col01">#{lvl.name}</td>
-                                            <td class="col02">
-                                                <h:outputLabel value="#{lvl.points}">
-                                                    <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
-                                                </h:outputLabel>%
-                                            </td>
+                                            <ui:fragment rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT'}">
+                                                <td class="col02">
+                                                    <h:outputLabel value="#{lvl.points}">
+                                                        <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                                                    </h:outputLabel>%
+                                                </td>
+                                            </ui:fragment>
                                             <td class="col03">#{cat.levels[lvl].description}</td>
                                         </tr>
                                     </ui:repeat>

@@ -58,55 +58,58 @@ public class ActivityAssessmentBean implements Serializable {
 	private void initializeGradeData() {
 		try {
 			GradeData gradeData = activityAssessmentData.getGrade();
-			gradeData.accept(new GradeDataVisitor<Void>() {
+			gradeData.accept(
+					/**
+					 * Visitor that initializes and sets additional grade data that is not
+					 * initially loaded based on grade data type
+					 */
+					new GradeDataVisitor<Void>() {
+						@Override
+						public Void visit(ManualSimpleGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(ManualSimpleGradeData gradeData) {
-					return null;
-				}
+						@Override
+						public Void visit(AutomaticGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(AutomaticGradeData gradeData) {
-					return null;
-				}
+						@Override
+						public Void visit(ExternalToolAutoGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(ExternalToolAutoGradeData gradeData) {
-					return null;
-				}
+						@Override
+						public Void visit(CompletionAutoGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(CompletionAutoGradeData gradeData) {
-					return null;
-				}
+						@Override
+						public Void visit(NongradedGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(NongradedGradeData gradeData) {
-					return null;
-				}
+						@Override
+						public Void visit(RubricGradeData gradeData) {
+							if (!gradeData.isInitialized()) {
+								gradeData.setRubricCriteria(rubricManager.getRubricDataForActivity(
+										activityAssessmentData.getActivityId(),
+										idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
+										true));
+							}
+							return null;
+						}
 
-				@Override
-				public Void visit(RubricGradeData gradeData) {
-					if (!gradeData.isInitialized()) {
-						Activity1 a = new Activity1();
-						gradeData.setRubricCriteria(rubricManager.getRubricDataForActivity(
-								activityAssessmentData.getActivityId(),
-								idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
-								true));
-					}
-					return null;
-				}
+						@Override
+						public Void visit(DescriptiveRubricGradeData gradeData) {
+							return null;
+						}
 
-				@Override
-				public Void visit(DescriptiveRubricGradeData gradeData) {
-					return null;
-				}
-
-				@Override
-				public Void visit(PointRubricGradeData gradeData) {
-					return null;
-				}
-			});
+						@Override
+						public Void visit(PointRubricGradeData gradeData) {
+							return null;
+						}
+					});
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");

@@ -929,49 +929,53 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private void setAdditionalGradeData(GradeData grade, long activityAssessmentId, boolean isAssessed) {
-		grade.accept(new GradeDataVisitor<Void>() {
+		grade.accept(
+				/**
+				 * Visitor that sets additional grade data that is a part of the grading process
+				 * besides setting points according to grading mode
+				 */
+				new GradeDataVisitor<Void>() {
+					@Override
+					public Void visit(ManualSimpleGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(ManualSimpleGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(AutomaticGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(AutomaticGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(ExternalToolAutoGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(ExternalToolAutoGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(CompletionAutoGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(CompletionAutoGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(NongradedGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(NongradedGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(RubricGradeData gradeData) {
+						gradeByRubric(gradeData, activityAssessmentId, isAssessed);
+						return null;
+					}
 
-			@Override
-			public Void visit(RubricGradeData gradeData) {
-				gradeByRubric(gradeData, activityAssessmentId, isAssessed);
-				return null;
-			}
+					@Override
+					public Void visit(DescriptiveRubricGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(DescriptiveRubricGradeData gradeData) {
-				return null;
-			}
-
-			@Override
-			public Void visit(PointRubricGradeData gradeData) {
-				return null;
-			}
-		});
+					@Override
+					public Void visit(PointRubricGradeData gradeData) {
+						return null;
+					}
+				});
 	}
 
 	private void gradeByRubric(RubricGradeData grade, long activityAssessmentId, boolean isAssessed)

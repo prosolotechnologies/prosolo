@@ -382,25 +382,28 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                         lvl = (Level) persistence.currentManager().load(Level.class, level.getId());
                         lvl.setTitle(level.getName());
                         lvl.setOrder(level.getOrder());
-                        lvl.accept(new LevelVisitor<Void> () {
+                        lvl.accept(
+                                /**
+                                 * Visitor that adds changes to rubric level based on its type
+                                 */
+                                new LevelVisitor<Void> () {
+                                    @Override
+                                    public Void visit(Level lev) {
+                                        return null;
+                                    }
 
-                            @Override
-                            public Void visit(Level lev) {
-                                return null;
-                            }
+                                    @Override
+                                    public Void visit(PointLevel lev) {
+                                        lev.setPoints(level.getPoints());
+                                        return null;
+                                    }
 
-                            @Override
-                            public Void visit(PointLevel lev) {
-                                lev.setPoints(level.getPoints());
-                                return null;
-                            }
-
-                            @Override
-                            public Void visit(PointRangeLevel level) {
-                                //TODO implement when needed
-                                return null;
-                            }
-                        });
+                                    @Override
+                                    public Void visit(PointRangeLevel level) {
+                                        //TODO implement when needed
+                                        return null;
+                                    }
+                                });
                         break;
                     case REMOVED:
                         deleteById(Level.class, level.getId(), persistence.currentManager());
@@ -422,19 +425,22 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
                         cat = (Criterion) persistence.currentManager().load(Criterion.class, criterion.getId());
                         cat.setTitle(criterion.getName());
                         cat.setOrder(criterion.getOrder());
-                        cat.accept(new CriterionVisitor<Void>() {
+                        cat.accept(
+                                /**
+                                 * Visitor that adds changes to Criterion entity based on its type
+                                 */
+                                new CriterionVisitor<Void>() {
+                                    @Override
+                                    public Void visit(Criterion c) {
+                                        return null;
+                                    }
 
-                            @Override
-                            public Void visit(Criterion c) {
-                                return null;
-                            }
-
-                            @Override
-                            public Void visit(PointCriterion c) {
-                                c.setPoints(criterion.getPoints());
-                                return null;
-                            }
-                        });
+                                    @Override
+                                    public Void visit(PointCriterion c) {
+                                        c.setPoints(criterion.getPoints());
+                                        return null;
+                                    }
+                                });
                         break;
                     case REMOVED:
                         deleteById(Criterion.class, criterion.getId(), persistence.currentManager());
