@@ -237,6 +237,21 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return null;
 	}
 
+	public String getCurrentResTitle() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getTitle();
+			case COMPETENCE:
+				return compAssessmentBean.getCompetenceAssessmentData().getTitle();
+			case CREDENTIAL:
+				return credentialTitle;
+		}
+		return null;
+	}
+
 	//LearningResourceAssessmentBean impl
 
 	@Override
