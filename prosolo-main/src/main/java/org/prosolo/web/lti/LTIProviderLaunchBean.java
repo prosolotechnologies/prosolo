@@ -91,7 +91,7 @@ public class LTIProviderLaunchBean implements Serializable {
 		if (loggedIn) {
 			logger.info("User for LTI launch logged in, user email " + user.getEmail());
 
-			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).getLaunchUrl(tool, user.getId());
+			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).getLaunchUrl(tool, user.getId(), user.getOrganization().getId());
 
 			logger.info("Redirecting user to "+url);
 			PageUtil.redirect(url);
