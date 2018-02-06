@@ -3,7 +3,8 @@ package org.prosolo.common.web;
 public enum ApplicationPage {
 
 	LOGIN("/login.xhtml"),
-	INDEX("/index.xhtml"), 
+	INDEX("/index.xhtml"),
+	 ROOT("/root.xhtml"),
 	//LEARN("/learn.xhtml"), 
 	//PLAN("/plan.xhtml"), 
 	//BROWSE_CREDENTIALS("/courseBrowse.xhtml"),
