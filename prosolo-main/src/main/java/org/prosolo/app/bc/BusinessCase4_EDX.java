@@ -3,7 +3,6 @@ package org.prosolo.app.bc;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -35,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -290,9 +290,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					1,
 					0,
 					ActivityResultType.TEXT);
-
-
-			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -440,8 +437,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					1,
 					0,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -554,8 +549,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					40,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -579,8 +572,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					20,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -612,8 +603,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					30,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred3, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -645,8 +634,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					45,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -677,8 +664,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					37,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -709,21 +694,23 @@ public class BusinessCase4_EDX extends BusinessCase {
 		/*
 		 * Liking comments
 		 */
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null)));
+		String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
+
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()), null))));
 
 		/*
 		 * Sending private messages
@@ -763,6 +750,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events);
 
 		try {
+			logger.info("Reindexing all indexes since we know some observers have failed");
 			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndInitElasticSearchIndexes();
 		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
 			logger.error(indexingServiceNotAvailable);
@@ -786,7 +774,9 @@ public class BusinessCase4_EDX extends BusinessCase {
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
 
-		PageContextData context = new PageContextData("/activity.xhtml", null, null);
+		String learningContext= MessageFormat.format("name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1//", act1comp1cred1.getId());
+
+		PageContextData context = new PageContextData("/activity.xhtml", learningContext, null );
 
 		Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
 				CommentedResourceType.Activity, UserContextData.of(userKevinHall.getId(), userKevinHall.getOrganization().getId(), null, context)));
@@ -794,37 +784,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		newComment.setCommentId(comment.getId());
 
 		return newComment;
-	}
-
-	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
-//		CredentialManager credentialManager = ServiceLocator
-//				.getInstance()
-//				.getService(CredentialManager.class);
-//
-//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false,
-//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
-//		CredentialData credentialData = res.getResource();
-//
-//		if (credentialData == null) {
-//			RestrictedAccessResult<CredentialData> res1 = credentialManager.getCredentialData(cred.getId(), false,
-//					true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
-//			CredentialData credentialData1 = res.getResource();
-//			System.out.println(credentialData1);
-//		}
-//
-//		if (credentialData != null) {
-//			//credentialData.setPublished(true);
-//
-//			credentialManager.updateCredential(credentialData, creator.getId(), null);
-//
-//			try {
-//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
-//			} catch (EventException e) {
-//				e.printStackTrace();
-//			}
-//		} else {
-//			logger.error("Could not load credential " + cred.getId());
-//		}
 	}
 
 	private Result<User> createUser(long orgId, String name, String lastname, String emailAddress, String password, String fictitiousUser,
@@ -904,10 +863,10 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getService(CredentialManager.class)
 				.saveNewCredentialAndGetEvents(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 
-		extractResultAndAddEvents(events, ServiceLocator
-				.getInstance()
-				.getService(UnitManager.class)
-				.addCredentialToUnitAndGetEvents(credentialData.getId(), unitId, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
+//		extractResultAndAddEvents(events, ServiceLocator
+//				.getInstance()
+//				.getService(UnitManager.class)
+//				.addCredentialToUnitAndGetEvents(credNP1.getId(), unitId, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 
 		return credNP1;
 	}

@@ -3,11 +3,6 @@
  */
 package org.prosolo.services.interfaceSettings.impl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -23,6 +18,11 @@ import org.prosolo.web.settings.data.NotificationSettingsData;
 import org.prosolo.web.settings.data.UserNotificationSettingsData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author "Nikola Milikic"
@@ -77,7 +77,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	}
 	
 	@Override
-	@Transactional
+	@Transactional (readOnly = true)
 	public UserNotificationsSettings getNotificationsSettings(long userId, Session session) {
 		String query =
 			"SELECT settings " + 
@@ -93,8 +93,12 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = false)
-	public NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session) 
+	public NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session)
 		throws DbConnectionException {
+		if (userId == 0) {
+			System.out.println();
+		}
+
 		try {
 			NotificationSettings settings = getEmailNotificationsSettings(userId, type);
 			
@@ -121,7 +125,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	}
 	
 	@Override
-	@Transactional
+	@Transactional (readOnly = true)
 	public NotificationSettings getEmailNotificationsSettings(long userId, NotificationType type) {
 		String query =
 				"SELECT notifications " + 
@@ -145,12 +149,11 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		Iterator<NotificationSettings> notIterator = notificationsSettings.getNotifications().iterator();
 		
 		while (notDataIterator.hasNext()) {
-			NotificationSettingsData notificationSettingsData = (NotificationSettingsData) notDataIterator.next();
-			NotificationSettings notificationSettings = (NotificationSettings) notIterator.next();
+			NotificationSettingsData notificationSettingsData = notDataIterator.next();
+			NotificationSettings notificationSettings = notIterator.next();
 			
 			notificationSettings.setSubscribedEmail(notificationSettingsData.isSubscribedEmail());
-			//notificationSettings.setSubscribedUI(notificationSettingsData.isSubscribedUI());
-			
+
 			saveEntity(notificationSettings);
 		}
 		return saveEntity(notificationsSettings);
@@ -171,27 +174,5 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		
 		return notificationTypes;
 	}
-	
-//	private List<NotificationSettings> getDefaultSubscribedEventTypes() {
-//		List<NotificationSettings> eventTypes = new ArrayList<NotificationSettings>();
-//		
-//		eventTypes.add(new NotificationSettings(EventType.JOIN_GOAL_REQUEST, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.JOIN_GOAL_REQUEST_APPROVED, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.JOIN_GOAL_REQUEST_DENIED, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.JOIN_GOAL_INVITATION, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.JOIN_GOAL_INVITATION_ACCEPTED, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.EVALUATION_REQUEST, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.EVALUATION_ACCEPTED, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.EVALUATION_GIVEN, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Follow, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.ACTIVITY_REPORT_AVAILABLE, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Comment, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Comment_Reply, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Like, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Dislike, true, true));
-//		eventTypes.add(new NotificationSettings(EventType.Post, true, true));
-//		
-//		return eventTypes;
-//	}
 	
 }

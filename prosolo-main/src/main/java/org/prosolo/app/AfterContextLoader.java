@@ -122,11 +122,11 @@ public class AfterContextLoader implements ServletContextListener {
 					logger.error(e);
 				}
 				
-				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
+				logger.debug("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
 						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
-				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
-					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
-				}
+//				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
+//					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
+//				}
 			}
 		}).start();
 		logger.debug("initialize Application services");
