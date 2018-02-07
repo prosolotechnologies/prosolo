@@ -153,7 +153,7 @@ public class RubricCriteriaBean implements Serializable {
 	}
 
 	public void addEmptyLevel() {
-		if (rubric.getLevels().size() < 7) {
+		if (rubric.getLevels().size() < maxNumberOfLevels) {
 			RubricLevelData level = new RubricLevelData(ObjectStatus.CREATED);
 			level.setOrder(rubric.getLevels().size() + 1);
 			rubric.addNewLevel(level);
