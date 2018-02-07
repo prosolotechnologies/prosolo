@@ -66,37 +66,45 @@ public class RubricDataFactory {
 	}
 
 	private RubricCriterionData getRubricCriterionData(Criterion criterion) {
-		return criterion.accept(new CriterionVisitor<RubricCriterionData>() {
-			@Override
-			public RubricCriterionData visit(Criterion criterion) {
-				return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder());
-			}
+		return criterion.accept(
+				/**
+				 * Visitor that sets rubric criterion data according to a criterion type
+				 */
+				new CriterionVisitor<RubricCriterionData>() {
+					@Override
+					public RubricCriterionData visit(Criterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder());
+					}
 
-			@Override
-			public RubricCriterionData visit(PointCriterion criterion) {
-				return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder(), criterion.getPoints());
-			}
-		});
+					@Override
+					public RubricCriterionData visit(PointCriterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder(), criterion.getPoints());
+					}
+				});
 	}
 
 	private RubricLevelData getRubricLevelData(Level level) {
-		return level.accept(new LevelVisitor<RubricLevelData>() {
-			@Override
-			public RubricLevelData visit(Level level) {
-				return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder());
-			}
+		return level.accept(
+				/**
+				 * Visitor that sets rubric level data according to a level type
+				 */
+				new LevelVisitor<RubricLevelData>() {
+					@Override
+					public RubricLevelData visit(Level level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder());
+					}
 
-			@Override
-			public RubricLevelData visit(PointLevel level) {
-				return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder(), level.getPoints());
-			}
+					@Override
+					public RubricLevelData visit(PointLevel level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder(), level.getPoints());
+					}
 
-			@Override
-			public RubricLevelData visit(PointRangeLevel level) {
-				//TODO implement when we introduce point range level on user interface
-				return null;
-			}
-		});
+					@Override
+					public RubricLevelData visit(PointRangeLevel level) {
+						//TODO implement when we introduce point range level on user interface
+						return null;
+					}
+				});
 	}
 
 	private void addLevelsWithDescriptionToCriterion(RubricData rubric, RubricCriterionData criterion, Set<CriterionLevel> criterionLevelDescriptions) {
@@ -113,55 +121,62 @@ public class RubricDataFactory {
 	}
 
 	public RubricCriterionGradeData getActivityRubricCriterionData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {
-		RubricCriterionGradeData criterionData = crit.accept(new CriterionVisitor<RubricCriterionGradeData>() {
-			@Override
-			public RubricCriterionGradeData visit(Criterion criterion) {
-				//descriptive criterion
-				RubricCriterionGradeData criterionData = new RubricCriterionGradeData();
-				setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
-				setCriterionAssessmentInfo(assessment, criterionData);
-				return criterionData;
-			}
+		RubricCriterionGradeData criterionData = crit.accept(
+				/**
+				 * Visitor that sets criterion grade data according to a criterion type
+				 */
+				new CriterionVisitor<RubricCriterionGradeData>() {
+					@Override
+					public RubricCriterionGradeData visit(Criterion criterion) {
+						//descriptive criterion
+						RubricCriterionGradeData criterionData = new RubricCriterionGradeData();
+						setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
+						setCriterionAssessmentInfo(assessment, criterionData);
+						return criterionData;
+					}
 
-			@Override
-			public RubricCriterionGradeData visit(PointCriterion criterion) {
-				//point based criterion
-				PointRubricCriterionGradeData criterionData = new PointRubricCriterionGradeData();
-				setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
-				criterionData.setWeight(criterion.getPoints());
-				setCriterionAssessmentInfo(assessment, criterionData);
-				return criterionData;
-			}
-		});
+					@Override
+					public RubricCriterionGradeData visit(PointCriterion criterion) {
+						//point based criterion
+						PointRubricCriterionGradeData criterionData = new PointRubricCriterionGradeData();
+						setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
+						criterionData.setWeight(criterion.getPoints());
+						setCriterionAssessmentInfo(assessment, criterionData);
+						return criterionData;
+					}
+				});
 
  		for (CriterionLevel cl : levels) {
- 			RubricLevelGradeData lvl = cl.getLevel().accept(new LevelVisitor<RubricLevelGradeData>() {
+ 			RubricLevelGradeData lvl = cl.getLevel().accept(
+					/**
+					 * Visitor that sets level grade data according to level type
+					 */
+					new LevelVisitor<RubricLevelGradeData>() {
+						@Override
+						public RubricLevelGradeData visit(Level level) {
+							//descriptive level
+							RubricLevelGradeData lvl = new RubricLevelGradeData();
+							setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
+							lvl.setDescription(cl.getDescription());
+							return lvl;
+						}
 
-				@Override
-				public RubricLevelGradeData visit(Level level) {
-					//descriptive level
-					RubricLevelGradeData lvl = new RubricLevelGradeData();
-					setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
-					lvl.setDescription(cl.getDescription());
-					return lvl;
-				}
+						@Override
+						public RubricLevelGradeData visit(PointLevel level) {
+							//point based level
+							PointRubricLevelGradeData lvl = new PointRubricLevelGradeData();
+							setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
+							lvl.setWeight(level.getPoints());
+							lvl.setDescription(cl.getDescription());
+							return lvl;
+						}
 
-				@Override
-				public RubricLevelGradeData visit(PointLevel level) {
-					//point based level
-					PointRubricLevelGradeData lvl = new PointRubricLevelGradeData();
-					setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
-					lvl.setWeight(level.getPoints());
-					lvl.setDescription(cl.getDescription());
-					return lvl;
-				}
-
-				@Override
-				public RubricLevelGradeData visit(PointRangeLevel level) {
-					//TODO implement when needed
-					return null;
-				}
-			});
+						@Override
+						public RubricLevelGradeData visit(PointRangeLevel level) {
+							//TODO implement when needed
+							return null;
+						}
+					});
 
 			criterionData.addLevel(lvl);
 		}

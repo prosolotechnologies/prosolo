@@ -119,53 +119,57 @@ public class ActivityAssessmentData {
 										  ActivityRubricVisibility rubricVisibilityForStudent,
 										  boolean acceptGrades) {
 		GradeData gd = getGradeDataObject(gradingMode, rubricId, rubricType, acceptGrades);
-		gd.accept(new GradeDataVisitor<Void>() {
-			@Override
-			public Void visit(ManualSimpleGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				gradeData.setNewGrade(currentGrade);
-				return null;
-			}
+		gd.accept(
+				/**
+				 * Visitor that sets grade data based on grade data type
+				 */
+				new GradeDataVisitor<Void>() {
+					@Override
+					public Void visit(ManualSimpleGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						gradeData.setNewGrade(currentGrade);
+						return null;
+					}
 
-			@Override
-			public Void visit(AutomaticGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				return null;
-			}
+					@Override
+					public Void visit(AutomaticGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						return null;
+					}
 
-			@Override
-			public Void visit(ExternalToolAutoGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(ExternalToolAutoGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(CompletionAutoGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(CompletionAutoGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(NongradedGradeData gradeData) {
-				return null;
-			}
+					@Override
+					public Void visit(NongradedGradeData gradeData) {
+						return null;
+					}
 
-			@Override
-			public Void visit(RubricGradeData gradeData) {
-				gradeData.setRubricVisibilityForStudent(rubricVisibilityForStudent);
-				return null;
-			}
+					@Override
+					public Void visit(RubricGradeData gradeData) {
+						gradeData.setRubricVisibilityForStudent(rubricVisibilityForStudent);
+						return null;
+					}
 
-			@Override
-			public Void visit(DescriptiveRubricGradeData gradeData) {
-				gradeData.setCurrentGrade(currentGrade);
-				return null;
-			}
+					@Override
+					public Void visit(DescriptiveRubricGradeData gradeData) {
+						gradeData.setCurrentGrade(currentGrade);
+						return null;
+					}
 
-			@Override
-			public Void visit(PointRubricGradeData gradeData) {
-				gradeData.setGradeInfo(maxPoints, currentGrade);
-				return null;
-			}
-		});
+					@Override
+					public Void visit(PointRubricGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						return null;
+					}
+				});
 
 		return gd;
 	}
