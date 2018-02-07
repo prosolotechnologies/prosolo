@@ -197,12 +197,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		postEvidence();
 	}
 
-	public void postExistingEvidence(LearningEvidenceData evidence) {
-		submitEvidenceBean.preparePostExistingEvidence(evidence);
-		postEvidence();
-	}
-
-	private void postEvidence() {
+	public void postEvidence() {
 		try {
 			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
 					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());

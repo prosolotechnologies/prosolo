@@ -25,7 +25,7 @@ public interface LearningEvidenceManager {
 
     Result<LearningEvidence> postEvidenceAndGetEvents(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    CompetenceEvidence attachEvidenceToCompetence(long targetCompId, LearningEvidence evidence) throws DbConnectionException;
+    CompetenceEvidence attachEvidenceToCompetence(long targetCompId, LearningEvidence evidence, String relationToCompetence) throws DbConnectionException;
 
     Result<LearningEvidenceData> postEvidenceAttachItToCompetenceAndGetEvents(long targetCompId, LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
