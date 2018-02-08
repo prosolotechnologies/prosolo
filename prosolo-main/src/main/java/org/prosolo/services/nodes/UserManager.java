@@ -14,7 +14,6 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -38,11 +37,11 @@ public interface UserManager extends AbstractManager {
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException;
+			String avatarFilename, List<Long> roles);
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException;
+			String avatarFilename, List<Long> roles, boolean isSystem);
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
