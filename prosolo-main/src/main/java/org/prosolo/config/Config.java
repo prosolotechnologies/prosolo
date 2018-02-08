@@ -18,9 +18,6 @@ public class Config {
 	@Element(name = "logging-config")
 	public String log4j;
 
-	@Element(name = "mongo-db-config")
-	public MongoDBConfig mongoDatabase;
-	
 	@Element(name="app-config")
 	public AppConfig application;
 	
@@ -29,9 +26,6 @@ public class Config {
 	
 	@Element(name = "services")
 	public ServicesConfig services;
-	
-	@Element(name="twitter-stream-config")
-	public TwitterStreamConfig twitterStreamConfig; 
 	
 	@Element(name="admin")
 	public AdminConfig admin; 

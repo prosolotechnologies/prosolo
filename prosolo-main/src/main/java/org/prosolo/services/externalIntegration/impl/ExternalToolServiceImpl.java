@@ -160,7 +160,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
 								//TODO how to include organization id in event here
 								res.appendEvents(assessmentManager
-									.updateActivityGradeInAllAssessmentsAndGetEvents(
+									.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
 											userId, activityId, calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
 							}
 						}

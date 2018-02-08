@@ -1,16 +1,13 @@
 package org.prosolo.services.nodes.data.assessments;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompetenceAssessmentData {
 	

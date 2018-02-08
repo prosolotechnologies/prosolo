@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.rubric;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -13,9 +14,10 @@ import java.util.Set;
 
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Criterion extends BaseEntity {
 
-    private double points;
+    //private double points;
     private Rubric rubric;
     private int order;
     private Set<CriterionLevel> levels;
@@ -23,13 +25,17 @@ public class Criterion extends BaseEntity {
     //criterion assessments
     private Set<CriterionAssessment> assessments;
 
-    @Column(name = "points", nullable = false)
-    public double getPoints() {
-        return points;
-    }
+//    @Column(name = "points", nullable = false)
+//    public double getPoints() {
+//        return points;
+//    }
+//
+//    public void setPoints(double points) {
+//        this.points = points;
+//    }
 
-    public void setPoints(double points) {
-        this.points = points;
+    public <T> T accept(CriterionVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

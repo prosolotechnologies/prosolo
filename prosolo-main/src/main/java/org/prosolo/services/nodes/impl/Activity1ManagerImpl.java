@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
@@ -29,7 +30,6 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -193,13 +193,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		activity.setGradingMode(data.getGradingMode());
 		switch (data.getGradingMode()) {
 			case AUTOMATIC:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				break;
 			case MANUAL:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				if (updateRubric) {
 					activity.setRubric(getRubricToSet(data));
 				}
@@ -212,12 +210,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 			case NONGRADED:
-				activity.setMaxPoints(0);
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 		}
+		activity.setMaxPoints(
+				isPointBasedActivity(activity.getGradingMode(), activity.getRubric())
+					? (data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()))
+					: 0);
+	}
+
+	private boolean isPointBasedActivity(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode != GradingMode.NONGRADED && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
@@ -1334,7 +1339,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder query = new StringBuilder(
 					"SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 						"u.id as uId, u.name, u.lastname, u.avatar_url, " +
-						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence, targetAct.completed " +
+						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence, targetAct.completed, rubric.rubric_type " +
 						"FROM target_activity1 targetAct " +
 						"INNER JOIN target_competence1 targetComp " +
 						"ON (targetAct.target_competence = targetComp.id) " +
@@ -1343,6 +1348,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"INNER JOIN activity1 act " +
 						"ON (targetAct.activity = act.id " +
 						"AND act.id = :actId) " +
+						"LEFT JOIN rubric " +
+							"ON (act.rubric = rubric.id) " +
 						"LEFT JOIN (activity_assessment ad " +
 						"INNER JOIN competence_assessment compAssessment " +
 						"ON compAssessment.id = ad.competence_assessment " +
@@ -1441,32 +1448,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCompetenceId(compId);
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
-					if (assessmentId != null) {
-						ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
-						ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
-						ad.setAllRead(((Character) row[11]).charValue() == 'T');
-						GradeData gd = new GradeData();
-						gd.setMinGrade(0);
-						gd.setMaxGrade((Integer) row[12]);
-						gd.setValue((Integer) row[17]);
-						if(gd.getValue() < 0) {
-							gd.setValue(0);
-						} else {
-							gd.setAssessed(true);
-						}
-						ad.setGrade(gd);
-					} else {
-						// there is no activity assessment created yet
-						GradeData gd = new GradeData();
-						gd.setMinGrade(0);
-						gd.setMaxGrade((Integer) row[12]);
-						gd.setValue(0);
-						ad.setGrade(gd);
-					}
+
+					ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+					ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
+					ad.setAllRead(((Character) row[11]).charValue() == 'T');
+
+					//set grade data
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
-					ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
-							GradingMode.valueOf((String) row[14]), rubricId, ((Character) row[16]).charValue() == 'T'));
+					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
+					ad.setGrade(ActivityAssessmentData.getGradeData(
+							GradingMode.valueOf((String) row[14]),
+							(int) row[12],
+							(int) row[17],
+							rubricId,
+							rubricType,
+							null,
+							((Character) row[16]).charValue() == 'T'));
 
 					//load additional assessment data
 					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
@@ -1475,7 +1473,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
 						ad.setCredAssessmentId(abd.getCredentialAssessmentId());
 						ad.setAssessorId(abd.getAssessorId());
-						ad.setType(abd.getType());
 					}
 				}
 			}

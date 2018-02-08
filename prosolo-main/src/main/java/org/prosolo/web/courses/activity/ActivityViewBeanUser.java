@@ -12,10 +12,10 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.assessments.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -62,7 +62,9 @@ public class ActivityViewBeanUser implements Serializable {
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
-	private List<ActivityRubricCriterionData> rubricCriteria;
+	//TODO grading refactor on a page rubricCriteria is expected, not rubricGradeData
+	//private List<ActivityRubricCriterionData> rubricCriteria;
+	private RubricCriteriaGradeData rubricGradeData;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -170,8 +172,8 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void initializeRubric() {
 		try {
-			if (rubricCriteria == null) {
-				rubricCriteria = rubricManager.getRubricDataForActivity(
+			if (rubricGradeData == null) {
+				rubricGradeData = rubricManager.getRubricDataForActivity(
 						competenceData.getActivityToShowWithDetails().getActivityId(),
 						0,
 						false);
@@ -459,7 +461,7 @@ public class ActivityViewBeanUser implements Serializable {
 		return access;
 	}
 
-	public List<ActivityRubricCriterionData> getRubricCriteria() {
-		return rubricCriteria;
+	public RubricCriteriaGradeData getRubricGradeData() {
+		return rubricGradeData;
 	}
 }

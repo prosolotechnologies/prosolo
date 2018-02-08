@@ -5,8 +5,8 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.services.common.observable.StandardObservable;
-import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
@@ -76,8 +76,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private long targetCompetenceId;
 	
 	private List<ActivityResultData> studentResults;
-	private GradeData gradeOptions;
-	
+
 	private boolean studentCanSeeOtherResponses;
 	private boolean studentCanEditResponse;
 	
@@ -91,6 +90,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private GradingMode gradingMode;
 	private long rubricId;
 	private String rubricName;
+	private RubricType rubricType;
 	private ActivityRubricVisibility rubricVisibility;
 
 	//indicates that competence was once published
@@ -103,7 +103,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		captions = new ArrayList<>();
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData(listenChanges);
-		gradeOptions = new GradeData();
 		tags = new HashSet<>();
 		rubricVisibility = ActivityRubricVisibility.NEVER;
 		gradingMode = GradingMode.NONGRADED;
@@ -628,14 +627,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.studentResults = studentResults;
 	}
 
-	public GradeData getGradeOptions() {
-		return gradeOptions;
-	}
-
-	public void setGradeOptions(GradeData gradeOptions) {
-		this.gradeOptions = gradeOptions;
-	}
-
 	public boolean isStudentCanSeeOtherResponses() {
 		return studentCanSeeOtherResponses;
 	}
@@ -764,5 +755,13 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public int getCommonScore() {
 		return commonScore;
+	}
+
+	public RubricType getRubricType() {
+		return rubricType;
+	}
+
+	public void setRubricType(RubricType rubricType) {
+		this.rubricType = rubricType;
 	}
 }
