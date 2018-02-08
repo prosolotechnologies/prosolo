@@ -874,6 +874,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setDescription(description);
 		actData.setActivityType(type);
 		actData.setStudentCanSeeOtherResponses(true);
+		actData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
+		actData.getAssessmentSettings().setMaxPoints(100);
 
 		switch (type) {
 			case VIDEO:
@@ -921,6 +923,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
+		credentialData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
@@ -949,6 +952,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setTagsString(tags);
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
+		compData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
+
 
 		Competence1 comp;
 		try {
