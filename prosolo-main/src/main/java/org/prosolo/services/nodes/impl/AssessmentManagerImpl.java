@@ -1225,12 +1225,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	// ASSESSMENT GRADE COMMON
-
 	private void setAdditionalGradeData(GradeData grade, long assessmentId, boolean isAssessed, LearningResourceType resType) {
 		grade.accept(new GradeDataVisitor<Void>() {
 
-			@Override
-			public Void visit(ManualSimpleGradeData gradeData) {
+		@Override
+		public Void visit(ManualSimpleGradeData gradeData) {
 				return null;
 			}
 

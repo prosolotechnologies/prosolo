@@ -22,6 +22,7 @@ public class LearningEvidenceData implements Serializable {
     private long competenceEvidenceId;
     private String title;
     private String text;
+    private String relationToCompetence;
     private LearningEvidenceType type;
     private String url;
     private Set<String> tags;
@@ -140,5 +141,13 @@ public class LearningEvidenceData implements Serializable {
 
     public void addCompetences(List<BasicObjectInfo> competences) {
         this.competences.addAll(competences);
+    }
+
+    public String getRelationToCompetence() {
+        return relationToCompetence;
+    }
+
+    public void setRelationToCompetence(String relationToCompetence) {
+        this.relationToCompetence = relationToCompetence;
     }
 }

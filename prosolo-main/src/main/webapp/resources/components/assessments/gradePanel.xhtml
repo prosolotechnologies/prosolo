@@ -73,9 +73,9 @@
 								<!-- manual grading - WITH rubrics start -->
 								<ui:repeat value="#{cc.attrs.gradeData.rubricCriteria.criteria}" var="c">
 									<h3>#{c.name}</h3>
-									<div class="radioGroup">
-										<ui:repeat value="#{c.levels}" var="l">
-											<div class="radio">
+									<div class="radioGroup rubricColors has#{c.levels.size()}Colors">
+										<ui:repeat value="#{c.levels}" var="l" varStatus="status">
+											<div class="radio rubricItem0#{status.index+1}">
 												<ui:fragment rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}">
 													<input type="radio" jsf:id="lvlRadioPoint" data-points="#{l.points}"
 														   name="#{hiddenLvlRadio.clientId}"
@@ -91,7 +91,7 @@
 														   value="#{l.id}"
 														   jsf:checked="#{c.levelId eq l.id ? true : false}"
 													/>
-													<h:outputLabel for="lvlRadioDesc">#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
+													<h:outputLabel for="lvlRadioDesc"><span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
 												</ui:fragment>
 											</div>
 										</ui:repeat>

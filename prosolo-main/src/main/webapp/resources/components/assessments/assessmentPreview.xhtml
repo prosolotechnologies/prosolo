@@ -545,10 +545,10 @@
 					<ui:fragment rendered="#{activityAssessmentBean.activityAssessmentData.grade.gradingMode eq 'MANUAL_RUBRIC'}">
 						<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
 							<h3>#{c.name}</h3>
-							<ul class="levelsList">
-								<ui:repeat value="#{c.levels}" var="l">
-									<li class="#{c.levelId eq l.id ? 'checked' : ''}">
-										#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+							<ul class="levelsList rubricColors has#{c.levels.size()}Colors">
+								<ui:repeat value="#{c.levels}" var="l" varStatus="status">
+									<li class="#{c.levelId eq l.id ? 'checked' : ''} rubricItem0#{status.index+1}">
+										<span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
 									</li>
 								</ui:repeat>
 							</ul>
