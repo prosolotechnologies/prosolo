@@ -101,22 +101,13 @@ public class CredentialDeliveriesBean implements Serializable {
 
 	public void archive() {
 		if(selectedDelivery != null) {
-			boolean archived = false;
 			try {
 				credentialManager.archiveCredential(selectedDelivery.getId(), loggedUser.getUserContext());
-				archived = true;
+				loadCredentialDeliveries(CredentialSearchFilterManager.ACTIVE);
+				PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been archived");
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase());
-			}
-			if(archived) {
-				try {
-					loadCredentialDeliveries(CredentialSearchFilterManager.ACTIVE);
-					PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been archived");
-				} catch(DbConnectionException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("Error refreshing the data");
-				}
 			}
 		}
 	}
@@ -128,22 +119,13 @@ public class CredentialDeliveriesBean implements Serializable {
 
 	public void restore() {
 		if(selectedDelivery != null) {
-			boolean success = false;
 			try {
 				credentialManager.restoreArchivedCredential(selectedDelivery.getId(), loggedUser.getUserContext());
-				success = true;
+				loadCredentialDeliveries(CredentialSearchFilterManager.ARCHIVED);
+				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been restored");
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase());
-			}
-			if(success) {
-				try {
-					loadCredentialDeliveries(CredentialSearchFilterManager.ARCHIVED);
-					PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been restored");
-				} catch(DbConnectionException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("Error refreshing the data");
-				}
 			}
 		}
 	}
@@ -211,7 +193,4 @@ public class CredentialDeliveriesBean implements Serializable {
 		return deliveries;
 	}
 
-	public void setDeliveries(List<CredentialData> deliveries) {
-		this.deliveries = deliveries;
-	}
 }
