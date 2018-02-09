@@ -11,7 +11,7 @@
 		<composite:attribute name="pastDeliveries" required="true" />
 		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
-		<composite:attribute name="selectMethod" required="true"/>
+		<composite:attribute name="bean"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -30,7 +30,7 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.activeDeliveries}">
 					<courses:deliveryItems
-							bean="#{cc.attrs.selectMethod}"
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.activeDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
@@ -50,7 +50,7 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.pendingDeliveries}">
 					<courses:deliveryItems
-							bean="#{cc.attrs.selectMethod}"
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.pendingDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
@@ -70,7 +70,7 @@
 				</ui:fragment>
 				<ui:fragment rendered="#{not empty cc.attrs.pastDeliveries}">
 					<courses:deliveryItems
-							bean="#{cc.attrs.selectMethod}"
+							bean="#{cc.attrs.bean}"
 							deliveries="#{cc.attrs.pastDeliveries}"
 							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
 							canEdit="#{cc.attrs.canEdit}"
