@@ -1,12 +1,13 @@
 package org.prosolo.services.nodes.data.assessments;
 
-import java.text.DateFormat;
-import java.util.OptionalInt;
-
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+
+import java.text.DateFormat;
+import java.util.OptionalInt;
 
 public class AssessmentData {
 
@@ -21,7 +22,7 @@ public class AssessmentData {
 	private String encodedCredentialId;
 	private int totalNumberOfMessages;
 	private String initials;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 
 	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
 		AssessmentData data = new AssessmentData();
@@ -38,7 +39,7 @@ public class AssessmentData {
 		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
 		//TODO optimize, denormalize?
 		OptionalInt number = assessment.getCompetenceAssessments().stream()
-			.map(competenceAssessment -> competenceAssessment.getActivityDiscussions())
+			.map(competenceAssessment -> competenceAssessment.getCompetenceAssessment().getActivityDiscussions())
 			.flatMap(discussions -> discussions.stream())
 			.mapToInt(discussion -> discussion.getMessages().size())
 			.reduce(Integer::sum);
@@ -134,13 +135,13 @@ public class AssessmentData {
 	public void setInitials(String initials) {
 		this.initials = initials;
 	}
-	
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	private static String getInitialsFromName(String fullname) {

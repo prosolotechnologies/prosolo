@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.services.migration.CommonCustomMigrationService;
 import org.prosolo.services.migration.DemoCustomMigrationService;
 import org.prosolo.services.migration.UTACustomMigrationService;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
@@ -44,6 +45,8 @@ public class OtherSettingsBean implements Serializable {
 	private LoggedUserBean loggedUser;
 	@Inject
 	private DemoCustomMigrationService demoCustomMigrationService;
+	@Inject
+	private CommonCustomMigrationService commonCustomMigrationService;
 	
 	private List<SymptomData> symptoms;
 	private List<SuggestionData> suggestions;
@@ -267,6 +270,16 @@ public class OtherSettingsBean implements Serializable {
 
 	public void migrateDemoServer() {
 		demoCustomMigrationService.migrateDataFrom06To11();
+	}
+
+	public void migrateAssessments() {
+		try {
+			commonCustomMigrationService.migrateAssessments();
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessments migrated");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error migrating assessments");
+		}
 	}
 
 	//GETTERS AND SETTERS

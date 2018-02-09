@@ -10,9 +10,11 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
+import org.prosolo.services.notifications.factory.NotificationSectionDataFactory;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.notification.data.FilterNotificationType;
 import org.prosolo.web.notification.data.NotificationTypeFilter;
@@ -33,12 +35,13 @@ public class NotificationBean implements Serializable, Paginable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private NotificationManager notificationManager;
-	
+	@Inject private NotificationSectionDataFactory notificationSectionDataFactory;
+
 	private List<NotificationData> notifications = new ArrayList<>();
 	private PaginationData paginationData = new PaginationData(5);
 	private List<FilterNotificationType> filters = new ArrayList<>();
 	private List<NotificationType> notificationTypes = new ArrayList<>();
-	
+
 	@PostConstruct
 	public void init() {
 		for (NotificationTypeFilter filterEnum : NotificationTypeFilter.values()) {
@@ -64,15 +67,17 @@ public class NotificationBean implements Serializable, Paginable {
 				List<NotificationType> filterTypes = notificationTypes.size() == filters.size() 
 						? null 
 						: notificationTypes;
+
+				NotificationSection section = notificationSectionDataFactory.getSection(PageUtil.getSectionForView());
 				
 				paginationData.update(notificationManager.getNumberOfNotificationsForUser(
-						loggedUser.getUserId(), filterTypes));
+						loggedUser.getUserId(), filterTypes, section));
 				
 				if (paginationData.getNumberOfResults() > 0) {
 					notifications = notificationManager.getNotificationsForUser(
 							loggedUser.getUserId(),
 							paginationData.getPage() - 1, paginationData.getLimit(), filterTypes, 
-							loggedUser.getLocale());
+							loggedUser.getLocale(), section);
 				} else {
 					notifications = new ArrayList<>();
 				}

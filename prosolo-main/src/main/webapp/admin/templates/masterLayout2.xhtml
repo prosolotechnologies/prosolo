@@ -174,7 +174,7 @@
 				<div class="headerTopRight">
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
-								update=":messagesLink :notificationsIcon :notificationsContainer"
+								update=":messagesLink"
 								widgetVar="messagesPoll" autoStart="true" />
 					</h:form>
 
@@ -185,59 +185,6 @@
 						Messages
 						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot </span>
 					</h:link>
-
-					<div class="dropdown notificationsMenu">
-						<p:commandLink id="notificationsIcon"
-									   styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}"
-									   pt:data-toggle="dropdown" pt:aria-haspopup="true"
-									   pt:aria-expanded="true"
-									   action="#{topNotificationsBean1.markNotificationsAsRead}"
-									   process="@this" update="notificationLoop @this">
-
-							Notifications
-
-							<h:panelGroup id="unreadNotificationsDot">
-								<span id="unreadNotificationsSpanId"
-									  class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
-							</h:panelGroup>
-						</p:commandLink>
-
-						<h:panelGroup layout="block" id="notificationsContainer"
-									  class="dropdown-menu bullet pull-center"
-									  aria-labelledby="dropdownMenuNotifications">
-
-							<ui:repeat id="notificationLoop" var="notificationData"
-									   value="#{topNotificationsBean1.notificationDatas}">
-								<li
-										class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' :
-										(notificationData.notificationType eq 'Comment') ? 'notifComment':
-										(notificationData.notificationType eq 'AnnouncementPublished') ? 'notifAnnouncement' :
-										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
-										(notificationData.notificationType eq 'Mention') ? 'notifMention':
-										(notificationData.notificationType eq 'Assessment_Requested' or 
-											notificationData.notificationType eq 'Assessment_Approved' or 
-											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
-									<h:outputLink
-											value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
-										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3>
-										#{notificationData.predicate}
-										<h3>#{notificationData.objectTitle}</h3>
-										<span class="timestamp">
-											<utilcomp:convertTimeOutput
-													millis="#{notificationData.notificationTime}"
-													format="rel"
-											/>
-										</span>
-									</h:outputLink>
-								</li>
-							</ui:repeat>
-
-							<li class="linkAllNotifications"><h:link value="View all"
-																	 onclick="sendLogPageNavigation('notifications','mainmenu');"
-																	 outcome="/admin/notifications" /></li>
-						</h:panelGroup>
-					</div>
 
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">

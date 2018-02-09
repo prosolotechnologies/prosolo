@@ -88,6 +88,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			data.setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
@@ -231,6 +232,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			act.setRubricId(activity.getRubric().getId());
 			act.setRubricVisibility(activity.getRubricVisibility());
+			act.setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		act.setActivityType(getActivityType(activity));
@@ -349,6 +351,7 @@ public class ActivityDataFactory {
 		data.setActivityId(activity.getId());
 		data.setTargetActivityId(targetActivity.getId());
 		data.setOrder(order);
+		data.setCommonScore(targetActivity.getCommonScore());
 		data.setTitle(activity.getTitle());
 		data.setDescription(activity.getDescription());
 		data.setDurationHours((int) (activity.getDuration() / 60));
@@ -373,6 +376,7 @@ public class ActivityDataFactory {
 		if (activity.getRubric() != null) {
 			data.setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.setRubricType(activity.getRubric().getRubricType());
 		}
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
@@ -458,6 +462,7 @@ public class ActivityDataFactory {
 		Activity1 activ = activity.getActivity();
 		act.setActivityId(activ.getId());
 		act.setTargetActivityId(activity.getId());
+		act.setCommonScore(activity.getCommonScore());
 		act.setTitle(activ.getTitle());
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
@@ -474,6 +479,7 @@ public class ActivityDataFactory {
 		if (activ.getRubric() != null) {
 			act.setRubricId(activ.getRubric().getId());
 			act.setRubricVisibility(activ.getRubricVisibility());
+			act.setRubricType(activ.getRubric().getRubricType());
 		}
 
 		setBasicTypeSpecificData(activ, act);

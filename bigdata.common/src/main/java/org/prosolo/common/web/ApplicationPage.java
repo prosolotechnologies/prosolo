@@ -64,6 +64,10 @@ public enum ApplicationPage {
 	ACHIEVEMENTS_COMPETENCES("/achievements-competences.xhtml"),
 	ACHIEVEMENTS_EXTERNAL_COMPETENCES("/achievements-externalcompetences.xhtml"),
 	ACHIEVEMENTS_INPROGRESS("/achievements-inprogress.xhtml"),
+	EVIDENCES("/evidences.xhtml"),
+	EVIDENCE("/evidence.xhtml"),
+	EVIDENCE_EDIT("/evidence-edit.xhtml"),
+
 	MANAGER_CREDENTIAL("/manage/credential.xhtml"),
 	MANAGER_COMPETENCE("/manage/competence.xhtml"),
 	MANAGER_ACTIVITY("/manage/activity.xhtml"),

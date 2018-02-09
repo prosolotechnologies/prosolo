@@ -159,8 +159,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
-		   
-		   //remove
+		   .antMatchers("/evidences").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidences/*").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidences/new").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidences/*/edit").hasAuthority("BASIC.USER.ACCESS")
+			//remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   
@@ -243,7 +246,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/studentProfile.history.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 		   
-		   .antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
+		   //.antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
@@ -259,7 +262,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/admins").hasAuthority("ADMIN.ADVANCED")
            .antMatchers("/admin/admins/new").hasAuthority("ADMIN.ADVANCED")
 		   .antMatchers("/admin/organizations/*/users/*/edit/password").hasAuthority("ORGANIZATION.ADMINISTRATION")
-		   .antMatchers("/admin/notifications").hasAnyAuthority("BASIC.ADMIN.ACCESS", "ADMIN.ADVANCED")
 		   .antMatchers("/admin/organizations/*/users/*/edit").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/*/users/new").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/*/users").hasAuthority("ORGANIZATION.ADMINISTRATION")

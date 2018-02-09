@@ -58,6 +58,11 @@ function showOrHideSubmissionCheckBoxes(selectedResponseType,
 	}
 }
 
+function rubricChanged(rubricElem, visibilityContainerSelector) {
+    setGradingModeVisibilityBasedOnRubricType($(rubricElem), $('select.gradingModeSelector').val());
+    showOrHideRubricVisibilityRadioButtons(rubricElem, visibilityContainerSelector);
+}
+
 function showOrHideRubricVisibilityRadioButtons(rubricElem, visibilityContainerSelector){
     var rubric = $(rubricElem).val() * 1;
 
@@ -92,11 +97,30 @@ function setVisibilityBasedOnGradingMode(gradingModeEl) {
             resetRubricInputs();
             break;
         case 'MANUAL' :
-            $('.maxPointsSelector, .rubricSelector').show();
+            $('.rubricSelector').show();
+            setGradingModeVisibilityBasedOnRubricType($('.rubricPickerSelector'), gm);
             $('.checkAcceptGradesPanelSelector').hide();
             //reset accept grades
             $('.checkAcceptGradesSelector').removeAttr('checked');
             break;
+    }
+}
+
+function setGradingModeVisibilityBasedOnRubricType(rubricSelectEl, gradingMode) {
+    //this check is needed because we do change rubric programmatically to reset it when other grading modes are selected
+    //and in those cases we should not show/hide controls based on rubric type
+    if (gradingMode === 'MANUAL') {
+        var selectedRubricType = rubricSelectEl.find(":selected").data("rubric-type");
+        if (selectedRubricType) {
+            switch (selectedRubricType) {
+                case 'DESCRIPTIVE' :
+                    $('.maxPointsSelector').hide();
+                    break;
+                default:
+                    $('.maxPointsSelector').show();
+                    break;
+            }
+        }
     }
 }
 

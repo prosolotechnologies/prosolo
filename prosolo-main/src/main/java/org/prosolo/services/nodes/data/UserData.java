@@ -1,10 +1,8 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -52,6 +50,9 @@ public class UserData implements Serializable {
 		this.latitude = user.getLatitude();
 		this.longitude = user.getLongitude();
 		this.objectStatus = ObjectStatus.UP_TO_DATE;
+		for(Role r : user.getRoles()){
+			this.roleIds.add(r.getId());
+		}
 	}
 
 	public UserData(User user, Collection<Role> roles) {

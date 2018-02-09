@@ -58,7 +58,7 @@
                			 </h:inputTextarea>
                     </div>
                     <div class="modal-footer alignLeft">
-                        <p:commandLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId, cc.attrs.receiverFullName)}" 
+                        <p:commandLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId)}"
                       			styleClass="btn btn-green"
                       			process="messageContentTextarea"
                       			update="#{cc.attrs.toUpdate} messageContentTextarea"

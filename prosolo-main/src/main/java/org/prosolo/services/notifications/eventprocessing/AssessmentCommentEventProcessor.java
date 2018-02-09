@@ -1,10 +1,8 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
@@ -14,6 +12,10 @@ import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AssessmentCommentEventProcessor extends NotificationEventProcessor {
 	
@@ -37,7 +39,6 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		long assessmentId = event.getTarget().getId();
-		String link = getNotificationLink();
 		List<Long> participantIds;
 		AssessmentBasicData assessmentInfo;
 		try {
@@ -49,17 +50,19 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 			logger.error(e);
 			return new ArrayList<>();
 		}
-		for(long id : participantIds) {
+		for (long id : participantIds) {
 			/*
 			 * assessed user is a student and assessor can be student or manager (if it is default
 			 * assessment, assessor is manager, otherwise assessor is student) and all other participants
 			 * are managers
 			 */
+			//TODO check if it is valid assumption that only Instrucor assessment assessor should be led to manage section and all others to student section
 			boolean studentSection = id == assessmentInfo.getStudentId()
-					|| !assessmentInfo.isDefault() && id == assessmentInfo.getAssessorId();
-			String prefix = studentSection ? "" : "/manage";
+					|| (assessmentInfo.getType() != AssessmentType.INSTRUCTOR_ASSESSMENT && id == assessmentInfo.getAssessorId());
+			PageSection section = studentSection ? PageSection.STUDENT : PageSection.MANAGE;
+			String link = getNotificationLink(section);
 			boolean isObjectOwner = id == assessmentInfo.getStudentId();
-			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner));
+			receivers.add(new NotificationReceiverData(id, link, isObjectOwner, section));
 		}
 		return receivers;
 	}
@@ -84,8 +87,8 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		return Long.parseLong(event.getParameters().get("credentialId"));
 	}
 
-	private String getNotificationLink() {
-		return "/credentials/" +
+	private String getNotificationLink(PageSection section) {
+		return section.getPrefix() + "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialAssessmentId")));

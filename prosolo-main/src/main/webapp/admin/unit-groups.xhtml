@@ -90,8 +90,8 @@
             <li>
                 <h:link outcome="/admin/unit-credentials">
                     #{manageGroupsBean.unitTitle}
-                    <f:param name="orgId" value="#{param.orgId}" />
-                    <f:param name="id" value="#{param.id}" />
+                    <f:param name="id" value="#{param.orgId}" />
+                    <f:param name="unitId" value="#{param.id}" />
                 </h:link>
             </li>
             <li class="active">Student Groups</li>
@@ -277,7 +277,9 @@
 
                         <div class="modal-body alignLeft">
                             <h:inputText id="nameSearch" placeholder="Group Name"
-                                         value="#{manageGroupsBean.groupForEdit.name}" />
+                                         value="#{manageGroupsBean.groupForEdit.name}"
+                                         autocomplete="off"
+                            />
                         </div>
 
                         <div class="modal-footer alignLeft">

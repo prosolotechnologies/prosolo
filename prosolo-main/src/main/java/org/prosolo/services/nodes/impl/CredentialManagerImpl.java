@@ -871,7 +871,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 			//create default assessment for user
-			assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			assessmentManager.createInstructorAssessment(targetCred, instructorId, context);
 
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
@@ -1703,9 +1703,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT targetCredential.user.id " +
-							"FROM TargetCredential1 targetCredential " +
-							"WHERE targetCredential.credential.id = :credentialId " +
-							"AND targetCredential.progress < 100";
+					"FROM TargetCredential1 targetCredential " +
+					"WHERE targetCredential.credential.id = :credentialId " +
+						"AND targetCredential.progress < 100";
 
 			@SuppressWarnings("unchecked")
 			List<Long> res = persistence.currentManager().createQuery(query)
@@ -2028,7 +2028,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					}
 					sd.setProgress(tc.getProgress());
 					Optional<Long> credAssessmentId = assessmentManager
-							.getDefaultCredentialAssessmentId(credId, sd.getUser().getId());
+							.getInstructorCredentialAssessmentId(credId, sd.getUser().getId());
 					if (credAssessmentId.isPresent()) {
 						sd.setAssessmentId(credAssessmentId.get());
 					}

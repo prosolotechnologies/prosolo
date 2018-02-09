@@ -18,6 +18,13 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+
+
+/**
+ * JSF page for this bean is not used
+ * @deprecated
+ */
+@Deprecated
 @ManagedBean(name = "manageUsersBean")
 @Component("manageUsersBean")
 @Scope("view")

@@ -3,9 +3,16 @@ package org.prosolo.services.nodes.data.assessments;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.rubric.RubricType;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.assessments.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,105 +43,174 @@ public class ActivityAssessmentData {
 	private ActivityResultType resultType;
 	//for external activities where acceptGrades = true
 	private boolean automaticGrade;
-	private long targetCompId;
 
-	private boolean isDefault;
+	private AssessmentType type;
 
 	//reference to competence assessment
 	private CompetenceAssessmentData compAssessment;
-
-	public ActivityAssessmentData() {
-		grade = new GradeData();
-	}
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
 											  CredentialAssessment credAssessment, UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
-		data.setUserId(credAssessment.getAssessedStudent().getId());
-		data.setTargetCompId(actData.getTargetCompetenceId());
+		data.setUserId(compAssessment.getStudent().getId());
 		//populateIds(data,targetActivity,compAssessment);
 		data.setResultType(actData.getResultData().getResultType());
 		data.setResult(actData.getResultData().getResult());
 		data.setTitle(actData.getTitle());
 		data.setCompleted(actData.isCompleted());
 		data.setTargetActivityId(actData.getTargetActivityId());
-		data.getGrade().setMinGrade(0);
-		data.getGrade().setMaxGrade(actData.getMaxPoints());
-		//assessment grading mode
-		data.getGrade().setGradingMode(getGradingMode(actData));
-		if (data.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC) {
-			data.setRubricVisibilityForStudent(actData.getRubricVisibility());
-		}
-		data.setDefault(credAssessment.isDefaultAssessment());
+
+		data.setType(compAssessment.getType());
 		data.setCredAssessmentId(credAssessment.getId());
 		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
 
-		if (credAssessment.getAssessor() != null) {
-			data.setAssessorId(credAssessment.getAssessor().getId());
+		if (compAssessment.getAssessor() != null) {
+			data.setAssessorId(compAssessment.getAssessor().getId());
 		}
-		//if competence assessment exists
-		if (compAssessment != null) {
-			data.setCompAssessmentId(compAssessment.getId());
 
-			ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
-			if (activityDiscussion != null) {
-				data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
+		data.setCompAssessmentId(compAssessment.getId());
 
-				ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
+		data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
 
-				if (currentParticipant != null) {
-					data.setParticipantInDiscussion(true);
-					data.setAllRead(currentParticipant.isRead());
-				} else {
-					// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-					data.setAllRead(false);
-					data.setParticipantInDiscussion(false);
-				}
+		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
-				List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+		if (currentParticipant != null) {
+			data.setParticipantInDiscussion(true);
+			data.setAllRead(currentParticipant.isRead());
+		} else {
+			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+			data.setAllRead(false);
+			data.setParticipantInDiscussion(false);
+		}
 
-				if (CollectionUtils.isNotEmpty(messages)) {
-					data.setNumberOfMessages(activityDiscussion.getMessages().size());
-					for (ActivityDiscussionMessage activityMessage : messages) {
-						ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
-								compAssessment, encoder);
-						data.addDiscussionMessageSorted(messageData);
-					}
-				}
-				data.setMessagesInitialized(true);
-				data.getGrade().setValue(activityDiscussion.getPoints());
-				if(data.getGrade().getValue() < 0) {
-					data.getGrade().setValue(0);
-				} else {
-					data.getGrade().setAssessed(true);
-				}
+		List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+
+		if (CollectionUtils.isNotEmpty(messages)) {
+			data.setNumberOfMessages(activityDiscussion.getMessages().size());
+			for (ActivityDiscussionMessage activityMessage : messages) {
+				ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+						compAssessment.getAssessor(), encoder);
+				data.addDiscussionMessageSorted(messageData);
 			}
 		}
+		data.setMessagesInitialized(true);
+
+		data.setGrade(
+				getGradeData(
+						actData.getGradingMode(),
+						actData.getMaxPoints(),
+						activityDiscussion.getPoints(),
+						actData.getRubricId(),
+						actData.getRubricType(),
+						actData.getRubricVisibility(),
+						actData.isAcceptGrades()));
 
 		return data;
 	}
 
-	private static GradingMode getGradingMode(ActivityData ad) {
-		return getGradingMode(ad.getGradingMode(), ad.getRubricId(), ad.isAcceptGrades());
+	public static GradeData getGradeData(GradingMode gradingMode,
+										  int maxPoints,
+										  int currentGrade,
+										  long rubricId,
+										  RubricType rubricType,
+										  ActivityRubricVisibility rubricVisibilityForStudent,
+										  boolean acceptGrades) {
+		GradeData gd = getGradeDataObject(gradingMode, rubricId, rubricType, acceptGrades);
+		gd.accept(
+				/**
+				 * Visitor that sets grade data based on grade data type
+				 */
+				new GradeDataVisitor<Void>() {
+					@Override
+					public Void visit(ManualSimpleGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						gradeData.setNewGrade(currentGrade);
+						return null;
+					}
+
+					@Override
+					public Void visit(AutomaticGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						return null;
+					}
+
+					@Override
+					public Void visit(ExternalToolAutoGradeData gradeData) {
+						return null;
+					}
+
+					@Override
+					public Void visit(CompletionAutoGradeData gradeData) {
+						return null;
+					}
+
+					@Override
+					public Void visit(NongradedGradeData gradeData) {
+						return null;
+					}
+
+					@Override
+					public Void visit(RubricGradeData gradeData) {
+						gradeData.setRubricVisibilityForStudent(rubricVisibilityForStudent);
+						return null;
+					}
+
+					@Override
+					public Void visit(DescriptiveRubricGradeData gradeData) {
+						gradeData.setCurrentGrade(currentGrade);
+						return null;
+					}
+
+					@Override
+					public Void visit(PointRubricGradeData gradeData) {
+						gradeData.setGradeInfo(maxPoints, currentGrade);
+						return null;
+					}
+				});
+
+		return gd;
 	}
 
-	public static GradingMode getGradingMode(org.prosolo.common.domainmodel.credential.GradingMode gradingMode, long rubricId, boolean acceptGrades) {
+	public static GradeData getGradeDataObject(org.prosolo.common.domainmodel.credential.GradingMode gradingMode, long rubricId, RubricType rubricType, boolean acceptGrades) {
 		switch (gradingMode) {
 			case NONGRADED:
-				return GradingMode.NONGRADED;
+				return new NongradedGradeData();
 			case AUTOMATIC:
 				if (acceptGrades) {
-					return GradingMode.AUTOMATIC_BY_EXTERNAL_TOOL;
+					return new ExternalToolAutoGradeData();
 				}
-				return GradingMode.AUTOMATIC_BY_COMPLETION;
+				return new CompletionAutoGradeData();
 			case MANUAL:
 				if (rubricId > 0) {
-					return GradingMode.MANUAL_RUBRIC;
+					switch (rubricType) {
+						case DESCRIPTIVE:
+							return new DescriptiveRubricGradeData();
+						case POINT:
+							return new PointRubricGradeData();
+						case POINT_RANGE:
+							//TODO implement when needed
+							return null;
+					}
 				}
-				return GradingMode.MANUAL_SIMPLE;
+				return new ManualSimpleGradeData();
 			default:
+				return null;
+		}
+	}
+
+	public static RubricCriteriaGradeData getRubricCriteriaGradeData(RubricType rubricType, List<RubricCriterionGradeData> criteria, int maxPoints) {
+		switch (rubricType) {
+			case DESCRIPTIVE:
+				return new DescriptiveRubricCriteriaGradeData(criteria);
+			case POINT:
+				List<PointRubricCriterionGradeData> pointCriteria = new ArrayList<>();
+				criteria.forEach(c -> pointCriteria.add((PointRubricCriterionGradeData) c));
+				return new PointRubricCriteriaGradeData(pointCriteria, maxPoints);
+			default:
+				//TODO implement point range case when needed
 				return null;
 		}
 	}
@@ -302,7 +378,7 @@ public class ActivityAssessmentData {
 	public void setCredentialId(Long credentialId) {
 		this.credentialId = credentialId;
 	}
-	
+
 	public boolean isMessagesInitialized() {
 		return messagesInitialized;
 	}
@@ -375,14 +451,6 @@ public class ActivityAssessmentData {
 		this.automaticGrade = automaticGrade;
 	}
 
-	public long getTargetCompId() {
-		return targetCompId;
-	}
-
-	public void setTargetCompId(long targetCompId) {
-		this.targetCompId = targetCompId;
-	}
-
 	/**
 	 * @return the userId
 	 */
@@ -398,12 +466,12 @@ public class ActivityAssessmentData {
 	}
 
 
-	public boolean isDefault() {
-		return isDefault;
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefault(boolean aDefault) {
-		isDefault = aDefault;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	public CompetenceAssessmentData getCompAssessment() {
@@ -421,4 +489,5 @@ public class ActivityAssessmentData {
 	public void setRubricVisibilityForStudent(ActivityRubricVisibility rubricVisibilityForStudent) {
 		this.rubricVisibilityForStudent = rubricVisibilityForStudent;
 	}
+
 }

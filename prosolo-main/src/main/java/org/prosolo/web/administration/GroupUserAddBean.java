@@ -4,9 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -41,7 +38,6 @@ public class GroupUserAddBean implements Serializable, Paginable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UserGroupManager userGroupManager;
-	@Inject private EventFactory eventFactory;
 
 	private long orgId;
 	private long unitId;
@@ -108,15 +104,8 @@ public class GroupUserAddBean implements Serializable, Paginable {
 
 	public boolean addUser(UserData user, String groupName) {
 		try {
-			EventQueue events = userGroupManager.addUserToTheGroupAndGetEvents(groupId, user.getId(),
-					loggedUser.getUserContext()).getEventQueue();
-			/*
-			TODO for now events are fired here in a JSF bean because addUserToTheGroup method is called
-			in other places too so event generation can't be moved to this method at the moment. This should be
-			refactored later.
-			 */
-			eventFactory.generateEvents(events);
-
+			userGroupManager.addUserToTheGroup(groupId, user.getId(),
+					loggedUser.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
 					+ " has been added to the group " + groupName);
 			resetSearchData();
@@ -126,7 +115,6 @@ public class GroupUserAddBean implements Serializable, Paginable {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error while loading user data");
 			}
-
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);

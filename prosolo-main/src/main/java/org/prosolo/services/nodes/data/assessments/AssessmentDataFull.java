@@ -1,16 +1,16 @@
 package org.prosolo.services.nodes.data.assessments;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AssessmentDataFull {
 
@@ -32,13 +32,13 @@ public class AssessmentDataFull {
 	private String durationString;
 	private long targetCredentialId;
 	private long credentialId;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 	private int points;
 	private int maxPoints;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, List<CompetenceData1> userComps,
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
 				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
@@ -46,7 +46,7 @@ public class AssessmentDataFull {
 		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
-		if(assessment.getAssessor() != null) {
+		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 			data.setAssessorId(assessment.getAssessor().getId());
@@ -60,13 +60,13 @@ public class AssessmentDataFull {
 		data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setDefaultAssessment(assessment.isDefaultAssessment());
-		data.setPoints(assessment.getPoints());
+		data.setType(assessment.getType());
+		data.setPoints(credAssessmentPoints);
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceData1 compData : userComps) {
-			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, dateFormat);
+			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId);
 			maxPoints += cas.getMaxPoints();
 			compDatas.add(cas);
 		}
@@ -230,12 +230,12 @@ public class AssessmentDataFull {
 		this.credentialId = credentialId;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	public int getPoints() {

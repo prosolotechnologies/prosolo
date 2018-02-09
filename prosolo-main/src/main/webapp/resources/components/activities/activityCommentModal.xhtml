@@ -5,7 +5,8 @@
 			  xmlns:p="http://primefaces.org/ui"
 			  template="templates/masterLayout2.xhtml"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-			  xmlns:composite="http://java.sun.com/jsf/composite">
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="toUpdate" default=""/>
@@ -36,7 +37,7 @@
 				<div class="modal-dialog modal-lg">
 					<h:panelGroup id="panelModalPrivateConversation" layout="block"
 								  styleClass="modal-content">
-						<ui:fragment rendered="#{not empty activityPrivateConversationBean.activityAssessmentData}">
+						<ui:fragment rendered="#{not empty activityAssessmentBean.activityAssessmentData}">
 							<div class="modal-header alignLeft">
 								<button type="button" class="close" data-dismiss="modal"
 										aria-label="Close">
@@ -47,10 +48,10 @@
 							<div class="discussion">
 								<div class="comments">
 									<ui:fragment
-											rendered="#{not empty activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
+											rendered="#{not empty activityAssessmentBean.activityAssessmentData.activityDiscussionMessageData}">
 										<ul class="media-list">
 											<ui:repeat var="activityMessageData"
-													   value="#{activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
+													   value="#{activityAssessmentBean.activityAssessmentData.activityDiscussionMessageData}">
 												<li class="media">
 													<div class="media-left">
 														<utilcomp:userAvatar
@@ -60,7 +61,7 @@
 
 													<div class="media-body">
 														<ui:fragment
-																rendered="#{activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
+																rendered="#{activityAssessmentBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateUpdatedFormat} </span>
@@ -68,7 +69,7 @@
 																<h3 class="media-heading">
 																	#{activityMessageData.senderFullName}
 																	<ui:fragment
-																			rendered="#{activityMessageData.senderInsructor}">
+																			rendered="#{activityMessageData.senderInstructor}">
 																		<span>INSTRUCTOR</span>
 																	</ui:fragment>
 																</h3>
@@ -83,7 +84,7 @@
 																	<p:commandLink styleClass="btn btn-sm btn-green"
 																				   oncomplete="hideEditPrivateConversationComment(this);"
 																				   update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
-																				   actionListener="#{activityPrivateConversationBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
+																				   actionListener="#{activityAssessmentBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
 																				   type="button" name="button">
 																		Submit
 																	</p:commandLink>
@@ -103,14 +104,14 @@
 														</ui:fragment>
 
 														<ui:fragment
-																rendered="#{not activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
+																rendered="#{not activityAssessmentBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateCreatedFormat} </span>
 																<h3 class="media-heading">
 																	#{activityMessageData.senderFullName}
 																	<ui:fragment
-																			rendered="#{activityMessageData.senderInsructor}">
+																			rendered="#{activityMessageData.senderInstructor}">
 																		<span>INSTRUCTOR</span>
 																	</ui:fragment>
 																</h3>
@@ -148,20 +149,20 @@
 									<div class="commentForm">
 										<p:inputTextarea styleClass="contentEditableComment"
 														 style="width:100%;" rows="1"
-														 value="#{activityPrivateConversationBean.newCommentValue}"
+														 value="#{activityAssessmentBean.newCommentValue}"
 														 placeholder="Add Comment..."
 														 onkeyup="displaySubmitButtonPrivateConvModal(this)" />
 
 										<p:commandLink
-												action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
+												action="#{activityAssessmentBean.addCommentToActivityDiscussion()}"
 												type="button" styleClass="btn btn-sm btn-green hidden"
 												name="button"
-												update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}) #{cc.attrs.toUpdate}">
+												update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
 											Submit
 											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"
-													 value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}" />
+													 value="name:result_private_conversation_dialog|id:#{util:decodeId(activityAssessmentBean.activityAssessmentData.encodedDiscussionId)}" />
 										</p:commandLink>
 
 									</div>

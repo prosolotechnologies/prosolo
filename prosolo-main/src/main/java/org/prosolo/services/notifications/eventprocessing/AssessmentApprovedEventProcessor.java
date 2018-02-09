@@ -12,6 +12,7 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.page.PageSection;
 
 public class AssessmentApprovedEventProcessor extends NotificationEventProcessor {
 
@@ -31,7 +32,7 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
-			receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), false));
+			receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), false, PageSection.STUDENT));
 			return receivers;
 		} catch (Exception e) {
 			e.printStackTrace();
