@@ -14,7 +14,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventObserver;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.springframework.stereotype.Service;

@@ -7,7 +7,7 @@ import java.util.List;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.interaction.data.CommentsData;
 
 public class ActivityResultData extends StandardObservable implements Serializable {

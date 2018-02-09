@@ -5,7 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.search.RubricTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;

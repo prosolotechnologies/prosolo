@@ -2,8 +2,8 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.nodes.data.assessments.grading.*;
+import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
+import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;

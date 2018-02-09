@@ -3,7 +3,7 @@ package org.prosolo.web.courses.credential;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.services.nodes.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.web.courses.LearningResourceAssessmentSettingsBean;
 
 import java.util.ArrayList;

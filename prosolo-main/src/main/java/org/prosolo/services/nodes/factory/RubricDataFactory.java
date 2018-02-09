@@ -4,7 +4,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.assessments.grading.*;
+import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;

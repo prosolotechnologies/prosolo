@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.organization.LearningStageData;

@@ -2,8 +2,8 @@ package org.prosolo.web.courses;
 
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.LearningResourceAssessmentSettings;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.web.courses.activity.util.GradingModeDescription;
 import org.prosolo.web.courses.validator.NumberValidatorUtil;

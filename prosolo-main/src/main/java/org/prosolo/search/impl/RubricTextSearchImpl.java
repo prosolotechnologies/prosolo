@@ -17,7 +17,7 @@ import org.prosolo.search.RubricTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

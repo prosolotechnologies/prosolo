@@ -13,7 +13,7 @@
 		<composite:attribute name="gradeActionMethodName" required="true"/>
 		<composite:attribute name="gradeAction" required="true" method-signature="void #{cc.attrs.gradeActionMethodName}()"/>
 		<composite:attribute name="assessmentId" required="true" />
-		<composite:attribute name="gradeData" required="true" type="org.prosolo.services.nodes.data.assessments.grading.GradeData"/>
+		<composite:attribute name="gradeData" required="true" type="org.prosolo.services.assessment.data.grading.GradeData"/>
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="completed" required="true" />

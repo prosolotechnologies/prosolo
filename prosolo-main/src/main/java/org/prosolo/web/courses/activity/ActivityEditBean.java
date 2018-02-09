@@ -15,6 +15,8 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.*;
