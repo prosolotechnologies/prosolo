@@ -22,7 +22,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -149,8 +148,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			String query =
 					"SELECT user.id " +
-							"FROM User user " +
-							"WHERE user.email = :email ";
+					"FROM User user " +
+					"WHERE user.email = :email ";
 
 			if (excludeIfDeleted) {
 				query += "AND user.deleted IS FALSE";
@@ -214,7 +213,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException {
+			String avatarFilename, List<Long> roles) {
 		return createNewUser(organizationId, name, lastname, emailAddress, emailVerified, password, position,
 				avatarStream, avatarFilename, roles, false);
 	}
@@ -223,10 +222,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException {
-		System.out.println("CREATE NEW USER CALLED");
+			String avatarFilename, List<Long> roles, boolean isSystem) {
+
 		if (checkIfUserExists(emailAddress)) {
-			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
+			User user = getUser(emailAddress);
+
+			// if user was deleted, revoke his account
+			if (user.isDeleted()) {
+				user.setDeleted(false);
+				saveEntity(user);
+			}
+
+			return user;
 		}
 		// it is called in a new transaction
 		User newUser = resourceFactory.createNewUser(
@@ -866,11 +873,21 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							   String password, String position, boolean system, InputStream avatarStream,
 						       String avatarFilename, List<Long> roles, UserContextData context)
-			throws /*UserAlreadyRegisteredException, */DbConnectionException {
+			throws DbConnectionException {
+
 		Result<User> res = new Result<>();
 		try {
-			if (checkIfUserExists(emailAddress)) {
-				throw new UserAlreadyRegisteredException("User with email address " + emailAddress + " is already registered.");
+			if (checkIfUserExists(emailAddress, false)) {
+				User user = getUser(emailAddress);
+
+				// if user was deleted, revoke his account
+				if (user.isDeleted()) {
+					user.setDeleted(false);
+					saveEntity(user);
+				}
+
+				res.setResult(user);
+				return res;
 			}
 
 			emailAddress = emailAddress.toLowerCase();
@@ -913,16 +930,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			} catch (IOException e) {
 				logger.error(e);
 			}
-
-
 			res.setResult(user);
-
 			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
-
-
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error("Error", e);
-			//throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving new user account");
