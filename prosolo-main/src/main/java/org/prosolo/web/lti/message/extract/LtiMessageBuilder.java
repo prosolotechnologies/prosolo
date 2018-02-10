@@ -11,7 +11,8 @@ public abstract class LtiMessageBuilder {
 		try{
 			msg.setId(PageUtil.getGetParameter(LTIConstants.TOOL_ID));
 		}catch(Exception ex){
-			msg.setId("1");
+			//msg.setId("1");
+			return null;
 		}
 
 
