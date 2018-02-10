@@ -59,13 +59,10 @@ public class LtiBean {
 	}
 
 	public long getTargetActivityId() {
-		System.out.println("GET TARGET ACTIVITY ID:"+targetActivityId);
-
 		return targetActivityId;
 	}
 
 	public void setTargetActivityId(long targetActivityId) {
-		System.out.println("SET TARGET ACTIVITY ID:"+targetActivityId);
 		this.targetActivityId = targetActivityId;
 	}
 

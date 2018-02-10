@@ -33,7 +33,7 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource({"classpath:core/spring/context.xml"})
 public class SpringConfig {
 	
-//	@Autowired private SessionFactory sessionFactory;
+ //	@Autowired private SessionFactory sessionFactory;
 //	@Autowired @Qualifier(value= "dataSource") private ComboPooledDataSource dataSource;
 //
 //	@Bean

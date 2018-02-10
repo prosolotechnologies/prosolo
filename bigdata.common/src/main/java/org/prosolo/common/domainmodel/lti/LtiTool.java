@@ -1,17 +1,11 @@
 package org.prosolo.common.domainmodel.lti;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 
-import antlr.Tool;
+import javax.persistence.*;
 
 
 @Entity
@@ -33,6 +27,9 @@ public class LtiTool extends BaseLtiEntity {
 	private LtiToolSet toolSet;
 	private String customCss;
 	private boolean enabled = true;
+	private Organization organization;
+	private Unit unit;
+	private UserGroup userGroup;
 
 	public LtiTool(){
 
@@ -188,4 +185,31 @@ public class LtiTool extends BaseLtiEntity {
 		return launchUrl+"?id="+getId();
 	}
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public UserGroup getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(UserGroup userGroup) {
+		this.userGroup = userGroup;
+	}
 }

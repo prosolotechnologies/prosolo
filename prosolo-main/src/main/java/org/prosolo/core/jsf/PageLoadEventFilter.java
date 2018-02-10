@@ -62,7 +62,7 @@ public class PageLoadEventFilter implements Filter {
 				}
 			}
 			if(page == null) {
-				logger.warn("Page is not mapped in ApplicationPage enum");
+				logger.warn("Page "+uri+" is not mapped in ApplicationPage enum");
 			}
 			String ipAddress = request.getHeader("X-FORWARDED-FOR");
 			if (ipAddress != null) {

@@ -1,13 +1,14 @@
-Current date:2017/11/05-17:51:29
-Source branch:develop
+Current date:2017/12/06-13:37:33
+Source branch:release-1.1.0
+Project version:1
 Git version:
-commit 19462bdba2c760534435d27afe9386fcd6492d4f
-Merge: 4723a2ed 7f678b3f
-Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
-Date:   Sun Nov 5 16:45:34 2017 +0000
+commit 7c104a13e64da3112d9bc44aea025058a1d1dcb3
+Merge: d55aca53c 453c48ac3
+Author: Nikola Milikic <nikola.milikic@gmail.com>
+Date:   Wed Dec 6 21:33:10 2017 +0000
 
-    Merged in PRS-2892-manager-gets-access-denied-when (pull request #227)
+    Merged in sna-graph-fix-cherry-pick (pull request #248)
     
-    Implement redirection logic for application root based on capabilities
+    Sna graph fix cherry pick
     
-    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
+    Approved-by: Zoran Jeremic <zoran.jeremic@gmail.com>

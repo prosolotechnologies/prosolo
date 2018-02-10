@@ -79,9 +79,12 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			ToolProxyRegistrationMessage msg = validateRequest();
 			logger.info("LTI registration request valid");
 			TCProfile tcProfile = getTCProfile(msg.getTcProfileURL());
+			logger.info("LTI TC Profile");
 			ToolProxy tp = registerToolProxy(tcProfile, msg);
+			logger.info("LTI Register Tool Proxy");
 			consumerManager.registerLTIConsumer(msg.getId(), tp.getToolProxyGuid(), 
 					tp.getSecurityContract().getSharedSecret(), tcProfile.getCapabilities(), tcProfile.getServices());
+			logger.info("LTI Register LTI Consumer");
 			redirectUser(tp.getToolProxyGuid());
 		} catch (Exception e) {
 			logger.error(e);

@@ -113,7 +113,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		} else if (eventType == EventType.Registered) {
 			//if object is not null than object id is id of a new user, otherwise it is actor id.
 			long newUserId = event.getObject() != null ? event.getObject().getId() : event.getActorId();
-			userEntityESService.saveUserNode((User) session.load(User.class, newUserId), session);
+			userEntityESService.saveUserNode((User) session.get(User.class, newUserId), session);
 		} else if (eventType == EventType.Account_Activated || eventType == EventType.USER_ROLES_UPDATED) {
 			/*
 			we need to update whole index when roles are updated because we don't know if user exists

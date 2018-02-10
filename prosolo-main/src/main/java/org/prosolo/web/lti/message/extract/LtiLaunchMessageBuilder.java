@@ -13,6 +13,7 @@ public abstract class LtiLaunchMessageBuilder extends LtiMessageBuilder{
 		msg.setMessageType(PageUtil.getPostParameter(LTIConstants.MESSAGE_TYPE));
 		msg.setLaunchPresentationReturnURL(PageUtil.getPostParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL));
 		msg.setConsumerKey(PageUtil.getPostParameter(LTIConstants.OAUTH_CONSUMER_KEY));
+		msg.setRoles(PageUtil.getPostParameter(LTIConstants.ROLES));
 
 		return msg;
 	}
