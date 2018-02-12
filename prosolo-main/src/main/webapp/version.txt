@@ -1,14 +1,9 @@
-Current date:2018/02/10-12:23:08
+Current date:2018/02/11-21:07:20
 Source branch:develop
 Project version:1
 Git version:
-commit c504b4036b4243151e16ea274146d4717268d3b1
-Merge: 27ab96bc9 038773f09
-Author: Zoran Jeremic <zoran.jeremic@gmail.com>
-Date:   Sat Feb 10 20:21:53 2018 +0000
+commit e25c1aa0b6d17258bb8d6988f93c0235fb2e6a8a
+Author: jeremycod <zoran.jeremic@gmail.com>
+Date:   Sun Feb 11 21:05:29 2018 -0800
 
-    Merged in PRS-2968-redesigning-lti-provider-for-si (pull request #269)
-    
-    PRS-2968 redesigning lti provider for si
-    
-    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
+    Unisa messages, and Offerings added to CredentialType
