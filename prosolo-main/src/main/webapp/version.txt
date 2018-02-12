@@ -1,14 +1,14 @@
-Current date:2017/12/06-13:37:33
-Source branch:release-1.1.0
+Current date:2018/02/10-12:23:08
+Source branch:develop
 Project version:1
 Git version:
-commit 7c104a13e64da3112d9bc44aea025058a1d1dcb3
-Merge: d55aca53c 453c48ac3
-Author: Nikola Milikic <nikola.milikic@gmail.com>
-Date:   Wed Dec 6 21:33:10 2017 +0000
+commit c504b4036b4243151e16ea274146d4717268d3b1
+Merge: 27ab96bc9 038773f09
+Author: Zoran Jeremic <zoran.jeremic@gmail.com>
+Date:   Sat Feb 10 20:21:53 2018 +0000
 
-    Merged in sna-graph-fix-cherry-pick (pull request #248)
+    Merged in PRS-2968-redesigning-lti-provider-for-si (pull request #269)
     
-    Sna graph fix cherry pick
+    PRS-2968 redesigning lti provider for si
     
-    Approved-by: Zoran Jeremic <zoran.jeremic@gmail.com>
+    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>

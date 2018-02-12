@@ -51,6 +51,7 @@ public class CronInitializer extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("CRON INITIALIZER FINISHED");
 		/*for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
 			try {
