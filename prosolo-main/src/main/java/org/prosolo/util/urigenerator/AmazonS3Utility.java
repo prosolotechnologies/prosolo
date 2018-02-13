@@ -9,10 +9,11 @@ import org.prosolo.common.config.CommonSettings;
  */
 public class AmazonS3Utility {
 	
-	private static String prefix = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl +
-									"/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName +
-									"/";
-//	private static String prefix=CommonSettings.getInstance().config.fileStore.getFilePath();
+		//private static String prefix = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl +
+								//	"/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName +
+								//	"/";
+
+ 	private static String prefix=CommonSettings.getInstance().config.fileStore.getFilePath();
 
 	public static String createFullPathFromRelativePath(String relativeFilePath){
 		return prefix + relativeFilePath;
@@ -24,4 +25,5 @@ public class AmazonS3Utility {
 		}
 		return fullPath;
 	}
+	
 }
