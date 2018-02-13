@@ -11,10 +11,9 @@ public class AssessmentRequestData implements Serializable {
 	private long assessorId;
 	private String assessorFullName;
 	private String assessorAvatarUrl;
-	private long credentialId;
-	private long targetCredentialId;
+	private long targetResourceId;
 	private boolean assessorSet;
-	private String credentialTitle;
+	private boolean newAssessment;
 
 	public String getMessageText() {
 		return messageText;
@@ -57,32 +56,16 @@ public class AssessmentRequestData implements Serializable {
 		assessorSet = true;
 	}
 
-	public long getCredentialId() {
-		return credentialId;
+	public long getTargetResourceId() {
+		return targetResourceId;
 	}
 
-	public void setCredentialId(long credentialId) {
-		this.credentialId = credentialId;
-	}
-
-	public long getTargetCredentialId() {
-		return targetCredentialId;
-	}
-
-	public void setTargetCredentialId(long targetCredentialId) {
-		this.targetCredentialId = targetCredentialId;
+	public void setTargetResourceId(long targetResourceId) {
+		this.targetResourceId = targetResourceId;
 	}
 
 	public boolean isAssessorSet() {
 		return assessorSet;
-	}
-
-	public String getCredentialTitle() {
-		return credentialTitle;
-	}
-
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
 	}
 	
 	public void resetAssessorData() {
@@ -90,6 +73,14 @@ public class AssessmentRequestData implements Serializable {
 		this.assessorFullName = null;
 		this.assessorAvatarUrl = null;
 		this.assessorSet = false;
+		this.newAssessment = false;
 	}
 
+	public void setNewAssessment(boolean newAssessment) {
+		this.newAssessment = newAssessment;
+	}
+
+	public boolean isNewAssessment() {
+		return newAssessment;
+	}
 }

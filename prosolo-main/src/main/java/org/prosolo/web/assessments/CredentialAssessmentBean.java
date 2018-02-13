@@ -356,6 +356,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			fullAssessmentData.setGradeData(assessmentManager.updateGradeForCredentialAssessment(
 					fullAssessmentData.getCredAssessmentId(),
 					fullAssessmentData.getGradeData(), loggedUserBean.getUserContext()));
+			//remove assessor notification when grade is updated
+			fullAssessmentData.setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (DbConnectionException e) {
@@ -409,8 +411,12 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private void markCredentialApproved() {
 		fullAssessmentData.setApproved(true);
+		//remove notification when credential is approved
+		fullAssessmentData.setAssessorNotified(false);
 		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
 			compAssessmentData.setApproved(true);
+			//remove notification when competence is approved
+			compAssessmentData.setAssessorNotified(false);
 		}
 	}
 
@@ -529,6 +535,16 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if (fullAssessmentData.getGradeData().getGradingMode() == GradingMode.AUTOMATIC) {
 			fullAssessmentData.getGradeData().updateCurrentGrade(assessmentManager.getAutomaticCredentialAssessmentScore(
 					fullAssessmentData.getCredAssessmentId()));
+		}
+	}
+
+	public void removeAssessorNotification() {
+		try {
+			assessmentManager.removeAssessorNotificationFromCredentialAssessment(fullAssessmentData.getCredAssessmentId());
+			fullAssessmentData.setAssessorNotified(false);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error removing the notification");
 		}
 	}
 

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
@@ -19,10 +21,13 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(AssessmentRequestEventProcessor.class);
+
+	private CredentialAssessment assessment;
 	
 	public AssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
 										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+		assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 	}
 
 	@Override
@@ -32,9 +37,10 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	List<NotificationReceiverData> getReceiversData() {
+		PageSection section = assessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
 		List<NotificationReceiverData> receivers = new ArrayList<>();
-		receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), 
-				false, PageSection.STUDENT));
+		receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(section),
+				false, section));
 		return receivers;
 	}
 
@@ -55,15 +61,14 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	long getObjectId() {
-		return Long.parseLong(event.getParameters().get("credentialId"));
+		return assessment.getTargetCredential().getCredential().getId();
 	}
 
-	private String getNotificationLink() {
-		//assessment request can be made only to regular users - students - peers
-		return "/credentials/" +
-				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+	private String getNotificationLink(PageSection section) {
+		return section.getPrefix() + "/credentials/" +
+				idEncoder.encodeId(assessment.getTargetCredential().getCredential().getId()) +
 				"/assessments/" +
-				idEncoder.encodeId(event.getObject().getId());
+				idEncoder.encodeId(assessment.getId());
 	}
 
 }

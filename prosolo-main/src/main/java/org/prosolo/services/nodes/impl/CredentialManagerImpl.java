@@ -11,6 +11,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -387,9 +388,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws ResourceNotFoundException, DbConnectionException {
 		CredentialData credData;
 		try {
-			credData = getTargetCredentialData(credentialId, userId, true);
+			credData = getTargetCredentialData(credentialId, userId, true,true);
 			if (credData == null) {
-				return getCredentialData(credentialId, true, false, true, userId, AccessMode.USER);
+				return getCredentialData(credentialId, true, true, true, userId, AccessMode.USER);
 			}
 
 			return credData;
@@ -403,14 +404,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId,
-												  boolean loadCompetences) throws DbConnectionException {
+												  boolean loadAssessmentConfig, boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, true);
 
 			if (res != null) {
+				Set<CredentialAssessmentConfig> aConfig = loadAssessmentConfig ? res.getCredential().getAssessmentConfig() : null;
 				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(),
-						res, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
+						res, aConfig, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
 
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
@@ -1497,7 +1499,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
-		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false,false);
 		if (credentialData != null && credentialData.isEnrolled()) {
 			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, false, false, true));
 			return credentialData;
@@ -1962,7 +1964,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					User creator = (User) row[1];
 					Long bookmarkId = (Long) row[2];
 					CredentialData cd = credentialFactory.getCredentialData(creator,
-							tc, null, null, false);
+							tc, null, null, null, false);
 					if (bookmarkId != null) {
 						cd.setBookmarkedByCurrentUser(true);
 					}
@@ -2178,7 +2180,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
+	public List<Long> getPeerAssessorIdsForUserAndCredential(long credentialId, long userId) {
 		try {
 			String query =
 					"SELECT assessment.assessor.id " +
@@ -2187,6 +2189,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							"INNER JOIN tCred.credential cred " +
 							"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
+							"AND assessment.type = :aType " +
 							"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
 
 			@SuppressWarnings("unchecked")
@@ -2194,6 +2197,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("credId", credentialId)
+					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
 					.list();
 
 			if (res != null) {

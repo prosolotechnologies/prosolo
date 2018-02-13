@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
@@ -140,6 +141,22 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		if(activity != null) {
 			activities.add(activity);
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	private boolean isAssessmentTypeEnabled(AssessmentType type) {
+		if (assessmentTypes == null) {
+			return false;
+		}
+		AssessmentTypeConfig aType = assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
+		return aType.isEnabled();
 	}
 	
 	public boolean isUniversityCreated() {

@@ -47,6 +47,7 @@ public class AssessmentDataFull {
 	private int numberOfMessages;
 	private boolean messagesInitialized;
 	private String review;
+	private boolean assessorNotified;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -59,6 +60,7 @@ public class AssessmentDataFull {
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
 		data.setReview(assessment.getReview());
+		data.setAssessorNotified(assessment.isAssessorNotified());
 		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
@@ -362,5 +364,13 @@ public class AssessmentDataFull {
 
 	public void setReview(String review) {
 		this.review = review;
+	}
+
+	public boolean isAssessorNotified() {
+		return assessorNotified;
+	}
+
+	public void setAssessorNotified(boolean assessorNotified) {
+		this.assessorNotified = assessorNotified;
 	}
 }

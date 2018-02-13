@@ -65,11 +65,7 @@ public class CompetenceDataFactory {
 		}
 
 		if (assessmentConfig != null) {
-			List<AssessmentTypeConfig> types = new ArrayList<>();
-			for (CompetenceAssessmentConfig cac : assessmentConfig) {
-				types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
-			}
-			comp.setAssessmentTypes(types);
+			comp.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
 
 		comp.getAssessmentSettings().setMaxPoints(competence.getMaxPoints());
@@ -92,6 +88,14 @@ public class CompetenceDataFactory {
 		
 		return comp;
 	}
+
+	private List<AssessmentTypeConfig> getAssessmentConfig(Set<CompetenceAssessmentConfig> assessmentConfig) {
+		List<AssessmentTypeConfig> types = new ArrayList<>();
+		for (CompetenceAssessmentConfig cac : assessmentConfig) {
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+		}
+		return types;
+	}
 	
 	public CompetenceData1 getCompetenceData(User user, Competence1 comp, Set<CompetenceAssessmentConfig> assessmentConfig,
 			Set<Tag> tags, boolean shouldTrackChanges) {
@@ -101,7 +105,7 @@ public class CompetenceDataFactory {
 	}
 	
 	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 tc, int order,
-			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
+											 Set<CompetenceAssessmentConfig> assessmentConfig, Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
 		Competence1 competence = tc.getCompetence();
 		CompetenceData1 comp = new CompetenceData1(false);
 		comp.setCompetenceId(competence.getId());
@@ -114,6 +118,10 @@ public class CompetenceDataFactory {
 		comp.setProgress(tc.getProgress());
 		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
 		comp.setLearningPathType(competence.getLearningPathType());
+
+		if (assessmentConfig != null) {
+			comp.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
+		}
 
 		boolean learningStagesEnabled = false;
 		if (competence.getLearningStage() != null) {

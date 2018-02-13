@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -129,6 +130,22 @@ public class CredentialData extends StandardObservable implements Serializable {
 		for (AssessmentTypeConfig atc : getAssessmentTypes()) {
 			atc.startObservingChanges();
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	private boolean isAssessmentTypeEnabled(AssessmentType type) {
+		if (assessmentTypes == null) {
+			return false;
+		}
+		AssessmentTypeConfig aType = assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
+		return aType.isEnabled();
 	}
 
 	public boolean isFirstStageCredential() {

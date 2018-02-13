@@ -251,6 +251,22 @@
 				<div class="col-md-9 mandatoryFlow">
 					<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
 
+					<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
+						<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.fullAssessmentData.assessorNotified}">
+							<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
+								<p:commandButton id="btn"
+												 styleClass="close"
+												 pt:data-dismiss="alert"
+												 pt:aria-label="Close"
+												 value="&#215;"
+												 action="#{cc.attrs.bean.removeAssessorNotification()}"
+												 update="panelAssessorNotification :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
+								/>
+								Student asked for assessment on this #{msg['label.credential'].toLowerCase()}.
+							</div>
+						</h:panelGroup>
+					</h:panelGroup>
+
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">
 							<span class="fromLabel">From:</span>
@@ -572,7 +588,7 @@
 					gradeData="#{cc.attrs.bean.currentGradeData}"
 					resource="#{cc.attrs.bean.currentResType}"
 					resourceTitle="#{cc.attrs.bean.currentResTitle}"
-					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm @(.panelAssessorNotificationSelector)"
 					learningContext="#{cc.attrs.learningContext}"
 					gradePanelSidebarId="gradeSidebar"
 			/>
@@ -635,7 +651,7 @@
 								<p:commandLink
 										styleClass="btn btn-green"
 										value="Submit"
-										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel"
+										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)"
 										action="#{cc.attrs.bean.approveCredential()}"
 										oncomplete="$('#approveAssessment').modal('hide')"
 								/>

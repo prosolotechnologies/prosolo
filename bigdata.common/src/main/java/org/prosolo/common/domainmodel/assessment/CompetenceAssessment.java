@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,9 @@ public class CompetenceAssessment extends BaseEntity {
 	private User assessor;
 	private AssessmentType type;
 	private int points;
+	private Date lastAskedForAssessment;
+	private boolean assessorNotified;
+	private Date lastAssessment;
 
 	private Set<CredentialCompetenceAssessment> credentialAssessments;
 	private Set<CompetenceAssessmentDiscussionParticipant> participants;
@@ -156,5 +160,29 @@ public class CompetenceAssessment extends BaseEntity {
 			}
 		}
 		return null;
+	}
+
+	public Date getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(Date lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
+	}
+
+	public Date getLastAssessment() {
+		return lastAssessment;
+	}
+
+	public void setLastAssessment(Date lastAssessment) {
+		this.lastAssessment = lastAssessment;
+	}
+
+	public boolean isAssessorNotified() {
+		return assessorNotified;
+	}
+
+	public void setAssessorNotified(boolean assessorNotified) {
+		this.assessorNotified = assessorNotified;
 	}
 }

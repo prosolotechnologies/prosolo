@@ -35,6 +35,7 @@ public class CompetenceAssessmentData {
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
+	private boolean assessorNotified;
 
 //	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 //			long userId, DateFormat dateFormat) {
@@ -74,6 +75,7 @@ public class CompetenceAssessmentData {
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
+		data.setAssessorNotified(compAssessment.isAssessorNotified());
 		if (!cd.isEnrolled()) {
 			data.setReadOnly(true);
 		}
@@ -249,5 +251,13 @@ public class CompetenceAssessmentData {
 
 	public boolean isAllRead() {
 		return allRead;
+	}
+
+	public boolean isAssessorNotified() {
+		return assessorNotified;
+	}
+
+	public void setAssessorNotified(boolean assessorNotified) {
+		this.assessorNotified = assessorNotified;
 	}
 }

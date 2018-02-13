@@ -22,9 +22,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
@@ -65,7 +63,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public long requestAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
-				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
+				.load(TargetCredential1.class, assessmentRequestData.getTargetResourceId());
 		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
 				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
 				AssessmentType.PEER_ASSESSMENT, context);
@@ -493,6 +491,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			credentialAssessment.setApproved(true);
 			credentialAssessment.setReview(reviewText);
+			/*
+			if assessor has notification that he should assess student, this notification is turned off
+			when credential is approved
+			 */
+			credentialAssessment.setAssessorNotified(false);
 
 			User student = new User();
 			student.setId(credentialAssessment.getAssessedStudent().getId());
@@ -1512,6 +1515,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				ca.setPoints(gradeValue);
 
 				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.CREDENTIAL);
+				/*
+				if assessor has notification that he should assess student, this notification is turned off
+				when credential is assessed
+				 */
+				ca.setAssessorNotified(false);
 
 				saveEntity(ca);
 
@@ -2176,4 +2184,170 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<UserData> getInstructorCredentialAssessmentAssessor(long credId, long userId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ca.assessor " +
+					"FROM CredentialAssessment ca " +
+					"INNER JOIN ca.targetCredential tc " +
+					"WHERE tc.credential.id = :credId " +
+					"AND tc.user.id = :userId " +
+					"AND ca.type = :instructorAssessment";
+
+			User assessor = (User) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setLong("userId", userId)
+					.uniqueResult();
+
+			return assessor != null
+					? Optional.of(new UserData(assessor.getId(), assessor.getName(), assessor.getLastname(),
+						assessor.getAvatarUrl(), null, null, false))
+					: Optional.empty();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving the credential assessment assessor");
+		}
+	}
+
+	//NOTIFY ASSESSOR CREDENTIAL BEGIN
+
+	@Override
+	//not transactional - should not be called from another transaction
+	public void notifyAssessorToAssessCredential(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.notifyAssessorToAssessCredentialAndGetEvents(assessmentNotification, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Transactional
+	@Override
+	public Result<Void> notifyAssessorToAssessCredentialAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context) throws DbConnectionException {
+		try {
+			CredentialAssessment ca = getCredentialAssessmentForAssessorAndType(
+					assessmentNotification.getCredentialId(),
+					assessmentNotification.getAssessorId(),
+					assessmentNotification.getStudentId(),
+					assessmentNotification.getAssessmentType());
+			ca.setLastAskedForAssessment(new Date());
+			ca.setAssessorNotified(true);
+
+			CredentialAssessment assessment1 = new CredentialAssessment();
+			assessment1.setId(ca.getId());
+			User assessor1 = new User();
+			assessor1.setId(assessmentNotification.getAssessorId());
+
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+					null, null));
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error notifying the assessor");
+		}
+	}
+
+	private CredentialAssessment getCredentialAssessmentForAssessorAndType(long credentialId, long assessorId, long studentId, AssessmentType assessmentType) {
+		String q =
+				"SELECT ca FROM CredentialAssessment ca " +
+				"WHERE ca.targetCredential.credential.id = :credId " +
+				"AND ca.assessedStudent.id = :studentId " +
+				"AND ca.assessor.id = :assessorId " +
+				"AND ca.type = :aType";
+		return (CredentialAssessment) persistence.currentManager()
+				.createQuery(q)
+				.setLong("credId", credentialId)
+				.setLong("studentId", studentId)
+				.setLong("assessorId", assessorId)
+				.setString("aType", assessmentType.name())
+				.uniqueResult();
+	}
+
+	//NOTIFY ASSESSOR CREDENTIAL END
+
+	//NOTIFY ASSESSOR COMPETENCE BEGIN
+
+	@Override
+	//not transactional - should not be called from another transaction
+	public void notifyAssessorToAssessCompetence(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.notifyAssessorToAssessCompetenceAndGetEvents(assessmentNotification, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Transactional
+	@Override
+	public Result<Void> notifyAssessorToAssessCompetenceAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException {
+		try {
+			CompetenceAssessment ca = getCompetenceAssessmentForCredentialAssessorAndType(
+					assessmentNotification.getCredentialId(), assessmentNotification.getCompetenceId(),
+					assessmentNotification.getAssessorId(), assessmentNotification.getStudentId(),
+					assessmentNotification.getAssessmentType());
+			ca.setLastAskedForAssessment(new Date());
+			ca.setAssessorNotified(true);
+
+			CompetenceAssessment assessment1 = new CompetenceAssessment();
+			assessment1.setId(ca.getId());
+			User assessor1 = new User();
+			assessor1.setId(assessmentNotification.getAssessorId());
+
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+					null, null));
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error notifying the assessor");
+		}
+	}
+
+	private CompetenceAssessment getCompetenceAssessmentForCredentialAssessorAndType(
+			long credentialId, long competenceId, long assessorId, long studentId, AssessmentType assessmentType) {
+		String q =
+				"SELECT ca FROM CredentialCompetenceAssessment cca " +
+				"INNER JOIN cca.competenceAssessment ca " +
+				"WHERE cca.credentialAssessment.targetCredential.credential.id = :credId " +
+				"AND ca.competence.id = :compId " +
+				"AND ca.student.id = :studentId " +
+				"AND ca.assessor.id = :assessorId " +
+				"AND ca.type = :aType";
+		return (CompetenceAssessment) persistence.currentManager()
+				.createQuery(q)
+				.setLong("credId", credentialId)
+				.setLong("compId", competenceId)
+				.setLong("studentId", studentId)
+				.setLong("assessorId", assessorId)
+				.setString("aType", assessmentType.name())
+				.uniqueResult();
+	}
+
+	//NOTIFY ASSESSOR COMPETENCE END
+
+	@Override
+	@Transactional
+	public void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException {
+		try {
+			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, assessmentId);
+			ca.setAssessorNotified(false);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error removing the assessor notification from credential assessment");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException {
+		try {
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, assessmentId);
+			ca.setAssessorNotified(false);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error removing the assessor notification from competence assessment");
+		}
+	}
 }

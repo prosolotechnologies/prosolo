@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +25,9 @@ public class CredentialAssessment extends BaseEntity {
 	private AssessmentType type;
 	private int points;
 	private String review;
+	private Date lastAskedForAssessment;
+	private boolean assessorNotified;
+	private Date lastAssessment;
 	private Set<CredentialAssessmentDiscussionParticipant> participants;
 	private Set<CredentialAssessmentMessage> messages;
 
@@ -150,5 +154,29 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setReview(String review) {
 		this.review = review;
+	}
+
+	public Date getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(Date lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
+	}
+
+	public Date getLastAssessment() {
+		return lastAssessment;
+	}
+
+	public void setLastAssessment(Date lastAssessment) {
+		this.lastAssessment = lastAssessment;
+	}
+
+	public boolean isAssessorNotified() {
+		return assessorNotified;
+	}
+
+	public void setAssessorNotified(boolean assessorNotified) {
+		this.assessorNotified = assessorNotified;
 	}
 }

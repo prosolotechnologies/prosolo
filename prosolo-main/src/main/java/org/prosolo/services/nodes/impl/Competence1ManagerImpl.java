@@ -276,7 +276,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
 						CompetenceData1 compData;
 						if (tComp != null) {
-							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
+							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
 							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 								List<ActivityData> activities = activityManager
@@ -319,7 +319,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
 			TargetCompetence1 targetComp = res.getResult();
 			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, 0, targetComp.getCompetence().getTags(), null, false);
+					targetComp, 0, targetComp.getCompetence().getAssessmentConfig(), targetComp.getCompetence().getTags(), null, false);
 			
 			if(targetComp.getTargetActivities() != null) {
 				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
@@ -1085,7 +1085,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
-			compData = getTargetCompetenceData(credId, compId, userId, true);
+			compData = getTargetCompetenceData(credId, compId, userId, true, true);
 			if (compData == null) {
 //				compData = getCompetenceData(compId, true, true, true, userId,
 //						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
@@ -1094,7 +1094,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, false, true, true, userId,
+				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
 						req, false);
 			}
 				
@@ -1127,7 +1127,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @throws DbConnectionException
 	 */
 	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
-			boolean loadLearningPathContent) throws DbConnectionException {
+			boolean loadAssessmentConfig, boolean loadLearningPathContent) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -1159,8 +1159,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
 
 			if (res != null) {
+				Set<CompetenceAssessmentConfig> assessmentSettings = loadAssessmentConfig ? res.getCompetence().getAssessmentConfig() : null;
 				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 0,
-						res.getCompetence().getTags(), null, true);
+						assessmentSettings, res.getCompetence().getTags(), null, true);
 
 				if (compData != null && loadLearningPathContent) {
 					if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {

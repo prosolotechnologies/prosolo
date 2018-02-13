@@ -14,6 +14,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -233,5 +234,24 @@ public interface AssessmentManager {
 	Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
+
+	Optional<UserData> getInstructorCredentialAssessmentAssessor(long credId, long userId)
+			throws DbConnectionException;
+
+	Result<Void> notifyAssessorToAssessCredentialAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException;
+
+	void notifyAssessorToAssessCredential(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException;
+
+	void notifyAssessorToAssessCompetence(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> notifyAssessorToAssessCompetenceAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
+			throws DbConnectionException;
+
+	void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException;
+
+	void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException;
 
 }

@@ -315,7 +315,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @param userId user id
 	 * @return list of ids
 	 */
-	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
+	List<Long> getPeerAssessorIdsForUserAndCredential(long credentialId, long userId);
 	
 	/**
 	 * Returns list of CompetenceData for given credentials.
@@ -360,7 +360,7 @@ public interface CredentialManager extends AbstractManager {
 
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 
-	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadAssessmentConfig, boolean loadCompetences)
 			throws DbConnectionException;
 	
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 

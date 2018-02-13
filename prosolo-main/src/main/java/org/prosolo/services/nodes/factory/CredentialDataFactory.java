@@ -2,10 +2,7 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -43,11 +40,7 @@ public class CredentialDataFactory {
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
 		if (assessmentConfig != null) {
-			List<AssessmentTypeConfig> types = new ArrayList<>();
-			for (CredentialAssessmentConfig cac : assessmentConfig) {
-				types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
-			}
-			cred.setAssessmentTypes(types);
+			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
 
 		if (tags != null) {
@@ -107,9 +100,17 @@ public class CredentialDataFactory {
 		}
 		return cred;
 	}
+
+	private List<AssessmentTypeConfig> getAssessmentConfig(Set<CredentialAssessmentConfig> assessmentConfig) {
+		List<AssessmentTypeConfig> types = new ArrayList<>();
+		for (CredentialAssessmentConfig cac : assessmentConfig) {
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+		}
+		return types;
+	}
 	
 	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
+			Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null || credential.getCredential() == null) {
 			return null;
 		}
@@ -133,6 +134,11 @@ public class CredentialDataFactory {
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());
 		}
+
+		if (assessmentConfig != null) {
+			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
+		}
+
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
