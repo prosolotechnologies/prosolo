@@ -77,12 +77,12 @@
 								<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
 									<li>
 										<p:commandLink
-													   value="Archive"
-													   styleClass="linkRed"
-													   process="@this"
-													   action="#{cc.attrs.bean.select(delivery)}"
-													   update=":archiveDialog"
-													   oncomplete="$('#archiveModal').modal('show');">
+												value="Archive"
+												styleClass="linkRed"
+												process="@this"
+												action="#{cc.attrs.bean.select(delivery)}"
+												update=":archiveDialogDeliveries"
+												oncomplete="$('#archiveModalDeliveries').modal('show');">
 										</p:commandLink>
 									</li>
 								</ul>

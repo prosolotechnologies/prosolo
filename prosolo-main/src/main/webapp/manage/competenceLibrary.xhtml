@@ -7,7 +7,7 @@
 				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+				xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 				xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
 				xmlns:mng="http://java.sun.com/jsf/composite/components/manage">
 
@@ -228,16 +228,17 @@
 	
 	    </div>
 	    
-	    <dialogs:archiveResource
+	    <dlg:archiveResource
 	    		id="archiveDialog"
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
 				resourceType="#{msg['label.competence']}"
 				resourceTypePlural="#{msg['label.competence.plural']}"
+				pageWithArchivedResources="#{msg['label.competence']} Library"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
-		<dialogs:restoreResource
+		<dlg:restoreResource
 	    		id="restoreDialog"
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceLibraryBeanManager.restore}"
