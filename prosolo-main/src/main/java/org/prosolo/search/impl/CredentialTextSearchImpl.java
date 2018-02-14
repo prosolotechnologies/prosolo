@@ -258,9 +258,9 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 							since we return only first stage credential we know that credential id is actually
 							first stage credential id
 							 */
-							deliveries = credentialManager.getActiveDeliveriesFromAllStages(id);
+							deliveries = credentialManager.getOngoingDeliveriesFromAllStages(id);
 						} else {
-							deliveries = credentialManager.getActiveDeliveries(id);
+							deliveries = credentialManager.getOngoingDeliveries(id);
 						}
 						cd.setDeliveries(deliveries);
 						cd.startObservingChanges();
