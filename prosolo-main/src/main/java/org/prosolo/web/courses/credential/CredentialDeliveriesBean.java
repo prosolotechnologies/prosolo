@@ -1,10 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -21,6 +16,11 @@ import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component("credentialDeliveriesBean")
 @Scope("view")
@@ -40,7 +40,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	private long decodedId;
 	
 	private String credentialTitle;
-	private List<CredentialData> activeDeliveries;
+	private List<CredentialData> ongoingDeliveries;
 	private List<CredentialData> pendingDeliveries;
 	private List<CredentialData> completedDeliveries;
 	private List<CredentialData> deliveries;
@@ -75,7 +75,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	}
 
 	private void initializeDeliveryCollections(){
-		activeDeliveries = new ArrayList<>();
+		ongoingDeliveries = new ArrayList<>();
 		pendingDeliveries = new ArrayList<>();
 		completedDeliveries = new ArrayList<>();
 	}
@@ -95,7 +95,7 @@ public class CredentialDeliveriesBean implements Serializable {
 		this.deliveries = res.getResource();
 		initializeDeliveryCollections();
 		CredentialDeliveryUtil.populateCollectionsBasedOnDeliveryStartAndEnd(
-				deliveries, activeDeliveries, pendingDeliveries, completedDeliveries
+				deliveries, ongoingDeliveries, pendingDeliveries, completedDeliveries
 		);
 	}
 
@@ -157,8 +157,8 @@ public class CredentialDeliveriesBean implements Serializable {
 		this.id = id;
 	}
 
-	public List<CredentialData> getActiveDeliveries() {
-			return activeDeliveries;
+	public List<CredentialData> getOngoingDeliveries() {
+			return ongoingDeliveries;
 	}
 
 	public List<CredentialData> getPendingDeliveries() {
