@@ -233,9 +233,8 @@
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="#{msg['label.competence']}"
-				resourceType="#{msg['label.competence'].toLowerCase()}"
-				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
+				resourceType="#{msg['label.competence']}"
+				resourceTypePlural="#{msg['label.competence.plural']}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 		<dialogs:restoreResource

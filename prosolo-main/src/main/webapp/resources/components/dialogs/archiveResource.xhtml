@@ -12,7 +12,6 @@
 	    <composite:attribute name="archiveActionMethodName" required="true"/>
 		<composite:attribute name="archiveAction" required="true" method-signature="void #{cc.attrs.archiveActionMethodName}()"/>
 		<composite:attribute name="toUpdate" default="" />
-		<composite:attribute name="title" required="true"/>
 		<composite:attribute name="resourceType" required="true"/>
 		<composite:attribute name="resourceTypePlural" required="true"/>
 		<composite:attribute name="learningContext" default=""/>
@@ -27,12 +26,12 @@
                    <div class="modal-content">
                        <div class="modal-header">
                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                           <h2 class="modal-title" id="deleteCredential">Archive #{cc.attrs.title}?</h2>
+                           <h2 class="modal-title" id="deleteCredential">Archive #{cc.attrs.resourceType}?</h2>
                        </div>
                        <div class="modal-body">
-                           <p>Are you sure you want to archive this #{cc.attrs.resourceType}?<br></br><br></br>
-                           <small>Archived #{cc.attrs.resourceTypePlural} can be found under 'Archived' filter on
-							   a #{msg['label.delivery.plural'].toLowerCase()} page.</small></p>
+                           <p>Are you sure you want to archive this #{cc.attrs.resourceType.toLowerCase()}?<br></br><br></br>
+                           <small>Archived #{cc.attrs.resourceTypePlural.toLowerCase()} can be found under the 'Archived' filter on
+							   a #{msg['label.delivery.plural']} page.</small></p>
                        </div>
                        <div class="modal-footer">
                        	  <p:commandLink

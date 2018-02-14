@@ -421,9 +421,8 @@
 				archiveActionMethodName="archive"
 				archiveAction="#{competenceEditBean.archive}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-				title="#{msg['label.competence']}"
-				resourceType="#{msg['label.competence'].toLowerCase()}"
-				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
+				resourceType="#{msg['label.competence']}"
+				resourceTypePlural="#{msg['label.competence.plural']}"
 				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 
 			<dialogs:restoreResource
