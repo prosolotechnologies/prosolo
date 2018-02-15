@@ -147,6 +147,11 @@ public class Settings {
 		System.setProperty("elasticsearch.host",CommonSettings.getInstance().config.elasticSearch.esHostsConfig.esHosts.get(0).host);
 		System.setProperty("elasticsearch.port",String.valueOf(CommonSettings.getInstance().config.elasticSearch.esHostsConfig.esHosts.get(0).port));
 		System.setProperty("elasticsearch.jobsIndex",String.valueOf(CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex));
+		System.setProperty("mysql.dbHost",CommonSettings.getInstance().config.mysqlConfig.host);
+		System.setProperty("mysql.dbName",CommonSettings.getInstance().config.mysqlConfig.database);
+		System.setProperty("mysql.dbPort",String.valueOf(CommonSettings.getInstance().config.mysqlConfig.port));
+		System.setProperty("mysql.dbUser",CommonSettings.getInstance().config.mysqlConfig.user);
+		System.setProperty("mysql.dbPass",CommonSettings.getInstance().config.mysqlConfig.password);
 	}
 
 	public void initializeLogger() {

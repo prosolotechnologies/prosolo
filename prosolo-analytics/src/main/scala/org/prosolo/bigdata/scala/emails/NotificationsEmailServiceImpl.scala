@@ -1,10 +1,9 @@
 package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.email.EmailSender
-import org.prosolo.bigdata.scala.spark.emails.{EmailSummary, NotificationsSummary}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationsSummary}
 import org.prosolo.common.email.generators.EmailContentGenerator
-import scala.collection.JavaConversions.mapAsScalaMap
-import scala.collection.JavaConversions._
+
 import collection.JavaConverters._
 class NotificationsEmailServiceImpl extends EmailService[NotificationsSummary] {
   override def sendEmail(emailSummary:NotificationsSummary): Unit = ???

@@ -4,7 +4,7 @@ import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.spark.emails.NotificationsSummary
 import org.prosolo.common.util.date.DateEpochUtil
-//import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileInteractionsManager.clusteringDAOManager
+
 import org.prosolo.bigdata.scala.spark.emails.UserNotificationEmailsSparkJob
 import org.prosolo.common.config.CommonSettings
 

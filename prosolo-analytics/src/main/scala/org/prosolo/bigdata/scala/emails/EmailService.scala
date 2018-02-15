@@ -1,6 +1,5 @@
 package org.prosolo.bigdata.scala.emails
 
-import org.prosolo.bigdata.scala.feeds.DigestManager.getClass
 import org.prosolo.bigdata.scala.spark.emails.EmailSummary
 import org.slf4j.LoggerFactory
 
