@@ -23,4 +23,7 @@ public class SparkConfig {
 
     @Element(name = "app-name", required = true)
     public String appName;
+
+    @Element(name = "one-jar", required = false)
+    public String oneJar;
 }

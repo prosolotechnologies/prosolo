@@ -1,7 +1,9 @@
 package org.prosolo.bigdata.scala.spark
 
+import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession
 import org.elasticsearch.spark.rdd.EsSpark
+
 import collection.JavaConverters._
 
 /**
@@ -48,7 +50,8 @@ trait SparkJob extends Serializable{
 
   def finishJob()={
     summaryAccu.add(new TaskSummary("","", 0,System.currentTimeMillis()))
-    val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
+    val resource=ConfigFactory.load().getString("elasticsearch.jobsIndex");
+    //val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
     val failedTasks:Seq[FailedTask]=failedTasksAccu.value.asScala
     val mapping=Map("es.mapping.id"->"jobId")
    val rddFailed= sparkSession.sparkContext.makeRDD(failedTasks)
