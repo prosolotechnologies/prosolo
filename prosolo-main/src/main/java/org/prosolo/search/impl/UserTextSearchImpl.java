@@ -31,6 +31,7 @@ import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;

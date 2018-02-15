@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.services.es.MoreDocumentsLikeThis;
+import org.prosolo.es.MoreDocumentsLikeThis;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.TikaExtractor;
 import org.springframework.beans.factory.annotation.Autowired;

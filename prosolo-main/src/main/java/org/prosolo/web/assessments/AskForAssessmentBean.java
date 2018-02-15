@@ -4,10 +4,10 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -68,10 +68,10 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     /**
      * new assessment request is when assessment request is submitted to new peer
-    */
+     */
     private boolean isNewAssessmentRequest() {
         return assessmentType == AssessmentType.PEER_ASSESSMENT
-                        && !existingPeerAssessors.contains(assessmentRequestData.getAssessorId());
+                && !existingPeerAssessors.contains(assessmentRequestData.getAssessorId());
     }
 
     public void resetAskForAssessmentModal() {

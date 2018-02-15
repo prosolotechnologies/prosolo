@@ -1,9 +1,9 @@
 package org.prosolo.web.rubrics;
 
 import org.apache.log4j.Logger;
+import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
-import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
@@ -42,14 +42,15 @@ public class RubricCriteriaBean implements Serializable {
 
 	private String rubricId;
 	private long decodedRubricId;
-
-	private RubricData rubric;
 	private List<RubricCriterionData> criteriaToRemove;
 	private List<RubricLevelData> levelsToRemove;
 
 	private LabeledRubricType[] rubricTypes;
 
 	private EditMode editMode = EditMode.LIMITED;
+
+	private RubricData rubric;
+	private final int maxNumberOfLevels = Settings.getInstance().config.application.manageSection.maxRubricLevels;
 
 	public void init() {
 		decodedRubricId = idEncoder.decodeId(rubricId);
@@ -152,9 +153,11 @@ public class RubricCriteriaBean implements Serializable {
 	}
 
 	public void addEmptyLevel() {
-		RubricLevelData level = new RubricLevelData(ObjectStatus.CREATED);
-		level.setOrder(rubric.getLevels().size() + 1);
-		rubric.addNewLevel(level);
+		if (rubric.getLevels().size() < maxNumberOfLevels) {
+			RubricLevelData level = new RubricLevelData(ObjectStatus.CREATED);
+			level.setOrder(rubric.getLevels().size() + 1);
+			rubric.addNewLevel(level);
+		}
 	}
 
 	public <T extends RubricItemData> void addEmptyItem(T item, List<T> items) {
@@ -233,5 +236,9 @@ public class RubricCriteriaBean implements Serializable {
 
 	public LabeledRubricType[] getRubricTypes() {
 		return rubricTypes;
+	}
+
+	public int getMaxNumberOfLevels() {
+		return maxNumberOfLevels;
 	}
 }

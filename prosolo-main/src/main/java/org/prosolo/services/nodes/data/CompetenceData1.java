@@ -6,6 +6,8 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;

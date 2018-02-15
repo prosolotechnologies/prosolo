@@ -14,9 +14,6 @@ public class FileManagementConfig {
 	@Element(name = "url-prefix-folder")
 	public String urlPrefixFolder;
 
-	@Element(name = "buffer-size")
-	public int bufferSize;	
-
 	@Override
 	public String toString() {
 		return StringUtils.toStringByReflection(this);

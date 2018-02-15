@@ -4,7 +4,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.assessments.grading.*;
+import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
@@ -66,37 +66,45 @@ public class RubricDataFactory {
 	}
 
 	private RubricCriterionData getRubricCriterionData(Criterion criterion) {
-		return criterion.accept(new CriterionVisitor<RubricCriterionData>() {
-			@Override
-			public RubricCriterionData visit(Criterion criterion) {
-				return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder());
-			}
+		return criterion.accept(
+				/**
+				 * Visitor that sets rubric criterion data according to a criterion type
+				 */
+				new CriterionVisitor<RubricCriterionData>() {
+					@Override
+					public RubricCriterionData visit(Criterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder());
+					}
 
-			@Override
-			public RubricCriterionData visit(PointCriterion criterion) {
-				return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder(), criterion.getPoints());
-			}
-		});
+					@Override
+					public RubricCriterionData visit(PointCriterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder(), criterion.getPoints());
+					}
+				});
 	}
 
 	private RubricLevelData getRubricLevelData(Level level) {
-		return level.accept(new LevelVisitor<RubricLevelData>() {
-			@Override
-			public RubricLevelData visit(Level level) {
-				return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder());
-			}
+		return level.accept(
+				/**
+				 * Visitor that sets rubric level data according to a level type
+				 */
+				new LevelVisitor<RubricLevelData>() {
+					@Override
+					public RubricLevelData visit(Level level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder());
+					}
 
-			@Override
-			public RubricLevelData visit(PointLevel level) {
-				return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder(), level.getPoints());
-			}
+					@Override
+					public RubricLevelData visit(PointLevel level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder(), level.getPoints());
+					}
 
-			@Override
-			public RubricLevelData visit(PointRangeLevel level) {
-				//TODO implement when we introduce point range level on user interface
-				return null;
-			}
-		});
+					@Override
+					public RubricLevelData visit(PointRangeLevel level) {
+						//TODO implement when we introduce point range level on user interface
+						return null;
+					}
+				});
 	}
 
 	private void addLevelsWithDescriptionToCriterion(RubricData rubric, RubricCriterionData criterion, Set<CriterionLevel> criterionLevelDescriptions) {
@@ -113,7 +121,6 @@ public class RubricDataFactory {
 	}
 
 	//get rubric entities based on rubric data
-
 	public Level getLevel(RubricType rubricType, Rubric rubric, RubricLevelData rubricLevelData) {
 		if (rubricLevelData == null) {
 			return null;

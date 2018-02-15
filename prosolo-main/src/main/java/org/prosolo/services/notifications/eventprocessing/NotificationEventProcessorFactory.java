@@ -13,7 +13,7 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;

@@ -52,7 +52,7 @@
 						<evidence:submitEvidence
 								id="submitEvidence"
 								bean="#{cc.attrs.bean}"
-								includeExistingEvidencesOption="true"
+								addEvidenceToCompetence="true"
 								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences"
 								learningContext="#{cc.attrs.learningContext}"
 								submitButtonText="Submit"
@@ -106,6 +106,10 @@
 														format="MMM DD, YYYY"
 												/>
 											</td>
+										</tr>
+										<tr>
+										    <td class="col01">Relation:</td>
+											<td>#{ev.relationToCompetence}</td>
 										</tr>
 									</table>
 								</div>

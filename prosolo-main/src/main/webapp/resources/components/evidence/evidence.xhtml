@@ -64,7 +64,8 @@
 								value="#{c.title}">
 								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
 							</h:link>
-							<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}">, </ui:fragment>
+							- #{c.description}
+							<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
 						</ui:repeat>
 					</td>
 				</tr>

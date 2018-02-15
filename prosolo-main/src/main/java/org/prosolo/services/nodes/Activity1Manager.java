@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 
 import java.util.Date;
 import java.util.List;
