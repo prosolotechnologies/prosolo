@@ -6,7 +6,7 @@ import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import be.ac.ulg.montefiore.run.jahmm.{Hmm, ObservationDiscrete, OpdfDiscreteFactory}
 import org.prosolo.bigdata.clustering.QuartileName
 import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
 

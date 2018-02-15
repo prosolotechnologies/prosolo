@@ -52,6 +52,12 @@
 										   action="#{otherSettingsBean.migrateDemoServer()}"
 										   oncomplete="" />
 						</ui:remove>
+						<p:commandLink value="Migrate Assessments"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   onclick=""
+									   action="#{otherSettingsBean.migrateAssessments()}"
+									   update=":growlMain" />
 						<div class="clear top30"></div>
 					</div>
 				</div>

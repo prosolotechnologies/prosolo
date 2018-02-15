@@ -1,13 +1,8 @@
 package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -24,9 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Bojan Trifkovic
@@ -53,8 +46,6 @@ public class AskForAssessmentBean implements Serializable {
     private AssessmentManager assessmentManager;
     @Inject
     private ThreadPoolTaskExecutor taskExecutor;
-    @Inject
-    private EventFactory eventFactory;
 
     private List<UserData> peersForAssessment;
     private String peerSearchTerm;
@@ -131,8 +122,7 @@ public class AskForAssessmentBean implements Serializable {
                 populateAssessmentRequestFields();
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
                 this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-                long assessmentId = assessmentManager.requestAssessment(this.assessmentRequestData, loggedUser.getUserContext());
-                notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId());
+                assessmentManager.requestAssessment(this.assessmentRequestData, loggedUser.getUserContext());
 
                 PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
 
@@ -156,25 +146,6 @@ public class AskForAssessmentBean implements Serializable {
         this.assessmentRequestData.setStudentId(loggedUser.getUserId());
         this.assessmentRequestData.setCredentialId(credentialData.getId());
         this.assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
-    }
-
-    private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId) {
-        UserContextData context = loggedUser.getUserContext();
-        taskExecutor.execute(() -> {
-            User assessor = new User();
-            assessor.setId(assessorId);
-            CredentialAssessment assessment = new CredentialAssessment();
-            assessment.setId(assessmentId);
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put("credentialId", idEncoder.decodeId(credentialId) + "");
-            try {
-                eventFactory.generateEvent(EventType.AssessmentRequested, context, assessment, assessor,
-                        null, parameters);
-            } catch (Exception e) {
-                logger.error("Eror sending notification for assessment request", e);
-            }
-        });
-
     }
 
     public CredentialManager getCredManager() {
@@ -215,14 +186,6 @@ public class AskForAssessmentBean implements Serializable {
 
     public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
         this.taskExecutor = taskExecutor;
-    }
-
-    public EventFactory getEventFactory() {
-        return eventFactory;
-    }
-
-    public void setEventFactory(EventFactory eventFactory) {
-        this.eventFactory = eventFactory;
     }
 
     public List<UserData> getPeersForAssessment() {

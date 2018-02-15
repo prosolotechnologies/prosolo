@@ -37,7 +37,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -139,20 +138,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void reinitializeSessionData(UserData user, long organizationId) {
 		if (user != null) {
 			sessionData.setUserId(user.getId());
-			long orgId = 0;
-			if (organizationId > 0) {
-				orgId = organizationId;
-				sessionData.setOrganizationId(orgId);
-				sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
-				sessionData.setName(user.getName());
-				sessionData.setLastName(user.getLastName());
-				sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-				sessionData.setAvatar(user.getAvatarUrl());
-				sessionData.setPosition(user.getPosition());
-				sessionData.setEmail(user.getEmail());
-				sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
-				initialized = true;
-			}
+			sessionData.setOrganizationId(organizationId);
+			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
+			sessionData.setName(user.getName());
+			sessionData.setLastName(user.getLastName());
+			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
+			sessionData.setPosition(user.getPosition());
+			sessionData.setEmail(user.getEmail());
+			sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
+			initialized = true;
 		}
 	}
 	

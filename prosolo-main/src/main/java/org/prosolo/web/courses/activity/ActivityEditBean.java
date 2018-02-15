@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -40,6 +41,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
@@ -91,7 +93,7 @@ public class ActivityEditBean implements Serializable {
 	private String context;
 	
 	private boolean manageSection;
-	
+
 	public void init() {
 		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
@@ -150,6 +152,16 @@ public class ActivityEditBean implements Serializable {
 	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
 		activityData = res.getResource();
 		access = res.getAccess();
+	}
+
+	public boolean isPointBasedActivity() {
+		return isPointBasedActivity(activityData.getGradingMode(), activityData.getRubricId(), activityData.getRubricType());
+	}
+
+	public boolean isPointBasedActivity(GradingMode gradingMode, long rubricId, RubricType rubricType) {
+		return gradingMode != GradingMode.NONGRADED
+				&& (rubricId == 0 || rubricType == RubricType.POINT
+				|| rubricType == RubricType.POINT_RANGE);
 	}
 	
 	public boolean isLimitedEdit() {
@@ -471,26 +483,41 @@ public class ActivityEditBean implements Serializable {
 
 	public void validateMaxPoints(FacesContext context, UIComponent component, Object value) {
 		UIInput input = (UIInput) component.getAttributes().get("gradingModeComp");
-		if (input != null && GradingMode.NONGRADED != input.getValue()) {
-			String validationMsg = null;
-			boolean valid = true;
-			//we check if value is entered and whether integer is greater than zero, other validator checks if valid number is entered
-			if (value == null || value.toString().trim().isEmpty()) {
-				validationMsg = "Maximum number of points must be defined";
-				valid = false;
-			} else if (NumberValidatorUtil.isInteger(value.toString())) {
-				int i = Integer.parseInt(value.toString());
-				if (i <= 0) {
-					validationMsg = "Maximum number of points must be greater than zero";
+		UISelectOne selectRubric = (UISelectOne) component.getAttributes().get("rubricComp");
+		if (input != null && selectRubric != null) {
+			long rubricId = selectRubric.isLocalValueSet()
+					? (long) selectRubric.getValue()
+					: Long.parseLong(selectRubric.getSubmittedValue().toString());
+			RubricType rubricType = rubricId == 0 ? null : getRubricTypeForId(rubricId);
+			if (isPointBasedActivity((GradingMode) input.getValue(), rubricId, rubricType)) {
+				String validationMsg = null;
+				boolean valid = true;
+				//we check if value is entered and whether integer is greater than zero, other validator checks if valid number is entered
+				if (value == null || value.toString().trim().isEmpty()) {
+					validationMsg = "Maximum number of points must be defined";
 					valid = false;
+				} else if (NumberValidatorUtil.isInteger(value.toString())) {
+					int i = Integer.parseInt(value.toString());
+					if (i <= 0) {
+						validationMsg = "Maximum number of points must be greater than zero";
+						valid = false;
+					}
+				}
+				if (!valid) {
+					FacesMessage msg = new FacesMessage(validationMsg);
+					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+					throw new ValidatorException(msg);
 				}
 			}
-			if (!valid) {
-				FacesMessage msg = new FacesMessage(validationMsg);
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				throw new ValidatorException(msg);
-			}
 		}
+	}
+
+	private RubricType getRubricTypeForId(long id) {
+		Optional<RubricData> rubricData = rubrics.stream().filter(r -> r.getId() == id).findFirst();
+		if (rubricData.isPresent()) {
+			return rubricData.get().getRubricType();
+		}
+		return null;
 	}
 	
 	/*

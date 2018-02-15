@@ -21,6 +21,7 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	@Override
 	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException{
 		if (tool == null){
+
 			throw new LtiToolAccessDeniedException();
 		}
 		if(!tool.isEnabled()){

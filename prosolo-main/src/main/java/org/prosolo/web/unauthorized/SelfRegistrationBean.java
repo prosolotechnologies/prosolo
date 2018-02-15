@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -94,7 +93,6 @@ public class SelfRegistrationBean {
 		this.email = email;
 	}
 	
-	//@Transactional
 	public void registerUser() {
 		this.bot = false;
 		
@@ -117,8 +115,6 @@ public class SelfRegistrationBean {
 					null);
 			
 			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e);
 		} catch (FileNotFoundException e) {
 			logger.error(e);
 		} catch (IOException e) {
@@ -128,15 +124,9 @@ public class SelfRegistrationBean {
 	}
 	
 	public User registerUserOpenId(String firstName, String lastName, String email){
-		System.out.println("register user open id:"+email);
-		User user = null;
-		
-		try {
-			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e);
-		}
-		return user; 
+		logger.info("Registering new user via OpenId: " + email);
+		User user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
+		return user;
 	}
 
 	public String getKey() {

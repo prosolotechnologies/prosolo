@@ -64,5 +64,5 @@ function setLevelFieldValue(value, field, order) {
     var newValue = field === 'name'
         ? (!value || value.length === 0 ? '<Level Name>' : value)
         : (!value || value.length === 0 ? '' : value + '%');
-    $('td' + classSelector + '[data-level-order=' + order + ']').text(newValue);
+    $('td' + classSelector + '[data-level-order=' + order + ']' + (field === 'name' ? ' .name' : '')).text(newValue);
 }

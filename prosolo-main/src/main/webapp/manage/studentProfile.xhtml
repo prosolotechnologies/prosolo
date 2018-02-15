@@ -67,9 +67,9 @@
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-graph.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-main.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
 
  	<ui:param name="learningContext" value="name:user|id:#{studentProfileBean.decodedId}"></ui:param>
  	

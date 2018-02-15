@@ -1,10 +1,11 @@
 package org.prosolo.services.nodes.data.evidence;
 
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -14,15 +15,27 @@ import java.util.Set;
  */
 public class LearningEvidenceData implements Serializable {
 
+    private static final long serialVersionUID = -5070671721203793789L;
+
     private long id;
+    private long userId;
     private long competenceEvidenceId;
     private String title;
     private String text;
+    private String relationToCompetence;
     private LearningEvidenceType type;
     private String url;
-    private Set<Tag> tags;
+    private Set<String> tags;
     private String tagsString;
+    private long dateCreated;
+    //date when evidence is added to the current competence
     private long dateAttached;
+    //competences with this evidence
+    private List<BasicObjectInfo> competences;
+
+    public LearningEvidenceData() {
+        competences = new ArrayList<>();
+    }
 
     public String getFileName() {
         return url != null && !url.isEmpty() ? url.substring(url.lastIndexOf("/") + 1) : null;
@@ -38,6 +51,14 @@ public class LearningEvidenceData implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getCompetenceEvidenceId() {
@@ -68,11 +89,11 @@ public class LearningEvidenceData implements Serializable {
         this.url = url;
     }
 
-    public Set<Tag> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tag> tags) {
+    public void setTags(Set<String> tags) {
         this.tags = tags;
     }
 
@@ -98,5 +119,35 @@ public class LearningEvidenceData implements Serializable {
 
     public void setDateAttached(long dateAttached) {
         this.dateAttached = dateAttached;
+    }
+
+    public void setDateCreated(long dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public long getDateCreated() {
+        return dateCreated;
+    }
+
+    public List<BasicObjectInfo> getCompetences() {
+        return competences;
+    }
+
+    public void addCompetence(BasicObjectInfo comp) {
+        if (comp != null) {
+            competences.add(comp);
+        }
+    }
+
+    public void addCompetences(List<BasicObjectInfo> competences) {
+        this.competences.addAll(competences);
+    }
+
+    public String getRelationToCompetence() {
+        return relationToCompetence;
+    }
+
+    public void setRelationToCompetence(String relationToCompetence) {
+        this.relationToCompetence = relationToCompetence;
     }
 }

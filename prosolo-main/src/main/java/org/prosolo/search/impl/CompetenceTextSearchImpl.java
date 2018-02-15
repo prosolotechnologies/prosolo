@@ -28,6 +28,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
@@ -59,6 +60,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Inject private ESIndexer esIndexer;
 	@Inject private Competence1Manager compManager;
 	@Inject private CompetenceDataFactory compFactory;
+	@Inject private OrganizationManager orgManager;
 	
 	@Override
 	@Transactional
@@ -356,7 +358,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					CompetenceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
 						userId, null));
 			
-			String[] includes = {"id", "title", "published", "archived", "datePublished"};
+			String[] includes = {"id", "title", "published", "archived", "datePublished", "learningStageId"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -401,6 +403,12 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 
 						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, false);
 						cd.setNumberOfStudents(compManager.countNumberOfStudentsLearningCompetence(id));
+						long lStageId = Long.parseLong(hit.getSource().get("learningStageId").toString());
+						cd.setLearningStageEnabled(lStageId > 0);
+						if (lStageId > 0) {
+							cd.setLearningStage(orgManager.getLearningStageData(lStageId));
+						}
+
 						response.addFoundNode(cd);
 					}
 				}

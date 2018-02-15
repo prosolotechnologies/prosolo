@@ -32,7 +32,7 @@
 		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css?#{applicationbean.loginTime}" />
 
 	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+		src="#{request.contextPath}/resources/javascript2/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script
 		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
@@ -44,7 +44,7 @@
 		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
 		
 	<script src="https://www.youtube.com/iframe_api"/>
-	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript2/youtubevideo.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 		
@@ -167,15 +167,15 @@
 							pt:data-toggle="dropdown" 
 							pt:aria-haspopup="true" 
 							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
+							action="#{managerNotificationsBean.markNotificationsAsRead}"
 							process="@this"
 							update="notificationLoop @this">
 							
 							Notifications
 							
-							<h:panelGroup id="unreadNotificationsDot">
+							<h:panelGroup id="unreadNotificationsDot"  >
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									class="#{managerNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 					
@@ -183,9 +183,9 @@
 							class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
 							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
 								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
+									<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}

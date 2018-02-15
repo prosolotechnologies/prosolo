@@ -8,7 +8,6 @@ import org.joda.time.DateTime
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.jobs.GenerateUserProfileClusters
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.spark.scala.clustering.UserProfileClusteringSparkJob
 import org.prosolo.common.config.CommonSettings
 

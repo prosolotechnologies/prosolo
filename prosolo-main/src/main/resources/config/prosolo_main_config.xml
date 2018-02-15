@@ -21,49 +21,18 @@
 	<!-- log4j config file -->
 	<logging-config>config/log4j.properties</logging-config>
 
-
-	<mongo-db-config>
-		<db-name>prosolo</db-name>
-		<db-servers>
-			<db-server>
-				<db-host>localhost</db-host>
-				<db-port>27017</db-port>
-			</db-server>
-		</db-servers>
-	</mongo-db-config>
 	<app-config>
 		<development-mode>true</development-mode>
-		<default-refresh-rate>60</default-refresh-rate>
-		<suggested-learning-refresh-rate>6000</suggested-learning-refresh-rate>
 		<messages-inbox-refresh-rate>30</messages-inbox-refresh-rate>
 		<notifications-refresh-rate>30</notifications-refresh-rate>
-		<featured-news-refresh-rate>600</featured-news-refresh-rate>
-		<!-- How much time in minutes have to pass after last indexing of Documents before it can be indexed again (e.g. 1440 for one day, 10080 for one week -->
-		<default-reindex-time>1000</default-reindex-time>
-		<!-- How many items should be shown in search box by default -->
-		<default-search-items-number>3</default-search-items-number>
-		<!-- How many items should be shown in global search box by default -->
-		<global-search-items-number>5</global-search-items-number>
-		<!-- How many items should be shown in side box by default -->
-		<default-sidebox-elements-number>3</default-sidebox-elements-number>
-		<!-- How many top results will be returned from the More???LikeThis services -->
-		<default-likethis-items-number>5</default-likethis-items-number>
 		<password-reset-key-validity-hours>24</password-reset-key-validity-hours>
-		<home>
-			<learning-progress>
-				<number-of-competences>3</number-of-competences>
-				<number-of-goals>3</number-of-goals>
-			</learning-progress>
-		</home>
-		<goals>
-			<goal-wall-page-size>7</goal-wall-page-size>
-		</goals>
-		<profile>
-			<goals-to-show>5</goals-to-show>
-		</profile>
 		<notifications>
 			<top-notifications-to-show>5</top-notifications-to-show>
 		</notifications>
+		<manage-section>
+			<max-rubric-levels>7</max-rubric-levels>
+		</manage-section>
+
 		<registration>
 			<google>true</google>
 			<edx>false</edx>
@@ -105,23 +74,12 @@
 		<!-- Folder from which the resource will be available online, e.g. http://example.com/files/. Must end with slash (/) -->
 		<url-prefix-folder>files/</url-prefix-folder>
 
-		<buffer-size>8192</buffer-size> <!-- 8KB in butes -->
-
 		<images>
 			<!-- Path inside web context relative to the location of the file type icons -->
 			<file-type-icons-path>/resources/images/teambox-free-file-icons/</file-type-icons-path>
 		</images>
 	</file-management>
 
-	<twitter-stream-config>
-		<queue-size>1000</queue-size>
-		<reduced-queue-size>700</reduced-queue-size>
-		<filter-density-size>100</filter-density-size>
-		<fullfiltering-density-thrash-seconds>10</fullfiltering-density-thrash-seconds>
-		<fullfiltering-number-check>2</fullfiltering-number-check>
-		<blacklist-enter-criteria>10</blacklist-enter-criteria>
-		<post-consume-interval-miliseconds>30</post-consume-interval-miliseconds>
-	</twitter-stream-config>
 	<admin>
 		<user-can-create-competence>true</user-can-create-competence>
 		<selected-users-can-do-evaluation>false</selected-users-can-do-evaluation>

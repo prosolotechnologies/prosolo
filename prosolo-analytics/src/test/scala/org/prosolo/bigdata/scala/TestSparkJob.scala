@@ -6,7 +6,7 @@ import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringM
 import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
-import org.prosolo.bigdata.scala.emails.NotificationsEmailManager
+import org.prosolo.common.config.CommonSettings
 /**
   *
   * @author Zoran Jeremic
@@ -16,15 +16,14 @@ import org.prosolo.bigdata.scala.emails.NotificationsEmailManager
 
 object TestSparkJob extends App {
 
-  //UserProfileClusteringManager.runClustering()
-  NotificationsEmailManager.runAnalyser();
+  UserProfileClusteringManager.runClustering()
  //testESInsert()
   def testESInsert(): Unit ={
     val sparkSession:SparkSession=SparkManager.sparkContextLoader.getSparkSession
     val sc=sparkSession.sparkContext
     val task=new TaskSummary("A","C", 0,System.currentTimeMillis())
     val rddSummary= sparkSession.sparkContext.makeRDD(Seq(task))
-    val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
+     val resource=CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex;//SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
     EsSpark.saveToEs(rddSummary,resource+"/summary")
 
     val mapping=Map("es.mapping.id"->"jobId")

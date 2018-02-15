@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data.rubrics;
 
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.observable.StandardObservable;
 
@@ -21,13 +22,14 @@ public class RubricData extends StandardObservable implements Serializable {
     private static final long serialVersionUID = -2193264157221724975L;
 
     private long id;
+    private RubricType rubricType;
     private String name;
     private long organizationId;
     private String creatorFullName;
     private long creatorId;
 
     private List<RubricCriterionData> criteria;
-    private List<RubricItemData> levels;
+    private List<RubricLevelData> levels;
 
     private boolean readyToUse;
 
@@ -49,19 +51,19 @@ public class RubricData extends StandardObservable implements Serializable {
         this.rubricUsed = isRubricUsed;
     }
 
-    private void syncLevel(RubricItemData level) {
+    private void syncLevel(RubricLevelData level) {
         for (RubricCriterionData crit : criteria) {
             crit.addLevel(level,null);
         }
     }
 
     private void syncCriterion(RubricCriterionData criterion) {
-        for (RubricItemData level : levels) {
+        for (RubricLevelData level : levels) {
             criterion.addLevel(level, null);
         }
     }
 
-    public void syncCriterionWithExistingDescriptions(RubricCriterionData criterion, Map<RubricItemData, String> descriptions) {
+    public void syncCriterionWithExistingDescriptions(RubricCriterionData criterion, Map<RubricLevelData, String> descriptions) {
         descriptions.forEach((lvl, desc) -> criterion.addLevel(lvl, desc));
     }
 
@@ -72,7 +74,7 @@ public class RubricData extends StandardObservable implements Serializable {
      *
      * @param lvl
      */
-    public void addNewLevel(RubricItemData lvl) {
+    public void addNewLevel(RubricLevelData lvl) {
         levels.add(lvl);
         syncLevel(lvl);
     }
@@ -105,7 +107,7 @@ public class RubricData extends StandardObservable implements Serializable {
         getCriteria().add(criterion);
     }
 
-    public void addLevel(RubricItemData level) {
+    public void addLevel(RubricLevelData level) {
         getLevels().add(level);
     }
 
@@ -153,7 +155,7 @@ public class RubricData extends StandardObservable implements Serializable {
         return criteria;
     }
 
-    public List<RubricItemData> getLevels() {
+    public List<RubricLevelData> getLevels() {
         return levels;
     }
 
@@ -176,5 +178,18 @@ public class RubricData extends StandardObservable implements Serializable {
 
     public void setRubricUsed(boolean rubricUsed) {
         this.rubricUsed = rubricUsed;
+    }
+
+    public boolean isRubricTypeChanged() {
+        return changedAttributes.containsKey("rubricType");
+    }
+
+    public RubricType getRubricType() {
+        return rubricType;
+    }
+
+    public void setRubricType(RubricType rubricType) {
+        observeAttributeChange("rubricType", this.rubricType, rubricType);
+        this.rubricType = rubricType;
     }
 }

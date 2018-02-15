@@ -71,6 +71,40 @@
 	                    </div>
 	                </div>
 	                <div class="deliveryItemRight">
+						<ui:fragment rendered="#{not delivery.archived}">
+							<div class="dropdown optMoreMenu">
+								<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+								<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
+									<li>
+										<p:commandLink
+												value="Archive"
+												styleClass="linkRed"
+												process="@this"
+												action="#{cc.attrs.bean.select(delivery)}"
+												update=":archiveDialogDeliveries"
+												oncomplete="$('#archiveModalDeliveries').modal('show');">
+										</p:commandLink>
+									</li>
+								</ul>
+							</div>
+						</ui:fragment>
+						<ui:fragment rendered="#{delivery.archived}">
+							<div class="dropdown optMoreMenu">
+								<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+								<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
+									<li>
+										<p:commandLink
+												value="Restore"
+												styleClass="linkRed"
+												process="@this"
+												action="#{cc.attrs.bean.select(delivery)}"
+												update=":restoreDialog"
+												oncomplete="$('#restoreModal').modal('show');">
+										</p:commandLink>
+									</li>
+								</ul>
+							</div>
+						</ui:fragment>
 	                    <h:link rendered="#{not cc.attrs.isAdmin and cc.attrs.canEdit}"
 	                    	outcome="/manage/create-credential" 
 	                    	styleClass="btn btn-green-stroke btn-sm">

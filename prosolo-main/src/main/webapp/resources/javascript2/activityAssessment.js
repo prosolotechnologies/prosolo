@@ -5,3 +5,11 @@ function sumAndDisplayPoints() {
     });
     $('#spanTotalPoints').text(sum);
 }
+
+$(function(){
+    $(document).keyup(function(e) {
+        if (e.keyCode == 27) { // esc keycode
+            hidePopupSidebar('#cbp-spmenu-s2');
+        }
+    });
+});

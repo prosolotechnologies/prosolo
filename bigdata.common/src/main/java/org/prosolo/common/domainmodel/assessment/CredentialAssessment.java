@@ -1,18 +1,11 @@
 package org.prosolo.common.domainmodel.assessment;
 
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class CredentialAssessment extends BaseEntity {
@@ -24,15 +17,14 @@ public class CredentialAssessment extends BaseEntity {
 	private User assessedStudent;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
-	private List<CompetenceAssessment> competenceAssessments;
-	private boolean defaultAssessment;
-	private int points;
+	private Set<CredentialCompetenceAssessment> competenceAssessments;
+	private AssessmentType type;
 
 	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
 		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
-			for (CompetenceAssessment ca : competenceAssessments) {
-				if (ca.getTargetCompetence().getCompetence().getId() == compId){
-					return ca;
+			for (CredentialCompetenceAssessment cca : competenceAssessments) {
+				if (cca.getCompetenceAssessment().getCompetence().getId() == compId) {
+					return cca.getCompetenceAssessment();
 				}
 			}
 		}
@@ -84,29 +76,22 @@ public class CredentialAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy="credentialAssessment",cascade = CascadeType.ALL, orphanRemoval = true)
-	public List<CompetenceAssessment> getCompetenceAssessments() {
+	@OneToMany(mappedBy="credentialAssessment")
+	public Set<CredentialCompetenceAssessment> getCompetenceAssessments() {
 		return competenceAssessments;
 	}
 
-	public void setCompetenceAssessments(List<CompetenceAssessment> competenceAssessments) {
+	public void setCompetenceAssessments(Set<CredentialCompetenceAssessment> competenceAssessments) {
 		this.competenceAssessments = competenceAssessments;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
-	}
-	
 }

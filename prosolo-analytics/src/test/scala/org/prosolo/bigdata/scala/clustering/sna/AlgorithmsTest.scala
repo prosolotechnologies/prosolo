@@ -4,7 +4,7 @@ package org.prosolo.bigdata.scala.clustering.sna
 import org.junit.Test
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileInteractionsManager
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 import org.prosolo.common.config.CommonSettings
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames

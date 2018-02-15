@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.web.util.page.PageSection;
 
 public class NotificationData implements Serializable {
 
@@ -28,6 +29,7 @@ public class NotificationData implements Serializable {
 	private ResourceType targetType;
 	private String targetTitle = "";
 	private String relationToTarget = "";
+	private PageSection section;
 
 	public NotificationData() { }
 
@@ -154,5 +156,12 @@ public class NotificationData implements Serializable {
 	public void setRelationToTarget(String relationToTarget) {
 		this.relationToTarget = relationToTarget;
 	}
-	
+
+	public PageSection getSection() {
+		return section;
+	}
+
+	public void setSection(PageSection section) {
+		this.section = section;
+	}
 }

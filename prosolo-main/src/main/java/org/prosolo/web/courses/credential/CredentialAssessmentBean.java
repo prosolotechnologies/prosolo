@@ -3,28 +3,25 @@ package org.prosolo.web.courses.credential;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RubricManager;
-import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
+import org.prosolo.services.nodes.data.assessments.grading.GradeData;
+import org.prosolo.services.nodes.data.assessments.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.ActivityAssessmentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -32,7 +29,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
@@ -51,10 +50,7 @@ public class CredentialAssessmentBean implements Serializable {
 	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
-	@Inject private RubricManager rubricManager;
+	private ActivityAssessmentBean activityAssessmentBean;
 
 	// PARAMETERS
 	private String id;
@@ -69,16 +65,11 @@ public class CredentialAssessmentBean implements Serializable {
 	private String credentialTitle;
 	private List<AssessmentData> otherAssessments;
 
-	// adding new comment
-	private String newCommentValue;
-
-	private ActivityAssessmentData currentActivityAssessment;
-
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
 
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
-		
+
 		if (decodedId > 0 && decodedAssessmentId > 0) {
 			if (isInManageSection()) {
 				// for managers, load all other assessments
@@ -92,11 +83,11 @@ public class CredentialAssessmentBean implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					try {
-					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-					credentialTitle = fullAssessmentData.getTitle();
+						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
+								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+						credentialTitle = fullAssessmentData.getTitle();
 
-					otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
 
 					} catch (Exception e) {
 						logger.error("Error while loading assessment data", e);
@@ -119,27 +110,18 @@ public class CredentialAssessmentBean implements Serializable {
 					}
 				}
 			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 
-	private void initRubricIfNotInitialized() {
-		try {
-			if (currentActivityAssessment.getGrade().getGradingMode() == GradingMode.MANUAL_RUBRIC && !currentActivityAssessment.getGrade().isRubricInitialized()) {
-				currentActivityAssessment.getGrade().setRubricCriteria(rubricManager.getRubricDataForActivity(
-						currentActivityAssessment.getActivityId(),
-						idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId()),
-						true));
-				currentActivityAssessment.getGrade().setRubricInitialized(true);
-			}
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
+	public boolean isUserAllowedToSeeRubric(GradeData gradeData) {
+		if (gradeData instanceof RubricGradeData) {
+			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
+			return rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
+					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
 		}
-	}
-
-	public boolean isUserAllowedToSeeRubric(ActivityAssessmentData activityAssessment) {
-		return activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
-				|| (activityAssessment.getGrade().isAssessed() && activityAssessment.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
+		return false;
 	}
 
 	public boolean allCompetencesStarted() {
@@ -154,17 +136,16 @@ public class CredentialAssessmentBean implements Serializable {
 	public boolean isCurrentUserAssessedStudent() {
 		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
-	
+
 	public void approveCredential() {
 		try {
+			UserContextData userContext = loggedUserBean.getUserContext();
+
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
-					fullAssessmentData.getTargetCredentialId(), reviewText,fullAssessmentData.getCompetenceAssessmentData());
-
-			fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-					loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-
-			notifyAssessmentApprovedAsync(decodedAssessmentId, fullAssessmentData.getAssessedStrudentId(),
+					fullAssessmentData.getTargetCredentialId(), reviewText,userContext, fullAssessmentData.getAssessedStrudentId(),
 					fullAssessmentData.getCredentialId());
+
+			markCredentialApproved();
 
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
@@ -174,47 +155,32 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 	}
 
-	public void approveCompetence(CompetenceAssessmentData competenceAssessmentData) {
+	private void markCredentialApproved() {
+		fullAssessmentData.setApproved(true);
+		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
+			compAssessmentData.setApproved(true);
+		}
+	}
+
+	public void approveCompetence(long competenceAssessmentId) {
 		try {
-			if (competenceAssessmentData.getCompetenceAssessmentId() == 0) {
-				long competenceAssessmentId = assessmentManager.createAndApproveCompetenceAssessment(
-						fullAssessmentData.getCredAssessmentId(), competenceAssessmentData.getTargetCompetenceId(),
-						fullAssessmentData.isDefaultAssessment());
-				competenceAssessmentData.setCompetenceAssessmentId(competenceAssessmentId);
-				competenceAssessmentData.setCompetenceAssessmentEncodedId(idEncoder.encodeId(competenceAssessmentId));
+			assessmentManager.approveCompetence(competenceAssessmentId);
+			markCompetenceApproved(competenceAssessmentId);
 
-				for(ActivityAssessmentData activityAssessmentData : competenceAssessmentData.getActivityAssessmentData()){
-					activityAssessmentData.setCompAssessmentId(competenceAssessmentId);
-				}
-			} else {
-				assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
-			}
-			competenceAssessmentData.setApproved(true);
-
-			PageUtil.fireSuccessfulInfoMessage("You have successfully approved the competence for "
-					+ fullAssessmentData.getStudentFullName());
-
+			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
+					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");
 		}
 	}
 
-	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, long assessedStudentId, long credentialId) {
-		UserContextData context = loggedUserBean.getUserContext();
-		taskExecutor.execute(() -> {
-			User student = new User();
-			student.setId(assessedStudentId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, context, assessment, student, null, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
+	private void markCompetenceApproved(long competenceAssessmentId) {
+		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
+			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
+				competenceAssessment.setApproved(true);
 			}
-		});
+		}
 	}
 
 	public void markDiscussionRead() {
@@ -227,9 +193,6 @@ public class CredentialAssessmentBean implements Serializable {
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
 			seenActivityAssessment.ifPresent(data -> data.setAllRead(true));
-		} else {
-//			logger.error("User " + loggedUserBean.getUserId() + " tried to add comment without discussion id");
-//			PageUtil.fireErrorMessage("Unable to add comment");
 		}
 	}
 
@@ -246,53 +209,16 @@ public class CredentialAssessmentBean implements Serializable {
 		}
 		return Optional.empty();
 	}
-	
+
 	public void updateGrade() {
-		updateGrade(true);
-	}
-
-	public void updateGrade(boolean retry) {
 		try {
-			if (StringUtils.isBlank(currentActivityAssessment.getEncodedDiscussionId())) {
-				createAssessment(currentActivityAssessment.getTargetActivityId(),
-						currentActivityAssessment.getCompAssessmentId(),
-						currentActivityAssessment.getTargetCompId(), true);
-			} else {
-				int newGrade = assessmentManager.updateGradeForActivityAssessment(
-						fullAssessmentData.getCredAssessmentId(),
-						currentActivityAssessment.getCompAssessmentId(),
-						idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId()),
-						currentActivityAssessment.getGrade(), loggedUserBean.getUserContext());
-				if (newGrade >= 0) {
-					currentActivityAssessment.getGrade().setValue(newGrade);
-				}
-			}
-
+			activityAssessmentBean.updateGrade();
 			fullAssessmentData.setPoints(assessmentManager.getCredentialAssessmentScore(
 					fullAssessmentData.getCredAssessmentId()));
-			if (currentActivityAssessment.getCompAssessment() != null) {
-				currentActivityAssessment.getCompAssessment().setPoints(
-						assessmentManager.getCompetenceAssessmentScore(
-								currentActivityAssessment.getCompAssessmentId()));
-			}
-			currentActivityAssessment.getGrade().setAssessed(true);
-
-			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (IllegalDataStateException e) {
-			if (retry) {
-				//if this exception is thrown, data is repopulated and we should retry updating grade
-				updateGrade(false);
-			} else {
-				logger.error("Error after retry: " + e);
-				PageUtil.fireErrorMessage("Error updating the grade. Please refresh the page and try again.");
-			}
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while updating grade");
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
 	}
-	
 
 	public boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
@@ -301,99 +227,15 @@ public class CredentialAssessmentBean implements Serializable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
-								  boolean updateGrade)
-			throws DbConnectionException, IllegalDataStateException {
-		GradeData grade = updateGrade
-				? currentActivityAssessment != null ? currentActivityAssessment.getGrade() : null
-				: null;
-
-		// creating a set as there might be duplicates with ids
-		Set<Long> participantIds = new HashSet<>();
-
-		// adding the student as a participant
-		participantIds.add(fullAssessmentData.getAssessedStrudentId());
-
-		// adding the logged in user (the message poster) as a participant. It can happen that some other user,
-		// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
-		participantIds.add(loggedUserBean.getUserId());
-
-		// if assessor is set, add him to the discussion
-		if (fullAssessmentData.getAssessorId() > 0) {
-			participantIds.add(fullAssessmentData.getAssessorId());
-		}
-
-		try {
-			if (competenceAssessmentId > 0) {
-				//if competence assessment exists create activity assessment only
-				ActivityAssessment aa =
-						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-								fullAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
-								loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade, true,
-								loggedUserBean.getUserContext());
-				currentActivityAssessment.setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
-				currentActivityAssessment.getGrade().setValue(aa.getPoints());
-			} else {
-				//if competence assessment does not exist create competence assessment and activity assessment
-				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
-						fullAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
-						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						fullAssessmentData.isDefaultAssessment(), loggedUserBean.getUserContext());
-				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
-			}
-		} catch (IllegalDataStateException e) {
-				/*
-					this means that assessment is created in the meantime - this should be handled better because this
-					exception does not have to mean that this is the case. Return to this when exceptions are rethinked.
-				 */
-				/*
-					if competence assessment is already set, get activity assessment id and set it, otherwise get both
-					competence assessment and activity assessment ids.
-				 */
-			if (competenceAssessmentId > 0) {
-				currentActivityAssessment.setEncodedDiscussionId(idEncoder.encodeId(
-						assessmentManager.getActivityAssessmentId(competenceAssessmentId, targetActivityId)));
-			} else {
-				AssessmentBasicData assessmentInfo = assessmentManager.getCompetenceAndActivityAssessmentIds(
-						targetCompetenceId, targetActivityId, fullAssessmentData.getCredAssessmentId());
-				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
-			}
-			logger.error(e);
-			//rethrow exception so caller of this method can react in appropriate way
-			throw e;
-		}
-	}
-
-	private void populateCompetenceAndActivityAssessmentIds(AssessmentBasicData assessmentInfo) {
-		currentActivityAssessment.setEncodedDiscussionId(idEncoder.encodeId(
-				assessmentInfo.getActivityAssessmentId()));
-		currentActivityAssessment.getGrade().setValue(assessmentInfo.getGrade());
-		currentActivityAssessment.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
-		//if competence assessment data is set, set id there too
-		if (currentActivityAssessment.getCompAssessment() != null) {
-			currentActivityAssessment.getCompAssessment().setCompetenceAssessmentId(
-					assessmentInfo.getCompetenceAssessmentId());
-		}
-	}
-
-	private void cleanupCommentData() {
-		newCommentValue = "";
-
-	}
-	
 	private boolean isInManageSection() {
 		String currentUrl = PageUtil.getRewriteURL();
 		return currentUrl.contains("/manage/");
-	}
-
-	public void setCurrentAssessment(ActivityAssessmentData actAssessment) {
-		this.currentActivityAssessment = actAssessment;
-		initRubricIfNotInitialized();
 	}
 	
 	/*
 	 * GETTERS / SETTERS
 	 */
+
 	public long getDecodedId() {
 		return decodedId;
 	}
@@ -450,19 +292,4 @@ public class CredentialAssessmentBean implements Serializable {
 		this.reviewText = reviewText;
 	}
 
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
-	}
-
-	public ActivityAssessmentData getCurrentActivityAssessment() {
-		return currentActivityAssessment;
-	}
-
-	public void setCurrentActivityAssessment(ActivityAssessmentData currentActivityAssessment) {
-		this.currentActivityAssessment = currentActivityAssessment;
-	}
 }

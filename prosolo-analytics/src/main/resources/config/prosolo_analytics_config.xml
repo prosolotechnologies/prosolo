@@ -17,6 +17,7 @@
 		<max-cores>4</max-cores>
 		<executor-memory>4g</executor-memory>
 		<app-name>prosolo.bigdata</app-name>
+		<one-jar>/home/zoran/git/prosolo-multimodule/spark-jobs/target/spark-jobs-one-jar.jar</one-jar><!--absolute path to the spark-job jar file when working in standalone mode-->
 	</spark-config>
 
 	 

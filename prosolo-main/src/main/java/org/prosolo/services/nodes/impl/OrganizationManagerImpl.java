@@ -460,4 +460,16 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public LearningStageData getLearningStageData(long learningStageId) throws DbConnectionException {
+        try {
+            LearningStage ls = (LearningStage) persistence.currentManager().load(LearningStage.class, learningStageId);
+            return new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the learning stage");
+        }
+    }
+
 }
