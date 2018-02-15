@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.es
 
 import org.elasticsearch.spark.rdd.EsSpark
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 
 //import org.prosolo.bigdata.es.ESIndexNames
 

@@ -3,7 +3,7 @@ package org.prosolo.bigdata.scala.twitter
 import java.util.{Timer, TimerTask}
 
 import scala.collection.mutable.ListBuffer
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
 import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
