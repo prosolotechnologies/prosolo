@@ -35,6 +35,7 @@ public class EmailSender {
 	private static Logger logger = Logger
 			.getLogger(EmailSender.class.getName());
 	public void sendBatchEmails(Map<EmailContentGenerator,String> emailsToSend) throws AddressException{
+		System.out.println("SEND BATCH EMAILS");
 		logger.info("SEND BATCH EMAILS");
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		Session session = Session.getDefaultInstance(getMailProperties());

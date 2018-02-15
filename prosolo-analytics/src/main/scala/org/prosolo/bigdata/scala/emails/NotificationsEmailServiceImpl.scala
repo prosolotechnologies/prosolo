@@ -16,12 +16,19 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationsSummary] {
   }
 
   override def sendEmailBatches(batchEmails:Array[NotificationsSummary]): Unit = {
-   val emailsToSend= batchEmails.toStream.map{
+   val emailsToSend:Map[EmailContentGenerator,String]= batchEmails.toStream.map{
       emailSummary=>{
+        println("BATCH:"+emailSummary)
         (createEmailGenerator(emailSummary),"zoran.jeremic@gmail.com")
       }
     }.toMap//.asInstanceOf[java.util.Map[EmailContentGenerator,String]]
+    emailsToSend.foreach{
+      case(emailContentGenerator, email)=>
+        println("EMAIL:"+email)
+    }
     val emailSender=new EmailSender
+    println("EMAIL SENDER SENDING")
     emailSender.sendBatchEmails(emailsToSend.asJava)
+    println("FINISHED SENDING")
   }
 }

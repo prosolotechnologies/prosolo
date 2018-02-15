@@ -1,471 +1,473 @@
-2018-01-21 19:50:46,449 INFO  [Settings] - Settings loaded!
-2018-01-21 19:50:46,580 INFO  [CommonSettings] - Settings loaded!
-2018-01-21 19:50:46,750 INFO  [Version] - HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
-2018-01-21 19:50:46,757 INFO  [Version] - HHH000412: Hibernate Core {4.3.10.Final}
-2018-01-21 19:50:46,765 INFO  [Environment] - HHH000206: hibernate.properties not found
-2018-01-21 19:50:46,767 INFO  [Environment] - HHH000021: Bytecode provider name : javassist
-2018-01-21 19:50:46,810 INFO  [Configuration] - HHH000043: Configuring from resource: /hibernate.cfg.xml
-2018-01-21 19:50:46,810 INFO  [Configuration] - HHH000040: Configuration resource: /hibernate.cfg.xml
-2018-01-21 19:50:46,891 INFO  [Configuration] - HHH000041: Configured SessionFactory: null
-2018-01-21 19:50:47,222 INFO  [Reflections] - Reflections took 279 ms to scan 1 urls, producing 20 keys and 274 values 
-2018-01-21 19:50:47,940 INFO  [Dialect] - HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-2018-01-21 19:50:48,434 INFO  [TransactionFactoryInitiator] - HHH000399: Using default transaction strategy (direct JDBC transactions)
-2018-01-21 19:50:48,438 INFO  [ASTQueryTranslatorFactory] - HHH000397: Using ASTQueryTranslatorFactory
-2018-01-21 19:50:48,468 WARN  [ConfigurationFactory] - No configuration found. Configuring ehcache from ehcache-failsafe.xml  found in the classpath: jar:file:/home/zoran/.m2/repository/net/sf/ehcache/ehcache-core/2.4.3/ehcache-core-2.4.3.jar!/ehcache-failsafe.xml
-2018-01-21 19:50:48,521 INFO  [UpdateTimestampsCache] - HHH000250: Starting update timestamps cache at region: org.hibernate.cache.spi.UpdateTimestampsCache
-2018-01-21 19:50:48,524 WARN  [AbstractEhcacheRegionFactory] - HHH020003: Could not find a specific ehcache configuration for cache named [org.hibernate.cache.spi.UpdateTimestampsCache]; using defaults.
-2018-01-21 19:50:48,540 INFO  [StandardQueryCache] - HHH000248: Starting query cache at region: org.hibernate.cache.internal.StandardQueryCache
-2018-01-21 19:50:48,541 WARN  [AbstractEhcacheRegionFactory] - HHH020003: Could not find a specific ehcache configuration for cache named [org.hibernate.cache.internal.StandardQueryCache]; using defaults.
-2018-01-21 19:50:48,570 INFO  [Version] - HV000001: Hibernate Validator 5.1.3.Final
-2018-01-21 19:50:49,931 INFO  [SchemaUpdate] - HHH000228: Running hbm2ddl schema update
-2018-01-21 19:50:49,941 INFO  [SchemaUpdate] - HHH000102: Fetching database metadata
-2018-01-21 19:50:49,964 INFO  [SchemaUpdate] - HHH000396: Updating schema
-2018-01-21 19:50:49,997 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1
-2018-01-21 19:50:49,997 INFO  [TableMetadata] - HHH000037: Columns: [max_points, description, shared_secret, rubric, title, type, open_in_new_window, duration, score_calculation, id, text, link_name, result_type, student_can_see_other_responses, created, url_type, dtype, visible_for_unenrolled_students, version, created_by, url, difficulty, accept_grades, consumer_key, deleted, rubric_visibility, grading_mode, launch_url, student_can_edit_response]
-2018-01-21 19:50:49,997 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_r28bfc9xvnj41036ky8xb7o98, fk_51vt5mwt287fcjsoap7vsm5e2]
-2018-01-21 19:50:49,997 INFO  [TableMetadata] - HHH000126: Indexes: [fk_r28bfc9xvnj41036ky8xb7o98, fk_51vt5mwt287fcjsoap7vsm5e2, primary]
-2018-01-21 19:50:50,008 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_captions
-2018-01-21 19:50:50,008 INFO  [TableMetadata] - HHH000037: Columns: [activity1, captions]
-2018-01-21 19:50:50,008 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_b1n7gy4nb3oplj5v8jhali4rs, fk_8gchebrsymmudflj24yo48n79]
-2018-01-21 19:50:50,008 INFO  [TableMetadata] - HHH000126: Indexes: [uk_b1n7gy4nb3oplj5v8jhali4rs, primary]
-2018-01-21 19:50:50,017 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_files
-2018-01-21 19:50:50,017 INFO  [TableMetadata] - HHH000037: Columns: [activity1, files]
-2018-01-21 19:50:50,017 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_h9l61ttwr60t42cj53buu3rm0, fk_m20elbr34b3oe5p86dcd773nl]
-2018-01-21 19:50:50,017 INFO  [TableMetadata] - HHH000126: Indexes: [uk_h9l61ttwr60t42cj53buu3rm0, primary]
-2018-01-21 19:50:50,026 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_links
-2018-01-21 19:50:50,026 INFO  [TableMetadata] - HHH000037: Columns: [activity1, links]
-2018-01-21 19:50:50,026 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rhmeeesk0sdkg3qagjmf9lroj, fk_mpsbwvmwi7kc3a6sbcm8s9e5f]
-2018-01-21 19:50:50,026 INFO  [TableMetadata] - HHH000126: Indexes: [uk_mpsbwvmwi7kc3a6sbcm8s9e5f, primary]
-2018-01-21 19:50:50,039 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_tags
-2018-01-21 19:50:50,039 INFO  [TableMetadata] - HHH000037: Columns: [activity1, tags]
-2018-01-21 19:50:50,039 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hynwy4o71nraccfi6lu06ggsc, fk_4lcw676ek48pd37v9kr0mymim]
-2018-01-21 19:50:50,040 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4lcw676ek48pd37v9kr0mymim, primary]
-2018-01-21 19:50:50,046 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_assessment
-2018-01-21 19:50:50,046 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, default_assessment, competence_assessment, grade, target_activity, description, id, title, points]
-2018-01-21 19:50:50,046 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_19i7s0u1b1r3owi4fpfvj8lxq, fk_pqe8ab74gg1e45r1muu3l2f48, fk_8h8fnyxbc74ksc3qdhy48ic3t]
-2018-01-21 19:50:50,046 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4fun3nw7pg23ttg8o57wd1n48, fk_19i7s0u1b1r3owi4fpfvj8lxq, fk_pqe8ab74gg1e45r1muu3l2f48, primary]
-2018-01-21 19:50:50,052 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_discussion_message
-2018-01-21 19:50:50,052 INFO  [TableMetadata] - HHH000037: Columns: [deleted, sender, created, description, id, discussion, title, updated, content]
-2018-01-21 19:50:50,053 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_pc9oblcdq0wtaqumrpoghmym5, fk_gp4rjlpt100i22gadcrqsuyea]
-2018-01-21 19:50:50,053 INFO  [TableMetadata] - HHH000126: Indexes: [fk_pc9oblcdq0wtaqumrpoghmym5, fk_gp4rjlpt100i22gadcrqsuyea, primary]
-2018-01-21 19:50:50,061 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_discussion_participant
-2018-01-21 19:50:50,061 INFO  [TableMetadata] - HHH000037: Columns: [is_read, activity_discussion, deleted, created, description, id, title, participant]
-2018-01-21 19:50:50,061 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1aja12ermpd5n492qpm0wv51p, fk_klimyuls8rsoqt7v9ce5gqts9]
-2018-01-21 19:50:50,061 INFO  [TableMetadata] - HHH000126: Indexes: [fk_1aja12ermpd5n492qpm0wv51p, fk_klimyuls8rsoqt7v9ce5gqts9, primary]
-2018-01-21 19:50:50,071 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_grade
-2018-01-21 19:50:50,071 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title, value]
-2018-01-21 19:50:50,072 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,072 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,075 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_wall_settings
-2018-01-21 19:50:50,076 INFO  [TableMetadata] - HHH000037: Columns: [course_id, chosen_filter, deleted, created, description, id, title]
-2018-01-21 19:50:50,076 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,076 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,083 INFO  [TableMetadata] - HHH000261: Table found: prosolo.annotation1
-2018-01-21 19:50:50,083 INFO  [TableMetadata] - HHH000037: Columns: [deleted, annotated_resource_id, created, annotated_resource, description, maker, annotation_type, id, title]
-2018-01-21 19:50:50,084 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_qg56tf64cpvwkc5p2q9bjoape]
-2018-01-21 19:50:50,085 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qg56tf64cpvwkc5p2q9bjoape, primary]
-2018-01-21 19:50:50,091 INFO  [TableMetadata] - HHH000261: Table found: prosolo.announcement
-2018-01-21 19:50:50,091 INFO  [TableMetadata] - HHH000037: Columns: [deleted, credential, created, description, id, title, announcement_text, created_by]
-2018-01-21 19:50:50,092 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5n0gf0pgl54yxksqbrpg49jwu, fk_i5ssis4ksi4j8jsbb9xga1odi]
-2018-01-21 19:50:50,092 INFO  [TableMetadata] - HHH000126: Indexes: [fk_5n0gf0pgl54yxksqbrpg49jwu, fk_i5ssis4ksi4j8jsbb9xga1odi, primary]
-2018-01-21 19:50:50,098 INFO  [TableMetadata] - HHH000261: Table found: prosolo.capability
-2018-01-21 19:50:50,099 INFO  [TableMetadata] - HHH000037: Columns: [name, description, id]
-2018-01-21 19:50:50,099 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,099 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,111 INFO  [TableMetadata] - HHH000261: Table found: prosolo.capability_role
-2018-01-21 19:50:50,111 INFO  [TableMetadata] - HHH000037: Columns: [capabilities, roles]
-2018-01-21 19:50:50,111 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1j72vl0nwsv55q41b6ydg0hhd, fk_bk8wqohsuock5hix7lnb84b0r]
-2018-01-21 19:50:50,112 INFO  [TableMetadata] - HHH000126: Indexes: [fk_bk8wqohsuock5hix7lnb84b0r, primary]
-2018-01-21 19:50:50,117 INFO  [TableMetadata] - HHH000261: Table found: prosolo.comment1
-2018-01-21 19:50:50,118 INFO  [TableMetadata] - HHH000037: Columns: [parent_comment, commented_resource_id, like_count, created, resource_type, description, title, deleted, manager_comment, instructor, post_date, id, user]
-2018-01-21 19:50:50,118 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_cnb1hy7io12vb2fbi1jdmyalw, fk_q7hjkgwtsss4hrk6dfs022823]
-2018-01-21 19:50:50,118 INFO  [TableMetadata] - HHH000126: Indexes: [fk_cnb1hy7io12vb2fbi1jdmyalw, index_comment1_commented_resource_id_resource_type, primary, fk_q7hjkgwtsss4hrk6dfs022823]
-2018-01-21 19:50:50,123 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence1
-2018-01-21 19:50:50,123 INFO  [TableMetadata] - HHH000037: Columns: [student_allowed_to_add_activities, created, description, learning_stage, published, title, type, first_learning_stage_competence, version, created_by, duration, archived, deleted, date_published, original_version, organization, id, visible_to_all, learning_path_type]
-2018-01-21 19:50:50,123 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_91ik0ggqkcwdde3bjco1da0gf, fk_lb3u5p37p6e33a9caoi64r1cj, fk_rovwcltntpusa8fv9fk2ox4c5, fk_btejhdyv6se49077y8v2sw5sq, fk_j0jn9c30xitfotmamc9181go5]
-2018-01-21 19:50:50,123 INFO  [TableMetadata] - HHH000126: Indexes: [fk_91ik0ggqkcwdde3bjco1da0gf, fk_lb3u5p37p6e33a9caoi64r1cj, uk_3oyo6ynive1sdpf54j7lx3ggb, fk_btejhdyv6se49077y8v2sw5sq, fk_j0jn9c30xitfotmamc9181go5, primary]
-2018-01-21 19:50:50,127 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence1_tags
-2018-01-21 19:50:50,127 INFO  [TableMetadata] - HHH000037: Columns: [competence1, tags]
-2018-01-21 19:50:50,127 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9lsylf57uy3m2se4ve4ameihu, fk_njpyjqs5thuuyw5xwm1paihxf]
-2018-01-21 19:50:50,127 INFO  [TableMetadata] - HHH000126: Indexes: [fk_9lsylf57uy3m2se4ve4ameihu, primary]
-2018-01-21 19:50:50,130 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_activity1
-2018-01-21 19:50:50,131 INFO  [TableMetadata] - HHH000037: Columns: [competence, act_order, deleted, activity, created, description, id, title]
-2018-01-21 19:50:50,131 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ka2ffpd609s5ug445vou0anhi, fk_px25x3t4d4wxgujuocgi5mc51]
-2018-01-21 19:50:50,131 INFO  [TableMetadata] - HHH000126: Indexes: [fk_ka2ffpd609s5ug445vou0anhi, fk_px25x3t4d4wxgujuocgi5mc51, primary]
-2018-01-21 19:50:50,157 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_assessment
-2018-01-21 19:50:50,157 INFO  [TableMetadata] - HHH000037: Columns: [credential_assessment, target_competence, approved, deleted, created, default_assessment, description, id, title, points]
-2018-01-21 19:50:50,158 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_88cfbpk7badw914yf565iid8t, fk_sbdq7cq4tot1uk0gtv1rcijwr]
-2018-01-21 19:50:50,158 INFO  [TableMetadata] - HHH000126: Indexes: [uk_dp0vtj3joay6h019et10iqjap, fk_sbdq7cq4tot1uk0gtv1rcijwr, primary]
-2018-01-21 19:50:50,163 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_bookmark
-2018-01-21 19:50:50,163 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, created, description, id, title, user]
-2018-01-21 19:50:50,163 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_7fwnajpqa9j4dfaciibethkll, fk_pu790xeulgg9f166ehutb0p0v]
-2018-01-21 19:50:50,163 INFO  [TableMetadata] - HHH000126: Indexes: [fk_7fwnajpqa9j4dfaciibethkll, uk_k4uyv9uljtw36cxchatxxhi7d, primary]
-2018-01-21 19:50:50,171 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_evidence
-2018-01-21 19:50:50,172 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, evidence, created, description, id, title]
-2018-01-21 19:50:50,172 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8ih6dh7gn5uo6jwx9r3pt82sw, fk_nctgqbkwam6fn84i27cyaav2p]
-2018-01-21 19:50:50,172 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8ih6dh7gn5uo6jwx9r3pt82sw, fk_nctgqbkwam6fn84i27cyaav2p, primary]
-2018-01-21 19:50:50,177 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_unit
-2018-01-21 19:50:50,178 INFO  [TableMetadata] - HHH000037: Columns: [competence, unit, deleted, created, description, id, title]
-2018-01-21 19:50:50,178 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_16il9gr3688yooyw91vsiis91, fk_d9i2062693wmimcdyvdr1ynhh]
-2018-01-21 19:50:50,178 INFO  [TableMetadata] - HHH000126: Indexes: [fk_16il9gr3688yooyw91vsiis91, uk_7mbm0rkejlh524nk5ieyh24ml, primary]
-2018-01-21 19:50:50,183 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_user_group
-2018-01-21 19:50:50,183 INFO  [TableMetadata] - HHH000037: Columns: [competence, inherited_from, user_group, deleted, created, inherited, description, id, privilege, title]
-2018-01-21 19:50:50,183 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_60mk2r1qk5llr3p901h5705y6, fk_e9iw7p463kmjjsyuj9r5wmxpe, fk_4b5s1r5gcdytwdbp2pr4rn4v5]
-2018-01-21 19:50:50,183 INFO  [TableMetadata] - HHH000126: Indexes: [fk_60mk2r1qk5llr3p901h5705y6, fk_e9iw7p463kmjjsyuj9r5wmxpe, primary, fk_4b5s1r5gcdytwdbp2pr4rn4v5]
-2018-01-21 19:50:50,188 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1
-2018-01-21 19:50:50,188 INFO  [TableMetadata] - HHH000037: Columns: [default_number_of_students_per_instructor, delivery_of, created, description, learning_stage, title, type, version, created_by, duration, archived, first_learning_stage_credential, deleted, competence_order_mandatory, organization, manually_assign_students, delivery_end, id, delivery_start, visible_to_all]
-2018-01-21 19:50:50,189 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_n2vyrbyyls32y7s3aq1gyyh8o, fk_p1g20qojr5ahymmq2c2hkdqh3, fk_5ve9kkyxam4skfb85dy0n55ot, fk_ox2gmlf29yl2o60nwf28avccl, fk_gwgwt3bm30pwx6lxiukyx1o03]
-2018-01-21 19:50:50,189 INFO  [TableMetadata] - HHH000126: Indexes: [fk_n2vyrbyyls32y7s3aq1gyyh8o, fk_p1g20qojr5ahymmq2c2hkdqh3, fk_ox2gmlf29yl2o60nwf28avccl, uk_6vclpmt9xfxxxybg8tdc4axwt, primary, fk_gwgwt3bm30pwx6lxiukyx1o03]
-2018-01-21 19:50:50,192 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_blogs
-2018-01-21 19:50:50,193 INFO  [TableMetadata] - HHH000037: Columns: [credential1, blogs]
-2018-01-21 19:50:50,193 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_dgns5f815wa0piods87ak1unv, fk_p9mlitfs7rd27q1h6x6xqrtat]
-2018-01-21 19:50:50,193 INFO  [TableMetadata] - HHH000126: Indexes: [fk_dgns5f815wa0piods87ak1unv, fk_p9mlitfs7rd27q1h6x6xqrtat]
-2018-01-21 19:50:50,197 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_excluded_feed_sources
-2018-01-21 19:50:50,197 INFO  [TableMetadata] - HHH000037: Columns: [credential1, excluded_feed_sources]
-2018-01-21 19:50:50,198 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_id94tkw373r7i4wpptlstjkt2, fk_116l6dplwn565owmmjwq9nchy]
-2018-01-21 19:50:50,198 INFO  [TableMetadata] - HHH000126: Indexes: [fk_id94tkw373r7i4wpptlstjkt2, fk_116l6dplwn565owmmjwq9nchy]
-2018-01-21 19:50:50,201 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_hashtags
-2018-01-21 19:50:50,201 INFO  [TableMetadata] - HHH000037: Columns: [credential1, hashtags]
-2018-01-21 19:50:50,201 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2s3cange8x6y5lvxsgpulwmro, fk_5k9e4ud4n7uutdcfcp7x8xn2h]
-2018-01-21 19:50:50,201 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2s3cange8x6y5lvxsgpulwmro, primary]
-2018-01-21 19:50:50,206 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_tags
-2018-01-21 19:50:50,206 INFO  [TableMetadata] - HHH000037: Columns: [credential1, tags]
-2018-01-21 19:50:50,206 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_e8b1q4xep66kcwhcxfag5a0cl, fk_o10dydyl21smpds2rwh7v8j4s]
-2018-01-21 19:50:50,206 INFO  [TableMetadata] - HHH000126: Indexes: [fk_e8b1q4xep66kcwhcxfag5a0cl, primary]
-2018-01-21 19:50:50,210 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_assessment
-2018-01-21 19:50:50,211 INFO  [TableMetadata] - HHH000037: Columns: [approved, deleted, target_credential, created, default_assessment, assessor, description, assessed_student, id, title, message, points]
-2018-01-21 19:50:50,211 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_64x1nbncerttcr6ukwn1i10yy, fk_gluwb9m4wemvchgceb5nexndf, fk_gvcyenwhr1wjurx8srk0l65m]
-2018-01-21 19:50:50,211 INFO  [TableMetadata] - HHH000126: Indexes: [fk_64x1nbncerttcr6ukwn1i10yy, fk_gluwb9m4wemvchgceb5nexndf, fk_gvcyenwhr1wjurx8srk0l65m, primary]
-2018-01-21 19:50:50,227 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_bookmark
-2018-01-21 19:50:50,227 INFO  [TableMetadata] - HHH000037: Columns: [deleted, credential, created, description, id, title, user]
-2018-01-21 19:50:50,227 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_n5fkjwxicertabyarbvju43c3, fk_d125vpplcb2nwcw100ck2ch7e]
-2018-01-21 19:50:50,227 INFO  [TableMetadata] - HHH000126: Indexes: [fk_n5fkjwxicertabyarbvju43c3, uk_huxm5oy8mxf4gcckxuy6m5n9a, primary]
-2018-01-21 19:50:50,237 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_competence1
-2018-01-21 19:50:50,237 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, comp_order, credential, created, description, id, title]
-2018-01-21 19:50:50,237 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_4j36i3b2r10ewvv85c9st8c34, fk_nw0ci3p9g1hiy4yan5w664to9]
-2018-01-21 19:50:50,237 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4j36i3b2r10ewvv85c9st8c34, fk_nw0ci3p9g1hiy4yan5w664to9, primary]
-2018-01-21 19:50:50,242 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_instructor
-2018-01-21 19:50:50,242 INFO  [TableMetadata] - HHH000037: Columns: [max_number_of_students, credential, id, date_assigned, user]
-2018-01-21 19:50:50,243 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5he8qwqjrj5oitt390xv1c363, fk_4c65jghtljkorcy98mnko26lt]
-2018-01-21 19:50:50,243 INFO  [TableMetadata] - HHH000126: Indexes: [uk_8o1ljk3ajomrhnh8d5qfmcnls, fk_4c65jghtljkorcy98mnko26lt, primary]
-2018-01-21 19:50:50,255 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_unit
-2018-01-21 19:50:50,255 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, credential, created, description, id, title]
-2018-01-21 19:50:50,255 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_10qyaft78ol2toenfodqdwc8g, fk_bcknt360dtw8rh53cphe97q45]
-2018-01-21 19:50:50,255 INFO  [TableMetadata] - HHH000126: Indexes: [uk_piaytj54rr4klingo78qx9ylt, fk_bcknt360dtw8rh53cphe97q45, primary]
-2018-01-21 19:50:50,269 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_user_group
-2018-01-21 19:50:50,269 INFO  [TableMetadata] - HHH000037: Columns: [user_group, deleted, credential, created, description, id, privilege, title]
-2018-01-21 19:50:50,269 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_30jl08j0war3rn3u23m10uyq8, fk_m5cvxlf67t55is1xw2gxfar0i]
-2018-01-21 19:50:50,269 INFO  [TableMetadata] - HHH000126: Indexes: [uk_j07j1pph3s8y22el92gth2yy5, primary, fk_m5cvxlf67t55is1xw2gxfar0i]
-2018-01-21 19:50:50,274 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion
-2018-01-21 19:50:50,274 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, criterion_order, description, rubric, id, title, points]
-2018-01-21 19:50:50,275 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_o7ovdmcl7pmxtdnuk3iyn2sep]
-2018-01-21 19:50:50,275 INFO  [TableMetadata] - HHH000126: Indexes: [uk_e1f4a4t2ns27fm40ulwry89u8, fk_o7ovdmcl7pmxtdnuk3iyn2sep, primary]
-2018-01-21 19:50:50,280 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion_assessment
-2018-01-21 19:50:50,280 INFO  [TableMetadata] - HHH000037: Columns: [assessment, deleted, criterion, level, created, description, comment, id, title]
-2018-01-21 19:50:50,280 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9qyb90jrqkmw5n80rbu2a96ix, fk_tokccjaai099w1tlwllmveoea, fk_5te0rk3j1jibjus4ltts1be4e]
-2018-01-21 19:50:50,280 INFO  [TableMetadata] - HHH000126: Indexes: [fk_tokccjaai099w1tlwllmveoea, fk_5te0rk3j1jibjus4ltts1be4e, uk_goyqi7x42iorhk0tijq1xp87b, primary]
-2018-01-21 19:50:50,283 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion_level
-2018-01-21 19:50:50,284 INFO  [TableMetadata] - HHH000037: Columns: [deleted, criterion, level, created, description, id, title]
-2018-01-21 19:50:50,284 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_t0ynrcrm7kt8i1luj4onvhjv2, fk_9l1253t7v8atu5lytujimj09n]
-2018-01-21 19:50:50,284 INFO  [TableMetadata] - HHH000126: Indexes: [uk_pquo8f8sy5d20h8f5hmivseq8, fk_t0ynrcrm7kt8i1luj4onvhjv2, primary]
-2018-01-21 19:50:50,293 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_entry
-2018-01-21 19:50:50,293 INFO  [TableMetadata] - HHH000037: Columns: [image, feed_source, deleted, created, link, description, maker, subscribed_user, id, title, relevance]
-2018-01-21 19:50:50,293 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_cgxvubmhf09musstvw2u00y67, fk_5mympaondc7gotjymqgd05l4i, fk_ffdgn3747cqpgdiwhxlarhp8m]
-2018-01-21 19:50:50,294 INFO  [TableMetadata] - HHH000126: Indexes: [fk_cgxvubmhf09musstvw2u00y67, fk_5mympaondc7gotjymqgd05l4i, fk_ffdgn3747cqpgdiwhxlarhp8m, primary]
-2018-01-21 19:50:50,299 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_entry_hashtags
-2018-01-21 19:50:50,299 INFO  [TableMetadata] - HHH000037: Columns: [hashtags, feed_entry]
-2018-01-21 19:50:50,299 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_es7wwjpedyq7gxlsk0lexcj5x]
-2018-01-21 19:50:50,299 INFO  [TableMetadata] - HHH000126: Indexes: [fk_es7wwjpedyq7gxlsk0lexcj5x]
-2018-01-21 19:50:50,304 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_source
-2018-01-21 19:50:50,305 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, link, description, id, last_check, title]
-2018-01-21 19:50:50,305 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,305 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,309 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feeds_digest
-2018-01-21 19:50:50,309 INFO  [TableMetadata] - HHH000037: Columns: [number_of_users_that_got_email, credential, created, time_frame, feeds_subscriber, dtype, id, date_to, date_from]
-2018-01-21 19:50:50,309 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hcx2rl68idmgg2sfpnbqmv1tv, fk_j4nanu4eoo6lobqy4v64tegmf]
-2018-01-21 19:50:50,309 INFO  [TableMetadata] - HHH000126: Indexes: [fk_hcx2rl68idmgg2sfpnbqmv1tv, fk_j4nanu4eoo6lobqy4v64tegmf, primary]
-2018-01-21 19:50:50,332 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feeds_digest_entries
-2018-01-21 19:50:50,332 INFO  [TableMetadata] - HHH000037: Columns: [entries, feeds_digest]
-2018-01-21 19:50:50,332 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_bhda4lck3rkx4tduxm7fhq8wo, fk_sj34xafykjukgs471aa2w9anj]
-2018-01-21 19:50:50,332 INFO  [TableMetadata] - HHH000126: Indexes: [fk_bhda4lck3rkx4tduxm7fhq8wo, fk_sj34xafykjukgs471aa2w9anj]
-2018-01-21 19:50:50,337 INFO  [TableMetadata] - HHH000261: Table found: prosolo.followed_entity
-2018-01-21 19:50:50,337 INFO  [TableMetadata] - HHH000037: Columns: [required_to_follow, started_following, deleted, created, dtype, description, id, title, followed_user, user]
-2018-01-21 19:50:50,338 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_4eglof45iulhoj8j2qudvbuxm, fk_9i2cqb9qu9aomuu5ju2yrm6f9]
-2018-01-21 19:50:50,338 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4eglof45iulhoj8j2qudvbuxm, uk_6w0pe4f2eii8eov3epmwk849e, primary]
-2018-01-21 19:50:50,342 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_evidence
-2018-01-21 19:50:50,342 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, id, title, type, user, url]
-2018-01-21 19:50:50,343 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_te80g9rqpmjnlpmff23h0we5x, fk_qb3lm6liqglp03b789fl0sdvb]
-2018-01-21 19:50:50,343 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qb3lm6liqglp03b789fl0sdvb, uk_ifh0q4jdrtq8bsd6j9ytw1lh3, primary]
-2018-01-21 19:50:50,350 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_evidence_tags
-2018-01-21 19:50:50,350 INFO  [TableMetadata] - HHH000037: Columns: [learning_evidence, tags]
-2018-01-21 19:50:50,350 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ge8rmsf18x8fwwntcnof1w2c3, fk_2i6sole2k1kwkjbgsm2u6aoff]
-2018-01-21 19:50:50,350 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2i6sole2k1kwkjbgsm2u6aoff, primary]
-2018-01-21 19:50:50,368 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_stage
-2018-01-21 19:50:50,368 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, learning_stage_order, id, title]
-2018-01-21 19:50:50,368 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_kmqfvn3rumkbm0b8dsgfbcnm6]
-2018-01-21 19:50:50,368 INFO  [TableMetadata] - HHH000126: Indexes: [uk_atmtmfxbwira99uums40pt8q, primary]
-2018-01-21 19:50:50,374 INFO  [TableMetadata] - HHH000261: Table found: prosolo.level
-2018-01-21 19:50:50,374 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, level_order, description, rubric, id, title, points]
-2018-01-21 19:50:50,374 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rtffghkdqv9g81wd3ecvjemdv]
-2018-01-21 19:50:50,375 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rtffghkdqv9g81wd3ecvjemdv, primary, uk_eo5k8jw0yq5kypsaddagxuoo8]
-2018-01-21 19:50:50,381 INFO  [TableMetadata] - HHH000261: Table found: prosolo.locale_settings
-2018-01-21 19:50:50,382 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, language, id, title, region]
-2018-01-21 19:50:50,382 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,382 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,385 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_consumer
-2018-01-21 19:50:50,385 INFO  [TableMetadata] - HHH000037: Columns: [deleted, capabilities, key_lti_one, secret_lti_one, id, key_lti_two, secret_lti_two]
-2018-01-21 19:50:50,385 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,385 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,391 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_service
-2018-01-21 19:50:50,392 INFO  [TableMetadata] - HHH000037: Columns: [endpoint, deleted, formats, id, actions, consumer]
-2018-01-21 19:50:50,392 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_j04buydudvuvpfslrit8lht1s]
-2018-01-21 19:50:50,392 INFO  [TableMetadata] - HHH000126: Indexes: [fk_j04buydudvuvpfslrit8lht1s, primary]
-2018-01-21 19:50:50,419 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_tool
-2018-01-21 19:50:50,420 INFO  [TableMetadata] - HHH000037: Columns: [code, description, custom_css, created_by, enabled, deleted, launch_url, tool_type, activity_id, name, competence_id, id, resource_name, tool_key, learning_goal_id, tool_set]
-2018-01-21 19:50:50,420 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_f8glreyaxbnn1wq3ox0b76igm, fk_n8iw9ueffp6ceo31pnuensikq]
-2018-01-21 19:50:50,420 INFO  [TableMetadata] - HHH000126: Indexes: [fk_f8glreyaxbnn1wq3ox0b76igm, fk_n8iw9ueffp6ceo31pnuensikq, primary]
-2018-01-21 19:50:50,433 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_tool_set
-2018-01-21 19:50:50,433 INFO  [TableMetadata] - HHH000037: Columns: [registration_url, deleted, id, product_code, consumer]
-2018-01-21 19:50:50,433 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rxmmq9va47gyeome10lkj5ktw]
-2018-01-21 19:50:50,433 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rxmmq9va47gyeome10lkj5ktw, primary]
-2018-01-21 19:50:50,437 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_user
-2018-01-21 19:50:50,437 INFO  [TableMetadata] - HHH000037: Columns: [deleted, user_id, name, id, user, email, consumer]
-2018-01-21 19:50:50,437 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hxb07pfijibeqr1mm8qnnam0i, fk_406o6qhyoo4xcc0ybhrs47xge]
-2018-01-21 19:50:50,437 INFO  [TableMetadata] - HHH000126: Indexes: [fk_hxb07pfijibeqr1mm8qnnam0i, fk_406o6qhyoo4xcc0ybhrs47xge, primary]
-2018-01-21 19:50:50,440 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message
-2018-01-21 19:50:50,440 INFO  [TableMetadata] - HHH000037: Columns: [deleted, sender, created, description, created_timestamp, id, title, message_thread, content]
-2018-01-21 19:50:50,440 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_a3km2kv42i1xu571ta911f9dc, fk_jgrx8hvls0cxtwdet9tu5tl3o]
-2018-01-21 19:50:50,440 INFO  [TableMetadata] - HHH000126: Indexes: [fk_a3km2kv42i1xu571ta911f9dc, fk_jgrx8hvls0cxtwdet9tu5tl3o, primary]
-2018-01-21 19:50:50,443 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message_participant
-2018-01-21 19:50:50,443 INFO  [TableMetadata] - HHH000037: Columns: [is_read, sender, id, participant]
-2018-01-21 19:50:50,443 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_nt68vh666kew9wsx344d2tej8]
-2018-01-21 19:50:50,443 INFO  [TableMetadata] - HHH000126: Indexes: [fk_nt68vh666kew9wsx344d2tej8, primary]
-2018-01-21 19:50:50,447 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message_thread
-2018-01-21 19:50:50,447 INFO  [TableMetadata] - HHH000037: Columns: [creator, deleted, created, subject, description, started, id, title, updated]
-2018-01-21 19:50:50,447 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_owblue8e7depfe80u0tut6vnp]
-2018-01-21 19:50:50,447 INFO  [TableMetadata] - HHH000126: Indexes: [fk_owblue8e7depfe80u0tut6vnp, primary]
-2018-01-21 19:50:50,450 INFO  [TableMetadata] - HHH000261: Table found: prosolo.notification1
-2018-01-21 19:50:50,450 INFO  [TableMetadata] - HHH000037: Columns: [object_owner, receiver, object_type, created, notify_by_email, link, target_type, description, target_id, title, type, object_id, is_read, actor, deleted, id]
-2018-01-21 19:50:50,451 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8ffsbfqrwx0l4fcwtir4eogs8, fk_eu8xhjr832wpkchfxn2a4ne8f]
-2018-01-21 19:50:50,451 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8ffsbfqrwx0l4fcwtir4eogs8, fk_eu8xhjr832wpkchfxn2a4ne8f, primary]
-2018-01-21 19:50:50,464 INFO  [TableMetadata] - HHH000261: Table found: prosolo.notification_settings
-2018-01-21 19:50:50,465 INFO  [TableMetadata] - HHH000037: Columns: [subscribed_email, id, type]
-2018-01-21 19:50:50,465 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,465 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,469 INFO  [TableMetadata] - HHH000261: Table found: prosolo.oauth_access_token
-2018-01-21 19:50:50,470 INFO  [TableMetadata] - HHH000037: Columns: [profile_name, token_secret, deleted, user_id, created, service, description, id, title, user, profile_link, token]
-2018-01-21 19:50:50,470 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_qwnyxe99obn5c7jamrh80tojn]
-2018-01-21 19:50:50,470 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qwnyxe99obn5c7jamrh80tojn, primary]
-2018-01-21 19:50:50,474 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation
-2018-01-21 19:50:50,475 INFO  [TableMetadata] - HHH000037: Columns: [note, created_for, edited, id, creation_date, message, created_by]
-2018-01-21 19:50:50,475 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_owstmit5g7fnsggixn5tmfmd7, fk_f238497jjp2hx63imjj1ndnbv]
-2018-01-21 19:50:50,475 INFO  [TableMetadata] - HHH000126: Indexes: [fk_owstmit5g7fnsggixn5tmfmd7, primary, fk_f238497jjp2hx63imjj1ndnbv]
-2018-01-21 19:50:50,478 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation_suggestion
-2018-01-21 19:50:50,478 INFO  [TableMetadata] - HHH000037: Columns: [observation, suggestions]
-2018-01-21 19:50:50,478 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rxdpfym9lrnrum8yak52i6ya5, fk_q5ec7t3ca2ihn36eifg4u7qw4]
-2018-01-21 19:50:50,478 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rxdpfym9lrnrum8yak52i6ya5, primary]
-2018-01-21 19:50:50,481 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation_symptom
-2018-01-21 19:50:50,481 INFO  [TableMetadata] - HHH000037: Columns: [symptoms, observation]
-2018-01-21 19:50:50,481 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2r1fs2ynpa1istpwqlmpc52yl, fk_axke49cj36g768x69cpf9t57l]
-2018-01-21 19:50:50,481 INFO  [TableMetadata] - HHH000126: Indexes: [primary, fk_axke49cj36g768x69cpf9t57l]
-2018-01-21 19:50:50,484 INFO  [TableMetadata] - HHH000261: Table found: prosolo.openidaccount
-2018-01-21 19:50:50,485 INFO  [TableMetadata] - HHH000037: Columns: [openidprovider, deleted, validated_id, created, description, id, title, user]
-2018-01-21 19:50:50,485 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_mrch25e7jcip15grmcp54039i]
-2018-01-21 19:50:50,485 INFO  [TableMetadata] - HHH000126: Indexes: [fk_mrch25e7jcip15grmcp54039i, primary]
-2018-01-21 19:50:50,490 INFO  [TableMetadata] - HHH000261: Table found: prosolo.organization
-2018-01-21 19:50:50,490 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, learning_in_stages_enabled, description, id, title]
-2018-01-21 19:50:50,490 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,490 INFO  [TableMetadata] - HHH000126: Indexes: [uk_98elant9gwyioac8t0br67o5p, primary]
-2018-01-21 19:50:50,495 INFO  [TableMetadata] - HHH000261: Table found: prosolo.outcome
-2018-01-21 19:50:50,495 INFO  [TableMetadata] - HHH000037: Columns: [result, deleted, activity, created, dtype, description, id, title]
-2018-01-21 19:50:50,495 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_c6sy38ram71uel2jdeotexor3]
-2018-01-21 19:50:50,495 INFO  [TableMetadata] - HHH000126: Indexes: [fk_c6sy38ram71uel2jdeotexor3, primary]
-2018-01-21 19:50:50,499 INFO  [TableMetadata] - HHH000261: Table found: prosolo.registration_key
-2018-01-21 19:50:50,499 INFO  [TableMetadata] - HHH000037: Columns: [uid, deleted, created, description, id, title, registration_type]
-2018-01-21 19:50:50,499 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,499 INFO  [TableMetadata] - HHH000126: Indexes: [uk_ran40qjbh70o6m8q25xu4qxc9, primary]
-2018-01-21 19:50:50,510 INFO  [TableMetadata] - HHH000261: Table found: prosolo.reset_key
-2018-01-21 19:50:50,511 INFO  [TableMetadata] - HHH000037: Columns: [uid, deleted, created, invalid, description, id, title, user]
-2018-01-21 19:50:50,512 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_fxv54xs4m5y1tddmi2errcesu]
-2018-01-21 19:50:50,513 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4os64y5nsc6cbbd73qj4lujb1, fk_fxv54xs4m5y1tddmi2errcesu, primary]
-2018-01-21 19:50:50,522 INFO  [TableMetadata] - HHH000261: Table found: prosolo.resource_link
-2018-01-21 19:50:50,522 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, id_parameter_name, description, id, title, link_name, url]
-2018-01-21 19:50:50,522 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,522 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,526 INFO  [TableMetadata] - HHH000261: Table found: prosolo.resource_settings
-2018-01-21 19:50:50,526 INFO  [TableMetadata] - HHH000037: Columns: [goal_acceptance_dependend_on_competence, selected_users_can_do_evaluation, id, individual_competences_can_not_be_evaluated, user_can_create_competence]
-2018-01-21 19:50:50,526 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,526 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,528 INFO  [TableMetadata] - HHH000261: Table found: prosolo.role
-2018-01-21 19:50:50,529 INFO  [TableMetadata] - HHH000037: Columns: [deleted, system, created, description, id, title]
-2018-01-21 19:50:50,529 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,529 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,532 INFO  [TableMetadata] - HHH000261: Table found: prosolo.rubric
-2018-01-21 19:50:50,532 INFO  [TableMetadata] - HHH000037: Columns: [ready_to_use, creator, deleted, created, organization, description, id, title]
-2018-01-21 19:50:50,532 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_lf8lryt4i4c66o0lot08j3cu7, fk_6peou3uwnq3v5xoirhfg4buwh]
-2018-01-21 19:50:50,532 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4fkcsmege20c5mr184i7sw8a8, fk_lf8lryt4i4c66o0lot08j3cu7, primary, fk_6peou3uwnq3v5xoirhfg4buwh]
-2018-01-21 19:50:50,544 INFO  [TableMetadata] - HHH000261: Table found: prosolo.rubric_unit
-2018-01-21 19:50:50,545 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, created, description, rubric, id, title]
-2018-01-21 19:50:50,545 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2rbgvha4m64j067s9p7f52361, fk_85vusepoi725ebye515abgc2]
-2018-01-21 19:50:50,545 INFO  [TableMetadata] - HHH000126: Indexes: [uk_9ir0vsnl7lrvdnm4nw907xc0h, fk_2rbgvha4m64j067s9p7f52361, primary]
-2018-01-21 19:50:50,547 INFO  [TableMetadata] - HHH000261: Table found: prosolo.seen_announcement
-2018-01-21 19:50:50,548 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title, user, announcement]
-2018-01-21 19:50:50,548 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8xib2pv1vo1dkrj7mwkc7stt0, fk_63g4k687qg4rdy0tw55bek8ph]
-2018-01-21 19:50:50,548 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8xib2pv1vo1dkrj7mwkc7stt0, fk_63g4k687qg4rdy0tw55bek8ph, primary]
-2018-01-21 19:50:50,552 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1
-2018-01-21 19:50:50,552 INFO  [TableMetadata] - HHH000037: Columns: [twitter_poster_name, rich_content_image_size, description, last_action, title, activity_target, rich_content_embed_id, rich_content_title, rich_content_content_type, twitter_comment, twitter_poster_nickname, credential_object, id, comments_disabled, text, competence_target, rich_content_link, rich_content_description, target_activity_object, like_count, target_competence_object, post_object, retweet, rich_content_image_url, twitter_poster_profile_url, created, dtype, twitter_user_type, comment_object, twitter_poster_avatar_url, actor, deleted, twitter_post_url, rich_content_last_indexing_update]
-2018-01-21 19:50:50,552 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_3se0xx7kf9aw5vgmraucntlbv, fk_369a166cd064b6ju3laifxqh6, fk_fg2k09y8coydd8lt8mxmsyv8d, fk_r6x1eu9v3w7v4yrq67inwon9i, fk_dvy0dowvaju4eq844k2qbfkm4, fk_cl6hufyquct3r8e3kj5foof4p, fk_ic66jfo7hmtbua887739e9hv6, fk_n6q7e5h3tjgxn0p2m0wtdf05y]
-2018-01-21 19:50:50,553 INFO  [TableMetadata] - HHH000126: Indexes: [fk_3se0xx7kf9aw5vgmraucntlbv, index_social_activity1_last_action_id, fk_fg2k09y8coydd8lt8mxmsyv8d, fk_r6x1eu9v3w7v4yrq67inwon9i, fk_dvy0dowvaju4eq844k2qbfkm4, fk_cl6hufyquct3r8e3kj5foof4p, fk_ic66jfo7hmtbua887739e9hv6, index_social_activity1_actor_last_action_id, fk_n6q7e5h3tjgxn0p2m0wtdf05y, primary]
-2018-01-21 19:50:50,555 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1_comments
-2018-01-21 19:50:50,556 INFO  [TableMetadata] - HHH000037: Columns: [comments, social_activity1]
-2018-01-21 19:50:50,556 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_icouxfgkx9j575thujmbiifyw, fk_5lk34om0v81djsqof46lemooh]
-2018-01-21 19:50:50,556 INFO  [TableMetadata] - HHH000126: Indexes: [uk_5lk34om0v81djsqof46lemooh, fk_icouxfgkx9j575thujmbiifyw]
-2018-01-21 19:50:50,559 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1_hashtags
-2018-01-21 19:50:50,559 INFO  [TableMetadata] - HHH000037: Columns: [hashtags, social_activity1]
-2018-01-21 19:50:50,559 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_7puhxui6hgij23pw2s0jpwu8s, fk_dmmihaliyqi3d04t7vr50bept]
-2018-01-21 19:50:50,559 INFO  [TableMetadata] - HHH000126: Indexes: [fk_dmmihaliyqi3d04t7vr50bept, primary]
-2018-01-21 19:50:50,562 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity_config
-2018-01-21 19:50:50,563 INFO  [TableMetadata] - HHH000037: Columns: [deleted, hidden, created, description, social_activity, id, title, user]
-2018-01-21 19:50:50,563 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_p4ouuukgvnn6j8to9pc5xnlq4, fk_iji9gdpcntyigmeky9rc8w9e2]
-2018-01-21 19:50:50,563 INFO  [TableMetadata] - HHH000126: Indexes: [fk_p4ouuukgvnn6j8to9pc5xnlq4, fk_iji9gdpcntyigmeky9rc8w9e2, primary]
-2018-01-21 19:50:50,567 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_network_account
-2018-01-21 19:50:50,568 INFO  [TableMetadata] - HHH000037: Columns: [link, social_network, id]
-2018-01-21 19:50:50,568 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,568 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,570 INFO  [TableMetadata] - HHH000261: Table found: prosolo.suggestion
-2018-01-21 19:50:50,570 INFO  [TableMetadata] - HHH000037: Columns: [description, id]
-2018-01-21 19:50:50,570 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,570 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,582 INFO  [TableMetadata] - HHH000261: Table found: prosolo.symptom
-2018-01-21 19:50:50,582 INFO  [TableMetadata] - HHH000037: Columns: [description, id]
-2018-01-21 19:50:50,582 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,583 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,585 INFO  [TableMetadata] - HHH000261: Table found: prosolo.tag
-2018-01-21 19:50:50,585 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title]
-2018-01-21 19:50:50,585 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,585 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,589 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_activity1
-2018-01-21 19:50:50,589 INFO  [TableMetadata] - HHH000037: Columns: [target_competence, act_order, number_of_attempts, activity, added, created, description, common_score, completed, title, time_spent, result, deleted, result_post_date, date_completed, id]
-2018-01-21 19:50:50,589 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5y8xtibcjsl3q1g2pyjp5v478, fk_fn87y61fx7126byyp4gx2i38v]
-2018-01-21 19:50:50,589 INFO  [TableMetadata] - HHH000126: Indexes: [fk_5y8xtibcjsl3q1g2pyjp5v478, fk_fn87y61fx7126byyp4gx2i38v, primary]
-2018-01-21 19:50:50,592 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_competence1
-2018-01-21 19:50:50,592 INFO  [TableMetadata] - HHH000037: Columns: [hidden_from_profile, competence, deleted, created, description, date_completed, progress, id, next_activity_to_learn_id, title, user]
-2018-01-21 19:50:50,592 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_62p0o7vw29vwnqc58g1hu2vai, fk_2jik1pn632ups2li1pmvuahdd]
-2018-01-21 19:50:50,593 INFO  [TableMetadata] - HHH000126: Indexes: [fk_62p0o7vw29vwnqc58g1hu2vai, uk_hyygpgbqj161vj4fkdgxupoog, primary]
-2018-01-21 19:50:50,599 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_credential1
-2018-01-21 19:50:50,599 INFO  [TableMetadata] - HHH000037: Columns: [cluster, cluster_name, created, description, last_action, title, final_review, next_competence_to_learn_id, hidden_from_profile, deleted, assigned_to_instructor, credential, instructor, date_finished, progress, id, user, date_started]
-2018-01-21 19:50:50,599 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_76pg8xnfhsda0bvvq7wvwl5xp, fk_7usnugjbauedaxofmlt5mlhau, fk_s3fmqrd1ct10kj04au40cuqhr]
-2018-01-21 19:50:50,599 INFO  [TableMetadata] - HHH000126: Indexes: [fk_76pg8xnfhsda0bvvq7wvwl5xp, fk_7usnugjbauedaxofmlt5mlhau, uk_hxf01pvgri60h660un28e1w2q, primary]
-2018-01-21 19:50:50,605 INFO  [TableMetadata] - HHH000261: Table found: prosolo.terms_of_use
-2018-01-21 19:50:50,605 INFO  [TableMetadata] - HHH000037: Columns: [date, deleted, created, description, accepted, id, title]
-2018-01-21 19:50:50,605 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,605 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
-2018-01-21 19:50:50,612 INFO  [TableMetadata] - HHH000261: Table found: prosolo.thread_participant
-2018-01-21 19:50:50,612 INFO  [TableMetadata] - HHH000037: Columns: [is_read, archived, deleted, last_read_message, id, message_thread, user, show_messages_from]
-2018-01-21 19:50:50,612 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2o8pq3r6bxabp5b73ok8qgrcx, fk_ks01qd3o7158kirgyfpkw6cbb, fk_ilywn1b6wdhl4ymswbb75ayal]
-2018-01-21 19:50:50,612 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2o8pq3r6bxabp5b73ok8qgrcx, fk_ks01qd3o7158kirgyfpkw6cbb, fk_ilywn1b6wdhl4ymswbb75ayal, primary]
-2018-01-21 19:50:50,615 INFO  [TableMetadata] - HHH000261: Table found: prosolo.unit
-2018-01-21 19:50:50,615 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, parent_unit, id, title]
-2018-01-21 19:50:50,615 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8e9s0ln9wmq4ydgbnhhyfjgs5, fk_oxsulo29jty26qck7xmhhf9f1]
-2018-01-21 19:50:50,615 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8e9s0ln9wmq4ydgbnhhyfjgs5, fk_oxsulo29jty26qck7xmhhf9f1, uk_hotnqwr5osir4ryygavjto7ac, primary]
-2018-01-21 19:50:50,626 INFO  [TableMetadata] - HHH000261: Table found: prosolo.unit_role_membership
-2018-01-21 19:50:50,626 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, role, created, description, id, title, user]
-2018-01-21 19:50:50,626 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_oiefemc5sijcc7vop0b97lpt6, fk_gn7knglhp5coc24iqd4yeevb0, fk_d5bj6kukr793taljwratj3l05]
-2018-01-21 19:50:50,626 INFO  [TableMetadata] - HHH000126: Indexes: [uk_cvpfera4fi0vhmc4jd8c6a1j8, fk_gn7knglhp5coc24iqd4yeevb0, fk_d5bj6kukr793taljwratj3l05, primary]
-2018-01-21 19:50:50,630 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user
-2018-01-21 19:50:50,630 INFO  [TableMetadata] - HHH000037: Columns: [profile_url, created, latitude, verified, description, title, lastname, password_length, verification_key, location_name, password, deleted, system, user_type, avatar_url, organization, name, id, position, email, longitude]
-2018-01-21 19:50:50,630 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_a7krvkolmrchxwj22txuhlhj]
-2018-01-21 19:50:50,630 INFO  [TableMetadata] - HHH000126: Indexes: [fk_a7krvkolmrchxwj22txuhlhj, primary]
-2018-01-21 19:50:50,633 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_group
-2018-01-21 19:50:50,634 INFO  [TableMetadata] - HHH000037: Columns: [join_url_password, unit, deleted, join_url_active, created, name, description, id, title, default_group]
-2018-01-21 19:50:50,634 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ddfpocbhgcpv8uhvcuf52dx5a]
-2018-01-21 19:50:50,634 INFO  [TableMetadata] - HHH000126: Indexes: [primary, fk_ddfpocbhgcpv8uhvcuf52dx5a]
-2018-01-21 19:50:50,647 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_group_user
-2018-01-21 19:50:50,648 INFO  [TableMetadata] - HHH000037: Columns: [user_group, deleted, created, description, id, title, user]
-2018-01-21 19:50:50,650 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_iifontadv5293tvuvf7r9e9u8, fk_kqb30gm40pn64yo6sgh0jgpcf]
-2018-01-21 19:50:50,650 INFO  [TableMetadata] - HHH000126: Indexes: [fk_iifontadv5293tvuvf7r9e9u8, uk_c63cjs9t3jl6nrf3asi7iej52, primary]
-2018-01-21 19:50:50,657 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_notifications_settings
-2018-01-21 19:50:50,658 INFO  [TableMetadata] - HHH000037: Columns: [id, user]
-2018-01-21 19:50:50,658 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1cit1fccf48ea5x3igm1lqx70]
-2018-01-21 19:50:50,658 INFO  [TableMetadata] - HHH000126: Indexes: [uk_1cit1fccf48ea5x3igm1lqx70, primary]
-2018-01-21 19:50:50,663 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_notifications_settings_notifications
-2018-01-21 19:50:50,663 INFO  [TableMetadata] - HHH000037: Columns: [user_notifications_settings, notifications]
-2018-01-21 19:50:50,663 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ksohjysau2bcia3ah2q36hee9, fk_50e581q4wur2axemd6v1pbrqh]
-2018-01-21 19:50:50,663 INFO  [TableMetadata] - HHH000126: Indexes: [fk_50e581q4wur2axemd6v1pbrqh, uk_ksohjysau2bcia3ah2q36hee9]
-2018-01-21 19:50:50,684 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_preference
-2018-01-21 19:50:50,685 INFO  [TableMetadata] - HHH000037: Columns: [deleted, personal_blog_source, created, update_period, dtype, description, id, title, user]
-2018-01-21 19:50:50,685 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_lubkkfg4oouxyab4bblgr0j2e, fk_oskk4hx06767511e5ar5wpdo1]
-2018-01-21 19:50:50,685 INFO  [TableMetadata] - HHH000126: Indexes: [fk_lubkkfg4oouxyab4bblgr0j2e, fk_oskk4hx06767511e5ar5wpdo1, primary]
-2018-01-21 19:50:50,687 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_preference_subscribed_rss_sources
-2018-01-21 19:50:50,687 INFO  [TableMetadata] - HHH000037: Columns: [subscribed_rss_sources, user_preference]
-2018-01-21 19:50:50,689 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_k1w7aarxe3y1g47f1k9qjh5qb, fk_k33l3f2g6mo8kpnc0laxm8dxf]
-2018-01-21 19:50:50,690 INFO  [TableMetadata] - HHH000126: Indexes: [uk_k33l3f2g6mo8kpnc0laxm8dxf, fk_k1w7aarxe3y1g47f1k9qjh5qb]
-2018-01-21 19:50:50,696 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_settings
-2018-01-21 19:50:50,696 INFO  [TableMetadata] - HHH000037: Columns: [id, locale_settings, terms_of_use, activity_wall_settings]
-2018-01-21 19:50:50,696 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_e0ji1xk8xkrg1ee92jyuhl5s4, fk_o3slgonymb8ch3md0m5anhlb8, fk_fdwr1xr3v58sye7ukapj4k3pa, fk_phjwu7o2219iuuh2v53ombw6w]
-2018-01-21 19:50:50,696 INFO  [TableMetadata] - HHH000126: Indexes: [fk_o3slgonymb8ch3md0m5anhlb8, fk_fdwr1xr3v58sye7ukapj4k3pa, fk_phjwu7o2219iuuh2v53ombw6w, primary]
-2018-01-21 19:50:50,700 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_settings_pages_tutorial_played
-2018-01-21 19:50:50,700 INFO  [TableMetadata] - HHH000037: Columns: [user_settings, pages_tutorial_played]
-2018-01-21 19:50:50,700 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rdbdifanhafj621wt7cd8iurc]
-2018-01-21 19:50:50,700 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rdbdifanhafj621wt7cd8iurc]
-2018-01-21 19:50:50,707 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_social_networks
-2018-01-21 19:50:50,707 INFO  [TableMetadata] - HHH000037: Columns: [id, user]
-2018-01-21 19:50:50,707 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_eriyguekd0ayq7n6njjy86qp]
-2018-01-21 19:50:50,708 INFO  [TableMetadata] - HHH000126: Indexes: [fk_eriyguekd0ayq7n6njjy86qp, primary]
-2018-01-21 19:50:50,720 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_social_networks_social_network_accounts
-2018-01-21 19:50:50,721 INFO  [TableMetadata] - HHH000037: Columns: [social_network_accounts, user_social_networks]
-2018-01-21 19:50:50,722 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8qwchc8e5iamlaaysbpg3p7su, fk_cm6y96m10clu35b3ow94gi5ln]
-2018-01-21 19:50:50,722 INFO  [TableMetadata] - HHH000126: Indexes: [uk_cm6y96m10clu35b3ow94gi5ln, primary]
-2018-01-21 19:50:50,736 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_topic_preference_preferred_hashtags_tag
-2018-01-21 19:50:50,736 INFO  [TableMetadata] - HHH000037: Columns: [preferred_hashtags, user_preference]
-2018-01-21 19:50:50,737 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ftoj3377h5tkd5url4ajuqdkt, fk_c2yhsp4xled49t7brdhsapk24]
-2018-01-21 19:50:50,738 INFO  [TableMetadata] - HHH000126: Indexes: [fk_c2yhsp4xled49t7brdhsapk24, primary]
-2018-01-21 19:50:50,740 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_topic_preference_preferred_keywords_tag
-2018-01-21 19:50:50,741 INFO  [TableMetadata] - HHH000037: Columns: [preferred_keywords, user_preference]
-2018-01-21 19:50:50,741 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_deretkpd06iv6p27971yv48vt, fk_486ac11t2tsvkm3cj1qjn61pu]
-2018-01-21 19:50:50,741 INFO  [TableMetadata] - HHH000126: Indexes: [fk_486ac11t2tsvkm3cj1qjn61pu, primary]
-2018-01-21 19:50:50,743 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_user_role
-2018-01-21 19:50:50,743 INFO  [TableMetadata] - HHH000037: Columns: [roles, user]
-2018-01-21 19:50:50,743 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9uoa85no4a82ukddaycpt17f, fk_1e97vv9xu9fx2kaeivgbh1jdx]
-2018-01-21 19:50:50,744 INFO  [TableMetadata] - HHH000126: Indexes: [fk_9uoa85no4a82ukddaycpt17f, primary]
-2018-01-21 19:50:50,749 INFO  [TableMetadata] - HHH000261: Table found: prosolo.hibernate_sequences
-2018-01-21 19:50:50,749 INFO  [TableMetadata] - HHH000037: Columns: [sequence_next_hi_value, sequence_name]
-2018-01-21 19:50:50,750 INFO  [TableMetadata] - HHH000108: Foreign keys: []
-2018-01-21 19:50:50,750 INFO  [TableMetadata] - HHH000126: Indexes: []
-2018-01-21 19:50:50,750 INFO  [SchemaUpdate] - HHH000232: Schema update complete
-2018-01-21 19:50:51,736 WARN  [NativeCodeLoader] - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-2018-01-21 19:50:52,361 INFO  [log] - Logging initialized @7063ms
-2018-01-21 19:50:52,443 INFO  [Server] - jetty-9.2.z-SNAPSHOT
-2018-01-21 19:50:52,458 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@6ac756b{/jobs,null,AVAILABLE}
-2018-01-21 19:50:52,458 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@156324b{/jobs/json,null,AVAILABLE}
-2018-01-21 19:50:52,459 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@38a38ed4{/jobs/job,null,AVAILABLE}
-2018-01-21 19:50:52,460 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1e29a81a{/jobs/job/json,null,AVAILABLE}
-2018-01-21 19:50:52,461 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@7b4b8199{/stages,null,AVAILABLE}
-2018-01-21 19:50:52,461 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@4bbf20d1{/stages/json,null,AVAILABLE}
-2018-01-21 19:50:52,462 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@6fced25c{/stages/stage,null,AVAILABLE}
-2018-01-21 19:50:52,462 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3cf4dec7{/stages/stage/json,null,AVAILABLE}
-2018-01-21 19:50:52,463 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1b94c789{/stages/pool,null,AVAILABLE}
-2018-01-21 19:50:52,463 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@299fc582{/stages/pool/json,null,AVAILABLE}
-2018-01-21 19:50:52,463 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@305aaedf{/storage,null,AVAILABLE}
-2018-01-21 19:50:52,463 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@2a425cf5{/storage/json,null,AVAILABLE}
-2018-01-21 19:50:52,465 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@17d76ebb{/storage/rdd,null,AVAILABLE}
-2018-01-21 19:50:52,465 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@40b31a16{/storage/rdd/json,null,AVAILABLE}
-2018-01-21 19:50:52,465 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@25fa6889{/environment,null,AVAILABLE}
-2018-01-21 19:50:52,466 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1de73d37{/environment/json,null,AVAILABLE}
-2018-01-21 19:50:52,466 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@31693a86{/executors,null,AVAILABLE}
-2018-01-21 19:50:52,467 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@69d2e517{/executors/json,null,AVAILABLE}
-2018-01-21 19:50:52,467 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1f9a7684{/executors/threadDump,null,AVAILABLE}
-2018-01-21 19:50:52,467 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3b30eec5{/executors/threadDump/json,null,AVAILABLE}
-2018-01-21 19:50:52,473 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@43755e2f{/static,null,AVAILABLE}
-2018-01-21 19:50:52,474 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3d71e10b{/,null,AVAILABLE}
-2018-01-21 19:50:52,475 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@71139e77{/api,null,AVAILABLE}
-2018-01-21 19:50:52,475 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@4de91056{/jobs/job/kill,null,AVAILABLE}
-2018-01-21 19:50:52,476 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@2404abe2{/stages/stage/kill,null,AVAILABLE}
-2018-01-21 19:50:52,486 INFO  [ServerConnector] - Started ServerConnector@4a87021b{HTTP/1.1}{0.0.0.0:4041}
-2018-01-21 19:50:52,487 INFO  [Server] - Started @7189ms
-2018-01-21 19:50:52,910 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@18513c23{/metrics/json,null,AVAILABLE}
-2018-01-21 19:50:52,976 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@40738846{/SQL,null,AVAILABLE}
-2018-01-21 19:50:52,977 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1686ed85{/SQL/json,null,AVAILABLE}
-2018-01-21 19:50:52,978 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@4cd5fc46{/SQL/execution,null,AVAILABLE}
-2018-01-21 19:50:52,980 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3221588e{/SQL/execution/json,null,AVAILABLE}
-2018-01-21 19:50:52,983 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@498e41a4{/static/sql,null,AVAILABLE}
+2018-02-12 19:14:19,027 INFO  [Settings] - Settings loaded!
+2018-02-12 19:14:19,067 INFO  [CommonSettings] - Settings loaded!
+2018-02-12 19:14:19,244 INFO  [Version] - HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
+2018-02-12 19:14:19,250 INFO  [Version] - HHH000412: Hibernate Core {4.3.10.Final}
+2018-02-12 19:14:19,258 INFO  [Environment] - HHH000206: hibernate.properties not found
+2018-02-12 19:14:19,260 INFO  [Environment] - HHH000021: Bytecode provider name : javassist
+2018-02-12 19:14:19,291 INFO  [Configuration] - HHH000043: Configuring from resource: /hibernate.cfg.xml
+2018-02-12 19:14:19,291 INFO  [Configuration] - HHH000040: Configuration resource: /hibernate.cfg.xml
+2018-02-12 19:14:19,399 INFO  [Configuration] - HHH000041: Configured SessionFactory: null
+2018-02-12 19:14:19,753 INFO  [Reflections] - Reflections took 305 ms to scan 1 urls, producing 20 keys and 274 values 
+2018-02-12 19:14:20,222 INFO  [Dialect] - HHH000400: Using dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+2018-02-12 19:14:20,606 INFO  [TransactionFactoryInitiator] - HHH000399: Using default transaction strategy (direct JDBC transactions)
+2018-02-12 19:14:20,609 INFO  [ASTQueryTranslatorFactory] - HHH000397: Using ASTQueryTranslatorFactory
+2018-02-12 19:14:20,647 WARN  [ConfigurationFactory] - No configuration found. Configuring ehcache from ehcache-failsafe.xml  found in the classpath: jar:file:/home/zoran/.m2/repository/net/sf/ehcache/ehcache-core/2.4.3/ehcache-core-2.4.3.jar!/ehcache-failsafe.xml
+2018-02-12 19:14:20,685 INFO  [UpdateTimestampsCache] - HHH000250: Starting update timestamps cache at region: org.hibernate.cache.spi.UpdateTimestampsCache
+2018-02-12 19:14:20,687 WARN  [AbstractEhcacheRegionFactory] - HHH020003: Could not find a specific ehcache configuration for cache named [org.hibernate.cache.spi.UpdateTimestampsCache]; using defaults.
+2018-02-12 19:14:20,741 INFO  [StandardQueryCache] - HHH000248: Starting query cache at region: org.hibernate.cache.internal.StandardQueryCache
+2018-02-12 19:14:20,743 WARN  [AbstractEhcacheRegionFactory] - HHH020003: Could not find a specific ehcache configuration for cache named [org.hibernate.cache.internal.StandardQueryCache]; using defaults.
+2018-02-12 19:14:20,819 INFO  [Version] - HV000001: Hibernate Validator 5.1.3.Final
+2018-02-12 19:14:21,828 INFO  [SchemaUpdate] - HHH000228: Running hbm2ddl schema update
+2018-02-12 19:14:21,828 INFO  [SchemaUpdate] - HHH000102: Fetching database metadata
+2018-02-12 19:14:21,837 INFO  [SchemaUpdate] - HHH000396: Updating schema
+2018-02-12 19:14:21,861 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1
+2018-02-12 19:14:21,862 INFO  [TableMetadata] - HHH000037: Columns: [max_points, description, shared_secret, rubric, title, type, open_in_new_window, duration, score_calculation, id, text, link_name, result_type, student_can_see_other_responses, created, url_type, dtype, visible_for_unenrolled_students, version, created_by, url, difficulty, accept_grades, consumer_key, deleted, rubric_visibility, grading_mode, launch_url, student_can_edit_response]
+2018-02-12 19:14:21,862 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_r28bfc9xvnj41036ky8xb7o98, fk_51vt5mwt287fcjsoap7vsm5e2]
+2018-02-12 19:14:21,862 INFO  [TableMetadata] - HHH000126: Indexes: [fk_r28bfc9xvnj41036ky8xb7o98, fk_51vt5mwt287fcjsoap7vsm5e2, primary]
+2018-02-12 19:14:21,867 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_captions
+2018-02-12 19:14:21,867 INFO  [TableMetadata] - HHH000037: Columns: [activity1, captions]
+2018-02-12 19:14:21,867 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_b1n7gy4nb3oplj5v8jhali4rs, fk_8gchebrsymmudflj24yo48n79]
+2018-02-12 19:14:21,867 INFO  [TableMetadata] - HHH000126: Indexes: [uk_b1n7gy4nb3oplj5v8jhali4rs, primary]
+2018-02-12 19:14:21,872 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_files
+2018-02-12 19:14:21,872 INFO  [TableMetadata] - HHH000037: Columns: [activity1, files]
+2018-02-12 19:14:21,873 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_h9l61ttwr60t42cj53buu3rm0, fk_m20elbr34b3oe5p86dcd773nl]
+2018-02-12 19:14:21,873 INFO  [TableMetadata] - HHH000126: Indexes: [uk_h9l61ttwr60t42cj53buu3rm0, primary]
+2018-02-12 19:14:21,877 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_links
+2018-02-12 19:14:21,877 INFO  [TableMetadata] - HHH000037: Columns: [activity1, links]
+2018-02-12 19:14:21,878 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rhmeeesk0sdkg3qagjmf9lroj, fk_mpsbwvmwi7kc3a6sbcm8s9e5f]
+2018-02-12 19:14:21,878 INFO  [TableMetadata] - HHH000126: Indexes: [uk_mpsbwvmwi7kc3a6sbcm8s9e5f, primary]
+2018-02-12 19:14:21,884 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity1_tags
+2018-02-12 19:14:21,885 INFO  [TableMetadata] - HHH000037: Columns: [activity1, tags]
+2018-02-12 19:14:21,885 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hynwy4o71nraccfi6lu06ggsc, fk_4lcw676ek48pd37v9kr0mymim]
+2018-02-12 19:14:21,886 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4lcw676ek48pd37v9kr0mymim, primary]
+2018-02-12 19:14:21,891 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_assessment
+2018-02-12 19:14:21,891 INFO  [TableMetadata] - HHH000037: Columns: [deleted, activity, created, default_assessment, competence_assessment, grade, target_activity, description, id, title, type, points]
+2018-02-12 19:14:21,894 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_19i7s0u1b1r3owi4fpfvj8lxq, fk_pqe8ab74gg1e45r1muu3l2f48, fk_8h8fnyxbc74ksc3qdhy48ic3t, fk_o3uai8md6l5ilpc98ynjnlks0]
+2018-02-12 19:14:21,895 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4fun3nw7pg23ttg8o57wd1n48, fk_19i7s0u1b1r3owi4fpfvj8lxq, fk_pqe8ab74gg1e45r1muu3l2f48, uk_ir3b4ua2jau1q2mlw3xhwr4s7, fk_o3uai8md6l5ilpc98ynjnlks0, primary]
+2018-02-12 19:14:21,900 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_discussion_message
+2018-02-12 19:14:21,900 INFO  [TableMetadata] - HHH000037: Columns: [deleted, sender, created, description, id, discussion, title, updated, content]
+2018-02-12 19:14:21,900 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_pc9oblcdq0wtaqumrpoghmym5, fk_gp4rjlpt100i22gadcrqsuyea]
+2018-02-12 19:14:21,900 INFO  [TableMetadata] - HHH000126: Indexes: [fk_pc9oblcdq0wtaqumrpoghmym5, fk_gp4rjlpt100i22gadcrqsuyea, primary]
+2018-02-12 19:14:21,905 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_discussion_participant
+2018-02-12 19:14:21,905 INFO  [TableMetadata] - HHH000037: Columns: [is_read, activity_discussion, deleted, created, description, id, title, participant]
+2018-02-12 19:14:21,905 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1aja12ermpd5n492qpm0wv51p, fk_klimyuls8rsoqt7v9ce5gqts9]
+2018-02-12 19:14:21,905 INFO  [TableMetadata] - HHH000126: Indexes: [fk_1aja12ermpd5n492qpm0wv51p, fk_klimyuls8rsoqt7v9ce5gqts9, primary]
+2018-02-12 19:14:21,909 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_grade
+2018-02-12 19:14:21,909 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title, value]
+2018-02-12 19:14:21,909 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:21,909 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:21,913 INFO  [TableMetadata] - HHH000261: Table found: prosolo.activity_wall_settings
+2018-02-12 19:14:21,913 INFO  [TableMetadata] - HHH000037: Columns: [course_id, chosen_filter, deleted, created, description, id, title]
+2018-02-12 19:14:21,913 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:21,914 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:21,918 INFO  [TableMetadata] - HHH000261: Table found: prosolo.annotation1
+2018-02-12 19:14:21,918 INFO  [TableMetadata] - HHH000037: Columns: [deleted, annotated_resource_id, created, annotated_resource, description, maker, annotation_type, id, title]
+2018-02-12 19:14:21,918 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_qg56tf64cpvwkc5p2q9bjoape]
+2018-02-12 19:14:21,918 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qg56tf64cpvwkc5p2q9bjoape, primary]
+2018-02-12 19:14:21,922 INFO  [TableMetadata] - HHH000261: Table found: prosolo.announcement
+2018-02-12 19:14:21,922 INFO  [TableMetadata] - HHH000037: Columns: [deleted, credential, created, description, id, title, announcement_text, created_by]
+2018-02-12 19:14:21,922 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5n0gf0pgl54yxksqbrpg49jwu, fk_i5ssis4ksi4j8jsbb9xga1odi]
+2018-02-12 19:14:21,923 INFO  [TableMetadata] - HHH000126: Indexes: [fk_5n0gf0pgl54yxksqbrpg49jwu, fk_i5ssis4ksi4j8jsbb9xga1odi, primary]
+2018-02-12 19:14:21,926 INFO  [TableMetadata] - HHH000261: Table found: prosolo.capability
+2018-02-12 19:14:21,926 INFO  [TableMetadata] - HHH000037: Columns: [name, description, id]
+2018-02-12 19:14:21,926 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:21,926 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:21,930 INFO  [TableMetadata] - HHH000261: Table found: prosolo.capability_role
+2018-02-12 19:14:21,931 INFO  [TableMetadata] - HHH000037: Columns: [capabilities, roles]
+2018-02-12 19:14:21,931 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1j72vl0nwsv55q41b6ydg0hhd, fk_bk8wqohsuock5hix7lnb84b0r]
+2018-02-12 19:14:21,931 INFO  [TableMetadata] - HHH000126: Indexes: [fk_bk8wqohsuock5hix7lnb84b0r, primary]
+2018-02-12 19:14:21,936 INFO  [TableMetadata] - HHH000261: Table found: prosolo.comment1
+2018-02-12 19:14:21,936 INFO  [TableMetadata] - HHH000037: Columns: [parent_comment, commented_resource_id, like_count, created, resource_type, description, title, deleted, manager_comment, instructor, post_date, id, user]
+2018-02-12 19:14:21,936 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_cnb1hy7io12vb2fbi1jdmyalw, fk_q7hjkgwtsss4hrk6dfs022823]
+2018-02-12 19:14:21,936 INFO  [TableMetadata] - HHH000126: Indexes: [fk_cnb1hy7io12vb2fbi1jdmyalw, index_comment1_commented_resource_id_resource_type, primary, fk_q7hjkgwtsss4hrk6dfs022823]
+2018-02-12 19:14:21,942 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence1
+2018-02-12 19:14:21,942 INFO  [TableMetadata] - HHH000037: Columns: [student_allowed_to_add_activities, created, description, learning_stage, published, title, type, first_learning_stage_competence, version, created_by, duration, archived, deleted, date_published, original_version, organization, id, visible_to_all, learning_path_type]
+2018-02-12 19:14:21,942 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_91ik0ggqkcwdde3bjco1da0gf, fk_lb3u5p37p6e33a9caoi64r1cj, fk_rovwcltntpusa8fv9fk2ox4c5, fk_btejhdyv6se49077y8v2sw5sq, fk_j0jn9c30xitfotmamc9181go5]
+2018-02-12 19:14:21,942 INFO  [TableMetadata] - HHH000126: Indexes: [fk_91ik0ggqkcwdde3bjco1da0gf, fk_lb3u5p37p6e33a9caoi64r1cj, uk_3oyo6ynive1sdpf54j7lx3ggb, fk_btejhdyv6se49077y8v2sw5sq, fk_j0jn9c30xitfotmamc9181go5, primary]
+2018-02-12 19:14:21,946 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence1_tags
+2018-02-12 19:14:21,946 INFO  [TableMetadata] - HHH000037: Columns: [competence1, tags]
+2018-02-12 19:14:21,946 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9lsylf57uy3m2se4ve4ameihu, fk_njpyjqs5thuuyw5xwm1paihxf]
+2018-02-12 19:14:21,946 INFO  [TableMetadata] - HHH000126: Indexes: [fk_9lsylf57uy3m2se4ve4ameihu, primary]
+2018-02-12 19:14:21,950 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_activity1
+2018-02-12 19:14:21,950 INFO  [TableMetadata] - HHH000037: Columns: [competence, act_order, deleted, activity, created, description, id, title]
+2018-02-12 19:14:21,951 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ka2ffpd609s5ug445vou0anhi, fk_px25x3t4d4wxgujuocgi5mc51]
+2018-02-12 19:14:21,951 INFO  [TableMetadata] - HHH000126: Indexes: [fk_ka2ffpd609s5ug445vou0anhi, fk_px25x3t4d4wxgujuocgi5mc51, primary]
+2018-02-12 19:14:21,954 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_assessment
+2018-02-12 19:14:21,955 INFO  [TableMetadata] - HHH000037: Columns: [credential_assessment, target_competence, student, created, assessor, description, title, type, points, competence, approved, deleted, default_assessment, id]
+2018-02-12 19:14:21,955 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_tiy256v79b1c8vfiest7m8piw, fk_k9y34nq3hj6fdbdaftoligfkc, fk_lbo2bjanrdpkwedf9p6q6o248, fk_sbdq7cq4tot1uk0gtv1rcijwr]
+2018-02-12 19:14:21,955 INFO  [TableMetadata] - HHH000126: Indexes: [fk_tiy256v79b1c8vfiest7m8piw, fk_k9y34nq3hj6fdbdaftoligfkc, uk_dp0vtj3joay6h019et10iqjap, fk_lbo2bjanrdpkwedf9p6q6o248, fk_sbdq7cq4tot1uk0gtv1rcijwr, primary]
+2018-02-12 19:14:21,959 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_bookmark
+2018-02-12 19:14:21,959 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, created, description, id, title, user]
+2018-02-12 19:14:21,959 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_7fwnajpqa9j4dfaciibethkll, fk_pu790xeulgg9f166ehutb0p0v]
+2018-02-12 19:14:21,959 INFO  [TableMetadata] - HHH000126: Indexes: [fk_7fwnajpqa9j4dfaciibethkll, uk_k4uyv9uljtw36cxchatxxhi7d, primary]
+2018-02-12 19:14:21,963 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_evidence
+2018-02-12 19:14:21,964 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, evidence, created, description, id, title]
+2018-02-12 19:14:21,964 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8ih6dh7gn5uo6jwx9r3pt82sw, fk_nctgqbkwam6fn84i27cyaav2p]
+2018-02-12 19:14:21,964 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8ih6dh7gn5uo6jwx9r3pt82sw, fk_nctgqbkwam6fn84i27cyaav2p, primary]
+2018-02-12 19:14:21,968 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_unit
+2018-02-12 19:14:21,968 INFO  [TableMetadata] - HHH000037: Columns: [competence, unit, deleted, created, description, id, title]
+2018-02-12 19:14:21,968 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_16il9gr3688yooyw91vsiis91, fk_d9i2062693wmimcdyvdr1ynhh]
+2018-02-12 19:14:21,968 INFO  [TableMetadata] - HHH000126: Indexes: [fk_16il9gr3688yooyw91vsiis91, uk_7mbm0rkejlh524nk5ieyh24ml, primary]
+2018-02-12 19:14:21,972 INFO  [TableMetadata] - HHH000261: Table found: prosolo.competence_user_group
+2018-02-12 19:14:21,972 INFO  [TableMetadata] - HHH000037: Columns: [competence, inherited_from, user_group, deleted, created, inherited, description, id, privilege, title]
+2018-02-12 19:14:21,972 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_60mk2r1qk5llr3p901h5705y6, fk_e9iw7p463kmjjsyuj9r5wmxpe, fk_4b5s1r5gcdytwdbp2pr4rn4v5]
+2018-02-12 19:14:21,972 INFO  [TableMetadata] - HHH000126: Indexes: [fk_60mk2r1qk5llr3p901h5705y6, fk_e9iw7p463kmjjsyuj9r5wmxpe, primary, fk_4b5s1r5gcdytwdbp2pr4rn4v5]
+2018-02-12 19:14:21,977 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1
+2018-02-12 19:14:21,977 INFO  [TableMetadata] - HHH000037: Columns: [default_number_of_students_per_instructor, delivery_of, created, description, learning_stage, title, type, version, created_by, duration, archived, first_learning_stage_credential, deleted, competence_order_mandatory, organization, manually_assign_students, delivery_end, id, delivery_start, visible_to_all]
+2018-02-12 19:14:21,977 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_n2vyrbyyls32y7s3aq1gyyh8o, fk_p1g20qojr5ahymmq2c2hkdqh3, fk_5ve9kkyxam4skfb85dy0n55ot, fk_ox2gmlf29yl2o60nwf28avccl, fk_gwgwt3bm30pwx6lxiukyx1o03]
+2018-02-12 19:14:21,977 INFO  [TableMetadata] - HHH000126: Indexes: [fk_n2vyrbyyls32y7s3aq1gyyh8o, fk_p1g20qojr5ahymmq2c2hkdqh3, fk_ox2gmlf29yl2o60nwf28avccl, uk_6vclpmt9xfxxxybg8tdc4axwt, primary, fk_gwgwt3bm30pwx6lxiukyx1o03]
+2018-02-12 19:14:21,981 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_blogs
+2018-02-12 19:14:21,981 INFO  [TableMetadata] - HHH000037: Columns: [credential1, blogs]
+2018-02-12 19:14:21,981 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_dgns5f815wa0piods87ak1unv, fk_p9mlitfs7rd27q1h6x6xqrtat]
+2018-02-12 19:14:21,981 INFO  [TableMetadata] - HHH000126: Indexes: [fk_dgns5f815wa0piods87ak1unv, fk_p9mlitfs7rd27q1h6x6xqrtat]
+2018-02-12 19:14:21,984 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_excluded_feed_sources
+2018-02-12 19:14:21,984 INFO  [TableMetadata] - HHH000037: Columns: [credential1, excluded_feed_sources]
+2018-02-12 19:14:21,985 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_id94tkw373r7i4wpptlstjkt2, fk_116l6dplwn565owmmjwq9nchy]
+2018-02-12 19:14:21,985 INFO  [TableMetadata] - HHH000126: Indexes: [fk_id94tkw373r7i4wpptlstjkt2, fk_116l6dplwn565owmmjwq9nchy]
+2018-02-12 19:14:21,988 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_hashtags
+2018-02-12 19:14:21,988 INFO  [TableMetadata] - HHH000037: Columns: [credential1, hashtags]
+2018-02-12 19:14:21,989 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2s3cange8x6y5lvxsgpulwmro, fk_5k9e4ud4n7uutdcfcp7x8xn2h]
+2018-02-12 19:14:21,989 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2s3cange8x6y5lvxsgpulwmro, primary]
+2018-02-12 19:14:21,992 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential1_tags
+2018-02-12 19:14:21,992 INFO  [TableMetadata] - HHH000037: Columns: [credential1, tags]
+2018-02-12 19:14:21,992 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_e8b1q4xep66kcwhcxfag5a0cl, fk_o10dydyl21smpds2rwh7v8j4s]
+2018-02-12 19:14:21,992 INFO  [TableMetadata] - HHH000126: Indexes: [fk_e8b1q4xep66kcwhcxfag5a0cl, primary]
+2018-02-12 19:14:21,999 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_assessment
+2018-02-12 19:14:22,000 INFO  [TableMetadata] - HHH000037: Columns: [target_credential, created, assessor, description, assessed_student, title, message, type, points, approved, deleted, default_assessment, id]
+2018-02-12 19:14:22,000 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_64x1nbncerttcr6ukwn1i10yy, fk_gluwb9m4wemvchgceb5nexndf, fk_gvcyenwhr1wjurx8srk0l65m]
+2018-02-12 19:14:22,000 INFO  [TableMetadata] - HHH000126: Indexes: [fk_64x1nbncerttcr6ukwn1i10yy, fk_gluwb9m4wemvchgceb5nexndf, fk_gvcyenwhr1wjurx8srk0l65m, primary]
+2018-02-12 19:14:22,003 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_bookmark
+2018-02-12 19:14:22,004 INFO  [TableMetadata] - HHH000037: Columns: [deleted, credential, created, description, id, title, user]
+2018-02-12 19:14:22,004 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_n5fkjwxicertabyarbvju43c3, fk_d125vpplcb2nwcw100ck2ch7e]
+2018-02-12 19:14:22,004 INFO  [TableMetadata] - HHH000126: Indexes: [fk_n5fkjwxicertabyarbvju43c3, uk_huxm5oy8mxf4gcckxuy6m5n9a, primary]
+2018-02-12 19:14:22,008 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_competence1
+2018-02-12 19:14:22,008 INFO  [TableMetadata] - HHH000037: Columns: [competence, deleted, comp_order, credential, created, description, id, title]
+2018-02-12 19:14:22,008 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_4j36i3b2r10ewvv85c9st8c34, fk_nw0ci3p9g1hiy4yan5w664to9]
+2018-02-12 19:14:22,008 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4j36i3b2r10ewvv85c9st8c34, fk_nw0ci3p9g1hiy4yan5w664to9, primary]
+2018-02-12 19:14:22,012 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_instructor
+2018-02-12 19:14:22,012 INFO  [TableMetadata] - HHH000037: Columns: [max_number_of_students, credential, id, date_assigned, user]
+2018-02-12 19:14:22,012 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5he8qwqjrj5oitt390xv1c363, fk_4c65jghtljkorcy98mnko26lt]
+2018-02-12 19:14:22,012 INFO  [TableMetadata] - HHH000126: Indexes: [uk_8o1ljk3ajomrhnh8d5qfmcnls, fk_4c65jghtljkorcy98mnko26lt, primary]
+2018-02-12 19:14:22,015 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_unit
+2018-02-12 19:14:22,016 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, credential, created, description, id, title]
+2018-02-12 19:14:22,016 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_10qyaft78ol2toenfodqdwc8g, fk_bcknt360dtw8rh53cphe97q45]
+2018-02-12 19:14:22,016 INFO  [TableMetadata] - HHH000126: Indexes: [uk_piaytj54rr4klingo78qx9ylt, fk_bcknt360dtw8rh53cphe97q45, primary]
+2018-02-12 19:14:22,019 INFO  [TableMetadata] - HHH000261: Table found: prosolo.credential_user_group
+2018-02-12 19:14:22,020 INFO  [TableMetadata] - HHH000037: Columns: [user_group, deleted, credential, created, description, id, privilege, title]
+2018-02-12 19:14:22,020 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_30jl08j0war3rn3u23m10uyq8, fk_m5cvxlf67t55is1xw2gxfar0i]
+2018-02-12 19:14:22,020 INFO  [TableMetadata] - HHH000126: Indexes: [uk_j07j1pph3s8y22el92gth2yy5, primary, fk_m5cvxlf67t55is1xw2gxfar0i]
+2018-02-12 19:14:22,023 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion
+2018-02-12 19:14:22,023 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, criterion_order, description, rubric, id, title, points]
+2018-02-12 19:14:22,023 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_o7ovdmcl7pmxtdnuk3iyn2sep]
+2018-02-12 19:14:22,024 INFO  [TableMetadata] - HHH000126: Indexes: [uk_e1f4a4t2ns27fm40ulwry89u8, fk_o7ovdmcl7pmxtdnuk3iyn2sep, primary]
+2018-02-12 19:14:22,027 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion_assessment
+2018-02-12 19:14:22,028 INFO  [TableMetadata] - HHH000037: Columns: [assessment, deleted, criterion, level, created, description, comment, id, title]
+2018-02-12 19:14:22,028 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9qyb90jrqkmw5n80rbu2a96ix, fk_tokccjaai099w1tlwllmveoea, fk_5te0rk3j1jibjus4ltts1be4e]
+2018-02-12 19:14:22,028 INFO  [TableMetadata] - HHH000126: Indexes: [fk_tokccjaai099w1tlwllmveoea, fk_5te0rk3j1jibjus4ltts1be4e, uk_goyqi7x42iorhk0tijq1xp87b, primary]
+2018-02-12 19:14:22,039 INFO  [TableMetadata] - HHH000261: Table found: prosolo.criterion_level
+2018-02-12 19:14:22,039 INFO  [TableMetadata] - HHH000037: Columns: [deleted, criterion, level, created, description, id, title]
+2018-02-12 19:14:22,039 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_t0ynrcrm7kt8i1luj4onvhjv2, fk_9l1253t7v8atu5lytujimj09n]
+2018-02-12 19:14:22,040 INFO  [TableMetadata] - HHH000126: Indexes: [uk_pquo8f8sy5d20h8f5hmivseq8, fk_t0ynrcrm7kt8i1luj4onvhjv2, primary]
+2018-02-12 19:14:22,056 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_entry
+2018-02-12 19:14:22,059 INFO  [TableMetadata] - HHH000037: Columns: [image, feed_source, deleted, created, link, description, maker, subscribed_user, id, title, relevance]
+2018-02-12 19:14:22,059 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_cgxvubmhf09musstvw2u00y67, fk_5mympaondc7gotjymqgd05l4i, fk_ffdgn3747cqpgdiwhxlarhp8m]
+2018-02-12 19:14:22,093 INFO  [TableMetadata] - HHH000126: Indexes: [fk_cgxvubmhf09musstvw2u00y67, fk_5mympaondc7gotjymqgd05l4i, fk_ffdgn3747cqpgdiwhxlarhp8m, primary]
+2018-02-12 19:14:22,102 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_entry_hashtags
+2018-02-12 19:14:22,104 INFO  [TableMetadata] - HHH000037: Columns: [hashtags, feed_entry]
+2018-02-12 19:14:22,105 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_es7wwjpedyq7gxlsk0lexcj5x]
+2018-02-12 19:14:22,105 INFO  [TableMetadata] - HHH000126: Indexes: [fk_es7wwjpedyq7gxlsk0lexcj5x]
+2018-02-12 19:14:22,123 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feed_source
+2018-02-12 19:14:22,124 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, link, description, id, last_check, title]
+2018-02-12 19:14:22,124 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,124 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,157 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feeds_digest
+2018-02-12 19:14:22,157 INFO  [TableMetadata] - HHH000037: Columns: [number_of_users_that_got_email, credential, created, time_frame, feeds_subscriber, dtype, id, date_to, date_from]
+2018-02-12 19:14:22,158 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hcx2rl68idmgg2sfpnbqmv1tv, fk_j4nanu4eoo6lobqy4v64tegmf]
+2018-02-12 19:14:22,158 INFO  [TableMetadata] - HHH000126: Indexes: [fk_hcx2rl68idmgg2sfpnbqmv1tv, fk_j4nanu4eoo6lobqy4v64tegmf, primary]
+2018-02-12 19:14:22,164 INFO  [TableMetadata] - HHH000261: Table found: prosolo.feeds_digest_entries
+2018-02-12 19:14:22,164 INFO  [TableMetadata] - HHH000037: Columns: [entries, feeds_digest]
+2018-02-12 19:14:22,164 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_bhda4lck3rkx4tduxm7fhq8wo, fk_sj34xafykjukgs471aa2w9anj]
+2018-02-12 19:14:22,164 INFO  [TableMetadata] - HHH000126: Indexes: [fk_bhda4lck3rkx4tduxm7fhq8wo, fk_sj34xafykjukgs471aa2w9anj]
+2018-02-12 19:14:22,177 INFO  [TableMetadata] - HHH000261: Table found: prosolo.followed_entity
+2018-02-12 19:14:22,177 INFO  [TableMetadata] - HHH000037: Columns: [required_to_follow, started_following, deleted, created, dtype, description, id, title, followed_user, user]
+2018-02-12 19:14:22,177 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_4eglof45iulhoj8j2qudvbuxm, fk_9i2cqb9qu9aomuu5ju2yrm6f9]
+2018-02-12 19:14:22,178 INFO  [TableMetadata] - HHH000126: Indexes: [fk_4eglof45iulhoj8j2qudvbuxm, uk_6w0pe4f2eii8eov3epmwk849e, primary]
+2018-02-12 19:14:22,182 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_evidence
+2018-02-12 19:14:22,183 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, id, title, type, user, url]
+2018-02-12 19:14:22,183 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_te80g9rqpmjnlpmff23h0we5x, fk_qb3lm6liqglp03b789fl0sdvb]
+2018-02-12 19:14:22,183 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qb3lm6liqglp03b789fl0sdvb, uk_ifh0q4jdrtq8bsd6j9ytw1lh3, primary]
+2018-02-12 19:14:22,186 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_evidence_tags
+2018-02-12 19:14:22,186 INFO  [TableMetadata] - HHH000037: Columns: [learning_evidence, tags]
+2018-02-12 19:14:22,186 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ge8rmsf18x8fwwntcnof1w2c3, fk_2i6sole2k1kwkjbgsm2u6aoff]
+2018-02-12 19:14:22,187 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2i6sole2k1kwkjbgsm2u6aoff, primary]
+2018-02-12 19:14:22,190 INFO  [TableMetadata] - HHH000261: Table found: prosolo.learning_stage
+2018-02-12 19:14:22,190 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, learning_stage_order, id, title]
+2018-02-12 19:14:22,190 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_kmqfvn3rumkbm0b8dsgfbcnm6]
+2018-02-12 19:14:22,190 INFO  [TableMetadata] - HHH000126: Indexes: [uk_atmtmfxbwira99uums40pt8q, primary]
+2018-02-12 19:14:22,193 INFO  [TableMetadata] - HHH000261: Table found: prosolo.level
+2018-02-12 19:14:22,194 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, level_order, description, rubric, id, title, points]
+2018-02-12 19:14:22,194 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rtffghkdqv9g81wd3ecvjemdv]
+2018-02-12 19:14:22,194 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rtffghkdqv9g81wd3ecvjemdv, primary, uk_eo5k8jw0yq5kypsaddagxuoo8]
+2018-02-12 19:14:22,197 INFO  [TableMetadata] - HHH000261: Table found: prosolo.locale_settings
+2018-02-12 19:14:22,197 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, language, id, title, region]
+2018-02-12 19:14:22,197 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,197 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,200 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_consumer
+2018-02-12 19:14:22,200 INFO  [TableMetadata] - HHH000037: Columns: [deleted, capabilities, key_lti_one, secret_lti_one, id, key_lti_two, secret_lti_two]
+2018-02-12 19:14:22,200 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,200 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,203 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_service
+2018-02-12 19:14:22,203 INFO  [TableMetadata] - HHH000037: Columns: [endpoint, deleted, formats, id, actions, consumer]
+2018-02-12 19:14:22,203 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_j04buydudvuvpfslrit8lht1s]
+2018-02-12 19:14:22,203 INFO  [TableMetadata] - HHH000126: Indexes: [fk_j04buydudvuvpfslrit8lht1s, primary]
+2018-02-12 19:14:22,206 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_tool
+2018-02-12 19:14:22,206 INFO  [TableMetadata] - HHH000037: Columns: [user_group, code, description, custom_css, created_by, enabled, unit, deleted, launch_url, tool_type, organization, activity_id, name, competence_id, id, resource_name, tool_key, learning_goal_id, tool_set]
+2018-02-12 19:14:22,206 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_f8glreyaxbnn1wq3ox0b76igm, fk_64dtvy9vcghm1b7cv0ymsgg4p, fk_6eimoaon171t8shrxhqs0dils, fk_n8iw9ueffp6ceo31pnuensikq, fk_75s355fn31ogkxv4fwj6ve1hm]
+2018-02-12 19:14:22,206 INFO  [TableMetadata] - HHH000126: Indexes: [fk_f8glreyaxbnn1wq3ox0b76igm, fk_64dtvy9vcghm1b7cv0ymsgg4p, fk_6eimoaon171t8shrxhqs0dils, fk_n8iw9ueffp6ceo31pnuensikq, primary, fk_75s355fn31ogkxv4fwj6ve1hm]
+2018-02-12 19:14:22,209 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_tool_set
+2018-02-12 19:14:22,209 INFO  [TableMetadata] - HHH000037: Columns: [registration_url, deleted, id, product_code, consumer]
+2018-02-12 19:14:22,209 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rxmmq9va47gyeome10lkj5ktw]
+2018-02-12 19:14:22,209 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rxmmq9va47gyeome10lkj5ktw, primary]
+2018-02-12 19:14:22,212 INFO  [TableMetadata] - HHH000261: Table found: prosolo.lti_user
+2018-02-12 19:14:22,212 INFO  [TableMetadata] - HHH000037: Columns: [deleted, user_id, name, id, user, email, consumer]
+2018-02-12 19:14:22,212 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_hxb07pfijibeqr1mm8qnnam0i, fk_406o6qhyoo4xcc0ybhrs47xge]
+2018-02-12 19:14:22,212 INFO  [TableMetadata] - HHH000126: Indexes: [fk_hxb07pfijibeqr1mm8qnnam0i, fk_406o6qhyoo4xcc0ybhrs47xge, primary]
+2018-02-12 19:14:22,215 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message
+2018-02-12 19:14:22,215 INFO  [TableMetadata] - HHH000037: Columns: [deleted, sender, created, description, created_timestamp, id, title, message_thread, content]
+2018-02-12 19:14:22,215 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_a3km2kv42i1xu571ta911f9dc, fk_jgrx8hvls0cxtwdet9tu5tl3o]
+2018-02-12 19:14:22,215 INFO  [TableMetadata] - HHH000126: Indexes: [fk_a3km2kv42i1xu571ta911f9dc, fk_jgrx8hvls0cxtwdet9tu5tl3o, primary]
+2018-02-12 19:14:22,218 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message_participant
+2018-02-12 19:14:22,218 INFO  [TableMetadata] - HHH000037: Columns: [is_read, sender, id, participant]
+2018-02-12 19:14:22,218 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_nt68vh666kew9wsx344d2tej8]
+2018-02-12 19:14:22,218 INFO  [TableMetadata] - HHH000126: Indexes: [fk_nt68vh666kew9wsx344d2tej8, primary]
+2018-02-12 19:14:22,220 INFO  [TableMetadata] - HHH000261: Table found: prosolo.message_thread
+2018-02-12 19:14:22,220 INFO  [TableMetadata] - HHH000037: Columns: [creator, deleted, created, subject, description, started, id, title, updated]
+2018-02-12 19:14:22,220 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_owblue8e7depfe80u0tut6vnp]
+2018-02-12 19:14:22,220 INFO  [TableMetadata] - HHH000126: Indexes: [fk_owblue8e7depfe80u0tut6vnp, primary]
+2018-02-12 19:14:22,222 INFO  [TableMetadata] - HHH000261: Table found: prosolo.notification1
+2018-02-12 19:14:22,223 INFO  [TableMetadata] - HHH000037: Columns: [object_owner, receiver, object_type, created, notify_by_email, link, target_type, description, section, target_id, title, type, object_id, is_read, actor, deleted, id]
+2018-02-12 19:14:22,223 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8ffsbfqrwx0l4fcwtir4eogs8, fk_eu8xhjr832wpkchfxn2a4ne8f]
+2018-02-12 19:14:22,223 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8ffsbfqrwx0l4fcwtir4eogs8, fk_eu8xhjr832wpkchfxn2a4ne8f, primary]
+2018-02-12 19:14:22,224 INFO  [TableMetadata] - HHH000261: Table found: prosolo.notification_settings
+2018-02-12 19:14:22,224 INFO  [TableMetadata] - HHH000037: Columns: [subscribed_email, id, type]
+2018-02-12 19:14:22,224 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,225 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,227 INFO  [TableMetadata] - HHH000261: Table found: prosolo.oauth_access_token
+2018-02-12 19:14:22,227 INFO  [TableMetadata] - HHH000037: Columns: [profile_name, token_secret, deleted, user_id, created, service, description, id, title, user, profile_link, token]
+2018-02-12 19:14:22,228 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_qwnyxe99obn5c7jamrh80tojn]
+2018-02-12 19:14:22,228 INFO  [TableMetadata] - HHH000126: Indexes: [fk_qwnyxe99obn5c7jamrh80tojn, primary]
+2018-02-12 19:14:22,231 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation
+2018-02-12 19:14:22,231 INFO  [TableMetadata] - HHH000037: Columns: [note, created_for, edited, id, creation_date, message, created_by]
+2018-02-12 19:14:22,231 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_owstmit5g7fnsggixn5tmfmd7, fk_f238497jjp2hx63imjj1ndnbv]
+2018-02-12 19:14:22,231 INFO  [TableMetadata] - HHH000126: Indexes: [fk_owstmit5g7fnsggixn5tmfmd7, primary, fk_f238497jjp2hx63imjj1ndnbv]
+2018-02-12 19:14:22,234 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation_suggestion
+2018-02-12 19:14:22,235 INFO  [TableMetadata] - HHH000037: Columns: [observation, suggestions]
+2018-02-12 19:14:22,235 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rxdpfym9lrnrum8yak52i6ya5, fk_q5ec7t3ca2ihn36eifg4u7qw4]
+2018-02-12 19:14:22,235 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rxdpfym9lrnrum8yak52i6ya5, primary]
+2018-02-12 19:14:22,238 INFO  [TableMetadata] - HHH000261: Table found: prosolo.observation_symptom
+2018-02-12 19:14:22,238 INFO  [TableMetadata] - HHH000037: Columns: [symptoms, observation]
+2018-02-12 19:14:22,238 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2r1fs2ynpa1istpwqlmpc52yl, fk_axke49cj36g768x69cpf9t57l]
+2018-02-12 19:14:22,238 INFO  [TableMetadata] - HHH000126: Indexes: [primary, fk_axke49cj36g768x69cpf9t57l]
+2018-02-12 19:14:22,241 INFO  [TableMetadata] - HHH000261: Table found: prosolo.openidaccount
+2018-02-12 19:14:22,241 INFO  [TableMetadata] - HHH000037: Columns: [openidprovider, deleted, validated_id, created, description, id, title, user]
+2018-02-12 19:14:22,241 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_mrch25e7jcip15grmcp54039i]
+2018-02-12 19:14:22,242 INFO  [TableMetadata] - HHH000126: Indexes: [fk_mrch25e7jcip15grmcp54039i, primary]
+2018-02-12 19:14:22,247 INFO  [TableMetadata] - HHH000261: Table found: prosolo.organization
+2018-02-12 19:14:22,247 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, learning_in_stages_enabled, description, id, title]
+2018-02-12 19:14:22,247 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,247 INFO  [TableMetadata] - HHH000126: Indexes: [uk_98elant9gwyioac8t0br67o5p, primary]
+2018-02-12 19:14:22,260 INFO  [TableMetadata] - HHH000261: Table found: prosolo.outcome
+2018-02-12 19:14:22,260 INFO  [TableMetadata] - HHH000037: Columns: [result, deleted, activity, created, dtype, description, id, title]
+2018-02-12 19:14:22,260 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_c6sy38ram71uel2jdeotexor3]
+2018-02-12 19:14:22,260 INFO  [TableMetadata] - HHH000126: Indexes: [fk_c6sy38ram71uel2jdeotexor3, primary]
+2018-02-12 19:14:22,262 INFO  [TableMetadata] - HHH000261: Table found: prosolo.registration_key
+2018-02-12 19:14:22,262 INFO  [TableMetadata] - HHH000037: Columns: [uid, deleted, created, description, id, title, registration_type]
+2018-02-12 19:14:22,262 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,262 INFO  [TableMetadata] - HHH000126: Indexes: [uk_ran40qjbh70o6m8q25xu4qxc9, primary]
+2018-02-12 19:14:22,264 INFO  [TableMetadata] - HHH000261: Table found: prosolo.reset_key
+2018-02-12 19:14:22,265 INFO  [TableMetadata] - HHH000037: Columns: [uid, deleted, created, invalid, description, id, title, user]
+2018-02-12 19:14:22,265 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_fxv54xs4m5y1tddmi2errcesu]
+2018-02-12 19:14:22,265 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4os64y5nsc6cbbd73qj4lujb1, fk_fxv54xs4m5y1tddmi2errcesu, primary]
+2018-02-12 19:14:22,277 INFO  [TableMetadata] - HHH000261: Table found: prosolo.resource_link
+2018-02-12 19:14:22,277 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, id_parameter_name, description, id, title, link_name, url]
+2018-02-12 19:14:22,277 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,277 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,313 INFO  [TableMetadata] - HHH000261: Table found: prosolo.resource_settings
+2018-02-12 19:14:22,314 INFO  [TableMetadata] - HHH000037: Columns: [goal_acceptance_dependend_on_competence, selected_users_can_do_evaluation, id, individual_competences_can_not_be_evaluated, user_can_create_competence]
+2018-02-12 19:14:22,321 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,322 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,328 INFO  [TableMetadata] - HHH000261: Table found: prosolo.role
+2018-02-12 19:14:22,328 INFO  [TableMetadata] - HHH000037: Columns: [deleted, system, created, description, id, title]
+2018-02-12 19:14:22,328 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,328 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,342 INFO  [TableMetadata] - HHH000261: Table found: prosolo.rubric
+2018-02-12 19:14:22,342 INFO  [TableMetadata] - HHH000037: Columns: [ready_to_use, creator, deleted, created, organization, description, id, title]
+2018-02-12 19:14:22,342 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_lf8lryt4i4c66o0lot08j3cu7, fk_6peou3uwnq3v5xoirhfg4buwh]
+2018-02-12 19:14:22,342 INFO  [TableMetadata] - HHH000126: Indexes: [uk_4fkcsmege20c5mr184i7sw8a8, fk_lf8lryt4i4c66o0lot08j3cu7, primary, fk_6peou3uwnq3v5xoirhfg4buwh]
+2018-02-12 19:14:22,358 INFO  [TableMetadata] - HHH000261: Table found: prosolo.rubric_unit
+2018-02-12 19:14:22,358 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, created, description, rubric, id, title]
+2018-02-12 19:14:22,358 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2rbgvha4m64j067s9p7f52361, fk_85vusepoi725ebye515abgc2]
+2018-02-12 19:14:22,358 INFO  [TableMetadata] - HHH000126: Indexes: [uk_9ir0vsnl7lrvdnm4nw907xc0h, fk_2rbgvha4m64j067s9p7f52361, primary]
+2018-02-12 19:14:22,382 INFO  [TableMetadata] - HHH000261: Table found: prosolo.seen_announcement
+2018-02-12 19:14:22,382 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title, user, announcement]
+2018-02-12 19:14:22,382 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8xib2pv1vo1dkrj7mwkc7stt0, fk_63g4k687qg4rdy0tw55bek8ph]
+2018-02-12 19:14:22,382 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8xib2pv1vo1dkrj7mwkc7stt0, fk_63g4k687qg4rdy0tw55bek8ph, primary]
+2018-02-12 19:14:22,388 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1
+2018-02-12 19:14:22,388 INFO  [TableMetadata] - HHH000037: Columns: [twitter_poster_name, rich_content_image_size, description, last_action, title, activity_target, rich_content_embed_id, rich_content_title, rich_content_content_type, twitter_comment, twitter_poster_nickname, credential_object, id, comments_disabled, text, competence_target, rich_content_link, rich_content_description, target_activity_object, like_count, target_competence_object, post_object, retweet, rich_content_image_url, twitter_poster_profile_url, created, dtype, twitter_user_type, comment_object, twitter_poster_avatar_url, actor, deleted, twitter_post_url, rich_content_last_indexing_update]
+2018-02-12 19:14:22,388 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_3se0xx7kf9aw5vgmraucntlbv, fk_369a166cd064b6ju3laifxqh6, fk_fg2k09y8coydd8lt8mxmsyv8d, fk_r6x1eu9v3w7v4yrq67inwon9i, fk_dvy0dowvaju4eq844k2qbfkm4, fk_cl6hufyquct3r8e3kj5foof4p, fk_ic66jfo7hmtbua887739e9hv6, fk_n6q7e5h3tjgxn0p2m0wtdf05y]
+2018-02-12 19:14:22,388 INFO  [TableMetadata] - HHH000126: Indexes: [fk_3se0xx7kf9aw5vgmraucntlbv, index_social_activity1_last_action_id, fk_fg2k09y8coydd8lt8mxmsyv8d, fk_r6x1eu9v3w7v4yrq67inwon9i, fk_dvy0dowvaju4eq844k2qbfkm4, fk_cl6hufyquct3r8e3kj5foof4p, fk_ic66jfo7hmtbua887739e9hv6, index_social_activity1_actor_last_action_id, fk_n6q7e5h3tjgxn0p2m0wtdf05y, primary]
+2018-02-12 19:14:22,390 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1_comments
+2018-02-12 19:14:22,391 INFO  [TableMetadata] - HHH000037: Columns: [comments, social_activity1]
+2018-02-12 19:14:22,391 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_icouxfgkx9j575thujmbiifyw, fk_5lk34om0v81djsqof46lemooh]
+2018-02-12 19:14:22,391 INFO  [TableMetadata] - HHH000126: Indexes: [uk_5lk34om0v81djsqof46lemooh, fk_icouxfgkx9j575thujmbiifyw]
+2018-02-12 19:14:22,394 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity1_hashtags
+2018-02-12 19:14:22,394 INFO  [TableMetadata] - HHH000037: Columns: [hashtags, social_activity1]
+2018-02-12 19:14:22,394 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_7puhxui6hgij23pw2s0jpwu8s, fk_dmmihaliyqi3d04t7vr50bept]
+2018-02-12 19:14:22,394 INFO  [TableMetadata] - HHH000126: Indexes: [fk_dmmihaliyqi3d04t7vr50bept, primary]
+2018-02-12 19:14:22,396 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_activity_config
+2018-02-12 19:14:22,396 INFO  [TableMetadata] - HHH000037: Columns: [deleted, hidden, created, description, social_activity, id, title, user]
+2018-02-12 19:14:22,396 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_p4ouuukgvnn6j8to9pc5xnlq4, fk_iji9gdpcntyigmeky9rc8w9e2]
+2018-02-12 19:14:22,396 INFO  [TableMetadata] - HHH000126: Indexes: [fk_p4ouuukgvnn6j8to9pc5xnlq4, fk_iji9gdpcntyigmeky9rc8w9e2, primary]
+2018-02-12 19:14:22,398 INFO  [TableMetadata] - HHH000261: Table found: prosolo.social_network_account
+2018-02-12 19:14:22,398 INFO  [TableMetadata] - HHH000037: Columns: [link, social_network, id]
+2018-02-12 19:14:22,398 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,398 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,400 INFO  [TableMetadata] - HHH000261: Table found: prosolo.suggestion
+2018-02-12 19:14:22,400 INFO  [TableMetadata] - HHH000037: Columns: [description, id]
+2018-02-12 19:14:22,400 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,400 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,401 INFO  [TableMetadata] - HHH000261: Table found: prosolo.symptom
+2018-02-12 19:14:22,401 INFO  [TableMetadata] - HHH000037: Columns: [description, id]
+2018-02-12 19:14:22,402 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,402 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,403 INFO  [TableMetadata] - HHH000261: Table found: prosolo.tag
+2018-02-12 19:14:22,403 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, description, id, title]
+2018-02-12 19:14:22,403 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,403 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,405 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_activity1
+2018-02-12 19:14:22,405 INFO  [TableMetadata] - HHH000037: Columns: [target_competence, act_order, number_of_attempts, activity, added, created, description, common_score, completed, title, time_spent, result, deleted, result_post_date, date_completed, id]
+2018-02-12 19:14:22,405 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_5y8xtibcjsl3q1g2pyjp5v478, fk_fn87y61fx7126byyp4gx2i38v]
+2018-02-12 19:14:22,405 INFO  [TableMetadata] - HHH000126: Indexes: [fk_5y8xtibcjsl3q1g2pyjp5v478, fk_fn87y61fx7126byyp4gx2i38v, primary]
+2018-02-12 19:14:22,407 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_competence1
+2018-02-12 19:14:22,407 INFO  [TableMetadata] - HHH000037: Columns: [hidden_from_profile, competence, deleted, created, description, date_completed, progress, id, next_activity_to_learn_id, title, user]
+2018-02-12 19:14:22,407 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_62p0o7vw29vwnqc58g1hu2vai, fk_2jik1pn632ups2li1pmvuahdd]
+2018-02-12 19:14:22,408 INFO  [TableMetadata] - HHH000126: Indexes: [fk_62p0o7vw29vwnqc58g1hu2vai, uk_hyygpgbqj161vj4fkdgxupoog, primary]
+2018-02-12 19:14:22,410 INFO  [TableMetadata] - HHH000261: Table found: prosolo.target_credential1
+2018-02-12 19:14:22,410 INFO  [TableMetadata] - HHH000037: Columns: [cluster, cluster_name, created, description, last_action, title, final_review, next_competence_to_learn_id, hidden_from_profile, deleted, assigned_to_instructor, credential, instructor, date_finished, progress, id, user, date_started]
+2018-02-12 19:14:22,410 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_76pg8xnfhsda0bvvq7wvwl5xp, fk_7usnugjbauedaxofmlt5mlhau, fk_s3fmqrd1ct10kj04au40cuqhr]
+2018-02-12 19:14:22,410 INFO  [TableMetadata] - HHH000126: Indexes: [fk_76pg8xnfhsda0bvvq7wvwl5xp, fk_7usnugjbauedaxofmlt5mlhau, uk_hxf01pvgri60h660un28e1w2q, primary]
+2018-02-12 19:14:22,412 INFO  [TableMetadata] - HHH000261: Table found: prosolo.terms_of_use
+2018-02-12 19:14:22,412 INFO  [TableMetadata] - HHH000037: Columns: [date, deleted, created, description, accepted, id, title]
+2018-02-12 19:14:22,412 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,412 INFO  [TableMetadata] - HHH000126: Indexes: [primary]
+2018-02-12 19:14:22,414 INFO  [TableMetadata] - HHH000261: Table found: prosolo.thread_participant
+2018-02-12 19:14:22,415 INFO  [TableMetadata] - HHH000037: Columns: [is_read, archived, deleted, last_read_message, id, message_thread, user, show_messages_from]
+2018-02-12 19:14:22,415 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_2o8pq3r6bxabp5b73ok8qgrcx, fk_ks01qd3o7158kirgyfpkw6cbb, fk_ilywn1b6wdhl4ymswbb75ayal]
+2018-02-12 19:14:22,415 INFO  [TableMetadata] - HHH000126: Indexes: [fk_2o8pq3r6bxabp5b73ok8qgrcx, fk_ks01qd3o7158kirgyfpkw6cbb, fk_ilywn1b6wdhl4ymswbb75ayal, primary]
+2018-02-12 19:14:22,416 INFO  [TableMetadata] - HHH000261: Table found: prosolo.unit
+2018-02-12 19:14:22,416 INFO  [TableMetadata] - HHH000037: Columns: [deleted, created, organization, description, parent_unit, id, title]
+2018-02-12 19:14:22,416 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8e9s0ln9wmq4ydgbnhhyfjgs5, fk_oxsulo29jty26qck7xmhhf9f1]
+2018-02-12 19:14:22,417 INFO  [TableMetadata] - HHH000126: Indexes: [fk_8e9s0ln9wmq4ydgbnhhyfjgs5, fk_oxsulo29jty26qck7xmhhf9f1, uk_hotnqwr5osir4ryygavjto7ac, primary]
+2018-02-12 19:14:22,418 INFO  [TableMetadata] - HHH000261: Table found: prosolo.unit_role_membership
+2018-02-12 19:14:22,419 INFO  [TableMetadata] - HHH000037: Columns: [unit, deleted, role, created, description, id, title, user]
+2018-02-12 19:14:22,419 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_oiefemc5sijcc7vop0b97lpt6, fk_gn7knglhp5coc24iqd4yeevb0, fk_d5bj6kukr793taljwratj3l05]
+2018-02-12 19:14:22,419 INFO  [TableMetadata] - HHH000126: Indexes: [uk_cvpfera4fi0vhmc4jd8c6a1j8, fk_gn7knglhp5coc24iqd4yeevb0, fk_d5bj6kukr793taljwratj3l05, primary]
+2018-02-12 19:14:22,420 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user
+2018-02-12 19:14:22,421 INFO  [TableMetadata] - HHH000037: Columns: [profile_url, created, latitude, verified, description, title, lastname, password_length, verification_key, location_name, password, deleted, system, user_type, avatar_url, organization, name, id, position, email, longitude]
+2018-02-12 19:14:22,421 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_a7krvkolmrchxwj22txuhlhj]
+2018-02-12 19:14:22,421 INFO  [TableMetadata] - HHH000126: Indexes: [fk_a7krvkolmrchxwj22txuhlhj, primary]
+2018-02-12 19:14:22,422 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_group
+2018-02-12 19:14:22,422 INFO  [TableMetadata] - HHH000037: Columns: [join_url_password, unit, deleted, join_url_active, created, name, description, id, title, default_group]
+2018-02-12 19:14:22,422 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ddfpocbhgcpv8uhvcuf52dx5a]
+2018-02-12 19:14:22,423 INFO  [TableMetadata] - HHH000126: Indexes: [primary, fk_ddfpocbhgcpv8uhvcuf52dx5a]
+2018-02-12 19:14:22,424 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_group_user
+2018-02-12 19:14:22,424 INFO  [TableMetadata] - HHH000037: Columns: [user_group, deleted, created, description, id, title, user]
+2018-02-12 19:14:22,424 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_iifontadv5293tvuvf7r9e9u8, fk_kqb30gm40pn64yo6sgh0jgpcf]
+2018-02-12 19:14:22,425 INFO  [TableMetadata] - HHH000126: Indexes: [fk_iifontadv5293tvuvf7r9e9u8, uk_c63cjs9t3jl6nrf3asi7iej52, primary]
+2018-02-12 19:14:22,426 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_notifications_settings
+2018-02-12 19:14:22,427 INFO  [TableMetadata] - HHH000037: Columns: [id, user]
+2018-02-12 19:14:22,427 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_1cit1fccf48ea5x3igm1lqx70]
+2018-02-12 19:14:22,427 INFO  [TableMetadata] - HHH000126: Indexes: [uk_1cit1fccf48ea5x3igm1lqx70, primary]
+2018-02-12 19:14:22,429 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_notifications_settings_notifications
+2018-02-12 19:14:22,429 INFO  [TableMetadata] - HHH000037: Columns: [user_notifications_settings, notifications]
+2018-02-12 19:14:22,429 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ksohjysau2bcia3ah2q36hee9, fk_50e581q4wur2axemd6v1pbrqh]
+2018-02-12 19:14:22,429 INFO  [TableMetadata] - HHH000126: Indexes: [fk_50e581q4wur2axemd6v1pbrqh, uk_ksohjysau2bcia3ah2q36hee9]
+2018-02-12 19:14:22,431 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_preference
+2018-02-12 19:14:22,431 INFO  [TableMetadata] - HHH000037: Columns: [deleted, personal_blog_source, created, update_period, dtype, description, id, title, user]
+2018-02-12 19:14:22,431 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_lubkkfg4oouxyab4bblgr0j2e, fk_oskk4hx06767511e5ar5wpdo1]
+2018-02-12 19:14:22,431 INFO  [TableMetadata] - HHH000126: Indexes: [fk_lubkkfg4oouxyab4bblgr0j2e, fk_oskk4hx06767511e5ar5wpdo1, primary]
+2018-02-12 19:14:22,433 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_preference_subscribed_rss_sources
+2018-02-12 19:14:22,434 INFO  [TableMetadata] - HHH000037: Columns: [subscribed_rss_sources, user_preference]
+2018-02-12 19:14:22,434 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_k1w7aarxe3y1g47f1k9qjh5qb, fk_k33l3f2g6mo8kpnc0laxm8dxf]
+2018-02-12 19:14:22,434 INFO  [TableMetadata] - HHH000126: Indexes: [uk_k33l3f2g6mo8kpnc0laxm8dxf, fk_k1w7aarxe3y1g47f1k9qjh5qb]
+2018-02-12 19:14:22,436 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_settings
+2018-02-12 19:14:22,437 INFO  [TableMetadata] - HHH000037: Columns: [id, locale_settings, terms_of_use, activity_wall_settings]
+2018-02-12 19:14:22,437 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_e0ji1xk8xkrg1ee92jyuhl5s4, fk_o3slgonymb8ch3md0m5anhlb8, fk_fdwr1xr3v58sye7ukapj4k3pa, fk_phjwu7o2219iuuh2v53ombw6w]
+2018-02-12 19:14:22,437 INFO  [TableMetadata] - HHH000126: Indexes: [fk_o3slgonymb8ch3md0m5anhlb8, fk_fdwr1xr3v58sye7ukapj4k3pa, fk_phjwu7o2219iuuh2v53ombw6w, primary]
+2018-02-12 19:14:22,439 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_settings_pages_tutorial_played
+2018-02-12 19:14:22,439 INFO  [TableMetadata] - HHH000037: Columns: [user_settings, pages_tutorial_played]
+2018-02-12 19:14:22,439 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_rdbdifanhafj621wt7cd8iurc]
+2018-02-12 19:14:22,439 INFO  [TableMetadata] - HHH000126: Indexes: [fk_rdbdifanhafj621wt7cd8iurc]
+2018-02-12 19:14:22,441 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_social_networks
+2018-02-12 19:14:22,441 INFO  [TableMetadata] - HHH000037: Columns: [id, user]
+2018-02-12 19:14:22,441 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_eriyguekd0ayq7n6njjy86qp]
+2018-02-12 19:14:22,441 INFO  [TableMetadata] - HHH000126: Indexes: [fk_eriyguekd0ayq7n6njjy86qp, primary]
+2018-02-12 19:14:22,443 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_social_networks_social_network_accounts
+2018-02-12 19:14:22,443 INFO  [TableMetadata] - HHH000037: Columns: [social_network_accounts, user_social_networks]
+2018-02-12 19:14:22,443 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_8qwchc8e5iamlaaysbpg3p7su, fk_cm6y96m10clu35b3ow94gi5ln]
+2018-02-12 19:14:22,443 INFO  [TableMetadata] - HHH000126: Indexes: [uk_cm6y96m10clu35b3ow94gi5ln, primary]
+2018-02-12 19:14:22,445 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_topic_preference_preferred_hashtags_tag
+2018-02-12 19:14:22,445 INFO  [TableMetadata] - HHH000037: Columns: [preferred_hashtags, user_preference]
+2018-02-12 19:14:22,445 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_ftoj3377h5tkd5url4ajuqdkt, fk_c2yhsp4xled49t7brdhsapk24]
+2018-02-12 19:14:22,445 INFO  [TableMetadata] - HHH000126: Indexes: [fk_c2yhsp4xled49t7brdhsapk24, primary]
+2018-02-12 19:14:22,447 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_topic_preference_preferred_keywords_tag
+2018-02-12 19:14:22,447 INFO  [TableMetadata] - HHH000037: Columns: [preferred_keywords, user_preference]
+2018-02-12 19:14:22,447 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_deretkpd06iv6p27971yv48vt, fk_486ac11t2tsvkm3cj1qjn61pu]
+2018-02-12 19:14:22,447 INFO  [TableMetadata] - HHH000126: Indexes: [fk_486ac11t2tsvkm3cj1qjn61pu, primary]
+2018-02-12 19:14:22,448 INFO  [TableMetadata] - HHH000261: Table found: prosolo.user_user_role
+2018-02-12 19:14:22,449 INFO  [TableMetadata] - HHH000037: Columns: [roles, user]
+2018-02-12 19:14:22,449 INFO  [TableMetadata] - HHH000108: Foreign keys: [fk_9uoa85no4a82ukddaycpt17f, fk_1e97vv9xu9fx2kaeivgbh1jdx]
+2018-02-12 19:14:22,449 INFO  [TableMetadata] - HHH000126: Indexes: [fk_9uoa85no4a82ukddaycpt17f, primary]
+2018-02-12 19:14:22,454 INFO  [TableMetadata] - HHH000261: Table found: prosolo.hibernate_sequences
+2018-02-12 19:14:22,454 INFO  [TableMetadata] - HHH000037: Columns: [sequence_next_hi_value, sequence_name]
+2018-02-12 19:14:22,454 INFO  [TableMetadata] - HHH000108: Foreign keys: []
+2018-02-12 19:14:22,454 INFO  [TableMetadata] - HHH000126: Indexes: []
+2018-02-12 19:14:22,555 ERROR [SchemaUpdate] - HHH000388: Unsuccessful: alter table competence_assessment add constraint FK_88cfbpk7badw914yf565iid8t foreign key (credential_assessment) references credential_assessment (id)
+2018-02-12 19:14:22,555 ERROR [SchemaUpdate] - Cannot add or update a child row: a foreign key constraint fails (`prosolo`.`#sql-4a6_c2`, CONSTRAINT `FK_88cfbpk7badw914yf565iid8t` FOREIGN KEY (`credential_assessment`) REFERENCES `credential_assessment` (`id`))
+2018-02-12 19:14:22,555 INFO  [SchemaUpdate] - HHH000232: Schema update complete
+2018-02-12 19:14:23,245 WARN  [NativeCodeLoader] - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2018-02-12 19:14:23,682 INFO  [log] - Logging initialized @5752ms
+2018-02-12 19:14:23,748 INFO  [Server] - jetty-9.2.z-SNAPSHOT
+2018-02-12 19:14:23,762 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@4813d0{/jobs,null,AVAILABLE}
+2018-02-12 19:14:23,762 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@702096ef{/jobs/json,null,AVAILABLE}
+2018-02-12 19:14:23,762 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@5f0d8937{/jobs/job,null,AVAILABLE}
+2018-02-12 19:14:23,762 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@105dc04d{/jobs/job/json,null,AVAILABLE}
+2018-02-12 19:14:23,763 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@504b8705{/stages,null,AVAILABLE}
+2018-02-12 19:14:23,763 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@24a8e40d{/stages/json,null,AVAILABLE}
+2018-02-12 19:14:23,763 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@175f859e{/stages/stage,null,AVAILABLE}
+2018-02-12 19:14:23,763 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@69fe7090{/stages/stage/json,null,AVAILABLE}
+2018-02-12 19:14:23,763 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@6501b105{/stages/pool,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@66ab924{/stages/pool/json,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@6df2af02{/storage,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@779228dc{/storage/json,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@1f7336b2{/storage/rdd,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@4c030fe1{/storage/rdd/json,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@347123dc{/environment,null,AVAILABLE}
+2018-02-12 19:14:23,764 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@52433946{/environment/json,null,AVAILABLE}
+2018-02-12 19:14:23,765 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@5403431a{/executors,null,AVAILABLE}
+2018-02-12 19:14:23,765 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@ab327c{/executors/json,null,AVAILABLE}
+2018-02-12 19:14:23,765 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3d798e76{/executors/threadDump,null,AVAILABLE}
+2018-02-12 19:14:23,765 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@763b0996{/executors/threadDump/json,null,AVAILABLE}
+2018-02-12 19:14:23,770 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@386e9fd8{/static,null,AVAILABLE}
+2018-02-12 19:14:23,771 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@618f627b{/,null,AVAILABLE}
+2018-02-12 19:14:23,772 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@10745a02{/api,null,AVAILABLE}
+2018-02-12 19:14:23,772 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@3e2d8623{/jobs/job/kill,null,AVAILABLE}
+2018-02-12 19:14:23,772 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@72715e61{/stages/stage/kill,null,AVAILABLE}
+2018-02-12 19:14:23,778 INFO  [ServerConnector] - Started ServerConnector@6e364f1f{HTTP/1.1}{0.0.0.0:4041}
+2018-02-12 19:14:23,778 INFO  [Server] - Started @5849ms
+2018-02-12 19:14:24,139 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@79c4f23b{/metrics/json,null,AVAILABLE}
+2018-02-12 19:14:24,194 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@713e7d9a{/SQL,null,AVAILABLE}
+2018-02-12 19:14:24,194 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@846b47{/SQL/json,null,AVAILABLE}
+2018-02-12 19:14:24,195 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@77eb607e{/SQL/execution,null,AVAILABLE}
+2018-02-12 19:14:24,195 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@10d4b573{/SQL/execution/json,null,AVAILABLE}
+2018-02-12 19:14:24,197 INFO  [ContextHandler] - Started o.s.j.s.ServletContextHandler@24b3f778{/static/sql,null,AVAILABLE}
