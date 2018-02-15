@@ -82,13 +82,13 @@
 
 									<p:remoteCommand name="execSearchUsers"
 										process="newAssessorName"
-										action="#{cc.attrs.bean.searchCredentialPeers()}"
+										action="#{cc.attrs.bean.searchPeers()}"
 										update="usersListPanel" />
 
 									<p:commandLink styleClass="btn btn-green-stroke btn-sm"
 										value="Choose random"
 										action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
-										update="selectAssessor randomUserErrorMessage" />
+										update="selectAssessor :#{cc.clientId}:askForAssessmentPanelContent" />
 
 									<h:panelGroup id="usersListPanel">
 										<h:panelGroup
@@ -100,7 +100,7 @@
 													<li><p:commandLink style="cursor: pointer;"
 															id="userlink-#{user.id}"
 															action="#{cc.attrs.bean.setAssessor(user)}"
-															update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:randomUserErrorMessage">
+															update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:askForAssessmentPanelContent">
 															<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 																fullName="#{user.fullName}" />
 															<h3>#{user.fullName}</h3>
@@ -114,57 +114,59 @@
 						</div>
 					</div>
 
-					<h:panelGroup id="randomUserErrorMessage">
-						<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
-							<div class="alert alert-warning" role="alert">There is no
-								peer available to ask for assessment.</div>
-						</ui:fragment>
+					<h:panelGroup id="askForAssessmentPanelContent">
+						<h:panelGroup id="randomUserErrorMessage">
+							<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
+								<div class="alert alert-warning" role="alert">There is no
+									peer available to ask for assessment.</div>
+							</ui:fragment>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and not (cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment)}" styleClass="modal-body alignLeft">
+							<h:inputTextarea id="messageContentTextarea"
+								placeholder="Write message..."
+								value="#{cc.attrs.bean.assessmentRequestData.messageText}" />
+
+							<ui:remove>
+								<div class="assessmentMassageContent"
+									placeholder="Write message..." strip-br="true"
+									contenteditable="true" onkeyup="displaySubmitButton(this);"></div>
+							</ui:remove>
+
+							<script>
+								$(
+										'#'
+												+ escapeColons('comment_#{comment.commentId}')
+												+ ' .replyComment .contentEditableComment')
+										.on(
+												'keyup',
+												function(e) {
+													$(this).prev('textarea').val(
+															$(this).html());
+												});
+							</script>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}" styleClass="modal-body alignLeft top30">
+							<p>Are you sure you want to notify your assessor to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?</p>
+						</h:panelGroup>
+
+						<div class="modal-footer alignLeft">
+							<p:commandLink
+								rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}"
+								process="messageContentTextarea"
+								update="#{cc.attrs.toUpdate}"
+								action="#{cc.attrs.bean.submitAssessment()}"
+								styleClass="btn btn-green"
+								oncomplete="hideAssesmentDialog('askAssessment')">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+								<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
+															Submit
+							</p:commandLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
 					</h:panelGroup>
-
-					<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}" styleClass="modal-body alignLeft">
-						<h:inputTextarea id="messageContentTextarea"
-							placeholder="Write message..."
-							value="#{cc.attrs.bean.assessmentRequestData.messageText}" />
-
-						<ui:remove>
-							<div class="assessmentMassageContent"
-								placeholder="Write message..." strip-br="true"
-								contenteditable="true" onkeyup="displaySubmitButton(this);"></div>
-						</ui:remove>
-
-						<script>
-							$(
-									'#'
-											+ escapeColons('comment_#{comment.commentId}')
-											+ ' .replyComment .contentEditableComment')
-									.on(
-											'keyup',
-											function(e) {
-												$(this).prev('textarea').val(
-														$(this).html());
-											});
-						</script>
-					</h:panelGroup>
-
-					<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}" styleClass="modal-body alignLeft top30">
-						<p>Are you sure you want to notify your assessor to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?</p>
-					</h:panelGroup>
-
-					<div class="modal-footer alignLeft">
-						<p:commandLink
-							rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet or cc.attrs.bean.assessmentRequestData.newAssessment}"
-							process="messageContentTextarea"
-							update="#{cc.attrs.toUpdate}"
-							action="#{cc.attrs.bean.submitAssessment()}"
-							styleClass="btn btn-green"
-							oncomplete="hideAssesmentDialog('askAssessment')">
-							<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-							<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
-							<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
-			                                    		Submit
-						</p:commandLink>
-						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-					</div>
 				</h:panelGroup>
 			</div>
 		</div>

@@ -80,7 +80,7 @@ public class AssessmentDataFull {
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceData1 compData : userComps) {
-			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId);
+			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, null);
 			//only for automatic grading max points is sum of competences max points
 			if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
 				maxPoints += cas.getGradeData().getMaxGrade();

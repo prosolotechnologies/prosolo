@@ -16,7 +16,8 @@ import java.util.Set;
 public class CompetenceAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = 4528017184503484059L;
-	
+
+	private String message;
 	private boolean approved;
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
@@ -37,6 +38,15 @@ public class CompetenceAssessment extends BaseEntity {
 		this.credentialAssessments = new HashSet<>();
 		this.participants = new HashSet<>();
 		this.messages = new HashSet<>();
+	}
+
+	@Column(length = 90000)
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

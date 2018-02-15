@@ -11,6 +11,7 @@ public class AssessmentRequestData implements Serializable {
 	private long assessorId;
 	private String assessorFullName;
 	private String assessorAvatarUrl;
+	private long resourceId;
 	private long targetResourceId;
 	private boolean assessorSet;
 	private boolean newAssessment;
@@ -82,5 +83,13 @@ public class AssessmentRequestData implements Serializable {
 
 	public boolean isNewAssessment() {
 		return newAssessment;
+	}
+
+	public void setResourceId(long resourceId) {
+		this.resourceId = resourceId;
+	}
+
+	public long getResourceId() {
+		return resourceId;
 	}
 }

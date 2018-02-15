@@ -6,12 +6,16 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionP
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.grading.GradeData;
+import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.AvatarUtils;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +40,13 @@ public class CompetenceAssessmentData {
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
 	private boolean assessorNotified;
+	private long studentId;
+	private String studentFullName;
+	private String studentAvatarUrl;
+	private long duration;
+	private String durationString;
+	private String message;
+	private String dateValue;
 
 //	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 //			long userId, DateFormat dateFormat) {
@@ -63,7 +74,7 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				UrlIdEncoder encoder, long userId) {
+				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		data.setTitle(cd.getTitle());
@@ -76,6 +87,8 @@ public class CompetenceAssessmentData {
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
 		data.setAssessorNotified(compAssessment.isAssessorNotified());
+		data.setDuration(cd.getDuration());
+		data.calculateDurationString();
 		if (!cd.isEnrolled()) {
 			data.setReadOnly(true);
 		}
@@ -120,8 +133,21 @@ public class CompetenceAssessmentData {
 			data.setAllRead(false);
 			data.setParticipantInDiscussion(false);
 		}
+		data.setStudentId(compAssessment.getStudent().getId());
+		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
+
+		data.setMessage(compAssessment.getMessage());
+
+		if (dateFormat != null) {
+			data.setDateValue(dateFormat.format(compAssessment.getDateCreated()));
+		}
 
 		return data;
+	}
+
+	public void calculateDurationString() {
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
 	public String getTitle() {
@@ -259,5 +285,57 @@ public class CompetenceAssessmentData {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(long studentId) {
+		this.studentId = studentId;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
+	public String getDurationString() {
+		return durationString;
+	}
+
+	public String getStudentFullName() {
+		return studentFullName;
+	}
+
+	public void setStudentFullName(String studentFullName) {
+		this.studentFullName = studentFullName;
+	}
+
+	public void setStudentAvatarUrl(String studentAvatarUrl) {
+		this.studentAvatarUrl = studentAvatarUrl;
+	}
+
+	public String getStudentAvatarUrl() {
+		return studentAvatarUrl;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getDateValue() {
+		return dateValue;
+	}
+
+	public void setDateValue(String dateValue) {
+		this.dateValue = dateValue;
 	}
 }

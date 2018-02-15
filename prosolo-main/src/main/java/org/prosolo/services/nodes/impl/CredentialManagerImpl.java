@@ -2154,6 +2154,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
+						"AND assessment.type = :aType " +
 						") " +
 				"ORDER BY RAND()";
 
@@ -2162,6 +2163,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.createQuery(query)
 					.setLong("credId", credId)
 					.setLong("userId", userId)
+					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
 					.setMaxResults(1)
 					.list();
 
@@ -2175,40 +2177,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving random peer");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<Long> getPeerAssessorIdsForUserAndCredential(long credentialId, long userId) {
-		try {
-			String query =
-					"SELECT assessment.assessor.id " +
-							"FROM CredentialAssessment assessment " +
-							"INNER JOIN assessment.targetCredential tCred " +
-							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
-							"AND cred.id = :credId " +
-							"AND assessment.type = :aType " +
-							"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
-
-			@SuppressWarnings("unchecked")
-			List<Long> res = (List<Long>) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("credId", credentialId)
-					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
-					.list();
-
-			if (res != null) {
-				return res;
-			}
-
-			return new ArrayList<Long>();
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
 

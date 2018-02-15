@@ -109,59 +109,6 @@
 									update=":#{cc.clientId}:formApproveCredential:panelCredentialResult"
 									oncomplete="$('#approveAssessment').modal('show')"
 								/>
-
-								<ui:remove>
-									<a href="#" class="btn btn-green btn-sm" data-toggle="modal"
-									   data-target="#approveAssessment">Approve</a>
-									<div class="modal fade" id="approveAssessment" tabindex="-1"
-										 role="dialog" aria-labelledby="apprAssessment">
-										<div class="modal-dialog" role="document">
-											<div class="modal-content">
-												<div class="modal-header alignLeft">
-													<button type="button" class="close" data-dismiss="modal"
-															aria-label="Close">
-														<span aria-hidden="true">&#215;</span>
-													</button>
-													<h2 class="modal-title" id="apprAssessment">Approve
-														Assessment</h2>
-												</div>
-
-												<div class="assessmentModalMeta">
-													<div class="assessmentModalMetaLine">
-														<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
-														<div class="assessmentModalMetaRight">
-															<h3>#{cc.attrs.bean.fullAssessmentData.title}</h3>
-														</div>
-													</div>
-
-													<div class="assessmentModalMetaLine">
-														<div class="assessmentModalMetaLeft">Student:</div>
-														<div class="assessmentModalMetaRight">
-															<utilcomp:userAvatar
-																	avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-																	fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
-															<h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
-														</div>
-													</div>
-												</div>
-
-												<div class="modal-body alignLeft">
-													<p:inputTextarea
-															placeholder="Type a review that will be shown on student's profile..."
-															value="#{cc.attrs.bean.reviewText}"
-															id="reviewContentTextarea" />
-												</div>
-
-												<div class="modal-footer alignLeft">
-													<p:commandLink update="@all"
-																   action="#{cc.attrs.bean.approveCredential()}"
-																   oncomplete="hideConfirmDialog('approveAssessment')"
-																   styleClass="btn btn-green">Submit</p:commandLink>
-												</div>
-											</div>
-										</div>
-									</div>
-								</ui:remove>
 							</ui:fragment>
 
 							<ui:remove>
@@ -251,22 +198,6 @@
 				<div class="col-md-9 mandatoryFlow">
 					<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
 
-					<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
-						<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.fullAssessmentData.assessorNotified}">
-							<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-								<p:commandButton id="btn"
-												 styleClass="close"
-												 pt:data-dismiss="alert"
-												 pt:aria-label="Close"
-												 value="&#215;"
-												 action="#{cc.attrs.bean.removeAssessorNotification()}"
-												 update="panelAssessorNotification :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
-								/>
-								Student asked for assessment on this #{msg['label.credential'].toLowerCase()}.
-							</div>
-						</h:panelGroup>
-					</h:panelGroup>
-
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">
 							<span class="fromLabel">From:</span>
@@ -308,10 +239,42 @@
 						</div>
 					</ui:fragment>
 
+					<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
+						<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.fullAssessmentData.assessorNotified}">
+							<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
+								<p:commandButton id="btn"
+												 styleClass="close"
+												 pt:data-dismiss="alert"
+												 pt:aria-label="Close"
+												 value="&#215;"
+												 action="#{cc.attrs.bean.removeAssessorNotification()}"
+												 update="panelAssessorNotification :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
+								/>
+								Student asked for assessment on this #{msg['label.credential'].toLowerCase()}.
+							</div>
+						</h:panelGroup>
+					</h:panelGroup>
+					<br/>
+
 					<h:panelGroup id = "competenceAssessmentPanel">
 						<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 							<ui:fragment rendered="#{not competenceAssessment.readOnly}">
 								<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+									<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
+										<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and competenceAssessment.assessorNotified}">
+											<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
+												<p:commandButton id="btn"
+																 styleClass="close"
+																 pt:data-dismiss="alert"
+																 pt:aria-label="Close"
+																 value="&#215;"
+																 action="#{cc.attrs.bean.removeAssessorNotification(competenceAssessment)}"
+																 update="panelAssessorNotificationComp :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
+												/>
+												Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
+											</div>
+										</h:panelGroup>
+									</h:panelGroup>
 									<div class="summaryAssessmentsHead #{(!competenceAssessment.participantInDiscussion or competenceAssessment.allRead or competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 										<h2>
 											<h:link outcome="competence">
@@ -331,7 +294,7 @@
 											<p:commandLink styleClass="linkApprove"
 														   process="@this"
 														   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentId)}"
-														   update="panelCompAssessmentOptions :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl "
+														   update="panelCompAssessmentOptions :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl @(.panelAssessorNotificationSelector)"
 														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 												Approve<span></span>
 											</p:commandLink>
@@ -554,28 +517,7 @@
 		/>
 
 		<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
-			<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right rubricsSidebar" id="cbp-spmenu-s2">
-				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
-				<h2>Grade</h2>
-				<h:panelGroup id="panelRubricAssessment">
-					<ui:fragment rendered="#{activityAssessmentBean.activityAssessmentData.grade.gradingMode eq 'MANUAL_RUBRIC'}">
-						<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
-							<h3>#{c.name}</h3>
-							<ul class="levelsList">
-								<ui:repeat value="#{c.levels}" var="l">
-									<li class="#{c.levelId eq l.id ? 'checked' : ''}">
-										#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
-									</li>
-								</ui:repeat>
-							</ul>
-							<p><strong>Comments:</strong> #{c.comment}</p>
-						</ui:repeat>
-						<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.pointBasedGrading == true}">
-							<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.currentGrade != null and activityAssessmentBean.activityAssessmentData.grade.isAssessed() ? activityAssessmentBean.activityAssessmentData.grade.currentGrade : '-'}</strong></p>
-						</c:if>
-					</ui:fragment>
-				</h:panelGroup>
-			</div>
+			<assessment:rubricAssessmentPreview />
 		</c:if>
 
 		<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent)}">

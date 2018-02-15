@@ -20,6 +20,7 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -417,4 +418,22 @@ public interface Competence1Manager {
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 
 	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
+
+	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Returns full target competence data when id of a target competence is not
+	 * known.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param loadLearningPathContent
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	 CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
+												   boolean loadAssessmentConfig, boolean loadLearningPathContent)
+			 throws DbConnectionException;
+
 }

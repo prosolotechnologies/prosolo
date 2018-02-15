@@ -11,6 +11,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -1126,9 +1127,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
 			boolean loadAssessmentConfig, boolean loadLearningPathContent) throws DbConnectionException {
-		CompetenceData1 compData = null;
+		CompetenceData1 compData;
 		try {
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT targetComp " +
@@ -2671,6 +2674,42 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading competence learning path type");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT user " +
+					"FROM TargetCompetence1 tComp " +
+					"INNER JOIN tComp.user user " +
+					"WHERE tComp.competence.id = :compId " +
+					"AND user.id != :userId " +
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CompetenceAssessment assessment " +
+						"WHERE assessment.student.id = :userId " +
+						"AND assessment.competence.id = :compId " +
+						"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
+						"AND assessment.type = :aType " +
+					") " +
+					"ORDER BY RAND()";
+
+			@SuppressWarnings("unchecked")
+			User res = (User) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setLong("userId", userId)
+					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
+					.setMaxResults(1)
+					.uniqueResult();
+
+			return res != null ? new UserData(res) : null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving random peer");
 		}
 	}
 

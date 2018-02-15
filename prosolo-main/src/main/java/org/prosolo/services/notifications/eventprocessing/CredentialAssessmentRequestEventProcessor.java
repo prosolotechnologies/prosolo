@@ -11,21 +11,20 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-public class AssessmentRequestEventProcessor extends NotificationEventProcessor {
+public class CredentialAssessmentRequestEventProcessor extends NotificationEventProcessor {
 	
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(AssessmentRequestEventProcessor.class);
+	private static Logger logger = Logger.getLogger(CredentialAssessmentRequestEventProcessor.class);
 
 	private CredentialAssessment assessment;
 	
-	public AssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
-										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+	public CredentialAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
+													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 	}

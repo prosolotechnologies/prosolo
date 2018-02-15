@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -425,7 +426,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessmentManager.approveCompetence(competenceAssessmentId);
 			markCompetenceApproved(competenceAssessmentId);
 
-			PageUtil.fireSuccessfulInfoMessage("assessCredentialFormGrowl",
+			PageUtil.fireSuccessfulInfoMessage(
 					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
@@ -437,6 +438,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
 				competenceAssessment.setApproved(true);
+				competenceAssessment.setAssessorNotified(false);
 			}
 		}
 	}
@@ -542,6 +544,16 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		try {
 			assessmentManager.removeAssessorNotificationFromCredentialAssessment(fullAssessmentData.getCredAssessmentId());
 			fullAssessmentData.setAssessorNotified(false);
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error removing the notification");
+		}
+	}
+
+	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
+		try {
+			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
+			compAssessment.setAssessorNotified(false);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing the notification");

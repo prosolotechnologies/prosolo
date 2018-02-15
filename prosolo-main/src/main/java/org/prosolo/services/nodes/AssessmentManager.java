@@ -27,8 +27,8 @@ import java.util.Optional;
 
 public interface AssessmentManager {
 
-	long requestAssessment(AssessmentRequestData assessmentRequestData,
-						   UserContextData context) throws DbConnectionException, IllegalDataStateException;
+	long requestCredentialAssessment(AssessmentRequestData assessmentRequestData,
+                                     UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
                                     UserContextData context) throws DbConnectionException, IllegalDataStateException;
@@ -202,6 +202,11 @@ public interface AssessmentManager {
 
 	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
 
+	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
+
+	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, String message, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
 	/**
 	 * Returns existing competence assessment from given assessor if it exists and if assessment type is not instructor
 	 * assessment, otherwise it creates new competence assessment and returns it.
@@ -210,13 +215,14 @@ public interface AssessmentManager {
 	 * @param studentId
 	 * @param assessorId
 	 * @param type
+	 * @param isExplicitRequest specifies if assessment for competence is requested explicitly or as a part of credential assessment request
 	 * @param context
 	 * @return
 	 * @throws IllegalDataStateException
 	 * @throws DbConnectionException
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-																					long assessorId, AssessmentType type, UserContextData context)
+																					long assessorId, String message, AssessmentType type, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
 	GradeData updateGradeForCompetenceAssessment(
@@ -253,5 +259,22 @@ public interface AssessmentManager {
 	void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException;
 
 	void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException;
+
+	Optional<UserData> getInstructorCompetenceAssessmentAssessor(long credId, long compId, long userId)
+			throws DbConnectionException;
+
+	/**
+	 * Returns list of ids of all assessors that this particular user has asked
+	 * for assessment for the credential with the given id
+	 *
+	 * @param credentialId credential id
+	 * @param userId user id
+	 * @return list of ids
+	 */
+	List<Long> getPeerAssessorIdsForUserAndCredential(long credentialId, long userId);
+
+	List<Long> getPeerAssessorIdsForUserAndCompetence(long compId, long userId) throws DbConnectionException;
+
+	long getCredentialAssessmentIdForCompetenceAssessment(long credId, long compAssessmentId, Session session) throws DbConnectionException;
 
 }

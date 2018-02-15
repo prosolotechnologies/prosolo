@@ -306,17 +306,6 @@ public interface CredentialManager extends AbstractManager {
 
 	UserData chooseRandomPeer(long credId, long userId);
 	
-	
-	/**
-	 * Returns list of ids of all assessors that this particular user has asked
-	 * for assessment for the credential with the given id
-	 * 
-	 * @param credentialId credential id
-	 * @param userId user id
-	 * @return list of ids
-	 */
-	List<Long> getPeerAssessorIdsForUserAndCredential(long credentialId, long userId);
-	
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 

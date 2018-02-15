@@ -57,7 +57,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                 for (CompetenceData1 cd : comps) {
                     if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
                         Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getAssessedStudent().getId(), assessorId, ca.getType(), UserContextData.empty());
+                                cd, ca.getAssessedStudent().getId(), assessorId, null, ca.getType(), false, UserContextData.empty());
                         CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
                         cca.setCredentialAssessment(ca);
                         cca.setCompetenceAssessment(res.getResult());

@@ -5,6 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.services.interaction.data.CommentsData;
@@ -18,6 +19,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.AskForCompetenceAssessmentBean;
 import org.prosolo.web.learningevidence.SubmitEvidenceBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -52,6 +54,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
 	@Inject private SubmitEvidenceBean submitEvidenceBean;
+	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
 
 	private String credId;
 	private long decodedCredId;
@@ -125,6 +128,10 @@ public class CompetenceViewBeanUser implements Serializable {
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType);
 	}
 	
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {

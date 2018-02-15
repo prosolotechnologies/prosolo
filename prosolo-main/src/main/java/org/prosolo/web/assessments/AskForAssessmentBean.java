@@ -51,7 +51,7 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     protected abstract void initInstructorAssessmentAssessor();
     public abstract void searchPeers();
-    public abstract void chooseRandomPeerForAssessor();
+    public abstract UserData getRandomPeerForAssessor();
     protected abstract LearningResourceType getResourceType();
     protected abstract void submitAssessmentRequest() throws IllegalDataStateException;
     protected abstract void notifyAssessorToAssessResource();
@@ -91,6 +91,21 @@ public abstract class AskForAssessmentBean implements Serializable {
         noRandomAssessor = false;
     }
 
+    public void chooseRandomPeerForAssessor() {
+        resetAskForAssessmentModal();
+
+        UserData randomPeer = getRandomPeerForAssessor();
+
+        if (randomPeer != null) {
+            assessmentRequestData.setAssessorId(randomPeer.getId());
+            assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
+            assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
+            noRandomAssessor = false;
+        } else {
+            noRandomAssessor = true;
+        }
+    }
+
     public void submitAssessment() {
         try {
             if (this.assessmentRequestData.isAssessorSet()) {
@@ -122,6 +137,7 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     private void populateAssessmentRequestFields(long targetResourceId) {
         this.assessmentRequestData.setStudentId(loggedUser.getUserId());
+        this.assessmentRequestData.setResourceId(resourceId);
         this.assessmentRequestData.setTargetResourceId(targetResourceId);
     }
 
