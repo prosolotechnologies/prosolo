@@ -238,25 +238,18 @@
                                                         <br />
                                                         {{#hasFollowers}}
                                                         <br />
-                                                        You have <strong>5 new followers</strong>:
+                                                        You have <strong>{{followersCount}} new followers</strong>:
                                                         <br />
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#followers}}
                                                             <tr>
                                                                 <td valign="top">
-                                                                    <a href="#">Jesse Pinkman</a>
+                                                                    <a href="#">{{actorFullName}}</a>
                                                                 </td>
                                                             </tr>
-                                                            <tr>
-                                                                <td valign="top">
-                                                                    <a href="#">Gustavo Fring</a>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td valign="top" style="padding-top:10px;">
-                                                                    <a href="#">View all</a>
-                                                                </td>
-                                                            </tr>
+                                                            {{/followers}}
+
                                                         </table>
                                                         <br />
                                                         {{/hasFollowers}}

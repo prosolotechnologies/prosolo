@@ -1,20 +1,23 @@
 package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.email.EmailSender
-import org.prosolo.bigdata.scala.spark.emails.{NotificationsSummary}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary}
 import org.prosolo.common.email.generators.EmailContentGenerator
 
 import collection.JavaConverters._
-class NotificationsEmailServiceImpl extends EmailService[NotificationsSummary] {
-  override def sendEmail(emailSummary:NotificationsSummary): Unit = ???
+class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSummary] {
+  override def sendEmail(emailSummary:NotificationReceiverSummary): Unit = ???
 
-  def createEmailGenerator(notificationSummary:NotificationsSummary):EmailContentGenerator={
-    val notificationEmailGenerator=new NotificationsDigestEmailGenerator("Zoran",notificationSummary.total,notificationSummary.notificationTypesCounts)
+  def createEmailGenerator(notificationReceiverSummary:NotificationReceiverSummary):EmailContentGenerator={
+    val nSummary=notificationReceiverSummary.summary
+    val nReceiver=notificationReceiverSummary.receiver
+    val notificationEmailGenerator=
+      new NotificationsDigestEmailGenerator(nReceiver.fullname,nSummary.total,nSummary.notificationTypesCounts,nSummary.notificationsByType)
 
     notificationEmailGenerator
   }
 
-  override def sendEmailBatches(batchEmails:Array[NotificationsSummary]): Unit = {
+  override def sendEmailBatches(batchEmails:Array[NotificationReceiverSummary]): Unit = {
    val emailsToSend:Map[EmailContentGenerator,String]= batchEmails.toStream.map{
       emailSummary=>{
         println("BATCH:"+emailSummary)

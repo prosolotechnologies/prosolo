@@ -1,35 +1,25 @@
 package org.prosolo.bigdata.scala.spark.emails
 
 import java.text.SimpleDateFormat
-import java.util
 import java.util.{Calendar, Date}
-
 import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.dal.mysql.impl.{MySQLDBManager, MySQLTablesNames}
-import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkJob}
-import org.apache.spark.SparkContext._
+import org.prosolo.bigdata.scala.spark.{ SparkJob}
 import org.apache.spark.sql._
-import org.apache.spark.rdd._
-import org.apache.spark.sql._
-import com.datastax.spark.connector._
-import com.datastax.spark.connector.cql.CassandraConnector
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
-
-import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 
 //case class Notification(id:Long, receiver:Long, actor:Long, actType:String)
-case class Notification(date:Long,notificationType:String, id:Long, actorId:Long, email:String, link:String, objectTitle:String,
-                        objectType:String, receiverFullName:String, receiverId:Long)
-case class NotificationsSummary(receiver:Long, total:Int, notificationTypesCounts:HashMap[String,Int], notificationsByType:HashMap[String,Array[Notification]]) extends EmailSummary
-case class Receiver(receiver:Long, fullname:String, email:String)
+
+object UserNotificationEmailsSparkJob{
+  val BATCH_SIZE=50
+  val NOTIFICATION_TYPE_SIZE=3
+}
 class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializable{
   override def keyspaceName: String = kName;
    import sparkSession.sqlContext.implicits._
-  val BATCH_SIZE=50
-  val NOTIFICATION_TYPE_SIZE=3
 
-  def runSparkJob(date:Long):Array[Array[NotificationsSummary]]={
+
+  def runSparkJob(date:Long):Array[Array[NotificationReceiverSummary]]={
     import sparkSession.implicits._
    //val connector=CassandraConnector.apply(sparkSession.sparkContext.getConf)
 
@@ -49,7 +39,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     val receiversDF=dayNotificationsDF.map{
       case Row(date:Long,notificationType:String, id:Long, actorfullname:String, actorId:Long, email:String, link:String, objectTitle:String,
       objectType:String, receiverFullName:String, receiverId:Long)=>{
-        (receiverId,Notification(date,notificationType, id, actorId, email, link, objectTitle,
+        (receiverId,Notification(date,notificationType, id,actorfullname, actorId, email, link, objectTitle,
           objectType, receiverFullName, receiverId))
       }
     }.rdd.groupByKey
@@ -65,26 +55,46 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
         val total=notifications.size
         var notCounter=new  HashMap[String,Int]()
         var notificationsByType=new HashMap[String,Array[Notification]]
-        notifications.foreach(n=>{
+       val notificationsIt=notifications.iterator
+        while(notificationsIt.hasNext){
+          val n=notificationsIt.next()
           val tempNot= notCounter.getOrElse(n.notificationType,0)
           notCounter+=(n.notificationType->(tempNot+1))
           //we are retrieving only 3 notifications to be displayed in email
-          var notificationByType=notificationsByType.getOrElse(n.notificationType,new Array[Notification](NOTIFICATION_TYPE_SIZE))
-          if(notificationByType.length<NOTIFICATION_TYPE_SIZE){
+         // val x= (Array(Notification(1,"",12,21,"a","","","","",21)))
+           //var newArray=new Array[String](NOTIFICATION_TYPE_SIZE);
+           val notificationByType=notificationsByType.getOrElse(n.notificationType, Array())
+            notificationsByType-=n.notificationType
+             if(notificationByType.length<UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE){
+              val modifiedNotificationByType=notificationByType++Array(n)
+                 notificationsByType+=(n.notificationType->(modifiedNotificationByType))
+
+             }
+
+         /*var notificationByType=notificationsByType.getOrElse(n.notificationType,new Array[Notification](UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE))
+          if(notificationByType.length<UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE){
             notificationByType:+=n
-          }
-          notificationsByType+=(n.notificationType->(notificationByType))
-        })
-        (receiver,total,notCounter)
-        (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))
+          }*/
+          //notificationsByType+=(n.notificationType->(notificationByType))
+
+
+
+        }
+
+
+          (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))
       }}
     println("RESULTS:"+res.count)
 
     res.collect().foreach(n=>println(n))
     //joining NotificationSummary with Receiver
     val notificationsReceivers=res.join(receiversNames.rdd)
-    println("NOTIFICATIONS RECEIVERS:")
+    println("NOTIFICATIONS RECEIVERS:"+notificationsReceivers.count())
     notificationsReceivers.collect().foreach(n=>println(n))
+    val notificationsReceiversSummary=notificationsReceivers.map{
+      case (receiverid:Long, (notificationSummary:NotificationsSummary, receiver:Receiver))=>
+        NotificationReceiverSummary(receiver,notificationSummary)
+    }
 
 
 
@@ -116,7 +126,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     res.collect().foreach(n=>println(n))
     */
    // res.collect().foreach(n=>println(n))
-    val emailBatches:Array[Array[NotificationsSummary]]=null//res.collect().grouped(BATCH_SIZE).toArray
+    val emailBatches:Array[Array[NotificationReceiverSummary]]=notificationsReceiversSummary.collect().grouped(UserNotificationEmailsSparkJob.BATCH_SIZE).toArray
 
     //notificationsDF.groupBy("receiver").agg()
     println("FINISHED RUN SPARK JOB")
