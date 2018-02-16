@@ -31,7 +31,23 @@
 					#{cc.attrs.gradeData.maxGrade}
 				</ui:fragment>
 			</p:commandLink>
-			<ui:fragment rendered="#{not (cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.userAllowedToSeeRubric)}">
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and not cc.attrs.userAllowedToSeeRubric}">
+				<a href="javascript:void(0);" class="grade"
+				   data-toggle="tooltip"
+				   title="You are currently not allowed to see rubric">
+					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
+						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
+						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+				</a>
+			</ui:fragment>
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED'}">
+				<a href="javascript:void(0);" class="grade"
+				   data-toggle="tooltip"
+				   title="Nongraded resource">
+				</a>
+			</ui:fragment>
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC'}">
 				<span class="grade">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /

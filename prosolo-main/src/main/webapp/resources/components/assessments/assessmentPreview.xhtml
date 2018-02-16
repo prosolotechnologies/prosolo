@@ -182,7 +182,7 @@
 									currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
 									currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 									gradeData="#{cc.attrs.bean.fullAssessmentData.gradeData}"
-									userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData)}"
+									userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData, 'CREDENTIAL')}"
 									gradeLinkSelectorId="credential"
 									toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
 									gradePanelSidebarId="gradeSidebar"
@@ -332,7 +332,7 @@
 													currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
 													currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 													gradeData="#{competenceAssessment.gradeData}"
-													userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(competenceAssessment.gradeData)}"
+													userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(competenceAssessment.gradeData, 'COMPETENCE')}"
 													gradeLinkSelectorId="competence_#{competenceAssessment.competenceId}"
 													toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
 													gradePanelSidebarId="gradeSidebar"
@@ -393,7 +393,7 @@
 																currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
 																currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 																gradeData="#{activityAssessment.grade}"
-																userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade)}"
+																userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade, 'ACTIVITY')}"
 																gradeLinkSelectorId="activity_#{activityAssessment.activityId}"
 																toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
 																gradePanelSidebarId="gradeSidebar"
@@ -526,7 +526,7 @@
 
 		<assessment:assessmentCommentModal
 				id="commentModal"
-			    toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+			    toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
 				messages="#{cc.attrs.bean.currentAssessmentMessages}"
 				bean="#{cc.attrs.bean.currentAssessmentBean}"
 				learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
@@ -540,22 +540,24 @@
 		<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
 			<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right rubricsSidebar" id="cbp-spmenu-s2">
 				<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
-				<h2>Grade</h2>
 				<h:panelGroup id="panelRubricAssessment">
-					<ui:fragment rendered="#{activityAssessmentBean.activityAssessmentData.grade.gradingMode eq 'MANUAL_RUBRIC'}">
-						<ui:repeat value="#{activityAssessmentBean.activityAssessmentData.grade.rubricCriteria.criteria}" var="c">
+					<h2>#{cc.attrs.bean.currentResType eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.bean.currentResType.name().toLowerCase())]} Grade</h2>
+					<h3 class="bottom30">#{cc.attrs.bean.currentResTitle}</h3>
+
+					<ui:fragment rendered="#{cc.attrs.bean.currentGradeData.gradingMode eq 'MANUAL_RUBRIC'}">
+						<ui:repeat value="#{cc.attrs.bean.currentGradeData.rubricCriteria.criteria}" var="c">
 							<h3>#{c.name}</h3>
 							<ul class="levelsList rubricColors has#{c.levels.size()}Colors">
 								<ui:repeat value="#{c.levels}" var="l" varStatus="status">
 									<li class="#{c.levelId eq l.id ? 'checked' : ''} rubricItem0#{status.index+1}">
-										<span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{activityAssessmentBean.activityAssessmentData.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+										<span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.bean.currentGradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
 									</li>
 								</ui:repeat>
 							</ul>
 							<p><strong>Comments:</strong> #{c.comment}</p>
 						</ui:repeat>
-						<c:if test="#{activityAssessmentBean.activityAssessmentData.grade.pointBasedGrading == true}">
-							<p class="totalPoints"><strong>Total Points: #{activityAssessmentBean.activityAssessmentData.grade.currentGrade != null and activityAssessmentBean.activityAssessmentData.grade.isAssessed() ? activityAssessmentBean.activityAssessmentData.grade.currentGrade : '-'}</strong></p>
+						<c:if test="#{cc.attrs.bean.currentGradeData.pointBasedGrading == true}">
+							<p class="totalPoints"><strong>Total Points: #{cc.attrs.bean.currentGradeData.currentGrade != null and cc.attrs.bean.currentGradeData.isAssessed() ? cc.attrs.bean.currentGradeData.currentGrade : '-'}</strong></p>
 						</c:if>
 					</ui:fragment>
 				</h:panelGroup>
@@ -572,7 +574,7 @@
 					gradeData="#{cc.attrs.bean.currentGradeData}"
 					resource="#{cc.attrs.bean.currentResType}"
 					resourceTitle="#{cc.attrs.bean.currentResTitle}"
-					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityAssessmentBean.activityAssessmentData.compAssessment.competenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
 					learningContext="#{cc.attrs.learningContext}"
 					gradePanelSidebarId="gradeSidebar"
 			/>
