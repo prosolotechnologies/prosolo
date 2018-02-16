@@ -53,11 +53,11 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             for (CredentialAssessment ca : credentialAssessments) {
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getAssessedStudent().getId(), false, false, true);
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), false, false, true);
                 for (CompetenceData1 cd : comps) {
                     if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
                         Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getAssessedStudent().getId(), assessorId, ca.getType(), UserContextData.empty());
+                                cd, ca.getStudent().getId(), assessorId, ca.getType(), UserContextData.empty());
                         CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
                         cca.setCredentialAssessment(ca);
                         cca.setCompetenceAssessment(res.getResult());
@@ -126,7 +126,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             List<CredentialAssessment> assessments = getAllCredentialAssessments();
             for (CredentialAssessment ca : assessments) {
                 List<Long> participantIds = new ArrayList<>();
-                participantIds.add(ca.getAssessedStudent().getId());
+                participantIds.add(ca.getStudent().getId());
                 if (ca.getAssessor() != null) {
                     participantIds.add(ca.getAssessor().getId());
                 }

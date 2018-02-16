@@ -76,7 +76,7 @@ public interface AssessmentManager {
 
 	void approveCompetence(long decodedCompetenceAssessmentId);
 
-	void markActivityAssessmentDiscussionAsSeen(long userId, long discussionId);
+	void markActivityAssessmentDiscussionAsSeen(long userId, long activityAssessmentId);
 
 	void markCompetenceAssessmentDiscussionAsSeen(long userId, long assessmentId);
 
@@ -90,8 +90,8 @@ public interface AssessmentManager {
 
 	int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved, long credId);
 
-	List<AssessmentDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
-                                                                        long assessorId) throws DbConnectionException;
+	List<AssessmentDiscussionMessageData> getActivityAssessmentDiscussionMessages(long activityDiscussionId,
+																				  long assessorId) throws DbConnectionException;
 
 	List<AssessmentDiscussionMessageData> getCompetenceAssessmentDiscussionMessages(
 			long assessmentId) throws DbConnectionException;
@@ -112,9 +112,9 @@ public interface AssessmentManager {
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	int recalculateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException;
+	int updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException;
 
-	int recalculateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
+	int updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
 	Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
                                                                           Session session, UserContextData context)

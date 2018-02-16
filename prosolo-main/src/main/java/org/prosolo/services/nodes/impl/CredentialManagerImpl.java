@@ -2152,7 +2152,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						"FROM CredentialAssessment assessment " +
 						"INNER JOIN assessment.targetCredential tCred " +
 						"INNER JOIN tCred.credential cred " +
-						"WHERE assessment.assessedStudent.id = :userId " +
+						"WHERE assessment.student.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
 						") " +
@@ -2188,7 +2188,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							"FROM CredentialAssessment assessment " +
 							"INNER JOIN assessment.targetCredential tCred " +
 							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
+							"WHERE assessment.student.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
 
