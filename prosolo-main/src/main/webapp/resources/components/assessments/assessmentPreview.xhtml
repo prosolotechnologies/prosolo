@@ -614,21 +614,24 @@
 									placeholder="Type a review that will be shown on student's profile..."
 									value="#{cc.attrs.bean.fullAssessmentData.review}"
 								/>
-								<h:panelGroup layout="block" id="panelCredentialResult" styleClass="resultLine">
-									Result:
-									<strong>
-										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'NONGRADED'}">
-											-
-										</ui:fragment>
-										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading}">
-											#{cc.attrs.bean.fullAssessmentData.gradeData.isAssessed() ? cc.attrs.bean.fullAssessmentData.gradeData.currentGrade : '-'}
-										</ui:fragment>
-										<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode ne 'NONGRADED' and not cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading and cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.fullAssessmentData.gradeData.rubricType eq 'DESCRIPTIVE'}">
-											<ui:repeat value="#{cc.attrs.bean.fullAssessmentData.gradeData.rubricCriteria.criteria}" var="crit">
-												<br/> #{crit.name}: #{crit.selectedLevel.name}
-											</ui:repeat>
-										</ui:fragment>
-									</strong>
+								<h:panelGroup id="panelCredentialResult">
+									<h:panelGroup layout="block" styleClass="resultLine" rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'NONGRADED' or cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading}">
+										Result:
+										<strong>
+											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'NONGRADED'}">
+												-
+											</ui:fragment>
+											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading}">
+												#{cc.attrs.bean.fullAssessmentData.gradeData.isAssessed() ? cc.attrs.bean.fullAssessmentData.gradeData.currentGrade : '-'}  / #{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}
+											</ui:fragment>
+										</strong>
+									</h:panelGroup>
+									<h:panelGroup layout="block" styleClass="resultLine" rendered="#{not cc.attrs.bean.fullAssessmentData.gradeData.pointBasedGrading and cc.attrs.bean.fullAssessmentData.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.bean.fullAssessmentData.gradeData.rubricType eq 'DESCRIPTIVE'}">
+										Result:
+										<ui:repeat value="#{cc.attrs.bean.fullAssessmentData.gradeData.rubricCriteria.criteria}" var="crit">
+											<br/>- #{crit.name}: <strong>#{crit.selectedLevel.name}</strong>
+										</ui:repeat>
+									</h:panelGroup>
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
