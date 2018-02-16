@@ -40,7 +40,7 @@
 						<p>Student automatically gets points from the external activity</p>
 					</ui:fragment>
 					<ui:fragment rendered="#{cc.attrs.resource ne 'ACTIVITY' and cc.attrs.completed and cc.attrs.gradeData.gradingMode eq 'AUTOMATIC'}">
-						<p>#{msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]} points is a sum of #{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.competence'].toLowerCase() : 'activity'} points</p>
+						<p>#{msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]} points are a sum of #{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.competence'].toLowerCase() : 'activity'} points</p>
 					</ui:fragment>
 					<ui:fragment rendered="#{cc.attrs.completed and (cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE' or cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC')}">
 						<h:form id="formGradeModal">
