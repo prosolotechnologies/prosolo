@@ -66,7 +66,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
 					assessment.populateDiscussionMessages(assessmentManager
-							.getActivityDiscussionMessages(
+							.getActivityAssessmentDiscussionMessages(
 									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
 									assessment.getAssessorId()));
 				}

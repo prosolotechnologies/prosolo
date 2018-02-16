@@ -6,11 +6,11 @@ import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.springframework.stereotype.Service;
@@ -53,11 +53,11 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             for (CredentialAssessment ca : credentialAssessments) {
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getAssessedStudent().getId(), false, false, true);
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), false, false, true);
                 for (CompetenceData1 cd : comps) {
                     if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
                         Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getAssessedStudent().getId(), assessorId, null, ca.getType(), false, UserContextData.empty());
+                                cd, ca.getStudent().getId(), assessorId, null, ca.getType(), false, UserContextData.empty());
                         CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
                         cca.setCredentialAssessment(ca);
                         cca.setCompetenceAssessment(res.getResult());
@@ -126,7 +126,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             List<CredentialAssessment> assessments = getAllCredentialAssessments();
             for (CredentialAssessment ca : assessments) {
                 List<Long> participantIds = new ArrayList<>();
-                participantIds.add(ca.getAssessedStudent().getId());
+                participantIds.add(ca.getStudent().getId());
                 if (ca.getAssessor() != null) {
                     participantIds.add(ca.getAssessor().getId());
                 }

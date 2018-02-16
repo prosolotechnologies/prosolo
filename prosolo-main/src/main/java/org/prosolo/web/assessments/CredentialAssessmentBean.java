@@ -82,7 +82,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 
 		if (decodedId > 0 && decodedAssessmentId > 0) {
-			if (isInManageSection()) {
+			if (PageUtil.isInManageSection()) {
 				// for managers, load all other assessments
 
 				ResourceAccessData access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
@@ -147,6 +147,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.COMPETENCE;
 	}
 
+	// GRADING SIDEBAR
+
 	public long getCurrentAssessmentId() {
 		if (currentResType == null) {
 			return 0;
@@ -194,18 +196,24 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return false;
 	}
 
-	public long getCurrentAssessmentCompetenceId() {
+	public String getCurrentResTitle() {
 		if (currentResType == null) {
-			return 0;
+			return null;
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
+				return activityAssessmentBean.getActivityAssessmentData().getTitle();
 			case COMPETENCE:
-				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
+				return compAssessmentBean.getCompetenceAssessmentData().getTitle();
+			case CREDENTIAL:
+				return credentialTitle;
 		}
-		return 0;
+		return null;
 	}
+
+	// GRADING SIDEBAR END
+
+	// ASSESSMENT COMMENTS MODAL
 
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {
@@ -237,20 +245,21 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return null;
 	}
 
-	public String getCurrentResTitle() {
+	// ASSESSMENT COMMENTS MODAL END
+
+	public long getCurrentAssessmentCompetenceId() {
 		if (currentResType == null) {
-			return null;
+			return 0;
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return activityAssessmentBean.getActivityAssessmentData().getTitle();
+				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
 			case COMPETENCE:
-				return compAssessmentBean.getCompetenceAssessmentData().getTitle();
-			case CREDENTIAL:
-				return credentialTitle;
+				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
 		}
-		return null;
+		return 0;
 	}
+
 
 	public void prepareCredentialForApprove() {
 		initializeGradeData();
@@ -371,7 +380,12 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	//LearningResourceAssessmentBean impl end
 
-	public boolean isUserAllowedToSeeRubric(GradeData gradeData) {
+	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
+		//temporary solution for credential and competency before we introduce visibility options for these resources
+		//for now students are allowed to see rubric when they are assessed
+		if (resourceType == LearningResourceType.CREDENTIAL || resourceType == LearningResourceType.COMPETENCE) {
+			return gradeData.isAssessed();
+		}
 		if (gradeData instanceof RubricGradeData) {
 			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
 			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
@@ -565,11 +579,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			return false;
 		} else
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
-	}
-
-	private boolean isInManageSection() {
-		String currentUrl = PageUtil.getRewriteURL();
-		return currentUrl.contains("/manage/");
 	}
 	
 	/*

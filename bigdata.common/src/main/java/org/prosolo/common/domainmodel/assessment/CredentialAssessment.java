@@ -18,7 +18,7 @@ public class CredentialAssessment extends BaseEntity {
 	
 	private String message;
 	private User assessor;
-	private User assessedStudent;
+	private User student;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
@@ -66,12 +66,12 @@ public class CredentialAssessment extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	public User getAssessedStudent() {
-		return assessedStudent;
+	public User getStudent() {
+		return student;
 	}
 
-	public void setAssessedStudent(User assessedStudent) {
-		this.assessedStudent = assessedStudent;
+	public void setStudent(User student) {
+		this.student = student;
 	}
 
 	@OneToOne (fetch=FetchType.LAZY)

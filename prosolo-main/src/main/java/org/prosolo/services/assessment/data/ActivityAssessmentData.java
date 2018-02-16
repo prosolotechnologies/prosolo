@@ -61,6 +61,7 @@ public class ActivityAssessmentData {
 		data.setType(compAssessment.getType());
 		data.setCredAssessmentId(credAssessment.getId());
 		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		data.setCompetenceId(compAssessment.getCompetence().getId());
 
 		if (compAssessment.getAssessor() != null) {
 			data.setAssessorId(compAssessment.getAssessor().getId());

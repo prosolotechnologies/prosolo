@@ -216,7 +216,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
 					assessment.populateDiscussionMessages(assessmentManager
-							.getActivityDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+							.getActivityAssessmentDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
 									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);

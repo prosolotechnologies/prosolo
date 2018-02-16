@@ -54,9 +54,9 @@ public class AssessmentDataFull {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setMessage(assessment.getMessage());
-		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
-		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
+		data.setAssessedStrudentId(assessment.getStudent().getId());
+		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
 		data.setReview(assessment.getReview());
 		data.setAssessorNotified(assessment.isAssessorNotified());
 		if (assessment.getAssessor() != null) {
