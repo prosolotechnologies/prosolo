@@ -1,10 +1,7 @@
 package org.prosolo.services.indexing.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.es.MoreDocumentsLikeThis;
 import org.prosolo.services.indexing.FileESIndexer;
-import org.prosolo.services.indexing.TikaExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,8 +14,8 @@ public class FileESIndexerImpl implements FileESIndexer {
 	
 	private static Logger logger = Logger.getLogger(FileESIndexerImpl.class);
 	
-	@Autowired private MoreDocumentsLikeThis mdlt;
-	@Autowired private TikaExtractor tikaExtractor;
+//	@Autowired private MoreDocumentsLikeThis mdlt;
+//	@Autowired private TikaExtractor tikaExtractor;
 	
 //	@Override
 //	public void indexHTMLPage(final InputStream input, final RichContent richContent, final long userId) {

@@ -263,14 +263,15 @@
 									<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
 										<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and competenceAssessment.assessorNotified}">
 											<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-												<p:commandButton id="btn"
+												<h:commandButton id="btn"
+																 type="button"
 																 styleClass="close"
 																 pt:data-dismiss="alert"
 																 pt:aria-label="Close"
 																 value="&#215;"
-																 action="#{cc.attrs.bean.removeAssessorNotification(competenceAssessment)}"
-																 update="panelAssessorNotificationComp :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
-												/>
+																 action="#{cc.attrs.bean.removeAssessorNotification(competenceAssessment)}">
+													<f:ajax execute="@this" render="panelAssessorNotificationComp :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl" />
+												</h:commandButton>
 												Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
 											</div>
 										</h:panelGroup>
