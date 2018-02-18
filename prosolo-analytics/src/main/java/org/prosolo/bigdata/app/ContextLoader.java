@@ -77,6 +77,7 @@ public class ContextLoader implements ServletContextListener {
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();
 		}
+		System.out.println("CONTEXT INITIALIZATION FINISHED");
 	}
 
 	@Override

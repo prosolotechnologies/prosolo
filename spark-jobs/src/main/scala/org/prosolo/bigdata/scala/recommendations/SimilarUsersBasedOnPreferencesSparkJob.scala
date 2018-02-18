@@ -5,9 +5,6 @@ import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 import org.prosolo.bigdata.scala.spark.SparkJob
 //import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
-//import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
-
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 

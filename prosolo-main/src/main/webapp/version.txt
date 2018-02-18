@@ -1,13 +1,9 @@
-Current date:2017/11/05-17:51:29
+Current date:2018/02/11-21:07:20
 Source branch:develop
+Project version:1
 Git version:
-commit 19462bdba2c760534435d27afe9386fcd6492d4f
-Merge: 4723a2ed 7f678b3f
-Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
-Date:   Sun Nov 5 16:45:34 2017 +0000
+commit e25c1aa0b6d17258bb8d6988f93c0235fb2e6a8a
+Author: jeremycod <zoran.jeremic@gmail.com>
+Date:   Sun Feb 11 21:05:29 2018 -0800
 
-    Merged in PRS-2892-manager-gets-access-denied-when (pull request #227)
-    
-    Implement redirection logic for application root based on capabilities
-    
-    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
+    Unisa messages, and Offerings added to CredentialType

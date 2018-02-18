@@ -167,7 +167,7 @@ public class ImportUsersBean implements Serializable {
 					boolean importSuccessful = userManager.createNewUserAndConnectToResources(
 							user.getFirstName(), user.getLastName(), user.getEmail(),
 							null, user.getPosition(), unitId, roleId, groupId,
-							loggedUser.getUserContext(organizationId));
+							loggedUser.getUserContext(organizationId)) != null;
 
 					if (!importSuccessful) {
 						usersNotImported.add(getUserCSV(user));

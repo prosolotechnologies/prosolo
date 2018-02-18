@@ -2,7 +2,7 @@ package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.spark.connector.cql.{CassandraConnector, Schema}
 import org.apache.spark.sql.SparkSession
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 
 /**
   * Created by zoran on 04/03/17.

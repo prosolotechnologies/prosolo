@@ -8,8 +8,8 @@
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost/prosolo" />
-		<property name="username" value="prosolo" />
-		<property name="password" value="prosolo2013" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
 		<property name="defaultAutoCommit" value="true"/>
 	</bean>
 

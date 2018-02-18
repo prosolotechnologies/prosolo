@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.JobsMap;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.Settings;
-import org.prosolo.bigdata.scala.spark.SparkContextLoader;
+
 import org.quartz.SchedulerException;
 
 /**
@@ -51,6 +51,7 @@ public class CronInitializer extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("CRON INITIALIZER FINISHED");
 		/*for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
 			try {

@@ -7,7 +7,7 @@ import com.datastax.driver.core.Row
 import org.apache.spark.rdd.RDD
 import org.prosolo.bigdata.dal.cassandra.impl.SNAClustersDAO
 import org.prosolo.bigdata.scala.clustering.sna.{DirectedNetwork, UserLink, UserNode}
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark. SparkJob
 import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
 

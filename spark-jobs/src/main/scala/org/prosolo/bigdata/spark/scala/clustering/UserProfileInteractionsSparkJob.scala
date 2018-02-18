@@ -5,7 +5,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
 import scala.collection.JavaConverters._
 import play.api.libs.json.Json
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.{SparkJob}
 
 import scala.collection.Seq
 

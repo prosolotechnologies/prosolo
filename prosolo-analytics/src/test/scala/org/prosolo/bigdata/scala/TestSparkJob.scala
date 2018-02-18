@@ -6,6 +6,7 @@ import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringM
 import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
+import org.prosolo.common.config.CommonSettings
 /**
   *
   * @author Zoran Jeremic
@@ -22,7 +23,7 @@ object TestSparkJob extends App {
     val sc=sparkSession.sparkContext
     val task=new TaskSummary("A","C", 0,System.currentTimeMillis())
     val rddSummary= sparkSession.sparkContext.makeRDD(Seq(task))
-    val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
+     val resource=CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex;//SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
     EsSpark.saveToEs(rddSummary,resource+"/summary")
 
     val mapping=Map("es.mapping.id"->"jobId")

@@ -42,8 +42,8 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -591,13 +591,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new StaleDataException("Competence edited in the meantime");
 		}
 		
-		/* if competence should be unpublished we need to check if there are active deliveries with this competence 
+		/* if competence should be unpublished we need to check if there are ongoing deliveries with this competence
 		 * and if so, unpublish should not be allowed
 		 */
 		if(!data.isPublished() && data.isPublishedChanged()) {
-			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(data.getCompetenceId());
+			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(data.getCompetenceId());
 			if(!canUnpublish) {
-				throw new IllegalDataStateException("Competency can not be unpublished because there is an active credential delivery with this competency");
+				throw new IllegalDataStateException("Competency can not be unpublished because there is an ongoing credential delivery with this competency");
 			}
 		}
 		
@@ -2188,7 +2188,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
 					req, true);
 			
-			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(compId);
+			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(compId);
 			res.getResource().setCanUnpublish(canUnpublish);
 			
 			return res;
@@ -2201,7 +2201,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	private boolean isThereAnActiveDeliveryWithACompetence(long compId) throws DbConnectionException {
+	private boolean isThereOngoingDeliveryWithCompetence(long compId) throws DbConnectionException {
 		String query = "SELECT COUNT(cred.id) " +
 					   "FROM CredentialCompetence1 credComp " +
 					   "INNER JOIN credComp.credential cred " +

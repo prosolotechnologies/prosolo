@@ -76,7 +76,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			long groupId = target.getId();
 
 			//reindex groups collection in user index
-			userEntityESService.updateGroups(orgId, object.getId());
+			userEntityESService.updateGroups(orgId, object.getId(),session);
 
 			//get all credentials associated with this user group
 			List<CredentialUserGroup> credGroups = userGroupManager.getCredentialUserGroups(groupId);

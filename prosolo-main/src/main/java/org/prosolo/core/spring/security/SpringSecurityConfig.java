@@ -100,6 +100,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/resources/css2/**").permitAll()
 		   .antMatchers("/resources/images2/**").permitAll()
 		   .antMatchers("/resources/javascript2/**").permitAll()
+		   .antMatchers("/resources/javascript/**").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   .antMatchers("/javax.faces.resource/schedule/**").permitAll()
 		   .antMatchers("/javax.faces.**").permitAll()
@@ -128,6 +129,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //.antMatchers("/notfound").permitAll()
 
 		   .antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
+			// we need to allow access to index.jsp as Tomcat by default tries to load this file
+		   .antMatchers("/index.jsp").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
 		   .antMatchers("/home").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/achievements").hasAuthority("BASIC.USER.ACCESS")

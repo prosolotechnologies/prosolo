@@ -3,11 +3,10 @@ package org.prosolo.bigdata.scala.spark.emails
 
 
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.{ SparkJob}
 import com.datastax.spark.connector._
 import org.apache.spark.rdd.RDD
-//import org.prosolo.bigdata.services.email.InstructorStudentsEmailService
-//import org.prosolo.bigdata.services.email.impl.InstructorStudentsEmailServiceImpl
+
 
 import scala.collection.JavaConverters._
 
