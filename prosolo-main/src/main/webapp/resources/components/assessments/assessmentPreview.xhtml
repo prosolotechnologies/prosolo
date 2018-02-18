@@ -136,6 +136,7 @@
 									toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 									growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 									role="#{cc.attrs.role}"
+									learningContext="#{cc.attrs.learningContext}"
 							/>
 						</h:form>
 					</div>
@@ -319,6 +320,7 @@
 													toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 													growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 													role="#{cc.attrs.role}"
+													learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentData.competenceId))}"
 											/>
 										</h:panelGroup>
 									</div>
@@ -380,6 +382,7 @@
 																toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 																growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 																role="#{cc.attrs.role}"
+																learningContext="#{util:addSubContext(util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentData.competenceId)), 'name:activity|id:'.concat(activityAssessment.activityId))}"
 															/>
 														</div>
 													</li>

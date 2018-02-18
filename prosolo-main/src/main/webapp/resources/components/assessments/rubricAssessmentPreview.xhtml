@@ -2,7 +2,8 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
-		xmlns:h="http://java.sun.com/jsf/html">
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
 		<composite:attribute name="grade" required="true" type="org.prosolo.services.assessment.data.grading.GradeData" />
@@ -23,7 +24,9 @@
 						<ul class="levelsList rubricColors has#{c.levels.size()}Colors">
 							<ui:repeat value="#{c.levels}" var="l" varStatus="status">
 								<li class="#{c.levelId eq l.id ? 'checked' : ''} rubricItem0#{status.index+1}">
-									<span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <span class="iconInfo" data-toggle="tooltip" title="#{l.description}">info</span>
+									<span class="rubricColor"></span>#{l.name}
+									<h:panelGroup rendered="#{cc.attrs.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup>
+									<h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup>
 								</li>
 							</ui:repeat>
 						</ul>

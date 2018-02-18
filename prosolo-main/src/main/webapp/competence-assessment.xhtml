@@ -117,6 +117,7 @@
                                     toUpdateRubricPanelForStudent=":panelRubricAssessment"
                                     growlToUpdate=":growlMain"
                                     role="USER"
+                                    learningContext="#{'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId)}"
                             />
                         </ui:fragment>
                         <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.readOnly}">
@@ -219,6 +220,7 @@
                                                         toUpdateRubricPanelForStudent=":panelRubricAssessment"
                                                         growlToUpdate=":growlMain"
                                                         role="USER"
+                                                        learningContext="#{'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:activity|id:').concat(activityAssessment.activityId).concat('/')}"
                                                 />
                                             </div>
                                         </li>
