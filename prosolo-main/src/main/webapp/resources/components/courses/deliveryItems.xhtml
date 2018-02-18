@@ -71,7 +71,7 @@
 	                    </div>
 	                </div>
 	                <div class="deliveryItemRight">
-						<ui:fragment rendered="#{not delivery.archived}">
+						<ui:fragment rendered="#{not delivery.archived and cc.attrs.canEdit}">
 							<div class="dropdown optMoreMenu">
 								<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 								<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
@@ -88,7 +88,7 @@
 								</ul>
 							</div>
 						</ui:fragment>
-						<ui:fragment rendered="#{delivery.archived}">
+						<ui:fragment rendered="#{delivery.archived and cc.attrs.canEdit}">
 							<div class="dropdown optMoreMenu">
 								<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 								<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
