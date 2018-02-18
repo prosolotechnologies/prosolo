@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.prosolo.common.domainmodel.lti.LtiTool;
-import org.prosolo.core.spring.SpringConfig;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -34,7 +33,7 @@ public class LtiToolManagerTest {
 		LtiTool tool = new LtiTool();
 		tool.setName("Tool");
 		tool.setActivityId(1);
-		tool.setLearningGoalId(1);
+		tool.setCredentialId(1);
 		tool.setCompetenceId(1);
 		tool = toolManager.saveLtiTool(tool);
 	}

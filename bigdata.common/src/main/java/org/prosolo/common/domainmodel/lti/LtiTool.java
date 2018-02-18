@@ -18,7 +18,7 @@ public class LtiTool extends BaseLtiEntity {
 	private String name;
 	private String description;
 	private String launchUrl;
-	private long learningGoalId = -1;
+	private long credentialId = -1;
 	private long competenceId = -1;
 	private long activityId = -1;
 	private ResourceType toolType;
@@ -36,12 +36,12 @@ public class LtiTool extends BaseLtiEntity {
 	}
 	
 	public LtiTool(long id, boolean enabled, boolean delted,  String customCss, ResourceType toolType, long activityId, 
-			long competenceId, long learningGoalId, long toolSetId, long consumerId,
+			long competenceId, long credentialId, long toolSetId, long consumerId,
 			String keyLtiOne, String secretLtiOne, String keyLtiTwo, String secretLtiTwo, String launchUrl) {
 		
 		setId(id);
 		this.toolType = toolType;
-		this.learningGoalId = learningGoalId;
+		this.credentialId = credentialId;
 		this.competenceId = competenceId;
 		this.activityId = activityId;
 		this.customCss = customCss;
@@ -101,12 +101,12 @@ public class LtiTool extends BaseLtiEntity {
 		this.launchUrl = launchUrl;
 	}
 
-	public long getLearningGoalId() {
-		return learningGoalId;
+	public long getCredentialId() {
+		return credentialId;
 	}
 
-	public void setLearningGoalId(long learningGoalId) {
-		this.learningGoalId = learningGoalId;
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
 	}
 
 	public long getCompetenceId() {
