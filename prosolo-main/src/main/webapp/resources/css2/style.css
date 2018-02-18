@@ -7732,3 +7732,21 @@ footer {
       width: 400px;
       float: right;
       text-align: left; } }
+
+.alert-dismissible .close {
+  background-color: transparent;
+  border: none;
+  right: -26px;
+}
+
+.summaryAssessmentsHead .activityOptions .grade {
+  width: 70px;
+}
+
+.summaryAssessmentsHead .activityOptions .commentsIcon {
+  width: 40px;
+}
+
+.whiteBox.summaryCompetence .innerWrapper h2 {
+  width: 690px;
+}

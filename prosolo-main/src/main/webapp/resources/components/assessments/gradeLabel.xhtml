@@ -34,7 +34,7 @@
 			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and not cc.attrs.userAllowedToSeeRubric}">
 				<a href="javascript:void(0);" class="grade"
 				   data-toggle="tooltip"
-				   title="You are currently not allowed to see rubric">
+				   title="You are not allowed to see the rubric">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
@@ -66,6 +66,9 @@
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
 					</ui:fragment>
 				</p:commandLink>
 				<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED'}">
