@@ -186,6 +186,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
+		System.setProperty("org.quartz.dataSource.quartzDataSource.validationQuery","SELECT 1");
 if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().config.schedulerConfig.createTables){
 	try{
 		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
