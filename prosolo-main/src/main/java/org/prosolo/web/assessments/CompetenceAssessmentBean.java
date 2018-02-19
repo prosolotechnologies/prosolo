@@ -6,17 +6,17 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.grading.RubricGradeData;
-import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
+import org.prosolo.services.assessment.data.grading.RubricGradeData;
+import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -124,10 +123,10 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			competenceAssessmentData.setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the " + ResourceBundleUtil.getLabel("competence"));
+					"You have successfully approved the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence"));
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

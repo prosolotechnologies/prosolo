@@ -16,7 +16,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.LoggedUserBean;
@@ -24,9 +23,7 @@ import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -184,7 +181,7 @@ public class ProfileSettingsBean implements Serializable {
 					}
 				}
 			}
-			PageUtil.fireSuccessfulInfoMessage("Social networks have been updated");
+			PageUtil.fireSuccessfulInfoMessage("Social networks are updated");
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("There was an error updating social networks");
 		}

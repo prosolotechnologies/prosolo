@@ -96,6 +96,9 @@
 						#{cc.attrs.gradeData != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
 					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
+					</ui:fragment>
 				</a>
 			</ui:fragment>
 		</c:if>
