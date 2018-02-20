@@ -28,7 +28,7 @@
 			<h:panelGroup id="gradePanel">
 				<c:if test="#{not empty cc.attrs.gradeData}">
 					<a href="javascript:void(0);" onclick="hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}')" class="removeX">Close</a>
-					<h2>#{cc.attrs.resource eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]} Grade</h2>
+					<h2>Grade #{cc.attrs.resource eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]}</h2>
 					<h3 class="bottom30">#{cc.attrs.resourceTitle}</h3>
 					<ui:fragment rendered="#{not cc.attrs.completed}">
 						<p>Uncompleted #{cc.attrs.resource eq 'ACTIVITY' ? 'activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())].toLowerCase()} can not be graded</p>
