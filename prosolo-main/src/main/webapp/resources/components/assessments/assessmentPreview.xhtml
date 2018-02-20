@@ -310,7 +310,7 @@
 												#{competenceAssessment.numberOfMessages}
 											</p:commandLink>
 
-											<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:'.concat(competenceAssessment.competenceAssessmentId).concat('/'))}" />
+											<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
 											<assessment:gradeLabel
 													assessment="#{competenceAssessment}"
@@ -387,7 +387,7 @@
 																toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 																growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 																role="#{cc.attrs.role}"
-																learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId)).concat('|context:/name:ACTIVITY_ASSESSMENT|id:'.concat(activityAssessment.activityAssessmentId)).concat('/')}"
+																learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
 															/>
 														</div>
 													</li>
