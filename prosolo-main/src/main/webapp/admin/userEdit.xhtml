@@ -88,8 +88,8 @@
 										styleClass="checkbox checkLine" 
 										required="true" 
 										requiredMessage="At least one role should be selected">
-										<f:selectItems value="#{userEditBean.allRoles}" var="role"
-                                                       itemValue="role" />
+										<f:selectItems value="#{userEditBean.allRolesCheckBoxData}" var="role"
+													   itemValue="role" />
 									</h:selectManyCheckbox>
 
 									<small class="redText"><h:message for="selectRoles"></h:message></small>

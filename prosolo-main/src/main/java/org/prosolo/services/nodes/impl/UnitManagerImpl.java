@@ -311,6 +311,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Transactional
     public Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
             throws DbConnectionException {
+        Result<Void> result = new Result<>();
         try {
             String query =
                     "SELECT unit.id " +
@@ -324,32 +325,32 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setLong("roleId", roleId)
                     .list();
 
+            if (unitIds.size() > 0) {
 
-            String query1 =
-                    "DELETE FROM UnitRoleMembership urm " +
-                    "WHERE urm.unit.id IN (:unitIds) " +
-                    "AND urm.user.id = :userId " +
-                    "AND urm.role.id = :roleId";
+                String query1 =
+                        "DELETE FROM UnitRoleMembership urm " +
+                                "WHERE urm.unit.id IN (:unitIds) " +
+                                "AND urm.user.id = :userId " +
+                                "AND urm.role.id = :roleId";
 
-            int affected = persistence.currentManager()
-                    .createQuery(query1)
-                    .setParameterList("unitIds", unitIds)
-                    .setLong("userId", userId)
-                    .setLong("roleId", roleId)
-                    .executeUpdate();
+                int affected = persistence.currentManager()
+                        .createQuery(query1)
+                        .setParameterList("unitIds", unitIds)
+                        .setLong("userId", userId)
+                        .setLong("roleId", roleId)
+                        .executeUpdate();
 
-            logger.info("Deleted user memebership from " + unitIds.size() + " units in role " + roleId);
+                logger.info("Deleted user memebership from " + affected + " units in role " + roleId);
 
-            Result<Void> result = new Result<>();
-
-            for (Long unitId : unitIds) {
-                User user = new User(userId);
-                Unit unit = new Unit();
-                unit.setId(unitId);
-                Map<String, String> params = new HashMap<>();
-                params.put("roleId", roleId + "");
-                result.appendEvent(eventFactory.generateEventData(
-                        EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
+                for (Long unitId : unitIds) {
+                    User user = new User(userId);
+                    Unit unit = new Unit();
+                    unit.setId(unitId);
+                    Map<String, String> params = new HashMap<>();
+                    params.put("roleId", roleId + "");
+                    result.appendEvent(eventFactory.generateEventData(
+                            EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
+                }
             }
 
             return result;
