@@ -19,6 +19,7 @@
 		<composite:attribute name="readOnly" required="true" />
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="startedLearning" default="false" />
+		<composite:attribute name="toUpdateOnEvidencePost" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -53,7 +54,7 @@
 								id="submitEvidence"
 								bean="#{cc.attrs.bean}"
 								addEvidenceToCompetence="true"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences #{cc.attrs.toUpdateOnEvidencePost}"
 								learningContext="#{cc.attrs.learningContext}"
 								submitButtonText="Submit"
 						/>
@@ -158,7 +159,7 @@
 							<h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
 						</div>
 					</div>
-					<c:if test="#{cc.attrs.role eq 'USER' and (cc.attrs.bean.decodedCredId gt 0 or cc.attrs.bean.competenceData.peerAssessmentEnabled or cc.attrs.bean.competenceData.selfAssessmentEnabled)}">
+					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.startedLearning and (cc.attrs.bean.decodedCredId gt 0 or cc.attrs.bean.competenceData.peerAssessmentEnabled or cc.attrs.bean.competenceData.selfAssessmentEnabled)}">
 						<div class="sidebarBlock">
 							<div class="assessmentsSidebarHead">
 								<h2>Assessments</h2>

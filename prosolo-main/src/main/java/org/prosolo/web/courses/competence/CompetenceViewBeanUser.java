@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -12,6 +13,7 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -91,7 +93,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
-				
+
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
 						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
@@ -244,6 +246,20 @@ public class CompetenceViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing the evidence");
+		}
+	}
+
+	public void completeCompetence() {
+		try {
+			competenceManager.completeCompetence(
+					competenceData.getTargetCompId(),
+					loggedUser.getUserContext());
+			competenceData.setProgress(100);
+
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " has been completed");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error marking the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " as completed");
 		}
 	}
 

@@ -119,7 +119,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 
 	public void approveCompetence() {
 		try {
-			assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId());
+			assessmentManager.approveCompetence(competenceAssessmentData.getCompetenceAssessmentId(), loggedUserBean.getUserContext());
 			competenceAssessmentData.setApproved(true);
 			competenceAssessmentData.setAssessorNotified(false);
 
