@@ -1,5 +1,6 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
                 xmlns:rubrics="http://java.sun.com/jsf/composite/components/manage/rubrics"
@@ -29,6 +30,17 @@
     <ui:define name="content">
         <div class="whiteBar">
 
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link outcome="/manage/rubricLibrary" value="#{msg['label.rubric.plural']}"></h:link>
+                </li>
+                <li class="active">
+                    #{rubricCriteriaBean.rubric.name}
+                </li>
+            </ol>
         </div>
 
         <c:choose>

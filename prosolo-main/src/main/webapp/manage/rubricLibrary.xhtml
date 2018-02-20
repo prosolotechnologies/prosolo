@@ -67,14 +67,15 @@
         </div>
 
         <div class="container">
+            <ol class="breadcrumb">
+                <li class="active">
+                    Rubrics
+                </li>
+            </ol>
+        </div>
+
+        <div class="container">
             <div class="row">
-                <div class="container">
-                    <ol class="breadcrumb">
-                        <li class="active">
-                            Rubrics
-                        </li>
-                    </ol>
-                </div>
                 <h:panelGroup id="panelRubrics" styleClass="col-md-12" layout="block">
                     <ui:fragment rendered="#{empty rubricsBean.rubrics}">
                         <div class="noContentMessage">
