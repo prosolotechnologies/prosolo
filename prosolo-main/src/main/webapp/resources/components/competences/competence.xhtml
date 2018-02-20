@@ -119,7 +119,7 @@
 									</a>
 								</ui:fragment>
 
-								<div class="progressBar">
+								<h:panelGroup layout="block" rendered="#{cc.attrs.bean.competenceData.learningPathType eq 'ACTIVITY'}" styleClass="progressBar">
 									<span>#{cc.attrs.bean.competenceData.progress}%</span>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar"
@@ -128,7 +128,7 @@
 											 style="width: #{cc.attrs.bean.competenceData.progress}%;">
 										</div>
 									</div>
-								</div>
+								</h:panelGroup>
 							</ui:fragment>
 
 							<ui:fragment rendered="#{startedLearning and
