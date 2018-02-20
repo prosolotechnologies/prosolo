@@ -518,7 +518,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			for (CompetenceData1 competenceData1 : competenceData1List) {
 				CompetenceAssessment competenceAssessment = getCompetenceAssessmentForCredentialAssessment(
 						competenceData1.getCompetenceId(), credentialAssessment.getStudent().getId(), credentialAssessmentId);
-				competenceAssessment.setApproved(true);
+				result.appendEvents(approveCompetenceAndGetEvents(competenceAssessment.getId(), context).getEventQueue());
 			}
 
 			credentialAssessment.setApproved(true);
@@ -941,16 +941,33 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	// CREDENTIAL ASSESSMENT COMMENTS END
 
 	@Override
+	//nt
+	public void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.approveCompetenceAndGetEvents(competenceAssessmentId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
 	@Transactional
-	public void approveCompetence(long competenceAssessmentId) {
-		String APPROVE_COMPETENCE_QUERY =
-				"UPDATE CompetenceAssessment " +
-				"SET approved = true, " +
-				"assessorNotified = false " +
-				"WHERE id = :competenceAssessmentId";
-		Query updateCompetenceAssessmentQuery = persistence.currentManager().createQuery(APPROVE_COMPETENCE_QUERY)
-				.setLong("competenceAssessmentId", competenceAssessmentId);
-		updateCompetenceAssessmentQuery.executeUpdate();
+	public Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
+		try {
+			Result<Void> res = new Result();
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
+					CompetenceAssessment.class, competenceAssessmentId);
+			ca.setApproved(true);
+			ca.setAssessorNotified(false);
+			//if instructor assessment, mark approved competence as completed if not already
+			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				TargetCompetence1 tc = compManager.getTargetCompetence(ca.getCompetence().getId(), ca.getStudent().getId());
+				if (tc.getProgress() < 100) {
+					res.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+				}
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error approving the competence");
+		}
 	}
 
 	@Override

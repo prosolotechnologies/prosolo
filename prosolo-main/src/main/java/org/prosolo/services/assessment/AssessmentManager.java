@@ -76,7 +76,9 @@ public interface AssessmentManager {
 	void editCompetenceAssessmentMessage(long messageId, long userId, String newContent)
 			throws DbConnectionException;
 
-	void approveCompetence(long decodedCompetenceAssessmentId);
+	void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
+
+	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
 
 	void markActivityAssessmentDiscussionAsSeen(long userId, long activityAssessmentId);
 

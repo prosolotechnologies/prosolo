@@ -298,6 +298,7 @@
 														   update="panelCompAssessmentOptions :assessmentPreview:assessCredentialForm:assessCredentialFormGrowl @(.panelAssessorNotificationSelector)"
 														   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 												Approve<span></span>
+												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											</p:commandLink>
 											<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
 														   onclick="markDiscussionAsSeen('#{util:encodeId(competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
@@ -604,8 +605,9 @@
 										value="Submit"
 										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)"
 										action="#{cc.attrs.bean.approveCredential()}"
-										oncomplete="$('#approveAssessment').modal('hide')"
-								/>
+										oncomplete="$('#approveAssessment').modal('hide')">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								</p:commandLink>
 							</div>
 						</div>
 					</div>

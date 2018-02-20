@@ -437,7 +437,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public void approveCompetence(long competenceAssessmentId) {
 		try {
-			assessmentManager.approveCompetence(competenceAssessmentId);
+			assessmentManager.approveCompetence(competenceAssessmentId, loggedUserBean.getUserContext());
 			markCompetenceApproved(competenceAssessmentId);
 
 			PageUtil.fireSuccessfulInfoMessage(
