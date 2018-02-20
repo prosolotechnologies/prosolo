@@ -214,9 +214,9 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		try {
 			ActivityAssessmentData assessment = result.getAssessment();
 			if (!assessment.isMessagesInitialized()) {
-				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
+				if (assessment.getEncodedActivityAssessmentId() != null && !assessment.getEncodedActivityAssessmentId().isEmpty()) {
 					assessment.populateDiscussionMessages(assessmentManager
-							.getActivityAssessmentDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+							.getActivityAssessmentDiscussionMessages(idEncoder.decodeId(assessment.getEncodedActivityAssessmentId()),
 									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
@@ -284,7 +284,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		List<ActivityResultData> results = assessmentsSummary.getStudentResults();
 		if (results != null) {
 			for (ActivityResultData ard : results) {
-				if (encodedActivityDiscussionId.equals(ard.getAssessment().getEncodedDiscussionId())) {
+				if (encodedActivityDiscussionId.equals(ard.getAssessment().getEncodedActivityAssessmentId())) {
 					return Optional.of(ard.getAssessment());
 				}
 			}

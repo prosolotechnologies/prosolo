@@ -1435,7 +1435,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
 
-					ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+					ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessmentId.longValue()));
 					ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 					ad.setAllRead(((Character) row[11]).charValue() == 'T');
 

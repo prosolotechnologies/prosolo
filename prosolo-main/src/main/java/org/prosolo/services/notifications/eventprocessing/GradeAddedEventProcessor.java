@@ -106,17 +106,8 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 
 		// if there is credential id, regardless the type of assessment, we should send user to the credential assessment page
 		if (credentialId > 0) {
-			long credentialAssessmentId = 0;
+			long credentialAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL_ASSESSMENT);
 
-			if (event.getObject() instanceof CompetenceAssessment) {
-				CompetenceAssessment assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
-
-				// TODO: fix this approach of returning the first credential assessment id
-				credentialAssessmentId = assessment.getCredentialAssessments().iterator().next().getId();
-			} else {
-				// it is CredentialAssessment
-				credentialAssessmentId = event.getObject().getId();
-			}
 			return "/credentials/" +
 					idEncoder.encodeId(credentialId) +
 					"/assessments/" +

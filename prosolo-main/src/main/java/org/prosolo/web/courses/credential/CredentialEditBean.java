@@ -630,7 +630,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 //	}
 	 
 	public String getPageHeaderTitle() {
-		return credentialData.getId() > 0 ? credentialData.getTitle() : "New Credential";
+		return credentialData.getId() > 0 ? credentialData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.credential");
 	}
 	
 	public boolean isCreateUseCase() {

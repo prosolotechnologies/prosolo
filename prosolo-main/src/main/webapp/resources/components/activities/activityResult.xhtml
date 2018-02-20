@@ -91,7 +91,7 @@
 						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
+							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
 							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
@@ -275,7 +275,7 @@
 						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
+							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
 							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">

@@ -7,8 +7,8 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContextUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
@@ -51,7 +51,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 		BaseEntity object = event.getObject();
 		BaseEntity target = event.getTarget();
 		if (type == EventType.Create || type == EventType.Edit || type == EventType.Delete) {
-			long orgId = LearningContextUtil.getIdFromContext(
+			long orgId = Context.getIdFromSubContextWithName(
 					ctxJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
 			UserGroup group = (UserGroup) session.load(UserGroup.class, object.getId());
 			if (type == EventType.Create || type == EventType.Edit) {

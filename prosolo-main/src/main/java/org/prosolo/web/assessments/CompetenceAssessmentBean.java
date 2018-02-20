@@ -93,7 +93,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
 		for (ActivityAssessmentData act : competenceAssessmentData.getActivityAssessmentData()) {
-			if (encodedActivityDiscussionId.equals(act.getEncodedDiscussionId())) {
+			if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
 				return Optional.of(act);
 			}
 		}
@@ -251,7 +251,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return idEncoder.decodeId(activityAssessmentBean.getActivityAssessmentData().getEncodedDiscussionId());
+				return idEncoder.decodeId(activityAssessmentBean.getActivityAssessmentData().getEncodedActivityAssessmentId());
 			case COMPETENCE:
 				return competenceAssessmentData.getCompetenceAssessmentId();
 		}

@@ -200,7 +200,7 @@
                                                     </h:link>
                                                 </ui:fragment>
                                                 <p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-                                                               onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement, 'ACTIVITY')"
+                                                               onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
                                                                action="#{competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
                                                                update=":commentModal:formPrivateConversation:panelModalPrivateConversation"
                                                                oncomplete="$('#assessmentCommentsModal1').modal('show');">
