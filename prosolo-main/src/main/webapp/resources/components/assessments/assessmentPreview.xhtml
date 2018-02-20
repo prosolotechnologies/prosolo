@@ -396,6 +396,9 @@
 											</ul>
 										</h:panelGroup>
 									</ui:fragment>
+									<ui:fragment rendered="#{not empty competenceAssessment.evidences}">
+										<assessment:evidenceItems evidences="#{competenceAssessment.evidences}" />
+									</ui:fragment>
 								</article>
 							</ui:fragment>
 							<ui:fragment rendered="#{competenceAssessment.readOnly}">

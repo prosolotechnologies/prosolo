@@ -278,10 +278,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
-							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
-								List<ActivityData> activities = activityManager
-										.getTargetActivitiesData(compData.getTargetCompId());
-								compData.setActivities(activities);
+							if (compData != null && loadLearningPathData) {
+								if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+									List<ActivityData> activities = activityManager
+											.getTargetActivitiesData(compData.getTargetCompId());
+									compData.setActivities(activities);
+								} else {
+									//load user evidences
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									compData.setEvidences(compEvidences);
+								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
