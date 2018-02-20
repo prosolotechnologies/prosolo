@@ -372,16 +372,77 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
 						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException {
-		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, roles, rolesToUpdate);
+		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
+				changePassword, password, position, roles, rolesToUpdate, context);
 
-		eventFactory.generateEvent(EventType.Edit_Profile, context, user, null, null, null);
-		return user;
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+						   boolean emailVerified, boolean changePassword, String password,
+						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException {
+		Result<User> result = new Result<>();
+		try {
+			User user = loadResource(User.class, userId);
+			user.setName(name);
+			user.setLastname(lastName);
+			user.setPosition(position);
+			user.setEmail(email);
+			user.setVerified(true);
+
+			if (changePassword) {
+				user.setPassword(passwordEncoder.encode(password));
+				user.setPasswordLength(password.length());
+			}
+
+			if(roles != null) {
+				Set<Long> rolesToAdd = new HashSet<>(roles);
+                /*
+                roles that should be deleted (if user had them) are all roles that should be updated
+                except for roles that should be added
+                 */
+				Set<Long> rolesToDelete = new HashSet<>(rolesToUpdate);
+				rolesToDelete.removeAll(rolesToAdd);
+
+				//update only roles that should be updated based on a rolesToUpdate argument
+				Iterator<Role> roleIterator = user.getRoles().iterator();
+				while (roleIterator.hasNext()) {
+					Role r = roleIterator.next();
+					boolean keepRole = rolesToAdd.remove(r.getId());
+					if (!keepRole) {
+						if (rolesToDelete.contains(r.getId())) {
+							roleIterator.remove();
+						}
+					}
+				}
+				//assign new roles to user
+				for (Long roleId : rolesToAdd) {
+					Role role = (Role) persistence.currentManager().load(Role.class, roleId);
+					user.addRole(role);
+				}
+
+				// deleting all unit memberships in roles that are removed
+				for (Long roleId : rolesToDelete) {
+					result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+				}
+			}
+			result.setResult(user);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, context, user, null, null, null));
+
+			return result;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user data");
+		}
 	}
 
 	@Override

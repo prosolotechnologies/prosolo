@@ -24,7 +24,6 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -299,6 +298,66 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    //nt
+    public void removeUserFromAllUnitsWithRole(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = self.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context);
+
+        eventFactory.generateEvents(res.getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT unit.id " +
+                    "FROM UnitRoleMembership urm " +
+                    "WHERE urm.user.id = :userId " +
+                        "AND urm.role.id = :roleId";
+
+            List<Long> unitIds = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+
+            String query1 =
+                    "DELETE FROM UnitRoleMembership urm " +
+                    "WHERE urm.unit.id IN (:unitIds) " +
+                    "AND urm.user.id = :userId " +
+                    "AND urm.role.id = :roleId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query1)
+                    .setParameterList("unitIds", unitIds)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .executeUpdate();
+
+            logger.info("Deleted user memebership from " + unitIds.size() + " units in role " + roleId);
+
+            Result<Void> result = new Result<>();
+
+            for (Long unitId : unitIds) {
+                User user = new User(userId);
+                Unit unit = new Unit();
+                unit.setId(unitId);
+                Map<String, String> params = new HashMap<>();
+                params.put("roleId", roleId + "");
+                result.appendEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing user from unit");
+        }
+    }
 
     @Override
     //nt
