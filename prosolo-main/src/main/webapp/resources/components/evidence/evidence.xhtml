@@ -13,6 +13,7 @@
 		<composite:attribute name="evidence" type="org.prosolo.services.nodes.data.evidence.LearningEvidenceData" required="true"/>
 		<composite:attribute name="showEvidenceManagementOptions" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="showDetails" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="canEdit" required="true" type="java.lang.Boolean" />
         <composite:attribute name="deleteModalId" default="" />
 	</composite:interface>
 	
@@ -30,7 +31,7 @@
 				</div>
 				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
 					<div class="evidenceTopRight">
-						<div class="dropdown optMoreMenu">
+						<h:panelGroup layout="block" rendered="#{cc.attrs.canEdit}" styleClass="dropdown optMoreMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
 								<li>
@@ -41,8 +42,8 @@
 									</p:commandLink>
 								</li>
 							</ul>
-						</div>
-                        <h:link outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
+						</h:panelGroup>
+                        <h:link rendered="#{cc.attrs.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
 							Edit
 							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
 						</h:link>

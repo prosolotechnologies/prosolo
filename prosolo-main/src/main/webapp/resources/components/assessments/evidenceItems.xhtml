@@ -8,6 +8,7 @@
 
 	<composite:interface>
 		<composite:attribute name="evidences" required="true" type="java.util.List" />
+		<composite:attribute name="canViewEvidence" required="true" type="java.util.Boolean" />
 	</composite:interface>
 
 	<composite:implementation>
@@ -16,15 +17,23 @@
 				<ui:repeat value="#{cc.attrs.evidences}" var="ev">
 					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : ev.type eq 'FILE' ? 'evidenceDoc' : 'evidenceLink'}">
 						<span class="iconType #{ev.type eq 'LINK' ? 'link' : ''}"></span>
-						<h:link outcome="/evidence" target="_blank">
-							#{ev.title}
-							<f:param name="id" value="#{util:encodeId(ev.id)}"/>
-						</h:link>
-						<div class="activityOptions">
-							<h:link outcome="/evidence" target="_blank" styleClass="viewResult" pt:data-toggle="tooltip" pt:title="View Evidence">
-								View Evidence
+						<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
+							<h:link outcome="evidence" target="_blank">
+								#{ev.title}
 								<f:param name="id" value="#{util:encodeId(ev.id)}"/>
 							</h:link>
+						</ui:fragment>
+						<ui:fragment rendered="#{not cc.attrs.canViewEvidence}">
+							<a href="javascript:void(0);">#{ev.title}</a>
+						</ui:fragment>
+
+						<div class="activityOptions">
+							<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
+								<h:link outcome="evidence" target="_blank" styleClass="viewResult" pt:data-toggle="tooltip" pt:title="View Evidence">
+									View Evidence
+									<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+								</h:link>
+							</ui:fragment>
 						</div>
 					</li>
 				</ui:repeat>
