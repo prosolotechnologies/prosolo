@@ -318,7 +318,7 @@
                         resource="#{competenceAssessmentBean.currentResType}"
                         resourceTitle="#{competenceAssessmentBean.currentResTitle}"
                         toUpdate=":growlMain @(.assessmentActivityList) @(.panelCompAssessment) @(.panelAssessorNotificationSelector)"
-                        learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'COMPETENCE' ? learningContext : util:addSubContext(learningContext, 'name:activity|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/'))}"
+                        learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'COMPETENCE' ? learningContext : util:addSubContext(learningContext, 'name:ACTIVITY|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/'))}"
                         gradePanelSidebarId="gradeSidebar"
                 />
             </h:panelGroup>

@@ -77,7 +77,7 @@
 							<ui:repeat var="commentInfo" value="#{cc.attrs.resultData.otherResultsComments}">
 								<li>
 									<p:commandLink pt:data-toggle="modal"
-										action="#{cc.attrs.bean.loadActivityDiscussionById(commentInfo.targetActivityId, false, true)}"
+										action="#{cc.attrs.bean.loadActivityAssessmentComments(commentInfo.targetActivityId, cc.attrs.resultData, false, true)}"
 										update="#{cc.attrs.toUpdateOtherResultCommentModal}"
 										oncomplete="$('##{cc.attrs.otherResultCommentModalId}').modal('show');">
 										Commented #{commentInfo.noOfComments} time#{commentInfo.noOfComments > 1 ? 's' : ''} on the result by #{commentInfo.resultCreator}
@@ -170,7 +170,7 @@
 					showSortOptions="false"
 					isCollapsible="true"
 					growlToUpdate="#{cc.attrs.growlToUpdate}"
-					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+					learningContext="#{cc.attrs.learningContext}"
 					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
 					toUpdateOnCommentSave=""
 				/>
@@ -261,7 +261,7 @@
 							<ui:repeat var="commentInfo" value="#{cc.attrs.resultData.otherResultsComments}">
 								<li>
 									<p:commandLink pt:data-toggle="modal"
-										action="#{cc.attrs.bean.loadActivityDiscussionById(commentInfo.targetActivityId, false, true)}"
+										action="#{cc.attrs.bean.loadActivityAssessmentComments(commentInfo.targetActivityId, cc.attrs.resultData, false, true)}"
 										update="#{cc.attrs.toUpdateOtherResultCommentModal}"
 										oncomplete="$('##{cc.attrs.otherResultCommentModalId}').modal('show');">
 										Commented #{commentInfo.noOfComments} time#{commentInfo.noOfComments > 1 ? 's' : ''} on the result by #{commentInfo.resultCreator}
@@ -360,7 +360,7 @@
 						commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
 						showSortOptions="false" isCollapsible="true"
 						growlToUpdate="#{cc.attrs.growlToUpdate}"
-						learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+						learningContext="#{cc.attrs.learningContext}"
 						toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
 						toUpdateOnCommentSave="" />
 				</c:if>

@@ -117,7 +117,7 @@
 									update="#{cc.attrs.toUpdate} @(.validationMsgSelector)"
 									oncomplete="if (args &amp;&amp; !args.validationFailed) { hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}') }">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:&#34;.concat(cc.attrs.resource.name().toLowerCase()).concat(&#34;_assessment|id:&#34;).concat(util:decodeId(cc.attrs.assessmentId)))}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
 								<f:param name="service" value="name:activity_grade_dialog"></f:param>
 								Save Changes
 							</p:commandLink>

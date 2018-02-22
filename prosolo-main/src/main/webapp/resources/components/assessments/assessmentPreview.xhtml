@@ -533,7 +533,7 @@
 		<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent)}">
 			<h:panelGroup id="gradePanelContainer">
 				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
-				<ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))}" />
+				<ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:ACTIVITY|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))}" />
 
 				<assessment:gradePanel
 						id="resourceGradePanel"
