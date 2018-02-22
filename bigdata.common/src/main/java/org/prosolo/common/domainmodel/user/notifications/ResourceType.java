@@ -7,6 +7,7 @@ public enum ResourceType {
 	Comment("Comment1"),
 	CredentialAssessment("CredentialAssessment"),
 	CompetenceAssessment("CompetenceAssessment"),
+	ActivityAssessment("ActivityAssessment"),
 	Credential("Credential1"),
 	PostSocialActivity("PostSocialActivity1"), 
 	Announcement("Announcement"),

@@ -602,7 +602,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			/*
 			Activity assessments can have points set here if it is automatically graded upon completion or if it is
-			external activity. Anyhow, both situations does not use a rubric fro grading, thus 'rubricGrade' parameter
+			external activity. Anyhow, both situations does not use a rubric for grading, thus 'rubricGrade' parameter
 			should not be added to the params map (as is the case in other situations EventType.GRADE_ADDED is fired).
 			 */
 			if (activityAssessment.getPoints() >= 0) {

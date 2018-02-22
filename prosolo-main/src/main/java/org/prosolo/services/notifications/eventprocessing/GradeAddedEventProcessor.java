@@ -89,6 +89,8 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 			return ResourceType.CredentialAssessment;
 		} else if (event.getObject() instanceof CompetenceAssessment) {
 			return ResourceType.CompetenceAssessment;
+		} else if (event.getObject() instanceof ActivityAssessment) {
+			return ResourceType.ActivityAssessment;
 		} else {
 			logger.error("GradeAddedEventProcessor can not process assessment of type " + event.getObject().getClass());
 			return null;
