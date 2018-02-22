@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
  *
  */
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"type", "user"})})
 public class NotificationSettings implements Serializable {
 
 	private static final long serialVersionUID = 7481670064380351424L;
