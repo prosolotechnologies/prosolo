@@ -27,6 +27,7 @@
     <ui:define name="resourceTitle">
         <h1>#{competenceAssessmentBean.competenceAssessmentData.title}</h1>
     </ui:define>
+
     <ui:define name="content">
 
         <script>
@@ -74,214 +75,221 @@
             }
 
         </script>
+
+        <ui:param name="learningContext" value="#{'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/')}" />
+
         <h:form prependId="false" id="remoteCommandForm">
             <p:remoteCommand process="@this" action="#{competenceAssessmentBean.markActivityAssessmentDiscussionRead()}"
                              name="markActivityDiscussionRead"></p:remoteCommand>
             <p:remoteCommand process="@this" action="#{competenceAssessmentBean.markCompetenceAssessmentDiscussionRead()}"
                              name="markCompetenceAssessmentDiscussionRead"/>
         </h:form>
+
         <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
-    <div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-                    <h:panelGroup id="panelCompAssessmentOptions">
-                        <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.approved}">
-                            <div class="tagApproved left item">Approved</div>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{not competenceAssessmentBean.competenceAssessmentData.readOnly}">
-                            <p:commandLink styleClass="linkApprove"
-                                           process="@this"
-                                           actionListener="#{competenceAssessmentBean.approveCompetence()}"
-                                           update="panelCompAssessmentOptions :growlMain"
-                                           rendered="#{not competenceAssessment.approved and competenceAssessmentBean.isCurrentUserAssessor()}">
-                                Approve<span></span>
-                            </p:commandLink>
-                            <p:commandLink styleClass="item commentsIcon #{(!competenceAssessmentBean.competenceAssessmentData.participantInDiscussion or competenceAssessmentBean.competenceAssessmentData.allRead or competenceAssessmentBean.competenceAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}" pt:data-toggle="modal"
-                                           onclick="markDiscussionAsSeen('#{util:encodeId(competenceAssessment.competenceAssessmentId)}', this, 'COMPETENCE')"
-                                           action="#{competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting()}"
-                                           update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
-                                           oncomplete="$('#assessmentCommentsModal1').modal('show');">
-                                #{competenceAssessmentBean.competenceAssessmentData.numberOfMessages}
-                            </p:commandLink>
-                            <assessment:gradeLabel
-                                    assessment="#{competenceAssessmentBean.competenceAssessmentData}"
-                                    assessmentBean="#{competenceAssessmentBean}"
-                                    currentUserAssessedStudent="#{competenceAssessmentBean.currentUserAssessedStudent}"
-                                    currentUserAssessor="#{competenceAssessmentBean.isCurrentUserAssessor()}"
-                                    gradeData="#{competenceAssessmentBean.competenceAssessmentData.gradeData}"
-                                    userAllowedToSeeRubric="#{competenceAssessmentBean.isUserAllowedToSeeRubric(competenceAssessmentBean.competenceAssessmentData.gradeData)}"
-                                    gradeLinkSelectorId="competence"
-                                    toUpdateGradePanel=":resourceGradePanel:gradePanel"
-                                    gradePanelSidebarId="gradeSidebar"
-                                    toUpdateRubricPanelForStudent=":panelRubricAssessment"
-                                    growlToUpdate=":growlMain"
-                                    role="USER"
-                            />
-                        </ui:fragment>
-                        <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.readOnly}">
-                            <a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
-                            <a href="javascript:void(0);" class="item commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal1">0</a>
-                            <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.gradeData.gradingMode ne 'NONGRADED'}">
-                                <a href="javascript:void(0);" class="grade"></a>
+
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <h:panelGroup id="panelCompAssessmentOptions">
+                            <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.approved}">
+                                <div class="tagApproved left item">Approved</div>
                             </ui:fragment>
-                        </ui:fragment>
-                    </h:panelGroup>
-                </div>
-                <div class="whiteBarRight">
-                    <div class="duration item">#{competenceAssessmentBean.competenceAssessmentData.durationString}</div>
+                            <ui:fragment rendered="#{not competenceAssessmentBean.competenceAssessmentData.readOnly}">
+                                <p:commandLink styleClass="linkApprove"
+                                               process="@this"
+                                               actionListener="#{competenceAssessmentBean.approveCompetence()}"
+                                               update="panelCompAssessmentOptions :growlMain"
+                                               rendered="#{not competenceAssessment.approved and competenceAssessmentBean.isCurrentUserAssessor()}">
+                                    Approve<span></span>
+                                </p:commandLink>
+                                <p:commandLink styleClass="item commentsIcon #{(!competenceAssessmentBean.competenceAssessmentData.participantInDiscussion or competenceAssessmentBean.competenceAssessmentData.allRead or competenceAssessmentBean.competenceAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}" pt:data-toggle="modal"
+                                               onclick="markDiscussionAsSeen('#{util:encodeId(competenceAssessment.competenceAssessmentId)}', this, 'COMPETENCE')"
+                                               action="#{competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting()}"
+                                               update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
+                                               oncomplete="$('#assessmentCommentsModal1').modal('show');">
+                                    #{competenceAssessmentBean.competenceAssessmentData.numberOfMessages}
+                                </p:commandLink>
+                                <assessment:gradeLabel
+                                        assessment="#{competenceAssessmentBean.competenceAssessmentData}"
+                                        assessmentBean="#{competenceAssessmentBean}"
+                                        currentUserAssessedStudent="#{competenceAssessmentBean.currentUserAssessedStudent}"
+                                        currentUserAssessor="#{competenceAssessmentBean.isCurrentUserAssessor()}"
+                                        gradeData="#{competenceAssessmentBean.competenceAssessmentData.gradeData}"
+                                        userAllowedToSeeRubric="#{competenceAssessmentBean.isUserAllowedToSeeRubric(competenceAssessmentBean.competenceAssessmentData.gradeData)}"
+                                        gradeLinkSelectorId="competence"
+                                        toUpdateGradePanel=":gradePanelContainer"
+                                        gradePanelSidebarId="gradeSidebar"
+                                        toUpdateRubricPanelForStudent=":panelRubricAssessment"
+                                        growlToUpdate=":growlMain"
+                                        role="USER"
+                                        learningContext="#{learningContext}"
+                                />
+                            </ui:fragment>
+                            <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.readOnly}">
+                                <a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
+                                <a href="javascript:void(0);" class="item commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal1">0</a>
+                                <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.gradeData.gradingMode ne 'NONGRADED'}">
+                                    <a href="javascript:void(0);" class="grade"></a>
+                                </ui:fragment>
+                            </ui:fragment>
+                        </h:panelGroup>
+                    </div>
+                    <div class="whiteBarRight">
+                        <div class="duration item">#{competenceAssessmentBean.competenceAssessmentData.durationString}</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9 mandatoryFlow">
-                <h2 class="bottom10">Competence Assessment</h2>
-                <p>This is the ${msg['label.competence'].toLowerCase()} assessment for student #{competenceAssessmentBean.competenceAssessmentData.studentFullName}.
-                    All comments between the student and the assessor are private.</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 mandatoryFlow">
+                    <h2 class="bottom10">Competence Assessment</h2>
+                    <p>This is the ${msg['label.competence'].toLowerCase()} assessment for student #{competenceAssessmentBean.competenceAssessmentData.studentFullName}.
+                        All comments between the student and the assessor are private.</p>
 
-                <ui:fragment
-                        rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.message}">
-                    <div class="whiteBox assessmentInitialMessage">
-                        <h2>Message</h2>
-                        <p>
-                            <h:outputText
-                                    value="#{competenceAssessmentBean.competenceAssessmentData.message}"
-                                    escape="false" />
-                        </p>
-                        <div class="clear"></div>
-                    </div>
-                </ui:fragment>
-
-                <h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
-                    <h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{competenceAssessmentBean.isCurrentUserAssessor() and competenceAssessmentBean.competenceAssessmentData.assessorNotified}">
-                        <div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-                            <p:commandButton id="btn"
-                                             styleClass="close"
-                                             pt:data-dismiss="alert"
-                                             pt:aria-label="Close"
-                                             value="&#215;"
-                                             action="#{competenceAssessmentBean.removeAssessorNotification()}"
-                                             update="panelAssessorNotification :growlMain"
-                            />
-                            Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
+                    <ui:fragment
+                            rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.message}">
+                        <div class="whiteBox assessmentInitialMessage">
+                            <h2>Message</h2>
+                            <p>
+                                <h:outputText
+                                        value="#{competenceAssessmentBean.competenceAssessmentData.message}"
+                                        escape="false" />
+                            </p>
+                            <div class="clear"></div>
                         </div>
-                    </h:panelGroup>
-                </h:panelGroup>
+                    </ui:fragment>
 
-                <br/>
-
-                <ui:fragment rendered="#{not competenceAssessmentBean.competenceAssessmentData.readOnly}">
-                    <article class="whiteBox summaryCard summaryCompetence summaryAssessments">
-                        <ui:fragment rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
-                            <h:panelGroup layout="block" styleClass="assessmentActivityList"
-                                          id="activityAssessmentWrapper">
-                                <ul>
-                                    <ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
-                                        <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
-                                            <span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
-                                            <h:link outcome="activity">
-                                                #{activityAssessment.title}
-                                                <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-                                                <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
-                                            </h:link>
-                                            <div class="activityOptions">
-                                                <ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-                                                    <h:link outcome="activity-response"
-                                                            styleClass="viewResult"
-                                                            pt:data-toggle="tooltip" pt:title="View Response">
-                                                        View Response
-                                                        <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-                                                        <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
-                                                        <f:param name="targetActId" value="#{util:encodeId(activityAssessment.targetActivityId)}" />
-                                                    </h:link>
-                                                </ui:fragment>
-                                                <p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-                                                               onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement, 'ACTIVITY')"
-                                                               action="#{competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
-                                                               update=":commentModal:formPrivateConversation:panelModalPrivateConversation"
-                                                               oncomplete="$('#assessmentCommentsModal1').modal('show');">
-                                                    #{activityAssessment.numberOfMessages}
-                                                </p:commandLink>
-
-                                                <assessment:gradeLabel
-                                                        assessment="#{activityAssessment}"
-                                                        assessmentBean="#{competenceAssessmentBean}"
-                                                        currentUserAssessedStudent="#{competenceAssessmentBean.currentUserAssessedStudent}"
-                                                        currentUserAssessor="#{competenceAssessmentBean.isCurrentUserAssessor()}"
-                                                        gradeData="#{activityAssessment.grade}"
-                                                        userAllowedToSeeRubric="#{competenceAssessmentBean.isUserAllowedToSeeRubric(activityAssessment.grade)}"
-                                                        gradeLinkSelectorId="activity_#{activityAssessment.activityId}"
-                                                        toUpdateGradePanel=":resourceGradePanel:gradePanel"
-                                                        gradePanelSidebarId="gradeSidebar"
-                                                        toUpdateRubricPanelForStudent=":panelRubricAssessment"
-                                                        growlToUpdate=":growlMain"
-                                                        role="USER"
-                                                />
-                                            </div>
-                                        </li>
-                                    </ui:repeat>
-                                </ul>
-                            </h:panelGroup>
-                        </ui:fragment>
-                    </article>
-                </ui:fragment>
-
-                <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.readOnly}">
-                    <article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
-                        <ui:fragment rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
-                            <div class="assessmentActivityList">
-                                <ul>
-                                    <ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
-                                        <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)}">
-                                            <span class="iconType"></span>
-                                            <h:link outcome="activity">
-                                                #{activityAssessment.title}
-                                                <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-                                                <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
-                                            </h:link>
-
-                                            <div class="activityOptions">
-                                                <div class="disabledOverlay"></div>
-                                                <a href="javascript:void(0);" class="commentsIcon">0</a>
-                                                <ui:fragment rendered="#{activityAssessment.gradeData.gradingMode ne 'NONGRADED'}">
-                                                    <a href="javascript:void(0);" class="grade"></a>
-                                                </ui:fragment>
-                                            </div>
-                                        </li>
-                                    </ui:repeat>
-
-                                </ul>
+                    <h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
+                        <h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{competenceAssessmentBean.isCurrentUserAssessor() and competenceAssessmentBean.competenceAssessmentData.assessorNotified}">
+                            <div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
+                                <p:commandButton id="btn"
+                                                 styleClass="close"
+                                                 pt:data-dismiss="alert"
+                                                 pt:aria-label="Close"
+                                                 value="&#215;"
+                                                 action="#{competenceAssessmentBean.removeAssessorNotification()}"
+                                                 update="panelAssessorNotification :growlMain"
+                                />
+                                Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
                             </div>
-                        </ui:fragment>
-                    </article>
-                </ui:fragment>
-            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
 
-            <div class="col-md-3">
-                <div class="sidebarBlock">
-                    <h2>Student</h2>
-                    <div class="user32">
-                        <a href="javascript:void(0);"> <utilcomp:userAvatar
-                                avatar="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
-                                fullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}" />
-                        </a>
-                        <h3>
-                            <a href="javascript:void(0);">#{competenceAssessmentBean.competenceAssessmentData.studentFullName}</a>
-                        </h3>
+                    <br/>
+
+                    <ui:fragment rendered="#{not competenceAssessmentBean.competenceAssessmentData.readOnly}">
+                        <article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+                            <ui:fragment rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
+                                <h:panelGroup layout="block" styleClass="assessmentActivityList"
+                                              id="activityAssessmentWrapper">
+                                    <ul>
+                                        <ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
+                                            <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+                                                <span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
+                                                <h:link outcome="activity">
+                                                    #{activityAssessment.title}
+                                                    <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+                                                    <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
+                                                </h:link>
+                                                <div class="activityOptions">
+                                                    <ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+                                                        <h:link outcome="activity-response"
+                                                                styleClass="viewResult"
+                                                                pt:data-toggle="tooltip" pt:title="View Response">
+                                                            View Response
+                                                            <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+                                                            <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
+                                                            <f:param name="targetActId" value="#{util:encodeId(activityAssessment.targetActivityId)}" />
+                                                        </h:link>
+                                                    </ui:fragment>
+                                                    <p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+                                                                   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
+                                                                   action="#{competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
+                                                                   update=":commentModal:formPrivateConversation:panelModalPrivateConversation"
+                                                                   oncomplete="$('#assessmentCommentsModal1').modal('show');">
+                                                        #{activityAssessment.numberOfMessages}
+                                                    </p:commandLink>
+
+                                                    <assessment:gradeLabel
+                                                            assessment="#{activityAssessment}"
+                                                            assessmentBean="#{competenceAssessmentBean}"
+                                                            currentUserAssessedStudent="#{competenceAssessmentBean.currentUserAssessedStudent}"
+                                                            currentUserAssessor="#{competenceAssessmentBean.isCurrentUserAssessor()}"
+                                                            gradeData="#{activityAssessment.grade}"
+                                                            userAllowedToSeeRubric="#{competenceAssessmentBean.isUserAllowedToSeeRubric(activityAssessment.grade)}"
+                                                            gradeLinkSelectorId="activity_#{activityAssessment.activityId}"
+                                                            toUpdateGradePanel=":gradePanelContainer"
+                                                            gradePanelSidebarId="gradeSidebar"
+                                                            toUpdateRubricPanelForStudent=":panelRubricAssessment"
+                                                            growlToUpdate=":growlMain"
+                                                            role="USER"
+                                                            learningContext="#{util:addSubContext(learningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
+                                                    />
+                                                </div>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </h:panelGroup>
+                            </ui:fragment>
+                        </article>
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.readOnly}">
+                        <article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
+                            <ui:fragment rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
+                                <div class="assessmentActivityList">
+                                    <ul>
+                                        <ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessmentBean.competenceAssessmentData.activityAssessmentData}">
+                                            <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)}">
+                                                <span class="iconType"></span>
+                                                <h:link outcome="activity">
+                                                    #{activityAssessment.title}
+                                                    <f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+                                                    <f:param name="compId" value="#{util:encodeId(competenceAssessmentBean.competenceAssessmentData.competenceId)}" />
+                                                </h:link>
+
+                                                <div class="activityOptions">
+                                                    <div class="disabledOverlay"></div>
+                                                    <a href="javascript:void(0);" class="commentsIcon">0</a>
+                                                    <ui:fragment rendered="#{activityAssessment.gradeData.gradingMode ne 'NONGRADED'}">
+                                                        <a href="javascript:void(0);" class="grade"></a>
+                                                    </ui:fragment>
+                                                </div>
+                                            </li>
+                                        </ui:repeat>
+
+                                    </ul>
+                                </div>
+                            </ui:fragment>
+                        </article>
+                    </ui:fragment>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="sidebarBlock">
+                        <h2>Student</h2>
+                        <div class="user32">
+                            <a href="javascript:void(0);"> <utilcomp:userAvatar
+                                    avatar="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
+                                    fullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}" />
+                            </a>
+                            <h3>
+                                <a href="javascript:void(0);">#{competenceAssessmentBean.competenceAssessmentData.studentFullName}</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="sidebarBlock">
+                        <h2>Requested</h2>
+                        <p>#{competenceAssessmentBean.competenceAssessmentData.dateValue}</p>
                     </div>
                 </div>
-
-                <div class="sidebarBlock">
-                    <h2>Requested</h2>
-                    <p>#{competenceAssessmentBean.competenceAssessmentData.dateValue}</p>
-                </div>
             </div>
-        </div>
 
-    </div>
+        </div>
 
         <assessment:assessmentCommentModal
                 id="commentModal"
@@ -289,8 +297,8 @@
                 messages="#{competenceAssessmentBean.currentAssessmentMessages}"
                 bean="#{competenceAssessmentBean.currentAssessmentBean}"
                 learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
-					? 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('/')
-					: 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId)}"
+					? util:addSubContext(learningContext, 'name:ACTIVITY|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/'))
+					: learningContext}"
 
         />
 
@@ -299,19 +307,21 @@
         </c:if>
 
         <c:if test="#{not cc.attrs.bean.currentUserAssessedStudent}">
-            <assessment:gradePanel
-                    id="resourceGradePanel"
-                    gradeActionMethodName="updateAssessmentGrade"
-                    gradeAction="#{competenceAssessmentBean.updateAssessmentGrade}"
-                    assessmentId="#{competenceAssessmentBean.currentAssessmentId}"
-                    completed="#{competenceAssessmentBean.hasStudentCompletedCurrentResource()}"
-                    gradeData="#{competenceAssessmentBean.currentGradeData}"
-                    resource="#{competenceAssessmentBean.currentResType}"
-                    resourceTitle="#{competenceAssessmentBean.currentResTitle}"
-                    toUpdate=":growlMain @(.assessmentActivityList) @(.panelCompAssessment) @(.panelAssessorNotificationSelector)"
-                    learningContext="name:competence|id:#{competenceAssessmentBean.competenceAssessmentData.competenceId}"
-                    gradePanelSidebarId="gradeSidebar"
-            />
+            <h:panelGroup id="gradePanelContainer">
+                <assessment:gradePanel
+                        id="resourceGradePanel"
+                        gradeActionMethodName="updateAssessmentGrade"
+                        gradeAction="#{competenceAssessmentBean.updateAssessmentGrade}"
+                        assessmentId="#{competenceAssessmentBean.currentAssessmentId}"
+                        completed="#{competenceAssessmentBean.hasStudentCompletedCurrentResource()}"
+                        gradeData="#{competenceAssessmentBean.currentGradeData}"
+                        resource="#{competenceAssessmentBean.currentResType}"
+                        resourceTitle="#{competenceAssessmentBean.currentResTitle}"
+                        toUpdate=":growlMain @(.assessmentActivityList) @(.panelCompAssessment) @(.panelAssessorNotificationSelector)"
+                        learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'COMPETENCE' ? learningContext : util:addSubContext(learningContext, 'name:ACTIVITY|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/'))}"
+                        gradePanelSidebarId="gradeSidebar"
+                />
+            </h:panelGroup>
         </c:if>
 
     </ui:define>

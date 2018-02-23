@@ -101,6 +101,9 @@ public class NotificationEventProcessorFactory {
 		case AnnouncementPublished:
 			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder, credentialManager);
+		case GRADE_ADDED:
+			return new GradeAddedEventProcessor(event, session, notificationManager,
+					notificationsSettingsManager, idEncoder, contextJsonParserService);
 		default:
 			return null;
 		}

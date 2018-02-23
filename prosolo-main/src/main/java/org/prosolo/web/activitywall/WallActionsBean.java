@@ -38,7 +38,7 @@ public class WallActionsBean {
 		if (activityWallBean != null)
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		
-		PageUtil.fireSuccessfulInfoMessage("The activity has been hidden");
+		PageUtil.fireSuccessfulInfoMessage("The post has been hidden");
 		UserContextData context = loggedUser.getUserContext();
 
 		taskExecutor.execute(() -> {
@@ -62,7 +62,7 @@ public class WallActionsBean {
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		}
 		
-		PageUtil.fireSuccessfulInfoMessage("The activity has been deleted!");
+		PageUtil.fireSuccessfulInfoMessage("The post has been deleted!");
 		
 		UserContextData context = loggedUser.getUserContext();
 		taskExecutor.execute(() -> {

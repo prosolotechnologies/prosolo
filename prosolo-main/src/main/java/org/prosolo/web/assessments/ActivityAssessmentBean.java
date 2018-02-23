@@ -50,7 +50,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	public RubricCriteriaGradeData getRubricForLearningResource() {
 		return rubricManager.getRubricDataForActivity(
 				activityAssessmentData.getActivityId(),
-				idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
+				idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId()),
 				true);
 	}
 
@@ -64,10 +64,10 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {
 		try {
 			if (!assessment.isMessagesInitialized()) {
-				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
+				if (assessment.getEncodedActivityAssessmentId() != null && !assessment.getEncodedActivityAssessmentId().isEmpty()) {
 					assessment.populateDiscussionMessages(assessmentManager
 							.getActivityAssessmentDiscussionMessages(
-									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+									idEncoder.decodeId(assessment.getEncodedActivityAssessmentId()),
 									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
@@ -113,7 +113,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	@Override
 	protected void addComment() {
 		try {
-			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
+			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId());
 			UserContextData userContext = loggedUserBean.getUserContext();
 
 			AssessmentDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
@@ -141,7 +141,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	public void updateGrade() throws DbConnectionException {
 		try {
 			activityAssessmentData.setGrade(assessmentManager.updateGradeForActivityAssessment(
-					idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId()),
+					idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId()),
 					activityAssessmentData.getGrade(), loggedUserBean.getUserContext()));
 
 			if (activityAssessmentData.getCompAssessment() != null

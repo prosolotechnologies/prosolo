@@ -600,12 +600,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				activityAssessment.addParticipant(participant);
 			}
 
+			/*
+			Activity assessments can have points set here if it is automatically graded upon completion or if it is
+			external activity. Anyhow, both situations does not use a rubric for grading, thus 'rubricGrade' parameter
+			should not be added to the params map (as is the case in other situations EventType.GRADE_ADDED is fired).
+			 */
 			if (activityAssessment.getPoints() >= 0) {
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(activityAssessment.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", activityAssessment.getPoints() + "");
-				result.appendEvent(eventFactory.generateEventData(EventType.GRADE_ADDED, context, aa, null, null, params));
+
+				result.appendEvent(eventFactory.generateEventData(
+						EventType.GRADE_ADDED, context, aa, null, null, params));
 			}
 
 			result.setResult(activityAssessment);
@@ -1468,6 +1475,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				aa.setId(ad.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
+
+				if (grade instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				}
+
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, aa, null,null, params));
 				result.setResult(grade);
@@ -1521,6 +1533,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				compA.setId(ca.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
+
+				if (grade instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				}
+
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, compA, null,null, params));
 				result.setResult(grade);
@@ -1579,6 +1596,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				credA.setId(ca.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
+
+				if (grade instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				}
+
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, credA, null,null, params));
 				result.setResult(grade);

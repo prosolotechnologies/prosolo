@@ -19,6 +19,8 @@
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
 
+		<ui:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:CREDENTIAL_ASSESSMENT|id:'.concat(cc.attrs.bean.fullAssessmentData.credAssessmentId))}" />
+
 		<h:outputStylesheet library="css2" name="bootstrap-slider.css" />
 		<script
 				src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
@@ -131,11 +133,12 @@
 									gradeData="#{cc.attrs.bean.fullAssessmentData.gradeData}"
 									userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData, 'CREDENTIAL')}"
 									gradeLinkSelectorId="credential"
-									toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
+									toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 									gradePanelSidebarId="gradeSidebar"
 									toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 									growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 									role="#{cc.attrs.role}"
+									learningContext="#{learningContext}"
 							/>
 						</h:form>
 					</div>
@@ -307,6 +310,9 @@
 														   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 												#{competenceAssessment.numberOfMessages}
 											</p:commandLink>
+
+											<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessment.competenceAssessmentId).concat('/'))}" />
+
 											<assessment:gradeLabel
 													assessment="#{competenceAssessment}"
 													assessmentBean="#{cc.attrs.bean}"
@@ -315,11 +321,12 @@
 													gradeData="#{competenceAssessment.gradeData}"
 													userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(competenceAssessment.gradeData, 'COMPETENCE')}"
 													gradeLinkSelectorId="competence_#{competenceAssessment.competenceId}"
-													toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
+													toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 													gradePanelSidebarId="gradeSidebar"
 													toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 													growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 													role="#{cc.attrs.role}"
+													learningContext="#{compAssessmentLearningContext}"
 											/>
 										</h:panelGroup>
 									</div>
@@ -361,7 +368,7 @@
 																</h:link>
 															</ui:fragment>
 															<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-																		   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement, 'ACTIVITY')"
+																		   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 																		   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 																		   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 																		   oncomplete="$('#assessmentCommentsModal1').modal('show');">
@@ -376,11 +383,12 @@
 																gradeData="#{activityAssessment.grade}"
 																userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade, 'ACTIVITY')}"
 																gradeLinkSelectorId="activity_#{activityAssessment.activityId}"
-																toUpdateGradePanel=":#{cc.clientId}:resourceGradePanel:gradePanel"
+																toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 																gradePanelSidebarId="gradeSidebar"
 																toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 																growlToUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 																role="#{cc.attrs.role}"
+																learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
 															/>
 														</div>
 													</li>
@@ -457,8 +465,6 @@
 					</h:panelGroup>
 				</div>
 
-
-
 				<div class="col-md-3">
 					<div class="sidebarBlock">
 						<h2>Student</h2>
@@ -502,45 +508,48 @@
 					</div>
 				</div>
 			</div>
-
 		</div>
 
 		<assessment:assessmentCommentModal
 				id="commentModal"
-			    toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+				toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
 				messages="#{cc.attrs.bean.currentAssessmentMessages}"
 				bean="#{cc.attrs.bean.currentAssessmentBean}"
 				learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
-					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:activity|id:'.concat(activityAssessmentBean.activityAssessmentData.activityId).concat('/')))
+					? util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))
 					: cc.attrs.bean.currentResType eq 'COMPETENCE'
-						? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId))
-						: cc.attrs.learningContext}"
-
+						? util:addSubContext(learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))
+						: learningContext}"
 		/>
 
 		<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent}">
 			<assessment:rubricAssessmentPreview
-				id="rubricAssessmentPreview"
-				grade="#{cc.attrs.bean.currentGradeData}"
-				resourceType="#{cc.attrs.bean.currentResType}"
-				resourceTitle="#{cc.attrs.bean.currentResTitle}"
+					id="rubricAssessmentPreview"
+					grade="#{cc.attrs.bean.currentGradeData}"
+					resourceType="#{cc.attrs.bean.currentResType}"
+					resourceTitle="#{cc.attrs.bean.currentResTitle}"
 			/>
 		</c:if>
 
 		<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent)}">
-			<assessment:gradePanel
-					id="resourceGradePanel"
-					gradeActionMethodName="updateGrade"
-					gradeAction="#{cc.attrs.bean.updateAssessmentGrade}"
-					assessmentId="#{cc.attrs.bean.currentAssessmentId}"
-					completed="#{cc.attrs.bean.hasStudentCompletedCurrentResource()}"
-					gradeData="#{cc.attrs.bean.currentGradeData}"
-					resource="#{cc.attrs.bean.currentResType}"
-					resourceTitle="#{cc.attrs.bean.currentResTitle}"
-					toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm @(.panelAssessorNotificationSelector)"
-					learningContext="#{cc.attrs.learningContext}"
-					gradePanelSidebarId="gradeSidebar"
-			/>
+			<h:panelGroup id="gradePanelContainer">
+				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+				<ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:ACTIVITY|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))}" />
+
+				<assessment:gradePanel
+						id="resourceGradePanel"
+						gradeActionMethodName="updateGrade"
+						gradeAction="#{cc.attrs.bean.updateAssessmentGrade}"
+						assessmentId="#{cc.attrs.bean.currentAssessmentId}"
+						completed="#{cc.attrs.bean.hasStudentCompletedCurrentResource()}"
+						gradeData="#{cc.attrs.bean.currentGradeData}"
+						resource="#{cc.attrs.bean.currentResType}"
+						resourceTitle="#{cc.attrs.bean.currentResTitle}"
+						toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm @(.panelAssessorNotificationSelector)"
+						learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'CREDENTIAL' ? learningContext : ((cc.attrs.bean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)))}"
+						gradePanelSidebarId="gradeSidebar"
+				/>
+			</h:panelGroup>
 
 			<h:form id="formApproveCredential">
 				<div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
