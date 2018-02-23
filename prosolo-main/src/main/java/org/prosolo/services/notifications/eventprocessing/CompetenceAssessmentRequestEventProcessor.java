@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContextUtil;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
@@ -75,7 +74,7 @@ public class CompetenceAssessmentRequestEventProcessor extends NotificationEvent
 
 	private String getNotificationLink(PageSection section) {
 		Context ctx = ctxJsonParserService.parseContext(event.getContext());
-		long credId = LearningContextUtil.getIdFromContext(ctx, ContextName.CREDENTIAL);
+		long credId = Context.getIdFromSubContextWithName(ctx, ContextName.CREDENTIAL);
 
 		if (credId > 0) {
 			long credAssessmentId = assessmentManager

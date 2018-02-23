@@ -3,6 +3,9 @@ package org.prosolo.services.assessment.data.grading;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author stefanvuckovic
  * @date 2018-01-11
@@ -38,6 +41,22 @@ public abstract class RubricGradeData<T extends RubricCriteriaGradeData<? extend
     }
 
     public abstract RubricType getRubricType();
+
+    /**
+     * This method returns a map with values criterionId : levelId, namely for each criterion the level that was
+     * chosen when the resource was graded.
+     *
+     * @return map with values criterionId : levelId
+     */
+    public Map<Long, Long> getRubricGrade() {
+        Map<Long, Long> gradeMap = new HashMap<>();
+
+        for (RubricCriterionGradeData rubricCriterionGradeData : getRubricCriteria().getCriteria()) {
+            gradeMap.put(rubricCriterionGradeData.getId(), rubricCriterionGradeData.getLevelId());
+        }
+
+        return gradeMap;
+    }
 
     public void setRubricVisibilityForStudent(ActivityRubricVisibility rubricVisibilityForStudent) {
         this.rubricVisibilityForStudent = rubricVisibilityForStudent;

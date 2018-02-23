@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -29,10 +30,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ManagedBean(name = "credentialLibraryBean")
 @Component("credentialLibraryBean")
@@ -147,7 +145,8 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a credential");
+			PageUtil.fireErrorMessage("Error while enrolling a " +
+					ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 

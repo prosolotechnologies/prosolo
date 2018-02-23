@@ -2712,4 +2712,65 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager()
+					.load(TargetCompetence1.class, targetCompetenceId);
+			tc.setProgress(100);
+			tc.setDateCompleted(new Date());
+
+			Result<Void> res = new Result<>();
+			TargetCompetence1 tComp = new TargetCompetence1();
+			tComp.setId(targetCompetenceId);
+			res.appendEvent(eventFactory.generateEventData(
+					EventType.Completion, context, tComp, null, null, null));
+
+			EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+					context, tComp, null, null, null);
+			ev.setProgress(100);
+			res.appendEvent(ev);
+
+			//flush in order to calculate correct progress for credential
+			persistence.currentManager().flush();
+			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
+
+			return res;
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error marking the competence as completed");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tComp " +
+					"FROM TargetCompetence1 tComp " +
+					"WHERE tComp.competence.id = :compId " +
+					"AND tComp.user.id = :userId ";
+
+			return (TargetCompetence1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setLong("userId", userId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving target competence id");
+		}
+	}
+
 }

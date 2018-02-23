@@ -27,7 +27,7 @@
 							<p:growl id="emailNotificationsSettingsFormGrowl" showDetail="true" />
 							
 							<ui:repeat
-								value="#{notificationsSettingsBean.notificationsSettings.settings}"
+								value="#{notificationsSettingsBean.notificationsSettings}"
 								var="notificationSettings">
 								<div class="checkbox checkLine">
 									<h:selectBooleanCheckbox id="notificationSettings" value="#{notificationSettings.subscribedEmail}" />
