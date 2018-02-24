@@ -12,6 +12,7 @@ import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
@@ -34,13 +35,13 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 			"SELECT cred.id " +
 			"FROM Credential1 cred " +
 			"WHERE cred.deleted = :deleted " +
-			"AND cred.published = :published";
+			"AND cred.type = :type";
 		List<Long> result =null;
 		try {
 			t = session.beginTransaction();
 			result = session.createQuery(query)
 					 .setBoolean("deleted", false)
-					 .setBoolean("published", true)
+					 .setString("type", CredentialType.Delivery.name())//.setBoolean("published", true)
 					 .list();
 			t.commit();
 		} catch(Exception ex) {

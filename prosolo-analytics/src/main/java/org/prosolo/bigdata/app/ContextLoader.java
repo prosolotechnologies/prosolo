@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
+import org.prosolo.bigdata.dal.persistence.CourseDAO;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
@@ -77,6 +80,8 @@ public class ContextLoader implements ServletContextListener {
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();
 		}
+		CourseDAO courseDAO=new CourseDAOImpl(false);
+		courseDAO.getAllCredentialIds();
 		System.out.println("CONTEXT INITIALIZATION FINISHED");
 	}
 

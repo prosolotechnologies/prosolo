@@ -42,7 +42,10 @@ public class CronInitializer extends HttpServlet {
 
 		for(Map.Entry<String, QuartzJobConfig> entry: jobs.entrySet()){
 			try {
-				cronScheduler.checkAndActivateJob(entry.getKey(), entry.getValue());
+				if (cronScheduler.isSchedulerActivated()){
+					cronScheduler.checkAndActivateJob(entry.getKey(), entry.getValue());
+				}
+
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -78,6 +78,19 @@ public class CronSchedulerImpl implements CronScheduler {
 			e.printStackTrace();
 		}
 	}
+	@Override
+	public Boolean isSchedulerActivated(){
+		Boolean activated=false;
+		try {
+			if(sched!=null){
+				activated =sched.isStarted();
+			}
+
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+		return activated;
+	}
 
 
 
@@ -190,7 +203,7 @@ public class CronSchedulerImpl implements CronScheduler {
 if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().config.schedulerConfig.createTables){
 	try{
 		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
-		ScriptRunner runner = new ScriptRunner(con, true, true);
+		ScriptRunner runner = new ScriptRunner(con, true, false);
 		System.out.println("CREATE QUARTZ TABLES...");
 		InputStream inpStream = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
@@ -203,6 +216,7 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 		logger.error(ioex);
 	}
 }
+
 
 		SchedulerFactory sf = new StdSchedulerFactory();
 
