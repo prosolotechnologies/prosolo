@@ -34,9 +34,7 @@ public class HibernateUtil {
     private static SessionFactory sessionFactory;
      
     public static synchronized SessionFactory getSessionFactory() {
-    	System.out.println("GET SESSION FACTORY...");
          if (sessionFactory == null) {
-        	System.out.println("SESSION FACTORY NULL");
         	Config config=CommonSettings.getInstance().config;
         	String host = config.mysqlConfig.host;
 			int port = config.mysqlConfig.port;
@@ -100,7 +98,6 @@ public class HibernateUtil {
 	}
 
     public static DataSource dataSource() {
-    	System.out.println("DATA SOURCE...");
     	Config config = CommonSettings.getInstance().config;
 		MySQLConfig mySQLConfig=config.mysqlConfig;
 		String username = mySQLConfig.user;
@@ -144,7 +141,6 @@ public class HibernateUtil {
 			 return ds;
 	 }
 	public static DataSource getBasicDataSource() throws PropertyVetoException {
-		System.out.println("BASIC DATA SOURCE...");
 		Config config = CommonSettings.getInstance().config;
 		MySQLConfig mySQLConfig=config.mysqlConfig;
 		String username = mySQLConfig.user;

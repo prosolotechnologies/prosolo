@@ -65,7 +65,7 @@ public class ContextLoader implements ServletContextListener {
 		// TwitterHashtagsStreamsManagerImpl();
 		// manager.initialize();
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming){
-			System.out.println("INITIALIZED TWITTER STREAMING");
+			logger.info("INITIALIZED TWITTER STREAMING");
 		
 			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
 			twitterManager.initialize();
@@ -76,13 +76,13 @@ public class ContextLoader implements ServletContextListener {
 		// Initialization of Streaming manager that is responsible for
 		// collecting information from Prosolo through the Rabbitmq
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming){
-			System.out.println("INITIALIZED RABBITMQ STREAMING");
+			logger.info("INITIALIZED RABBITMQ STREAMING");
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();
 		}
 		CourseDAO courseDAO=new CourseDAOImpl(false);
 		courseDAO.getAllCredentialIds();
-		System.out.println("CONTEXT INITIALIZATION FINISHED");
+		logger.info("CONTEXT INITIALIZATION FINISHED");
 	}
 
 	@Override

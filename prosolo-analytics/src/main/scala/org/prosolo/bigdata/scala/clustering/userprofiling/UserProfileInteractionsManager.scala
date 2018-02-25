@@ -11,13 +11,14 @@ import org.prosolo.bigdata.spark.scala.clustering.UserProfileInteractionsSparkJo
   * Created by zoran on 29/03/16.
   */
 object UserProfileInteractionsManager{
-  val clusteringDAOManager = new ClusteringDAOImpl
+
   val dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance()
   //val sc = SparkContextLoader.getSC
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
 
   def runAnalyser() = {
     println("RUN ANALYZER")
+    val clusteringDAOManager = new ClusteringDAOImpl
     val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
     val userProfileInteractionsSparkJob=new UserProfileInteractionsSparkJob(dbName)
     userProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)

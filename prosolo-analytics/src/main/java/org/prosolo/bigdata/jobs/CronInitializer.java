@@ -32,13 +32,13 @@ public class CronInitializer extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		// @SuppressWarnings("unused")
-		System.out.println("CRON INITIALIZER INIT");
+		logger.info("CRON INITIALIZER INIT");
 		CronScheduler cronScheduler = CronSchedulerImpl.getInstance();
 	 	Map<String, QuartzJobConfig> jobs=Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
 		//Map<String, QuartzJobConfig> jobs=null;
 		//List<QuartzJobConfig> jobsConfigs = Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
 		// Set<String> jobsKeys=jobsMap.keySet();
-		System.out.println("JOBS NUMBER:"+jobs.size());
+		logger.info("JOBS NUMBER:"+jobs.size());
 
 		for(Map.Entry<String, QuartzJobConfig> entry: jobs.entrySet()){
 			try {
@@ -54,7 +54,7 @@ public class CronInitializer extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("CRON INITIALIZER FINISHED");
+		logger.info("CRON INITIALIZER FINISHED");
 		/*for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
 			try {
