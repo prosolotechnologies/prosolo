@@ -245,7 +245,7 @@
                                                             {{#followers}}
                                                             <tr>
                                                                 <td valign="top">
-                                                                    <a href="#">{{actorFullName}}</a>
+                                                                    <a href="{{link}}" target="_blank">{{actorFullName}}</a>
                                                                 </td>
                                                             </tr>
                                                             {{/followers}}
@@ -253,8 +253,11 @@
                                                         </table>
                                                         <br />
                                                         {{/hasFollowers}}
+                                                        {{#hasAnnouncements}}
+                                                        You have <strong>{{announcementsCount}} new announcement(s)</strong>
+                                                        {{/hasAnnouncements}}
                                                         {{#hasComments}}
-                                                        You have <strong>5 new comments</strong>:
+                                                        You have <strong>{{commentsCount}} new comments</strong>:
                                                         <br />
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -275,6 +278,73 @@
                                                             </tr>
                                                         </table>
                                                         {{/hasComments}}
+
+                                                        {{#hasAssessmentsApproved}}
+                                                        You have <strong>5 new assessments approved</strong>:
+                                                        <br />
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Gustavo Fring commented on a competence <a href="#">Define social network analysis</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Jesse Pinkman commented on a competence <a href="#">Lorem Ipsum</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="#">View all</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        {{/hasAssessmentsApproved}}
+                                                        {{#hasAssessmentsComments}}
+                                                        You have <strong>5 new assessments comments</strong>:
+                                                        <br />
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Gustavo Fring commented on a competence <a href="#">Define social network analysis</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Jesse Pinkman commented on a competence <a href="#">Lorem Ipsum</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="#">View all</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        {{/hasAssessmentsComments}}
+                                                        {{#hasAssessmentsRequest}}
+                                                        You have <strong>5 new assessment requests</strong>:
+                                                        <br />
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Gustavo Fring commented on a competence <a href="#">Define social network analysis</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    Jesse Pinkman commented on a competence <a href="#">Lorem Ipsum</a>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="#">View all</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        {{/hasAssessmentsRequest}}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -298,9 +368,9 @@
                                         <table border="0" cellpadding="10" cellspacing="0" width="100%">
                                             <tr>
                                                 <td valign="middle" id="utility">
-                                                    <div>
-                                                        ProSolo Technologies Inc &copy; 2016<br />
-                                                        &nbsp;<a href="mailto:prosolo.webmaster@gmail.com">prosolo.webmaster@gmail.com</a> | <a href="*|UPDATE_PROFILE|*">Notification Settings</a>&nbsp;
+                                                    <div style="color: #AAB1B5;font-family: Arial;font-size: 11px;line-height: 160%;text-align: center;">
+                                                        ProSolo Technologies Inc &copy; {{year}}<br/>
+                                                        &nbsp;<a href="mailto:{{supportEmail}}" style="color: #64BFCD;font-weight: normal;text-decoration: none;">{{supportEmail}}</a> | <a href="{{domain}}settings/email" style="color: #64BFCD;font-weight: normal;text-decoration: none; ">Notification Settings</a>&nbsp;
                                                     </div>
                                                 </td>
                                             </tr>

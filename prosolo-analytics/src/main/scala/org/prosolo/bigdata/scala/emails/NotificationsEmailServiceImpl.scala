@@ -24,13 +24,8 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
         (createEmailGenerator(emailSummary),"zoran.jeremic@gmail.com")
       }
     }.toMap//.asInstanceOf[java.util.Map[EmailContentGenerator,String]]
-    emailsToSend.foreach{
-      case(emailContentGenerator, email)=>
-        println("EMAIL:"+email)
-    }
     val emailSender=new EmailSender
-    println("EMAIL SENDER SENDING")
-    emailSender.sendBatchEmails(emailsToSend.asJava)
-    println("FINISHED SENDING")
+        emailSender.sendBatchEmails(emailsToSend.asJava)
+    println("FINISHED SENDING EMAILS")
   }
 }

@@ -2,7 +2,7 @@ package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
-import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, NotificationsSummary, UserNotificationEmailsSparkJob}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary,  UserNotificationEmailsSparkJob}
 import org.prosolo.common.util.date.DateEpochUtil
 import org.prosolo.common.config.CommonSettings
 
