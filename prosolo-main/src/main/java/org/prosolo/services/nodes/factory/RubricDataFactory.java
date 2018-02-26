@@ -4,7 +4,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.assessments.grading.*;
+import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
@@ -120,85 +120,7 @@ public class RubricDataFactory {
 		rubric.syncCriterionWithExistingDescriptions(criterion, descriptions);
 	}
 
-	public RubricCriterionGradeData getActivityRubricCriterionData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {
-		RubricCriterionGradeData criterionData = crit.accept(
-				/**
-				 * Visitor that sets criterion grade data according to a criterion type
-				 */
-				new CriterionVisitor<RubricCriterionGradeData>() {
-					@Override
-					public RubricCriterionGradeData visit(Criterion criterion) {
-						//descriptive criterion
-						RubricCriterionGradeData criterionData = new RubricCriterionGradeData();
-						setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
-						setCriterionAssessmentInfo(assessment, criterionData);
-						return criterionData;
-					}
-
-					@Override
-					public RubricCriterionGradeData visit(PointCriterion criterion) {
-						//point based criterion
-						PointRubricCriterionGradeData criterionData = new PointRubricCriterionGradeData();
-						setItemData(criterionData, criterion.getId(), criterion.getTitle(), criterion.getOrder());
-						criterionData.setWeight(criterion.getPoints());
-						setCriterionAssessmentInfo(assessment, criterionData);
-						return criterionData;
-					}
-				});
-
- 		for (CriterionLevel cl : levels) {
- 			RubricLevelGradeData lvl = cl.getLevel().accept(
-					/**
-					 * Visitor that sets level grade data according to level type
-					 */
-					new LevelVisitor<RubricLevelGradeData>() {
-						@Override
-						public RubricLevelGradeData visit(Level level) {
-							//descriptive level
-							RubricLevelGradeData lvl = new RubricLevelGradeData();
-							setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
-							lvl.setDescription(cl.getDescription());
-							return lvl;
-						}
-
-						@Override
-						public RubricLevelGradeData visit(PointLevel level) {
-							//point based level
-							PointRubricLevelGradeData lvl = new PointRubricLevelGradeData();
-							setItemData(lvl, level.getId(), level.getTitle(), level.getOrder());
-							lvl.setWeight(level.getPoints());
-							lvl.setDescription(cl.getDescription());
-							return lvl;
-						}
-
-						@Override
-						public RubricLevelGradeData visit(PointRangeLevel level) {
-							//TODO implement when needed
-							return null;
-						}
-					});
-
-			criterionData.addLevel(lvl);
-		}
-
-		return criterionData;
-	}
-
-	private void setCriterionAssessmentInfo(CriterionAssessment assessment, RubricCriterionGradeData criterion) {
-		if (assessment != null) {
-			criterion.setComment(assessment.getComment());
-			criterion.setLevelId(assessment.getLevel().getId());
-		}
-	}
-
-	private <T extends RubricItemGradeData> void setItemData(T item, long id, String title, int order) {
-		item.setId(id);
-		item.setName(title);
-		item.setOrder(order);
-	}
-
 	//get rubric entities based on rubric data
-
 	public Level getLevel(RubricType rubricType, Rubric rubric, RubricLevelData rubricLevelData) {
 		if (rubricLevelData == null) {
 			return null;

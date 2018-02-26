@@ -3,7 +3,7 @@ package org.prosolo.web.rubrics;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
-import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;

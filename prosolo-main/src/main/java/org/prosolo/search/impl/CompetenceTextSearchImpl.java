@@ -153,7 +153,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						/*
 						 * access rights are already checked when querying ES, so we don't need to do that again
 						 */
-						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false);
+						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false, false);
 						
 						if (res != null) {
 							response.addFoundNode(res);
@@ -401,7 +401,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						comp.setArchived(archived);
 						comp.setDatePublished(datePublished);
 
-						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, false);
+						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, null, false);
 						cd.setNumberOfStudents(compManager.countNumberOfStudentsLearningCompetence(id));
 						long lStageId = Long.parseLong(hit.getSource().get("learningStageId").toString());
 						cd.setLearningStageEnabled(lStageId > 0);

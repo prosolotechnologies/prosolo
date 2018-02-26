@@ -57,7 +57,7 @@
 								<div class="tagCompleted item">Completed</div>
 							</ui:fragment>
 
-							<ui:fragment>
+							<ui:remove>
 								<h:link outcome="/assessments"
 										class="btn btn-green-stroke btn-sm item">
 									View Assessments
@@ -76,7 +76,7 @@
 															   credentialTitle="#{announcementBeanStudent.credentialData.title}"
 															   role="#{cc.attrs.role}"
 															   toUpdate=":formMain:growlMain"/>
-							</ui:fragment>
+							</ui:remove>
 						</div>
 						<div class="whiteBarRight">
 							<h:panelGroup

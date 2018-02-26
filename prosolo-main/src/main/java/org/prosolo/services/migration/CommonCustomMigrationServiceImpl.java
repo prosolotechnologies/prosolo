@@ -2,39 +2,24 @@ package org.prosolo.services.migration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialCompetenceAssessment;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author stefanvuckovic
@@ -68,11 +53,11 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             for (CredentialAssessment ca : credentialAssessments) {
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getAssessedStudent().getId(), false, false, true);
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), false, false, true);
                 for (CompetenceData1 cd : comps) {
                     if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
                         Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getAssessedStudent().getId(), assessorId, ca.getType(), UserContextData.empty());
+                                cd, ca.getStudent().getId(), assessorId, null, ca.getType(), false, UserContextData.empty());
                         CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
                         cca.setCredentialAssessment(ca);
                         cca.setCompetenceAssessment(res.getResult());
@@ -95,6 +80,77 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
     private List<CredentialAssessment> getAllCredentialAssessments() {
         String q =
                 "SELECT ca FROM CredentialAssessment ca";
+        return persistence.currentManager()
+                .createQuery(q)
+                .list();
+    }
+
+    @Override
+    @Transactional
+    public void migrateAssessmentDiscussions() {
+        logger.info("MIGRATION STARTED");
+        migrateCompetenceAssessmentDiscussions();
+        migrateCredentialAssessmentDiscussions();
+        logger.info("MIGRATION FINISHED");
+    }
+
+    private void migrateCompetenceAssessmentDiscussions() {
+        try {
+            List<CompetenceAssessment> competenceAssessments = getAllCompetenceAssessments();
+            for (CompetenceAssessment ca : competenceAssessments) {
+                List<Long> participantIds = new ArrayList<>();
+                participantIds.add(ca.getStudent().getId());
+                if (ca.getAssessor() != null) {
+                    participantIds.add(ca.getAssessor().getId());
+                }
+                Date now = new Date();
+                for (Long userId : participantIds) {
+                    CompetenceAssessmentDiscussionParticipant participant = new CompetenceAssessmentDiscussionParticipant();
+                    User user = loadResource(User.class, userId);
+                    participant.setAssessment(ca);
+                    participant.setDateCreated(now);
+                    participant.setRead(true);
+
+                    participant.setParticipant(user);
+                    saveEntity(participant);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error migrating the data");
+        }
+    }
+
+    private void migrateCredentialAssessmentDiscussions() {
+        try {
+            List<CredentialAssessment> assessments = getAllCredentialAssessments();
+            for (CredentialAssessment ca : assessments) {
+                List<Long> participantIds = new ArrayList<>();
+                participantIds.add(ca.getStudent().getId());
+                if (ca.getAssessor() != null) {
+                    participantIds.add(ca.getAssessor().getId());
+                }
+                Date now = new Date();
+                for (Long userId : participantIds) {
+                    CredentialAssessmentDiscussionParticipant participant = new CredentialAssessmentDiscussionParticipant();
+                    User user = loadResource(User.class, userId);
+                    participant.setAssessment(ca);
+                    participant.setDateCreated(now);
+                    participant.setRead(true);
+
+                    participant.setParticipant(user);
+                    saveEntity(participant);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error migrating the data");
+        }
+    }
+
+    private List<CompetenceAssessment> getAllCompetenceAssessments() {
+        String q =
+                "SELECT ca FROM CompetenceAssessment ca";
         return persistence.currentManager()
                 .createQuery(q)
                 .list();

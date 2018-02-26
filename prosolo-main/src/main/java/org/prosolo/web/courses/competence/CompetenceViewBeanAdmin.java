@@ -75,7 +75,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 						unitTitle = td.getUnitTitle();
 
 						competenceData = competenceManager.getCompetenceData(
-								decodedCredId, decodedCompId, true, true, true,
+								decodedCredId, decodedCompId, true, false, true, true,
 								false);
 
 						if (decodedCredId > 0) {

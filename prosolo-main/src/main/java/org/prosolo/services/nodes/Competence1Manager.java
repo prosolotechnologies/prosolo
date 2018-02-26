@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -16,7 +17,6 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.w3c.dom.events.EventException;
@@ -96,7 +96,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
@@ -113,7 +113,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -416,4 +416,29 @@ public interface Competence1Manager {
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 
 	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
+
+	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Returns full target competence data when id of a target competence is not
+	 * known.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param loadLearningPathContent
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	 CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
+												   boolean loadAssessmentConfig, boolean loadLearningPathContent)
+			 throws DbConnectionException;
+
+	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException;
+
+	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
+
+	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
+
 }

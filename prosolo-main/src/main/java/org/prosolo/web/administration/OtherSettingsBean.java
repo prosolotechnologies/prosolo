@@ -282,6 +282,16 @@ public class OtherSettingsBean implements Serializable {
 		}
 	}
 
+	public void migrateAssessmentDiscussions() {
+		try {
+			commonCustomMigrationService.migrateAssessmentDiscussions();
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment discussions migrated");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error migrating assessment discussions");
+		}
+	}
+
 	//GETTERS AND SETTERS
 	
 	public List<SymptomData> getSymptoms() {

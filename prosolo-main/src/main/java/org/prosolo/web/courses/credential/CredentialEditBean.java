@@ -7,11 +7,11 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
@@ -42,7 +43,7 @@ import java.util.*;
 @ManagedBean(name = "credentialEditBean")
 @Component("credentialEditBean")
 @Scope("view")
-public class CredentialEditBean implements Serializable {
+public class CredentialEditBean extends CompoundLearningResourceAssessmentSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 3430513767875001534L;
 
@@ -92,6 +93,7 @@ public class CredentialEditBean implements Serializable {
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error loading the page");
 			}
+			credentialData.setAssessmentTypes(getAssessmentTypes());
 		} else {
 			try {
 				decodedId = idEncoder.decodeId(id);
@@ -105,6 +107,33 @@ public class CredentialEditBean implements Serializable {
 				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		}
+
+		loadAssessmentData();
+	}
+
+	@Override
+	public boolean isLimitedEdit() {
+		return isDelivery();
+	}
+
+	@Override
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return credentialData.getAssessmentSettings();
+	}
+
+	@Override
+	public List<Long> getAllUnitsResourceIsConnectedTo() {
+		if (decodedId > 0) {
+			return unitIds;
+		} else {
+			//if new credential is being created, we return units where credential creator is added as manager
+			return unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), SystemRoleNames.MANAGER);
+		}
+	}
+
+	@Override
+	public boolean isPointBasedResource() {
+		return isPointBasedResource(credentialData.getAssessmentSettings().getGradingMode(), credentialData.getAssessmentSettings().getRubricId(), credentialData.getAssessmentSettings().getRubricType());
 	}
 
 	public boolean hasDeliveryStarted() {
@@ -434,7 +463,7 @@ public class CredentialEditBean implements Serializable {
 			}
 		} catch (StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Delete failed because credential has been edited in the meantime. Please review those changes and try again");
+			PageUtil.fireErrorMessage("Delete failed because "+ResourceBundleUtil.getMessage("label.credential").toLowerCase()+" has been edited in the meantime. Please review those changes and try again");
 			//reload data
 			reloadCredential();
 		} catch (DbConnectionException e) {
@@ -445,7 +474,7 @@ public class CredentialEditBean implements Serializable {
 			//if integrity rule is violated it is due to students already started learning, so they have a reference to this delivery
 			logger.error(div);
 			div.printStackTrace();
-			PageUtil.fireErrorMessage("There are students that started learning this credential so it cannot be deleted");
+			PageUtil.fireErrorMessage("There are students that started learning this "+ResourceBundleUtil.getMessage("label.credential").toLowerCase()+" so it cannot be deleted");
 		}
 	}
 	
@@ -601,7 +630,7 @@ public class CredentialEditBean implements Serializable {
 //	}
 	 
 	public String getPageHeaderTitle() {
-		return credentialData.getId() > 0 ? credentialData.getTitle() : "New Credential";
+		return credentialData.getId() > 0 ? credentialData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.credential");
 	}
 	
 	public boolean isCreateUseCase() {
@@ -667,5 +696,4 @@ public class CredentialEditBean implements Serializable {
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;
 	}
-	
 }

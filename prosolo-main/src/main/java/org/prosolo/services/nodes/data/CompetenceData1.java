@@ -2,9 +2,12 @@ package org.prosolo.services.nodes.data;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
@@ -78,12 +81,18 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	//by default competence can be unpublished
 	private boolean canUnpublish = true;
 
+	//assessment
+	private LearningResourceAssessmentSettings assessmentSettings;
+	private List<AssessmentTypeConfig> assessmentTypes;
+
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		tags = new HashSet<>();
 		evidences = new ArrayList<>();
+		assessmentSettings = new LearningResourceAssessmentSettings();
+		assessmentTypes = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 
@@ -96,8 +105,27 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 					return true;
 				}
 			}
+
+			if (getAssessmentSettings().hasObjectChanged()) {
+				return true;
+			}
+
+			for (AssessmentTypeConfig atc : getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					return true;
+				}
+			}
 		}
 		return changed;
+	}
+
+	@Override
+	public void startObservingChanges() {
+		super.startObservingChanges();
+		getAssessmentSettings().startObservingChanges();
+		for (AssessmentTypeConfig atc : getAssessmentTypes()) {
+			atc.startObservingChanges();
+		}
 	}
 
 	public long getPublishedTime() {
@@ -115,6 +143,22 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		if(activity != null) {
 			activities.add(activity);
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	private boolean isAssessmentTypeEnabled(AssessmentType type) {
+		if (assessmentTypes == null) {
+			return false;
+		}
+		AssessmentTypeConfig aType = assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
+		return aType.isEnabled();
 	}
 	
 	public boolean isUniversityCreated() {
@@ -533,5 +577,17 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setLearningStage(LearningStageData learningStage) {
 		this.learningStage = learningStage;
+	}
+
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return assessmentSettings;
+	}
+
+	public List<AssessmentTypeConfig> getAssessmentTypes() {
+		return assessmentTypes;
+	}
+
+	public void setAssessmentTypes(List<AssessmentTypeConfig> assessmentTypes) {
+		this.assessmentTypes = assessmentTypes;
 	}
 }

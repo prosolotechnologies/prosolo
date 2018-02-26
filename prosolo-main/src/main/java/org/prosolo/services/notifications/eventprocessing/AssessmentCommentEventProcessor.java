@@ -7,8 +7,8 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -17,11 +17,11 @@ import org.prosolo.web.util.page.PageSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssessmentCommentEventProcessor extends NotificationEventProcessor {
+public abstract class AssessmentCommentEventProcessor extends NotificationEventProcessor {
 	
 	private static Logger logger = Logger.getLogger(AssessmentCommentEventProcessor.class);
 	
-	private AssessmentManager assessmentManager;
+	protected AssessmentManager assessmentManager;
 
 	public AssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
@@ -42,9 +42,8 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		List<Long> participantIds;
 		AssessmentBasicData assessmentInfo;
 		try {
-			participantIds = assessmentManager.getParticipantIds(assessmentId);
-			assessmentInfo = assessmentManager.getBasicAssessmentInfoForActivityAssessment(
-					assessmentId);
+			participantIds = getParticipantIds(assessmentId);
+			assessmentInfo = getBasicAssessmentInfo(assessmentId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -66,6 +65,11 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		}
 		return receivers;
 	}
+
+	protected abstract List<Long> getParticipantIds(long assessmentId);
+	protected abstract AssessmentBasicData getBasicAssessmentInfo(long assessmentId);
+	protected abstract long getCredentialId(Event event);
+	protected abstract long getCredentialAssessmentId(Event event);
 
 	@Override
 	long getSenderId() {
@@ -89,9 +93,9 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 
 	private String getNotificationLink(PageSection section) {
 		return section.getPrefix() + "/credentials/" +
-				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+				idEncoder.encodeId(getCredentialId(event)) +
 				"/assessments/" +
-				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialAssessmentId")));
+				idEncoder.encodeId(getCredentialAssessmentId(event));
 	}
 
 }

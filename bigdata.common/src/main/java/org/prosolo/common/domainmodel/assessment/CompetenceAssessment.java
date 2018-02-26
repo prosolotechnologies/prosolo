@@ -7,6 +7,8 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +16,8 @@ import java.util.Set;
 public class CompetenceAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = 4528017184503484059L;
-	
+
+	private String message;
 	private boolean approved;
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
@@ -23,8 +26,28 @@ public class CompetenceAssessment extends BaseEntity {
 	private User assessor;
 	private AssessmentType type;
 	private int points;
+	private Date lastAskedForAssessment;
+	private boolean assessorNotified;
+	private Date lastAssessment;
 
 	private Set<CredentialCompetenceAssessment> credentialAssessments;
+	private Set<CompetenceAssessmentDiscussionParticipant> participants;
+	private Set<CompetenceAssessmentMessage> messages;
+
+	public CompetenceAssessment() {
+		this.credentialAssessments = new HashSet<>();
+		this.participants = new HashSet<>();
+		this.messages = new HashSet<>();
+	}
+
+	@Column(length = 90000)
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
@@ -119,5 +142,57 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setCredentialAssessments(Set<CredentialCompetenceAssessment> credentialAssessments) {
 		this.credentialAssessments = credentialAssessments;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	public Set<CompetenceAssessmentDiscussionParticipant> getParticipants() {
+		return participants;
+	}
+
+	public void setParticipants(Set<CompetenceAssessmentDiscussionParticipant> participants) {
+		this.participants = participants;
+	}
+
+	@OneToMany(mappedBy = "assessment")
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public Set<CompetenceAssessmentMessage> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(Set<CompetenceAssessmentMessage> messages) {
+		this.messages = messages;
+	}
+
+	public CompetenceAssessmentDiscussionParticipant getParticipantByUserId(long id) {
+		for (CompetenceAssessmentDiscussionParticipant participant : getParticipants()) {
+			if (participant.getParticipant().getId() == id) {
+				return participant;
+			}
+		}
+		return null;
+	}
+
+	public Date getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(Date lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
+	}
+
+	public Date getLastAssessment() {
+		return lastAssessment;
+	}
+
+	public void setLastAssessment(Date lastAssessment) {
+		this.lastAssessment = lastAssessment;
+	}
+
+	public boolean isAssessorNotified() {
+		return assessorNotified;
+	}
+
+	public void setAssessorNotified(boolean assessorNotified) {
+		this.assessorNotified = assessorNotified;
 	}
 }

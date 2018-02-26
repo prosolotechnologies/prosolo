@@ -3,19 +3,19 @@
  */
 package org.prosolo.web.settings;
 
-import java.io.Serializable;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.settings.data.UserNotificationSettingsData;
+import org.prosolo.web.settings.data.NotificationSettingsData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author "Nikola Milikic"
@@ -33,19 +33,19 @@ public class NotificationsSettingsBean implements Serializable {
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private NotificationsSettingsManager notificationsSettingsManager;
 	
-	private UserNotificationSettingsData notificationsSettings;
+	private List<NotificationSettingsData> notificationsSettings;
 	
 	@PostConstruct
 	public void initialize() {
 		if (loggedUser.getNotificationsSettings() != null)
-			this.notificationsSettings = new UserNotificationSettingsData(loggedUser.getNotificationsSettings());
+			this.notificationsSettings = loggedUser.getNotificationsSettings();
 	}
 	
 	/*
 	 * ACTIONS
 	 */
 	public void saveChanges() {
-		notificationsSettingsManager.updateNotificationSettings(loggedUser.getNotificationsSettings(), this.notificationsSettings);
+		notificationsSettingsManager.updateNotificationSettings(loggedUser.getUserId(), this.notificationsSettings);
 		
 		PageUtil.fireSuccessfulInfoMessage(":notificationsSettingsForm:notificationsSettingsForm", "Notifications settings have been updated");
 	}
@@ -54,9 +54,12 @@ public class NotificationsSettingsBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
-	public UserNotificationSettingsData getNotificationsSettings() {
+
+	public List<NotificationSettingsData> getNotificationsSettings() {
 		return notificationsSettings;
 	}
 
+	public void setNotificationsSettings(List<NotificationSettingsData> notificationsSettings) {
+		this.notificationsSettings = notificationsSettings;
+	}
 }

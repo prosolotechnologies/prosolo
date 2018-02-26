@@ -9,7 +9,8 @@
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:f="http://java.sun.com/jsf/core"
-		xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
+		xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -18,6 +19,7 @@
 		<composite:attribute name="readOnly" required="true" />
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="startedLearning" default="false" />
+		<composite:attribute name="toUpdateOnEvidencePost" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -52,7 +54,7 @@
 								id="submitEvidence"
 								bean="#{cc.attrs.bean}"
 								addEvidenceToCompetence="true"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences #{cc.attrs.toUpdateOnEvidencePost}"
 								learningContext="#{cc.attrs.learningContext}"
 								submitButtonText="Submit"
 						/>
@@ -157,6 +159,78 @@
 							<h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
 						</div>
 					</div>
+					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.startedLearning and (cc.attrs.bean.decodedCredId gt 0 or cc.attrs.bean.competenceData.peerAssessmentEnabled or cc.attrs.bean.competenceData.selfAssessmentEnabled)}">
+						<div class="sidebarBlock">
+							<div class="assessmentsSidebarHead">
+								<h2>Assessments</h2>
+								<ui:remove><a href="focus-area-assessment.html">View All</a></ui:remove>
+							</div>
+							<ul class="assessmentsSidebar">
+
+								<ui:remove>
+									<c:if test="#{cc.attrs.bean.competenceData.peerAssessmentEnabled}">
+										<li>
+											<h3>Peer Assessment</h3>
+											<div class="right">
+												<p:commandLink
+														pt:data-toggle="modal"
+														value="Ask"
+														action="#{cc.attrs.bean.initAskForAssessment('PEER_ASSESSMENT')}"
+														update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+														oncomplete="$('#askAssessment').modal('show');">
+												</p:commandLink>
+												<div class="assessmentsStar">
+													<div class="star starEmpty"></div>
+												</div>
+											</div>
+										</li>
+									</c:if>
+								</ui:remove>
+
+								<c:if test="#{cc.attrs.bean.decodedCredId gt 0}">
+									<li>
+										<h3>Tutor Assessment</h3>
+										<div class="right">
+											<p:commandLink
+													pt:data-toggle="modal"
+													value="Ask"
+													action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
+													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+													oncomplete="$('#askAssessment').modal('show');">
+											</p:commandLink>
+											<div class="assessmentsStar">
+												<div class="star starEmpty"></div>
+											</div>
+										</div>
+									</li>
+								</c:if>
+								<ui:remove>
+									<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
+										<li>
+											<h3>Self-Assessment</h3>
+											<div class="right">
+												<a href="javascript:void(0);" onclick="showPopupSidebar(this)">Write</a>
+												<div class="assessmentsStar">
+													<div class="star starYellow"></div>
+												</div>
+											</div>
+										</li>
+									</c:if>
+								</ui:remove>
+							</ul>
+							<h:form id="formAskForAssessment">
+								<assessment:askForAssessment
+										id="askForAssessment"
+										bean="#{askForCompetenceAssessmentBean}"
+										resource="COMPETENCE"
+										resourceTitle="#{cc.attrs.bean.competenceData.title}"
+										role="#{cc.attrs.role}"
+										toUpdate="#{cc.attrs.growlToUpdate}"
+										learningContext="#{cc.attrs.learningContext}"
+								/>
+							</h:form>
+						</div>
+					</c:if>
 				</div>
 			</div>
 

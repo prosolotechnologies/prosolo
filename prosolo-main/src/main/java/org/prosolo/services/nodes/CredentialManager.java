@@ -74,7 +74,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws ResourceNotFoundException
 	 * @throws DbConnectionException
 	 */
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadAssessmentConfig,
 			boolean loadCompetences, long userId, AccessMode accessMode)
 					throws ResourceNotFoundException, DbConnectionException;
 
@@ -306,17 +306,6 @@ public interface CredentialManager extends AbstractManager {
 
 	UserData chooseRandomPeer(long credId, long userId);
 	
-	
-	/**
-	 * Returns list of ids of all assessors that this particular user has asked
-	 * for assessment for the credential with the given id
-	 * 
-	 * @param credentialId credential id
-	 * @param userId user id
-	 * @return list of ids
-	 */
-	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
-	
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 
@@ -360,7 +349,7 @@ public interface CredentialManager extends AbstractManager {
 
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 
-	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadAssessmentConfig, boolean loadCompetences)
 			throws DbConnectionException;
 	
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 

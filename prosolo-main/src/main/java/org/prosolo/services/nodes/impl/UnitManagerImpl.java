@@ -18,11 +18,13 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -52,6 +54,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     private UserGroupManager userGroupManager;
     @Inject
     private UnitManager self;
+    @Inject private RoleManager roleManager;
 
     public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
@@ -939,6 +942,18 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException {
+        try {
+            long roleId = roleManager.getRoleIdByName(role);
+            return getUserUnitIdsInRole(userId, roleId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving user units");
         }
     }
 

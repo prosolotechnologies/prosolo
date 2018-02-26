@@ -12,4 +12,6 @@ public interface CommonCustomMigrationService {
     void migrateAssessments();
 
     EventQueue migrateAssessmentsAndGetEvents();
+
+    void migrateAssessmentDiscussions();
 }

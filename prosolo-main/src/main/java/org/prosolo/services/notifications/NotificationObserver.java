@@ -1,11 +1,5 @@
 package org.prosolo.services.notifications;
 
-import java.util.List;
-import java.util.Locale;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
@@ -32,6 +26,11 @@ import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class is an observer to the {@link CentralEventDispatcher} that is invoked whenever an event that is related to a notification occurs.  
@@ -65,7 +64,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.AssessmentRequested,
 				EventType.AssessmentApproved,
 				EventType.AssessmentComment,
-				EventType.AnnouncementPublished
+				EventType.AnnouncementPublished,
+				EventType.GRADE_ADDED,
 		};
 	}
 

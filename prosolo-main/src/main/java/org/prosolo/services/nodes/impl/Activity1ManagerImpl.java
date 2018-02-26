@@ -14,6 +14,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -27,14 +29,14 @@ import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
+import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private Activity1Manager self;
 	@Inject private TagManager tagManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -190,8 +193,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 		}
 
-		activity.setGradingMode(data.getGradingMode());
-		switch (data.getGradingMode()) {
+		activity.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
 			case AUTOMATIC:
 				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
 				activity.setRubric(null);
@@ -199,9 +202,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				break;
 			case MANUAL:
 				if (updateRubric) {
-					activity.setRubric(getRubricToSet(data));
+					activity.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
 				}
-				if (data.getRubricId() > 0) {
+				if (data.getAssessmentSettings().getRubricId() > 0) {
 					activity.setRubricVisibility(data.getRubricVisibility());
 				} else {
 					activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
@@ -217,29 +220,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 		activity.setMaxPoints(
 				isPointBasedActivity(activity.getGradingMode(), activity.getRubric())
-					? (data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()))
+					? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
 					: 0);
 	}
 
 	private boolean isPointBasedActivity(GradingMode gradingMode, Rubric rubric) {
 		return gradingMode != GradingMode.NONGRADED && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
-	}
-
-	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
-		//set rubric data
-		Rubric rubric = null;
-		if (activityData.getRubricId() > 0) {
-			/*
-			set a lock on a rubric so we can be sure that status will not change between read
-			and update
-			 */
-			rubric = (Rubric) persistence.currentManager().load(
-					Rubric.class, activityData.getRubricId(), LockOptions.UPGRADE);
-			if (!rubric.isReadyToUse()) {
-				throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
-			}
-		}
-		return rubric;
 	}
 
 	@Override
@@ -718,7 +704,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (!compOncePublished) {
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 
-				setAssessmentRelatedData(actToUpdate, data, data.isRubricChanged());
+				setAssessmentRelatedData(actToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 			}
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
@@ -1449,7 +1435,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
 
-					ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+					ad.setActivityAssessmentId(assessmentId.longValue());
+					ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessmentId.longValue()));
 					ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 					ad.setAllRead(((Character) row[11]).charValue() == 'T');
 
@@ -1457,7 +1444,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
 					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
-					ad.setGrade(ActivityAssessmentData.getGradeData(
+					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
 							GradingMode.valueOf((String) row[14]),
 							(int) row[12],
 							(int) row[17],

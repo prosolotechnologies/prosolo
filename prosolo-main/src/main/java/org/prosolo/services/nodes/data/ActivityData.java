@@ -5,7 +5,7 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
-import org.prosolo.common.domainmodel.rubric.RubricType;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -31,8 +31,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean enrolled;
 	private boolean completed;
 	private ActivityResultData resultData;
-	private int maxPoints;
-	private String maxPointsString = ""; // needed because field can also be empty on the html page
 	
 	private int order;
 	private int durationHours;
@@ -87,10 +85,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	//assessment
 	private int commonScore = -1;
-	private GradingMode gradingMode;
-	private long rubricId;
-	private String rubricName;
-	private RubricType rubricType;
+	private LearningResourceAssessmentSettings assessmentSettings;
 	private ActivityRubricVisibility rubricVisibility;
 
 	//indicates that competence was once published
@@ -105,13 +100,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 		resultData = new ActivityResultData(listenChanges);
 		tags = new HashSet<>();
 		rubricVisibility = ActivityRubricVisibility.NEVER;
-		gradingMode = GradingMode.NONGRADED;
+		assessmentSettings = new LearningResourceAssessmentSettings();
+		assessmentSettings.setGradingMode(GradingMode.NONGRADED);
 	}
 	
 	@Override
 	public void startObservingChanges() {
 		super.startObservingChanges();
 		getResultData().startObservingChanges();
+		getAssessmentSettings().startObservingChanges();
 	}
 	
 	@Override
@@ -137,6 +134,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 			}
 			
 			if(getResultData().hasObjectChanged()) {
+				return true;
+			}
+
+			if (getAssessmentSettings().hasObjectChanged()) {
 				return true;
 			}
 		}
@@ -212,15 +213,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
-	}
-	
-	public String getMaxPointsString() {
-		return maxPointsString;
-	}
-
-	public void setMaxPointsString(String maxPointsString) {
-		observeAttributeChange("maxPointsString", this.maxPointsString, maxPointsString);
-		this.maxPointsString = maxPointsString;
 	}
 
 	public int getOrder() {
@@ -694,33 +686,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.oncePublished = oncePublished;
 	}
 
-	public int getMaxPoints() {
-		return maxPoints;
-	}
-
-	public void setMaxPoints(int maxPoints) {
-		this.maxPoints = maxPoints;
-	}
-
 	public long getTargetCompetenceId() {
 		return targetCompetenceId;
 	}
 
 	public void setTargetCompetenceId(long targetCompetenceId) {
 		this.targetCompetenceId = targetCompetenceId;
-	}
-
-	public long getRubricId() {
-		return rubricId;
-	}
-
-	public void setRubricId(long rubricId) {
-		observeAttributeChange("rubricId", this.rubricId, rubricId);
-		this.rubricId = rubricId;
-	}
-
-	public boolean isRubricChanged() {
-		return changedAttributes.containsKey("rubricId");
 	}
 
 	public ActivityRubricVisibility getRubricVisibility() {
@@ -732,23 +703,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.rubricVisibility = rubricVisibility;
 	}
 
-	public void setRubricName(String rubricName) {
-		this.rubricName = rubricName;
-	}
-
-	public String getRubricName() {
-		return rubricName;
-	}
-
-	public GradingMode getGradingMode() {
-		return gradingMode;
-	}
-
-	public void setGradingMode(GradingMode gradingMode) {
-		observeAttributeChange("gradingMode", this.gradingMode, gradingMode);
-		this.gradingMode = gradingMode;
-	}
-
 	public void setCommonScore(int commonScore) {
 		this.commonScore = commonScore;
 	}
@@ -757,11 +711,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		return commonScore;
 	}
 
-	public RubricType getRubricType() {
-		return rubricType;
-	}
-
-	public void setRubricType(RubricType rubricType) {
-		this.rubricType = rubricType;
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return assessmentSettings;
 	}
 }

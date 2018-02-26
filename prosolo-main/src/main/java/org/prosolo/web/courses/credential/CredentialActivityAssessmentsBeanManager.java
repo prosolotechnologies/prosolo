@@ -6,18 +6,18 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.ActivityResultType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.activity.ActivityAssessmentBean;
+import org.prosolo.web.assessments.ActivityAssessmentBean;
 import org.prosolo.web.courses.activity.ActivityResultBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -65,7 +65,10 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	private PaginationData paginationData = new PaginationData();
 	
 	private ActivityResultData currentResult;
-	
+
+	// used for the component where instructor can see other student's comments on one's activity submission
+	private ActivityResultData activityResultWithOtherComments;
+
 	private ResourceAccessData access;
 
 	public void init() {
@@ -210,18 +213,27 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	}
 	
 	//assessment begin
-	public void loadActivityDiscussion(ActivityResultData result) {
+	public void loadActivityAssessmentComments(long targetActivityId, ActivityResultData activityResultData, boolean loadDiscussion, boolean loadComments) {
 		try {
-			ActivityAssessmentData assessment = result.getAssessment();
+			ActivityResultData result = activityManager.getActivityResultData(
+					targetActivityId,
+					loadComments,
+					access.isCanInstruct(),
+					true,
+					loggedUserBean.getUserId());
+
+			ActivityAssessmentData assessment = activityResultData.getAssessment();
 			if (!assessment.isMessagesInitialized()) {
-				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
+				if (assessment.getEncodedActivityAssessmentId() != null && !assessment.getEncodedActivityAssessmentId().isEmpty()) {
 					assessment.populateDiscussionMessages(assessmentManager
-							.getActivityDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+							.getActivityAssessmentDiscussionMessages(idEncoder.decodeId(assessment.getEncodedActivityAssessmentId()),
 									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
 			}
-			this.currentResult = result;
+
+			this.activityResultWithOtherComments = result;
+			this.currentResult = activityResultData;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -229,21 +241,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		}
 	}
 	
-	//assessment begin
-	public void loadActivityDiscussionById(long targetActivityId, boolean loadDiscussion, boolean loadComments) {
-		ActivityResultData result = activityManager.getActivityResultData(
-				targetActivityId, 
-				loadComments, 
-				access.isCanInstruct(), 
-				true, 
-				loggedUserBean.getUserId());
-		
-//		if (result != null && loadDiscussion) {
-			loadActivityDiscussion(result);
-//		}
-	}
-	
-	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
+	public boolean isCurrentUserMessageSender(AssessmentDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
 	
@@ -269,7 +267,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
 
 		if (!StringUtils.isBlank(encodedActivityDiscussionId)) {
-			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUserId(),
+			assessmentManager.markActivityAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					idEncoder.decodeId(encodedActivityDiscussionId));
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
@@ -284,7 +282,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		List<ActivityResultData> results = assessmentsSummary.getStudentResults();
 		if (results != null) {
 			for (ActivityResultData ard : results) {
-				if (encodedActivityDiscussionId.equals(ard.getAssessment().getEncodedDiscussionId())) {
+				if (encodedActivityDiscussionId.equals(ard.getAssessment().getEncodedActivityAssessmentId())) {
 					return Optional.of(ard.getAssessment());
 				}
 			}
@@ -360,6 +358,10 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	public ActivityResultData getCurrentResult() {
 		return currentResult;
+	}
+
+	public ActivityResultData getActivityResultWithOtherComments() {
+		return activityResultWithOtherComments;
 	}
 
 	public String getTargetActId() {

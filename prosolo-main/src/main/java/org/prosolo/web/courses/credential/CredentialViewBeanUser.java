@@ -4,17 +4,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.AskForCredentialAssessmentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +59,7 @@ public class CredentialViewBeanUser implements Serializable {
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
 	@Inject private AnnouncementManager announcementManager;
+	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
 
 	private String id;
 	private long decodedId;
@@ -102,6 +106,10 @@ public class CredentialViewBeanUser implements Serializable {
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedId, credentialData.getTargetCredId(), aType);
 	}
 
 	private void retrieveUserCredentialData() {

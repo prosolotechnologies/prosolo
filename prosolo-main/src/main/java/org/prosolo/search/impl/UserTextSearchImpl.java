@@ -31,6 +31,7 @@ import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -1374,6 +1375,77 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 		} catch (Exception e1) {
 			logger.error(e1);
+		}
+		return null;
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchUsersLearningCompetence(
+			long orgId, String searchTerm, int limit, long compId, List<Long> usersToExcludeFromSearch) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+
+				bQueryBuilder.filter(qb);
+			}
+
+			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
+					.filter(bQueryBuilder)
+					.filter(QueryBuilders.nestedQuery("competences",
+							QueryBuilders.boolQuery()
+									.filter(QueryBuilders.termQuery("competences.id", compId))));
+
+			if (usersToExcludeFromSearch != null) {
+				for (Long exUserId : usersToExcludeFromSearch) {
+					bqb.mustNot(termQuery("id", exUserId));
+				}
+			}
+
+			String[] includes = {"id", "name", "lastname", "avatar"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bqb)
+					.addSort("lastname", SortOrder.ASC)
+					.addSort("name", SortOrder.ASC)
+					.setFetchSource(includes, null)
+					.setSize(limit);
+
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						Map<String, Object> fields = sh.getSource();
+						User user = new User();
+						user.setId(Long.parseLong(fields.get("id") + ""));
+						user.setName((String) fields.get("name"));
+						user.setLastname((String) fields.get("lastname"));
+						user.setAvatarUrl((String) fields.get("avatar"));
+						user.setPosition((String) fields.get("position"));
+						UserData userData = new UserData(user);
+
+						response.addFoundNode(userData);
+					}
+
+					return response;
+				}
+			}
+		} catch (Exception e1) {
+			logger.error("Error", e1);
 		}
 		return null;
 	}

@@ -26,7 +26,7 @@
                                 </ui:fragment>
                             </h2>
                             <table class="rubricsTable readOnly rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
-                                <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
+                                <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl" varStatus="status">
                                     <tr class="rubricItem0#{status.index+1}">
                                         <td class="col01"><span class="rubricColor"></span>#{lvl.name}</td>
                                         <ui:fragment rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT'}">
