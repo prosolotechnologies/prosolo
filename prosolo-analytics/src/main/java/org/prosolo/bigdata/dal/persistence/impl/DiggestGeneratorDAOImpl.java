@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
@@ -32,7 +33,9 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			.getLogger(DiggestGeneratorDAO.class);
 	
 	public DiggestGeneratorDAOImpl(){
+
 		setSession(HibernateUtil.getSessionFactory().openSession());
+
 	}
 	
 	@SuppressWarnings({ "unchecked" })

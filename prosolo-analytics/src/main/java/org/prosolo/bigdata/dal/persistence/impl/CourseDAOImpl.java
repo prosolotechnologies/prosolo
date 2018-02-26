@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -22,7 +23,9 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	
 	public CourseDAOImpl(boolean openLongSession) {
 		if(openLongSession) {
+
 			setSession(HibernateUtil.getSessionFactory().openSession());
+
 		}
 	}
 	
