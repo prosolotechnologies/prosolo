@@ -2773,4 +2773,30 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	@Transactional
+	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
+			throws ResourceNotFoundException {
+		/*
+		 * check if passed credential has specified competence
+		 */
+		if(credId > 0) {
+			String query1 = "SELECT credComp.id " +
+					"FROM CredentialCompetence1 credComp " +
+					"WHERE credComp.credential.id = :credId " +
+					"AND credComp.competence.id = :compId";
+
+			@SuppressWarnings("unchecked")
+			List<Long> res1 = persistence.currentManager()
+					.createQuery(query1)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.list();
+
+			if(res1 == null || res1.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
+		}
+	}
+
 }

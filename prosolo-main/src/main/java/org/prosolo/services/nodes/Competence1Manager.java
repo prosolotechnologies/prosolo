@@ -441,4 +441,14 @@ public interface Competence1Manager {
 
 	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
 
+	/**
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
+	 * and if not throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
+
 }

@@ -73,13 +73,22 @@ public class CompetenceAssessmentData {
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
 				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
+		return from(cd, compAssessment, credAssessment, encoder, userId, dateFormat);
+	}
+
+	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
+												CredentialAssessment credAssessment, UrlIdEncoder encoder,
+												long userId, DateFormat dateFormat) {
 
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
+		if (credAssessment != null) {
+			data.setCredentialAssessmentId(credAssessment.getId());
+			data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		}
+
 		data.setTitle(cd.getTitle());
 		data.setCompetenceId(cd.getCompetenceId());
-		data.setCredentialAssessmentId(credAssessment.getId());
-		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
-		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
 		data.setAssessorId(compAssessment.getAssessor() != null ? compAssessment.getAssessor().getId() : 0);
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));

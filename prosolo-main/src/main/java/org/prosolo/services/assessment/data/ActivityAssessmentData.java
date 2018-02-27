@@ -59,8 +59,10 @@ public class ActivityAssessmentData {
 		data.setTargetActivityId(actData.getTargetActivityId());
 
 		data.setType(compAssessment.getType());
-		data.setCredAssessmentId(credAssessment.getId());
-		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		if (credAssessment != null) {
+			data.setCredAssessmentId(credAssessment.getId());
+			data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		}
 		data.setCompetenceId(compAssessment.getCompetence().getId());
 
 		if (compAssessment.getAssessor() != null) {

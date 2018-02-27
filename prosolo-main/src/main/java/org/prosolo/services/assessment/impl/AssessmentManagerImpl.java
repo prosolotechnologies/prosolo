@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
@@ -15,6 +16,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
@@ -22,16 +24,16 @@ import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
+import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private Activity1Manager activityManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private CompetenceDataFactory compDataFactory;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
+	@Inject private UnitManager unitManager;
 
 	@Override
 	//not transactional - should not be called from another transaction
@@ -2592,4 +2597,165 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error retrieving credential assessment id");
 		}
 	}
+
+	//COMPETENCE ASSESSMENT
+
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, boolean paginate, int limit, int offset)
+			throws DbConnectionException, ResourceNotFoundException {
+		try {
+			//check if activity is part of a credential
+			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
+			boolean hasManagerRole = unitManager.checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, SystemRoleNames.MANAGER);
+			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
+			CompetenceAssessmentsSummaryData summary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
+					comp, 0L, 0L, 0L);
+			PaginatedResult<CompetenceAssessmentData> res = getPaginatedStudentsCompetenceAssessments(
+					credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, limit, offset, dateFormat);
+			summary.setAssessments(res);
+			return summary;
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading competence assessments");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, int limit,
+			int offset, DateFormat dateFormat) throws DbConnectionException {
+		long numberOfEnrolledStudents = getNumberOfStudentsEnrolledInACompetence(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor);
+		PaginatedResult<CompetenceAssessmentData> res = new PaginatedResult<>();
+		res.setHitsNumber(numberOfEnrolledStudents);
+		if (numberOfEnrolledStudents > 0) {
+			res.setFoundNodes(getStudentsCompetenceAssessmentsData(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor,
+					dateFormat, true, limit, offset));
+		}
+		return res;
+	}
+
+	private List<CompetenceAssessmentData> getStudentsCompetenceAssessmentsData(
+			long credId, long compId, long userId, boolean returnOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, boolean paginate, int limit, int offset)
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+					"SELECT tc, ca, credAssessment " +
+						"FROM target_competence1 tc " +
+						"INNER JOIN tc.competence comp " +
+						"ON tc.competence = comp.id AND comp.id = :compId " +
+						"INNER JOIN target_credential1 cred " +
+						"ON cred.user = tc.user AND cred.credential = :credId " +
+						"INNER JOIN (competence_assessment ca " +
+						"INNER JOIN credential_competence_assessment cca " +
+						"ON cca.competence_assessment = ca.id " +
+						"INNER JOIN credential_assessment credAssessment " +
+						"ON credAssessment.id = cca.credential_assessment " +
+						"INNER JOIN target_credential1 tCred " +
+						"ON tCred.id = credAssessment.target_credential " +
+						"AND tCred.credential = :credId) " +
+						"ON comp.id = ca.competence " +
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment ");
+			if (returnOnlyAssessmentsWhereUserIsAssessor) {
+				query.append("AND ca.assessor = :userId ");
+			}
+			query.append("INNER JOIN fetch user u " +
+						"ON (tc.user = u.id) ");
+
+			if (paginate) {
+				query.append("LIMIT " + limit + " ");
+				query.append("OFFSET " + offset);
+			}
+
+			Query q = persistence.currentManager()
+					.createSQLQuery(query.toString())
+					.setLong("compId", compId)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+
+			if (returnOnlyAssessmentsWhereUserIsAssessor) {
+				q.setLong("userId", userId);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
+			List<CompetenceAssessmentData> assessments = new ArrayList<>();
+			if (res != null) {
+				for (Object[] row : res) {
+					TargetCompetence1 tc = (TargetCompetence1) row[0];
+					CompetenceAssessment ca = (CompetenceAssessment) row[1];
+					CredentialAssessment credA = (CredentialAssessment) row[2];
+					CompetenceData1 cd = compDataFactory.getCompetenceData(null, tc, 0, null, null, null, false);
+					if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+						cd.setActivities(activityManager
+								.getTargetActivitiesData(tc.getId()));
+					} else {
+						cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
+					}
+					assessments.add(CompetenceAssessmentData.from(cd, ca, credA, encoder, userId, dateFormat));
+				}
+			}
+			return assessments;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving students' assessments");
+		}
+	}
+
+	private long getNumberOfStudentsEnrolledInACompetence(long credId, long compId, long userId, boolean countOnlyAssessmentsWhenUserIsAssessor)
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+					"SELECT COUNT(tc.id) " +
+						"FROM target_competence1 tc " +
+						"INNER JOIN tc.competence comp " +
+						"ON tc.competence = comp.id AND comp.id = :compId " +
+						"INNER JOIN target_credential1 cred " +
+						"ON cred.user = tc.user AND cred.credential = :credId ");
+			if (countOnlyAssessmentsWhenUserIsAssessor) {
+				query.append(
+						"INNER JOIN (competence_assessment ca " +
+						"INNER JOIN credential_competence_assessment cca " +
+						"ON cca.competence_assessment = ca.id " +
+						"INNER JOIN credential_assessment credAssessment " +
+						"ON credAssessment.id = cca.credential_assessment " +
+						"INNER JOIN target_credential1 tCred " +
+						"ON tCred.id = credAssessment.target_credential " +
+						"AND tCred.credential = :credId) " +
+						"ON comp.id = ca.competence " +
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment " +
+						"AND ca.assessor = :userId ");
+			}
+
+			Query q = persistence.currentManager()
+					.createSQLQuery(query.toString())
+					.setLong("compId", compId)
+					.setLong("credId", credId);
+
+			if (countOnlyAssessmentsWhenUserIsAssessor) {
+				q.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				 .setLong("userId", userId);
+			}
+
+			Long count = (Long) q.uniqueResult();
+
+			return count != null ? count.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving number of enrolled students");
+		}
+	}
+
+	//COMPETENCE ASSESSMENT END
 }

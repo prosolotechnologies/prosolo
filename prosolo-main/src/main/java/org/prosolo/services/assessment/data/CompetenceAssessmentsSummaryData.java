@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data;
 
+import org.prosolo.search.impl.PaginatedResult;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public class CompetenceAssessmentsSummaryData implements Serializable {
     private long numberOfNotifications;
     private boolean gradingEnabled;
     private List<ActivityAssessmentsSummaryData> activitiesAssessmentSummaryData;
+    private PaginatedResult<CompetenceAssessmentData> assessments;
 
     public CompetenceAssessmentsSummaryData() {
         this.activitiesAssessmentSummaryData = new ArrayList<>();
@@ -83,5 +86,13 @@ public class CompetenceAssessmentsSummaryData implements Serializable {
 
     public boolean isGradingEnabled() {
         return gradingEnabled;
+    }
+
+    public PaginatedResult<CompetenceAssessmentData> getAssessments() {
+        return assessments;
+    }
+
+    public void setAssessments(PaginatedResult<CompetenceAssessmentData> assessments) {
+        this.assessments = assessments;
     }
 }
