@@ -27,23 +27,14 @@
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <!-- property name="connection.username">root</property>
         <property name="connection.password">dragon3s12</property-->
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
         <property name="hibernate.use_sqld_comments">false</property>
         <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
         <property name="hibernate.current_session_context_class">thread</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</property>
 
-        <property name="hibernate.c3p0.validationQuery">SELECT 1</property>
-        <property name="hibernate.c3p0.maxIdle">5</property>
-        <property name="hibernate.c3p0.maxActive">20</property>
-        <property name="hibernate.c3p0.initialSize">5</property>
-        <property name="hibernate.c3p0.timeBetweenEvictionRunsMillis">10000</property>
-        <property name="hibernate.c3p0.testWhileIdle">true</property>
-        <property name="hibernate.c3p0.preferredTestQuery">SELECT 1</property>
-        <property name="hibernate.c3p0.autoCommitOnClose">true</property>
-        <property name="hibernate.c3p0.testConnectionOnCheckout">true</property>
-                          
+
         <!-- mapping class="model.beans.TestBean"/-->
         <mapping package="org.prosolo.common.domainmodel" />
         <mapping package="org.prosolo.common.domainmodel.user" />
