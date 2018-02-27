@@ -76,7 +76,7 @@ public interface Competence1Manager {
 			IllegalDataStateException;
 	
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadActivities) throws DbConnectionException;
+		  boolean loadLearningPathData) throws DbConnectionException;
 	
 	
 	/**

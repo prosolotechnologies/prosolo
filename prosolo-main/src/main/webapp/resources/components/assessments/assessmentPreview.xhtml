@@ -405,6 +405,12 @@
 											</ul>
 										</h:panelGroup>
 									</ui:fragment>
+									<ui:fragment rendered="#{not empty competenceAssessment.evidences}">
+										<assessment:evidenceItems
+												evidences="#{competenceAssessment.evidences}"
+												canViewEvidence="#{(cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent) or cc.attrs.bean.isCurrentUserAssessor()}"
+										/>
+									</ui:fragment>
 								</article>
 							</ui:fragment>
 							<ui:fragment rendered="#{competenceAssessment.readOnly}">
