@@ -18,7 +18,8 @@ class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, va
   override def getTemplateName: String = {"notifications/notification-digest"}
 
   override def getSubject: String = {"Your Daily Notifications Diggest"}
-
+  val domain=System.getProperty("app.domain")
+val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domain+"/notifications"
 
   def hasFollowers():Boolean={hasNotificationType(NotificationType.Follow_User) }
   def followersCount():Int={ getNotificationTypeCount(NotificationType.Follow_User)}
@@ -43,6 +44,14 @@ class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, va
   def hasAssessmentsRequest():Boolean={hasNotificationType(NotificationType.Assessment_Requested)}
   def assessmentsRequestsCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Requested)}
 
+  def hasGradeAdded():Boolean={hasNotificationType(NotificationType.GradeAdded)}
+  def gradeAddedCount():Int={ getNotificationTypeCount(NotificationType.GradeAdded)}
+
+  def hasCommentLiked():Boolean={hasNotificationType(NotificationType.Comment_Like)}
+  def commentLikeCount():Int={ getNotificationTypeCount(NotificationType.Comment_Like)}
+
+  def hasSocialActivityLiked():Boolean={hasNotificationType(NotificationType.Social_Activity_Like)}
+  def socialActivityLikeCount():Int={ getNotificationTypeCount(NotificationType.Social_Activity_Like)}
 
   def hasNotificationType(notificationType:NotificationType):Boolean={ notificationTypesCounts.getOrElse(notificationType.toString,0)>0 }
   def getNotificationTypeCount(notificationType:NotificationType):Int={  notificationTypesCounts.getOrElse(notificationType.toString,0) }

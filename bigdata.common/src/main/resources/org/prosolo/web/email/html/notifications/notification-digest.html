@@ -230,7 +230,7 @@
 
                                         <!-- // Begin Module: Standard Content \\ -->
                                         <table border="0" cellpadding="20" cellspacing="0" width="100%">
-                                            <div>
+                                            <!--div-->
                                                 <td valign="top">
                                                     <div>
                                                         <h1 class="h1">Hi {{name}},</h1>
@@ -257,9 +257,9 @@
                                                         You have <strong>{{announcementsCount}} new announcement(s)</strong>
                                                         {{/hasAnnouncements}}
                                                         {{#hasComments}}
-                                                        <br />
+                                                        <br/>
                                                         You have <strong>{{commentsCount}} new comments</strong>:
-                                                        <br />
+                                                        <br/>
                                                          <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#comments}}
                                                             <tr>
@@ -269,9 +269,12 @@
                                                             </tr>
                                                             {{/comments}}
 
+                                                        </table>
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="#">View all</a>
+                                                                    <a href="{{notificationsLink}}">View all</a>
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -286,9 +289,9 @@
 
                                                         {{/hasAssessmentsApproved}}
                                                         {{#hasAssessmentsComments}}
-                                                        <br />
+                                                        <br/>
                                                         You have <strong>{{assessmentsCommentsCount}} new assessment comment(s)</strong>:
-                                                        <br />
+                                                        <br/>
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#assessmentsComments}}
                                                             <tr>
@@ -300,7 +303,7 @@
 
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="#">View all</a>
+                                                                    <a href="{{notificationsLink}}">View all</a>
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -312,11 +315,43 @@
                                                         <br />
 
                                                         {{/hasAssessmentsRequest}}
-                                                    </br>
+                                                        </br>
+                                                        {{#hasGradeAdded}}
+                                                        <br />
+                                                        You have <strong>{{gradeAddedCount}} new grade(s) added</strong>
+
+                                                        <br />
+
+                                                        {{/hasGradeAdded}}
+                                                         </br>
+                                                        {{#hasCommentLiked}}
+                                                        <br />
+                                                        You have <strong>{{commentLikeCount}} comment(s) liked</strong>
+
+                                                        <br />
+
+                                                        {{/hasCommentLiked}}
+                                                        </br>
+                                                        {{#hasSocialActivityLiked}}
+                                                        <br />
+                                                        You have <strong>{{socialActivityLikeCount}} social activity(s) added</strong>
+
+                                                        <br />
+
+                                                        {{/hasSocialActivityLiked}}
+                                                        </br>
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}">View all notifications</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </div>
                                                 </td>
 
-                                            </tr>
+
+                                            <!--/div-->
                                         </table>
                                         <!-- // End Module: Standard Content \\ -->
 

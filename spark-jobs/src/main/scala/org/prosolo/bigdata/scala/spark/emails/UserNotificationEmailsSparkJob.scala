@@ -29,7 +29,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
     notificationsDF.show
     notificationsDF.createOrReplaceTempView("notificationsView")
-    val date2=17588
+    val date2=17589
     val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date2)
 
     println("DAY:"+date+" TEMPORARY DATE:"+date2)
@@ -84,13 +84,9 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
 
         }
-        println("RECEIVER:"+receiver)
-        println(notificationsByType.mkString(","))
-
 
           (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))
       }}
-    println("RESULTS:"+res.count)
 
     res.collect().foreach(n=>println(n))
     //joining NotificationSummary with Receiver

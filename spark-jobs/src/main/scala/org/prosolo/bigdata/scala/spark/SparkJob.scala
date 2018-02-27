@@ -51,6 +51,7 @@ trait SparkJob extends Serializable{
   def finishJob()={
     summaryAccu.add(new TaskSummary("","", 0,System.currentTimeMillis()))
     val resource=ConfigFactory.load().getString("elasticsearch.jobsIndex");
+    println("FINISH JOB TO:"+resource)
     //val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
     val failedTasks:Seq[FailedTask]=failedTasksAccu.value.asScala
     val mapping=Map("es.mapping.id"->"jobId")
