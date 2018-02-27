@@ -66,6 +66,7 @@ public class NotificationEmailGeneratorFactory {
 			case Assessment_Requested:
 			case Assessment_Comment:
 			case Assessment_Approved:
+			case GradeAdded:
 				return new AssessmentNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link, type);
 			case AnnouncementPublished:
 				try {

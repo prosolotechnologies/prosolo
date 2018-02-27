@@ -4,6 +4,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -35,16 +38,33 @@ public class LearningEvidenceBean implements Serializable {
     private String evidenceId;
 
     private LearningEvidenceData evidence;
+    private ResourceAccessData access;
 
-    public void init() {
+    public void initManager() {
+        init(AccessMode.MANAGER);
+    }
+
+    public void initStudent() {
+        init(AccessMode.USER);
+    }
+
+    private void init(AccessMode accessMode) {
         try {
             long decodedEvId = idEncoder.decodeId(evidenceId);
             if (decodedEvId > 0) {
                 loadEvidence(decodedEvId);
                 if (evidence == null) {
                     PageUtil.notFound();
-                } else if (evidence.getUserId() != loggedUserBean.getUserId()) {
-                    PageUtil.accessDenied();
+                } else {
+                    if (accessMode == AccessMode.USER && evidence.getUserId() == loggedUserBean.getUserId()) {
+                        access = new ResourceAccessData(true, true, true, false, false);
+                    } else {
+                        access = learningEvidenceManager.getResourceAccessRightsForEvidence(
+                                evidence.getId(), loggedUserBean.getUserId(), ResourceAccessRequirements.of(accessMode));
+                    }
+                    if (!access.isCanAccess()) {
+                        PageUtil.accessDenied();
+                    }
                 }
             } else {
                 PageUtil.notFound();
@@ -87,5 +107,9 @@ public class LearningEvidenceBean implements Serializable {
 
     public void setEvidenceId(String evidenceId) {
         this.evidenceId = evidenceId;
+    }
+
+    public ResourceAccessData getAccess() {
+        return access;
     }
 }

@@ -1,12 +1,13 @@
 package org.prosolo.web.sessiondata;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.services.activityWall.filters.Filter;
+import org.prosolo.web.settings.data.NotificationSettingsData;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class SessionData {
 
@@ -29,7 +30,7 @@ public class SessionData {
 	private Filter selectedStatusWallFilter;
 
 	private UserSettings userSettings;
-	private UserNotificationsSettings notificationsSettings;
+	private List<NotificationSettingsData> notificationsSettings;
 
 	public String getSelectedRole() {
 		System.out.println("GET SELECTED ROLE:"+selectedRole);
@@ -119,11 +120,11 @@ public class SessionData {
 		this.selectedStatusWallFilter = selectedStatusWallFilter;
 	}
 
-	public UserNotificationsSettings getNotificationsSettings() {
+	public List<NotificationSettingsData> getNotificationsSettings() {
 		return notificationsSettings;
 	}
 
-	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
+	public void setNotificationsSettings(List<NotificationSettingsData> notificationsSettings) {
 		this.notificationsSettings = notificationsSettings;
 	}
 

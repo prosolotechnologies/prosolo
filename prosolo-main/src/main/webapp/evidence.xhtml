@@ -16,7 +16,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="id" value="#{learningEvidenceBean.evidenceId}" default="null"/>
-            <f:viewAction action="#{learningEvidenceBean.init()}" />
+            <f:viewAction action="#{learningEvidenceBean.initStudent()}" />
         </f:metadata>
     </ui:define>
 
@@ -32,7 +32,7 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:link outcome="/evidence-edit" styleClass="btn btn-green btn-sm item">Add Evidence</h:link>
+                        <h:link rendered="#{learningEvidenceBean.access.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green btn-sm item">Add Evidence</h:link>
                     </div>
                     <div class="whiteBarRight">
 
@@ -60,6 +60,7 @@
                         evidence="#{learningEvidenceBean.evidence}"
                         showEvidenceManagementOptions="true"
                         showDetails="true"
+                        canEdit="#{learningEvidenceBean.access.canEdit}"
                         deleteModalId="deleteEvidence"
                     />
                 </div>

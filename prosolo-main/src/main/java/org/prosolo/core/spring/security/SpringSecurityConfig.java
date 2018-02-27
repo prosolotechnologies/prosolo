@@ -253,6 +253,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   
 		   //.antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/evidences/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/").hasAuthority("BASIC.ADMIN.ACCESS")
@@ -272,7 +273,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/organizations/*/users").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/new").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/settings").hasAuthority("ORGANIZATION.ADMINISTRATION")
-           .antMatchers("/admin/admins/*/edit").hasAuthority("ORGANIZATION.ADMINISTRATIOND")
+           .antMatchers("/admin/admins/*/edit").hasAuthority("ORGANIZATION.ADMINISTRATION")
            .antMatchers("/admin/admins/*/edit/password").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/*/units").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
