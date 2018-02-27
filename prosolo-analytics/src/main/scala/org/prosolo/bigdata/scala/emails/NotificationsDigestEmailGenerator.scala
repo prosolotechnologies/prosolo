@@ -31,21 +31,23 @@ class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, va
   def hasComments():Boolean={hasNotificationType(NotificationType.Comment) }
   def commentsCount():Int={ getNotificationTypeCount(NotificationType.Comment)}
 
+  def comments():java.util.List[Notification]={ getNotificationsByType(NotificationType.Comment)}
 
   def hasAssessmentsApproved():Boolean={hasNotificationType(NotificationType.Assessment_Approved)}
-  def assessmentApprovedCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Approved)}
+  def assessmentsApprovedCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Approved)}
 
   def hasAssessmentsComments():Boolean={hasNotificationType(NotificationType.Assessment_Comment)}
-  def assessmentCommentCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Comment)}
+  def assessmentsCommentsCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Comment)}
+  def assessmentsComments():java.util.List[Notification]={ getNotificationsByType(NotificationType.Assessment_Comment)}
 
   def hasAssessmentsRequest():Boolean={hasNotificationType(NotificationType.Assessment_Requested)}
-  def assessmentRequestCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Requested)}
+  def assessmentsRequestsCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Requested)}
 
 
   def hasNotificationType(notificationType:NotificationType):Boolean={ notificationTypesCounts.getOrElse(notificationType.toString,0)>0 }
   def getNotificationTypeCount(notificationType:NotificationType):Int={  notificationTypesCounts.getOrElse(notificationType.toString,0) }
   def getNotificationsByType(notificationType:NotificationType):java.util.List[Notification]={
-    println("NOTIFICATION TYPE:"+notificationType.name+"----"+notificationsByType.get(notificationType.name).get.mkString(","));
+    println("NAME:"+name+" NOTIFICATION TYPE:"+notificationType.name+"----"+notificationsByType.get(notificationType.name).get.mkString(","));
     notificationsByType.get(notificationType.name).get.toList
 
   }

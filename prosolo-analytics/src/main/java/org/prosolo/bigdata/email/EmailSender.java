@@ -47,18 +47,23 @@ public class EmailSender {
 			String email=emailToSend.getValue();
 			EmailContentGenerator contentGenerator=emailToSend.getKey();
 				logger.info("sending email:"+email);
-				Multipart mp=createMailMultipart(contentGenerator);
-				Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
-				transport.sendMessage(message, message.getAllRecipients());
+				try{
+					Multipart mp=createMailMultipart(contentGenerator);
+					Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
+					transport.sendMessage(message, message.getAllRecipients());
+				}catch(Exception ex){
+					logger.error(ex);
+				}
+
 
 
 		}
 			transport.close();
 		}catch(MessagingException me){
 			me.printStackTrace();
-		}catch (IOException ioe){
+		}/*catch (IOException ioe){
 			ioe.printStackTrace();
-		}
+		}*/
 
 
 

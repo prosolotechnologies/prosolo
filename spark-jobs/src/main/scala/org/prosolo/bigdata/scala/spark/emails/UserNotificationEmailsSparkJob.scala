@@ -29,17 +29,19 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
     notificationsDF.show
     notificationsDF.createOrReplaceTempView("notificationsView")
-    val date2=17553
+    val date2=17588
     val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date2)
 
     println("DAY:"+date+" TEMPORARY DATE:"+date2)
 
     dayNotificationsDF.show()
     //Create notification instances and group it by receiver id
+    val domain=System.getProperty("app.domain");
     val receiversDF=dayNotificationsDF.map{
       case Row(date:Long,notificationType:String, id:Long, actorfullname:String, actorId:Long, email:String, link:String, objectTitle:String,
       objectType:String, receiverFullName:String, receiverId:Long)=>{
-        (receiverId,Notification(date,notificationType, id,actorfullname, actorId, email, link, objectTitle,
+        val url= if(domain.endsWith("/") && link.startsWith("/"))  domain+link.substring(1) else domain+link
+        (receiverId,Notification(date,notificationType, id,actorfullname, actorId, email, url, objectTitle,
           objectType, receiverFullName, receiverId))
       }
     }.rdd.groupByKey
@@ -64,8 +66,10 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
          // val x= (Array(Notification(1,"",12,21,"a","","","","",21)))
            //var newArray=new Array[String](NOTIFICATION_TYPE_SIZE);
            val notificationByType=notificationsByType.getOrElse(n.notificationType, Array())
-            notificationsByType-=n.notificationType
+
+
              if(notificationByType.length<UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE){
+               notificationsByType-=n.notificationType
               val modifiedNotificationByType=notificationByType++Array(n)
                  notificationsByType+=(n.notificationType->(modifiedNotificationByType))
 
@@ -80,6 +84,8 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
 
         }
+        println("RECEIVER:"+receiver)
+        println(notificationsByType.mkString(","))
 
 
           (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))

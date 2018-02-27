@@ -3,6 +3,7 @@ package org.prosolo.bigdata.dal.persistence.impl;/**
  */
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.ClusteringDAO;
@@ -26,7 +27,9 @@ public class ClusteringDAOImpl extends GenericDAOImpl implements
             .getLogger(ClusteringDAO.class);
 
     public ClusteringDAOImpl(){
-        setSession(HibernateUtil.getSessionFactory().openSession());
+
+            setSession(HibernateUtil.getSessionFactory().openSession());
+
     }
 
     @SuppressWarnings({ "unchecked" })

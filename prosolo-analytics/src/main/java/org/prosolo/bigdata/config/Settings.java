@@ -152,6 +152,7 @@ public class Settings {
 		System.setProperty("mysql.dbPort",String.valueOf(CommonSettings.getInstance().config.mysqlConfig.port));
 		System.setProperty("mysql.dbUser",CommonSettings.getInstance().config.mysqlConfig.user);
 		System.setProperty("mysql.dbPass",CommonSettings.getInstance().config.mysqlConfig.password);
+		System.setProperty("app.domain",CommonSettings.getInstance().config.appConfig.domain);
 	}
 
 	public void initializeLogger() {
