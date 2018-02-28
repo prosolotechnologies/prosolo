@@ -2630,7 +2630,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			//check if activity is part of a credential
 			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
-			boolean hasManagerRole = unitManager.checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, SystemRoleNames.MANAGER);
 			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
 			CompetenceAssessmentsSummaryData summary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
 					comp, 0L, 0L, 0L);
@@ -2667,9 +2666,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
-					"SELECT tc, ca, credAssessment " +
+					"SELECT {tc.*}, {ca.*}, {credAssessment.*} " +
 						"FROM target_competence1 tc " +
-						"INNER JOIN tc.competence comp " +
+						"INNER JOIN competence1 comp " +
 						"ON tc.competence = comp.id AND comp.id = :compId " +
 						"INNER JOIN target_credential1 cred " +
 						"ON cred.user = tc.user AND cred.credential = :credId " +
@@ -2688,8 +2687,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (returnOnlyAssessmentsWhereUserIsAssessor) {
 				query.append("AND ca.assessor = :userId ");
 			}
-			query.append("INNER JOIN fetch user u " +
-						"ON (tc.user = u.id) ");
 
 			if (paginate) {
 				query.append("LIMIT " + limit + " ");
@@ -2698,6 +2695,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			Query q = persistence.currentManager()
 					.createSQLQuery(query.toString())
+					.addEntity("tc", TargetCompetence1.class)
+					.addEntity("ca", CompetenceAssessment.class)
+					.addEntity("credAssessment", CredentialAssessment.class)
 					.setLong("compId", compId)
 					.setLong("credId", credId)
 					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
@@ -2739,7 +2739,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			StringBuilder query = new StringBuilder(
 					"SELECT COUNT(tc.id) " +
 						"FROM target_competence1 tc " +
-						"INNER JOIN tc.competence comp " +
+						"INNER JOIN competence1 comp " +
 						"ON tc.competence = comp.id AND comp.id = :compId " +
 						"INNER JOIN target_credential1 cred " +
 						"ON cred.user = tc.user AND cred.credential = :credId ");
@@ -2770,7 +2770,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				 .setLong("userId", userId);
 			}
 
-			Long count = (Long) q.uniqueResult();
+			BigInteger count = (BigInteger) q.uniqueResult();
 
 			return count != null ? count.longValue() : 0;
 		} catch (Exception e) {

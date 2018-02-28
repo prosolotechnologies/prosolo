@@ -128,7 +128,7 @@
 							<assessment:gradeLabel
 									assessment="#{cc.attrs.bean.fullAssessmentData}"
 									assessmentBean="#{cc.attrs.bean}"
-									currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
+									currentUserAssessedStudent="#{cc.attrs.bean.isCurrentUserAssessedStudent()}"
 									currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 									gradeData="#{cc.attrs.bean.fullAssessmentData.gradeData}"
 									userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData, 'CREDENTIAL')}"
@@ -316,7 +316,7 @@
 											<assessment:gradeLabel
 													assessment="#{competenceAssessment}"
 													assessmentBean="#{cc.attrs.bean}"
-													currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
+													currentUserAssessedStudent="#{cc.attrs.bean.isCurrentUserAssessedStudent()}"
 													currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 													gradeData="#{competenceAssessment.gradeData}"
 													userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(competenceAssessment.gradeData, 'COMPETENCE')}"
@@ -378,7 +378,7 @@
 															<assessment:gradeLabel
 																assessment="#{activityAssessment}"
 																assessmentBean="#{cc.attrs.bean}"
-																currentUserAssessedStudent="#{cc.attrs.bean.currentUserAssessedStudent}"
+																currentUserAssessedStudent="#{cc.attrs.bean.isCurrentUserAssessedStudent()}"
 																currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 																gradeData="#{activityAssessment.grade}"
 																userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(activityAssessment.grade, 'ACTIVITY')}"

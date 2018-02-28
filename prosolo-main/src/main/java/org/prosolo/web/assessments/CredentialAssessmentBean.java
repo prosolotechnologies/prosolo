@@ -403,7 +403,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean isCurrentUserAssessedStudent() {
-		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
+		return fullAssessmentData != null ? loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId() : false;
 	}
 
 	public void approveCredential() {
