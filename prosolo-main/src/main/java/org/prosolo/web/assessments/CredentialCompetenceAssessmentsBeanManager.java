@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
@@ -22,6 +23,8 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.notification.data.FilterNotificationType;
+import org.prosolo.web.notification.data.NotificationTypeFilter;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -34,9 +37,8 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ManagedBean(name = "credentialCompetenceAssessmentsBeanManager")
 @Component("credentialCompetenceAssessmentsBeanManager")
@@ -75,6 +77,8 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 
 	private LearningResourceType currentResType;
 
+	private SelectableAssessmentFilter[] filters;
+
 	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
@@ -95,6 +99,14 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 					if (page > 0) {
 						paginationData.setPage(page);
 					}
+
+					int counter = 0;
+					AssessmentFilter[] filterValues = AssessmentFilter.values();
+					filters = new SelectableAssessmentFilter[filterValues.length];
+					for (AssessmentFilter filter : AssessmentFilter.values()) {
+						SelectableAssessmentFilter f = new SelectableAssessmentFilter(filter, true);
+						filters[counter++] = f;
+					}
 					/*
 					if user has Manager role in one of the units where credential is used, he can see all assessments, otherwise
 					he can only see assessments where he is instructor
@@ -104,8 +116,8 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 					assessmentsSummary = assessmentManager
 							.getCompetenceAssessmentsDataForInstructorCredentialAssessment(
 									decodedCredId, decodedCompId, loggedUserBean.getUserId(), countOnlyAssessmentsWhereCurrentUserIsAssessor,
-									dateFormat, true,
-									paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit());
+									dateFormat, getSelectedFilters(), paginationData.getLimit(),
+									(paginationData.getPage() - 1) * paginationData.getLimit());
 
 					this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
 
@@ -125,6 +137,13 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	private List<org.prosolo.services.assessment.data.AssessmentFilter> getSelectedFilters() {
+		return Arrays.stream(filters)
+				.filter(f -> f.isSelected())
+				.map(f -> f.getFilter().getFilter())
+				.collect(Collectors.toList());
 	}
 
 	private void loadCredentialTitle() {
@@ -300,11 +319,19 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 
 	private void loadAssessments() {
 		try {
-			assessmentsSummary.setAssessments(
-					assessmentManager.getPaginatedStudentsCompetenceAssessments(
-							decodedCredId, decodedCompId, loggedUserBean.getUserId(), countOnlyAssessmentsWhereCurrentUserIsAssessor,
-							paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit(), dateFormat));
-			this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
+			List<org.prosolo.services.assessment.data.AssessmentFilter> selectedFilters = getSelectedFilters();
+			//if none of the filters is selected, there should be no assessments displayed
+			if (selectedFilters.isEmpty()) {
+				PaginatedResult<CompetenceAssessmentData> emptyRes = new PaginatedResult<>();
+				assessmentsSummary.setAssessments(emptyRes);
+				this.paginationData.update(0);
+			} else {
+				assessmentsSummary.setAssessments(
+						assessmentManager.getPaginatedStudentsCompetenceAssessments(
+								decodedCredId, decodedCompId, loggedUserBean.getUserId(), countOnlyAssessmentsWhereCurrentUserIsAssessor,
+								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit(), dateFormat));
+				this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error loading the assessments");
@@ -317,6 +344,26 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 			this.paginationData.setPage(page);
 			loadAssessments();
 		}
+	}
+
+	public void filterChanged() {
+		paginationData.setPage(1);
+		loadAssessments();
+	}
+
+	public void checkAllFilters() {
+		markAllFilters(true);
+	}
+
+	public void uncheckAllFilters() {
+		markAllFilters(false);
+	}
+
+	private void markAllFilters(boolean selected) {
+		for(SelectableAssessmentFilter filter : filters) {
+			filter.setSelected(selected);
+		}
+		filterChanged();
 	}
 
 	//MARK DISCUSSION READ
@@ -441,5 +488,9 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 
 	public LearningResourceType getCurrentResType() {
 		return currentResType;
+	}
+
+	public SelectableAssessmentFilter[] getFilters() {
+		return filters;
 	}
 }

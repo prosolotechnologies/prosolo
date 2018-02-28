@@ -2,6 +2,7 @@ package org.prosolo.services.assessment.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -2625,7 +2626,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
-			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, boolean paginate, int limit, int offset)
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {
 			//check if activity is part of a credential
@@ -2634,7 +2635,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			CompetenceAssessmentsSummaryData summary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
 					comp, 0L, 0L, 0L);
 			PaginatedResult<CompetenceAssessmentData> res = getPaginatedStudentsCompetenceAssessments(
-					credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, limit, offset, dateFormat);
+					credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, filters, limit, offset, dateFormat);
 			summary.setAssessments(res);
 			return summary;
 		} catch (ResourceNotFoundException e) {
@@ -2648,20 +2649,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional(readOnly = true)
 	public PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
-			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, int limit,
-			int offset, DateFormat dateFormat) throws DbConnectionException {
-		long numberOfEnrolledStudents = getNumberOfStudentsEnrolledInACompetence(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor);
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
+			List<AssessmentFilter> filters, int limit, int offset, DateFormat dateFormat) throws DbConnectionException {
+		long numberOfEnrolledStudents = getNumberOfStudentsEnrolledInACompetence(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, filters);
 		PaginatedResult<CompetenceAssessmentData> res = new PaginatedResult<>();
 		res.setHitsNumber(numberOfEnrolledStudents);
 		if (numberOfEnrolledStudents > 0) {
 			res.setFoundNodes(getStudentsCompetenceAssessmentsData(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor,
-					dateFormat, true, limit, offset));
+					dateFormat, filters,true, limit, offset));
 		}
 		return res;
 	}
 
 	private List<CompetenceAssessmentData> getStudentsCompetenceAssessmentsData(
-			long credId, long compId, long userId, boolean returnOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, boolean paginate, int limit, int offset)
+			long credId, long compId, long userId, boolean returnOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, boolean paginate, int limit, int offset)
 			throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
@@ -2687,6 +2688,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (returnOnlyAssessmentsWhereUserIsAssessor) {
 				query.append("AND ca.assessor = :userId ");
 			}
+
+			addAssessmentFilterConditionToQuery(query, "ca", filters);
 
 			if (paginate) {
 				query.append("LIMIT " + limit + " ");
@@ -2732,7 +2735,36 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private long getNumberOfStudentsEnrolledInACompetence(long credId, long compId, long userId, boolean countOnlyAssessmentsWhenUserIsAssessor)
+	private void addAssessmentFilterConditionToQuery(StringBuilder query, String compAssessmentAlias, List<AssessmentFilter> filters) {
+		if (filters.isEmpty()) {
+			return;
+		}
+		query.append("AND (");
+		boolean firstFilter = true;
+		for (AssessmentFilter filter : filters) {
+			if (!firstFilter) {
+				query.append("OR ");
+			} else {
+				firstFilter = false;
+			}
+			switch (filter) {
+				case NOTIFIED:
+					query.append(compAssessmentAlias + ".assessor_notified IS TRUE ");
+					break;
+				case NOT_ASSESSED:
+					query.append(compAssessmentAlias + ".points < 0 ");
+					break;
+				case ASSESSED:
+					query.append(compAssessmentAlias + ".points >= 0 ");
+					break;
+				default:
+					break;
+			}
+		}
+		query.append(") ");
+	}
+
+	private long getNumberOfStudentsEnrolledInACompetence(long credId, long compId, long userId, boolean countOnlyAssessmentsWhenUserIsAssessor, List<AssessmentFilter> filters)
 			throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
@@ -2742,9 +2774,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						"INNER JOIN competence1 comp " +
 						"ON tc.competence = comp.id AND comp.id = :compId " +
 						"INNER JOIN target_credential1 cred " +
-						"ON cred.user = tc.user AND cred.credential = :credId ");
-			if (countOnlyAssessmentsWhenUserIsAssessor) {
-				query.append(
+						"ON cred.user = tc.user AND cred.credential = :credId " +
 						"INNER JOIN (competence_assessment ca " +
 						"INNER JOIN credential_competence_assessment cca " +
 						"ON cca.competence_assessment = ca.id " +
@@ -2756,18 +2786,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						"ON comp.id = ca.competence " +
 						// following condition ensures that assessment for the right student is joined
 						"AND ca.student = tc.user " +
-						"AND ca.type = :instructorAssessment " +
-						"AND ca.assessor = :userId ");
+						"AND ca.type = :instructorAssessment ");
+
+			if (countOnlyAssessmentsWhenUserIsAssessor) {
+				query.append("AND ca.assessor = :userId ");
 			}
+
+			addAssessmentFilterConditionToQuery(query, "ca", filters);
 
 			Query q = persistence.currentManager()
 					.createSQLQuery(query.toString())
 					.setLong("compId", compId)
-					.setLong("credId", credId);
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
 
 			if (countOnlyAssessmentsWhenUserIsAssessor) {
-				q.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-				 .setLong("userId", userId);
+				q.setLong("userId", userId);
 			}
 
 			BigInteger count = (BigInteger) q.uniqueResult();

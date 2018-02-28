@@ -282,10 +282,10 @@ public interface AssessmentManager {
 	long getCredentialAssessmentIdForCompetenceAssessment(long credId, long compAssessmentId, Session session) throws DbConnectionException;
 
 	PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
-			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, int limit,
-			int offset, DateFormat dateFormat) throws DbConnectionException;
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
+			List<AssessmentFilter> filters, int limit, int offset, DateFormat dateFormat) throws DbConnectionException;
 
 	CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
-			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, boolean paginate, int limit, int offset)
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 }
