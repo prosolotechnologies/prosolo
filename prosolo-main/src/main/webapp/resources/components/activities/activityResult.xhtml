@@ -32,7 +32,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		
+
 		<c:if test="#{cc.attrs.resultType eq 'FILE_UPLOAD'}">
 			<div id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultFile">
 				<div class="activityResultHead">
@@ -276,7 +276,7 @@
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}

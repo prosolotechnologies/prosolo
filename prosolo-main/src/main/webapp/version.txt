@@ -1,9 +1,11 @@
-Current date:2018/02/11-21:07:20
-Source branch:develop
+Current date:2018/02/19-08:44:40
+Source branch:PRS-3054-when-grade-is-addedupdated-send
 Project version:1
 Git version:
-commit e25c1aa0b6d17258bb8d6988f93c0235fb2e6a8a
-Author: jeremycod <zoran.jeremic@gmail.com>
-Date:   Sun Feb 11 21:05:29 2018 -0800
+commit f40a9868e9b92471a0dedb731973f9ac38cf8425
+Author: Nikola Milikic <nikola.milikic@gmail.com>
+Date:   Mon Feb 19 07:15:07 2018 +0100
 
-    Unisa messages, and Offerings added to CredentialType
+    Updating YouTube API key since the last one has expired.
+    Updating growl messages in several places.
+    Updated a label on the competence page "Existing Document" -> "Existing Evidence"
