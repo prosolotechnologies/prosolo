@@ -15,6 +15,7 @@ import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.AskForCredentialAssessmentBean;
@@ -53,6 +54,8 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
+	@Inject
+	private Competence1Manager competenceManager;
 	@Autowired
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -143,11 +146,32 @@ public class CredentialViewBeanUser implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if (!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
+
 			if (cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
 				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			}
+
+			// determining whether user can access activities, i.e. whether to render activity titles as links
+			// or as a label.
+			boolean canAccessActivities = true;
+
+			// if user is not enrolled in a credential, then he can not access activities unless having the Learn
+			// privilege to the parent competency
+			if (!credentialData.isEnrolled()) {
+				RestrictedAccessResult<CompetenceData1> res = competenceManager
+						.getFullTargetCompetenceOrCompetenceData(decodedId, cd.getCompetenceId(),
+								loggedUser.getUserId());
+
+				if (!res.getAccess().isCanAccess()) {
+					canAccessActivities = false;
+				}
+			}
+			for (ActivityData activity : activities) {
+				activity.setCanAccess(canAccessActivities);
+			}
+
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
