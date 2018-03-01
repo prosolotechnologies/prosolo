@@ -6,7 +6,7 @@
 	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
-		#{competenceEditBean.pageHeaderTitle}
+		#{competenceEditBean.pageHeaderTitle} - #{not empty competenceEditBean.credTitle ? competenceEditBean.credTitle.concat(' - ') : ''}ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
