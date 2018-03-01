@@ -11,4 +11,5 @@ package emails {
   case class NotificationsSummary(receiver:Long, total:Int, notificationTypesCounts:HashMap[String,Int], notificationsByType:HashMap[String,Array[Notification]]) extends EmailSummary with Serializable
   case class Receiver(receiver:Long, fullname:String, email:String)
   case class NotificationReceiverSummary(receiver:Receiver, summary:NotificationsSummary)extends EmailSummary with Serializable
+  case class EmailSuccess(email:String, template:String, subject:String, success:Boolean)
 }

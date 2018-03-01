@@ -2,11 +2,16 @@ package org.prosolo.bigdata.scala.spark.emails
 
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
+
 import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.scala.spark.{ SparkJob}
+import org.prosolo.bigdata.scala.spark.SparkJob
 import org.apache.spark.sql._
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import com.google.gson.Gson
+
+
 import scala.collection.immutable.HashMap
+import scala.collection.mutable
 
 //case class Notification(id:Long, receiver:Long, actor:Long, actType:String)
 
@@ -72,17 +77,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
                notificationsByType-=n.notificationType
               val modifiedNotificationByType=notificationByType++Array(n)
                  notificationsByType+=(n.notificationType->(modifiedNotificationByType))
-
              }
-
-         /*var notificationByType=notificationsByType.getOrElse(n.notificationType,new Array[Notification](UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE))
-          if(notificationByType.length<UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE){
-            notificationByType:+=n
-          }*/
-          //notificationsByType+=(n.notificationType->(notificationByType))
-
-
-
         }
 
           (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))
@@ -98,36 +93,6 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
         NotificationReceiverSummary(receiver,notificationSummary)
     }
 
-
-
-
-   /*  val today=new Date()
-    val from=getPreviousDateString(today,-20)
-    val to=getPreviousDateString(today,1)
-    println("FROM:"+from+" TO:"+to)
-   val sql= "SELECT receiver,id, actor, type as act_type from "+MySQLTablesNames.NOTIFICATIONS+ " where created>=date('"+from+"') and created<=date('"+to+"') and notify_by_email='T'";
-    val notificationsDF= MySQLDBManager.createDataFrame(MySQLTablesNames.NOTIFICATIONS,sql)
-    println("NOTIFICATIONS:")
-    notificationsDF.show()
-     val receiversDF= notificationsDF.map{
-        case Row(receiver:Long,id:Long, actor:Long, actType:String)=>{
-        (receiver,Notification(id,receiver,actor,actType ))
-      }}.rdd.groupByKey
- val res:RDD[NotificationsSummary]=receiversDF.map{
-  case (receiver:Long,notifications:Iterable[Notification])=>{
-    val total=notifications.size
-    var notCounter=new  HashMap[String,Int]()
-    notifications.foreach(n=>{
-        val tempNot= notCounter.getOrElse(n.actType,0)
-      notCounter+=(n.actType->(tempNot+1))
-    })
-    (receiver,total,notCounter)
-    NotificationsSummary(receiver,total,notCounter)
-}}
-    println("RESULTS:"+res.count)
-    res.collect().foreach(n=>println(n))
-    */
-   // res.collect().foreach(n=>println(n))
     val emailBatches:Array[Array[NotificationReceiverSummary]]=notificationsReceiversSummary.collect().grouped(UserNotificationEmailsSparkJob.BATCH_SIZE).toArray
 
     //notificationsDF.groupBy("receiver").agg()
@@ -140,6 +105,26 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     cal.setTime(date)
     cal.add(Calendar.DATE,before)
     format.format(cal.getTime)
+
+  }
+  def addSuccessEmails(success:mutable.Map[String,EmailSuccess]): Unit ={
+    println("ADD SUCCESS EMAILS:"+success.size)
+    success.foreach{
+      case(email, emailSuccess)=>
+      {
+        val gson=new Gson
+        submitTaskPoint(gson.toJson(emailSuccess),0,emailSuccess.template)
+      }
+    }
+  }
+  def addFailedEmails(failure:mutable.Map[String,EmailSuccess]): Unit ={
+     failure.foreach{
+       case(email, emailSuccess)=>
+         {
+          val gson=new Gson
+           submitFailedTask(gson.toJson(emailSuccess),0,emailSuccess.template)
+         }
+     }
 
   }
 

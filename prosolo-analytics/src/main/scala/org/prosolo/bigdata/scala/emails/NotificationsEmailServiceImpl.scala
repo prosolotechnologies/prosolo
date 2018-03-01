@@ -1,10 +1,11 @@
 package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.email.EmailSender
-import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary}
+import org.prosolo.bigdata.scala.spark.emails.{EmailSuccess, NotificationReceiverSummary}
 import org.prosolo.common.email.generators.EmailContentGenerator
 
 import collection.JavaConverters._
+import scala.collection.mutable
 class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSummary] {
   override def sendEmail(emailSummary:NotificationReceiverSummary): Unit = ???
 
@@ -17,7 +18,7 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
     notificationEmailGenerator
   }
 
-  override def sendEmailBatches(batchEmails:Array[NotificationReceiverSummary]): Unit = {
+  override def sendEmailBatches(batchEmails:Array[NotificationReceiverSummary]): Tuple2[mutable.Map[String,EmailSuccess],mutable.Map[String,EmailSuccess]] = {
    val emailsToSend:Map[EmailContentGenerator,String]= batchEmails.toStream.map{
       emailSummary=>{
         println("BATCH:"+emailSummary)
@@ -25,7 +26,10 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
       }
     }.toMap//.asInstanceOf[java.util.Map[EmailContentGenerator,String]]
     val emailSender=new EmailSender
-        emailSender.sendBatchEmails(emailsToSend.asJava)
-    println("FINISHED SENDING EMAILS")
+       val success= emailSender.sendBatchEmails(emailsToSend.asJava)
+
+
+    println("FINISHED SENDING EMEAILS")
+    (success.getFirst.asScala,success.getSecond.asScala)
   }
 }

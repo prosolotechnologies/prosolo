@@ -4,9 +4,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
+import org.prosolo.bigdata.es.ESAdministration;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
@@ -44,7 +47,12 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
 
 		}
-		//ESAdministration esAdmin = new ESAdministrationImpl();
+		 ESAdministration esAdmin = new ESAdministrationImpl();
+		try {
+			esAdmin.createIndexes();
+		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
+			indexingServiceNotAvailable.printStackTrace();
+		}
 		/*if (Settings.getInstance().config.initConfig.formatES) {
 
 			try {

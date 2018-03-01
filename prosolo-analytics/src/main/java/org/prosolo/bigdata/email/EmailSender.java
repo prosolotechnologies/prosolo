@@ -3,6 +3,7 @@ package org.prosolo.bigdata.email;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -18,14 +19,13 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.scala.spark.emails.EmailSuccess;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
+import org.prosolo.common.util.Pair;
 
- 
- 
- 
 
 /**
  * @author Zoran Jeremic, Sep 19, 2015
@@ -34,41 +34,45 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
 public class EmailSender {
 	private static Logger logger = Logger
 			.getLogger(EmailSender.class.getName());
-	public void sendBatchEmails(Map<EmailContentGenerator,String> emailsToSend) throws AddressException{
+	public Pair<Map<String,EmailSuccess>,Map<String,EmailSuccess>> sendBatchEmails(Map<EmailContentGenerator,String> emailsToSend) throws AddressException{
 		System.out.println("SEND BATCH EMAILS");
 		logger.info("SEND BATCH EMAILS");
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		Session session = Session.getDefaultInstance(getMailProperties());
-
+        Map<String, EmailSuccess> success=new HashMap<String,EmailSuccess>();
+        Map<String, EmailSuccess> failure=new HashMap<String,EmailSuccess>();
 		try{
 			Transport transport = session.getTransport("smtp");
 			transport.connect(smtpConfig.host, smtpConfig.user, smtpConfig.pass);
 		for(Map.Entry<EmailContentGenerator,String> emailToSend:emailsToSend.entrySet()){
 			String email=emailToSend.getValue();
 			EmailContentGenerator contentGenerator=emailToSend.getKey();
-				logger.info("sending email:"+email);
+				logger.info("sending email:"+email+" contentGenerator:"+contentGenerator.getTemplateName()+" subject:"+contentGenerator.getSubject());
 				try{
 					Multipart mp=createMailMultipart(contentGenerator);
 					Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
 					transport.sendMessage(message, message.getAllRecipients());
+					success.put(email,new EmailSuccess(email,contentGenerator.getTemplateName(),contentGenerator.getSubject(),true));
+					if(CommonSettings.getInstance().config.emailNotifier.duplicate){
+						Message messageDuplicate=createMessage(CommonSettings.getInstance().config.emailNotifier.duplicateEmail, contentGenerator.getSubject(),session, mp);
+						transport.sendMessage(messageDuplicate, messageDuplicate.getAllRecipients());
+					}
 				}catch(Exception ex){
 					logger.error(ex);
+					System.out.println("FAILED EMAIL:"+email);
+					failure.put(email,new EmailSuccess(email,contentGenerator.getTemplateName(),contentGenerator.getSubject(),true));
 				}
-
-
-
 		}
 			transport.close();
 		}catch(MessagingException me){
 			me.printStackTrace();
-		}/*catch (IOException ioe){
-			ioe.printStackTrace();
-		}*/
+		}
 
 
-
+    return new Pair(success,failure);
 
 	}
+
 	public void sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 

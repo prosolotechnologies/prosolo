@@ -15,6 +15,12 @@ public class EmailNotifierConfig {
 	
 	@Element(name = "monthly")
 	public boolean monthly = false;
+
+	@Element(name="duplicate")
+	public boolean duplicate=false;
+
+	@Element(name="duplicate-email")
+	public String duplicateEmail;
 	
 	@Element(name = "smtp-config")
 	public SMTPConfig smtpConfig;

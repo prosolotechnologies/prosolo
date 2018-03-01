@@ -111,6 +111,8 @@
 		<daily>false</daily>
 		<weekly>false</weekly>
 		<monthly>false</monthly>
+		<duplicate>false</duplicate>
+		<duplicate-email>test@prosolo.ca</duplicate-email>
 		<smtp-config>
 			<host>email-smtp.us-east-1.amazonaws.com</host>
 			<user>AKIAIZ7V7VE3IKI7MWNA</user>

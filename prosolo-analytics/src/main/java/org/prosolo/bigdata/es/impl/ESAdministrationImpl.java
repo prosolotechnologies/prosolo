@@ -6,6 +6,7 @@ import static org.elasticsearch.client.Requests.deleteIndexRequest;
 //import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 import org.elasticsearch.common.settings.Settings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,7 +35,12 @@ public class ESAdministrationImpl extends AbstractESIndexer implements
 
 	@Override
 	public boolean createIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getAllIndexes();
+		//List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes=new ArrayList<String>();
+		indexes.add(ESIndexNames.INDEX_JOBS_LOGS);
+		indexes.add(ESIndexNames.INDEX_RECOMMENDATION_DATA);
+		indexes.add(ESIndexNames.INDEX_LOGS);
+		indexes.add(ESIndexNames.INDEX_ASSOCRULES);
 
 		for (String index : indexes) {
 			createIndex(index);

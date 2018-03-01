@@ -5,6 +5,7 @@ import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary,  UserNotificationEmailsSparkJob}
 import org.prosolo.common.util.date.DateEpochUtil
 import org.prosolo.common.config.CommonSettings
+import org.prosolo.common.util.Pair
 
 object NotificationsEmailManager {
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
@@ -20,8 +21,14 @@ object NotificationsEmailManager {
     println("EMAIL BATCHES:"+emailBatches.size)
     emailBatches.foreach {
       emailBatch =>
-         emailService.sendEmailBatches(emailBatch)
+         val emailResults=emailService.sendEmailBatches(emailBatch)
+        val success=emailResults._1
+        val failure=emailResults._2
+        sparkJob.addSuccessEmails(emailResults._1)
+        sparkJob.addFailedEmails(emailResults._2)
+
     }
+
     sparkJob.finishJob()
     println("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
   }
