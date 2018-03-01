@@ -59,14 +59,19 @@
 								submitButtonText="Submit"
 						/>
 
-						<h2>Your Evidences</h2>
+						<h2>Your Evidence</h2>
 						<h:panelGroup id="panelEvidences">
 							<ui:repeat value="#{cc.attrs.bean.competenceData.evidences}" var="ev">
 								<div class="whiteBox evidenceBox">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft">
 											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
-											<h3>#{ev.title}</h3>
+											<h3>
+												<h:link outcome="/evidence">
+													#{ev.title}
+													<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+												</h:link>
+											</h3>
 										</div>
 										<div class="evidenceTopRight">
 											<div class="dropdown optMoreMenu">
@@ -93,6 +98,9 @@
 											<td class="col01">Keywords:</td>
 											<td>
 												<ul class="tags">
+													<ui:fragment rendered="#{empty ev.tags}">
+														<span class="lightText">no keywords</span>
+													</ui:fragment>
 													<ui:repeat value="#{ev.tags}" var="kw">
 														<li>#{kw}</li>
 													</ui:repeat>

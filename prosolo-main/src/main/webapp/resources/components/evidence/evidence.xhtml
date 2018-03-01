@@ -60,6 +60,9 @@
 				<tr>
 					<td class="col01">In #{msg['label.competence.plural']}:</td>
 					<td>
+						<ui:fragment rendered="#{empty cc.attrs.evidence.competences}">
+							<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
+						</ui:fragment>
 						<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
 							<h:link outcome="/competence"
 								value="#{c.title}">
@@ -74,6 +77,9 @@
 					<td class="col01">Keywords:</td>
 					<td>
 						<ul class="tags">
+							<ui:fragment rendered="#{empty cc.attrs.evidence.tags}">
+								<span class="lightText">no keywords</span>
+							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.evidence.tags}" var="kw">
 								<li>#{kw}</li>
 							</ui:repeat>

@@ -13,7 +13,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle">
-        ProSolo - Evidences
+        Evidence - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -24,7 +24,7 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>Evidences</h1>
+        <h1>Evidence</h1>
     </ui:define>
 
     <ui:define name="content">
@@ -48,7 +48,7 @@
 
                                 <h:inputText id="inputSearchEvidences"
                                              type="search"
-                                             placeholder="Search Evidences"
+                                             placeholder="Search Evidence"
                                              value="#{learningEvidencesBean.searchTerm}"
                                              onclick="$(this).select();"
                                              onkeyup="searchListener(execSearchEvidences);">
@@ -110,7 +110,7 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li class="active">Evidences</li>
+                <li class="active">Evidence</li>
             </ol>
         </div>
 
@@ -120,7 +120,7 @@
                     <ui:fragment rendered="#{empty learningEvidencesBean.evidences}">
                         <div class="noContentMessage">
                             <p>
-                                No evidences.
+                                No evidence.
                             </p>
                         </div>
                     </ui:fragment>
