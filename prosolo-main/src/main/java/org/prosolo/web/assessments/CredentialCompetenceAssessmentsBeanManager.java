@@ -13,18 +13,13 @@ import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.grading.GradeData;
-import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.notification.data.FilterNotificationType;
-import org.prosolo.web.notification.data.NotificationTypeFilter;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -37,7 +32,10 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ManagedBean(name = "credentialCompetenceAssessmentsBeanManager")
@@ -50,13 +48,11 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	private static Logger logger = Logger.getLogger(CredentialCompetenceAssessmentsBeanManager.class);
 	
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private Competence1Manager compManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ActivityAssessmentBean activityAssessmentBean;
 	@Inject private CompetenceAssessmentBean competenceAssessmentBean;
 	@Inject private CredentialManager credManager;
-	@Inject private UnitManager unitManager;
 
 	private String compId;
 	private long decodedCompId;
@@ -71,8 +67,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	
 	private ResourceAccessData access;
 
-	private boolean countOnlyAssessmentsWhereCurrentUserIsAssessor;
-
 	private DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
 
 	private LearningResourceType currentResType;
@@ -84,11 +78,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		decodedCredId = idEncoder.decodeId(credId);
 		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
-				/*
-				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
-				 * instructor comments
-				 */
-				access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(),
+				access = credManager.getResourceAccessData(decodedCredId, loggedUserBean.getUserId(),
 						ResourceAccessRequirements.of(AccessMode.MANAGER)
 								.addPrivilege(UserGroupPrivilege.Edit)
 								.addPrivilege(UserGroupPrivilege.Instruct));
@@ -108,14 +98,11 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 						filters[counter++] = f;
 					}
 					/*
-					if user has Manager role in one of the units where credential is used, he can see all assessments, otherwise
-					he can only see assessments where he is instructor
+					if user is credential editor he can see assessments for all students
 					*/
-					countOnlyAssessmentsWhereCurrentUserIsAssessor = !unitManager.checkIfUserHasRoleInUnitsConnectedToCompetence(
-							loggedUserBean.getUserId(), decodedCompId, SystemRoleNames.MANAGER);
 					assessmentsSummary = assessmentManager
 							.getCompetenceAssessmentsDataForInstructorCredentialAssessment(
-									decodedCredId, decodedCompId, loggedUserBean.getUserId(), countOnlyAssessmentsWhereCurrentUserIsAssessor,
+									decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
 									dateFormat, getSelectedFilters(), paginationData.getLimit(),
 									(paginationData.getPage() - 1) * paginationData.getLimit());
 
@@ -326,9 +313,12 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 				assessmentsSummary.setAssessments(emptyRes);
 				this.paginationData.update(0);
 			} else {
+				/*
+				if user is credential editor he can see assessments for all students
+				*/
 				assessmentsSummary.setAssessments(
 						assessmentManager.getPaginatedStudentsCompetenceAssessments(
-								decodedCredId, decodedCompId, loggedUserBean.getUserId(), countOnlyAssessmentsWhereCurrentUserIsAssessor,
+								decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
 								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit(), dateFormat));
 				this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
 			}

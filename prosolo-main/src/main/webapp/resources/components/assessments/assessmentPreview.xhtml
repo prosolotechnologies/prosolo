@@ -243,9 +243,10 @@
 					</ui:fragment>
 
 					<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
-						<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.fullAssessmentData.assessorNotified}">
+						<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessorNotified}">
 							<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 								<p:commandButton id="btn"
+												 rendered="#{cc.attrs.role eq 'MANAGER' or not cc.attrs.bean.currentUserAssessedStudent}"
 												 styleClass="close"
 												 pt:data-dismiss="alert"
 												 pt:aria-label="Close"
@@ -253,7 +254,7 @@
 												 action="#{cc.attrs.bean.removeAssessorNotification()}"
 												 update="panelAssessorNotification :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl"
 								/>
-								Student asked for assessment on this #{msg['label.credential'].toLowerCase()}.
+								#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.credential'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.credential'].toLowerCase()).concat('.')}
 							</div>
 						</h:panelGroup>
 					</h:panelGroup>
@@ -265,9 +266,10 @@
 								<ui:fragment rendered="#{not competenceAssessment.readOnly}">
 									<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
 										<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
-											<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.isCurrentUserAssessor() and competenceAssessment.assessorNotified}">
+											<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{competenceAssessment.assessorNotified}">
 												<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 													<h:commandButton id="btn"
+																	 rendered="#{cc.attrs.role eq 'MANAGER' or not cc.attrs.bean.currentUserAssessedStudent}"
 																	 type="button"
 																	 styleClass="close"
 																	 pt:data-dismiss="alert"
@@ -276,7 +278,7 @@
 																	 action="#{cc.attrs.bean.removeAssessorNotification(competenceAssessment)}">
 														<f:ajax execute="@this" render="panelAssessorNotificationComp :#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl" />
 													</h:commandButton>
-													Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
+													#{cc.attrs.role eq 'USER' and cc.attrs.bean.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
 												</div>
 											</h:panelGroup>
 										</h:panelGroup>
