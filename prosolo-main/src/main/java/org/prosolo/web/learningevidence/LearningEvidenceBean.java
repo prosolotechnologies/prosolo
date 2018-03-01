@@ -87,7 +87,7 @@ public class LearningEvidenceBean implements Serializable {
         try {
             learningEvidenceManager.deleteLearningEvidence(evidence.getId(), loggedUserBean.getUserContext());
             PageUtil.fireSuccessfulInfoMessageAcrossPages("Evidence successfully removed");
-            PageUtil.redirect("/evidences");
+            PageUtil.redirect("/evidence");
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error deleting the evidence");
