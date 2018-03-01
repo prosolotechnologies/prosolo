@@ -84,7 +84,7 @@ public class LearningEvidenceEditBean implements Serializable {
             } else {
                 learningEvidenceManager.postEvidence(getEvidence(), loggedUserBean.getUserContext());
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Evidence added");
-                PageUtil.redirect("/evidence");
+                PageUtil.redirect("/evidences");
             }
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.error("Error", e);

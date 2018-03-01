@@ -483,7 +483,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	}
 	 
 	public String getPageHeaderTitle() {
-		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.competence");
+		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New Competence";
 	}
 	
 	public boolean isCreateUseCase() {

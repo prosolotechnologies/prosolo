@@ -264,6 +264,62 @@ public class UserEditBean implements Serializable {
 		newOwner.setUserSet(false);
 	}
 
+	public UserData getUser() {
+		return user;
+	}
+
+	public void setUser(UserData user) {
+		this.user = user;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public List<RoleCheckboxData> getAllRoles() {
+		return allRoles;
+	}
+
+	public void setAllRoles(List<RoleCheckboxData> allRoles) {
+		this.allRoles = allRoles;
+	}
+
+	public UserData getAccountData() {
+		return accountData;
+	}
+
+	public List<UserData> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<UserData> users) {
+		this.users = users;
+	}
+
+	public UserTextSearch getTextSearch() {
+		return textSearch;
+	}
+
+	public void setTextSearch(UserTextSearch textSearch) {
+		this.textSearch = textSearch;
+	}
+
+	public String getSearchTerm() {
+		return searchTerm;
+	}
+
+	public void setSearchTerm(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
+
+	public UserData getNewOwner() {
+		return newOwner;
+	}
+
 	public void setNewOwner(UserData userData) {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
@@ -279,7 +335,7 @@ public class UserEditBean implements Serializable {
 			Session session = (Session) userManager.getPersistence().openSession();
 			try {
 				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-						CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
 				session.flush();
 				if (resetLinkSent) {
 					logger.info("Password instructions have been sent");
@@ -347,66 +403,6 @@ public class UserEditBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");
 		}
-	}
-
-	public UserData getUser() {
-		return user;
-	}
-
-	public void setUser(UserData user) {
-		this.user = user;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public long getDecodedId() {
-		return decodedId;
-	}
-
-	public List<RoleCheckboxData> getAllRoles() {
-		return allRoles;
-	}
-
-	public void setAllRoles(List<RoleCheckboxData> allRoles) {
-		this.allRoles = allRoles;
-	}
-
-	public UserData getAccountData() {
-		return accountData;
-	}
-
-	public List<UserData> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<UserData> users) {
-		this.users = users;
-	}
-
-	public UserTextSearch getTextSearch() {
-		return textSearch;
-	}
-
-	public void setTextSearch(UserTextSearch textSearch) {
-		this.textSearch = textSearch;
-	}
-
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	public UserData getNewOwner() {
-		return newOwner;
 	}
 
 	public String getOrgId() {

@@ -19,11 +19,11 @@ public class AnnouncementPublishedNotificationEmailGenerator extends Notificatio
 		return subject;
 	}
 
-	public AnnouncementPublishedNotificationEmailGenerator(String name, String actor, String objectTitle, String credentialTitle, String predicate,
+	public AnnouncementPublishedNotificationEmailGenerator(String name, String actor, String objectTitle, String credentialTargetTitle, String predicate,
 			String date, String link, String announcementTitle, String announcementText) {
 		super(name, actor, predicate, objectTitle, date, link);
-		this.subject = "["+credentialTitle+"] " + announcementTitle;
-		this.targetTitle = credentialTitle;
+		this.subject = announcementTitle;
+		this.targetTitle = credentialTargetTitle;
 		this.text = announcementText;
 		this.localizedCredentialLabel = ResourceBundleUtil.getLabel("label.credential").toLowerCase();
 	}
