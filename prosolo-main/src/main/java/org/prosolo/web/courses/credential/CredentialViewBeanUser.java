@@ -9,13 +9,17 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AnnouncementManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.AskForCredentialAssessmentBean;
@@ -54,8 +58,6 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Inject
-	private Competence1Manager competenceManager;
 	@Autowired
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -160,11 +162,14 @@ public class CredentialViewBeanUser implements Serializable {
 			// if user is not enrolled in a credential, then he can not access activities unless having the Learn
 			// privilege to the parent competency
 			if (!credentialData.isEnrolled()) {
-				RestrictedAccessResult<CompetenceData1> res = competenceManager
-						.getFullTargetCompetenceOrCompetenceData(decodedId, cd.getCompetenceId(),
-								loggedUser.getUserId());
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
 
-				if (!res.getAccess().isCanAccess()) {
+				ResourceAccessData compAccess = compManager.getResourceAccessData(cd.getCompetenceId(), loggedUser.getUserId(), req);
+
+				if (!compAccess.isCanAccess()) {
 					canAccessActivities = false;
 				}
 			}
