@@ -10,7 +10,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle">
-        ProSolo - Evidences
+        #{learningEvidenceBean.evidence.title} - Evidence - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -45,7 +45,7 @@
             <ol class="breadcrumb">
                 <li>
                     <h:link outcome="/evidences">
-                        Evidences
+                        Evidence
                     </h:link>
                 </li>
                 <li class="active">#{learningEvidenceBean.evidence.title}</li>

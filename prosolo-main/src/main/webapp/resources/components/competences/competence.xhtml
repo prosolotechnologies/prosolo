@@ -192,7 +192,7 @@
 					role="#{cc.attrs.role}"
 					growlToUpdate=":#{cc.clientId}:growlMain"
 					startedLearning="#{startedLearning}"
-					toUpdateOnEvidencePost="#{cc.attrs.role eq 'USER' ? cc.clientId : ''}"
+					toUpdateOnEvidencePost="#{cc.attrs.role eq 'USER' ? ':competence:panelHeaderOptions' : ''}"
 			/>
 		</div>
 	</composite:implementation>

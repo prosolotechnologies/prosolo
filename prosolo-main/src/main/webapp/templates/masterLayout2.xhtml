@@ -92,11 +92,11 @@
 									value="People" outcome="/people" />
 							</li>
 							<li role="presentation" class="#{util:getPagePath(view.viewId)  eq 'evidences'
-								or util:getPagePath(view.viewId)  eq 'evidence'
+								or util:getPagePath(view.viewId) eq 'evidence'
 								or util:getPagePath(view.viewId) eq 'evidence-edit'
 								? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('evidences', 'mainmenu');"
-										value="Evidences" outcome="/evidences" />
+								<h:link onclick="sendLogPageNavigation('evidence', 'mainmenu');"
+										value="Evidence" outcome="/evidences" />
 							</li>
 						</ul>
 					</nav>

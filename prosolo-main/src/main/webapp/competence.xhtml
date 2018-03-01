@@ -9,7 +9,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{msg['label.competence']} - #{competenceViewBean.competenceData.title}
+		#{competenceViewBean.competenceData.title} - #{not empty competenceViewBean.credentialTitle ? competenceViewBean.credentialTitle.concat(' - ') : ''}ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
