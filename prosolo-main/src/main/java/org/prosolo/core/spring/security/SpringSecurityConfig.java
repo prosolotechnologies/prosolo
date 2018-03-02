@@ -131,6 +131,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
 			// we need to allow access to index.jsp as Tomcat by default tries to load this file
 		   .antMatchers("/index.jsp").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
+		   .antMatchers("/version.txt").hasAnyAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/home").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/achievements").hasAuthority("BASIC.USER.ACCESS")
