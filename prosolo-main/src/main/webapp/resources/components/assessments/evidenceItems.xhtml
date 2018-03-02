@@ -24,7 +24,7 @@
 							</h:link>
 						</ui:fragment>
 						<ui:fragment rendered="#{not cc.attrs.canViewEvidence}">
-							<a href="javascript:void(0);" data-toggle="tooltip" title="You are not allowed to see evidence for this student" disabled="true">#{ev.title}</a>
+							<a href="javascript:void(0);" data-toggle="tooltip" title="Only student's assessor is allowed to see the evidence" disabled="true">#{ev.title}</a>
 						</ui:fragment>
 
 						<div class="activityOptions">
