@@ -2,11 +2,13 @@ package org.prosolo.services.assessment.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
@@ -15,6 +17,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
@@ -22,16 +25,16 @@ import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
+import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -60,6 +63,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private Activity1Manager activityManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private CompetenceDataFactory compDataFactory;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
+	@Inject private UnitManager unitManager;
 
 	@Override
 	//not transactional - should not be called from another transaction
@@ -122,10 +128,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			//assessment.setTitle(credentialTitle);
 			assessment.setTargetCredential(targetCredential);
 			assessment.setType(type);
-			//if not automatic grading mode, set grade to -1 which means it is not assessed
-			if (targetCredential.getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
-				assessment.setPoints(-1);
-			}
+			assessment.setPoints(-1);
 			saveEntity(assessment);
 
 			List<Long> participantIds = new ArrayList<>();
@@ -281,6 +284,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(participant);
 			}
 			int compPoints = 0;
+			boolean atLeastOneActivityGraded = false;
 			for (ActivityData act : comp.getActivities()) {
 				Result<ActivityAssessment> actAssessment = createActivityAssessmentAndGetEvents(
 						act, compAssessment.getId(), participantIds, type, context, persistence.currentManager());
@@ -289,15 +293,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					compPoints += actAssessment.getResult().getPoints() >= 0
 							? actAssessment.getResult().getPoints()
 							: 0;
+					if (actAssessment.getResult().getPoints() >= 0) {
+						atLeastOneActivityGraded = true;
+					}
 				}
 			}
 
-			if (comp.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
-				if (compPoints > 0) {
-					compAssessment.setPoints(compPoints);
-				}
+			if (comp.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC && atLeastOneActivityGraded) {
+				compAssessment.setPoints(compPoints);
 			} else {
-				//if not automatic grading mode set points to -1 which means student is not assessed.
 				compAssessment.setPoints(-1);
 			}
 
@@ -1680,15 +1684,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException {
 		try {
 			String GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE =
-					"SELECT SUM(CASE WHEN ad.points > 0 THEN ad.points ELSE 0 END) " +
+					"SELECT SUM(CASE WHEN ad.points > 0 THEN ad.points ELSE 0 END), SUM(CASE WHEN ad.points >= 0 THEN 1 ELSE 0 END) > 0 " +
 					"FROM ActivityAssessment ad " +
 					"LEFT JOIN ad.assessment compAssessment " +
 					"WHERE compAssessment.id = :compAssessmentId";
-			Long points = (Long) session.createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
 					.setLong("compAssessmentId", compAssessmentId)
 					.uniqueResult();
 
-			return points != null ? points.intValue() : 0;
+			long points = (long) res[0];
+			//if at least one activity has score 0 or greater than 0 it means that at least one activity is assessed which means that competency is assessed
+			boolean assessed = (boolean) res[1];
+
+			return assessed ? (int) points : -1;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1978,16 +1988,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public int getAutomaticCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException {
 		try {
 			String GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL =
-					"SELECT SUM(compAssessment.points) " +
+					"SELECT SUM(compAssessment.points), SUM(CASE WHEN compAssessment.points >= 0 THEN 1 ELSE 0 END) > 0 " +
 					"FROM CredentialCompetenceAssessment cca " +
 					"INNER JOIN cca.competenceAssessment compAssessment " +
 					"WHERE cca.credentialAssessment.id = :credAssessmentId";
-			Long points = (Long) persistence.currentManager()
+			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
 					.setLong("credAssessmentId", credAssessmentId)
 					.uniqueResult();
 
-			return points != null ? points.intValue() : 0;
+			long points = (long) res[0];
+			//if at least one competence has score 0 or greater than zero it means that at least one competence is assessed which means that credential is assessed
+			boolean assessed = (boolean) res[1];
+
+			return assessed ? (int) points : -1;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2166,13 +2180,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			//get number of users that completed activity for each activity in a credential
 			List<Long> credCompIds = new ArrayList<>();
 			del.getCompetences().forEach(cc -> credCompIds.add(cc.getCompetence().getId()));
+			List<Long> studentsLearningCredential = credManager.getUsersLearningDelivery(deliveryId);
 			Map<Long, Long> usersCompletedActivitiesMap = getNumberOfStudentsCompletedActivityForAllActivitiesInACredential(
-					credManager.getUsersLearningDelivery(deliveryId), credCompIds);
+					studentsLearningCredential, credCompIds);
 			//get number of assessed users
 			Map<Long, Long> assessedUsersMap = getNumberOfAssessedStudentsForEachActivityInCredential(deliveryId);
-
+			//get number of enrolled students in a competency in order to have info how many students can be assessed
+			Map<Long, Long> studentsEnrolledInCompetences = getNumberOfStudentsEnrolledInCompetences(studentsLearningCredential, credCompIds);
+			//get number of assessed students and notifications for each competency in credential
+			Map<Long, Long[]> compAssessmentSummaryInfo = getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(deliveryId);
 			for (CredentialCompetence1 cc : del.getCompetences()) {
-				CompetenceAssessmentsSummaryData compSummary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(cc.getCompetence());
+				Long[] compAssessmentSummary = compAssessmentSummaryInfo.get(cc.getCompetence().getId());
+				long numberOfAssessedStudents = compAssessmentSummary != null ? compAssessmentSummary[0] : 0;
+				long numberOfNotifications = compAssessmentSummary != null ? compAssessmentSummary[1] : 0;
+				CompetenceAssessmentsSummaryData compSummary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
+						cc.getCompetence(),
+						studentsEnrolledInCompetences.get(cc.getCompetence().getId()),
+						numberOfAssessedStudents,
+						numberOfNotifications);
 
 				List<CompetenceActivity1> compActivities = activityManager.getCompetenceActivities(cc.getCompetence().getId(), false);
 				for (CompetenceActivity1 ca : compActivities) {
@@ -2231,6 +2256,47 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
 				.list();
 		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
+	}
+
+	private Map<Long, Long> getNumberOfStudentsEnrolledInCompetences(List<Long> usersLearningDelivery, List<Long> compIds) {
+		if (usersLearningDelivery == null || usersLearningDelivery.isEmpty() || compIds == null || compIds.isEmpty()) {
+			return new HashMap<>();
+		}
+		String studentsLearningCompetences =
+				"SELECT comp.id, COUNT(tc.id) " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN comp.targetCompetences tc " +
+				"WHERE comp.id IN (:compIds) " +
+				"AND tc.user.id IN (:userIds) " +
+				"GROUP BY comp.id";
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersCompletedActivities = persistence.currentManager()
+				.createQuery(studentsLearningCompetences)
+				.setParameterList("compIds", compIds)
+				.setParameterList("userIds", usersLearningDelivery)
+				.list();
+		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
+	}
+
+	private Map<Long, Long[]> getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(long deliveryId) {
+		String q =
+				"SELECT ca.competence.id, SUM(case when ca.points >= 0 then 1 else 0 end), SUM(case when ca.assessorNotified = true then 1 else 0 end) " +
+				"FROM CompetenceAssessment ca " +
+				"INNER JOIN ca.credentialAssessments cca " +
+				"INNER JOIN cca.credentialAssessment credAssessment " +
+				"WITH credAssessment.type = :instructorAssessment " +
+				"INNER JOIN credAssessment.targetCredential tc " +
+				"WITH tc.credential.id = :credId " +
+				"GROUP BY ca.competence.id";
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersAssessed = persistence.currentManager()
+				.createQuery(q)
+				.setLong("credId", deliveryId)
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.list();
+		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> new Long[] {(long) row[1], (long) row[2]}));
 	}
 
 	@Override
@@ -2556,4 +2622,198 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error retrieving credential assessment id");
 		}
 	}
+
+	//COMPETENCE ASSESSMENT
+
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
+			throws DbConnectionException, ResourceNotFoundException {
+		try {
+			//check if activity is part of a credential
+			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
+			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
+			CompetenceAssessmentsSummaryData summary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
+					comp, 0L, 0L, 0L);
+			PaginatedResult<CompetenceAssessmentData> res = getPaginatedStudentsCompetenceAssessments(
+					credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, filters, limit, offset, dateFormat);
+			summary.setAssessments(res);
+			return summary;
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading competence assessments");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
+			List<AssessmentFilter> filters, int limit, int offset, DateFormat dateFormat) throws DbConnectionException {
+		long numberOfEnrolledStudents = getNumberOfStudentsEnrolledInACompetence(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor, filters);
+		PaginatedResult<CompetenceAssessmentData> res = new PaginatedResult<>();
+		res.setHitsNumber(numberOfEnrolledStudents);
+		if (numberOfEnrolledStudents > 0) {
+			res.setFoundNodes(getStudentsCompetenceAssessmentsData(credId, compId, userId, countOnlyAssessmentsWhereUserIsAssessor,
+					dateFormat, filters,true, limit, offset));
+		}
+		return res;
+	}
+
+	private List<CompetenceAssessmentData> getStudentsCompetenceAssessmentsData(
+			long credId, long compId, long userId, boolean returnOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, boolean paginate, int limit, int offset)
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+					"SELECT {tc.*}, {ca.*}, {credAssessment.*} " +
+						"FROM target_competence1 tc " +
+						"INNER JOIN competence1 comp " +
+						"ON tc.competence = comp.id AND comp.id = :compId " +
+						"INNER JOIN target_credential1 cred " +
+						"ON cred.user = tc.user AND cred.credential = :credId " +
+						"INNER JOIN (competence_assessment ca " +
+						"INNER JOIN credential_competence_assessment cca " +
+						"ON cca.competence_assessment = ca.id " +
+						"INNER JOIN credential_assessment credAssessment " +
+						"ON credAssessment.id = cca.credential_assessment " +
+						"INNER JOIN target_credential1 tCred " +
+						"ON tCred.id = credAssessment.target_credential " +
+						"AND tCred.credential = :credId) " +
+						"ON comp.id = ca.competence " +
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment ");
+			if (returnOnlyAssessmentsWhereUserIsAssessor) {
+				query.append("AND ca.assessor = :userId ");
+			}
+
+			addAssessmentFilterConditionToQuery(query, "ca", filters);
+
+			if (paginate) {
+				query.append("LIMIT " + limit + " ");
+				query.append("OFFSET " + offset);
+			}
+
+			Query q = persistence.currentManager()
+					.createSQLQuery(query.toString())
+					.addEntity("tc", TargetCompetence1.class)
+					.addEntity("ca", CompetenceAssessment.class)
+					.addEntity("credAssessment", CredentialAssessment.class)
+					.setLong("compId", compId)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+
+			if (returnOnlyAssessmentsWhereUserIsAssessor) {
+				q.setLong("userId", userId);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
+			List<CompetenceAssessmentData> assessments = new ArrayList<>();
+			if (res != null) {
+				for (Object[] row : res) {
+					TargetCompetence1 tc = (TargetCompetence1) row[0];
+					CompetenceAssessment ca = (CompetenceAssessment) row[1];
+					CredentialAssessment credA = (CredentialAssessment) row[2];
+					CompetenceData1 cd = compDataFactory.getCompetenceData(null, tc, 0, null, null, null, false);
+					if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+						cd.setActivities(activityManager
+								.getTargetActivitiesData(tc.getId()));
+					} else {
+						cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
+					}
+					assessments.add(CompetenceAssessmentData.from(cd, ca, credA, encoder, userId, dateFormat));
+				}
+			}
+			return assessments;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving students' assessments");
+		}
+	}
+
+	private void addAssessmentFilterConditionToQuery(StringBuilder query, String compAssessmentAlias, List<AssessmentFilter> filters) {
+		if (filters.isEmpty()) {
+			return;
+		}
+		query.append("AND (");
+		boolean firstFilter = true;
+		for (AssessmentFilter filter : filters) {
+			if (!firstFilter) {
+				query.append("OR ");
+			} else {
+				firstFilter = false;
+			}
+			switch (filter) {
+				case NOTIFIED:
+					query.append(compAssessmentAlias + ".assessor_notified IS TRUE ");
+					break;
+				case NOT_ASSESSED:
+					query.append(compAssessmentAlias + ".points < 0 ");
+					break;
+				case ASSESSED:
+					query.append(compAssessmentAlias + ".points >= 0 ");
+					break;
+				default:
+					break;
+			}
+		}
+		query.append(") ");
+	}
+
+	private long getNumberOfStudentsEnrolledInACompetence(long credId, long compId, long userId, boolean countOnlyAssessmentsWhenUserIsAssessor, List<AssessmentFilter> filters)
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+					"SELECT COUNT(tc.id) " +
+						"FROM target_competence1 tc " +
+						"INNER JOIN competence1 comp " +
+						"ON tc.competence = comp.id AND comp.id = :compId " +
+						"INNER JOIN target_credential1 cred " +
+						"ON cred.user = tc.user AND cred.credential = :credId " +
+						"INNER JOIN (competence_assessment ca " +
+						"INNER JOIN credential_competence_assessment cca " +
+						"ON cca.competence_assessment = ca.id " +
+						"INNER JOIN credential_assessment credAssessment " +
+						"ON credAssessment.id = cca.credential_assessment " +
+						"INNER JOIN target_credential1 tCred " +
+						"ON tCred.id = credAssessment.target_credential " +
+						"AND tCred.credential = :credId) " +
+						"ON comp.id = ca.competence " +
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment ");
+
+			if (countOnlyAssessmentsWhenUserIsAssessor) {
+				query.append("AND ca.assessor = :userId ");
+			}
+
+			addAssessmentFilterConditionToQuery(query, "ca", filters);
+
+			Query q = persistence.currentManager()
+					.createSQLQuery(query.toString())
+					.setLong("compId", compId)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+
+			if (countOnlyAssessmentsWhenUserIsAssessor) {
+				q.setLong("userId", userId);
+			}
+
+			BigInteger count = (BigInteger) q.uniqueResult();
+
+			return count != null ? count.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving number of enrolled students");
+		}
+	}
+
+	//COMPETENCE ASSESSMENT END
 }

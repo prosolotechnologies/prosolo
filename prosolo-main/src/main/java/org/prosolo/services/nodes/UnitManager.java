@@ -124,6 +124,9 @@ public interface UnitManager extends AbstractManager{
     boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
             throws DbConnectionException;
 
+    boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, String roleName)
+            throws DbConnectionException;
+
     List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
 
     List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException;
