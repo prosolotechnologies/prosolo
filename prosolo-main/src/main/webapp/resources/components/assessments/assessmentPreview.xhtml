@@ -86,6 +86,8 @@
 							 name="markCredentialAssessmentDiscussionRead"/>
 		</h:form>
 
+		<ui:define name="navLinks">dsfsdf</ui:define>
+
 		<div class="whiteBar">
 			<div class="container">
 				<div class="whiteBarContent">
@@ -195,6 +197,45 @@
 				</ui:fragment>
 			</ol>
 		</div>
+
+		<c:if test="#{cc.attrs.role eq 'USER'}">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="whiteBox">
+							<ul class="nav nav-tabs pageSubmenu" role="tablist">
+								<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+								<ui:remove>
+									<li role="presentation" class="#{page eq 'credential-peer-assessments' ? 'active' : ''}">
+										<h:link
+												value="#{msg['label.assessment.type.PEER_ASSESSMENT']}"
+												outcome="/credential-peer-assessments">
+											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
+										</h:link>
+									</li>
+								</ui:remove>
+								<li role="presentation" class="#{page eq 'credential-instructor-assessment' ? 'active' : ''}">
+									<h:link
+											value="#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
+											outcome="/credential-instructor-assessment">
+										<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
+									</h:link>
+								</li>
+								<ui:remove>
+									<li role="presentation" class="#{page eq 'credential-self-assessment' ? 'active' : ''}">
+										<h:link
+												value="#{msg['label.assessment.type.SELF_ASSESSMENT']}"
+												outcome="/credential-self-assessment">
+											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
+										</h:link>
+									</li>
+								</ui:remove>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</c:if>
 
 		<div class="container">
 			<div class="row">
@@ -516,6 +557,9 @@
 						<h2>Requested</h2>
 						<p>#{cc.attrs.bean.fullAssessmentData.dateValue}</p>
 					</div>
+					<c:if test="#{cc.attrs.role eq 'USER'}">
+						<a href="#" class="btn btn-green" data-toggle="modal" data-target="#askAssessment">Ask for Tutor Assessment</a>
+					</c:if>
 				</div>
 			</div>
 		</div>

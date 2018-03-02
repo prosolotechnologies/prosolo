@@ -75,6 +75,12 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private LearningResourceType currentResType;
 
+	public void initAssessment(String encodedCredId, String encodedAssessmentId) {
+		this.id = encodedCredId;
+		this.assessmentId = encodedAssessmentId;
+		initAssessment();
+	}
+
 	public void initAssessment() {
 		decodedId = idEncoder.decodeId(id);
 
