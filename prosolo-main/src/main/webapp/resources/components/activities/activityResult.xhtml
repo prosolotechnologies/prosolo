@@ -36,6 +36,10 @@
 
 		<c:if test="#{cc.attrs.resultType eq 'FILE_UPLOAD'}">
 			<div id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultFile">
+				<div class="innerWrapper">
+					<h2 class="bottom0">#{cc.attrs.activityTitle}</h2>
+					<div class="clear1px"></div>
+				</div>
 				<div class="activityResultHead">
 					<div class="user32">
 						<utilcomp:userAvatar
