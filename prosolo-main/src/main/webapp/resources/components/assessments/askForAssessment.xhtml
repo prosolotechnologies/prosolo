@@ -8,10 +8,11 @@
 
 	<composite:interface>
 		<composite:attribute name="resourceTitle" required="true" />
-		<composite:attribute name="role" required="true" />
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="resource" required="true" />
 		<composite:attribute name="bean" required="true" type="org.prosolo.web.assessments.AskForAssessmentBean" />
+		<composite:attribute name="submitAssessmentRequestActionMethodName" required="true"/>
+		<composite:attribute name="submitAssessmentRequestAction" required="true" method-signature="void #{cc.attrs.submitAssessmentRequestActionMethodName}()"/>
 		<composite:attribute name="learningContext" default="" />
 	</composite:interface>
 
@@ -158,7 +159,7 @@
 								rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}"
 								process="messageContentTextarea"
 								update="#{cc.attrs.toUpdate}"
-								action="#{cc.attrs.bean.submitAssessment()}"
+								action="#{cc.attrs.submitAssessmentRequestAction}"
 								styleClass="btn btn-green"
 								oncomplete="hideAssesmentDialog('askAssessment')">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>

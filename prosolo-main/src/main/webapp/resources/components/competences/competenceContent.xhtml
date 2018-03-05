@@ -222,9 +222,10 @@
 								<assessment:askForAssessment
 										id="askForAssessment"
 										bean="#{askForCompetenceAssessmentBean}"
+										submitAssessmentRequestActionMethodName="submitAssessment"
+										submitAssessmentRequestAction="#{askForCompetenceAssessmentBean.submitAssessment}"
 										resource="COMPETENCE"
 										resourceTitle="#{cc.attrs.bean.competenceData.title}"
-										role="#{cc.attrs.role}"
 										toUpdate="#{cc.attrs.growlToUpdate}"
 										learningContext="#{cc.attrs.learningContext}"
 								/>

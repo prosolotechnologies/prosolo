@@ -108,31 +108,38 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public void submitAssessment() {
         try {
-            if (this.assessmentRequestData.isAssessorSet()) {
-                if (assessmentRequestData.isNewAssessment()) {
-                    this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
-                    this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-                    submitAssessmentRequest();
-                    if (existingPeerAssessors != null) {
-                        existingPeerAssessors.add(assessmentRequestData.getAssessorId());
-                    }
-                    PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
-                } else {
-                    //notify
-                    notifyAssessorToAssessResource();
-                    PageUtil.fireSuccessfulInfoMessage("Assessor is notified");
-                }
-
-            } else {
-                logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for " + getResourceType().name().toLowerCase() + " : "
-                        + resourceId + ", but " + getResourceType().name().toLowerCase() + " has no assessor/instructor set!");
-                PageUtil.fireErrorMessage("No assessor set");
-            }
-            resetAskForAssessmentModal();
+            submitAssessmentRequestAndReturnStatus();
         } catch (Exception e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error sending the assessment request");
         }
+    }
+
+    public boolean submitAssessmentRequestAndReturnStatus() throws Exception {
+        boolean status;
+        if (this.assessmentRequestData.isAssessorSet()) {
+            if (assessmentRequestData.isNewAssessment()) {
+                this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
+                this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
+                submitAssessmentRequest();
+                if (existingPeerAssessors != null) {
+                    existingPeerAssessors.add(assessmentRequestData.getAssessorId());
+                }
+                PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
+            } else {
+                //notify
+                notifyAssessorToAssessResource();
+                PageUtil.fireSuccessfulInfoMessage("Assessor is notified");
+            }
+            status = true;
+        } else {
+            logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for " + getResourceType().name().toLowerCase() + " : "
+                    + resourceId + ", but " + getResourceType().name().toLowerCase() + " has no assessor/instructor set!");
+            PageUtil.fireErrorMessage("No assessor set");
+            status = false;
+        }
+        resetAskForAssessmentModal();
+        return status;
     }
 
     private void populateAssessmentRequestFields(long targetResourceId) {

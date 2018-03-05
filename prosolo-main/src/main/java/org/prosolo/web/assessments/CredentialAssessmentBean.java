@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -60,6 +61,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private ActivityAssessmentBean activityAssessmentBean;
 	@Inject private CompetenceAssessmentBean compAssessmentBean;
 	@Inject private RubricManager rubricManager;
+	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
 
 	// PARAMETERS
 	private String id;
@@ -585,6 +587,24 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		} else
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
+
+	//STUDENT ONLY CODE
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), aType);
+	}
+
+	public void submitAssessment() {
+		try {
+			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
+			if (success) {
+				fullAssessmentData.setAssessorNotified(true);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error sending the assessment request");
+		}
+	}
+	//STUDENT ONLY CODE
 	
 	/*
 	 * GETTERS / SETTERS
