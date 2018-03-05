@@ -31,7 +31,7 @@
          <mngComp:competenceHeaderNavLinks
                  id="headerNavLinks"
                  compId="#{competenceUserPrivilegeBean.compId}"
-                 credId="#{competenceUserPrivilegeBean.credId}"
+                 encodedCredId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
 	
@@ -49,12 +49,17 @@
                     <ui:fragment rendered="#{not empty param['credId']}">
                         <ol class="breadcrumb">
                             <li>
-                                <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                                <ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+                                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{loggeduser.hasCapability('BASIC.INSTRUCTOR.ACCESS')}">
+                                    <h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+                                </ui:fragment>
                             </li>
                             <li>
                                 <h:link
                                         value="#{competenceUserPrivilegeBean.credTitle}"
-                                        outcome="create-credential">
+                                        outcome="credential">
                                     <f:param name="id" value="#{param['credId']}"></f:param>
                                 </h:link>
                             </li>

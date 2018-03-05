@@ -17,6 +17,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="id" value="#{competencePrivacyBean.compId}" default="null" />
+            <f:viewParam name="credId" value="#{competencePrivacyBean.credId}" default="null" />
             <f:viewAction action="#{competencePrivacyBean.init()}" />
         </f:metadata>
     </ui:define>
@@ -29,6 +30,7 @@
         <mngComp:competenceHeaderNavLinks
                 id="headerNavLinks"
                 compId="#{competencePrivacyBean.decodedCompId}"
+                encodedCredId="#{competencePrivacyBean.credId}"
         />
     </ui:define>
 
@@ -43,19 +45,47 @@
         <div class="container">
             <div class="row">
                 <div class="container">
-                    <ol class="breadcrumb">
-                        <li>
-                            <h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
-                        </li>
-                        <li>
-                            <h:link value="#{competencePrivacyBean.competenceTitle}" outcome="create-competence">
-                                <f:param name="id" value="#{param.id}"></f:param>
-                            </h:link>
-                        </li>
-                        <li class="active">
-                            Privacy
-                        </li>
-                    </ol>
+                    <ui:fragment rendered="#{not empty param['credId']}">
+                        <ol class="breadcrumb">
+                            <li>
+                                <ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+                                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{loggeduser.hasCapability('BASIC.INSTRUCTOR.ACCESS')}">
+                                    <h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+                                </ui:fragment>
+                            </li>
+                            <li>
+                                <h:link value="#{competencePrivacyBean.credTitle}" outcome="credential">
+                                    <f:param name="id" value="#{param['credId']}"></f:param>
+                                </h:link>
+                            </li>
+                            <li>
+                                <h:link value="#{competencePrivacyBean.competenceTitle}" outcome="create-competence">
+                                    <f:param name="id" value="#{competencePrivacyBean.compId}" />
+                                    <f:param name="credId" value="#{competencePrivacyBean.credId}" />
+                                </h:link>
+                            </li>
+                            <li class="active">
+                                Privacy
+                            </li>
+                        </ol>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{empty param['credId']}">
+                        <ol class="breadcrumb">
+                            <li>
+                                <h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
+                            </li>
+                            <li>
+                                <h:link value="#{competencePrivacyBean.competenceTitle}" outcome="create-competence">
+                                    <f:param name="id" value="#{param.id}"></f:param>
+                                </h:link>
+                            </li>
+                            <li class="active">
+                                Privacy
+                            </li>
+                        </ol>
+                    </ui:fragment>
                 </div>
 
                 <div class="col-md-12">

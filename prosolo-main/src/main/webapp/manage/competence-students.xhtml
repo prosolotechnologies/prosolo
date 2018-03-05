@@ -33,7 +33,7 @@
 		<mngComp:competenceHeaderNavLinks
 				id="headerNavLinks"
 				compId="#{competenceStudentsBean.decodedId}"
-				credId="#{competenceStudentsBean.credId}"
+				encodedCredId="#{competenceStudentsBean.credId}"
 		/>
 	</ui:define>
 	
@@ -118,11 +118,15 @@
 			<ui:fragment rendered="#{not empty param['credId']}">
 				<ol class="breadcrumb">
 					<li>
-						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+						<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+						</ui:fragment>
+						<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.INSTRUCTOR.ACCESS')}">
+							<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+						</ui:fragment>
 					</li>
 					<li>
-						<h:link value="#{competenceStudentsBean.credTitle}"
-								outcome="create-credential">
+						<h:link value="#{competenceStudentsBean.credTitle}" outcome="credential">
 							<f:param name="id" value="#{param['credId']}"></f:param>
 						</h:link>
 					</li>
@@ -182,6 +186,8 @@
 											<h:link outcome="studentProfile">
 												#{student.user.commaSeparatedFullName}
 												<f:param name="id" value="#{util:encodeId(student.user.id)}" />
+												<f:param name="cred" value="#{param['credId']}" />
+												<f:param name="comp" value="#{param['id']}" />
 											</h:link>
 										</h2>
 										<span>#{student.user.position}</span>
