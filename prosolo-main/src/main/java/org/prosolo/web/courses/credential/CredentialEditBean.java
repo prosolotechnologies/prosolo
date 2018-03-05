@@ -478,7 +478,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 		}
 	}
 	
-//	public void duplicate() {
+//	public void bcc() {
 //
 //		Credential1 cred = credentialCloneFactory.clone(credentialData.getId());
 //		
@@ -498,7 +498,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 //				PageContextData lcd = new PageContextData(page, learningContext, service);
 //				
 //        		HashMap<String, String> parameters = new HashMap<String, String>();
-//        		parameters.put("duplicate", "true");
+//        		parameters.put("bcc", "true");
 //        		
 //        		eventFactory.generateEvent(EventType.Create, loggedUser.getUserId(), cred, null, lcd.getPage(), 
 //        				lcd.getLearningContext(), lcd.getService(), parameters);

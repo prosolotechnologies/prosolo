@@ -1955,7 +1955,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			return duplicateCompetence(comp, "Copy of " + comp.getTitle(), comp, null, null, context);
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error creating the competence duplicate");
+			throw new DbConnectionException("Error creating the competence bcc");
 		}
 	}
 

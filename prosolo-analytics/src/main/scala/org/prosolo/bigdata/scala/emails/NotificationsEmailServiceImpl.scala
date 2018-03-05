@@ -22,14 +22,13 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
    val emailsToSend:Map[EmailContentGenerator,String]= batchEmails.toStream.map{
       emailSummary=>{
         println("BATCH:"+emailSummary)
-        (createEmailGenerator(emailSummary),"zoran.jeremic@gmail.com")
+        (createEmailGenerator(emailSummary),emailSummary.receiver.email)
       }
     }.toMap//.asInstanceOf[java.util.Map[EmailContentGenerator,String]]
     val emailSender=new EmailSender
        val success= emailSender.sendBatchEmails(emailsToSend.asJava)
 
 
-    println("FINISHED SENDING EMEAILS")
     (success.getFirst.asScala,success.getSecond.asScala)
   }
 }

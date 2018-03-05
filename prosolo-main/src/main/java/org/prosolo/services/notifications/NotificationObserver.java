@@ -134,7 +134,7 @@ public class NotificationObserver extends EventObserver {
 										String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
 										logger.info("Sending notification via email to " + email);
 										analyticalServiceCollector.storeNotificationData(email, notificationData);
-
+										/*
 										boolean sent = notificationManager.sendNotificationByEmail(
 												email,
 												notificationData.getReceiver().getFullName(),
@@ -152,7 +152,7 @@ public class NotificationObserver extends EventObserver {
 											logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
 										} else {
 											logger.error("Error sending email notification to " + email);
-										}
+										}*/
 									} finally {
 										HibernateUtil.close(session1);
 									}

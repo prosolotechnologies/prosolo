@@ -34,10 +34,10 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
     notificationsDF.show
     notificationsDF.createOrReplaceTempView("notificationsView")
-    val date2=17589
-    val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date2)
 
-    println("DAY:"+date+" TEMPORARY DATE:"+date2)
+    val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date)
+
+
 
     dayNotificationsDF.show()
     //Create notification instances and group it by receiver id

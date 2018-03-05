@@ -27,7 +27,7 @@ public class ActivityCloneFactory {
 	private DefaultManager defaultManager;
 	
 	/**
-	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original. This method internally calls 
+	 * Creates a new {@link CompetenceActivity1} instance that is a bcc of the given original. This method internally calls
 	 * the method {@link #clone(Activity1)} that clones the activity. Newly created CompetenceActivity1 is not persisted as it 
 	 * does not have a reference to a competence at this point.
 	 * 

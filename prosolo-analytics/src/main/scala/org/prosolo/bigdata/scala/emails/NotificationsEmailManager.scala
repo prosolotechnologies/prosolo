@@ -10,15 +10,14 @@ import org.prosolo.common.util.Pair
 object NotificationsEmailManager {
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
   val clusteringDAOManager = new ClusteringDAOImpl
-  def runAnalyser() = {
+  def runAnalyser(date:Long) = {
     println("RUN ANALYZER")
     //val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
     val sparkJob=new UserNotificationEmailsSparkJob(dbName)
     val emailService=new NotificationsEmailServiceImpl
-    val date=DateEpochUtil.getDaysSinceEpoch
+
+
     val emailBatches:Array[Array[NotificationReceiverSummary]]=sparkJob.runSparkJob(date)
-    println("BATCHES:"+emailBatches.mkString(","))
-    println("EMAIL BATCHES:"+emailBatches.size)
     emailBatches.foreach {
       emailBatch =>
          val emailResults=emailService.sendEmailBatches(emailBatch)

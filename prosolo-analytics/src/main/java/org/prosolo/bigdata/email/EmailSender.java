@@ -53,10 +53,7 @@ public class EmailSender {
 					Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
 					transport.sendMessage(message, message.getAllRecipients());
 					success.put(email,new EmailSuccess(email,contentGenerator.getTemplateName(),contentGenerator.getSubject(),true));
-					if(CommonSettings.getInstance().config.emailNotifier.duplicate){
-						Message messageDuplicate=createMessage(CommonSettings.getInstance().config.emailNotifier.duplicateEmail, contentGenerator.getSubject(),session, mp);
-						transport.sendMessage(messageDuplicate, messageDuplicate.getAllRecipients());
-					}
+
 				}catch(Exception ex){
 					logger.error(ex);
 					System.out.println("FAILED EMAIL:"+email);
@@ -113,7 +110,10 @@ public class EmailSender {
 		Message message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(CommonSettings.getInstance().config.emailNotifier.smtpConfig.fullEmail));
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
-
+		if(CommonSettings.getInstance().config.emailNotifier.bcc){
+			String bcc=CommonSettings.getInstance().config.emailNotifier.bccEmail;
+			 message.addRecipient(Message.RecipientType.BCC,new InternetAddress(bcc));
+		}
 		message.setSubject(subject);
 		// Set Multipart as the message's content
 		message.setContent(mp);
