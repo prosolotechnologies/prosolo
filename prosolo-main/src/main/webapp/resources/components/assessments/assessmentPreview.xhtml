@@ -418,7 +418,7 @@
 								</ui:fragment>
 								<ui:fragment rendered="#{competenceAssessment.readOnly}">
 									<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
-										<div class="innerWrapper">
+										<div class="summaryAssessmentsHead">
 											<h2>
 												<h:link outcome="competence">
 													#{competenceAssessment.title}
@@ -429,10 +429,10 @@
 											</h2>
 
 											<ui:fragment rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
-												<a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
+												<div class="activityOptions">
+													<a href="javascript:void(0);" class="linkApprove"><div class="disabledOverlay"></div>Approve<span></span></a>
+												</div>
 											</ui:fragment>
-
-											<div class="clear"></div>
 										</div>
 
 										<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
