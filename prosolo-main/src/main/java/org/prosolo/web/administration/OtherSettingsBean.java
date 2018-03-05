@@ -292,6 +292,16 @@ public class OtherSettingsBean implements Serializable {
 		}
 	}
 
+	public void migrateCompetenceAssessmentPoints() {
+		try {
+			commonCustomMigrationService.migrateCompetenceAssessmentPoints();
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessments migration successful");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error migrating assessments");
+		}
+	}
+
 	//GETTERS AND SETTERS
 	
 	public List<SymptomData> getSymptoms() {

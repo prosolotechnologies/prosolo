@@ -131,14 +131,15 @@
             	<h:panelGroup id="panelUploadAssignment">
 	                <h2>Your Response</h2>
 	                <activities:activityResult
-	           			resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
-	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
-	           			learningContext="#{learningContext}"
-	           			role="USER"
-	           			assignmentUploadModalId="newRes"
-	           			growlToUpdate=":growlMain"
-	           			regionToUpdate=":panelUploadAssignment"
-	           			studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
+							activityTitle="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
+							resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
+							resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
+							learningContext="#{learningContext}"
+							role="USER"
+							assignmentUploadModalId="newRes"
+							growlToUpdate=":growlMain"
+							regionToUpdate=":panelUploadAssignment"
+							studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
 	           		/>
 	           	</h:panelGroup>
 
@@ -153,13 +154,13 @@
                 </ui:fragment>
                 <ui:repeat var="result" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
                 	 <activities:activityResult
-	           			resultData="#{result}"
-	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
-	           			learningContext="#{learningContext}"
-	           			role="USER"
-	           			assignmentUploadModalId=""
-	           			growlToUpdate=":growlMain"
-	           			regionToUpdate=":panelUploadAssignment"
+							 activityTitle="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
+							 resultData="#{result}"
+							 resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
+							 learningContext="#{learningContext}"
+							 role="USER"
+							 growlToUpdate=":growlMain"
+							 regionToUpdate=":panelUploadAssignment"
 	           		/>
                 </ui:repeat>
             </div>

@@ -3,6 +3,7 @@ package org.prosolo.services.migration;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
@@ -154,6 +155,22 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
         return persistence.currentManager()
                 .createQuery(q)
                 .list();
+    }
+
+    @Override
+    @Transactional
+    public void migrateCompetenceAssessmentPoints() throws DbConnectionException {
+        try {
+            List<CompetenceAssessment> competenceAssessments = getAllCompetenceAssessments();
+            for (CompetenceAssessment ca : competenceAssessments) {
+                if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
+                    assessmentManager.updateScoreForCompetenceAssessmentIfNeeded(ca.getId());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error migrating the data");
+        }
     }
 
 }

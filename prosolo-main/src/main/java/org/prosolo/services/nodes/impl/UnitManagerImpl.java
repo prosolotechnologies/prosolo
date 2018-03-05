@@ -901,6 +901,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, String roleName)
+            throws DbConnectionException {
+       return checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, roleManager.getRoleIdByName(roleName));
+    }
+
+
     private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
         if (unitIds == null || unitIds.isEmpty()) {
             return false;
