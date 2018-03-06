@@ -13,7 +13,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle">
-        ProSolo - Evidences
+        Evidence - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -24,7 +24,7 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>Evidences</h1>
+        <h1>Evidence</h1>
     </ui:define>
 
     <ui:define name="content">
@@ -48,7 +48,7 @@
 
                                 <h:inputText id="inputSearchEvidences"
                                              type="search"
-                                             placeholder="Search Evidences"
+                                             placeholder="Search Evidence"
                                              value="#{learningEvidencesBean.searchTerm}"
                                              onclick="$(this).select();"
                                              onkeyup="searchListener(execSearchEvidences);">
@@ -110,30 +110,29 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li class="active">Evidences</li>
+                <li class="active">Evidence</li>
             </ol>
         </div>
 
         <div class="container">
             <div class="row">
-                <div class="col-md-8">
+                <h:panelGroup id="panelEvidences" styleClass="col-md-8">
                     <ui:fragment rendered="#{empty learningEvidencesBean.evidences}">
                         <div class="noContentMessage">
                             <p>
-                                No evidences.
+                                No evidence.
                             </p>
                         </div>
                     </ui:fragment>
-                    <h:panelGroup id="panelEvidences">
-                        <ui:repeat value="#{learningEvidencesBean.evidences}" var="evidence">
-                            <evidence:evidence
-                                evidence="#{evidence}"
-                                showDetails="false"
-                                showEvidenceManagementOptions="false"
-                                canEdit="true"
-                            />
-                        </ui:repeat>
-                    </h:panelGroup>
+
+                    <ui:repeat value="#{learningEvidencesBean.evidences}" var="evidence">
+                        <evidence:evidence
+                            evidence="#{evidence}"
+                            showDetails="false"
+                            showEvidenceManagementOptions="false"
+                            canEdit="true"
+                        />
+                    </ui:repeat>
 
                     <utilcomp:pagination
                             id="pagination"
@@ -141,7 +140,7 @@
                             updateUrl="true"
                             toUpdate=":panelEvidences"
                     />
-                </div>
+                </h:panelGroup>
 
                 <div class="col-md-4">
                     <div class="sidebarBlock sidebarBlockKeywords">
@@ -155,7 +154,6 @@
                         </ui:fragment>
                     </div>
                 </div>
-
             </div>
         </div>
 

@@ -2191,11 +2191,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Map<Long, Long[]> compAssessmentSummaryInfo = getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(deliveryId);
 			for (CredentialCompetence1 cc : del.getCompetences()) {
 				Long[] compAssessmentSummary = compAssessmentSummaryInfo.get(cc.getCompetence().getId());
+				long numberOfAssessedStudents = compAssessmentSummary != null ? compAssessmentSummary[0] : 0;
+				long numberOfNotifications = compAssessmentSummary != null ? compAssessmentSummary[1] : 0;
 				CompetenceAssessmentsSummaryData compSummary = assessmentDataFactory.getCompetenceAssessmentsSummaryData(
 						cc.getCompetence(),
 						studentsEnrolledInCompetences.get(cc.getCompetence().getId()),
-						compAssessmentSummary[0],
-						compAssessmentSummary[1]);
+						numberOfAssessedStudents,
+						numberOfNotifications);
 
 				List<CompetenceActivity1> compActivities = activityManager.getCompetenceActivities(cc.getCompetence().getId(), false);
 				for (CompetenceActivity1 ca : compActivities) {

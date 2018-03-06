@@ -175,21 +175,34 @@
 			
 									<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
+
 											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-												<h:link outcome="activity">
-													<span class="iconType"></span>
-													#{act.title}
-													<ui:fragment rendered="#{act.completed}">
-														<span class="check"></span>
-													</ui:fragment>
-													<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
-													<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
-													<f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
-													<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-													<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-												</h:link>
+												<ui:fragment rendered="#{cc.attrs.startedLearning or act.canAccess}">
+													<h:link outcome="activity">
+														<span class="iconType"></span>
+														#{act.title}
+														<ui:fragment rendered="#{act.completed}">
+															<span class="check"></span>
+														</ui:fragment>
+														<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
+														<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
+														<f:param name="actId" value="#{util:encodeId(act.activityId)}"/>
+														<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+														<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+													</h:link>
+												</ui:fragment>
+
+												<ui:fragment rendered="#{!cc.attrs.startedLearning and !act.canAccess	}">
+													<a>
+														<span class="iconType"></span>
+														#{act.title}
+														<ui:fragment rendered="#{act.completed}">
+															<span class="check"></span>
+														</ui:fragment>
+													</a>
+												</ui:fragment>
 											</li>
-										</ui:repeat>   
+										</ui:repeat>
 									</ui:fragment>                 
 								</ul>
 							</h:panelGroup>
