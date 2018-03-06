@@ -383,6 +383,9 @@
 										gradePanelSidebarId="gradeSidebar"
 										toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 										toUpdatePrivateConversationModal=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
+									    currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
+										currentUserAssessedStudent="#{cc.attrs.bean.isCurrentUserAssessedStudent()}"
+										userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData, 'COMPETENCE')}"
 								/>
 							</ui:repeat>
 						</h:form>
