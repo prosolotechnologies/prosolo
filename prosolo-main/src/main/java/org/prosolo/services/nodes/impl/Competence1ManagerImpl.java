@@ -2805,4 +2805,27 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserEnrolled(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tc.id " +
+							"FROM TargetCompetence1 tc " +
+							"WHERE tc.user.id = :userId " +
+							"AND tc.competence.id = :compId";
+
+			Long result = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("compId", compId)
+					.uniqueResult();
+
+			return result != null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if user is enrolled in a competence");
+		}
+	}
+
 }

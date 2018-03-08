@@ -1,0 +1,40 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="compId" required="true" />
+		<composite:attribute name="credId" required="true" />
+		<composite:attribute name="enrolled" required="true" type="java.lang.Boolean" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+			<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+			<ul class="nav nav-tabs headerSubmenu">
+				<li role="presentation" class="#{page eq 'competence' ? 'active' : ''}">
+					<h:link
+							value="#{msg['label.competence']} Details"
+							outcome="/competence">
+						<f:param name="credId" value="#{util:encodeId(cc.attrs.credId)}" disable="#{cc.attrs.credId eq 0}"></f:param>
+						<f:param name="compId" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
+				<ui:fragment rendered="#{cc.attrs.enrolled}">
+					<li role="presentation" class="#{page eq 'competence-instructor-assessments' ? 'active' : ''}">
+						<h:link
+								value="Assessments"
+								outcome="/competence-instructor-assessments">
+							<f:param name="credId" value="#{util:encodeId(cc.attrs.credId)}" disable="#{cc.attrs.credId eq 0}"></f:param>
+							<f:param name="compId" value="#{util:encodeId(cc.attrs.compId)}" />
+						</h:link>
+					</li>
+				</ui:fragment>
+			</ul>
+		</div>
+	</composite:implementation>
+</ui:component>

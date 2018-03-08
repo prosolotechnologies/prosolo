@@ -16,6 +16,7 @@
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
+		<composite:attribute name="toUpdateOnEnroll" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -63,7 +64,7 @@
 									rendered="#{cc.attrs.bean.access.canLearn and cc.attrs.role == 'USER' and !startedLearning}"
 									styleClass="btn btn-green btn-sm"
 									action="#{cc.attrs.bean.enrollInCompetence()}"
-									update=":#{cc.clientId}">
+									update=":#{cc.clientId} #{cc.attrs.toUpdateOnEnroll}">
 								Start
 								<f:param name="learningContext" value="#{learningContext}"/>
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>

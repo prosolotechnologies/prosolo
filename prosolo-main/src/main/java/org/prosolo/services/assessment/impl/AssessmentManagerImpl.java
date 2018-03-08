@@ -2720,14 +2720,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					TargetCompetence1 tc = (TargetCompetence1) row[0];
 					CompetenceAssessment ca = (CompetenceAssessment) row[1];
 					CredentialAssessment credA = (CredentialAssessment) row[2];
-					CompetenceData1 cd = compDataFactory.getCompetenceData(null, tc, 0, null, null, null, false);
-					if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
-						cd.setActivities(activityManager
-								.getTargetActivitiesData(tc.getId()));
-					} else {
-						cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
-					}
-					assessments.add(CompetenceAssessmentData.from(cd, ca, credA, encoder, userId, dateFormat));
+					assessments.add(getCompetenceAssessmentData(tc, ca, credA, userId, dateFormat));
 				}
 			}
 			return assessments;
@@ -2813,6 +2806,66 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving number of enrolled students");
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+					"SELECT {tc.*}, {ca.*}, {credAssessment.*} " +
+					"FROM target_competence1 tc " +
+					"INNER JOIN competence1 comp " +
+					"ON tc.competence = comp.id AND comp.id = :compId " +
+					"INNER JOIN (competence_assessment ca " +
+					"INNER JOIN credential_competence_assessment cca " +
+					"ON cca.competence_assessment = ca.id " +
+					"INNER JOIN credential_assessment credAssessment " +
+					"ON credAssessment.id = cca.credential_assessment) " +
+					"ON comp.id = ca.competence " +
+					// following condition ensures that assessment for the right student is joined
+					"AND ca.student = tc.user " +
+					"AND ca.type = :instructorAssessment " +
+					"WHERE tc.user = :userId");
+
+			Query q = persistence.currentManager()
+					.createSQLQuery(query.toString())
+					.addEntity("tc", TargetCompetence1.class)
+					.addEntity("ca", CompetenceAssessment.class)
+					.addEntity("credAssessment", CredentialAssessment.class)
+					.setLong("compId", compId)
+					.setLong("userId", studentId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
+			List<CompetenceAssessmentData> assessments = new ArrayList<>();
+			if (res != null) {
+				for (Object[] row : res) {
+					TargetCompetence1 tc = (TargetCompetence1) row[0];
+					CompetenceAssessment ca = (CompetenceAssessment) row[1];
+					CredentialAssessment credA = (CredentialAssessment) row[2];
+					assessments.add(getCompetenceAssessmentData(tc, ca, credA, studentId, dateFormat));
+				}
+			}
+			return assessments;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving competence assessments");
+		}
+	}
+
+	private CompetenceAssessmentData getCompetenceAssessmentData(
+			TargetCompetence1 tc, CompetenceAssessment compAssessment, CredentialAssessment credAssessment, long studentId, DateFormat dateFormat) {
+		CompetenceData1 cd = compDataFactory.getCompetenceData(null, tc, 0, null, null, null, false);
+		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+			cd.setActivities(activityManager.getTargetActivitiesData(tc.getId()));
+		} else {
+			cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
+		}
+		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, encoder, studentId, dateFormat);
 	}
 
 	//COMPETENCE ASSESSMENT END

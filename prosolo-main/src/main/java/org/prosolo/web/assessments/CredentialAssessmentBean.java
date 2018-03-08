@@ -254,15 +254,15 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	// ASSESSMENT COMMENTS MODAL END
 
-	public long getCurrentAssessmentCompetenceId() {
+	public long getCurrentCompetenceAssessmentId() {
 		if (currentResType == null) {
 			return 0;
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessmentId();
 			case COMPETENCE:
-				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
+				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceAssessmentId();
 		}
 		return 0;
 	}

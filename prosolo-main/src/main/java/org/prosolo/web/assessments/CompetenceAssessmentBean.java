@@ -152,7 +152,6 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 
 	public void prepareLearningResourceAssessmentForCommenting() {
 		prepareLearningResourceAssessmentForCommenting(competenceAssessmentData);
-		currentResType = LearningResourceType.COMPETENCE;
 	}
 
 	public void prepareLearningResourceAssessmentForGrading(ActivityAssessmentData assessment) {
@@ -175,6 +174,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 				assessment.setMessagesInitialized(true);
 			}
 			competenceAssessmentData = assessment;
+			currentResType = LearningResourceType.COMPETENCE;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -193,7 +193,12 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		return loggedUserBean.getUserId() == competenceAssessmentData.getStudentId();
 	}
 
-	public boolean isUserAllowedToSeeRubric(GradeData gradeData) {
+	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
+		//temporary solution for competency before we introduce visibility options
+		//for now students are allowed to see rubric when they are assessed
+		if (resType == LearningResourceType.COMPETENCE) {
+			return gradeData.isAssessed();
+		}
 		if (gradeData instanceof RubricGradeData) {
 			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
 			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
@@ -203,6 +208,19 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	//actions based on currently selected resource type
+
+	public long getCurrentCompetenceAssessmentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessmentId();
+			case COMPETENCE:
+				return competenceAssessmentData.getCompetenceAssessmentId();
+		}
+		return 0;
+	}
 
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {

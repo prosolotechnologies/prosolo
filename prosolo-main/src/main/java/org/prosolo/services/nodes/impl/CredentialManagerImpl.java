@@ -3286,6 +3286,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		return result != null;
 	}
+
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 															int page, LearningResourceSortOption sortOption) {
 		//return only first stage credentials and credentials with disabled learning in stages

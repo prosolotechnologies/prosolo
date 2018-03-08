@@ -288,4 +288,6 @@ public interface AssessmentManager {
 	CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
+
+	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException;
 }

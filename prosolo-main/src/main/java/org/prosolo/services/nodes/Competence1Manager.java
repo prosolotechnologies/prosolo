@@ -451,4 +451,6 @@ public interface Competence1Manager {
 	 */
 	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
 
+	boolean isUserEnrolled(long compId, long userId) throws DbConnectionException;
+
 }

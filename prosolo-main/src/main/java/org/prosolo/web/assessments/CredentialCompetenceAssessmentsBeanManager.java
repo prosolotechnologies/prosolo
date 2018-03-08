@@ -155,15 +155,15 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 
 	//GET DATA DEPENDING ON WHICH ASSESSMENT IS CURRENTLY SELECTED (COMPETENCE OR ACTIVITY)
 
-	public long getCurrentAssessmentCompetenceId() {
+	public long getCurrentCompetenceAssessmentId() {
 		if (currentResType == null) {
 			return 0;
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return activityAssessmentBean.getActivityAssessmentData().getCompetenceId();
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessmentId();
 			case COMPETENCE:
-				return competenceAssessmentBean.getCompetenceAssessmentData().getCompetenceId();
+				return competenceAssessmentBean.getCompetenceAssessmentData().getCompetenceAssessmentId();
 		}
 		return 0;
 	}

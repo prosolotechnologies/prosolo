@@ -188,7 +188,10 @@
 					</li>
 
 					<li>
-						<h:link value="Assessments" outcome="/assessments">
+						<h:link rendered="#{not cc.attrs.bean.isCurrentUserAssessedStudent()}" value="Assessments" outcome="/assessments">
+							<f:param name="id" value="#{param.id}" />
+						</h:link>
+						<h:link rendered="#{cc.attrs.bean.isCurrentUserAssessedStudent()}" value="Assessments" outcome="/credential-instructor-assessment">
 							<f:param name="id" value="#{param.id}" />
 						</h:link>
 					</li>
@@ -385,7 +388,6 @@
 										toUpdatePrivateConversationModal=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 									    currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor()}"
 										currentUserAssessedStudent="#{cc.attrs.bean.isCurrentUserAssessedStudent()}"
-										userAllowedToSeeRubric="#{cc.attrs.bean.isUserAllowedToSeeRubric(cc.attrs.bean.fullAssessmentData.gradeData, 'COMPETENCE')}"
 								/>
 							</ui:repeat>
 						</h:form>
@@ -449,7 +451,7 @@
 
 		<assessment:assessmentCommentModal
 				id="commentModal"
-				toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm"
+				toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{cc.attrs.bean.currentCompetenceAssessmentId}) :assessmentPreview:assessCredentialForm"
 				messages="#{cc.attrs.bean.currentAssessmentMessages}"
 				bean="#{cc.attrs.bean.currentAssessmentBean}"
 				learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
@@ -495,7 +497,7 @@
 						gradeData="#{cc.attrs.bean.currentGradeData}"
 						resource="#{cc.attrs.bean.currentResType}"
 						resourceTitle="#{cc.attrs.bean.currentResTitle}"
-						toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessmentCompetenceId}) @(.panelCompAssessment_#{cc.attrs.bean.currentAssessmentCompetenceId}) :assessmentPreview:assessCredentialForm @(.panelAssessorNotificationSelector)"
+						toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{cc.attrs.bean.currentCompetenceAssessmentId}) :assessmentPreview:assessCredentialForm @(.panelAssessorNotificationSelector)"
 						learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'CREDENTIAL' ? learningContext : ((cc.attrs.bean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)))}"
 						gradePanelSidebarId="gradeSidebar"
 				/>
