@@ -8,7 +8,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.velocity.app.VelocityEngine;
-import org.ocpsoft.rewrite.servlet.config.rule.Join;
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -60,7 +59,6 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -77,9 +75,7 @@ import java.util.*;
  *
  */
 @Configuration
-// @ComponentScan
 @EnableWebSecurity
-//@ImportResource({"classpath:core/security/context.xml"})
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Inject
@@ -130,6 +126,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
+				.antMatchers("/files/**").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
 				// we need to allow access to index.jsp as Tomcat by default tries to load this file
 				.antMatchers("/index.jsp").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
 				.antMatchers("/version.txt").hasAnyAuthority("BASIC.ADMIN.ACCESS")
@@ -155,8 +152,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/*/assessments/*").hasAuthority("BASIC.USER.ACCESS")
-				//.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
-				//.antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/library").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/library/credentials").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/library/competencies").hasAuthority("BASIC.USER.ACCESS")
@@ -169,11 +164,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/evidence/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/*/edit").hasAuthority("BASIC.USER.ACCESS")
-				//remove
-				.antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 
-				// remove end
 				.antMatchers("/manage").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/css/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
@@ -186,6 +177,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/settings/email").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/settings/twitterOAuth").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/settings").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+
 				//manage competence
 				.antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
 				.antMatchers("/manage/competences/new").hasAuthority("COURSE.CREATE")
@@ -205,7 +197,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/credentials/*/*/students").hasAnyAuthority("COURSE.CREATE")
 				.antMatchers("/manage/credentials/*/*/privacy").hasAnyAuthority("COURSE.CREATE")
 
-				//.antMatchers("/manage/credentials/*/competences").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 				.antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 				.antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 				.antMatchers("/manage/credentials/*/students/*").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
@@ -357,12 +348,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public ProviderManager authenticationManager() {
-		List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>();
+		List<AuthenticationProvider> providers = new ArrayList<>();
 		providers.add(daoAuthenticationProvider());
 		providers.add(samlAuthenticationProvider());
 		
 		return new ProviderManager(providers);
-		
 	}
 	
 	
@@ -371,21 +361,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
 
-	/*
-	@Bean 
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		//return super.authenticationManagerBean();
-		return authenticationManager();
-	}*/
-	
-	
-	/*@Bean
-	public AuthenticationEntryPoint authenticationEntryPoint(){
-		LoginUrlAuthenticationEntryPoint auth = new LoginUrlAuthenticationEntryPoint("/login");
-		return auth;
-	}*/
-	
 	@Bean
 	public AccessDeniedHandler accessDeniedHandler(){
 		CustomAccessDeniedHandler adh = new CustomAccessDeniedHandler();
@@ -403,13 +378,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		return service;
 	}
-	
-	/*@Bean
-	public CustomAuthenticationSuccessHandler successHandler(){
-		return new CustomAuthenticationSuccessHandler();
-	}*/
-	
-	
+
 	//SAML config
 	     
     @Bean
@@ -883,12 +852,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //	        return super.authenticationManagerBean();
 //	    }
  
-    /**
-     * Sets a custom authentication provider.
-     *
-     * @param   auth SecurityBuilder used to create an AuthenticationManager.
-     * @throws  Exception
-     */
+//    /**
+//     * Sets a custom authentication provider.
+//     *
+//     * @param   auth SecurityBuilder used to create an AuthenticationManager.
+//     * @throws  Exception
+//     */
 //	    @Override
 //	    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //	        auth

@@ -415,6 +415,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 			markCredentialApproved();
 
+			if (PageUtil.isInManageSection()) {
+				// update other assessments dropdown
+				otherAssessments.stream()
+						.filter(ass -> ass.getEncodedAssessmentId().equals(assessmentId))
+						.findFirst()
+						.get().setApproved(true);
+			}
+
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
@@ -604,10 +612,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return otherAssessments;
 	}
 
-	public void setOtherAssessments(List<AssessmentData> otherAssessments) {
-		this.otherAssessments = otherAssessments;
-	}
-
 	public String getId() {
 		return id;
 	}
@@ -626,10 +630,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public AssessmentDataFull getFullAssessmentData() {
 		return fullAssessmentData;
-	}
-
-	public void setFullAssessmentData(AssessmentDataFull fullAssessmentData) {
-		this.fullAssessmentData = fullAssessmentData;
 	}
 
 	public LearningResourceType getCurrentResType() {
