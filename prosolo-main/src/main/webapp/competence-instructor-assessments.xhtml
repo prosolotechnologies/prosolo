@@ -146,21 +146,33 @@
                         </ui:fragment>
                         <h:form>
                             <ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{competenceInstructorAssessmentsBean.assessments}">
-                                <assessment:competenceAssessment
-                                        competenceAssessment="#{competenceAssessment}"
-                                        bean="#{competenceAssessmentBean}"
-                                        credentialId="#{util:decodeId(param.credId)}"
-                                        role="USER"
-                                        learningContext="name:credential|id:#{competenceAssessment.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessment.credentialAssessmentId}|context:/name:COMPETENCE|id:#{competenceAssessment.competenceId}|context:/name:COMPETENCE_ASSESSMENT|id:#{competenceAssessment.competenceAssessmentId}///"
-                                        growlToUpdate=":growlMain"
-                                        toUpdateGradePanel=""
-                                        gradePanelSidebarId="gradeSidebar"
-                                        toUpdateRubricPanelForStudent=":rubricAssessmentPreview:panelRubricAssessment"
-                                        toUpdatePrivateConversationModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
-                                        currentUserAssessor="false"
-                                        currentUserAssessedStudent="true"
-                                        displayStudentNameInHeader="false"
-                                />
+                                <div class="col-md-9" style="padding-left: 0px;">
+                                    <assessment:competenceAssessment
+                                            competenceAssessment="#{competenceAssessment}"
+                                            bean="#{competenceAssessmentBean}"
+                                            credentialId="#{util:decodeId(param.credId)}"
+                                            role="USER"
+                                            learningContext="name:credential|id:#{competenceAssessment.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessment.credentialAssessmentId}|context:/name:COMPETENCE|id:#{competenceAssessment.competenceId}|context:/name:COMPETENCE_ASSESSMENT|id:#{competenceAssessment.competenceAssessmentId}///"
+                                            growlToUpdate=":growlMain"
+                                            toUpdateGradePanel=""
+                                            gradePanelSidebarId="gradeSidebar"
+                                            toUpdateRubricPanelForStudent=":rubricAssessmentPreview:panelRubricAssessment"
+                                            toUpdatePrivateConversationModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
+                                            currentUserAssessor="false"
+                                            currentUserAssessedStudent="true"
+                                            displayStudentNameInHeader="false"
+                                    />
+                                </div>
+                                <div class="col-md-3">
+                                    <p:commandLink
+                                            styleClass="btn btn-green"
+                                            pt:data-toggle="modal"
+                                            value="Ask for #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
+                                            action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment, 'INSTRUCTOR_ASSESSMENT')}"
+                                            update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+                                            oncomplete="$('#askAssessment').modal('show');">
+                                    </p:commandLink>
+                                </div>
                             </ui:repeat>
                         </h:form>
                     </h:panelGroup>
@@ -184,6 +196,19 @@
                 resourceType="#{competenceAssessmentBean.currentResType}"
                 resourceTitle="#{competenceAssessmentBean.currentResTitle}"
         />
+
+        <h:form id="formAskForAssessment">
+            <assessment:askForAssessment
+                    id="askForAssessment"
+                    bean="#{askForCompetenceAssessmentBean}"
+                    submitAssessmentRequestActionMethodName="submitAssessment"
+                    submitAssessmentRequestAction="#{competenceAssessmentBean.submitAssessment}"
+                    resource="COMPETENCE"
+                    resourceTitle="#{competenceInstructorAssessmentsBean.competenceTitle}"
+                    toUpdate=":growlMain @(.panelCompAssessment_#{competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId}) @(.panelAssessorNotificationSelector)"
+                    learningContext="#{'name:credential|id:'.concat(competenceAssessmentBean.competenceAssessmentData.credentialId).concat('|context:/name:CREDENTIAL_ASSESSMENT|id:'.concat(competenceAssessmentBean.competenceAssessmentData.credentialAssessmentId).concat('|context:/name:competence|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('///'))}"
+            />
+        </h:form>
 
     </ui:define>
 </ui:composition>

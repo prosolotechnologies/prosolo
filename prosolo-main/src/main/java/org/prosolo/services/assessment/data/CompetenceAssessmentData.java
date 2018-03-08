@@ -27,6 +27,7 @@ public class CompetenceAssessmentData {
 	private long competenceAssessmentId;
 	private String competenceAssessmentEncodedId;
 	private long competenceId;
+	private long targetCompetenceId;
 	private List<ActivityAssessmentData> activityAssessmentData;
 	private List<LearningEvidenceData> evidences;
 	private GradeData gradeData;
@@ -83,7 +84,6 @@ public class CompetenceAssessmentData {
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
 												CredentialAssessment credAssessment, UrlIdEncoder encoder,
 												long userId, DateFormat dateFormat) {
-
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
@@ -92,6 +92,7 @@ public class CompetenceAssessmentData {
 
 		data.setTitle(cd.getTitle());
 		data.setCompetenceId(cd.getCompetenceId());
+		data.setTargetCompetenceId(cd.getTargetCompId());
 		data.setAssessorId(compAssessment.getAssessor() != null ? compAssessment.getAssessor().getId() : 0);
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
@@ -359,5 +360,13 @@ public class CompetenceAssessmentData {
 
 	public void setEvidences(List<LearningEvidenceData> evidences) {
 		this.evidences = evidences;
+	}
+
+	public long getTargetCompetenceId() {
+		return targetCompetenceId;
+	}
+
+	public void setTargetCompetenceId(long targetCompetenceId) {
+		this.targetCompetenceId = targetCompetenceId;
 	}
 }

@@ -3,6 +3,7 @@ package org.prosolo.web.assessments;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -47,6 +48,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	@Inject private RubricManager rubricManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ActivityAssessmentBean activityAssessmentBean;
+	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
 
 	private String competenceId;
 	private String competenceAssessmentid;
@@ -401,6 +403,25 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			PageUtil.fireErrorMessage("Error removing the notification");
 		}
 	}
+
+	//STUDENT ONLY CODE
+	public void initAskForAssessment(CompetenceAssessmentData compAssessment, AssessmentType aType) {
+		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), aType);
+		competenceAssessmentData = compAssessment;
+	}
+
+	public void submitAssessment() {
+		try {
+			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
+			if (success) {
+				competenceAssessmentData.setAssessorNotified(true);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error sending the assessment request");
+		}
+	}
+	//STUDENT ONLY CODE
 
 	/*
 	 * GETTERS / SETTERS
