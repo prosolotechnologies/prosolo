@@ -32,8 +32,10 @@ public interface AssessmentManager {
 	long requestCredentialAssessment(AssessmentRequestData assessmentRequestData,
                                      UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
+	Result<Long> createInstructorAssessmentAndGetEvents(TargetCredential1 targetCredential, long assessorId,
                                     UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
+	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
@@ -210,6 +212,8 @@ public interface AssessmentManager {
 			throws DbConnectionException, IllegalDataStateException;
 
 	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, String message, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
+	Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Returns existing competence assessment from given assessor if it exists and if assessment type is not instructor

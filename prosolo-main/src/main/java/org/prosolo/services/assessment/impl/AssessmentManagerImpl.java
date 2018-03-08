@@ -81,13 +81,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 	
 	@Override
-	//nt not transactional
-	public long createInstructorAssessment(TargetCredential1 targetCredential, long assessorId,
+	@Transactional
+	public Result<Long> createInstructorAssessmentAndGetEvents(TargetCredential1 targetCredential, long assessorId,
 										   UserContextData context) throws DbConnectionException, IllegalDataStateException {
-		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
+		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
 				null, AssessmentType.INSTRUCTOR_ASSESSMENT, context);
-		eventFactory.generateEvents(res.getEventQueue());
-		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), targetCredential.getUser().getId(),
+				null, AssessmentType.SELF_ASSESSMENT, context);
 	}
 
 	@Override
@@ -133,7 +138,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			List<Long> participantIds = new ArrayList<>();
 			participantIds.add(studentId);
-			if (assessorId > 0) {
+			//for self assessment assessor and student are the same user
+			if (assessorId > 0 && assessorId != studentId) {
 				participantIds.add(assessorId);
 			}
 			Date now = new Date();
@@ -161,15 +167,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				result.appendEvents(res.getEventQueue());
 			}
 
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", targetCredential.getCredential().getId() + "");
-			CredentialAssessment assessment1 = new CredentialAssessment();
-			assessment1.setId(assessment.getId());
-			User assessor1 = new User();
-			assessor1.setId(assessorId);
+			//generate event only for peer assessment
+			if (type == AssessmentType.PEER_ASSESSMENT) {
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("credentialId", targetCredential.getCredential().getId() + "");
+				CredentialAssessment assessment1 = new CredentialAssessment();
+				assessment1.setId(assessment.getId());
+				User assessor1 = new User();
+				assessor1.setId(assessorId);
 
-			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
-					null, parameters));
+				result.appendEvent(eventFactory.generateEventData(EventType.AssessmentRequested, context, assessment1, assessor1,
+						null, parameters));
+			}
 
 			result.setResult(assessment.getId());
 			return result;
@@ -223,6 +232,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
+	public Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, null, AssessmentType.SELF_ASSESSMENT, false, context);
+	}
+
+	@Override
+	@Transactional
 	public Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, String message, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
 		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, message, AssessmentType.PEER_ASSESSMENT, true, context);
@@ -268,7 +284,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			List<Long> participantIds = new ArrayList<>();
 			participantIds.add(studentId);
-			if (assessorId > 0) {
+			//for self assessment student and assessor are the same user
+			if (assessorId > 0 && assessorId != studentId) {
 				participantIds.add(assessorId);
 			}
 			Date now = new Date();

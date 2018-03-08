@@ -26,6 +26,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
@@ -83,6 +84,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
 	@Inject private RubricManager rubricManager;
+	@Inject private AssessmentManager assessmentManager;
 
 	@Override
 	//nt
@@ -387,6 +389,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Result<TargetCompetence1> res = new Result<>();
 			res.setResult(targetComp);
 			res.appendEvent(eventFactory.generateEventData(EventType.ENROLL_COMPETENCE, context, competence, null, null, params));
+
+			//create self assessment if enabled
+			if (comp.getAssessmentConfig()
+					.stream()
+					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
+					.findFirst().get()
+					.isEnabled()) {
+				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(compId, userId, context).getEventQueue());
+			}
 
 			return res;
 		} catch(Exception e) {
