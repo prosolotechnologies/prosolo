@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.lang.annotation.Target;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
@@ -690,6 +691,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setTitle(data.getTitle());
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
+		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getTagsString())));
@@ -701,7 +703,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
-			credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 			credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 
 			LearningStage learningStage = null;
@@ -1373,11 +1374,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public EventQueue updateCredentialProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			EventQueue events = EventQueue.newEventQueue();
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager().load(
+					TargetCompetence1.class, targetCompId);
 			String query = "SELECT tCred.id, cred.id, comp.id, coalesce(tComp.progress, 0) " +
 					"FROM TargetCredential1 tCred " +
 					"INNER JOIN tCred.credential cred " +
@@ -1388,15 +1391,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"INNER JOIN cred.competences credComp " +
 					"INNER JOIN credComp.competence comp " +
 					"LEFT JOIN comp.targetCompetences tComp " +
-					"WITH tComp.user.id = :userId " +
-					"WHERE tCred.user.id = :userId " +
+					"WITH tComp.user.id = :studentId " +
+					"WHERE tCred.user.id = :studentId " +
 					"ORDER BY tCred.id, credComp.order";
 
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("targetCompId", targetCompId)
-					.setLong("userId", context.getActorId())
+					.setLong("studentId", tc.getUser().getId())
 					.list();
 
 			long currentTCredId = 0;

@@ -58,7 +58,7 @@
 			<div class="whiteBar">
 				<div class="container">
 					<div class="whiteBarContent">
-						<div class="whiteBarLeft">
+						<h:panelGroup layout="block" id="panelHeaderOptions" styleClass="whiteBarLeft">
 							<p:commandLink
 									rendered="#{cc.attrs.bean.access.canLearn and cc.attrs.role == 'USER' and !startedLearning}"
 									styleClass="btn btn-green btn-sm"
@@ -68,6 +68,29 @@
 								<f:param name="learningContext" value="#{learningContext}"/>
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							</p:commandLink>
+
+							<p:commandLink
+									rendered="#{startedLearning and cc.attrs.bean.competenceData.progress lt 100
+										and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE' and not empty cc.attrs.bean.competenceData.evidences}"
+									styleClass="btn btn-green btn-sm item"
+									value="Mark as Complete"
+									process="@this"
+									action="#{cc.attrs.bean.completeCompetence()}"
+									update=":#{cc.clientId}:panelHeaderOptions growlMain">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{learningContext}" />
+							</p:commandLink>
+
+							<ui:fragment rendered="#{startedLearning and cc.attrs.bean.competenceData.progress lt 100
+										and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE' and empty cc.attrs.bean.competenceData.evidences}">
+								<a href="javascript:void(0);"
+								    class="btn btn-green btn-sm item"
+								    disabled="disabled"
+								    data-toggle="tooltip"
+								    title="In order to complete this #{msg['label.competence'].toLowerCase()}, you need to submit at least one evidence.">
+									Mark as Complete
+								</a>
+							</ui:fragment>
 
 							<ui:fragment rendered="#{startedLearning and
 		                		cc.attrs.bean.competenceData.progress lt 100}">
@@ -96,7 +119,7 @@
 									</a>
 								</ui:fragment>
 
-								<div class="progressBar">
+								<h:panelGroup layout="block" rendered="#{cc.attrs.bean.competenceData.learningPathType eq 'ACTIVITY'}" styleClass="progressBar">
 									<span>#{cc.attrs.bean.competenceData.progress}%</span>
 									<div class="progress">
 										<div class="progress-bar" role="progressbar"
@@ -105,7 +128,7 @@
 											 style="width: #{cc.attrs.bean.competenceData.progress}%;">
 										</div>
 									</div>
-								</div>
+								</h:panelGroup>
 							</ui:fragment>
 
 							<ui:fragment rendered="#{startedLearning and
@@ -113,7 +136,7 @@
 								<div class="tagCompleted">Completed</div>
 							</ui:fragment>
 
-						</div>
+						</h:panelGroup>
 						<div class="whiteBarRight">
 							<ui:fragment rendered="#{cc.attrs.bean.competenceData.durationString ne null}">
 								<div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
@@ -169,6 +192,7 @@
 					role="#{cc.attrs.role}"
 					growlToUpdate=":#{cc.clientId}:growlMain"
 					startedLearning="#{startedLearning}"
+					toUpdateOnEvidencePost="#{cc.attrs.role eq 'USER' ? ':competence:panelHeaderOptions' : ''}"
 			/>
 		</div>
 	</composite:implementation>

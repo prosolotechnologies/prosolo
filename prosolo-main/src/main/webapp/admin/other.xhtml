@@ -14,7 +14,7 @@
 	</ui:define>
 
 	<ui:define name="windowTitle">
-		Other
+		Other - ProSolo
 	</ui:define>
 
 	<ui:define name="resourceTitle">
@@ -64,6 +64,13 @@
 									   styleClass="btn btn-green"
 									   onclick=""
 									   action="#{otherSettingsBean.migrateAssessmentDiscussions()}"
+									   update=":growlMain" />
+
+						<p:commandLink value="Migration 2018/02/23"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   onclick=""
+									   action="#{otherSettingsBean.migrateCompetenceAssessmentPoints()}"
 									   update=":growlMain" />
 						<div class="clear top30"></div>
 					</div>

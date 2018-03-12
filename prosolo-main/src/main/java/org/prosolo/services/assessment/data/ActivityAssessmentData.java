@@ -17,7 +17,8 @@ public class ActivityAssessmentData {
 	private ActivityType activityType;
 	private String title;
 	private int numberOfMessages;
-	private String encodedDiscussionId;
+	private String encodedActivityAssessmentId;
+	private long activityAssessmentId;
 	private long activityId;
 	private long targetActivityId;
 	private long competenceId;
@@ -59,8 +60,10 @@ public class ActivityAssessmentData {
 		data.setTargetActivityId(actData.getTargetActivityId());
 
 		data.setType(compAssessment.getType());
-		data.setCredAssessmentId(credAssessment.getId());
-		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		if (credAssessment != null) {
+			data.setCredAssessmentId(credAssessment.getId());
+			data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		}
 		data.setCompetenceId(compAssessment.getCompetence().getId());
 
 		if (compAssessment.getAssessor() != null) {
@@ -70,7 +73,8 @@ public class ActivityAssessmentData {
 		data.setCompAssessmentId(compAssessment.getId());
 
 		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
-		data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
+		data.setActivityAssessmentId(activityDiscussion.getId());
+		data.setEncodedActivityAssessmentId(encoder.encodeId(activityDiscussion.getId()));
 
 		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
@@ -216,12 +220,20 @@ public class ActivityAssessmentData {
 		this.numberOfMessages = numberOfMessages;
 	}
 
-	public String getEncodedDiscussionId() {
-		return encodedDiscussionId;
+	public long getActivityAssessmentId() {
+		return activityAssessmentId;
 	}
 
-	public void setEncodedDiscussionId(String encodedDiscussionId) {
-		this.encodedDiscussionId = encodedDiscussionId;
+	public void setActivityAssessmentId(long activityAssessmentId) {
+		this.activityAssessmentId = activityAssessmentId;
+	}
+
+	public String getEncodedActivityAssessmentId() {
+		return encodedActivityAssessmentId;
+	}
+
+	public void setEncodedActivityAssessmentId(String encodedActivityAssessmentId) {
+		this.encodedActivityAssessmentId = encodedActivityAssessmentId;
 	}
 	
 	public boolean isAllRead() {

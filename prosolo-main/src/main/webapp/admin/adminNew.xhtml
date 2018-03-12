@@ -6,8 +6,7 @@
 				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 	<ui:define name="windowTitle" >
-		<ui:fragment rendered="#{empty userEditBean.id}">Create Admin</ui:fragment>
-		<ui:fragment rendered="#{not empty userEditBean.id}">Edit Admin</ui:fragment>
+		#{userEditBean.decodedId gt 0 ? userEditBean.user.fullName : 'New Admin'} - Admins - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">

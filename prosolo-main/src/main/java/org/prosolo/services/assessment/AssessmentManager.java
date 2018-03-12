@@ -4,12 +4,14 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.data.Result;
@@ -76,7 +78,9 @@ public interface AssessmentManager {
 	void editCompetenceAssessmentMessage(long messageId, long userId, String newContent)
 			throws DbConnectionException;
 
-	void approveCompetence(long decodedCompetenceAssessmentId);
+	void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
+
+	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
 
 	void markActivityAssessmentDiscussionAsSeen(long userId, long activityAssessmentId);
 
@@ -277,4 +281,11 @@ public interface AssessmentManager {
 
 	long getCredentialAssessmentIdForCompetenceAssessment(long credId, long compAssessmentId, Session session) throws DbConnectionException;
 
+	PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
+			List<AssessmentFilter> filters, int limit, int offset, DateFormat dateFormat) throws DbConnectionException;
+
+	CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
+			throws DbConnectionException, ResourceNotFoundException;
 }

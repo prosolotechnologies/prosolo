@@ -13,11 +13,11 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 
 
 public abstract class GenericDAOImpl implements GenericDAO {
-	protected Session session; 
+	 protected Session session;
 	
 	
 	
-	@Override
+	 @Override
 	public void setSession(Session s) {  
         this.session = s;  
     } 

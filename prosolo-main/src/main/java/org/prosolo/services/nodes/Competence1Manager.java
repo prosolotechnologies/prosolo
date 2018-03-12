@@ -17,10 +17,8 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.web.achievements.data.TargetCompetenceData;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -78,7 +76,7 @@ public interface Competence1Manager {
 			IllegalDataStateException;
 	
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadActivities) throws DbConnectionException;
+		  boolean loadLearningPathData) throws DbConnectionException;
 	
 	
 	/**
@@ -435,5 +433,22 @@ public interface Competence1Manager {
 	 CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
 												   boolean loadAssessmentConfig, boolean loadLearningPathContent)
 			 throws DbConnectionException;
+
+	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException;
+
+	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
+
+	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
+	 * and if not throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
 
 }

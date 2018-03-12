@@ -278,10 +278,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
-							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
-								List<ActivityData> activities = activityManager
-										.getTargetActivitiesData(compData.getTargetCompId());
-								compData.setActivities(activities);
+							if (compData != null && loadLearningPathData) {
+								if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+									List<ActivityData> activities = activityManager
+											.getTargetActivitiesData(compData.getTargetCompId());
+									compData.setActivities(activities);
+								} else {
+									//load user evidences
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									compData.setEvidences(compEvidences);
+								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
@@ -2709,6 +2715,93 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving random peer");
+		}
+	}
+
+	@Override
+	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager()
+					.load(TargetCompetence1.class, targetCompetenceId);
+			tc.setProgress(100);
+			tc.setDateCompleted(new Date());
+
+			Result<Void> res = new Result<>();
+			TargetCompetence1 tComp = new TargetCompetence1();
+			tComp.setId(targetCompetenceId);
+			res.appendEvent(eventFactory.generateEventData(
+					EventType.Completion, context, tComp, null, null, null));
+
+			EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+					context, tComp, null, null, null);
+			ev.setProgress(100);
+			res.appendEvent(ev);
+
+			//flush in order to calculate correct progress for credential
+			persistence.currentManager().flush();
+			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
+
+			return res;
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error marking the competence as completed");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tComp " +
+					"FROM TargetCompetence1 tComp " +
+					"WHERE tComp.competence.id = :compId " +
+					"AND tComp.user.id = :userId ";
+
+			return (TargetCompetence1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setLong("userId", userId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving target competence id");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
+			throws ResourceNotFoundException {
+		/*
+		 * check if passed credential has specified competence
+		 */
+		if(credId > 0) {
+			String query1 = "SELECT credComp.id " +
+					"FROM CredentialCompetence1 credComp " +
+					"WHERE credComp.credential.id = :credId " +
+					"AND credComp.competence.id = :compId";
+
+			@SuppressWarnings("unchecked")
+			List<Long> res1 = persistence.currentManager()
+					.createQuery(query1)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.list();
+
+			if(res1 == null || res1.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
 		}
 	}
 

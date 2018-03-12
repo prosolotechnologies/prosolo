@@ -14,7 +14,7 @@ import javax.servlet.ServletContext;
  *			
  */
 @RewriteConfiguration
-public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
+public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 	
 	@Override
 	public int priority() {
@@ -92,10 +92,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
-				.addRule(Join.path("/evidences").to("/evidences.xhtml"))
-				.addRule(Join.path("/evidences/{id}/edit").to("/evidence-edit.xhtml"))
-				.addRule(Join.path("/evidences/new").to("/evidence-edit.xhtml"))
-				.addRule(Join.path("/evidences/{id}").to("/evidence.xhtml"))
+				.addRule(Join.path("/evidence").to("/evidences.xhtml"))
+				.addRule(Join.path("/evidence/{id}/edit").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidence/new").to("/evidence-edit.xhtml"))
+				.addRule(Join.path("/evidence/{id}").to("/evidence.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				//.addRule(Join.path("/assessments").to("/assessments.xhtml"))
 
@@ -133,6 +133,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/instructors").to("/manage/credential-instructors.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments").to("/manage/credential-delivery-assessments.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments/activities/{activityId}").to("/manage/credential-delivery-assessments-activity.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credentialId}/assessments/competencies/{competenceId}").to("/manage/credential-delivery-assessments-competence.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/assessments/activities/{actId}/{targetActId}").to("/manage/credential-delivery-activity-assessment.xhtml"))
 				/* instructor viewing single assessment where he is instructor (manage-assessment-preview.html) */
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assessmentId}").to("/manage/credential-assessment.xhtml"))
@@ -174,6 +175,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
 				.addRule(Join.path("/manage/groups").to("/manage/students-groups.xhtml"))
+				.addRule(Join.path("/manage/evidence/{id}").to("/manage/evidence.xhtml"))
 				//.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
 				
 				//admin

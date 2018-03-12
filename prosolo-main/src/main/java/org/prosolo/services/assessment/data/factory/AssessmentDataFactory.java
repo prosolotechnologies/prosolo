@@ -34,10 +34,21 @@ public class AssessmentDataFactory implements Serializable {
         return credAssessmentsSummary;
     }
 
-    public CompetenceAssessmentsSummaryData getCompetenceAssessmentsSummaryData(Competence1 comp) {
+    public CompetenceAssessmentsSummaryData getCompetenceAssessmentsSummaryData(
+            Competence1 comp, Long numberOfEnrolledStudents, Long numberOfAssessedStudents, Long numberOfNotifications) {
         CompetenceAssessmentsSummaryData compSummary = new CompetenceAssessmentsSummaryData();
         compSummary.setId(comp.getId());
         compSummary.setTitle(comp.getTitle());
+        if (numberOfEnrolledStudents != null) {
+            compSummary.setNumberOfEnrolledStudents(numberOfEnrolledStudents);
+        }
+        if (numberOfAssessedStudents != null) {
+            compSummary.setNumberOfAssessedStudents(numberOfAssessedStudents);
+        }
+        if (numberOfNotifications != null) {
+            compSummary.setNumberOfNotifications(numberOfNotifications);
+        }
+        compSummary.setGradingEnabled(comp.getGradingMode() != GradingMode.NONGRADED);
         return compSummary;
     }
 

@@ -65,7 +65,7 @@ public class CronSchedulerImpl implements CronScheduler {
 	private CronSchedulerImpl() {
 
 		try {
-			System.out.println("SHOULD AUTOSTART:"
+			logger.info("SCHEDULER AUTOSTART:"
 					+ Settings.getInstance().config.schedulerConfig.autoStart);
 			if (Settings.getInstance().config.schedulerConfig.autoStart) {
 				startScheduler();
@@ -77,6 +77,19 @@ public class CronSchedulerImpl implements CronScheduler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	@Override
+	public Boolean isSchedulerActivated(){
+		Boolean activated=false;
+		try {
+			if(sched!=null){
+				activated =sched.isStarted();
+			}
+
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+		return activated;
 	}
 
 
@@ -186,11 +199,12 @@ public class CronSchedulerImpl implements CronScheduler {
 		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
+		System.setProperty("org.quartz.dataSource.quartzDataSource.validationQuery","SELECT 1");
 if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().config.schedulerConfig.createTables){
 	try{
 		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
-		ScriptRunner runner = new ScriptRunner(con, true, true);
-		System.out.println("CREATE QUARTZ TABLES...");
+		ScriptRunner runner = new ScriptRunner(con, true, false);
+		logger.info("CREATE QUARTZ TABLES...");
 		InputStream inpStream = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
 		runner.runScript(new InputStreamReader(inpStream));
@@ -202,6 +216,7 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 		logger.error(ioex);
 	}
 }
+
 
 		SchedulerFactory sf = new StdSchedulerFactory();
 
@@ -282,7 +297,7 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 	public void checkAndActivateJob(String jobClassName, QuartzJobConfig jobConfig)
 			throws SchedulerException, ClassNotFoundException {
 		//String jobClassName = jobConfig.className;
-		System.out.println("JOB CLASS NAME:" + jobClassName);
+		logger.info("JOB CLASS NAME:" + jobClassName);
 
 		Class<? extends Job> jobClass = (Class<? extends Job>) Class
 				.forName(jobClassName);
@@ -315,7 +330,7 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
 
 			jobBuilder.withIdentity(startupJobKey);
-			System.out.println("RUNNING ON startup JOB:"+jobClassName);
+			logger.info("RUNNING ON startup JOB:"+jobClassName);
 			jobBuilder.storeDurably();
 			JobDetail jobDetails = jobBuilder.build();
 

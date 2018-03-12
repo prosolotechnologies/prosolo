@@ -463,7 +463,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 			}
 		} catch (StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Delete failed because credential has been edited in the meantime. Please review those changes and try again");
+			PageUtil.fireErrorMessage("Delete failed because "+ResourceBundleUtil.getMessage("label.credential").toLowerCase()+" has been edited in the meantime. Please review those changes and try again");
 			//reload data
 			reloadCredential();
 		} catch (DbConnectionException e) {
@@ -474,7 +474,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 			//if integrity rule is violated it is due to students already started learning, so they have a reference to this delivery
 			logger.error(div);
 			div.printStackTrace();
-			PageUtil.fireErrorMessage("There are students that started learning this credential so it cannot be deleted");
+			PageUtil.fireErrorMessage("There are students that started learning this "+ResourceBundleUtil.getMessage("label.credential").toLowerCase()+" so it cannot be deleted");
 		}
 	}
 	
@@ -630,7 +630,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 //	}
 	 
 	public String getPageHeaderTitle() {
-		return credentialData.getId() > 0 ? credentialData.getTitle() : "New Credential";
+		return credentialData.getId() > 0 ? credentialData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.credential");
 	}
 	
 	public boolean isCreateUseCase() {

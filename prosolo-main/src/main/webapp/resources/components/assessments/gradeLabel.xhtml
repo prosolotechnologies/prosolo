@@ -17,6 +17,7 @@
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="toUpdateRubricPanelForStudent" />
 		<composite:attribute name="role" default="USER" />
+		<composite:attribute name="learningContext" required="true" />
 	</composite:interface>
 
 	<composite:implementation>
@@ -30,6 +31,9 @@
 					#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 					#{cc.attrs.gradeData.maxGrade}
 				</ui:fragment>
+				<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+					Rubric
+				</ui:fragment>
 			</p:commandLink>
 			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and not cc.attrs.userAllowedToSeeRubric}">
 				<a href="javascript:void(0);" class="grade"
@@ -38,6 +42,9 @@
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
 					</ui:fragment>
 				</a>
 			</ui:fragment>
@@ -88,6 +95,9 @@
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
 					</ui:fragment>
 				</a>
 			</ui:fragment>

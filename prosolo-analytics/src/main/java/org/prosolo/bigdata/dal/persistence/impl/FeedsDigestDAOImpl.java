@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.type.LongType;
 import org.prosolo.bigdata.dal.persistence.FeedsDigestDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
