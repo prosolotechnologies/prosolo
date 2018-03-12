@@ -1,6 +1,7 @@
 /.settings/
 /.settings
 /.project
+/.logs
 /clustersdir/
 .cache-main
 .cache-tests
