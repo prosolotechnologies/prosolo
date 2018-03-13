@@ -21,7 +21,7 @@
 	</composite:interface>
 
 	<composite:implementation>
-		<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.currentUserAssessedStudent}">
+		<c:if test="#{not cc.attrs.currentUserAssessor and cc.attrs.currentUserAssessedStudent}">
 			<p:commandLink rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.userAllowedToSeeRubric}"
 						   styleClass="grade"
 						   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
@@ -63,7 +63,7 @@
 				</span>
 			</ui:fragment>
 		</c:if>
-		<c:if test="#{not (cc.attrs.role eq 'USER' and cc.attrs.currentUserAssessedStudent)}">
+		<c:if test="#{cc.attrs.currentUserAssessor or not cc.attrs.currentUserAssessedStudent}">
 			<ui:fragment rendered="#{cc.attrs.currentUserAssessor}">
 				<p:commandLink rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED'}"
 							   styleClass="grade gradeModalLink_#{cc.attrs.gradeLinkSelectorId}"

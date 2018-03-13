@@ -25,7 +25,8 @@
 					</h:link>
 				</li>
 				<ui:fragment rendered="#{cc.attrs.enrolled}">
-					<li role="presentation" class="#{page eq 'competence-instructor-assessments' ? 'active' : ''}">
+					<li role="presentation" class="#{page eq 'competence-instructor-assessments'
+													 or page eq 'competence-self-assessment' ? 'active' : ''}">
 						<h:link
 								value="Assessments"
 								outcome="/competence-instructor-assessments">

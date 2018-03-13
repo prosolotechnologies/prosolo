@@ -2,7 +2,6 @@ package org.prosolo.services.assessment.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -26,15 +25,14 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.util.Util;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -1638,31 +1636,56 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId)
+	public Optional<Long> getInstructorCredentialAssessmentId(long credId, long studentId)
+			throws DbConnectionException {
+		return getCredentialUniqueAssessmentId(credId, studentId, AssessmentType.INSTRUCTOR_ASSESSMENT);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Long> getSelfCredentialAssessmentId(long credId, long studentId)
+			throws DbConnectionException {
+		return getCredentialUniqueAssessmentId(credId, studentId, AssessmentType.SELF_ASSESSMENT);
+	}
+
+	/**
+	 *
+	 * @param credId
+	 * @param studentId
+	 * @param type valid types are instructor and self assessment
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws IllegalArgumentException
+	 */
+	private Optional<Long> getCredentialUniqueAssessmentId(long credId, long studentId, AssessmentType type)
 			throws DbConnectionException {
 		try {
+			/*
+			only Instructor assessment and self assessment are valid types because only those two types
+			are unique for student and credential
+			 */
+			if (type != AssessmentType.INSTRUCTOR_ASSESSMENT && type != AssessmentType.SELF_ASSESSMENT) {
+				throw new IllegalArgumentException("Assessment type not valid");
+			}
+
 			String query = "SELECT ca.id " +
-						   "FROM CredentialAssessment ca " +
-						   "INNER JOIN ca.targetCredential tc " +
-						   "WHERE tc.credential.id = :credId " +
-						   "AND tc.user.id = :userId " +
-						   "AND ca.type = :instructorAssessment";
-			
+					"FROM CredentialAssessment ca " +
+					"INNER JOIN ca.targetCredential tc " +
+					"WHERE tc.credential.id = :credId " +
+					"AND tc.user.id = :userId " +
+					"AND ca.type = :type";
+
 			Long id = (Long) persistence.currentManager()
 					.createQuery(query)
 					.setLong("credId", credId)
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-					.setLong("userId", userId)
+					.setString("type", type.name())
+					.setLong("userId", studentId)
 					.uniqueResult();
-			
-			if (id == null) {
-				return Optional.empty();
-			}
-			return Optional.of(id);
+
+			return Optional.ofNullable(id);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential assessment id");
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving credential assessment id");
 		}
 	}
 
@@ -2886,4 +2909,49 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	//COMPETENCE ASSESSMENT END
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Long> getSelfCompetenceAssessmentId(long compId, long studentId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ca.id " +
+					"FROM CompetenceAssessment ca " +
+					"INNER JOIN ca.competence comp " +
+					"WHERE comp.id = :compId " +
+					"AND ca.student.id = :studentId " +
+					"AND ca.type = :type";
+
+			Long id = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setString("type", AssessmentType.SELF_ASSESSMENT.name())
+					.setLong("studentId", studentId)
+					.uniqueResult();
+
+			return Optional.ofNullable(id);
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving competence assessment id");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, DateFormat dateFormat)
+			throws DbConnectionException {
+		try {
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
+			if (ca == null) {
+				return null;
+			}
+			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
+					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
+			return CompetenceAssessmentData.from(cd, ca, null, encoder, userId, dateFormat);
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading assessment data");
+		}
+	}
+
 }

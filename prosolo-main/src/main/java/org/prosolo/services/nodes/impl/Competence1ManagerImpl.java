@@ -2839,4 +2839,41 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceOrCompetenceData(
+			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+		try {
+			CompetenceData1 compData = getTargetCompetenceData(0, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
+			if (compData == null) {
+				compData = getCompetenceData(0, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
+			}
+
+			return compData;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the competence data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT conf FROM CompetenceAssessmentConfig conf " +
+					"WHERE conf.competence.id = :compId";
+			@SuppressWarnings("unchecked")
+			List<CompetenceAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
+					.createQuery(q)
+					.setLong("compId", compId)
+					.list();
+			return competenceFactory.getAssessmentConfig(assessmentTypesConfig);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the assessment types config for competence");
+		}
+	}
+
 }

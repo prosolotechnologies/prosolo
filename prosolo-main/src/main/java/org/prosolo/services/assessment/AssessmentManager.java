@@ -116,7 +116,9 @@ public interface AssessmentManager {
             long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
 
-	Optional<Long> getInstructorCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
+	Optional<Long> getInstructorCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
+
+	Optional<Long> getSelfCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
@@ -294,4 +296,9 @@ public interface AssessmentManager {
 			throws DbConnectionException, ResourceNotFoundException;
 
 	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException;
+
+	Optional<Long> getSelfCompetenceAssessmentId(long compId, long studentId) throws DbConnectionException;
+
+	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, DateFormat dateFormat)
+			throws DbConnectionException;
 }

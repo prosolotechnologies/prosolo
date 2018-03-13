@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
@@ -452,5 +453,11 @@ public interface Competence1Manager {
 	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
 
 	boolean isUserEnrolled(long compId, long userId) throws DbConnectionException;
+
+	CompetenceData1 getTargetCompetenceOrCompetenceData(
+			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
 }

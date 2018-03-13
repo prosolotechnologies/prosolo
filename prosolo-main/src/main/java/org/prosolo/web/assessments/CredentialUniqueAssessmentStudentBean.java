@@ -69,6 +69,21 @@ public class CredentialUniqueAssessmentStudentBean implements Serializable {
 		}
 	}
 
+	public void initSelfAssessment() {
+		decodedId = idEncoder.decodeId(id);
+
+		if (decodedId > 0) {
+			Optional<Long> optAssessmentId = assessmentManager.getSelfCredentialAssessmentId(decodedId, loggedUserBean.getUserId());
+			if (optAssessmentId.isPresent()) {
+				credentialAssessmentBean.initAssessment(id, idEncoder.encodeId(optAssessmentId.get()));
+			} else {
+				PageUtil.notFound();
+			}
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
 	public String getId() {
 		return id;
 	}

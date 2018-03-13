@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
@@ -137,7 +138,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		credentialTitle = credManager.getCredentialTitle(decodedCredId);
 	}
 
-	public boolean isCurrentUserAssessor(CompetenceAssessmentData compAssessment) {
+	private boolean isCurrentUserAssessor(CompetenceAssessmentData compAssessment) {
 		if (compAssessment == null) {
 			return false;
 		} else {
@@ -145,8 +146,25 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		}
 	}
 
-	public boolean isCurrentUserAssessedStudent(CompetenceAssessmentData competenceAssessment) {
+	/**
+	 * User is assessor in current context if he accesses assessment from manage section and this is
+	 * Instructor assessment or he accesses it from student section and this is self or peer assessment
+	 *
+	 * @return
+	 */
+	public boolean isUserAssessorInCurrentContext(CompetenceAssessmentData compAssessment) {
+		boolean manageSection = PageUtil.isInManageSection();
+		return isCurrentUserAssessor(compAssessment)
+				&& ((manageSection && compAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT)
+				|| (!manageSection && (compAssessment.getType() == AssessmentType.SELF_ASSESSMENT || compAssessment.getType() == AssessmentType.PEER_ASSESSMENT)));
+	}
+
+	private boolean isCurrentUserAssessedStudent(CompetenceAssessmentData competenceAssessment) {
 		return loggedUserBean.getUserId() == competenceAssessment.getStudentId();
+	}
+
+	public boolean isUserAssessedStudentInCurrentContext(CompetenceAssessmentData competenceAssessment) {
+		return isCurrentUserAssessedStudent(competenceAssessment) && !PageUtil.isInManageSection();
 	}
 
 	public boolean canUserEditDelivery() {

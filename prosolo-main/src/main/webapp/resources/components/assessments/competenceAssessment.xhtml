@@ -33,7 +33,7 @@
 					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.competenceAssessment.assessorNotified}">
 						<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 							<h:commandButton id="btn"
-											 rendered="#{cc.attrs.role eq 'MANAGER' or not cc.attrs.currentUserAssessedStudent}"
+											 rendered="#{not cc.attrs.currentUserAssessedStudent}"
 											 type="button"
 											 styleClass="close"
 											 pt:data-dismiss="alert"
@@ -42,7 +42,7 @@
 											 action="#{cc.attrs.bean.removeAssessorNotification(cc.attrs.competenceAssessment)}">
 								<f:ajax execute="@this" render="panelAssessorNotificationComp #{cc.attrs.growlToUpdate}" />
 							</h:commandButton>
-							#{cc.attrs.role eq 'USER' and cc.attrs.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
+							#{cc.attrs.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
 						</div>
 					</h:panelGroup>
 				</h:panelGroup>
@@ -190,7 +190,7 @@
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.evidences}">
 					<assessment:evidenceItems
 							evidences="#{cc.attrs.competenceAssessment.evidences}"
-							canViewEvidence="#{(cc.attrs.role eq 'USER' and cc.attrs.currentUserAssessedStudent) or cc.attrs.currentUserAssessor}"
+							canViewEvidence="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
 					/>
 				</ui:fragment>
 			</article>

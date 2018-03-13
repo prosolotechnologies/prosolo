@@ -3694,4 +3694,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		return result;
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT conf FROM CredentialAssessmentConfig conf " +
+					"WHERE conf.credential.id = :credId";
+			@SuppressWarnings("unchecked")
+			List<CredentialAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credId)
+					.list();
+			return credentialFactory.getAssessmentConfig(assessmentTypesConfig);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the assessment types config for credential");
+		}
+	}
 }

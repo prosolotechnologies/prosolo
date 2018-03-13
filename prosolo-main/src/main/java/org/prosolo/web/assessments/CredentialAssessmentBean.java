@@ -10,14 +10,10 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.AssessmentData;
-import org.prosolo.services.assessment.data.AssessmentDataFull;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
@@ -27,6 +23,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.util.AssessmentConfigUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -77,6 +74,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private LearningResourceType currentResType;
 
+	private List<AssessmentTypeConfig> assessmentTypesConfig;
+
 	public void initAssessment(String encodedCredId, String encodedAssessmentId) {
 		this.id = encodedCredId;
 		this.assessmentId = encodedAssessmentId;
@@ -122,6 +121,13 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
 								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 						credentialTitle = fullAssessmentData.getTitle();
+						/*
+						if user is assessed student load assessment types config for credential
+						so it can be determined which tabs should be displayed
+						 */
+						if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId()) {
+							assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
+						}
 					} catch (Exception e) {
 						logger.error("Error while loading assessment data", e);
 						PageUtil.fireErrorMessage("Error loading assessment data");
@@ -131,6 +137,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
@@ -410,8 +424,12 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return true;
 	}
 
-	public boolean isCurrentUserAssessedStudent() {
+	private boolean isCurrentUserAssessedStudent() {
 		return fullAssessmentData != null && loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
+	}
+
+	public boolean isUserAssessedStudentInCurrentContext() {
+		return isCurrentUserAssessedStudent() && !PageUtil.isInManageSection();
 	}
 
 	public void approveCredential() {
@@ -581,11 +599,24 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
-	public boolean isCurrentUserAssessor() {
+	private boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
 			return false;
 		} else
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
+	}
+
+	/**
+	 * User is assessor in current context if he accesses assessment from manage section and this is
+	 * Instructor assessment or he accesses it from student section and this is self or peer assessment
+	 *
+	 * @return
+	 */
+	public boolean isUserAssessorInCurrentContext() {
+		boolean manageSection = PageUtil.isInManageSection();
+		return isCurrentUserAssessor()
+				&& ((manageSection && fullAssessmentData.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT)
+					|| (!manageSection && (fullAssessmentData.getType() == AssessmentType.SELF_ASSESSMENT || fullAssessmentData.getType() == AssessmentType.PEER_ASSESSMENT)));
 	}
 
 	//STUDENT ONLY CODE

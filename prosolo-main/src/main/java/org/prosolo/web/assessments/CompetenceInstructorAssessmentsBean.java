@@ -5,11 +5,13 @@ import org.apache.log4j.Logger;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.util.AssessmentConfigUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -54,6 +56,8 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 	private String competenceTitle;
 	private String credentialTitle;
 
+	private List<AssessmentTypeConfig> assessmentTypesConfig;
+
 	public void init() {
 		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCredId = idEncoder.decodeId(credentialId);
@@ -71,12 +75,22 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 					if (decodedCredId > 0) {
 						credentialTitle = credManager.getCredentialTitle(decodedCredId);
 					}
+
+					assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 				} catch (Exception e) {
 					logger.error("Error loading assessment data", e);
 					PageUtil.fireErrorMessage("Error loading assessment data");
 				}
 			}
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void markActivityAssessmentDiscussionRead() {

@@ -2,7 +2,10 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
+import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -101,7 +105,7 @@ public class CredentialDataFactory {
 		return cred;
 	}
 
-	private List<AssessmentTypeConfig> getAssessmentConfig(Set<CredentialAssessmentConfig> assessmentConfig) {
+	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CredentialAssessmentConfig> assessmentConfig) {
 		List<AssessmentTypeConfig> types = new ArrayList<>();
 		for (CredentialAssessmentConfig cac : assessmentConfig) {
 			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));

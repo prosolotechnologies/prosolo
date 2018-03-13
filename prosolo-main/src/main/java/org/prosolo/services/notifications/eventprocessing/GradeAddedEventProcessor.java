@@ -36,7 +36,7 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
-		return true;
+		return sender != receiver;
 	}
 
 	@Override
@@ -110,10 +110,12 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 		if (credentialId > 0) {
 			long credentialAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL_ASSESSMENT);
 
-			return "/credentials/" +
-					idEncoder.encodeId(credentialId) +
-					"/assessments/" +
-					idEncoder.encodeId(credentialAssessmentId);
+			if (credentialAssessmentId > 0) {
+				return "/credentials/" +
+						idEncoder.encodeId(credentialId) +
+						"/assessments/" +
+						idEncoder.encodeId(credentialAssessmentId);
+			}
 		}
 
 		// if there is no credentialId, then the assessment was probably made from a dedicated page for competency assessments

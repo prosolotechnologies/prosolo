@@ -16,6 +16,7 @@ import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -89,7 +90,7 @@ public class CompetenceDataFactory {
 		return comp;
 	}
 
-	private List<AssessmentTypeConfig> getAssessmentConfig(Set<CompetenceAssessmentConfig> assessmentConfig) {
+	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CompetenceAssessmentConfig> assessmentConfig) {
 		List<AssessmentTypeConfig> types = new ArrayList<>();
 		for (CompetenceAssessmentConfig cac : assessmentConfig) {
 			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));

@@ -11,12 +11,16 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.assessments.util.AssessmentConfigUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -49,36 +54,75 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ActivityAssessmentBean activityAssessmentBean;
 	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
+	@Inject private CredentialManager credManager;
+	@Inject private Competence1Manager compManager;
 
 	private String competenceId;
-	private String competenceAssessmentid;
+	private String competenceAssessmentId;
 	private long decodedCompId;
 	private long decodedCompAssessmentId;
+	private String credId;
+	private long decodedCredId;
 
 	private LearningResourceType currentResType;
 
 	private CompetenceAssessmentData competenceAssessmentData;
 
+	private String credentialTitle;
+
+	private List<AssessmentTypeConfig> assessmentTypesConfig;
+
+	public void initAssessment(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
+		this.competenceId = encodedCompId;
+		this.competenceAssessmentId = encodedAssessmentId;
+		this.credId = encodedCredId;
+		initAssessment();
+	}
+
 	public void initAssessment() {
 		decodedCompId = idEncoder.decodeId(competenceId);
-		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentid);
+		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentId);
+		decodedCredId = idEncoder.decodeId(credId);
 
 		if (decodedCompId > 0 && decodedCompAssessmentId > 0) {
-//			boolean userEnrolled = credManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
-//
-//			if (!userEnrolled) {
-//				PageUtil.accessDenied();
-//			} else {
-//				try {
-//					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-//							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-//					credentialTitle = fullAssessmentData.getTitle();
-//				} catch (Exception e) {
-//					logger.error("Error while loading assessment data", e);
-//					PageUtil.fireErrorMessage("Error loading assessment data");
-//				}
-//			}
+			try {
+				competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
+						decodedCompAssessmentId, loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+				if (competenceAssessmentData == null) {
+					PageUtil.notFound();
+				} else {
+					/*
+					if user is not student or assessor, he is not allowed to access this page
+					 */
+					if (!isUserAssessedStudentInCurrentContext() && !isUserAssessorInCurrentContext()) {
+						PageUtil.accessDenied();
+					}
+					if (decodedCredId > 0) {
+						credentialTitle = credManager.getCredentialTitle(decodedCredId);
+					}
+					/*
+					if user is assessed student load assessment types config for competence
+					so it can be determined which tabs should be displayed
+					 */
+					if (competenceAssessmentData.getStudentId() == loggedUserBean.getUserId()) {
+						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error loading assessment data", e);
+				PageUtil.fireErrorMessage("Error loading assessment data");
+			}
+		} else {
+			PageUtil.notFound();
 		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void markActivityAssessmentDiscussionRead() {
@@ -184,15 +228,32 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		}
 	}
 
-	public boolean isCurrentUserAssessor() {
+	private boolean isCurrentUserAssessor() {
 		if (competenceAssessmentData == null) {
 			return false;
 		} else
 			return loggedUserBean.getUserId() == competenceAssessmentData.getAssessorId();
 	}
 
-	public boolean isCurrentUserAssessedStudent() {
+	/**
+	 * User is assessor in current context if he accesses assessment from manage section and this is
+	 * Instructor assessment or he accesses it from student section and this is self or peer assessment
+	 *
+	 * @return
+	 */
+	public boolean isUserAssessorInCurrentContext() {
+		boolean manageSection = PageUtil.isInManageSection();
+		return isCurrentUserAssessor()
+				&& ((manageSection && competenceAssessmentData.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT)
+				|| (!manageSection && (competenceAssessmentData.getType() == AssessmentType.SELF_ASSESSMENT || competenceAssessmentData.getType() == AssessmentType.PEER_ASSESSMENT)));
+	}
+
+	private boolean isCurrentUserAssessedStudent() {
 		return loggedUserBean.getUserId() == competenceAssessmentData.getStudentId();
+	}
+
+	public boolean isUserAssessedStudentInCurrentContext() {
+		return isCurrentUserAssessedStudent() && !PageUtil.isInManageSection();
 	}
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
@@ -443,15 +504,19 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		this.competenceId = competenceId;
 	}
 
-	public String getCompetenceAssessmentid() {
-		return competenceAssessmentid;
+	public String getCompetenceAssessmentId() {
+		return competenceAssessmentId;
 	}
 
-	public void setCompetenceAssessmentid(String competenceAssessmentid) {
-		this.competenceAssessmentid = competenceAssessmentid;
+	public void setCompetenceAssessmentId(String competenceAssessmentId) {
+		this.competenceAssessmentId = competenceAssessmentId;
 	}
 
 	public LearningResourceType getCurrentResType() {
 		return currentResType;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
 	}
 }

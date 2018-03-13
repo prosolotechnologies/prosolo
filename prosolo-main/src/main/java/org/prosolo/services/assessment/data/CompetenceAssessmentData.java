@@ -1,5 +1,6 @@
 package org.prosolo.services.assessment.data;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
@@ -49,6 +50,7 @@ public class CompetenceAssessmentData {
 	private String durationString;
 	private String message;
 	private String dateValue;
+	private AssessmentType type;
 
 //	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 //			long userId, DateFormat dateFormat) {
@@ -91,6 +93,7 @@ public class CompetenceAssessmentData {
 		}
 
 		data.setTitle(cd.getTitle());
+		data.setType(compAssessment.getType());
 		data.setCompetenceId(cd.getCompetenceId());
 		data.setTargetCompetenceId(cd.getTargetCompId());
 		data.setAssessorId(compAssessment.getAssessor() != null ? compAssessment.getAssessor().getId() : 0);
@@ -368,5 +371,13 @@ public class CompetenceAssessmentData {
 
 	public void setTargetCompetenceId(long targetCompetenceId) {
 		this.targetCompetenceId = targetCompetenceId;
+	}
+
+	public AssessmentType getType() {
+		return type;
+	}
+
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 }
