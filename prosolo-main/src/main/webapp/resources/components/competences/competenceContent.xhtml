@@ -212,19 +212,20 @@
 										</div>
 									</li>
 								</c:if>
-								<ui:remove>
-									<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
-										<li>
-											<h3>Self-Assessment</h3>
-											<div class="right">
-												<a href="javascript:void(0);" onclick="showPopupSidebar(this)">Write</a>
-												<div class="assessmentsStar">
-													<div class="star starYellow"></div>
-												</div>
+								<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
+									<li>
+										<h3>Self-Assessment</h3>
+										<div class="right">
+											<h:link outcome="/competence-self-assessment" value="Write">
+												<f:param name="compId" value="#{param.compId}"/>
+												<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}" />
+											</h:link>
+											<div class="assessmentsStar">
+												<div class="star starEmpty"></div>
 											</div>
-										</li>
-									</c:if>
-								</ui:remove>
+										</div>
+									</li>
+								</c:if>
 							</ul>
 							<h:form id="formAskForAssessment">
 								<assessment:askForAssessment
