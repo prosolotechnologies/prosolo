@@ -128,58 +128,59 @@
             </ui:fragment>
         </div>
 
-        <assessment:competenceAssessmentStudentTabs
-                selfAssessmentEnabled="#{competenceInstructorAssessmentsBean.selfAssessmentEnabled}"
-                peerAssessmentEnabled="#{competenceInstructorAssessmentsBean.peerAssessmentEnabled}"
-        />
-
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h:panelGroup id = "competenceAssessmentPanel">
-                        <ui:fragment rendered="#{empty competenceInstructorAssessmentsBean.assessments}">
-                            <div class="noContentMessage">
-                                <p>
-                                    No assessments.
-                                </p>
-                            </div>
-                        </ui:fragment>
-                        <h:form>
-                            <ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{competenceInstructorAssessmentsBean.assessments}">
-                                <div class="col-md-9" style="padding-left: 0px;">
-                                    <assessment:competenceAssessment
-                                            competenceAssessment="#{competenceAssessment}"
-                                            bean="#{competenceAssessmentBean}"
-                                            credentialId="#{util:decodeId(param.credId)}"
-                                            role="USER"
-                                            learningContext="name:credential|id:#{competenceAssessment.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessment.credentialAssessmentId}|context:/name:COMPETENCE|id:#{competenceAssessment.competenceId}|context:/name:COMPETENCE_ASSESSMENT|id:#{competenceAssessment.competenceAssessmentId}///"
-                                            growlToUpdate=":growlMain"
-                                            toUpdateGradePanel=""
-                                            gradePanelSidebarId="gradeSidebar"
-                                            toUpdateRubricPanelForStudent=":rubricAssessmentPreview:panelRubricAssessment"
-                                            toUpdatePrivateConversationModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
-                                            currentUserAssessor="false"
-                                            currentUserAssessedStudent="true"
-                                            displayStudentNameInHeader="false"
-                                    />
+                    <assessment:competenceAssessmentStudentTabs
+                            selfAssessmentEnabled="#{competenceInstructorAssessmentsBean.selfAssessmentEnabled}"
+                            peerAssessmentEnabled="#{competenceInstructorAssessmentsBean.peerAssessmentEnabled}"
+                    />
+
+                    <div class="row">
+                        <h:panelGroup id = "competenceAssessmentPanel">
+                            <ui:fragment rendered="#{empty competenceInstructorAssessmentsBean.assessments}">
+                                <div class="noContentMessage">
+                                    <p>
+                                        No assessments.
+                                    </p>
                                 </div>
-                                <div class="col-md-3">
-                                    <p:commandLink
-                                            styleClass="btn btn-green"
-                                            pt:data-toggle="modal"
-                                            value="Ask for #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
-                                            action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment, 'INSTRUCTOR_ASSESSMENT')}"
-                                            update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-                                            oncomplete="$('#askAssessment').modal('show');">
-                                    </p:commandLink>
-                                </div>
-                            </ui:repeat>
-                        </h:form>
-                    </h:panelGroup>
+                            </ui:fragment>
+                            <h:form>
+                                <ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{competenceInstructorAssessmentsBean.assessments}">
+                                    <div class="col-md-9">
+                                        <assessment:competenceAssessment
+                                                competenceAssessment="#{competenceAssessment}"
+                                                bean="#{competenceAssessmentBean}"
+                                                credentialId="#{util:decodeId(param.credId)}"
+                                                role="USER"
+                                                learningContext="name:credential|id:#{competenceAssessment.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessment.credentialAssessmentId}|context:/name:COMPETENCE|id:#{competenceAssessment.competenceId}|context:/name:COMPETENCE_ASSESSMENT|id:#{competenceAssessment.competenceAssessmentId}///"
+                                                growlToUpdate=":growlMain"
+                                                toUpdateGradePanel=""
+                                                gradePanelSidebarId="gradeSidebar"
+                                                toUpdateRubricPanelForStudent=":rubricAssessmentPreview:panelRubricAssessment"
+                                                toUpdatePrivateConversationModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
+                                                currentUserAssessor="false"
+                                                currentUserAssessedStudent="true"
+                                                displayStudentNameInHeader="false"
+                                        />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p:commandLink
+                                                styleClass="btn btn-green"
+                                                pt:data-toggle="modal"
+                                                value="Ask for #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
+                                                action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment, 'INSTRUCTOR_ASSESSMENT')}"
+                                                update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+                                                oncomplete="$('#askAssessment').modal('show');">
+                                        </p:commandLink>
+                                    </div>
+                                </ui:repeat>
+                            </h:form>
+                        </h:panelGroup>
+                    </div>
                 </div>
             </div>
         </div>
-
         <assessment:assessmentCommentModal
                 id="commentModal"
                 toUpdate=":growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId})"

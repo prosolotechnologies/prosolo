@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
@@ -15,12 +14,11 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
-import org.prosolo.services.assessment.data.grading.RubricGradeData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentConfigUtil;
+import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -118,11 +116,11 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	public boolean isPeerAssessmentEnabled() {
-		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public boolean isSelfAssessmentEnabled() {
-		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void markActivityAssessmentDiscussionRead() {
@@ -257,17 +255,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
-		//temporary solution for competency before we introduce visibility options
-		//for now students are allowed to see rubric when they are assessed
-		if (resType == LearningResourceType.COMPETENCE) {
-			return gradeData.isAssessed();
-		}
-		if (gradeData instanceof RubricGradeData) {
-			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
-			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
-					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
-		}
-		return false;
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
 	}
 
 	//actions based on currently selected resource type

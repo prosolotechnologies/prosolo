@@ -15,7 +15,7 @@
 		<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right rubricsSidebar" id="cbp-spmenu-s2">
 			<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
 			<h:panelGroup id="panelRubricAssessment">
-				<h2>#{cc.attrs.resourceType eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resourceType.name().toLowerCase())]} Grade</h2>
+				<h2>#{cc.attrs.resourceType eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resourceType.name().toLowerCase())]} Assessment</h2>
 				<h3 class="bottom30">#{cc.attrs.resourceTitle}</h3>
 
 				<ui:fragment rendered="#{cc.attrs.grade.gradingMode eq 'MANUAL_RUBRIC'}">
@@ -30,7 +30,9 @@
 								</li>
 							</ui:repeat>
 						</ul>
-						<p><strong>Comments:</strong> #{c.comment}</p>
+						<ui:fragment rendered="#{not empty c.comment}">
+							<p><strong>Comments:</strong> #{c.comment}</p>
+						</ui:fragment>
 					</ui:repeat>
 					<c:if test="#{cc.attrs.grade.pointBasedGrading == true}">
 						<p class="totalPoints"><strong>Total Points: #{cc.attrs.grade.currentGrade != null and cc.attrs.grade.isAssessed() ? cc.attrs.grade.currentGrade : '-'}</strong></p>

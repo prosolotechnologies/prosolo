@@ -33,12 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.saml.SAMLAuthenticationProvider;
-import org.springframework.security.saml.SAMLBootstrap;
-import org.springframework.security.saml.SAMLEntryPoint;
-import org.springframework.security.saml.SAMLLogoutFilter;
-import org.springframework.security.saml.SAMLLogoutProcessingFilter;
-import org.springframework.security.saml.SAMLProcessingFilter;
+import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
@@ -59,7 +54,6 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -149,16 +143,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/assessments/*").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/credentials/*/instructor-assessment").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/announcements").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/results").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/competences/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/assessments/*").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/competences/*/instructor-assessments").hasAuthority("BASIC.USER.ACCESS")
 		   //.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
 		  //.antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/library").hasAuthority("BASIC.USER.ACCESS")

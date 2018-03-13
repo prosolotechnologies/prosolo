@@ -11,7 +11,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentConfigUtil;
+import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -86,11 +86,11 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 	}
 
 	public boolean isPeerAssessmentEnabled() {
-		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public boolean isSelfAssessmentEnabled() {
-		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void markActivityAssessmentDiscussionRead() {

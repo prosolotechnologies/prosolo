@@ -5,25 +5,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.assessment.data.*;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
-import org.prosolo.services.assessment.data.grading.RubricGradeData;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentConfigUtil;
+import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -140,11 +138,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean isPeerAssessmentEnabled() {
-		return AssessmentConfigUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public boolean isSelfAssessmentEnabled() {
-		return AssessmentConfigUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
+		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
 	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
@@ -402,17 +400,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	//LearningResourceAssessmentBean impl end
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
-		//temporary solution for credential and competency before we introduce visibility options for these resources
-		//for now students are allowed to see rubric when they are assessed
-		if (resourceType == LearningResourceType.CREDENTIAL || resourceType == LearningResourceType.COMPETENCE) {
-			return gradeData.isAssessed();
-		}
-		if (gradeData instanceof RubricGradeData) {
-			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
-			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
-					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
-		}
-		return false;
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
 	}
 
 	public boolean allCompetencesStarted() {
