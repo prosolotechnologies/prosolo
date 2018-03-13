@@ -36,6 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * This bean is used on pages for instructor and self assessments as those
+ * two assessment types are unique for given credential and student
+ */
 @ManagedBean(name = "credentialUniqueAssessmentStudentBean")
 @Component("credentialUniqueAssessmentStudentBean")
 @Scope("view")

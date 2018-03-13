@@ -17,6 +17,7 @@ import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -196,17 +197,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
-		//temporary solution for competency before we introduce visibility options
-		//for now students are allowed to see rubric when they are assessed
-		if (resType == LearningResourceType.COMPETENCE) {
-			return gradeData.isAssessed();
-		}
-		if (gradeData instanceof RubricGradeData) {
-			RubricGradeData rubricGradeData = (RubricGradeData) gradeData;
-			return rubricGradeData.getRubricVisibilityForStudent() != null && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.ALWAYS
-					|| (rubricGradeData.isAssessed() && rubricGradeData.getRubricVisibilityForStudent() == ActivityRubricVisibility.AFTER_GRADED);
-		}
-		return false;
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
 	}
 
 	//actions based on currently selected resource type
