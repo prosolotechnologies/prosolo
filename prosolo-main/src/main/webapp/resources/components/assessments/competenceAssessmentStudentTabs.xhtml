@@ -13,20 +13,21 @@
 		<div class="whiteBox">
 			<ul class="nav nav-tabs pageSubmenu" role="tablist">
 				<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
-				<ui:remove>
-					<li role="presentation" class="#{page eq 'competence-peer-assessments' ? 'active' : ''}">
-						<h:link includeViewParams="true"
-								value="#{msg['label.assessment.type.PEER_ASSESSMENT']}"
-								outcome="/competence-peer-assessments">
-						</h:link>
-					</li>
-				</ui:remove>
 				<li role="presentation" class="#{page eq 'competence-instructor-assessments' ? 'active' : ''}">
 					<h:link includeViewParams="true"
 							value="#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
 							outcome="/competence-instructor-assessments">
 					</h:link>
 				</li>
+				<ui:fragment rendered="#{cc.attrs.peerAssessmentEnabled}">
+					<li role="presentation" class="#{page eq 'competence-peer-assessments'
+													 or page eq 'competence-peer-assessment' ? 'active' : ''}">
+						<h:link includeViewParams="true"
+								value="#{msg['label.assessment.type.PEER_ASSESSMENT']}"
+								outcome="/competence-peer-assessments">
+						</h:link>
+					</li>
+				</ui:fragment>
 				<ui:fragment rendered="#{cc.attrs.selfAssessmentEnabled}">
 					<li role="presentation" class="#{page eq 'competence-self-assessment' ? 'active' : ''}">
 						<h:link includeViewParams="true"

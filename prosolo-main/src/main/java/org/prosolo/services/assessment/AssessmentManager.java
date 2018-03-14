@@ -306,4 +306,7 @@ public interface AssessmentManager {
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
 			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+
+	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
+			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 }

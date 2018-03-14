@@ -1,5 +1,6 @@
 package org.prosolo.services.assessment.data.factory;
 
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.OptionalInt;
 
 /**
@@ -78,10 +80,19 @@ public class AssessmentDataFactory implements Serializable {
     }
 
     public AssessmentData getCredentialAssessmentData(CredentialAssessment ca, User student, User assessor, DateFormat dateFormat) {
+        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat);
+    }
+
+    public AssessmentData getCompetenceAssessmentData(CompetenceAssessment ca, User student, User assessor, DateFormat dateFormat) {
+        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat);
+    }
+
+    public AssessmentData getAssessmentData(
+            long assessmentId, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat) {
         AssessmentData data = new AssessmentData();
-        data.setAssessmentId(ca.getId());
-        data.setDateValue(dateFormat.format(ca.getDateCreated()));
-        data.setApproved(ca.isApproved());
+        data.setAssessmentId(assessmentId);
+        data.setDateValue(dateFormat.format(dateCreated));
+        data.setApproved(approved);
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
