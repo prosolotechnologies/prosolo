@@ -1,17 +1,24 @@
 package org.prosolo.services.assessment.data.factory;
 
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.AssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.CredentialAssessmentsSummaryData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.util.OptionalInt;
 
 /**
  * @author stefanvuckovic
@@ -68,5 +75,22 @@ public class AssessmentDataFactory implements Serializable {
         }
 
         return activitySummary;
+    }
+
+    public AssessmentData getCredentialAssessmentData(CredentialAssessment ca, User student, User assessor, DateFormat dateFormat) {
+        AssessmentData data = new AssessmentData();
+        data.setAssessmentId(ca.getId());
+        data.setDateValue(dateFormat.format(ca.getDateCreated()));
+        data.setApproved(ca.isApproved());
+        if (student != null) {
+            data.setStudentFullName(student.getName() + " " + student.getLastname());
+            data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
+        }
+        if (assessor != null) {
+            data.setAssessorFullName(assessor.getName()+ " " + assessor.getLastname());
+            data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
+        }
+
+        return data;
     }
 }

@@ -100,6 +100,7 @@ public abstract class AskForAssessmentBean implements Serializable {
             assessmentRequestData.setAssessorId(randomPeer.getId());
             assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
             assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
+            assessmentRequestData.setNewAssessment(true);
             noRandomAssessor = false;
         } else {
             noRandomAssessor = true;

@@ -2954,4 +2954,66 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	//get credential peer assessments
+
+	@Override
+	@Transactional
+	public PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
+			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+		try {
+			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
+			res.setHitsNumber(countCredentialPeerAssessmentsForStudent(studentId, credId));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getCredentialPeerAssessmentsForStudent(credId, studentId, dateFormat, offset, limit));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential assessments");
+		}
+	}
+
+	private List<AssessmentData> getCredentialPeerAssessmentsForStudent(
+			long credId, long studentId, DateFormat dateFormat, int offset, int limit) {
+		String q =
+				"SELECT ca FROM CredentialAssessment ca " +
+				"INNER JOIN fetch ca.assessor " +
+				"WHERE ca.targetCredential.credential.id = :credentialId " +
+				"AND ca.student.id = :assessedStudentId " +
+				"AND ca.type = :type " +
+				"ORDER BY ca.dateCreated";
+
+		List<CredentialAssessment> assessments = persistence.currentManager().createQuery(q)
+				.setLong("credentialId", credId)
+				.setLong("assessedStudentId", studentId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name())
+				.setMaxResults(limit)
+				.setFirstResult(offset)
+				.list();
+
+		List<AssessmentData> res = new ArrayList<>();
+		for (CredentialAssessment ca : assessments) {
+			res.add(assessmentDataFactory.getCredentialAssessmentData(
+					ca, null, ca.getAssessor(), dateFormat));
+		}
+
+		return res;
+	}
+
+	private long countCredentialPeerAssessmentsForStudent(long studentId, long credentialId) {
+		String q =
+				"SELECT COUNT(ca.id) FROM CredentialAssessment ca " +
+				"WHERE ca.targetCredential.credential.id = :credentialId " +
+				"AND ca.student.id = :assessedStudentId " +
+				"AND ca.type = :type";
+		Query query = persistence.currentManager().createQuery(q)
+				.setLong("credentialId", credentialId)
+				.setLong("assessedStudentId", studentId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name());
+
+		return (long) query.uniqueResult();
+	}
+
+	//get credential peer assessments end
+
 }

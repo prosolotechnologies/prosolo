@@ -3280,19 +3280,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isUserEnrolled(long credId, long userId) {
-		String query =
-				"SELECT targetCredential.id " +
-				"FROM TargetCredential1 targetCredential " +
-				"WHERE targetCredential.user.id = :userId " +
-					"AND targetCredential.credential.id = :credId";
-
-		Long result = (Long) persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", userId)
-				.setLong("credId", credId)
-				.uniqueResult();
-
-		return result != null;
+		long tcId = getTargetCredentialId(credId, userId);
+		return tcId > 0;
 	}
 
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
@@ -3711,6 +3700,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the assessment types config for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getTargetCredentialId(long credId, long studentId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential.id " +
+							"FROM TargetCredential1 targetCredential " +
+							"WHERE targetCredential.user.id = :userId " +
+							"AND targetCredential.credential.id = :credId";
+
+			Long result = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("credId", credId)
+					.uniqueResult();
+
+			return result != null ? result.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credential id");
 		}
 	}
 }

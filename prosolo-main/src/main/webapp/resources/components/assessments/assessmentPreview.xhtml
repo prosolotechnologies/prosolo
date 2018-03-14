@@ -206,36 +206,11 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12">
-						<div class="whiteBox">
-							<ul class="nav nav-tabs pageSubmenu" role="tablist">
-								<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
-								<ui:remove>
-									<li role="presentation" class="#{page eq 'credential-peer-assessments' ? 'active' : ''}">
-										<h:link
-												value="#{msg['label.assessment.type.PEER_ASSESSMENT']}"
-												outcome="/credential-peer-assessments">
-											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
-										</h:link>
-									</li>
-								</ui:remove>
-								<li role="presentation" class="#{page eq 'credential-instructor-assessment' ? 'active' : ''}">
-									<h:link
-											value="#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
-											outcome="/credential-instructor-assessment">
-										<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
-									</h:link>
-								</li>
-								<ui:fragment rendered="#{cc.attrs.bean.selfAssessmentEnabled}">
-									<li role="presentation" class="#{page eq 'credential-self-assessment' ? 'active' : ''}">
-										<h:link
-												value="#{msg['label.assessment.type.SELF_ASSESSMENT']}"
-												outcome="/credential-self-assessment">
-											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"></f:param>
-										</h:link>
-									</li>
-								</ui:fragment>
-							</ul>
-						</div>
+						<assessment:credentialAssessmentStudentTabs
+							encodedCredId="#{cc.attrs.bean.id}"
+							peerAssessmentEnabled="#{cc.attrs.bean.peerAssessmentEnabled}"
+							selfAssessmentEnabled="#{cc.attrs.bean.selfAssessmentEnabled}"
+						/>
 					</div>
 				</div>
 			</div>
