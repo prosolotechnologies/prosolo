@@ -82,7 +82,8 @@
 										update="usersListPanel" />
 
 									<p:commandLink styleClass="btn btn-green-stroke btn-sm"
-										value="Choose random"
+									   rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
+									   value="Choose random"
 										action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
 										update="selectAssessor :#{cc.clientId}:askForAssessmentPanelContent" />
 

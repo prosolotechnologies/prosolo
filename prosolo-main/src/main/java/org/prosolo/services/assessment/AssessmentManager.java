@@ -37,7 +37,9 @@ public interface AssessmentManager {
 
 	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat);
+
+	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 

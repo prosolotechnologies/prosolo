@@ -16,6 +16,7 @@ import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -74,19 +75,32 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
-	public void initAssessment(String encodedCredId, String encodedAssessmentId) {
-		this.id = encodedCredId;
-		this.assessmentId = encodedAssessmentId;
-		initAssessment();
+	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId) {
+		setIds(encodedCredId, encodedAssessmentId);
+		initSelfAssessment();
 	}
 
-	public void initAssessment() {
-		decodedId = idEncoder.decodeId(id);
+	public void initPeerAssessment(String encodedCredId, String encodedAssessmentId) {
+		setIds(encodedCredId, encodedAssessmentId);
+		initPeerAssessment();
+	}
 
+	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId) {
+		setIds(encodedCredId, encodedAssessmentId);
+		initInstructorAssessment();
+	}
+
+	private void setIds(String encodedCredId, String encodedAssessmentId) {
+		this.id = encodedCredId;
+		this.assessmentId = encodedAssessmentId;
+	}
+
+	public void initAssessmentManager() {
+		decodedId = idEncoder.decodeId(id);
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 
 		if (decodedId > 0 && decodedAssessmentId > 0) {
-			if (PageUtil.isInManageSection()) {
+			try {
 				// for managers, load all other assessments
 
 				ResourceAccessData access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
@@ -97,43 +111,65 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					try {
-						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId,
+							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+					if (fullAssessmentData == null) {
+						PageUtil.notFound();
+					} else {
 						credentialTitle = fullAssessmentData.getTitle();
 
 						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
-
-					} catch (Exception e) {
-						logger.error("Error while loading assessment data", e);
-						PageUtil.fireErrorMessage("Error loading assessment data");
 					}
 				}
-			} else {
-				boolean userEnrolled = credManager.isUserEnrolled(decodedId, loggedUserBean.getUserId());
-
-				if (!userEnrolled) {
-					PageUtil.accessDenied();
-				} else {
-					try {
-						fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
-								loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-						credentialTitle = fullAssessmentData.getTitle();
-						/*
-						if user is assessed student load assessment types config for credential
-						so it can be determined which tabs should be displayed
-						 */
-						if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId()) {
-							assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
-						}
-					} catch (Exception e) {
-						logger.error("Error while loading assessment data", e);
-						PageUtil.fireErrorMessage("Error loading assessment data");
-					}
-				}
+			} catch (Exception e) {
+				logger.error("Error while loading assessment data", e);
+				PageUtil.fireErrorMessage("Error loading assessment data");
 			}
 		} else {
 			PageUtil.notFound();
+		}
+	}
+
+	public void initSelfAssessment() {
+		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	public void initPeerAssessment() {
+		initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public void initInstructorAssessment() {
+		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT);
+	}
+
+	public void initAssessmentStudent(AssessmentType type) {
+		decodedId = idEncoder.decodeId(id);
+		decodedAssessmentId = idEncoder.decodeId(assessmentId);
+		try {
+			fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
+					loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"));
+			if (fullAssessmentData == null) {
+				PageUtil.notFound();
+			} else {
+				/*
+				if user is not student or assessor, he is not allowed to access this page
+				 */
+				if (!isUserAssessedStudentInCurrentContext() && !isUserAssessorInCurrentContext()) {
+					PageUtil.accessDenied();
+				} else {
+					credentialTitle = fullAssessmentData.getTitle();
+					/*
+					if user is assessed student load assessment types config for credential
+					so it can be determined which tabs should be displayed
+					 */
+					if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId()) {
+						assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Error while loading assessment data", e);
+			PageUtil.fireErrorMessage("Error loading assessment data");
 		}
 	}
 
@@ -609,7 +645,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	//STUDENT ONLY CODE
 	public void initAskForAssessment(AssessmentType aType) {
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), aType);
+		UserData assessor = null;
+		if (fullAssessmentData.getAssessorId() > 0) {
+			assessor = new UserData();
+			assessor.setId(fullAssessmentData.getAssessorId());
+			assessor.setFullName(fullAssessmentData.getAssessorFullName());
+			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
+		}
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), aType, assessor);
 	}
 
 	public void submitAssessment() {

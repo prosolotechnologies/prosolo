@@ -369,9 +369,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+	public AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat) {
+		return getFullAssessmentDataForAssessmentType(id, userId, null, dateFormat);
+	}
+
+	@Override
+	@Transactional
+	public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
+		if (type != null && assessment.getType() != type) {
+			return null;
+		}
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
 				assessment.getTargetCredential().getUser().getId(), false, false, true);
