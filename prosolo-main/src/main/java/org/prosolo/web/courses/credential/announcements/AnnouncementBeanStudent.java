@@ -97,7 +97,7 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
 					announcementManager.readAnnouncement(idEncoder.decodeId(announcementId), loggedUser.getUserId());
 					announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(announcementId));
 
-					credentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
+					credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
 				}
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error loading announcement");
