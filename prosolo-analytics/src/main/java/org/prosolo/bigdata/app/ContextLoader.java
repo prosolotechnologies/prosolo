@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
+import org.prosolo.bigdata.dal.persistence.CourseDAO;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
@@ -62,7 +65,7 @@ public class ContextLoader implements ServletContextListener {
 		// TwitterHashtagsStreamsManagerImpl();
 		// manager.initialize();
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming){
-			System.out.println("INITIALIZED TWITTER STREAMING");
+			logger.info("INITIALIZED TWITTER STREAMING");
 		
 			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
 			twitterManager.initialize();
@@ -73,11 +76,13 @@ public class ContextLoader implements ServletContextListener {
 		// Initialization of Streaming manager that is responsible for
 		// collecting information from Prosolo through the Rabbitmq
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming){
-			System.out.println("INITIALIZED RABBITMQ STREAMING");
+			logger.info("INITIALIZED RABBITMQ STREAMING");
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();
 		}
-		System.out.println("CONTEXT INITIALIZATION FINISHED");
+		CourseDAO courseDAO=new CourseDAOImpl(false);
+		courseDAO.getAllCredentialIds();
+		logger.info("CONTEXT INITIALIZATION FINISHED");
 	}
 
 	@Override

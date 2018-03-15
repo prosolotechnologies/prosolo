@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -155,7 +154,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 		switch (currentResType) {
 			case ACTIVITY:
-				return idEncoder.decodeId(activityAssessmentBean.getActivityAssessmentData().getEncodedDiscussionId());
+				return idEncoder.decodeId(activityAssessmentBean.getActivityAssessmentData().getEncodedActivityAssessmentId());
 			case COMPETENCE:
 				return compAssessmentBean.getCompetenceAssessmentData().getCompetenceAssessmentId();
 			case CREDENTIAL:
@@ -404,7 +403,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean isCurrentUserAssessedStudent() {
-		return loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
+		return fullAssessmentData != null && loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
 	}
 
 	public void approveCredential() {
@@ -415,6 +414,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					fullAssessmentData.getReview(), userContext);
 
 			markCredentialApproved();
+
+			if (PageUtil.isInManageSection()) {
+				// update other assessments dropdown
+				otherAssessments.stream()
+						.filter(ass -> ass.getEncodedAssessmentId().equals(assessmentId))
+						.findFirst()
+						.get().setApproved(true);
+			}
 
 			PageUtil.fireSuccessfulInfoMessage(
 					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
@@ -437,7 +444,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public void approveCompetence(long competenceAssessmentId) {
 		try {
-			assessmentManager.approveCompetence(competenceAssessmentId);
+			assessmentManager.approveCompetence(competenceAssessmentId, loggedUserBean.getUserContext());
 			markCompetenceApproved(competenceAssessmentId);
 
 			PageUtil.fireSuccessfulInfoMessage(
@@ -474,7 +481,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
 			for (CompetenceAssessmentData comp : competenceAssessmentData) {
 				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if (encodedActivityDiscussionId.equals(act.getEncodedDiscussionId())) {
+					if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
 						return Optional.of(act);
 					}
 				}
@@ -605,10 +612,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return otherAssessments;
 	}
 
-	public void setOtherAssessments(List<AssessmentData> otherAssessments) {
-		this.otherAssessments = otherAssessments;
-	}
-
 	public String getId() {
 		return id;
 	}
@@ -627,10 +630,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public AssessmentDataFull getFullAssessmentData() {
 		return fullAssessmentData;
-	}
-
-	public void setFullAssessmentData(AssessmentDataFull fullAssessmentData) {
-		this.fullAssessmentData = fullAssessmentData;
 	}
 
 	public LearningResourceType getCurrentResType() {

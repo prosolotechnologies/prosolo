@@ -23,7 +23,7 @@ public class ActivityAssessmentDataFactory implements Serializable {
 	public ActivityAssessmentData getActivityAssessmentData(ActivityAssessment assessment, 
 			boolean isReadByCurrentUser, int numberOfMessages) {
 		ActivityAssessmentData ad = new ActivityAssessmentData();
-		ad.setEncodedDiscussionId(idEncoder.encodeId(assessment.getId()));
+		ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessment.getId()));
 		ad.setAllRead(isReadByCurrentUser);
 		ad.setNumberOfMessages(numberOfMessages);
 		return ad;

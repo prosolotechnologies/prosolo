@@ -1,5 +1,6 @@
 package org.prosolo.services.migration;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.event.EventQueue;
 
 /**
@@ -14,4 +15,6 @@ public interface CommonCustomMigrationService {
     EventQueue migrateAssessmentsAndGetEvents();
 
     void migrateAssessmentDiscussions();
+
+    void migrateCompetenceAssessmentPoints() throws DbConnectionException;
 }

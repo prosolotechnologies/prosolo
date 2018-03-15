@@ -33,6 +33,9 @@ public class AssessmentNotificationEmailGenerator extends NotificationEmailGener
 		case Assessment_Comment:
 			this.subject = "New comment on assessment";
 			break;
+		case GradeAdded:
+			this.subject = "You got a new grade";
+			break;
 		default:
 			break;
 		}

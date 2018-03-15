@@ -54,10 +54,10 @@
 						 outcome="/admin/unit-instructors">
 					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Instructors
+					 #{msg['label.instructor.plural']}
 				 </h:link>
 				 <ui:fragment rendered="#{page eq 'unit-instructors'}">
-					 <a href="javascript:void(0);">Instructors</a>
+					 <a href="javascript:void(0);">#{msg['label.instructor.plural']}</a>
 				 </ui:fragment>
 			 </li>
 			 <li role="presentation" class="#{page eq 'unit-groups' ? 'active' : ''}">

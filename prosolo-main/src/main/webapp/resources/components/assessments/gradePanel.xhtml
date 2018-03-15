@@ -28,7 +28,7 @@
 			<h:panelGroup id="gradePanel">
 				<c:if test="#{not empty cc.attrs.gradeData}">
 					<a href="javascript:void(0);" onclick="hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}')" class="removeX">Close</a>
-					<h2>#{cc.attrs.resource eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]} Grade</h2>
+					<h2>Assess #{cc.attrs.resource eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]}</h2>
 					<h3 class="bottom30">#{cc.attrs.resourceTitle}</h3>
 					<ui:fragment rendered="#{not cc.attrs.completed}">
 						<p>Uncompleted #{cc.attrs.resource eq 'ACTIVITY' ? 'activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())].toLowerCase()} can not be graded</p>
@@ -115,9 +115,9 @@
 									styleClass="btn btn-green"
 									action="#{cc.attrs.gradeAction}"
 									update="#{cc.attrs.toUpdate} @(.validationMsgSelector)"
-									oncomplete="if (args &amp;&amp; !args.validationFailed) { hidePopupSidebar('#cbp-spmenu-s2') }">
+									oncomplete="if (args &amp;&amp; !args.validationFailed) { hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}') }">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:&#34;.concat(cc.attrs.resource.name().toLowerCase()).concat(&#34;_assessment|id:&#34;).concat(util:decodeId(cc.attrs.assessmentId)))}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
 								<f:param name="service" value="name:activity_grade_dialog"></f:param>
 								Save Changes
 							</p:commandLink>

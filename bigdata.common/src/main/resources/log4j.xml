@@ -66,11 +66,7 @@
 
 
 
-	<logger name="org.au.morph" additivity="false">
-		<level value="INFO" />
-		<appender-ref ref="console" />
-		<appender-ref ref="default.file" />
-	</logger>
+
 	<root>
 		<level value="INFO" />
 		<appender-ref ref="console" />

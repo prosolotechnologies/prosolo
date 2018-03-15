@@ -376,6 +376,10 @@ public class UserEditBean implements Serializable {
 		this.allRolesCheckBoxData = allRolesCheckBoxData;
 	}
 
+	public long getDecodedId() {
+		return decodedId;
+	}
+
 	public UserData getAccountData() {
 		return accountData;
 	}

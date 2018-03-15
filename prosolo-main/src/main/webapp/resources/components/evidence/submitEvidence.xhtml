@@ -69,7 +69,7 @@
 									action="#{cc.attrs.bean.prepareExistingEvidenceSearch()}"
 									update=":#{cc.clientId}:panelExistingEvidence"
 									oncomplete="$('#documentTabLink').tab('show');">
-								Existing Document
+								Existing Evidence
 							</p:commandLink>
 						</li>
 					</c:if>
@@ -89,14 +89,21 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Title is required"
 								autocomplete="off"
 						/>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{submitEvidenceBean.evidence.text}"></h:inputTextarea>
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+
 						<h:panelGroup id="panelUploadEvidence">
 							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
 								<utilcomp:fileUpload
@@ -148,7 +155,7 @@
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How is this evidence related to the focus area?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -174,14 +181,20 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Title is required"
 								autocomplete="off"
 						/>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{submitEvidenceBean.evidence.text}"></h:inputTextarea>
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText id="inputUrl"
 									 styleClass="urlInput"
@@ -203,7 +216,7 @@
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How is this evidence related to the focus area?"></h:inputText>
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"></h:inputText>
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -229,7 +242,7 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Required field"
 								autocomplete="off"
@@ -237,10 +250,11 @@
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
 						<h:inputTextarea id="textareaEvidenceText"
-										 placeholder="Type here..."
+										 placeholder="Short description here"
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
-										 requiredMessage="Required field"></h:inputTextarea>
+										 requiredMessage="Description is required" />
+
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText styleClass="tagsInputEvidence"
@@ -253,7 +267,7 @@
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How is this evidence related to the focus area?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -290,7 +304,7 @@
 
 								<h:inputText id="inputEvidenceSearch"
 											 type="search"
-											 placeholder="Search Evidences"
+											 placeholder="Search Evidence"
 											 value="#{learningEvidenceSearchBean.searchTerm}"
 											 onclick="$(this).select();"
 											 onkeyup="searchListener(execSearchEvidences);"
@@ -301,7 +315,7 @@
 						<h:panelGroup id="panelEvidenceSearchResults">
 							<ul class="list">
 								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-									<li class="noPeople">No evidences</li>
+									<li class="noPeople">No evidence</li>
 								</ui:fragment>
 								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
 									<li>
@@ -352,7 +366,7 @@
 									</div>
 								</div>
 								<div class="modal-body alignLeft">
-									<h:inputTextarea id="inputRelToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How is this evidence related to the focus area?" required="true" requiredMessage="Required field"></h:inputTextarea>
+									<h:inputTextarea id="inputRelToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputTextarea>
 									<small class="redText bottom30 topMinus30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
 								</div>
 								<div class="modal-footer alignLeft">

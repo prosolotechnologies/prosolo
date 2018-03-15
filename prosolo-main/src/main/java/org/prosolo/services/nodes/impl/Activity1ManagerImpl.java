@@ -487,38 +487,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading activity data");
 		}
 	}
-	
-	/**
-	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
-	 * 
-	 * @param credId
-	 * @param compId
-	 * @throws ResourceNotFoundException
-	 */
-	private void checkIfCompetenceIsPartOfACredential(long credId, long compId) 
-			throws ResourceNotFoundException {
-		/*
-		 * check if passed credential has specified competence
-		 */
-		if(credId > 0) {
-			String query1 = "SELECT credComp.id " +
-							"FROM CredentialCompetence1 credComp " +
-							"WHERE credComp.credential.id = :credId " +
-							"AND credComp.competence.id = :compId";
-			
-			@SuppressWarnings("unchecked")
-			List<Long> res1 = persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.list();
-			
-			if(res1 == null || res1.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}
-		}
-	}
 
 	/**
 	 * Checks if activity specified with {@code actId} id is part of a credential with {@code credId} id
@@ -555,7 +523,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadTags, boolean loadCompetence) {
 		try {
-			checkIfCompetenceIsPartOfACredential(credId, competenceId);
+			compManager.checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
 			 * we need to make sure that activity is bound to competence with passed id
 			 */
@@ -1035,7 +1003,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			/*
 			 * check if competence is part of a credential
 			 */
-			checkIfCompetenceIsPartOfACredential(credId, compId);
+			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
 			
 			StringBuilder query = new StringBuilder("SELECT targetAct " +
 					   "FROM TargetActivity1 targetAct " +
@@ -1435,7 +1403,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
 
-					ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+					ad.setActivityAssessmentId(assessmentId.longValue());
+					ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessmentId.longValue()));
 					ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 					ad.setAllRead(((Character) row[11]).charValue() == 'T');
 

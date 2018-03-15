@@ -6,7 +6,6 @@ import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -26,6 +25,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
+import org.prosolo.web.settings.data.NotificationSettingsData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -128,7 +128,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setEmail((String) userData.get("email"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setNotificationsSettings((List<NotificationSettingsData>) userData.get("notificationsSettings"));
 			sessionData.setPassword((String) userData.get("password"));
 			sessionData.setSessionId((String) userData.get("sessionId"));
 			initialized = true;
@@ -485,30 +485,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
-//	public String switchRole(String rolename){
-//		getSessionData().setSelectedRole(rolename);
-//		String navigateTo="/index";
-//		if(rolename.equalsIgnoreCase("manager")){
-//			navigateTo= "/manage/credentialLibrary";
-//		}else if (rolename.equalsIgnoreCase("admin")){
-//			navigateTo= "/admin/users";
-//		}
-//		return navigateTo;
-// 	}
 
-//	public LearningGoalFilter getSelectedLearningGoalFilter() {
-//		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
-//	}
-//
-//	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-//		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
-//	}
-
-	public UserNotificationsSettings getNotificationsSettings() {
+	public List<NotificationSettingsData> getNotificationsSettings() {
 		return getSessionData() == null ? null : getSessionData().getNotificationsSettings();
 	}
 
-	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
+	public void setNotificationsSettings(List<NotificationSettingsData> notificationsSettings) {
 		getSessionData().setNotificationsSettings(notificationsSettings);
 	}
 	public String getIpAddress() {

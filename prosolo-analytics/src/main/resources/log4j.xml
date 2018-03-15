@@ -48,10 +48,18 @@
 		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
-	<logger name="org.hibernate.jpa">
+	<logger name="org.hibernate.SQL">
 		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
+	<logger name="org.hibernate.type">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger>
+	<!--logger name="org.hibernate.jpa">
+		<level value="ERROR" />
+		<appender-ref ref="console" />
+	</logger-->
 	<logger name="org.prosolo.bigdata.streaming" additivity="false">
 		<level value="DEBUG" />
 		<appender-ref ref="console" />
@@ -86,11 +94,7 @@
 
 
 
-	<logger name="org.au.morph" additivity="false">
-		<level value="INFO" />
-		<appender-ref ref="console" />
-		<appender-ref ref="default.file" />
-	</logger>
+
 	<root>
 		<level value="INFO" />
 		<appender-ref ref="console" />
