@@ -41,6 +41,11 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
         init(competenceId, targetCompId, assessmentType);
     }
 
+    public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor) {
+        this.credentialId = credentialId;
+        init(competenceId, targetCompId, assessmentType, assessor);
+    }
+
     @Override
     public void initInstructorAssessmentAssessor() {
         Optional<UserData> assessor = assessmentManager.getInstructorCompetenceAssessmentAssessor(credentialId, getResourceId(), loggedUser.getUserId());

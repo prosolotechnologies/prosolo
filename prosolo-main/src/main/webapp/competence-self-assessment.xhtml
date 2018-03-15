@@ -9,7 +9,7 @@
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
     <ui:define name="windowTitle">
-        #{msg['label.competence']} - #{competenceAssessmentBean.competenceAssessmentData.title} - Assessment - ProSolo
+        Assessment - #{competenceAssessmentBean.competenceAssessmentData.title} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -33,7 +33,6 @@
     <ui:define name="content">
         <assessments:competenceAssessmentPreview
                 credentialId="#{util:decodeId(param.credId)}"
-                learningContext="#{empty param.credId ? '' : 'name:CREDENTIAL|id:'.concat(util:decodeId(param.credId))}"
         />
     </ui:define>
 </ui:composition>

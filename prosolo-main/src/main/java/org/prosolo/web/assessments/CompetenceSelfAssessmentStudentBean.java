@@ -35,7 +35,7 @@ public class CompetenceSelfAssessmentStudentBean implements Serializable {
 		if (decodedId > 0) {
 			Optional<Long> optAssessmentId = assessmentManager.getSelfCompetenceAssessmentId(decodedId, loggedUserBean.getUserId());
 			if (optAssessmentId.isPresent()) {
-				competenceAssessmentBean.initAssessment(id, idEncoder.encodeId(optAssessmentId.get()), credId);
+				competenceAssessmentBean.initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), credId);
 			} else {
 				PageUtil.notFound();
 			}

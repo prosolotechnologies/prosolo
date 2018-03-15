@@ -644,7 +644,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	//STUDENT ONLY CODE
-	public void initAskForAssessment(AssessmentType aType) {
+	public void initAskForAssessment() {
 		UserData assessor = null;
 		if (fullAssessmentData.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -652,7 +652,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), aType, assessor);
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor);
 	}
 
 	public void submitAssessment() {

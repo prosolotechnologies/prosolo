@@ -2993,20 +2993,40 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, DateFormat dateFormat)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
 			throws DbConnectionException {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
-			if (ca == null) {
+			if (ca == null || (assessmentType != null && ca.getType() != assessmentType)) {
 				return null;
 			}
 			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
 					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
-			return CompetenceAssessmentData.from(cd, ca, null, encoder, userId, dateFormat);
+			/*
+			if assessment type is instructor, there is exactly one credential assessment with this competence assessment
+			so we should load it
+			 */
+			CredentialAssessment credAssessment = null;
+			if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				credAssessment = getCredentialAssessmentForCompetenceInstructorAssessment(ca.getId());
+			}
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, encoder, userId, dateFormat);
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");
 		}
+	}
+
+	private CredentialAssessment getCredentialAssessmentForCompetenceInstructorAssessment(long compAssessmentId) {
+		String q =
+				"SELECT cca.credententialAssessment FROM CredentialCompetenceAssessment cca " +
+				"WHERE cca.competenceAssessment.id = :compAssessmentId " +
+				"AND cca.competenceAssessment.type = :type";
+		return (CredentialAssessment) persistence.currentManager()
+				.createQuery(q)
+				.setLong("compAssessmentId", compAssessmentId)
+				.setString("type", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.uniqueResult();
 	}
 
 	//get credential peer assessments
