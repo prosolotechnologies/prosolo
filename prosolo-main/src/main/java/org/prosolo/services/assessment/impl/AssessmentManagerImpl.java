@@ -3019,7 +3019,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	private CredentialAssessment getCredentialAssessmentForCompetenceInstructorAssessment(long compAssessmentId) {
 		String q =
-				"SELECT cca.credententialAssessment FROM CredentialCompetenceAssessment cca " +
+				"SELECT cca.credentialAssessment FROM CredentialCompetenceAssessment cca " +
 				"WHERE cca.competenceAssessment.id = :compAssessmentId " +
 				"AND cca.competenceAssessment.type = :type";
 		return (CredentialAssessment) persistence.currentManager()
