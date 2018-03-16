@@ -140,7 +140,7 @@ public class User extends BaseEntity {
 			getRoles().add(role);
 	}
 
-	public void removeRoleById(Long roleId) {
+	public boolean removeRoleById(Long roleId) {
 		Iterator<Role> iterator = roles.iterator();
 
 		while (iterator.hasNext()) {
@@ -148,8 +148,10 @@ public class User extends BaseEntity {
 
 			if (role.getId() == roleId) {
 				iterator.remove();
+				return true;
 			}
 		}
+		return false;
 	}
 
 	public String getPosition() {

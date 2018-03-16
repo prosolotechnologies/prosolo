@@ -409,10 +409,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			removedRoles.removeAll(newRoleList);
 
 			for (Long roleId : removedRoles) {
-				user.removeRoleById(roleId);
+				boolean removed = user.removeRoleById(roleId);
 
-				// delete all unit memberships in roles that are removed
-				result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+				if (removed) {
+					// delete all unit memberships in roles that are removed
+					result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+				}
 			}
 
 			// add roles that user did not have previously
