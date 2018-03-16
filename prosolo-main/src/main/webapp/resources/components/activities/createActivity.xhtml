@@ -433,7 +433,7 @@
 		                        	name="fetchPageTitle"
 		                        	process="@this"
 		                        	action="#{activityEditBean.fetchLinkTitle()}"
-		                        	onstart="showLoader('#loaderContainerUrlTitle');"
+		                        	onstart="showLoader('#loaderContainerUrlTitle', '#{request.contextPath}');"
 			            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
