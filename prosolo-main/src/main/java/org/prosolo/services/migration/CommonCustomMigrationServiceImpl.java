@@ -12,7 +12,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -198,21 +197,22 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             List<User> orgUsers = orgManager.getOrganizationUsers(org.getId(), false, persistence.currentManager(), null);
 
             for (Credential1 cred : allCredentials) {
-                List<AssessmentTypeConfig> assessmentConfig = credManager.getCredentialAssessmentTypesConfig(cred.getId());
+                if (cred.getAssessmentConfig()
+                        .stream().filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
+                        .findFirst().get()
+                        .isEnabled()) {
 
-                for (AssessmentTypeConfig assessmentTypeConfig : assessmentConfig) {
-                    if (assessmentTypeConfig.getType() == AssessmentType.SELF_ASSESSMENT && assessmentTypeConfig.isEnabled()) {
-                        List<TargetCredential1> targetCredentials = credManager.getTargetCredentialsForUsers(orgUsers.stream().map(User::getId).collect(Collectors.toList()), cred.getId());
+                    List<TargetCredential1> targetCredentials = credManager.getTargetCredentialsForUsers(orgUsers.stream().map(User::getId).collect(Collectors.toList()), cred.getId());
 
-                        for (TargetCredential1 targetCredential : targetCredentials) {
-                            try {
-                                assessmentManager.createSelfAssessmentAndGetEvents(targetCredential, context);
-                            } catch (IllegalDataStateException e) {
-                                logger.error("Error", e);
-                            }
+                    for (TargetCredential1 targetCredential : targetCredentials) {
+                        try {
+                            assessmentManager.createSelfAssessmentAndGetEvents(targetCredential, context);
+                        } catch (IllegalDataStateException e) {
+                            logger.error("Error", e);
                         }
                     }
                 }
+
 
             }
         }
