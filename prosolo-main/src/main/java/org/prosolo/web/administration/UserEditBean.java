@@ -197,7 +197,7 @@ public class UserEditBean implements Serializable {
 
 	private List<Long> getSelectedRoles(){
 		return allRolesCheckBoxData.stream()
-				.filter(r -> r.isSelected())
+				.filter(RoleCheckboxData::isSelected)
 				.map(RoleCheckboxData::getId)
 				.collect(Collectors.toList());
 	}
@@ -239,7 +239,7 @@ public class UserEditBean implements Serializable {
 					this.user.getPassword(),
 					this.user.getPosition(),
 					getSelectedRoles(),
-					this.user.getRoleIds(),
+					allRoles.stream().map(Role::getId).collect(Collectors.toList()),
 					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());

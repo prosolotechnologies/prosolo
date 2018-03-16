@@ -131,6 +131,10 @@ public class User extends BaseEntity {
 		this.roles = roles;
 	}
 	
+	public boolean hasRole(long id) {
+		return roles.stream().anyMatch(r -> r.getId() == id);
+	}
+
 	public void addRole(Role role) {
 		if (role != null && !getRoles().contains(role))
 			getRoles().add(role);

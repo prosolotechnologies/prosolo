@@ -375,10 +375,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> newRoles, List<Long> oldRoles, UserContextData context)
+						   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
 			throws DbConnectionException {
 		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, newRoles, oldRoles, context);
+				changePassword, password, position, newRoleList, allRoles, context);
 
 		eventFactory.generateEvents(result.getEventQueue());
 
@@ -388,8 +388,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
-						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> newRoles, List<Long> oldRoles, UserContextData context) throws DbConnectionException {
+											   boolean emailVerified, boolean changePassword, String password,
+											   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context) throws DbConnectionException {
 		Result<User> result = new Result<>();
 		try {
 			User user = loadResource(User.class, userId);
@@ -404,23 +404,23 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				user.setPasswordLength(password.length());
 			}
 
-			// update roles
-			Set<Long> addedRoles = new HashSet<>(newRoles);
-			addedRoles.removeAll(oldRoles);
-
-			Set<Long> removedRoles = new HashSet<>(oldRoles);
-			removedRoles.removeAll(newRoles);
-
-			for (Long roleId : addedRoles) {
-				Role role = (Role) persistence.currentManager().load(Role.class, roleId);
-				user.addRole(role);
-			}
+			// remove the following roles (if user has them)
+			Set<Long> removedRoles = new HashSet<>(allRoles);
+			removedRoles.removeAll(newRoleList);
 
 			for (Long roleId : removedRoles) {
 				user.removeRoleById(roleId);
 
 				// delete all unit memberships in roles that are removed
 				result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+			}
+
+			// add roles that user did not have previously
+			for (Long roleId : newRoleList) {
+				if (!user.hasRole(roleId)) {
+					Role role = (Role) persistence.currentManager().load(Role.class, roleId);
+					user.addRole(role);
+				}
 			}
 
 			result.setResult(user);
