@@ -15,6 +15,7 @@
 		<composite:attribute name="showDetails" type="java.lang.Boolean" default="false" />
 		<composite:attribute name="canEdit" required="true" type="java.lang.Boolean" />
         <composite:attribute name="deleteModalId" default="" />
+        <composite:attribute name="role" default="USER" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -64,8 +65,14 @@
 							<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
 						</ui:fragment>
 						<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
-							<h:link outcome="/competence"
+							<h:link rendered="#{cc.attrs.role == 'USER'}"
+								outcome="/competence"
 								value="#{c.title}">
+								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+							</h:link>
+							<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
+									outcome="/manage/competence"
+									value="#{c.title}">
 								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
 							</h:link>
 							- #{c.description}
