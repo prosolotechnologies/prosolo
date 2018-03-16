@@ -13,6 +13,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
+import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
@@ -64,10 +65,16 @@ public class CredentialAssessmentRequestEventProcessor extends NotificationEvent
 	}
 
 	private String getNotificationLink(PageSection section) {
-		return section.getPrefix() + "/credentials/" +
-				idEncoder.encodeId(assessment.getTargetCredential().getCredential().getId()) +
-				"/assessments/" +
-				idEncoder.encodeId(assessment.getId());
+		//assessment type is Instructor if manage section and Peer if student section because in Self assessment there is no assessment request.
+		AssessmentType assessmentType = section == PageSection.MANAGE ? AssessmentType.INSTRUCTOR_ASSESSMENT : AssessmentType.PEER_ASSESSMENT;
+		return AssessmentLinkUtil.getAssessmentNotificationLink(
+				assessment.getTargetCredential().getCredential().getId(),
+				assessment.getId(),
+				0,
+				0,
+				assessmentType,
+				idEncoder,
+				section);
 	}
 
 }

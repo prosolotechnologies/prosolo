@@ -7,13 +7,13 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -79,17 +79,17 @@ public class NotificationEventProcessorFactory {
 			BaseEntity target = event.getTarget();
 			if (target instanceof ActivityAssessment) {
 				return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, assessmentManager);
+						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
 			} else if (target instanceof CompetenceAssessment) {
 				return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, assessmentManager);
+						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
 			} else if (target instanceof CredentialAssessment) {
 				return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
 						notificationsSettingsManager, idEncoder, assessmentManager);
 			}
 		case AssessmentApproved:
 			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder);
+					notificationsSettingsManager, idEncoder, contextJsonParserService);
 		case AssessmentRequested:
 			if (event.getObject() instanceof CredentialAssessment) {
 				return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,
@@ -103,7 +103,7 @@ public class NotificationEventProcessorFactory {
 					notificationsSettingsManager, idEncoder, credentialManager);
 		case GRADE_ADDED:
 			return new GradeAddedEventProcessor(event, session, notificationManager,
-					notificationsSettingsManager, idEncoder, contextJsonParserService);
+					notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
 		default:
 			return null;
 		}

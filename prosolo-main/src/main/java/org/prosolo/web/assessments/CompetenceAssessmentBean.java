@@ -201,6 +201,13 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		}
 	}
 
+	/*
+	This method is added because component which uses this bean relies on a method with id passed
+	 */
+	public void approveCompetence(long competenceAssessmentId) {
+		approveCompetence();
+	}
+
 	@Override
 	public GradeData getGradeData() {
 		return competenceAssessmentData != null ? competenceAssessmentData.getGradeData() : null;
