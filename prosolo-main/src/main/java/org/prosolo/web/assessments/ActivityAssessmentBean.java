@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
@@ -158,6 +159,11 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			PageUtil.fireErrorMessage("Error while updating grade");
 			throw e;
 		}
+	}
+
+	@Override
+	public AssessmentType getType() {
+		return null;
 	}
 
 	/*

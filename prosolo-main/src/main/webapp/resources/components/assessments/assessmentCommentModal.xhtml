@@ -69,7 +69,7 @@
 															<h3 class="media-heading">
 																#{activityMessageData.senderFullName}
 																<ui:fragment
-																		rendered="#{activityMessageData.senderInstructor}">
+																		rendered="#{activityMessageData.senderInstructor and cc.attrs.bean.type != 'SELF_ASSESSMENT'}">
 																	<span>INSTRUCTOR</span>
 																</ui:fragment>
 															</h3>

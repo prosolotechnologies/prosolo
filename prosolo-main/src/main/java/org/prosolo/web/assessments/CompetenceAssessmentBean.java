@@ -443,6 +443,11 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		}
 	}
 
+	@Override
+	public AssessmentType getType() {
+		return competenceAssessmentData.getType();
+	}
+
 	public void removeAssessorNotification() {
 		try {
 			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(competenceAssessmentData.getCompetenceAssessmentId());

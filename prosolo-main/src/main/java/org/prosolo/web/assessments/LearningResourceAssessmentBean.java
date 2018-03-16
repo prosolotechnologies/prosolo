@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -34,6 +35,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 	public abstract void editComment(String newContent, String activityMessageEncodedId);
 	protected abstract void addComment();
 	public abstract void updateGrade() throws DbConnectionException;
+	public abstract AssessmentType getType();
 
 	protected void initializeGradeData() {
 		try {

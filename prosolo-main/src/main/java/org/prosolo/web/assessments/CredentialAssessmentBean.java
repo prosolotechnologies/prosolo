@@ -397,6 +397,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
+	@Override
+	public AssessmentType getType() {
+		return fullAssessmentData.getType();
+	}
+
 	//LearningResourceAssessmentBean impl end
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
