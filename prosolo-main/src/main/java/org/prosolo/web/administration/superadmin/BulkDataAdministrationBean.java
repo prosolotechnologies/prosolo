@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.administration.superadmin;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.AfterContextLoader;

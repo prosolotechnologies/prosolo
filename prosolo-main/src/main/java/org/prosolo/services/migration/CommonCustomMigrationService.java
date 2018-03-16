@@ -1,6 +1,7 @@
 package org.prosolo.services.migration;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventQueue;
 
 /**
@@ -17,4 +18,11 @@ public interface CommonCustomMigrationService {
     void migrateAssessmentDiscussions();
 
     void migrateCompetenceAssessmentPoints() throws DbConnectionException;
+
+    /**
+     * Creates self-assessments for all target credentials in the database.
+     *
+     * @param context
+     */
+    void createSelfAssessments(UserContextData context);
 }

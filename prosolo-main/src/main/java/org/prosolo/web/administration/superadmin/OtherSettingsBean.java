@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.administration.superadmin;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -261,44 +261,6 @@ public class OtherSettingsBean implements Serializable {
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 			return true;
-		}
-	}
-
-	public void migrateUtaCredentialsTo07() {
-		utaCustomMigrationService.migrateCredentialsFrom06To07();
-	}
-
-	public void migrateDemoServer() {
-		demoCustomMigrationService.migrateDataFrom06To11();
-	}
-
-	public void migrateAssessments() {
-		try {
-			commonCustomMigrationService.migrateAssessments();
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessments migrated");
-		} catch (Exception e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error migrating assessments");
-		}
-	}
-
-	public void migrateAssessmentDiscussions() {
-		try {
-			commonCustomMigrationService.migrateAssessmentDiscussions();
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment discussions migrated");
-		} catch (Exception e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error migrating assessment discussions");
-		}
-	}
-
-	public void migrateCompetenceAssessmentPoints() {
-		try {
-			commonCustomMigrationService.migrateCompetenceAssessmentPoints();
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessments migration successful");
-		} catch (Exception e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error migrating assessments");
 		}
 	}
 

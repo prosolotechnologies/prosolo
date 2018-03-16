@@ -231,11 +231,11 @@ public interface CredentialManager extends AbstractManager {
 	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
 	 * 
 	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredentialData> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCredentialData> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 
 		
 	/**

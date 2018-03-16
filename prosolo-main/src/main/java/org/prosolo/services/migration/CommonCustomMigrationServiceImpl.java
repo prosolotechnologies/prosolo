@@ -2,18 +2,25 @@ package org.prosolo.services.migration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +28,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author stefanvuckovic
@@ -34,6 +42,8 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
 
     @Inject private AssessmentManager assessmentManager;
     @Inject private Competence1Manager compManager;
+    @Inject private CredentialManager credManager;
+    @Inject private OrganizationManager orgManager;
     @Inject private EventFactory eventFactory;
 
     @Override
@@ -170,6 +180,33 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error migrating the data");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void createSelfAssessments(UserContextData context) {
+        // load all organizations
+        PaginatedResult<OrganizationData> allOrganizations = orgManager.getAllOrganizations(-1, -1, false);
+
+        for (OrganizationData org : allOrganizations.getFoundNodes()) {
+            // get all credentials in the organization
+            List<Credential1> allredentials = credManager.getAllCredentials(org.getId(), persistence.currentManager());
+
+            // get all users
+            List<User> orgUsers = orgManager.getOrganizationUsers(org.getId(), false, persistence.currentManager(), null);
+
+            for (Credential1 cred : allredentials) {
+                List<TargetCredential1> targetCredentials = credManager.getTargetCredentialsForUsers(orgUsers.stream().map(User::getId).collect(Collectors.toList()), cred.getId());
+
+                for (TargetCredential1 targetCredential : targetCredentials) {
+                    try {
+                        assessmentManager.createSelfAssessmentAndGetEvents(targetCredential, context);
+                    } catch (IllegalDataStateException e) {
+                        logger.error("Error", e);
+                    }
+                }
+            }
         }
     }
 
