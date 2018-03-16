@@ -12,6 +12,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -191,21 +192,28 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
 
         for (OrganizationData org : allOrganizations.getFoundNodes()) {
             // get all credentials in the organization
-            List<Credential1> allredentials = credManager.getAllCredentials(org.getId(), persistence.currentManager());
+            List<Credential1> allCredentials = credManager.getAllCredentials(org.getId(), persistence.currentManager());
 
             // get all users
             List<User> orgUsers = orgManager.getOrganizationUsers(org.getId(), false, persistence.currentManager(), null);
 
-            for (Credential1 cred : allredentials) {
-                List<TargetCredential1> targetCredentials = credManager.getTargetCredentialsForUsers(orgUsers.stream().map(User::getId).collect(Collectors.toList()), cred.getId());
+            for (Credential1 cred : allCredentials) {
+                List<AssessmentTypeConfig> assessmentConfig = credManager.getCredentialAssessmentTypesConfig(cred.getId());
 
-                for (TargetCredential1 targetCredential : targetCredentials) {
-                    try {
-                        assessmentManager.createSelfAssessmentAndGetEvents(targetCredential, context);
-                    } catch (IllegalDataStateException e) {
-                        logger.error("Error", e);
+                for (AssessmentTypeConfig assessmentTypeConfig : assessmentConfig) {
+                    if (assessmentTypeConfig.getType() == AssessmentType.SELF_ASSESSMENT && assessmentTypeConfig.isEnabled()) {
+                        List<TargetCredential1> targetCredentials = credManager.getTargetCredentialsForUsers(orgUsers.stream().map(User::getId).collect(Collectors.toList()), cred.getId());
+
+                        for (TargetCredential1 targetCredential : targetCredentials) {
+                            try {
+                                assessmentManager.createSelfAssessmentAndGetEvents(targetCredential, context);
+                            } catch (IllegalDataStateException e) {
+                                logger.error("Error", e);
+                            }
+                        }
                     }
                 }
+
             }
         }
     }
