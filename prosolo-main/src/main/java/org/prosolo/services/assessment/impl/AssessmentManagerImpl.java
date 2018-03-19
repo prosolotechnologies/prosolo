@@ -1124,7 +1124,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						   "INNER JOIN fetch msg.sender sender " +
 						   "INNER JOIN fetch sender.participant " +						 
 						   "WHERE msg.discussion.id = :discussionId " +
-					       "ORDER BY msg.lastUpdated DESC";
+					       "ORDER BY msg.dateCreated ASC";
 			
 			@SuppressWarnings("unchecked")
 			List<ActivityDiscussionMessage> res = persistence.currentManager()
@@ -1160,7 +1160,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"INNER JOIN fetch msg.sender sender " +
 					"INNER JOIN fetch sender.participant " +
 					"WHERE msg.assessment.id = :assessmentId " +
-					"ORDER BY msg.lastUpdated DESC";
+					"ORDER BY msg.dateCreated ASC";
 
 			@SuppressWarnings("unchecked")
 			List<CompetenceAssessmentMessage> res = persistence.currentManager()
@@ -1198,7 +1198,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"INNER JOIN fetch msg.sender sender " +
 					"INNER JOIN fetch sender.participant " +
 					"WHERE msg.assessment.id = :assessmentId " +
-					"ORDER BY msg.lastUpdated DESC";
+					"ORDER BY msg.dateCreated ASC";
 
 			@SuppressWarnings("unchecked")
 			List<CredentialAssessmentMessage> res = persistence.currentManager()

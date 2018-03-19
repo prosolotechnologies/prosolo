@@ -423,9 +423,9 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			}
 			msg.setDateUpdated(new Date());
 			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
-			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
-			competenceAssessmentData.getMessages().remove(msg);
-			competenceAssessmentData.getMessages().add(0, msg);
+//			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+//			competenceAssessmentData.getMessages().remove(msg);
+//			competenceAssessmentData.getMessages().add(0, msg);
 		} catch (DbConnectionException e) {
 			logger.error("Error editing message with id : " + messageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -453,7 +453,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		if (loggedUserBean.getUserId() == competenceAssessmentData.getAssessorId()) {
 			newComment.setSenderInstructor(true);
 		}
-		competenceAssessmentData.getMessages().add(0, newComment);
+		competenceAssessmentData.getMessages().add(newComment);
 		competenceAssessmentData.setNumberOfMessages(competenceAssessmentData.getNumberOfMessages() + 1);
 	}
 
