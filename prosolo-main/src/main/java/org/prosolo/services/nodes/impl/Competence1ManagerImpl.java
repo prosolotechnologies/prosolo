@@ -2820,19 +2820,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public boolean isUserEnrolled(long compId, long userId) throws DbConnectionException {
 		try {
-			String query =
-					"SELECT tc.id " +
-							"FROM TargetCompetence1 tc " +
-							"WHERE tc.user.id = :userId " +
-							"AND tc.competence.id = :compId";
-
-			Long result = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("compId", compId)
-					.uniqueResult();
-
-			return result != null;
+			return getTargetCompetenceId(compId, userId) > 0;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error checking if user is enrolled in a competence");
@@ -2873,6 +2861,29 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the assessment types config for competence");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tc.id " +
+					"FROM TargetCompetence1 tc " +
+					"WHERE tc.user.id = :userId " +
+					"AND tc.competence.id = :compId";
+
+			Long result = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("compId", compId)
+					.uniqueResult();
+
+			return result != null ? result.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target competence id");
 		}
 	}
 

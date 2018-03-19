@@ -160,7 +160,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	}
 
 	private boolean isCurrentUserAssessedStudent(CompetenceAssessmentData competenceAssessment) {
-		return loggedUserBean.getUserId() == competenceAssessment.getStudentId();
+		return competenceAssessment != null && loggedUserBean.getUserId() == competenceAssessment.getStudentId();
 	}
 
 	public boolean isUserAssessedStudentInCurrentContext(CompetenceAssessmentData competenceAssessment) {

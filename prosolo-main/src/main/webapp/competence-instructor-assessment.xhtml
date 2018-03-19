@@ -2,9 +2,9 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
+                xmlns:util="http://www.prosolo.com/util"
                 xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
-                xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
-                xmlns:util="http://www.prosolo.com/util">
+                xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
 
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
@@ -14,15 +14,17 @@
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="compId" value="#{competenceSelfAssessmentStudentBean.id}" default="null" />
-            <f:viewParam name="credId" value="#{competenceSelfAssessmentStudentBean.credId}" default="null" />
-            <f:viewAction action="#{competenceSelfAssessmentStudentBean.initSelfAssessment()}" />
+            <f:viewParam name="assessmentId" value="#{competenceAssessmentBean.competenceAssessmentId}" default="null" />
+            <f:viewParam name="compId" value="#{competenceAssessmentBean.competenceId}" default="null" />
+            <f:viewParam name="credId" value="#{competenceAssessmentBean.credId}" default="null" />
+            <f:viewAction action="#{competenceAssessmentBean.initInstructorAssessment()}" />
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
         <h1>#{competenceAssessmentBean.competenceAssessmentData.title}</h1>
     </ui:define>
+
     <ui:define name="navLinks">
         <competence:competenceStudentNavLinks
                 enrolled="#{true}"
@@ -33,6 +35,7 @@
     <ui:define name="content">
         <assessments:competenceAssessmentPreview
                 credentialId="#{util:decodeId(param.credId)}"
+                learningContext="name:credential|id:#{competenceAssessmentBean.competenceAssessmentData.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessmentBean.competenceAssessmentData.credentialAssessmentId}/"
         />
     </ui:define>
 </ui:composition>

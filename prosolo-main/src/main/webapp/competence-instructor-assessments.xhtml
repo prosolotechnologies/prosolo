@@ -116,6 +116,12 @@
                 <ol class="breadcrumb">
                     <li>
                         <h:link
+                                value="#{msg['label.competence.plural']}"
+                                outcome="/competenceLibrary">
+                        </h:link>
+                    </li>
+                    <li>
+                        <h:link
                                 value="#{competenceInstructorAssessmentsBean.competenceTitle}"
                                 outcome="competence">
                             <f:param name="compId" value="#{param.compId}"/>
@@ -162,6 +168,7 @@
                                                 currentUserAssessor="false"
                                                 currentUserAssessedStudent="true"
                                                 displayStudentNameInHeader="false"
+                                                showLinkForIndividualAssessmentPage="true"
                                         />
                                     </div>
                                     <div class="col-md-3">
@@ -169,7 +176,7 @@
                                                 styleClass="btn btn-green"
                                                 pt:data-toggle="modal"
                                                 value="Ask for #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
-                                                action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment, 'INSTRUCTOR_ASSESSMENT')}"
+                                                action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment)}"
                                                 update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
                                                 oncomplete="$('#askAssessment').modal('show');">
                                         </p:commandLink>

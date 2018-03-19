@@ -102,9 +102,9 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			}
 			msg.setDateUpdated(new Date());
 			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
-			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
-			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
-			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
+//			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+//			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
+//			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -132,7 +132,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
 			newComment.setSenderInstructor(true);
 		}
-		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
+		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 

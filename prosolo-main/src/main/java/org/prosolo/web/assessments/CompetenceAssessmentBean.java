@@ -17,6 +17,7 @@ import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -70,14 +71,40 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
-	public void initAssessment(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
+	public void initSelfAssessment(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
+		setIds(encodedCompId, encodedAssessmentId, encodedCredId);
+		initSelfAssessment();
+	}
+
+	public void initPeerAssessment(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
+		setIds(encodedCompId, encodedAssessmentId, encodedCredId);
+		initPeerAssessment();
+	}
+
+	public void initInstructorAssessment(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
+		setIds(encodedCompId, encodedAssessmentId, encodedCredId);
+		initInstructorAssessment();
+	}
+
+	private void setIds(String encodedCompId, String encodedAssessmentId, String encodedCredId) {
 		this.competenceId = encodedCompId;
 		this.competenceAssessmentId = encodedAssessmentId;
 		this.credId = encodedCredId;
-		initAssessment();
 	}
 
-	public void initAssessment() {
+	public void initSelfAssessment() {
+		initAssessment(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	public void initPeerAssessment() {
+		initAssessment(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public void initInstructorAssessment() {
+		initAssessment(AssessmentType.INSTRUCTOR_ASSESSMENT);
+	}
+
+	public void initAssessment(AssessmentType assessmentType) {
 		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentId);
 		decodedCredId = idEncoder.decodeId(credId);
@@ -85,7 +112,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		if (decodedCompId > 0 && decodedCompAssessmentId > 0) {
 			try {
 				competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
-						decodedCompAssessmentId, loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+						decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, new SimpleDateFormat("MMMM dd, yyyy"));
 				if (competenceAssessmentData == null) {
 					PageUtil.notFound();
 				} else {
@@ -172,6 +199,13 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
+	}
+
+	/*
+	This method is added because component which uses this bean relies on a method with id passed
+	 */
+	public void approveCompetence(long competenceAssessmentId) {
+		approveCompetence();
 	}
 
 	@Override
@@ -389,9 +423,9 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			}
 			msg.setDateUpdated(new Date());
 			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
-			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
-			competenceAssessmentData.getMessages().remove(msg);
-			competenceAssessmentData.getMessages().add(0, msg);
+//			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+//			competenceAssessmentData.getMessages().remove(msg);
+//			competenceAssessmentData.getMessages().add(0, msg);
 		} catch (DbConnectionException e) {
 			logger.error("Error editing message with id : " + messageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -419,7 +453,7 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 		if (loggedUserBean.getUserId() == competenceAssessmentData.getAssessorId()) {
 			newComment.setSenderInstructor(true);
 		}
-		competenceAssessmentData.getMessages().add(0, newComment);
+		competenceAssessmentData.getMessages().add(newComment);
 		competenceAssessmentData.setNumberOfMessages(competenceAssessmentData.getNumberOfMessages() + 1);
 	}
 
@@ -449,8 +483,12 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	public void removeAssessorNotification() {
+		removeAssessorNotification(competenceAssessmentData);
+	}
+
+	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
 		try {
-			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(competenceAssessmentData.getCompetenceAssessmentId());
+			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
 			competenceAssessmentData.setAssessorNotified(false);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
@@ -459,8 +497,20 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 	}
 
 	//STUDENT ONLY CODE
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment, AssessmentType aType) {
-		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), aType);
+	public void initAskForAssessment() {
+		initAskForAssessment(competenceAssessmentData);
+	}
+
+	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
+		UserData assessor = null;
+		if (compAssessment.getAssessorId() > 0) {
+			assessor = new UserData();
+			assessor.setId(compAssessment.getAssessorId());
+			assessor.setFullName(compAssessment.getAssessorFullName());
+			assessor.setAvatarUrl(compAssessment.getAssessorAvatarUrl());
+		}
+		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor);
+
 		competenceAssessmentData = compAssessment;
 	}
 
@@ -511,5 +561,13 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 
 	public String getCredentialTitle() {
 		return credentialTitle;
+	}
+
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
 	}
 }

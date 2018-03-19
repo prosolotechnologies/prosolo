@@ -23,6 +23,7 @@
 		<composite:attribute name="displayStudentNameInHeader" default="false" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessor" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="showLinkForIndividualAssessmentPage" default="false" type="java.lang.Boolean"/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -62,8 +63,15 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
 						<h2>
-							<h:link outcome="competence">
+							<h:link outcome="competence" rendered="#{not cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
+								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
+								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
+										 disable="#{empty cc.attrs.credentialId}" />
+							</h:link>
+							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
+								#{cc.attrs.competenceAssessment.title}
+								<f:param value="#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}" name="assessmentId" disable="#{cc.attrs.competenceAssessment.type eq 'SELF_ASSESSMENT'}"/>
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 										 disable="#{empty cc.attrs.credentialId}" />
@@ -213,8 +221,15 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
 						<h2>
-							<h:link outcome="competence">
+							<h:link outcome="competence" rendered="#{not cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
+								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
+								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
+										 disable="#{empty cc.attrs.credentialId}" />
+							</h:link>
+							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
+								#{cc.attrs.competenceAssessment.title}
+								<f:param value="#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}" name="assessmentId" disable="#{cc.attrs.competenceAssessment.type eq 'SELF_ASSESSMENT'}"/>
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 										 disable="#{empty cc.attrs.credentialId}" />

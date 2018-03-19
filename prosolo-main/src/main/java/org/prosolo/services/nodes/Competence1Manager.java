@@ -460,4 +460,5 @@ public interface Competence1Manager {
 
 	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
+	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
 }

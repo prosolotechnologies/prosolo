@@ -59,7 +59,7 @@ public abstract class AssessmentCommentEventProcessor extends NotificationEventP
 			boolean studentSection = id == assessmentInfo.getStudentId()
 					|| (assessmentInfo.getType() != AssessmentType.INSTRUCTOR_ASSESSMENT && id == assessmentInfo.getAssessorId());
 			PageSection section = studentSection ? PageSection.STUDENT : PageSection.MANAGE;
-			String link = getNotificationLink(section);
+			String link = getNotificationLink(section, assessmentInfo.getType());
 			boolean isObjectOwner = id == assessmentInfo.getStudentId();
 			receivers.add(new NotificationReceiverData(id, link, isObjectOwner, section));
 		}
@@ -68,8 +68,9 @@ public abstract class AssessmentCommentEventProcessor extends NotificationEventP
 
 	protected abstract List<Long> getParticipantIds(long assessmentId);
 	protected abstract AssessmentBasicData getBasicAssessmentInfo(long assessmentId);
-	protected abstract long getCredentialId(Event event);
-	protected abstract long getCredentialAssessmentId(Event event);
+	protected abstract ResourceType getObjectType();
+	protected abstract long getObjectId();
+	protected abstract String getNotificationLink(PageSection section, AssessmentType assessmentType);
 
 	@Override
 	long getSenderId() {
@@ -79,23 +80,6 @@ public abstract class AssessmentCommentEventProcessor extends NotificationEventP
 	@Override
 	NotificationType getNotificationType() {
 		return NotificationType.Assessment_Comment;
-	}
-
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.Credential;
-	}
-
-	@Override
-	long getObjectId() {
-		return Long.parseLong(event.getParameters().get("credentialId"));
-	}
-
-	private String getNotificationLink(PageSection section) {
-		return section.getPrefix() + "/credentials/" +
-				idEncoder.encodeId(getCredentialId(event)) +
-				"/assessments/" +
-				idEncoder.encodeId(getCredentialAssessmentId(event));
 	}
 
 }

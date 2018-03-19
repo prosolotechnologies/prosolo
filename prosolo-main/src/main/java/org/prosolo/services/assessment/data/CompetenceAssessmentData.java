@@ -39,6 +39,8 @@ public class CompetenceAssessmentData {
 	private long credentialId;
 	private long credentialAssessmentId;
 	private long assessorId;
+	private String assessorFullName;
+	private String assessorAvatarUrl;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
@@ -96,7 +98,13 @@ public class CompetenceAssessmentData {
 		data.setType(compAssessment.getType());
 		data.setCompetenceId(cd.getCompetenceId());
 		data.setTargetCompetenceId(cd.getTargetCompId());
-		data.setAssessorId(compAssessment.getAssessor() != null ? compAssessment.getAssessor().getId() : 0);
+		if (compAssessment.getAssessor() != null) {
+			data.setAssessorId(compAssessment.getAssessor().getId());
+			data.setAssessorFullName(compAssessment.getAssessor().getName() + " " + compAssessment.getAssessor().getLastname());
+			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getAssessor(), ImageFormat.size120x120));
+		}
+		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
@@ -379,5 +387,21 @@ public class CompetenceAssessmentData {
 
 	public void setType(AssessmentType type) {
 		this.type = type;
+	}
+
+	public String getAssessorAvatarUrl() {
+		return assessorAvatarUrl;
+	}
+
+	public void setAssessorAvatarUrl(String assessorAvatarUrl) {
+		this.assessorAvatarUrl = assessorAvatarUrl;
+	}
+
+	public String getAssessorFullName() {
+		return assessorFullName;
+	}
+
+	public void setAssessorFullName(String assessorFullName) {
+		this.assessorFullName = assessorFullName;
 	}
 }

@@ -1124,7 +1124,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						   "INNER JOIN fetch msg.sender sender " +
 						   "INNER JOIN fetch sender.participant " +						 
 						   "WHERE msg.discussion.id = :discussionId " +
-					       "ORDER BY msg.lastUpdated DESC";
+					       "ORDER BY msg.dateCreated ASC";
 			
 			@SuppressWarnings("unchecked")
 			List<ActivityDiscussionMessage> res = persistence.currentManager()
@@ -1160,7 +1160,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"INNER JOIN fetch msg.sender sender " +
 					"INNER JOIN fetch sender.participant " +
 					"WHERE msg.assessment.id = :assessmentId " +
-					"ORDER BY msg.lastUpdated DESC";
+					"ORDER BY msg.dateCreated ASC";
 
 			@SuppressWarnings("unchecked")
 			List<CompetenceAssessmentMessage> res = persistence.currentManager()
@@ -1198,7 +1198,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"INNER JOIN fetch msg.sender sender " +
 					"INNER JOIN fetch sender.participant " +
 					"WHERE msg.assessment.id = :assessmentId " +
-					"ORDER BY msg.lastUpdated DESC";
+					"ORDER BY msg.dateCreated ASC";
 
 			@SuppressWarnings("unchecked")
 			List<CredentialAssessmentMessage> res = persistence.currentManager()
@@ -2512,10 +2512,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<Void> notifyAssessorToAssessCompetenceAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
 			throws DbConnectionException {
 		try {
-			CompetenceAssessment ca = getCompetenceAssessmentForCredentialAssessorAndType(
-					assessmentNotification.getCredentialId(), assessmentNotification.getCompetenceId(),
-					assessmentNotification.getAssessorId(), assessmentNotification.getStudentId(),
-					assessmentNotification.getAssessmentType());
+			CompetenceAssessment ca;
+			/*
+			for instructor assessment there can be several competence assessments from the same assessor
+			and that is why we need credential id to get unique assessment
+			 */
+			if (assessmentNotification.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				ca = getCompetenceAssessmentForCredentialAssessorAndType(
+						assessmentNotification.getCredentialId(), assessmentNotification.getCompetenceId(),
+						assessmentNotification.getAssessorId(), assessmentNotification.getStudentId(),
+						assessmentNotification.getAssessmentType());
+			} else {
+				/*
+				for peer assessment there can only be one competence assessment from given assessor
+				 */
+				ca = getCompetenceAssessmentForAssessorAndType(
+						assessmentNotification.getCompetenceId(), assessmentNotification.getAssessorId(),
+						assessmentNotification.getStudentId(), assessmentNotification.getAssessmentType());
+			}
 			ca.setLastAskedForAssessment(new Date());
 			ca.setAssessorNotified(true);
 
@@ -2547,6 +2561,38 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return (CompetenceAssessment) persistence.currentManager()
 				.createQuery(q)
 				.setLong("credId", credentialId)
+				.setLong("compId", competenceId)
+				.setLong("studentId", studentId)
+				.setLong("assessorId", assessorId)
+				.setString("aType", assessmentType.name())
+				.uniqueResult();
+	}
+
+	/**
+	 * Returns unique competence assessment for given competence, assessor, student and assessment type.
+	 * Since this is not enough to guarantee uniqueness for instructor assessment, instructor assessment type
+	 * is not valid parameter value.
+	 *
+	 * @param competenceId
+	 * @param assessorId
+	 * @param studentId
+	 * @param assessmentType
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	private CompetenceAssessment getCompetenceAssessmentForAssessorAndType(
+			long competenceId, long assessorId, long studentId, AssessmentType assessmentType) {
+		if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+			throw new IllegalArgumentException();
+		}
+		String q =
+				"SELECT ca FROM CompetenceAssessment ca " +
+				"WHERE ca.competence.id = :compId " +
+				"AND ca.student.id = :studentId " +
+				"AND ca.assessor.id = :assessorId " +
+				"AND ca.type = :aType";
+		return (CompetenceAssessment) persistence.currentManager()
+				.createQuery(q)
 				.setLong("compId", competenceId)
 				.setLong("studentId", studentId)
 				.setLong("assessorId", assessorId)
@@ -2947,20 +2993,40 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, DateFormat dateFormat)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
 			throws DbConnectionException {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
-			if (ca == null) {
+			if (ca == null || (assessmentType != null && ca.getType() != assessmentType)) {
 				return null;
 			}
 			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
 					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
-			return CompetenceAssessmentData.from(cd, ca, null, encoder, userId, dateFormat);
+			/*
+			if assessment type is instructor, there is exactly one credential assessment with this competence assessment
+			so we should load it
+			 */
+			CredentialAssessment credAssessment = null;
+			if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				credAssessment = getCredentialAssessmentForCompetenceInstructorAssessment(ca.getId());
+			}
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, encoder, userId, dateFormat);
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");
 		}
+	}
+
+	private CredentialAssessment getCredentialAssessmentForCompetenceInstructorAssessment(long compAssessmentId) {
+		String q =
+				"SELECT cca.credentialAssessment FROM CredentialCompetenceAssessment cca " +
+				"WHERE cca.competenceAssessment.id = :compAssessmentId " +
+				"AND cca.competenceAssessment.type = :type";
+		return (CredentialAssessment) persistence.currentManager()
+				.createQuery(q)
+				.setLong("compAssessmentId", compAssessmentId)
+				.setString("type", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+				.uniqueResult();
 	}
 
 	//get credential peer assessments
@@ -3024,5 +3090,67 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	//get credential peer assessments end
+
+	//get competence peer assessments
+
+	@Override
+	@Transactional
+	public PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
+			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+		try {
+			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
+			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, dateFormat, offset, limit));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading competence assessments");
+		}
+	}
+
+	private List<AssessmentData> getCompetencePeerAssessmentsForStudent(
+			long compId, long studentId, DateFormat dateFormat, int offset, int limit) {
+		String q =
+				"SELECT ca FROM CompetenceAssessment ca " +
+				"INNER JOIN fetch ca.assessor " +
+				"WHERE ca.competence.id = :compId " +
+				"AND ca.student.id = :assessedStudentId " +
+				"AND ca.type = :type " +
+				"ORDER BY ca.dateCreated";
+
+		List<CompetenceAssessment> assessments = persistence.currentManager().createQuery(q)
+				.setLong("compId", compId)
+				.setLong("assessedStudentId", studentId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name())
+				.setMaxResults(limit)
+				.setFirstResult(offset)
+				.list();
+
+		List<AssessmentData> res = new ArrayList<>();
+		for (CompetenceAssessment ca : assessments) {
+			res.add(assessmentDataFactory.getCompetenceAssessmentData(
+					ca, null, ca.getAssessor(), dateFormat));
+		}
+
+		return res;
+	}
+
+	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId) {
+		String q =
+				"SELECT COUNT(ca.id) FROM CompetenceAssessment ca " +
+						"WHERE ca.competence.id = :compId " +
+						"AND ca.student.id = :assessedStudentId " +
+						"AND ca.type = :type";
+		Query query = persistence.currentManager().createQuery(q)
+				.setLong("compId", compId)
+				.setLong("assessedStudentId", studentId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name());
+
+		return (long) query.uniqueResult();
+	}
+
+	//get competence peer assessments end
 
 }

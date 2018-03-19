@@ -380,9 +380,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			}
 			msg.setDateUpdated(new Date());
 			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
-			//because comment is edited now, it should be added as first in a list because list is sorted by last edit date
-			fullAssessmentData.getMessages().remove(msg);
-			fullAssessmentData.getMessages().add(0, msg);
+//			//because comment is edited now, it should be added as first in a list because list is sorted by last edit date
+//			fullAssessmentData.getMessages().remove(msg);
+//			fullAssessmentData.getMessages().add(0, msg);
 		} catch (DbConnectionException e) {
 			logger.error("Error editing message with id : " + messageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -409,7 +409,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if (loggedUserBean.getUserId() == fullAssessmentData.getAssessorId()) {
 			newComment.setSenderInstructor(true);
 		}
-		fullAssessmentData.getMessages().add(0, newComment);
+		fullAssessmentData.getMessages().add(newComment);
 		fullAssessmentData.setNumberOfMessages(fullAssessmentData.getNumberOfMessages() + 1);
 	}
 
@@ -649,7 +649,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	//STUDENT ONLY CODE
-	public void initAskForAssessment(AssessmentType aType) {
+	public void initAskForAssessment() {
 		UserData assessor = null;
 		if (fullAssessmentData.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -657,7 +657,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), aType, assessor);
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor);
 	}
 
 	public void submitAssessment() {

@@ -6,16 +6,20 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
+import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
@@ -27,11 +31,14 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 	private static Logger logger = Logger.getLogger(GradeAddedEventProcessor.class);
 
 	private ContextJsonParserService contextJsonParserService;
+	private AssessmentManager assessmentManager;
 
 	public GradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                    NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService contextJsonParserService) {
+                                    NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+									ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.contextJsonParserService = contextJsonParserService;
+		this.assessmentManager = assessmentManager;
 	}
 
 	@Override
@@ -43,27 +50,36 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 
-		boolean isNotSelfAssessment = false;
+		boolean shouldGenerateNotification = false;
 		User student = null;
+		AssessmentType aType = null;
+		LearningResourceType resType = null;
 
 		if (event.getObject() instanceof CredentialAssessment) {
 			CredentialAssessment assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
-			isNotSelfAssessment = assessment.getType() != AssessmentType.SELF_ASSESSMENT;
+			shouldGenerateNotification = assessment.getType() != AssessmentType.SELF_ASSESSMENT;
 			student = assessment.getStudent();
+			aType = assessment.getType();
+			resType = LearningResourceType.CREDENTIAL;
 		} else if (event.getObject() instanceof CompetenceAssessment) {
 			CompetenceAssessment assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
-			isNotSelfAssessment = assessment.getType() != AssessmentType.SELF_ASSESSMENT;
+			shouldGenerateNotification = assessment.getType() != AssessmentType.SELF_ASSESSMENT;
 			student = assessment.getStudent();
+			aType = assessment.getType();
+			resType = LearningResourceType.COMPETENCE;
 		} else if (event.getObject() instanceof ActivityAssessment) {
 			ActivityAssessment assessment = (ActivityAssessment) session.load(ActivityAssessment.class, event.getObject().getId());
-			isNotSelfAssessment = assessment.getType() != AssessmentType.SELF_ASSESSMENT;
+			//we don't generate notification for activity with automatic grading
+			shouldGenerateNotification = assessment.getType() != AssessmentType.SELF_ASSESSMENT && assessment.getActivity().getGradingMode() != GradingMode.AUTOMATIC;
 			student = assessment.getAssessment().getStudent();
+			aType = assessment.getType();
+			resType = LearningResourceType.ACTIVITY;
 		}
 
 		try {
 			// this notification should be created only if it is not self-assessment
-			if (isNotSelfAssessment) {
-				receivers.add(new NotificationReceiverData(student.getId(), getNotificationLink(), false, PageSection.STUDENT));
+			if (shouldGenerateNotification) {
+				receivers.add(new NotificationReceiverData(student.getId(), getNotificationLink(aType, resType), false, PageSection.STUDENT));
 			}
 			return receivers;
 		} catch (Exception e) {
@@ -102,36 +118,18 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 		return event.getObject().getId();
 	}
 
-	private String getNotificationLink() {
+	private String getNotificationLink(AssessmentType assessmentType, LearningResourceType resType) {
 		Context context = contextJsonParserService.parseContext(event.getContext());
 		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
-
-		// if there is credential id, regardless the type of assessment, we should send user to the credential assessment page
-		if (credentialId > 0) {
-			long credentialAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL_ASSESSMENT);
-
-			if (credentialAssessmentId > 0) {
-				return "/credentials/" +
-						idEncoder.encodeId(credentialId) +
-						"/assessments/" +
-						idEncoder.encodeId(credentialAssessmentId);
-			}
+		long competenceId = 0;
+		long competenceAssessmentId = 0;
+		if (resType != LearningResourceType.CREDENTIAL) {
+			competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
+			competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
 		}
-
-		// if there is no credentialId, then the assessment was probably made from a dedicated page for competency assessments
-		if (event.getObject() instanceof CompetenceAssessment) {
-			long competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
-
-			if (competenceId > 0) {
-				return "/competences/" +
-						idEncoder.encodeId(competenceId) +
-						"/assessments/" +
-						idEncoder.encodeId(event.getObject().getId());
-			} else {
-				logger.error("Can not extract credential id from the context: " + event.getContext());
-			}
-		}
-		return null;
+		return AssessmentLinkUtil.getAssessmentNotificationLink(
+				context, credentialId, competenceId, competenceAssessmentId, assessmentType, assessmentManager, idEncoder,
+				session, PageSection.STUDENT);
 	}
 
 }

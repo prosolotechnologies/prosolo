@@ -14,6 +14,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
+import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
@@ -73,29 +74,10 @@ public class CompetenceAssessmentRequestEventProcessor extends NotificationEvent
 	}
 
 	private String getNotificationLink(PageSection section) {
-		Context ctx = ctxJsonParserService.parseContext(event.getContext());
-		long credId = Context.getIdFromSubContextWithName(ctx, ContextName.CREDENTIAL);
-
-		if (credId > 0) {
-			long credAssessmentId = assessmentManager
-					.getCredentialAssessmentIdForCompetenceAssessment(credId, assessment.getId(), session);
-			if (credAssessmentId > 0) {
-				return section.getPrefix() +
-						"/credentials/" +
-						idEncoder.encodeId(credId) +
-						"/assessments/" +
-						idEncoder.encodeId(credAssessmentId);
-			}
-		}
-
-		//if student section (PEER assessment) and cred id is not passed or credential assessment does not exist, we create notification for competence assessment page
-		if (section == PageSection.STUDENT) {
-			return section.getPrefix() + "/competences/" +
-					idEncoder.encodeId(assessment.getCompetence().getId()) +
-					"/assessments/" +
-					idEncoder.encodeId(assessment.getId());
-		}
-		return null;
+		Context context = ctxJsonParserService.parseContext(event.getContext());
+		long credId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
+		return AssessmentLinkUtil.getAssessmentNotificationLink(
+				context, credId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), assessmentManager, idEncoder, session, section);
 	}
 
 }
