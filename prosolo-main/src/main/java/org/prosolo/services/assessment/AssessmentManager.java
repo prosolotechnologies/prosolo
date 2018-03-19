@@ -37,7 +37,9 @@ public interface AssessmentManager {
 
 	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat);
+
+	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
@@ -301,4 +303,7 @@ public interface AssessmentManager {
 
 	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, DateFormat dateFormat)
 			throws DbConnectionException;
+
+	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
+			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 }

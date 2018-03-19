@@ -57,13 +57,34 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected abstract void notifyAssessorToAssessResource();
 
     public void init(long resourceId, long targetResourceId, AssessmentType assessmentType) {
+        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType);
+        if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+            initInstructorAssessmentAssessor();
+        }
+    }
+
+    /**
+     * init ask for assessment with assessor info
+     *
+     * @param resourceId
+     * @param targetResourceId
+     * @param assessmentType
+     * @param assessor
+     */
+    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, UserData assessor) {
+        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType);
+        if (assessor != null) {
+            assessmentRequestData.setAssessorId(assessor.getId());
+            assessmentRequestData.setAssessorFullName(assessor.getFullName());
+            assessmentRequestData.setAssessorAvatarUrl(assessor.getAvatarUrl());
+        }
+    }
+
+    private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType) {
         this.resourceId = resourceId;
         this.assessmentType = assessmentType;
         usersToExcludeFromPeerSearch = Arrays.asList(loggedUser.getUserId());
         populateAssessmentRequestFields(targetResourceId);
-        if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
-            initInstructorAssessmentAssessor();
-        }
     }
 
     /**
@@ -100,6 +121,7 @@ public abstract class AskForAssessmentBean implements Serializable {
             assessmentRequestData.setAssessorId(randomPeer.getId());
             assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
             assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
+            assessmentRequestData.setNewAssessment(true);
             noRandomAssessor = false;
         } else {
             noRandomAssessor = true;

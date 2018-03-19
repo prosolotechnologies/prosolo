@@ -453,4 +453,6 @@ public interface CredentialManager extends AbstractManager {
 	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
+
+	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 }

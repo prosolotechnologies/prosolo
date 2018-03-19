@@ -18,6 +18,7 @@ public class AssessmentData {
 	private String dateValue;
 	private String title;
 	private boolean approved;
+	private long assessmentId;
 	private String encodedAssessmentId;
 	private String encodedCredentialId;
 	private int totalNumberOfMessages;
@@ -158,4 +159,11 @@ public class AssessmentData {
 		}
 	}
 
+	public long getAssessmentId() {
+		return assessmentId;
+	}
+
+	public void setAssessmentId(long assessmentId) {
+		this.assessmentId = assessmentId;
+	}
 }
