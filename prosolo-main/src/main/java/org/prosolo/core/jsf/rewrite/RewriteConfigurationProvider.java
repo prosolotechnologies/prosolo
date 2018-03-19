@@ -152,6 +152,11 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				
 				
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}").to("/manage/competence.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{id}/edit").to("/manage/create-competence.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{id}/who-can-learn").to("/manage/competence-who-can-learn.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{id}/editors").to("/manage/competence-editors.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{id}/students").to("/manage/competence-students.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{id}/privacy").to("/manage/competence-privacy.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}/activities").to("/manage/competence-activities.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence-overall.xhtml"))
 				.addRule(Join.path("/manage/competences/{id}/edit").to("/manage/create-competence.xhtml"))

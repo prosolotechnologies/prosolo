@@ -262,7 +262,7 @@ function stripTagsExceptBr(html) {
 		};
 		
 		this.showLinkLoader = function() {
-			showLoader($this.find(opts.linkLoaderContainerSelector));
+			showLoader($this.find(opts.linkLoaderContainerSelector), opts.context);
 			return obj;
 		};
 
@@ -308,7 +308,8 @@ function stripTagsExceptBr(html) {
 	
 	$.fn.newpost.defaults = {
 		allowUrlPreview : true,
-		showHidePostOptions : true
+		showHidePostOptions : true,
+		context : ''
 	};
 	
 	

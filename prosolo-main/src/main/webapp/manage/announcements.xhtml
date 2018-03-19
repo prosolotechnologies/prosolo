@@ -67,9 +67,16 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
+				<li>
+					<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+					</ui:fragment>
+					<ui:fragment rendered="#{not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+					</ui:fragment>
+				</li>
 				<li><h:link value="#{announcementBeanManager.credentialData.title}"
-							outcome="/manage/create-credential">
+							outcome="/manage/credential">
 					<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 				</h:link></li>
 				<li class="active">Announcements</li>

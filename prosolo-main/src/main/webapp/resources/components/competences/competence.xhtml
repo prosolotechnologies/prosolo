@@ -159,9 +159,14 @@
 		    <div class="container">
 		    	<ui:fragment rendered="#{not empty param.credId}">
 		    		<ol class="breadcrumb">
-			            <li>
-			            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-			            </li>
+						<li>
+							<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+								<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+							</ui:fragment>
+							<ui:fragment rendered="#{not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+								<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+							</ui:fragment>
+						</li>
 			            <li>
 			            	<h:link
 								value="#{cc.attrs.bean.credentialTitle}"

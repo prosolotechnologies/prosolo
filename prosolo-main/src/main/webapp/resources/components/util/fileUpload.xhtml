@@ -34,7 +34,7 @@
 	            label="Choose a file"
 			    process="@this"
 	            update="@this #{cc.attrs.toUpdate}"
-	            onstart="showLoader('#loaderContainerFileUpload');"
+	            onstart="showLoader('#loaderContainerFileUpload', '#{request.contextPath}');"
 	            oncomplete="hideLoader('#loaderContainerFileUpload'); #{cc.attrs.oncomplete}">
 	        	<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
 	        	<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -33,12 +34,16 @@ public class CompetencePrivacyBean implements Serializable {
 
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
 
 	private String compId;
 	private long decodedCompId;
 	private String competenceTitle;
+
+	private String credId;
+	private String credTitle;
 
 	private List<UnitData> units;
 
@@ -50,11 +55,17 @@ public class CompetencePrivacyBean implements Serializable {
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(decodedCompId,
 						loggedUserBean.getUserId(), req);
+
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
 					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 					if (competenceTitle != null) {
+						long decodedCredId = idEncoder.decodeId(credId);
+						if (decodedCredId > 0){
+							this.credTitle = credManager.getCredentialTitle(decodedCredId);
+						}
+
 						loadData();
 					} else {
 						PageUtil.notFound();
@@ -116,4 +127,15 @@ public class CompetencePrivacyBean implements Serializable {
 		return competenceTitle;
 	}
 
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
+	}
 }

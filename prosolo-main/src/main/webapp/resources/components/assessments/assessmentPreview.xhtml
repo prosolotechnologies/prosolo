@@ -224,7 +224,7 @@
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">
 							<span class="fromLabel">From:</span>
-							<div class="dropdown fromDrop">
+							<h:panelGroup layout="block" id="otherAssessments" styleClass="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
 								   aria-expanded="true">
 									#{cc.attrs.bean.fullAssessmentData.assessorFullName != null ?
@@ -242,7 +242,7 @@
 										</h:outputLink></li>
 									</ui:repeat>
 								</ul>
-							</div>
+							</h:panelGroup>
 						</div>
 					</ui:fragment>
 
@@ -543,7 +543,7 @@
 								<p:commandLink
 										styleClass="btn btn-green"
 										value="Submit"
-										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)"
+										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
 										action="#{cc.attrs.bean.approveCredential()}"
 										oncomplete="$('#approveAssessment').modal('hide')">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />

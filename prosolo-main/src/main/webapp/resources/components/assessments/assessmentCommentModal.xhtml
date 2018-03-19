@@ -70,7 +70,7 @@
 																#{activityMessageData.senderFullName}
 																<ui:fragment
 																		rendered="#{activityMessageData.senderInstructor and cc.attrs.bean.type != 'SELF_ASSESSMENT'}">
-																	<span>INSTRUCTOR</span>
+																	<span>#{msg['label.instructor'].toUpperCase()}</span>
 																</ui:fragment>
 															</h3>
 
@@ -112,7 +112,7 @@
 																#{activityMessageData.senderFullName}
 																<ui:fragment
 																		rendered="#{activityMessageData.senderInstructor}">
-																	<span>INSTRUCTOR</span>
+																	<span>#{msg['label.instructor'].toUpperCase()}</span>
 																</ui:fragment>
 															</h3>
 															<p>#{activityMessageData.content}</p>
