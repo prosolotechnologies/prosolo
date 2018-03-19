@@ -7,11 +7,12 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-                xmlns:util="http://www.prosolo.com/util"
->
+                xmlns:util="http://www.prosolo.com/util">
+
+    <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Unit Groups
+        #{msg['label.unit']} Groups
     </ui:define>
 
     <ui:define name="metadata">
@@ -71,24 +72,26 @@
 
     <div class="container">
         <ol class="breadcrumb">
-            <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+            <ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+                <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+            </ui:fragment>
             <li>
-                <h:link outcome="/admin/organizationNew">
+                <h:link outcome="/admin/units">
                     #{manageGroupsBean.organizationTitle}
                     <f:param name="id" value="#{param.orgId}" />
                 </h:link>
             </li>
             <li>
                 <h:link outcome="/admin/units">
-                    Units
+                    #{msg['label.unit.plural']}
                     <f:param name="id" value="#{param.orgId}" />
                 </h:link>
             </li>
             <li>
-                <h:link outcome="/admin/unitEdit">
+                <h:link outcome="/admin/unit-credentials">
                     #{manageGroupsBean.unitTitle}
-                    <f:param name="id" value="#{param.orgId}" />
-                    <f:param name="unitId" value="#{param.id}" />
+                    <f:param name="orgId" value="#{param.orgId}" />
+                    <f:param name="id" value="#{param.id}" />
                 </h:link>
             </li>
             <li class="active">Student Groups</li>
@@ -179,7 +182,7 @@
                             <h2 class="modal-title">Join URL</h2>
                         </div>
                         <div class="modal-body alignLeft">
-                            <p>Students can join this group via URL. Only students that are part of this unit can join the group.</p>
+                            <p>Students can join this group via URL. Only students that are part of this #{msg['label.unit'].toLowerCase()} can join the group.</p>
                             <div class="checkbox checkLine">
                                 <h:selectBooleanCheckbox id="activateJoiningViaUrl"
                                                          value="#{manageGroupsBean.groupForEdit.joinUrlActive}"

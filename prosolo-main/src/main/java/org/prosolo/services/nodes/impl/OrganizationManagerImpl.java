@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -77,8 +78,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             Result<Organization> res = new Result<>();
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    organization, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
 
             res.setResult(organization);
             return res;
@@ -143,13 +143,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 switch (ud.getObjectStatus()){
                     case REMOVED:
                         userManager.setUserOrganization(ud.getId(),0);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context.getActorId(),
-                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, context, user, organization, null, null));
                         break;
                     case CREATED:
                         userManager.setUserOrganization(ud.getId(),organizationId);
-                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context.getActorId(),
-                                context.getOrganizationId(), context.getSessionId(), user, organization, context.getContext(), null));
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, context, user, organization, null, null));
                         break;
                     default:
                         break;
@@ -203,7 +201,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             for (Organization o : organizations) {
                 OrganizationData od;
                 if (loadAdmins) {
-                    String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                    String[] rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
                     List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
                     List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);

@@ -2,7 +2,7 @@ package org.prosolo.web.util.page;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.util.ResourceBundleUtil;
 
@@ -14,6 +14,8 @@ import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -137,18 +139,35 @@ public class PageUtil {
 	 * @return
 	 */
 	public static PageSection getSectionForView() {
-		String viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+		return getSectionForUri(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+	}
+
+	/**
+	 * Returns section based on a passed uri.
+	 *
+	 * It is not important if uri passed is pretty uri or servlet path (path to real file)
+	 * as long as it does not contain context path
+	 *
+	 * @return
+	 */
+	public static PageSection getSectionForUri(String uri) {
 		/*
-		 * find section by returning viewId substring from the beginning to the second
-		 * occurrence of '/' character. That is because viewId always starts with 
+		 * find section by returning uri substring from the beginning to the second
+		 * occurrence of '/' character. That is because uri always starts with
 		 * "/section/page" (if there is a section)
 		 */
-		int secondSlashIndex = StringUtils.ordinalIndexOf(viewId, "/", 2);
+		int secondSlashIndex = StringUtils.ordinalIndexOf(uri, "/", 2);
 		String section = "";
 		if (secondSlashIndex != -1) {
-			section = viewId.substring(0, secondSlashIndex);
+			section = uri.substring(0, secondSlashIndex);
+		} else {
+			/*
+			if there is no second slash, whole uri is set to be the current section:
+			this covers cases where uri is /admin or /manage
+			 */
+			section = uri;
 		}
-		
+
 		if (section.equals(PageSection.ADMIN.getPrefix())) {
 			return PageSection.ADMIN;
 		} else if (section.equals(PageSection.MANAGE.getPrefix())) {
@@ -166,14 +185,6 @@ public class PageUtil {
 		
 		return (String) request.getAttribute("javax.servlet.forward.request_uri");
 	}
-
-	public static void showNotFoundPage() {
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-		} catch (IOException e) {
-			logger.error(e);
-		}
-	}
 	
 	/**
 	 * Extracts learning context post parameters from request and returns result.
@@ -185,11 +196,11 @@ public class PageUtil {
 	 *  
 	 * @return
 	 */
-	public static LearningContextData extractLearningContextData() {
+	public static PageContextData extractLearningContextData() {
 		String page = getPostParameter("page");
 		String lContext = getPostParameter("learningContext");
 		String service = getPostParameter("service");
-		LearningContextData context = new LearningContextData(page, lContext, service);
+		PageContextData context = new PageContextData(page, lContext, service);
 		return context;
 	}
 
@@ -203,11 +214,11 @@ public class PageUtil {
 	 *
 	 * @return
 	 */
-	public static LearningContextData extractLearningContextDataFromComponent(UIComponent component) {
+	public static PageContextData extractLearningContextDataFromComponent(UIComponent component) {
 		String page = (String) component.getAttributes().get("page");
 		String lContext = (String) component.getAttributes().get("learningContext");
 		String service = (String) component.getAttributes().get("service");
-		LearningContextData context = new LearningContextData(page, lContext, service);
+		PageContextData context = new PageContextData(page, lContext, service);
 		return context;
 	}
 	
@@ -221,10 +232,19 @@ public class PageUtil {
 	}
 	
 	public static void accessDenied() {
-		forward("/accessDenied.xhtml");
+		forward(getSectionForView().getPrefix() + "/accessDenied");
 	}
 	
 	public static void notFound() {
-		forward("/notfound.xhtml");
+		forward(getSectionForView().getPrefix() + "/notfound");
 	}
+
+	/**
+	 * Forwards to not found page
+	 * @param uri
+	 */
+	public static void notFound(String uri) {
+		forward(getSectionForUri(uri).getPrefix() + "/notfound");
+	}
+
 }

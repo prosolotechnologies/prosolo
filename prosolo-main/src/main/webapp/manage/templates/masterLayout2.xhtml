@@ -32,7 +32,7 @@
 		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css?#{applicationbean.loginTime}" />
 
 	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+		src="#{request.contextPath}/resources/javascript2/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script
 		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
@@ -44,7 +44,7 @@
 		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
 		
 	<script src="https://www.youtube.com/iframe_api"/>
-	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript2/youtubevideo.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 		
@@ -53,46 +53,16 @@
 	</script>
 </h:head>
 
-<h:body id="manage">
+<h:body id="manage" styleClass="#{bodyClass}">
 	<utilcomp:messagesBundle var="msg" />
 	<div class="bigWrapper">
 	<header>
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')}">
-						<div class="dropdown roleChanger">
-							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
-							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/index">
-										<span></span>Student
-									</h:link>
-								</li>
-								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/manage/library">
-										<span></span>Manage
-									</h:link>
-								</li>
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
-										outcome="/admin/organizations">
-										<span></span>Admin
-									</h:link>
-								</li>
-							</ul>
-						</div>
-					</c:if>
-					
-					<h:link id="logo" onclick="sendLogPageNavigation( '/manage', 'logo');"
-							outcome="/manage/library">
-						ProSolo
-					</h:link>
+					<ui:include src="/WEB-INF/roleChanger.xhtml">
+						<ui:param name="section" value="MANAGE" />
+					</ui:include>
 
 					<nav>
 						<ul class="nav nav-pills">
@@ -148,6 +118,17 @@
 									value="Reports" />
 							</li>
 							</ui:remove>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
+										or util:getPagePath(view.viewId)  == 'newRubric'
+										or util:getPagePath(view.viewId)  == 'rubricEdit'
+										or util:getPagePath(view.viewId) eq 'rubric-criteria'
+										or util:getPagePath(view.viewId) eq 'rubric-privacy'
+										? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('manage-rubricLibrary','mainmenu');"
+										outcome="/manage/rubricLibrary"
+										value="#{msg['label.rubric.plural']}" />
+							</li>
 						</ul>
 					</nav>
 				</div>

@@ -18,7 +18,9 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +68,8 @@ public class UserEditBean implements Serializable {
 	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 	@Autowired
 	private UserTextSearch textSearch;
 	@Inject private OrganizationManager organizationManager;
@@ -92,19 +95,29 @@ public class UserEditBean implements Serializable {
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
-			decodedId = idEncoder.decodeId(id);
-			user = userManager.getUserData(decodedId);
-			accountData = new AccountData();
-			usersToExclude.add(user);
-
 			if (orgId != null) {
 				decodedOrgId = idEncoder.decodeId(orgId);
-				initOrgTitle();
+				if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+					initDataForPasswordEdit();
+					initOrgTitle();
+				} else {
+					PageUtil.accessDenied();
+				}
+			} else {
+				initDataForPasswordEdit();
 			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
+	}
+
+
+	private void initDataForPasswordEdit() {
+		decodedId = idEncoder.decodeId(id);
+		user = userManager.getUserData(decodedId);
+		accountData = new AccountData();
+		usersToExclude.add(user);
 	}
 
 	private void initOrgTitle() {
@@ -119,14 +132,19 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void initAdmin() {
-		init(new String[] {"Admin", "Super Admin"});
+		init(new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN});
 	}
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
-		initOrgTitle();
-		if (organizationTitle != null) {
-			init(new String[]{"User", "Instructor", "Manager", "Admin"});
+
+		if(pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			initOrgTitle();
+			if (organizationTitle != null) {
+				init(new String[]{SystemRoleNames.USER, SystemRoleNames.INSTRUCTOR, SystemRoleNames.MANAGER, SystemRoleNames.ADMIN});
+			}
+		} else {
+			PageUtil.accessDenied();
 		}
 	}
 
@@ -323,24 +341,21 @@ public class UserEditBean implements Serializable {
 
 		final User user = userManager.getUser(this.user.getEmail());
 
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Session session = (Session) userManager.getPersistence().openSession();
-				try {
-					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-					session.flush();
-					if (resetLinkSent) {
-						logger.info("Password instructions have been sent");
-					} else {
-						logger.error("Error sending password instruction");
-					}
-				}catch (Exception e){
-					logger.error("Exception in handling mail sending", e);
-				}finally {
-					HibernateUtil.close(session);
+		taskExecutor.execute(() -> {
+			Session session = (Session) userManager.getPersistence().openSession();
+			try {
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+				session.flush();
+				if (resetLinkSent) {
+					logger.info("Password instructions have been sent");
+				} else {
+					logger.error("Error sending password instruction");
 				}
+			}catch (Exception e){
+				logger.error("Exception in handling mail sending", e);
+			}finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}

@@ -14,7 +14,7 @@
 
 	 <div id="#{cc.clientId}">
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
-		 <ui:fragment rendered="#{cc.attrs.orgId gt 0}">
+		 <ui:fragment rendered="#{cc.attrs.orgId gt 0 and loggeduser.hasCapability('admin.advanced')}">
 			 <ul class="nav nav-tabs headerSubmenu">
 				 <li role="presentation" class="#{page eq 'units' ? 'active' : ''}">
 					 <h:link rendered="#{page ne 'units'}" outcome="/admin/units">
@@ -35,14 +35,14 @@
 						 <a href="javascript:void(0);">People</a>
 					 </ui:fragment>
 				 </li>
-				 <li role="presentation" class="#{page eq 'organizationNew' ? 'active' : ''}">
-					 <h:link rendered="#{page ne 'organizationNew'}"
-							 outcome="/admin/organizationNew">
+				 <li role="presentation" class="#{page eq 'organization-settings' ? 'active' : ''}">
+					 <h:link rendered="#{page ne 'organization-settings'}"
+							 outcome="/admin/organization-settings">
 						 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
-						 Organization Details
+						 Settings
 					 </h:link>
-					 <ui:fragment rendered="#{page eq 'organizationNew'}">
-						 <a href="javascript:void(0);">Organization Details</a>
+					 <ui:fragment rendered="#{page eq 'organization-settings'}">
+						 <a href="javascript:void(0);">Settings</a>
 					 </ui:fragment>
 				 </li>
 			 </ul>

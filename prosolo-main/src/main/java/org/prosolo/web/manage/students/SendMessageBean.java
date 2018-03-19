@@ -1,17 +1,9 @@
 package org.prosolo.web.manage.students;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -22,6 +14,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "sendMessageBean")
 @Component
@@ -47,7 +47,7 @@ public class SendMessageBean implements Serializable {
 	public void sendMessage(long receiverId, String receiverFullName) {
 		if(receiverId != loggedUserBean.getUserId()) {
 			try {
-				Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), 
+				Message message = messagingManager.sendMessage(loggedUserBean.getUserId(),
 						receiverId, this.message);
 				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to " + receiverId +
 						" with content: '"+message+"'");
@@ -56,27 +56,20 @@ public class SendMessageBean implements Serializable {
 				
 				participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
 				
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				
 				final Message message1 = message;
-				
-				taskExecutor.execute(new Runnable() {
-		            @Override
-		            public void run() {
-		            	try {
-		            		Map<String, String> parameters = new HashMap<String, String>();
-		            		//parameters.put("context", createContext());
-		            		parameters.put("user", String.valueOf(receiverId));
-		            		parameters.put("message", String.valueOf(message1.getId()));
-		            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(),
-									loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(), message1,
-		            				null, page, lContext, service, null, parameters);
-		            	} catch (EventException e) {
-		            		logger.error(e);
-		            	}
-		            }
+
+				UserContextData context = loggedUserBean.getUserContext();
+				taskExecutor.execute(() -> {
+					try {
+						Map<String, String> parameters = new HashMap<String, String>();
+						//parameters.put("context", createContext());
+						parameters.put("user", String.valueOf(receiverId));
+						parameters.put("message", String.valueOf(message1.getId()));
+						eventFactory.generateEvent(EventType.SEND_MESSAGE, context,
+								message1, null,null, parameters);
+					} catch (EventException e) {
+						logger.error(e);
+					}
 				});
 				this.message = "";
 				PageUtil.fireSuccessfulInfoMessage("Your message is sent");

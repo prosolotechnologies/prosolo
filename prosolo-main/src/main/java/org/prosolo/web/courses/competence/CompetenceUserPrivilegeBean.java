@@ -3,23 +3,17 @@ package org.prosolo.web.courses.competence;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -32,6 +26,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @ManagedBean(name = "competenceUserPrivilegeBean")
 @Component("competenceUserPrivilegeBean")
@@ -72,6 +67,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private ResourceVisibilityUtil resVisibilityUtil;
 
+	private long newOwnerId;
+
 	public CompetenceUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
@@ -108,12 +105,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 						} else {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
 						}
-						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
 
-						if (roleIds.size() == 1) {
-							roleId = roleIds.get(0);
-						}
+						roleId = roleManager.getRoleIdByName(
+								privilege == UserGroupPrivilege.Edit ? SystemRoleNames.MANAGER : SystemRoleNames.USER);
 
 						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(compId);
 
@@ -205,6 +199,23 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		}
 	}
 
+	public void prepareOwnerChange(long userId) {
+		this.newOwnerId = userId;
+	}
+
+	public void makeOwner() {
+		try {
+			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
+			creatorId = newOwnerId;
+			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error changing the owner");
+		} catch (EventException e) {
+			logger.error("Error", e);
+		}
+	}
+
 	public String getSearchTerm() {
 		return resVisibilityUtil.getSearchTerm();
 	}
@@ -291,5 +302,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public String getCredTitle() {
 		return credTitle;
+	}
+
+	public UserGroupPrivilege getPrivilege() {
+		return privilege;
 	}
 }

@@ -7,6 +7,8 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,6 +42,8 @@ public class UnitEditBean implements Serializable {
     private UnitManager unitManager;
     @Inject
     private OrganizationManager organizationManager;
+    @Inject
+    private PageAccessRightsResolver pageAccessRightsResolver;
 
     private UnitData unit;
     private String id;
@@ -50,8 +54,14 @@ public class UnitEditBean implements Serializable {
     public void init(){
         try{
             this.decodedId = idEncoder.decodeId(id);
-            this.unit = unitManager.getUnitData(decodedId);
-            this.organizationTitle = organizationManager.getOrganizationTitle(idEncoder.decodeId(organizationId));
+            long decodedOrgId = idEncoder.decodeId(organizationId);
+
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+                this.unit = unitManager.getUnitData(decodedId);
+                this.organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
+            } else {
+                PageUtil.accessDenied();
+            }
         }catch (Exception e){
             logger.error(e);
             e.printStackTrace();
@@ -63,8 +73,9 @@ public class UnitEditBean implements Serializable {
             //TODO add organization id to user context
             unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(), loggedUser.getUserContext(0));
 
-            logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
-            PageUtil.fireSuccessfulInfoMessage("The unit has been updated");
+            logger.debug(ResourceBundleUtil.getMessage("label.unit") + "(" + this.unit.getId() + ") updated by the user "
+                    + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " has been updated");
         }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
@@ -74,10 +85,10 @@ public class UnitEditBean implements Serializable {
                     "formMainEditUnit:inputTextUnitTitle");
             input.setValid(false);
             context.addMessage("formMainEditUnit:inputTextUnitTitle",
-                    new FacesMessage("Unit with this name already exists") );
+                    new FacesMessage(ResourceBundleUtil.getMessage("label.unit") + " with this name already exists") );
         }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error updating the unit");
+            PageUtil.fireErrorMessage("Error updating the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase());
         }
     }
 

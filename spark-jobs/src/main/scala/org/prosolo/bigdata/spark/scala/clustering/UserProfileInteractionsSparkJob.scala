@@ -1,10 +1,12 @@
 package org.prosolo.bigdata.spark.scala.clustering
 
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+
 import scala.collection.JavaConverters._
 import play.api.libs.json.Json
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+
 import scala.collection.Seq
 
 
@@ -14,11 +16,14 @@ import scala.collection.Seq
 /**
   * zoran 05/02/17
   */
-object UserProfileInteractionsSparkJob {
-
-  val sc = SparkContextLoader.getSC
+case class StudentInteractionsInCourse(course:Long, student:Long, interactions:List[String])
+case class SocialInteractionCount(credential:Long, source:Long, target:Long, count:Int)
+class UserProfileInteractionsSparkJob(kName:String) extends SparkJob {
+  val keyspaceName=kName
+//  val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds:java.util.List[java.lang.Long],dbName:String):Unit={
+    println("JOB NAME:"+jobName)
     val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
     credentialsIdsScala.foreach { credentialid =>
       println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)
@@ -27,7 +32,7 @@ object UserProfileInteractionsSparkJob {
       println("FINISHED ANALYZER FOR credential:"+credentialid)
     }
   }
-  case class SocialInteractionCount(credential:Long, source:Long, target:Long, count:Int)
+
   def runStudentInteractionsGeneralOverviewAnalysis(credentialId: Long,dbName:String) = {
     println("dbName:"+dbName+" credentialId:"+credentialId)
     val socialInteractionsbypeers_table =sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT).where("course=?",credentialId)
@@ -46,22 +51,32 @@ object UserProfileInteractionsSparkJob {
     })
     val calculatedInteractionsForDB = calculatedpercentage.map {
       case (student, interactions) =>
-
+        /*val interactionsList=List()
+        for(i<-interactions){
+          val jsonObject = Json.obj("direction" -> i._1, "peer" -> i._2, "count" -> i._3, "percentage" -> i._4)
+          val json=Json.stringify(jsonObject)
+          interactionsList++json
+        }*/
         (student, interactions.map {
           i =>
             val jsonObject = Json.obj("direction" -> i._1, "peer" -> i._2, "count" -> i._3, "percentage" -> i._4)
             Json.stringify(jsonObject)
         }.toList)
-    }.map{
+       // println("INTERACTIONS LIST:"+interactions.mkString(", "))
+        //(student,interactions)
+    }
+      .map{
       case(student, interactions) =>
-        val studentinteractionbypeer=new StudentInteractionsInCourse(credentialId,student,interactions)
-        studentinteractionbypeer
+          val studentinteractionbypeer=new StudentInteractionsInCourse(credentialId,student,interactions)
+         studentinteractionbypeer
+       // interactions
+
     }
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY PEERS:" + calculatedInteractionsForDB.collect.size+" :"+calculatedInteractionsForDB.collect.mkString(", "))
 
     calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW)
   }
-  case class StudentInteractionsInCourse(course:Long, student:Long, interactions:List[String])
+  // extends Serializable
 
   def runStudentInteractionsByTypeOverviewAnalysis(credentialId: Long,dbName:String) = {
     val socialInteractionsbytype_table=sc.cassandraTable(dbName, TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT ).where("course=?",credentialId)
@@ -85,8 +100,9 @@ object UserProfileInteractionsSparkJob {
         }.toList)
     }.map{
       case(student,interactions)=>
-        val studentinteractionsbytype=new StudentInteractionsInCourse(credentialId,student,interactions)
-        studentinteractionsbytype
+         val studentinteractionsbytype=new StudentInteractionsInCourse(credentialId,student,interactions)
+          studentinteractionsbytype
+        //interactions
     }
     /*.foreach{
     case(student, interactions) =>
@@ -94,7 +110,7 @@ object UserProfileInteractionsSparkJob {
   }*/
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY TYPE:" + calculatedInteractionsForDB.collect.mkString(", "))
 
-    calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW)
+     calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW)
 
 
 

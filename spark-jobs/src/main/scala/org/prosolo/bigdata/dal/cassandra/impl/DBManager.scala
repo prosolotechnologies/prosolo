@@ -1,7 +1,8 @@
 package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.spark.connector.cql.{CassandraConnector, Schema}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.apache.spark.sql.SparkSession
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 
 /**
   * Created by zoran on 04/03/17.
@@ -11,8 +12,10 @@ import org.prosolo.bigdata.scala.spark.SparkContextLoader
   */
 object DBManager {
 
-  val sc=SparkContextLoader.getSC
-  val sparkConf=SparkContextLoader.sparkConf
+  //val sparkSession:SparkSession=SparkManager.sparkContextLoader.getSparkSession
+ // val sc=sparkSession.sparkContext
+  //val sc=SparkManager.sparkContextLoader.getSC
+  val sparkConf=SparkManager.sparkContextLoader.sparkConf
   val connector=CassandraConnector(sparkConf)
   lazy val schema = Schema.fromCassandra(connector)
 

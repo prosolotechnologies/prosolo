@@ -1,12 +1,5 @@
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -26,6 +19,10 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
 
 @ManagedBean(name = "competenceViewBeanManager")
 @Component("competenceViewBeanManager")
@@ -51,6 +48,8 @@ public class CompetenceViewBeanManager implements Serializable {
 	private CompetenceData1 competenceData;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
+
+	private String credentialTitle;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -86,33 +85,19 @@ public class CompetenceViewBeanManager implements Serializable {
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 //							hasInstructorCapability);
 				if(decodedCredId > 0) {
-					String credTitle = credManager.getCredentialTitle(decodedCredId);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
 					competenceData.setCredentialId(decodedCredId);
-					competenceData.setCredentialTitle(credTitle);
 				}
 			} catch (AccessDeniedException ade) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	
@@ -208,4 +193,7 @@ public class CompetenceViewBeanManager implements Serializable {
 		return access;
 	}
 
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
 }

@@ -1,0 +1,60 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:composite="http://java.sun.com/jsf/composite"
+              xmlns:p="http://primefaces.org/ui">
+
+    <composite:interface>
+        <composite:attribute name="toUpdate" default=""/>
+    </composite:interface>
+
+    <composite:implementation>
+        <div class="modal fade newFeedModal" id="newRubricModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+            <h:form id="formNewRubricModal">
+                <p:growl id="growlRubricModal" showDetail="true" globalOnly="true"></p:growl>
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title">Create New #{msg['label.rubric']}</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <h:inputText id="inputTextRubricName"
+                                         autocomplete="off"
+                                         value="#{rubricsBean.rubricName}"
+                                         required="true"
+                                         requiredMessage="#{msg['label.rubric']} name is required"
+                                         placeholder="#{msg['label.rubric']} Name"/>
+
+                            <small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTextRubricName" /></small>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                            <p:defaultCommand target="createRubric" />
+                            <p:commandLink
+                                    id="createRubric"
+                                    styleClass="btn btn-green"
+                                    value="Create"
+                                    action="#{rubricsBean.createRubric}"
+                                    update="@form #{cc.attrs.toUpdate}"
+                                    oncomplete="
+                                            if (args &amp;&amp; !args.validationFailed)
+                                                $('#newRubricModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="name:rubric" />
+                            </p:commandLink>
+                            <a  class="btn btn-default"
+                                onclick="$('#newRubricModal').modal('hide');">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    $('#newRubricModal').on('shown.bs.modal', function () {
+                        $('#newRubricModal input').focus();
+                    })
+                </script>
+            </h:form>
+        </div>
+    </composite:implementation>
+</ui:component>

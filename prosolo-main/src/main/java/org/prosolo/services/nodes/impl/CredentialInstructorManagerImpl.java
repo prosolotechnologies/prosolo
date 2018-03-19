@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -198,8 +199,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			target.setId(targetInstructorUserId);
 			User object = new User();
 			object.setId(targetCred.getUser().getId());
-			result.addEvent(eventFactory.generateEventData(eventType, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), object, target, context.getContext(), params));
+			result.addEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
 		}	
 		return result;
 	}
@@ -474,8 +474,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			User instr = new User();
 			instr.setId(instructor.getUser().getId());
 			res.addEvent(eventFactory.generateEventData(
-				EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), instr, cred, context.getContext(), null));
+				EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, context, instr, cred,null,null));
 				
 			return res;
 		} catch(Exception e) {
@@ -520,8 +519,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					target.setId(instructor.getUser().getId());
 					User object = new User();
 					object.setId(tc.getUser().getId());
-					result.addEvent(eventFactory.generateEventData(eventType, context.getActorId(), context.getOrganizationId(),
-							context.getSessionId(), object, target, context.getContext(), params));
+					result.addEvent(eventFactory.generateEventData(eventType, context, object, target, null, params));
 				}
 			    
 				List<Long> targetCredIdsToAssign = targetCredsToAssign.stream().map(tc -> tc.getId())
@@ -544,8 +542,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					User object = new User();
 					object.setId(tc.getUser().getId());
 					result.addEvent(eventFactory.generateEventData(
-							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, context.getActorId(), context.getOrganizationId(),
-							context.getSessionId(), object, target, context.getContext(), params));
+							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, context, object, target, null, params));
 				}
 				
 				List<Long> targetCredIdsToUnassign = targetCredsToUnassign.stream().map(tc -> tc.getId())
@@ -608,14 +605,9 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			User instr = new User();
 			instr.setId(userId);
 			Map<String, String> params = new HashMap<>();
-			String dateString = null;
-			if(instructor.getDateAssigned() != null) {
-				dateString = ElasticsearchUtil.getDateStringRepresentation(instructor.getDateAssigned());
-			}
-			params.put("dateAssigned", dateString);
+			params.put("dateAssigned", DateUtil.getMillisFromDate(instructor.getDateAssigned()) + "");
 			res.addEvent(eventFactory.generateEventData(
-					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), instr, credential, context.getContext(), params));
+					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context, instr, credential, null, params));
 				
 			return res;
 		} catch(Exception e) {

@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
@@ -15,6 +16,7 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -136,8 +138,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
-		Integer grade = updateGrade
-				? activityAssessmentData != null ? activityAssessmentData.getGrade().getValue() : null
+		GradeData grade = updateGrade
+				? activityAssessmentData != null ? activityAssessmentData.getGrade() : null
 				: null;
 
 		// creating a set as there might be duplicates with ids
@@ -158,11 +160,13 @@ public class ActivityPrivateConversationBean implements Serializable {
 		try {
 			if (competenceAssessmentId > 0) {
 				//if competence assessment exists create activity assessment only
-				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+				ActivityAssessment aa =
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-								activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
+								activityAssessmentData.getCredAssessmentId(), new ArrayList<>(participantIds),
 								loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
-								loggedUserBean.getUserContext()).getId()));
+								loggedUserBean.getUserContext());
+				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(aa.getId()));
+				activityAssessmentData.getGrade().setValue(aa.getPoints());
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
@@ -197,6 +201,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private void populateCompetenceAndActivityAssessmentIds(AssessmentBasicData assessmentInfo) {
 		activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
 				assessmentInfo.getActivityAssessmentId()));
+		activityAssessmentData.getGrade().setValue(assessmentInfo.getGrade());
 		activityAssessmentData.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
 		//if competence assessment data is set, set id there too
 		if (activityAssessmentData.getCompAssessment() != null) {
@@ -213,13 +218,9 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 			addNewCommentToAssessmentData(newComment);
 
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-
 			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
 					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
-					page, lContext, service, activityAssessmentData.getCredentialId());
+					activityAssessmentData.getCredentialId());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -235,7 +236,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 	}
 
 	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId, long assessmentCommentId,
-			String page, String lContext, String service, long credentialId) {
+			long credentialId) {
+		UserContextData context = loggedUserBean.getUserContext();
 		taskExecutor.execute(() -> {
 			// User recipient = new User();
 			// recipient.setId(recepientId);
@@ -247,9 +249,8 @@ public class ActivityPrivateConversationBean implements Serializable {
 			parameters.put("credentialId", credentialId + "");
 			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(),
-						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(), adm, aa, page,
-						lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.AssessmentComment, context,
+						adm, aa, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

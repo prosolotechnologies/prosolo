@@ -12,8 +12,6 @@ import org.prosolo.services.general.AbstractManager;
 
 public interface RegistrationManager extends AbstractManager{
 
-	public abstract boolean isEmailAlreadyExists(String emailAddress);
-
 	User getUserByVerificationKey(String verificationKey);
 
 	RegistrationKey getRegistrationKeyById(String registrationKey);

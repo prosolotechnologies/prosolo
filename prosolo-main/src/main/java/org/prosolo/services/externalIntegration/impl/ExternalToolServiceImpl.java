@@ -12,7 +12,7 @@ import org.jdom2.JDOMException;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -147,7 +147,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
 							ExternalToolActivity1.class, activityId);
 					
-					if(act.isAcceptGrades()) {
+					if (act.isAcceptGrades()) {
 						int maxPoints = act.getMaxPoints();
 						int scaledGrade = (int) Math.round(score * maxPoints);
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
@@ -158,7 +158,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							ta.setCommonScore(calculatedScore);
 							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
 							if(calculatedScore != prevScore) {
-								LearningContextData lcd = new LearningContextData();
+								PageContextData lcd = new PageContextData();
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
 								//TODO how to include organization id in event here
 								res.addEvents(assessmentManager

@@ -1,10 +1,11 @@
 package org.prosolo.bigdata.scala.analyzers
 
-import org.prosolo.bigdata.dal.cassandra.impl.{AnalyticalEventDBManagerImpl}
+import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.spark.CompetenceActivitiesAssociationRulesAnalyzer
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
 /**
   * Created by zoran on 09/01/16.
   */
@@ -13,7 +14,7 @@ import scala.collection.JavaConverters._
   */
 class CompetenceActivitiesAssociationRules {
   def analyzeCompetenceActivitesAssociationRules(): Unit ={
-    val sc=SparkContextLoader.getSC
+    val sc=SparkManager.sparkContextLoader.getSC
     //val eventDBManager = new AnalyticalEventDBManagerImpl
     //val dbManager = new AnalyzedResultsDBmanagerImpl
    // val indexer = new AssociationRulesIndexerImpl

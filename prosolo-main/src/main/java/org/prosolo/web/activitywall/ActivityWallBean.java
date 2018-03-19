@@ -1,19 +1,5 @@
 package org.prosolo.web.activitywall;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -21,10 +7,12 @@ import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.ObjectDataFactory;
@@ -32,11 +20,12 @@ import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
+import org.prosolo.services.htmlparser.LinkParser;
+import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.media.util.MediaDataException;
+import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -52,6 +41,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 @ManagedBean(name = "activityWallBean")
 @Component("activityWallBean")
@@ -177,7 +174,6 @@ public class ActivityWallBean implements Serializable {
 		
 		try {
 			PostSocialActivity1 updatedPost = socialActivityManger.updatePost(
-					loggedUser.getUserId(),
 					socialActivityData.getId(),
 					updatedText, 
 					loggedUser.getUserContext());
@@ -230,22 +226,20 @@ public class ActivityWallBean implements Serializable {
 					logger.error("User "+loggedUser.getUserId()+" could not change Activity Wall filter to '"+filterType+"'.");
 					PageUtil.fireErrorMessage("Error chaniging the Activity Wall filter");
 				}
-				
-				taskExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("context", "statusWall.filter");
-						parameters.put("filter", filterType.name());
-						
-						//TODO commented
-	//					if (filterType.equals(FilterType.COURSE)) {
-	//						parameters.put("courseId", String.valueOf(courseId1));
-	//					}
-						
-						actionLogger.logEventWithIp(EventType.FILTER_CHANGE, loggedUser.getIpAddress(), 
-								parameters);
-					}
+
+				UserContextData context = loggedUser.getUserContext();
+				taskExecutor.execute(() -> {
+					Map<String, String> parameters = new HashMap<String, String>();
+					parameters.put("context", "statusWall.filter");
+					parameters.put("filter", filterType.name());
+
+					//TODO commented
+//					if (filterType.equals(FilterType.COURSE)) {
+//						parameters.put("courseId", String.valueOf(courseId1));
+//					}
+
+					actionLogger.logEventWithIp(EventType.FILTER_CHANGE, context, loggedUser.getIpAddress(),
+							parameters);
 				});
 			}
 		} catch(Exception e) {
@@ -257,33 +251,19 @@ public class ActivityWallBean implements Serializable {
 	
 	public void createNewPost() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			
 			newSocialActivity.setText(HTMLUtil.cleanHTMLTagsExceptBrA(newSocialActivity.getText()));
 			
-			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
-					newSocialActivity, lcd);
+			PostSocialActivity1 post = socialActivityManger.createNewPost(
+					newSocialActivity, loggedUser.getUserContext());
 			
 			PageUtil.fireSuccessfulInfoMessage("Your new status is posted");
-			newSocialActivity.setId(post.getId());
-			//set actor from session
-			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
-			newSocialActivity.setDateCreated(post.getDateCreated());
-			newSocialActivity.setLastAction(post.getLastAction());
-			CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, 
-					newSocialActivity.getId());
-			newSocialActivity.setComments(cd);
-			newSocialActivity.setType(SocialActivityType.Post);
+			populateDataForNewPost(newSocialActivity, post, SocialActivityType.Post);
+
 //			if(post.getRichContent() != null) {
 //				newSocialActivity.setAttachmentPreview(richContentFactory.getAttachmentPreview(
 //						post.getRichContent()));
 //			}
-			newSocialActivity.setPredicate(ResourceBundleUtil.getActionName(newSocialActivity.getType().name(),
-					loggedUser.getLocale()));
+
 			socialActivities.add(0, newSocialActivity);
 			
 			newSocialActivity = new SocialActivityData1();
@@ -295,33 +275,21 @@ public class ActivityWallBean implements Serializable {
 	
 	public void sharePost() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			PostReshareSocialActivity postShare = socialActivityManger.sharePost(loggedUser.getUserId(), 
-					postShareText, socialActivityForShare.getId(), lcd);
+			PostReshareSocialActivity postShare = socialActivityManger.sharePost(
+					postShareText, socialActivityForShare.getId(), loggedUser.getUserContext());
 			
 			PageUtil.fireSuccessfulInfoMessage("The post has been shared");
 			SocialActivityData1 postShareSocialActivity = new SocialActivityData1();
-			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
-			postShareSocialActivity.setId(postShare.getId());
-			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null, 
+			populateDataForNewPost(postShareSocialActivity, postShare, SocialActivityType.Post_Reshare);
+			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null,
 					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
 					socialActivityForShare.getActor().getFullName(), 
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
 			postShareSocialActivity.setText(postShareText);
 			postShareSocialActivity.setOriginalSocialActivity(socialActivityForShare);
-			//set actor from session
-			postShareSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
-			postShareSocialActivity.setDateCreated(postShare.getDateCreated());
-			postShareSocialActivity.setLastAction(postShare.getLastAction());
-			postShareSocialActivity.setPredicate(ResourceBundleUtil.getActionName(
-					postShareSocialActivity.getType().name(), loggedUser.getLocale()));
+
 			socialActivities.add(0, postShareSocialActivity);
-			
 			//socialActivityForShare.setShareCount(socialActivityForShare.getShareCount() + 1);
 			
 			socialActivityForShare = null;
@@ -331,27 +299,32 @@ public class ActivityWallBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while sharing post!");
 		}
 	}
+
+	private void populateDataForNewPost(SocialActivityData1 sActivity, SocialActivity1 sa, SocialActivityType type) {
+		sActivity.setType(type);
+		sActivity.setId(sa.getId());
+		sActivity.setActor(new UserData(loggedUser.getUserId(),
+				loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
+		sActivity.setDateCreated(sa.getDateCreated());
+		sActivity.setLastAction(sa.getLastAction());
+		sActivity.setPredicate(ResourceBundleUtil.getActionName(
+				sActivity.getType().name(), loggedUser.getLocale()));
+		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity,
+				sActivity.getId());
+		sActivity.setComments(cd);
+	}
 	
-	public void fetchLinkContents() {
+	public void fetchLinkContents() throws IOException {
 		if (link != null && !link.isEmpty()) {
 			logger.debug("User "+loggedUser.getFullName()+" is fetching contents of a link: "+link);
-			
-			AttachmentPreview1 attachmentPreview = htmlParser.extractAttachmentPreview1(
-					StringUtil.cleanHtml(link.trim()));
-			
-			if (attachmentPreview != null) {
-				try {
-					MediaData md = richContentFactory.getMediaData(attachmentPreview);
-					attachmentPreview.setMediaType(md.getMediaType());
-					attachmentPreview.setEmbedingLink(md.getEmbedLink());
-					attachmentPreview.setEmbedId(md.getEmbedId());
-					newSocialActivity.setAttachmentPreview(attachmentPreview);
-				} catch (MediaDataException e) {
-					logger.error(e);
-					PageUtil.fireErrorMessage("There was a problem fetching URL.");
-				}
-			} else {
-				newSocialActivity.getAttachmentPreview().setInvalidLink(true);
+
+			try {
+				LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(link.trim()));
+				AttachmentPreview1 attachmentPreview1 = parser.parse();
+				newSocialActivity.setAttachmentPreview(attachmentPreview1);
+				setNewSocialActivity(newSocialActivity);
+			} catch (LinkParserException e) {
+				logger.debug("Could not parse URL " + link + ". " + e);
 			}
 		}
 	}
@@ -385,7 +358,7 @@ public class ActivityWallBean implements Serializable {
 				MediaData md = richContentFactory.getMediaData(uploadFile);
 				uploadFile.setMediaType(md.getMediaType());
 				uploadFile.setEmbedingLink(md.getEmbedLink());
-			} catch (MediaDataException e) {
+			} catch (LinkParserException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("There was a problem saving file");
 			}
@@ -407,9 +380,7 @@ public class ActivityWallBean implements Serializable {
 	}
 	
 	public void likeAction(SocialActivityData1 data) {
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
+		UserContextData context = loggedUser.getUserContext();
 		
 		//we can trade off accuracy for performance here
 		boolean liked = !data.isLiked();
@@ -420,25 +391,18 @@ public class ActivityWallBean implements Serializable {
 			data.setLikeCount(data.getLikeCount() - 1);
 		}
 		
-		taskExecutor.execute(new Runnable() {
-            @Override
-            public void run() {	
-            	try {
-            		LearningContextData context = new LearningContextData(page, lContext, service);
-            		if(liked) {
-	            		socialActivityManger.likeSocialActivity(loggedUser.getUserId(), 
-	            				data.getId(), 
-	            				context);
-            		} else {
-            			socialActivityManger.unlikeSocialActivity(loggedUser.getUserId(), 
-            					data.getId(), 
-	            				context);
-            		}
-	            	
-            	} catch (DbConnectionException e) {
-            		logger.error(e);
-            	}
-            }
+		taskExecutor.execute(() -> {
+			try {
+				if(liked) {
+					socialActivityManger.likeSocialActivity(
+							data.getId(), context);
+				} else {
+					socialActivityManger.unlikeSocialActivity(data.getId(), context);
+				}
+
+			} catch (DbConnectionException e) {
+				logger.error(e);
+			}
         });
 	}
 

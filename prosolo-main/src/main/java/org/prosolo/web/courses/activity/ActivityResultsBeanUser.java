@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -73,7 +74,7 @@ public class ActivityResultsBeanUser implements Serializable {
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
 				if (competenceData == null) {
-					PageUtil.forward("/notfound.xhtml");
+					PageUtil.notFound();
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
@@ -229,9 +230,11 @@ public class ActivityResultsBeanUser implements Serializable {
 			
 			//TODO cred-redesign-07 - see what should be done with next comp and activity to learn id
 			loadNextToLearnInfo();
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while marking activity as completed");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	

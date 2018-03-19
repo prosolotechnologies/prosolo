@@ -1,10 +1,12 @@
 $(function () {
 	//tooltips
-	$('[data-toggle="tooltip"]').tooltip();
-	$('[data-toggle="popover"]').popover({
-	    trigger: 'hover',
-	        'placement': 'top'
-	});
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+    });
+    $('[data-toggle="popover"]').popover({
+        trigger: 'hover',
+        placement: 'top',
+    });
 });
 
 var context = '';
@@ -208,4 +210,13 @@ function hideModal(dialogId) {
 function getSelectorFromClassesString(classes) {
 	return '.' + classes.split(/\s+/).join('.')
 }
+
+//slide menu
+function showPopupSidebar (sidebarSelector) {
+    $(sidebarSelector).addClass('cbp-spmenu-open');
+};
+
+function hidePopupSidebar (sidebarSelector) {
+    $(sidebarSelector).removeClass('cbp-spmenu-open');
+};
 

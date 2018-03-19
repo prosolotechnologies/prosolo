@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -37,11 +38,11 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		long assessmentId = event.getTarget().getId();
 		String link = getNotificationLink();
-		List<Long> participantIds = null;
-		long assessedStudentId = 0;
+		List<Long> participantIds;
+		AssessmentBasicData assessmentInfo;
 		try {
 			participantIds = assessmentManager.getParticipantIds(assessmentId);
-			assessedStudentId = assessmentManager.getAssessedStudentIdForActivityAssessment(
+			assessmentInfo = assessmentManager.getBasicAssessmentInfoForActivityAssessment(
 					assessmentId);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -50,11 +51,14 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 		}
 		for(long id : participantIds) {
 			/*
-			 * this is because out of all regular users, only assessed student
-			 * can participate in assessment discussion. All other users are managers.
+			 * assessed user is a student and assessor can be student or manager (if it is default
+			 * assessment, assessor is manager, otherwise assessor is student) and all other participants
+			 * are managers
 			 */
-			String prefix = id == assessedStudentId ? "" : "/manage";
-			boolean isObjectOwner = id == assessedStudentId;
+			boolean studentSection = id == assessmentInfo.getStudentId()
+					|| !assessmentInfo.isDefault() && id == assessmentInfo.getAssessorId();
+			String prefix = studentSection ? "" : "/manage";
+			boolean isObjectOwner = id == assessmentInfo.getStudentId();
 			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner));
 		}
 		return receivers;

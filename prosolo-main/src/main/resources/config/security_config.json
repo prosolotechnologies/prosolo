@@ -26,11 +26,7 @@
             "name": "basic.user.access",
             "description": "Basic user access",
             "roles": [
-                "User",
-                "Instructor",
-                "Manager",
-                "Admin",
-                "Super Admin"
+                "User"
             ]
         },
         {
@@ -71,14 +67,6 @@
             ]
         },
         {
-            "name": "users.view",
-            "description": "Access the page for managing users",
-            "roles": [
-                "Admin",
-                "Super Admin"
-            ]
-        },
-        {
             "name": "admins.view",
             "description": "Access the page for managing admins",
             "roles": [
@@ -87,10 +75,32 @@
             ]
         },
         {
+            "name": "organization.administration",
+            "description": "Administration of organization related data",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
+            "name": "organization.units.administration",
+            "description": "Administration of organization units related data",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
+        },
+        {
+            "name": "admin.advanced",
+            "description": "Set advanced options in the admin section that affect the whole application",
+            "roles": [
+                "Super Admin"
+            ]
+        },
+        {
             "name": "roles.view",
             "description": "Access the page for managing roles/capabilities",
             "roles": [
-                "Admin",
                 "Super Admin"
             ]
         },
@@ -98,7 +108,6 @@
             "name": "adminDashboard.view",
             "description": "Access the admin dashboard panel",
             "roles": [
-                "Admin",
                 "Super Admin"
             ]
         },
@@ -195,6 +204,14 @@
             ]
         },
         {
+            "name": "manage.rubrics.view",
+            "description": "View rubrics library in manage section",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
+        },
+        {
             "name": "manage.credential.rssFeeds",
             "description": "Edit RSS Feeds in manage section",
             "roles": [
@@ -224,7 +241,7 @@
                 "Manager",
                 "Instructor"
             ]
-        
+
         },
         {
         	"name": "course.announcements.create",
@@ -233,7 +250,7 @@
                 "Manager",
                 "Instructor"
             ]
-        
+
         }
     ]
 }

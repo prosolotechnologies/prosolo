@@ -13,7 +13,6 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
@@ -23,10 +22,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @ManagedBean(name = "activityViewBeanManager")
 @Component("activityViewBeanManager")
@@ -68,17 +66,17 @@ public class ActivityViewBeanManager implements Serializable {
 						.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit)
 						.addPrivilege(UserGroupPrivilege.Instruct);
-				RestrictedAccessResult<CompetenceData1> res = activityManager
-						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
-								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), req);
-				unpackResult(res);
+				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), req);
 				
 				/*
-				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 * if user does not have at least access to resource in read only mode show access denied page.
 				 */
 				if (!access.isCanRead()) {
-					PageUtil.forward("/accessDenied.xhtml");
+					PageUtil.accessDenied();
 				} else {
+					competenceData = activityManager
+							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+									decodedCredId, decodedCompId, decodedActId);
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 
 							access.isCanInstruct(), true);
@@ -86,35 +84,21 @@ public class ActivityViewBeanManager implements Serializable {
 					commentBean.loadComments(commentsData);
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-							competenceData.getActivityToShowWithDetails().getCaptions(), 
+							competenceData.getActivityToShowWithDetails().getCaptions(),
 							loggedUser.getUserId());
-					
+
 					loadCompetenceAndCredentialTitle();
 				}
 			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity");
+				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
-	}
-	
-	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
-		competenceData = res.getResource();
-		access = res.getAccess();
 	}
 	
 	private void loadCompetenceAndCredentialTitle() {

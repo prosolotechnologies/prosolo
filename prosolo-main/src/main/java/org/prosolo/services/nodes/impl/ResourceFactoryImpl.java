@@ -15,15 +15,12 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -33,6 +30,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +60,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
     @Inject private EventFactory eventFactory;
+    @Inject private UserGroupManager userGroupManager;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -132,7 +131,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
         user.setUserType(UserType.REGULAR_USER);
         if(roles == null) {
-            user.addRole(roleManager.getRoleByName("User"));
+            user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
         } else {
             for(Long id : roles) {
                 Role role = (Role) persistence.currentManager().load(Role.class, id);
@@ -241,22 +240,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public long deleteCredentialBookmark(long credId, long userId) {
-        return credentialManager.deleteCredentialBookmark(credId, userId);
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public CredentialBookmark bookmarkCredential(long credId, long userId)
-            throws DbConnectionException {
-        return credentialManager.bookmarkCredential(credId, userId);
-    }
-
-    @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
-            throws DbConnectionException, StaleDataException {
+            throws DbConnectionException, StaleDataException, IllegalDataStateException {
         return activityManager.updateActivityData(data);
     }
 
@@ -477,6 +463,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 competence = new Competence1();
 
+            competence.setOrganization(comp.getOrganization());
             competence.setTitle("Copy of " + comp.getTitle());
             competence.setDescription(comp.getDescription());
             competence.setDateCreated(new Date());
@@ -495,8 +482,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 c = new Competence1();
             c.setId(competence.getId());
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
-                    c, null, context.getContext(), null));
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
 
             List<CompetenceActivity1> activities = comp.getActivities();
 
@@ -506,6 +492,15 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                 competence.getActivities().add(actRes.getResult());
                 res.addEvents(actRes.getEvents());
             }
+
+            //add Edit privilege to the competence creator
+            res.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
+                    context.getActorId(), competence.getId(),
+                    UserGroupPrivilege.Edit,true, context).getEvents());
+
+            //add competence to all units where competence creator is manager
+            res.addEvents(ServiceLocator.getInstance().getService(Competence1Manager.class).addCompetenceToDefaultUnits(competence.getId(), context));
+
             return res;
         } catch(Exception e) {
             logger.error(e);

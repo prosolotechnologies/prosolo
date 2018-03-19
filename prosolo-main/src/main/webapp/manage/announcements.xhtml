@@ -4,59 +4,62 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				template="templates/masterLayout2.xhtml"
 				xmlns:p="http://primefaces.org/ui"
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 				xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
 				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<utilcomp:messagesBundle var="msg" />
 
-	<ui:define name="windowTitle">
-		#{msg['label.delivery']} - #{announcementBean.credentialTitle} - Announcements
-	</ui:define>
-
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{announcementBean.credentialId}" default="null" />
-			<f:viewParam name="p" value="#{announcementBean.paginationData.pageString}" default="1" />
-			<f:viewAction action="#{announcementBean.init()}" />
+			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
+			<f:viewParam name="p" value="#{announcementBeanManager.paginationData.pageString}" default="1" />
+			<f:viewAction action="#{announcementBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
 
+	<ui:define name="windowTitle">
+		#{msg['label.delivery']} - #{announcementBeanManager.credentialData.title} - Announcements
+	</ui:define>
+
 	<ui:define name="resourceTitle">
-		<h1><span>#{msg['label.delivery']}:</span> #{announcementBean.credentialTitle}</h1>
+		<h1><span>#{msg['label.delivery']}:</span> #{announcementBeanManager.credentialData.title}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
-			credId="#{announcementBean.decodedCredId}" 
+			credId="#{announcementBeanManager.decodedCredentialId}"
 			credType="#{msg['label.delivery']}"
-			canEdit="#{announcementBean.canEdit()}"
+			canEdit="#{announcementBeanManager.canEdit()}"
 		/>
 	</ui:define>
 
 	<ui:define name="content">
-	<script>
-			function setPublishModeValue(publishMode) {
-				setPublishMode([{name:'value', value:publishMode}])
-			}
-			
-			function hideConfirmDialog(dialogId) {
-				$('#'+dialogId).modal('hide');
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
+		<script>
+            function setPublishModeValue(publishMode) {
+                setPublishMode([{name:'value', value:publishMode}])
+            }
+
+            function hideConfirmDialog(dialogId) {
+				$('#' + dialogId).modal('hide');
 				$("body").removeAttr("class").removeAttr("style")
 				$("div.modal-backdrop.fade.in").remove()
-			}
+            }
 		</script>
-		
+
 		<div class="whiteBar">
-        	<div class="container">
-            	<div class="whiteBarContent">
-	                <div class="whiteBarLeft">
-	
-	                </div>
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+
+					</div>
 					<div class="whiteBarRight">
-						 <h:panelGroup rendered="#{announcementBean.credentialMandatoryFlow}" styleClass="mandatoryTag item">
+						 <h:panelGroup rendered="#{announcementBeanManager.credentialData.mandatoryFlow}" styleClass="mandatoryTag item">
 						 	Mandatory flow
 						 </h:panelGroup>
-						 <div class="duration item">#{announcementBean.credentialDurationString}</div>
+						 <div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
 					 </div>
 				</div>
 			</div>
@@ -65,31 +68,17 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
-				<li><h:link value="#{announcementBean.credentialTitle}"
+				<li><h:link value="#{announcementBeanManager.credentialData.title}"
 							outcome="/manage/create-credential">
-					<f:param name="id" value="#{announcementBean.credentialId}"></f:param>
+					<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 				</h:link></li>
 				<li class="active">Announcements</li>
 			</ol>
 		</div>
-		
+
 		<h:panelGroup id="containerDiv" layout="block" styleClass="container">
-			<p:growl showDetail="true"/>
-			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
-			<script>
-			tinymce.init({
-				theme: "modern",
-			    skin: 'light',
-			    height : "200",
-				selector:'#newAnnouncementForm\\:newAnnouncementText',
-				font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
-		    	plugins: 'link media code image',
-				menubar:false,
-			    statusbar: false,
-			    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
-			});
-			</script>
-		
+			<p:growl showDetail="true" globalOnly="true"/>
+
 			<h:panelGroup styleClass="row" layout="block" rendered="#{request.isUserInRole('COURSE.ANNOUNCEMENTS.CREATE')}">
 				<div class="col-md-12">
 					<div class="whiteBox">
@@ -97,125 +86,161 @@
 							Here you can publish an announcement to all credential
 							participants.<br />
 							<br />
-							<ui:fragment rendered="#{announcementBean.canEdit()}">
-								<a href="javascript:void(0);" class="btn btn-green" data-toggle="modal"
-									data-target="#newAnnouncementModal">New Announcement</a>
+							<ui:fragment rendered="#{announcementBeanManager.canEdit()}">
+								<p:commandLink process="@this" styleClass="btn btn-green"
+											   pt:data-toggle="modal"
+											   update=":newAnnouncementForm:announcementModalPanel"
+											   oncomplete="$('#newAnnouncementModal').modal('show');">New Announcement
+								<p:resetInput target=":newAnnouncementForm:announcementModalPanel" />
+								</p:commandLink>
 							</ui:fragment>
-							<ui:fragment rendered="#{not announcementBean.canEdit()}">
-								<a href="javascript:void(0);" 
-									disabled="true"
-									class="btn btn-green"
-									data-toggle="tooltip"
-									title="You are not allowed to publish announcements for this credential">
+							<ui:fragment rendered="#{not announcementBeanManager.canEdit()}">
+								<a href="javascript:void(0);"
+								   disabled="true"
+								   class="btn btn-green"
+								   data-toggle="tooltip"
+								   title="You are not allowed to publish announcements for this credential">
 									New Announcement
 								</a>
 							</ui:fragment>
 						</p>
 						<div class="clear"></div>
-						
-						<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
-							role="dialog" aria-labelledby="newAnnouncement">
-							<h:form id="newAnnouncementForm">
-								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBean.setPublishMode}" />
-								
-								<div class="modal-dialog" role="document">
-									<div class="modal-content">
-										<div class="modal-header alignLeft">
-											<button type="button" class="close" data-dismiss="modal"
-												aria-label="Close">
-												<span aria-hidden="true">×</span>
-											</button>
-											<h2 class="modal-title" id="newAnnouncement">New
-												Announcement</h2>
-										</div>
-										<div class="assessmentModalMeta">
-											<div class="assessmentModalMetaLine">
-												<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
-												<div class="assessmentModalMetaRight">
-													<h3>#{announcementBean.credentialTitle}</h3>
-												</div>
-											</div>
-										</div>
-										<div class="modal-body alignLeft">
-											<p:inputText type="text" id="title" value="#{announcementBean.newAnnouncementTitle}" placeholder="Title" />
-											<p:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}" id="newAnnouncementText" />
-											
-											<div class="radioGroup">
-												Send to:
-												<div class="radio">
-													<input checked="checked" onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio1"
-														value="option1" /><label for="radio1">All
-														students</label>
-												</div>
-												<div class="radio">
-													<input onchange="setPublishModeValue('Active')" type="radio" name="radio2" id="radio2"
-														value="option2"/><label for="radio2">Only
-														active students</label>
-												</div>
-											</div>
-										</div>
-										<div class="modal-footer alignLeft">
-											<p:commandLink value="Publish"
-		                                    	styleClass="btn btn-green"
-		                                    	onclick="$('#newAnnouncementForm\\:newAnnouncementText').val(tinyMCE.activeEditor.getContent());hideConfirmDialog('newAnnouncementModal');" 
-		                                    	action="#{announcementBean.publishAnnouncement()}" 
-		                                    	update=":containerDiv"
-	                                    	/>
-										</div>
-									</div>
-								</div>
-							</h:form>
-						</div>
-						
 						<script>
-						$('#newAnnouncementModal').on('shown.bs.modal', function () {
-						    $('#newAnnouncementForm\\:title').focus();
-						}) 
+                            $('#newAnnouncementModal').on('shown.bs.modal', function () {
+                                $('#newAnnouncementForm\\:title').focus();
+                            })
 						</script>
 					</div>
 				</div>
 			</h:panelGroup>
-			
+
 			<h2>Previous Annoncements</h2>
-				<ui:fragment rendered="#{empty announcementBean.credentialAnnouncements}">
-					<p>There are no announcements.</p>
-				</ui:fragment>
-				<ui:repeat var="announcementData" value="#{announcementBean.credentialAnnouncements}">
-					<div class="row">
-						<div class="col-md-8">
-							<article class="whiteBox announcementBox">
-								<h2>#{empty announcementData.title ? "Announcement" : announcementData.title}</h2>
-								<p><h:outputText escape="false" value="#{announcementData.text}" /></p>
-							</article>
-						</div>
-						<div class="col-md-4">
-							<div class="sidebarBlock">
-								<h2>Posted on
-									<utilcomp:convertTimeOutput
-											millis="#{announcementData.creationTime}"
-											format="MMM DD, YYYY"
-									/>
-									, by</h2>
-								<div class="user32">
-									<a href="#">
-										<utilcomp:userAvatar
-												avatar="#{announcementData.creatorAvatarUrl}"
-												fullName="#{announcementData.creatorFullName}" />
-									</a>
-									<h3>
-										<a href="#">#{announcementData.creatorFullName}</a>
-									</h3>
-								</div>
+			<ui:fragment rendered="#{empty announcementBeanManager.announcements}">
+				<p>There are no announcements.</p>
+			</ui:fragment>
+			<ui:repeat var="announcementData" value="#{announcementBeanManager.announcements}">
+				<div class="row">
+					<div class="col-md-8">
+						<article class="whiteBox announcementBox">
+							<h2>#{empty announcementData.title ? "Announcement" : announcementData.title}</h2>
+							<p><h:outputText escape="false" value="#{announcementData.text}" /></p>
+						</article>
+					</div>
+					<div class="col-md-4">
+						<div class="sidebarBlock">
+							<h2>Posted on
+								<utilcomp:convertTimeOutput
+										millis="#{announcementData.creationTime}"
+										format="MMM DD, YYYY"
+								/>
+								, by</h2>
+							<div class="user32">
+								<a href="#">
+									<utilcomp:userAvatar
+											avatar="#{announcementData.creatorAvatarUrl}"
+											fullName="#{announcementData.creatorFullName}" />
+								</a>
+								<h3>
+									<a href="#">#{announcementData.creatorFullName}</a>
+								</h3>
 							</div>
 						</div>
 					</div>
-				</ui:repeat>
-				
+				</div>
+			</ui:repeat>
+
 			<utilcomp:pagination
-				id="pagination" 
-				bean="#{announcementBean}"
+				id="pagination"
+				bean="#{announcementBeanManager}"
 				updateUrl="true"
 				toUpdate=":containerDiv" />
 		</h:panelGroup>
+
+
+		<h:form id="newAnnouncementForm">
+			<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
+				 role="dialog" aria-labelledby="newAnnouncement">
+				<h:panelGroup id="announcementModalPanel">
+
+					<p:remoteCommand name="setPublishMode" actionListener="#{announcementBeanManager.setPublishMode}" />
+
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal"
+										aria-label="Close">
+									<span aria-hidden="true">×</span>
+								</button>
+								<h2 class="modal-title" id="newAnnouncement">New
+									Announcement</h2>
+							</div>
+							<div class="assessmentModalMeta">
+								<div class="assessmentModalMetaLine">
+									<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
+									<div class="assessmentModalMetaRight">
+										<h3>#{announcementBeanManager.credentialData.title}</h3>
+									</div>
+								</div>
+							</div>
+							<div class="modal-body alignLeft">
+								<h:inputText type="text"
+											 id="title"
+											 value="#{announcementBeanManager.newAnnouncementTitle}"
+											 placeholder="Title"
+											 autocomplete="off"
+											 required="true"
+											 requiredMessage="Announcement title is required"
+								/>
+
+								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="title" id="errorInputTitle"/></small>
+
+								<h:inputTextarea placeholder="Write message..." value="#{announcementBeanManager.newAnnouncementText}"
+												 id="newAnnouncementText" required="true" requiredMessage="Announcement message is required"/>
+
+								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="newAnnouncementText" id="errorAnnouncementText"/></small>
+
+								<script>
+									tinymce.remove('#newAnnouncementForm\\:newAnnouncementText');
+									tinymce.init({
+										theme: "modern",
+										skin: 'light',
+										height : "200",
+										selector:'#newAnnouncementForm\\:newAnnouncementText',
+										font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+										plugins: 'link media code image',
+										menubar:false,
+										statusbar: false,
+										toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
+									});
+								</script>
+
+								<div class="radioGroup">
+									Send to:
+									<div class="radio">
+										<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="radio2" id="radio2"
+											   value="option2"/><label for="radio2">Only
+										active students</label>
+									</div>
+									<div class="radio">
+										<input onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio1"
+											   value="option1" /><label for="radio1">All
+										students</label>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink value="Publish"
+											   styleClass="btn btn-green"
+											   action="#{announcementBeanManager.publishAnnouncement()}"
+											   onclick="copyTextFromTinyMCEToTextarea('#newAnnouncementForm\\:newAnnouncementText');"
+											   update=":containerDiv :newAnnouncementForm:errorInputTitle :newAnnouncementForm:errorAnnouncementText"
+											   oncomplete="if (args &amp;&amp; !args.validationFailed){ hideConfirmDialog('newAnnouncementModal');}"
+								/>
+							</div>
+						</div>
+					</div>
+				</h:panelGroup>
+			</div>
+		</h:form>
 	</ui:define>
 </ui:composition>

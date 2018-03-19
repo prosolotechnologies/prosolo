@@ -1,22 +1,12 @@
 package org.prosolo.app;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.prosolo.app.bc.BusinessCase;
-import org.prosolo.app.bc.BusinessCase0_Blank;
-import org.prosolo.app.bc.BusinessCase2_AU;
-import org.prosolo.app.bc.BusinessCase3_Statistics;
-import org.prosolo.app.bc.BusinessCase4_EDX;
+import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -25,15 +15,18 @@ import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Arrays;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -65,7 +58,7 @@ public class AfterContextLoader implements ServletContextListener {
 				logger.error(e);
 			}
 		}
-		
+
 		if (settings.config.init.formatDB) {
 			//initialize ES indexes
 			try {
@@ -96,6 +89,16 @@ public class AfterContextLoader implements ServletContextListener {
 			settings.config.init.formatDB = false;
 			
 			CommonSettings.getInstance().config.emailNotifier.activated = oldEmailNotifierVal;
+		} else {
+			/*
+			if we are not formatting the database, create indexes with data not dependent on mysql db if they don't exist
+			 */
+			ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
+			try {
+				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
+			} catch (IndexingServiceNotAvailable e) {
+				logger.error("Error", e);
+			}
 		}
 	
 		if (Settings.getInstance().config.init.importData) {
@@ -105,8 +108,7 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 		
 		if (settings.config.init.indexTrainingSet) {
-			ESAdministration esAdmin = new ESAdministrationImpl();
-			esAdmin.indexTrainingSet();
+			ServiceLocator.getInstance().getService(ESAdministration.class).indexTrainingSet();
 		}
 		
 		logger.debug("Initialize thread to start elastic search");
@@ -135,25 +137,25 @@ public class AfterContextLoader implements ServletContextListener {
 
 	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
 		ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
-		esAdmin.deleteIndexes();
-		esAdmin.createIndexes();
+		esAdmin.deleteAllIndexes();
+		esAdmin.createAllIndexes();
 	}
 	
 	private void initApplicationServices(){
 		System.out.println("Init application services...");
-		
+
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
-			 systemConsumer = new ReliableConsumerImpl();
+			systemConsumer = new ReliableConsumerImpl();
 			systemConsumer.setWorker(new DefaultMessageWorker());
 			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
-			 sessionConsumer = new ReliableConsumerImpl();
+			sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());
 			sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 			sessionConsumer.StartAsynchronousConsumer();
 
-			 broadcastConsumer = new ReliableConsumerImpl();
+			broadcastConsumer = new ReliableConsumerImpl();
 			broadcastConsumer.setWorker(new DefaultMessageWorker());
 			broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
 			broadcastConsumer.StartAsynchronousConsumer();
@@ -166,7 +168,9 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initStaticData() {
 		try {
-			User adminUser = ServiceLocator.getInstance().getService(UserManager.class)
+			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
+
+			ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
 							0,
 							Settings.getInstance().config.init.defaultUser.name,
@@ -177,30 +181,8 @@ public class AfterContextLoader implements ServletContextListener {
 							null, 
 							null,
 							null,
-							null,
+							Arrays.asList(superAdminRoleId),
 							true);
-			
-			// allow user to be added to indexes in the previous method
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
-	
-			String roleAdminTitle = "Admin";
-			
-			Role adminRole = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
-			
-			adminUser = ServiceLocator.getInstance().getService(RoleManager.class)
-					.assignRoleToUser(
-							adminRole, 
-							adminUser);
-			
-			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, adminUser.getId(), adminUser);
-	
-//			// instantiate badges
-//			ServiceLocator.getInstance().getService(BadgeManager.class)
-//					.createBadge(BadgeType.STAR, "Excellence Badge");
 		} catch (EventException e) {
 			logger.error(e);
 		} catch (UserAlreadyRegisteredException e) {

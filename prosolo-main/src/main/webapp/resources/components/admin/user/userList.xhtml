@@ -7,11 +7,13 @@
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
 >
 
 	<composite:interface>
 		<composite:attribute name="mode" default="ADMIN" />
 		<composite:attribute name="orgId" default="0" />
+		<composite:attribute name="learningContext" default="" />
 	</composite:interface>
 
 	<composite:implementation>
@@ -29,6 +31,13 @@
 								New User
 								<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 							</h:link>
+							<p:commandLink pt:data-toggle="modal"
+										   styleClass="btn btn-green btn-sm item"
+										   action="#{usersBean.prepareImportingUsers()}"
+										   update=":#{cc.clientId}:importUsers:importUsersForm:importUsersPanel"
+										   oncomplete="$('#importUsersModal').modal('show');">
+								Import users from CSV file
+							</p:commandLink>
 						</c:if>
 						<div class="searchBox">
 							<h:form id="searchForm">
@@ -81,9 +90,11 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+					<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+						<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+					</ui:fragment>
 					<li>
-						<h:link outcome="/admin/organizationNew">
+						<h:link outcome="/admin/units">
 							#{usersBean.orgTitle}
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
@@ -125,13 +136,13 @@
 											<h2>
 												<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 													<h:link outcome="/admin/adminNew">
-														#{admin.fullName}
+														#{admin.commaSeparatedFullName}
 														<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
 													</h:link>
 												</c:if>
 												<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 													<h:link outcome="/admin/organizationUserEdit">
-														#{admin.fullName}
+														#{admin.commaSeparatedFullName}
 														<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 														<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
 													</h:link>
@@ -212,5 +223,17 @@
 				</div>
 			</div>
 		</h:form>
+
+		<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
+			<user:importUsers id="importUsers"
+							  addUserToResource="organization"
+							  bean="#{usersBean}"
+							  userType="user"
+							  modalId="importUsersModal"
+							  importUsersFormId="importUsersForm"
+							  importUsersPanelId="importUsersPanel"
+							  toUpdate=":#{cc.clientId}:panelAdmins :#{cc.clientId}:panelSearchFilters :#{cc.clientId}:pagination :#{cc.clientId}:growlMain :#{cc.clientId}:searchForm:inputAdminSearch"
+							  learningContext="#{cc.attrs.learningContext}"/>
+		</c:if>
 	</composite:implementation>
 </ui:component>

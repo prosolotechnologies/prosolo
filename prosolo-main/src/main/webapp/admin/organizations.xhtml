@@ -28,7 +28,7 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:link outcome="/admin/organizationNew" styleClass="btn btn-green btn-sm item">New Organization</h:link>
+                        <h:link outcome="/admin/organization-settings" styleClass="btn btn-green btn-sm item">New Organization</h:link>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                             <div class="adminOrganizationsListRight">
-                                <h:link outcome="/admin/organizationNew" styleClass="btn btn-green-stroke">
+                                <h:link outcome="/admin/organization-settings" styleClass="btn btn-green-stroke">
                                     <f:param name="id" value="#{util:encodeId(organization.id)}"/>
                                     Edit
                                 </h:link>

@@ -3,11 +3,7 @@ package org.prosolo.common.domainmodel.credential;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 

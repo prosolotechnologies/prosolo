@@ -9,6 +9,7 @@
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 >
+	<utilcomp:messagesBundle var="msg" />
 
 	<composite:interface>
 		<composite:attribute name="resource" required="true" />
@@ -53,24 +54,26 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+				<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+				</ui:fragment>
 				<li>
-					<h:link outcome="/admin/organizationNew">
+					<h:link outcome="/admin/units">
 						#{unitUsersBean.organizationTitle}
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
 				</li>
 				<li>
 					<h:link outcome="/admin/units">
-						Units
+						#{msg['label.unit.plural']}
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
 				</li>
 				<li>
-					<h:link outcome="/admin/unitEdit">
+					<h:link outcome="/admin/unit-credentials">
 						#{unitUsersBean.unitTitle}
-						<f:param name="id" value="#{param.orgId}" />
-						<f:param name="unitId" value="#{param.id}" />
+						<f:param name="orgId" value="#{param.orgId}" />
+						<f:param name="id" value="#{param.id}" />
 					</h:link>
 				</li>
 				<li class="active">#{util:capitalizeWord(cc.attrs.resourcePlural)}</li>
@@ -107,7 +110,7 @@
 																	 fullName="#{user.fullName}" width="48" height="48" />
 
 												<div class="infoWrap">
-													<h3>#{user.fullName}</h3>
+													<h3>#{user.commaSeparatedFullName}</h3>
 													<span>#{user.position}</span>
 												</div>
 											</div>
@@ -145,7 +148,7 @@
 						<h2 class="modal-title">Import users</h2>
 					</div>
 					<div class="modal-body alignLeft">
-						<p>Upload CSV with #{cc.attrs.resource} data in order to add them to the unit. #{util:capitalizeWord(cc.attrs.resource)} data should be in the format:<br></br><strong>name,lastname,email</strong></p>
+						<p>Upload CSV with #{cc.attrs.resource} data in order to add them to the #{msg['label.unit'].toLowerCase()}. #{util:capitalizeWord(cc.attrs.resource)} data should be in the format:<br></br><strong>name,lastname,email</strong></p>
 						<div class="uploadBtn">
 							<a href="#" class="btn btn-green btn-sm">Choose File</a>
 							file.csv
@@ -171,7 +174,7 @@
 
 		<user:addUsers
 				id="addUsers"
-				modalTitle="Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit"
+				modalTitle="Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to #{msg['label.unit']}"
 				searchPlaceholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"
 				searchBean="#{unitUserAddBean}"
 				actionBean="#{unitUsersBean}"

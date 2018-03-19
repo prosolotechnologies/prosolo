@@ -10,8 +10,10 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -45,6 +47,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UnitUserAddBean unitUserAddBean;
 	@Inject private ImportUsersBean importUsersBean;
+	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -63,15 +66,15 @@ public class UnitUsersBean implements Serializable, Paginable {
 	private String unitTitle;
 
 	public void initTeachers() {
-		init(RoleNames.MANAGER);
+		init(SystemRoleNames.MANAGER);
 	}
 
 	public void initStudents() {
-		init(RoleNames.USER);
+		init(SystemRoleNames.USER);
 	}
 
 	public void initInstructors() {
-		init(RoleNames.INSTRUCTOR);
+		init(SystemRoleNames.INSTRUCTOR);
 	}
 
 	public void init(String role) {
@@ -79,21 +82,25 @@ public class UnitUsersBean implements Serializable, Paginable {
 			decodedOrgId = idEncoder.decodeId(orgId);
 			decodedId = idEncoder.decodeId(id);
 
-			if (decodedOrgId > 0 && decodedId > 0) {
-				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
-				if (td != null) {
-					organizationTitle = td.getOrganizationTitle();
-					unitTitle = td.getUnitTitle();
-					roleId = roleManager.getRoleIdsForName(role).get(0);
-					if (page > 0) {
-						paginationData.setPage(page);
+			if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+				if (decodedOrgId > 0 && decodedId > 0) {
+					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
+					if (td != null) {
+						organizationTitle = td.getOrganizationTitle();
+						unitTitle = td.getUnitTitle();
+						roleId = roleManager.getRoleIdByName(role);
+						if (page > 0) {
+							paginationData.setPage(page);
+						}
+						loadUsersFromDB();
+					} else {
+						PageUtil.notFound();
 					}
-					loadUsersFromDB();
 				} else {
 					PageUtil.notFound();
 				}
 			} else {
-				PageUtil.notFound();
+				PageUtil.accessDenied();
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -174,10 +181,10 @@ public class UnitUsersBean implements Serializable, Paginable {
 			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserContext(decodedOrgId));
 			resetSearchData();
 			loadUsersFromDB();
-			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the unit " + unitTitle);
+			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the unit " + unitTitle);
+			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}

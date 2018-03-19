@@ -16,15 +16,15 @@
 	 <div id="#{cc.clientId}">
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
 		 <ul class="nav nav-tabs headerSubmenu">
-			 <li role="presentation" class="#{page eq 'unitEdit' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'unitEdit'}"
-						 outcome="/admin/unitEdit">
+			 <li role="presentation" class="#{page eq 'unit-credentials' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-credentials'}"
+						 outcome="/admin/unit-credentials">
 					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Unit Details
+					 #{msg['label.credential.plural']}
 				 </h:link>
-				 <ui:fragment rendered="#{page eq 'unitEdit'}">
-					 <a href="javascript:void(0);">Unit Details</a>
+				 <ui:fragment rendered="#{page eq 'unit-credentials'}">
+					 <a href="javascript:void(0);">#{msg['label.credential.plural']}</a>
 				 </ui:fragment>
 			 </li>
 			 <li role="presentation" class="#{page eq 'unit-teachers' ? 'active' : ''}">
@@ -69,6 +69,17 @@
 				 </h:link>
 				 <ui:fragment rendered="#{page eq 'unit-groups'}">
 					 <a href="javascript:void(0);">Student Groups</a>
+				 </ui:fragment>
+			 </li>
+			 <li role="presentation" class="#{page eq 'unit-settings' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-settings'}"
+						 outcome="/admin/unit-settings">
+					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Settings
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'unit-settings'}">
+					 <a href="javascript:void(0);">Settings</a>
 				 </ui:fragment>
 			 </li>
 		 </ul>

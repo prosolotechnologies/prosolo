@@ -49,7 +49,6 @@ public class LoggingEventsObserver extends EventObserver {
 		String objectTitle = "";
 		
 		try {
-			//adding for migration to new context approach
 			LearningContext learningContext = contextJsonParserService.
 					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
 			
@@ -80,7 +79,6 @@ public class LoggingEventsObserver extends EventObserver {
 			}
 	
 			String ipAddress = null;
-			String sessionId=null;
 			Map<String, String> params = event.getParameters();
 			
 			if (params != null && params.containsKey("ip")) {
@@ -99,8 +97,6 @@ public class LoggingEventsObserver extends EventObserver {
 						}
 					
 						ipAddress = loggedUserBean.getIpAddress();
-						sessionId=loggedUserBean.getSessionData().getSessionId();
-
 					}
 				}
 			} else {
@@ -108,8 +104,9 @@ public class LoggingEventsObserver extends EventObserver {
 			}
 	
 			try {
-				loggingService.logEventObserved(event.getAction(), event.getActorId(),
-						objectType, objectId, objectTitle, targetType, targetId, event.getParameters(), ipAddress, learningContext);
+				loggingService.logEventObserved(event.getAction(), event.getActorId(), event.getOrganizationId(),
+						event.getSessionId(), objectType, objectId, objectTitle, targetType, targetId,
+						event.getParameters(), ipAddress, learningContext);
 			} catch (LoggingException e) {
 				logger.error(e);
 			}

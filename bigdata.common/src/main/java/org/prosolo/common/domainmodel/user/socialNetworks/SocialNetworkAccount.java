@@ -48,6 +48,7 @@ public class SocialNetworkAccount implements Serializable {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public SocialNetworkName getSocialNetwork() {
 		return socialNetwork;
 	}

@@ -7,9 +7,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
@@ -29,14 +28,12 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
+import org.prosolo.services.nodes.data.assessments.GradeData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +90,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Result<Activity1> result = new Result<>();
 			Activity1 activity = activityFactory.getActivityFromActivityData(data);
 
+			setAssessmentRelatedData(activity, data, true);
+
 			if (data.getLinks() != null) {
 				Set<ResourceLink> activityLinks = new HashSet<>();
 
@@ -140,13 +139,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			User creator = (User) persistence.currentManager().load(User.class, context.getActorId());
 			activity.setCreatedBy(creator);
 
-			//GradingOptions go = new GradingOptions();
-			//go.setMinGrade(0);
-			//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-			//saveEntity(go);
-			//activity.setGradingOptions(go);
-			activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-
 			activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
@@ -164,8 +156,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 
 			result.addEvent(eventFactory.generateEventData(
-					EventType.Create, context.getActorId(), context.getOrganizationId(),
-					context.getSessionId(), activity, null, context.getContext(), null));
+					EventType.Create, context, activity, null, null, null));
 
 			result.setResult(activity);
 			return result;
@@ -180,6 +171,74 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	private void setAssessmentRelatedData(Activity1 activity, ActivityData data, boolean updateRubric) throws IllegalDataStateException {
+		class ExternalActivityVisitor implements ActivityVisitor {
+
+			boolean acceptGrades;
+
+			ExternalActivityVisitor(boolean acceptGrades) {
+				this.acceptGrades = acceptGrades;
+			}
+
+			@Override
+			public void visit(TextActivity1 activity) {}
+
+			@Override
+			public void visit(UrlActivity1 activity) {}
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				activity.setAcceptGrades(acceptGrades);
+			}
+		}
+
+		activity.setGradingMode(data.getGradingMode());
+		switch (data.getGradingMode()) {
+			case AUTOMATIC:
+				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
+				activity.setRubric(null);
+				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				break;
+			case MANUAL:
+				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+				if (updateRubric) {
+					activity.setRubric(getRubricToSet(data));
+				}
+				if (data.getRubricId() > 0) {
+					activity.setRubricVisibility(data.getRubricVisibility());
+				} else {
+					activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				}
+
+				activity.accept(new ExternalActivityVisitor(false));
+				break;
+			case NONGRADED:
+				activity.setMaxPoints(0);
+				activity.setRubric(null);
+				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
+				activity.accept(new ExternalActivityVisitor(false));
+				break;
+		}
+	}
+
+	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
+		//set rubric data
+		Rubric rubric = null;
+		if (activityData.getRubricId() > 0) {
+			/*
+			set a lock on a rubric so we can be sure that status will not change between read
+			and update
+			 */
+			rubric = (Rubric) persistence.currentManager().load(
+					Rubric.class, activityData.getRubricId(), LockOptions.UPGRADE);
+			if (!rubric.isReadyToUse()) {
+				throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
+			}
+		}
+		return rubric;
+	}
+
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
@@ -190,20 +249,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				
 				deleteCompetenceActivity(act.getId());
 
-				LearningContextData lcd = context.getContext();
-				String page = null;
-				String lContext = null;
-				String service = null;
-				if (lcd != null) {
-					page = lcd.getPage();
-					lContext = lcd.getLearningContext();
-					service = lcd.getService();
-				}
 				Activity1 activity = new Activity1();
 				activity.setId(activityId);
-				eventFactory.generateEvent(EventType.Delete, context.getActorId(),
-						context.getOrganizationId(), context.getSessionId(), activity,
-						null, page, lContext, service, null, null);
+				eventFactory.generateEvent(EventType.Delete, context, activity,
+						null, null, null);
 				
 				return act;
 			}
@@ -302,7 +351,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT compAct " +
+			builder.append("SELECT DISTINCT compAct " +
 				      	   "FROM CompetenceActivity1 compAct " + 
 				       	   "INNER JOIN fetch compAct.activity act ");
 			
@@ -426,34 +475,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Transactional(readOnly = true)
 	@Override
-	public RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
+	public ActivityData getActivityData(long credId, long competenceId, long activityId, boolean loadLinks, boolean loadTags)
+					throws DbConnectionException, ResourceNotFoundException {
 		try {
-			if(req == null) {
-				throw new IllegalArgumentException();
-			}
-			
 			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, 
 					loadLinks, loadTags, true);
 
-			if(res == null) {
+			if (res == null) {
 				throw new ResourceNotFoundException();
 			}
 
 			Set<ResourceLink> links = loadLinks ? res.getActivity().getLinks() : null;
 			Set<ResourceLink> files = loadLinks ? res.getActivity().getFiles() : null;
 			Set<Tag> tags = loadTags ? res.getActivity().getTags() : null;
-			ActivityData actData = activityFactory.getActivityData(
+			return activityFactory.getActivityData(
 					res, links, files, tags, true);
-			//we need user privilege for competence on which activity is dependent
-			ResourceAccessData access = compManager.getResourceAccessData(competenceId, userId, req);
-			
-			return RestrictedAccessResult.of(actData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -540,17 +578,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 updateActivity(ActivityData data, UserContextData context)
-			throws DbConnectionException, StaleDataException {
+			throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data);
 
-			LearningContextData lcd = context.getContext();
-			String page = lcd != null ? lcd.getPage() : null;
-			String lContext = lcd != null ? lcd.getLearningContext() : null;
-			String service = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), act,
-					null, page, lContext, service, null, null);
+			eventFactory.generateEvent(EventType.Edit, context, act,
+					null, null, null);
 
 		    return act;
 		} catch (EventException e) {
@@ -583,7 +616,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException {
+	public Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
 			/*
 			 * Lock the competence record so we can avoid integrity rule violation with concurrent updates.
@@ -591,9 +624,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 * This way, exclusive lock on a competence is acquired and publish date is retrieved.
 			 */
 			String query = "SELECT comp.datePublished " +
-						   "FROM Competence1 comp " +
-						   "WHERE comp.id = :compId";
-			
+					"FROM Competence1 comp " +
+					"WHERE comp.id = :compId";
+
 			Date datePublished = (Date) persistence.currentManager()
 					.createQuery(query)
 					.setLong("compId", data.getCompetenceId())
@@ -606,7 +639,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 * be possible that some changes are made and others not.
 			 */
 			boolean compOncePublished = datePublished != null;
-			if(compOncePublished != data.isOncePublished()) {
+			if (compOncePublished != data.isOncePublished()) {
 				throw new StaleDataException("Data changed in the meantime. Please review changes and try again.");
 			}
 			
@@ -617,29 +650,29 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			final ActivityType actType = compOncePublished && data.isActivityTypeChanged()
 					? data.getActivityTypeBeforeUpdate().get()
 					: data.getActivityType();
-			
+
 			//if competence is published activity type can't be changed
-			if(!compOncePublished && data.isActivityTypeChanged()) {
+			if (!compOncePublished && data.isActivityTypeChanged()) {
 				updateActivityType(data.getActivityId(), data.getActivityType());
 			}
-			
-			Activity1 actToUpdate = (Activity1) persistence.currentManager().load(Activity1.class, 
+
+			Activity1 actToUpdate = (Activity1) persistence.currentManager().load(Activity1.class,
 					data.getActivityId());
 			
 			/* this check is needed to find out if activity is changed from the moment activity data
 			 * is loaded for edit to the moment update request is sent
 			 */
-			if(actToUpdate.getVersion() != data.getVersion()) {
+			if (actToUpdate.getVersion() != data.getVersion()) {
 				throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
 			}
-			
+
 			long oldDuration = getActivityDurationBeforeUpdate(data);
 			long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			
-			if(oldDuration != newDuration) {
+
+			if (oldDuration != newDuration) {
 				updateCompDuration(actToUpdate.getId(), newDuration, oldDuration);
 			}
-		
+
 			actToUpdate.setTitle(data.getTitle());
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
@@ -651,38 +684,37 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				actToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
 						data.getTagsString())));
 			}
-			
+
 			//changes which are not allowed if competence is once published
-			if(!compOncePublished) {
-				actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 
-						: Integer.parseInt(data.getMaxPointsString()));
+			if (!compOncePublished) {
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
-				actToUpdate.setAutograde(data.isAutograde());
+
+				setAssessmentRelatedData(actToUpdate, data, data.isRubricChanged());
 			}
-			
+
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
-			
+
 			updateResourceLinks(data.getFiles(), actToUpdate.getFiles());
-			
+
 			actToUpdate.accept(new ActivityVisitor() {
-				
+
 				@Override
 				public void visit(ExternalToolActivity1 activity) {
 					activity.setLaunchUrl(data.getLaunchUrl());
 					activity.setSharedSecret(data.getSharedSecret());
 					activity.setConsumerKey(data.getConsumerKey());
 					activity.setOpenInNewWindow(data.isOpenInNewWindow());
-					
+
 					//changes which are not allowed if competence is published
-					if(!compOncePublished) {
+					if (!compOncePublished) {
 						activity.setAcceptGrades(data.isAcceptGrades());
 						activity.setScoreCalculation(data.getScoreCalculation());
 					}
 				}
-				
+
 				@Override
 				public void visit(UrlActivity1 activity) {
-					if(actType == ActivityType.VIDEO) {
+					if (actType == ActivityType.VIDEO) {
 						activity.setUrlType(UrlActivityType.Video);
 						activity.setUrl(data.getVideoLink());
 						updateResourceLinks(data.getCaptions(), activity.getCaptions());
@@ -692,20 +724,20 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					}
 					activity.setLinkName(data.getLinkName());
 				}
-				
+
 				@Override
 				public void visit(TextActivity1 activity) {
 					activity.setText(data.getText());
 				}
 			});
-	
-		    persistence.flush();
-		    return actToUpdate;
+
+			persistence.flush();
+			return actToUpdate;
 		} catch(HibernateOptimisticLockingFailureException e) {
 			e.printStackTrace();
 			logger.error(e);
 			throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
-		} catch (StaleDataException ex) {
+		} catch (StaleDataException|IllegalDataStateException ex) {
 			logger.error(ex);
 			ex.printStackTrace();
 			throw ex;
@@ -795,20 +827,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId, long compId, long activityId)
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
-			RestrictedAccessResult<ActivityData> activityWithDetails = getActivityData(credId, compId, activityId, 
-					creatorId, true, true, req);
+			ActivityData activityWithDetails = getActivityData(credId, compId, activityId,
+					true, true);
 			compData = new CompetenceData1(false);
-			compData.setActivityToShowWithDetails(activityWithDetails.getResource());
+			compData.setActivityToShowWithDetails(activityWithDetails);
 			
 			List<ActivityData> activities = getCompetenceActivitiesData(compId);
 			compData.setActivities(activities);
-			return RestrictedAccessResult.of(compData, activityWithDetails.getAccess());
-		} catch (ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+			return compData;
+		} catch (ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -837,15 +868,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd!= null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
 			EventType evType = resType == ActivityResultType.FILE_UPLOAD
 					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
-			eventFactory.generateEvent(evType, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(evType, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -871,23 +896,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
 
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd != null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.Typed_Response_Edit, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(EventType.Typed_Response_Edit, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while editing response");
 		}
 	}
+
+	@Override
+	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
 	
 	@Override
-	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+	@Transactional
+	public Result<Void> completeActivityAndGetEvents(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -901,22 +929,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setBoolean("completed", true)
 				.setDate("date", new Date())
 				.executeUpdate();
-			
-			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, context);
+
+			Result<Void> res = new Result<>();
+			res.addEvents(compManager.updateCompetenceProgress(targetCompId, context));
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-			LearningContextData contextData = context.getContext();
-			String lcPage = contextData != null ? contextData.getPage() : null; 
-			String lcContext = contextData != null ? contextData.getLearningContext() : null; 
-			String lcService = contextData != null ? contextData.getService() : null;
-			eventFactory.generateEvent(EventType.Completion, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
-			
-			for(EventData ev : events) {
-				eventFactory.generateEvent(ev);
-			}
+
+			res.addEvent(eventFactory.generateEventData(EventType.Completion, context, tAct, null, null, null));
+			return res;
 		} catch (DbConnectionException dce) {
 			throw dce;
 		} catch (Exception e) {
@@ -928,29 +949,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,
 			long actId, long userId, boolean isManager) 
-					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
-		CompetenceData1 compData = null;
+					throws DbConnectionException, ResourceNotFoundException {
+		CompetenceData1 compData;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId, isManager);
 			if (compData == null) {
-				ResourceAccessRequirements req = ResourceAccessRequirements
-						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn)
-						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
-						userId, req);
+				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId);
 			}
-				
-			/* if user is aleardy learning activity, he doesn't need any of the privileges;
-			 * we just need to determine which privileges he has (can he edit or instruct an activity)
-			 */
-			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
-			ResourceAccessData access = compManager.getResourceAccessData(compId, userId, req);
-			return RestrictedAccessResult.of(compData, access);
-		} catch(ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+
+			return compData;
+		} catch(ResourceNotFoundException|DbConnectionException ex) {
 			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
@@ -972,7 +983,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
-		CompetenceData1 compData = null;
+		CompetenceData1 compData;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
 					true, true, isManager);
@@ -1070,13 +1081,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActivityId);
-			LearningContextData lcd = context.getContext();
-			String lcPage = lcd != null ? lcd.getPage() : null;
-			String lcContext = lcd != null ? lcd.getLearningContext() : null;
-			String lcService = lcd != null ? lcd.getService() : null;
-			eventFactory.generateEvent(EventType.AssignmentRemoved, context.getActorId(),
-					context.getOrganizationId(), context.getSessionId(), tAct, null,
-					lcPage, lcContext, lcService, null, null);
+			eventFactory.generateEvent(EventType.AssignmentRemoved, context, tAct, null, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1308,7 +1313,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			//if credId is not passed, we can't know for which credential assessment to return data
 			if (returnAssessmentData && credId > 0) {
-				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id ");
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades ");
 			}
 
 			//if credId is not passed, we can't know for which credential assessment to return data
@@ -1462,11 +1467,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						
 						ActivityAssessmentData ad = ard.getAssessment();
 						ad.setTargetActivityId(tActId);
+						//if result is posted activity is completed by student
+						ad.setCompleted(true);
 						ad.setUserId(userId);
 						ad.setActivityId(actId);
 						ad.setCompetenceId(compId);
 						ad.setCredentialId(credId);
-						
 						if(assessmentId != null) {
 							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
@@ -1474,7 +1480,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
-							gd.setValue((Integer) row[14]);
+							gd.setValue((Integer) row[17]);
 							if(gd.getValue() < 0) {
 								gd.setValue(0);
 							} else {
@@ -1491,6 +1497,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
 						}
+						BigInteger rubricId = (BigInteger) row[15];
+						ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
+								GradingMode.valueOf((String) row[14]), rubricId != null ? rubricId.longValue() : 0, ((Character) row[16]).charValue() == 'T'));
 
 						//load additional assessment data
 						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,
@@ -1896,6 +1905,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setFiles(cloneLinks(original.getFiles()));
 			activity.setResultType(original.getResultType());
 			activity.setType(original.getType());
+			activity.setGradingMode(original.getGradingMode());
+			activity.setRubric(original.getRubric());
+			activity.setRubricVisibility(original.getRubricVisibility());
 			activity.setMaxPoints(original.getMaxPoints());
 			activity.setStudentCanSeeOtherResponses(original.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(original.isStudentCanEditResponse());
@@ -1903,21 +1915,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setCreatedBy(user);
 			activity.setVisibleForUnenrolledStudents(original.isVisibleForUnenrolledStudents());
 			activity.setDifficulty(original.getDifficulty());
-			activity.setAutograde(original.isAutograde());
 			saveEntity(activity);
 			Result<Activity1> res = new Result<>();
 			res.setResult(activity);
 			EventData ev = new EventData();
 			ev.setEventType(EventType.Create);
-			ev.setActorId(context.getActorId());
-			ev.setOrganizationId(context.getOrganizationId());
-			ev.setSessionId(context.getSessionId());
-			LearningContextData lcd = context.getContext();
-			if(lcd != null) {
-				ev.setPage(lcd.getPage());
-				ev.setContext(lcd.getLearningContext());
-				ev.setService(lcd.getService());
-			}
+			ev.setContext(context);
 			Activity1 act = new Activity1();
 			act.setId(activity.getId());
 			ev.setObject(act);

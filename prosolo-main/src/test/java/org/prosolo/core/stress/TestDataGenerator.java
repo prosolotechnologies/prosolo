@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -121,7 +122,7 @@ public class TestDataGenerator extends TestContext{
 			user.setPosition(position);
 				
 			user.setUserType(UserType.REGULAR_USER);
-			user.addRole(roleManager.getRoleByName("User"));
+			user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
 			user = userManager.saveEntity(user);
 //			RecommendationPreferences recPref = new RecommendationPreferences();
 //			recPref.addUserPriority(createUserDefinedPriority(UserPriorityType.TOPIC_PRIORITY));
@@ -170,7 +171,7 @@ public class TestDataGenerator extends TestContext{
 //	}
 	@Test
 	public  void listAllUsers(){
-		Collection<User> users=userManager.getAllUsers();
+		Collection<User> users=userManager.getAllUsers(0);
 		for(User user:users){
 			System.out.println("USER:"+user.getId()+" "+user.getName()+" "+user.getLastname()+" "+user.getPassword());
 		}

@@ -10,8 +10,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -351,10 +350,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void likeComment(long userId, long commentId, LearningContextData context) 
+	public void likeComment(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.createAnnotation(userId, commentId, AnnotatedResource.Comment, 
+			annotationManager.createAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
 					AnnotationType.Like);
 			String query = "UPDATE Comment1 comment " +
 						   "SET comment.likeCount = comment.likeCount + 1 " +
@@ -364,14 +363,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				.setLong("commentId", commentId)
 				.executeUpdate();
 			
-			//to avoid retrieving data from database
-			User user = new User();
-			user.setId(userId);
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.Like, user.getId(), comment, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Like, context, comment, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -381,10 +376,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeComment(long userId, long commentId, LearningContextData context) 
+	public void unlikeComment(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.deleteAnnotation(userId, commentId, AnnotatedResource.Comment, 
+			annotationManager.deleteAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
 					AnnotationType.Like);
 			String query = "UPDATE Comment1 comment " +
 						   "SET comment.likeCount = comment.likeCount - 1 " +
@@ -394,14 +389,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				.setLong("commentId", commentId)
 				.executeUpdate();
 			
-			//to avoid retrieving data from database
-			User user = new User();
-			user.setId(userId);
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, user.getId(), comment, null, context.getPage(), 
-					context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.RemoveLike, context, comment, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -412,7 +403,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //	@Override
 //	@Transactional (readOnly = false)
 //	public Comment1 saveNewCompetenceComment(CommentData data, long userId, 
-//			LearningContextData context) throws DbConnectionException {
+//			PageContextData context) throws DbConnectionException {
 //		try {
 //			return saveNewComment(data, userId, CommentedResourceType.Competence, context);
 //		} catch(Exception e) {
@@ -424,14 +415,11 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 	@Override
 	@Transactional(readOnly = false)
-	public Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource,
-			LearningContextData context) throws DbConnectionException {
+	public Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
+			UserContextData context) throws DbConnectionException {
 		try {
-			Comment1 comment = resourceFactory.saveNewComment(data, userId, resource);
-			
-			//avoid queries to db
-			User actor = new User();
-			actor.setId(userId);
+			Comment1 comment = resourceFactory.saveNewComment(data, context.getActorId(), resource);
+
 			BaseEntity target = null;
 			switch(resource) {
 				case Activity:
@@ -450,8 +438,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			target.setId(data.getCommentedResourceId());
 			
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
-			eventFactory.generateEvent(eventType, actor.getId(), comment, target, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(eventType, context, comment, target, null, null);
 			
 			return comment;
 		} catch(Exception e) {
@@ -464,19 +451,14 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateComment(CommentData data, long userId, LearningContextData context) 
+	public void updateComment(CommentData data, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Comment1 comment = (Comment1) persistence.currentManager().load(Comment1.class, 
 					data.getCommentId());
 			comment.setDescription(data.getComment());
 			
-			//avoid queries to db
-			User actor = new User();
-			actor.setId(userId);
-			
-			eventFactory.generateEvent(EventType.Edit, actor.getId(), comment, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Edit, context, comment, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

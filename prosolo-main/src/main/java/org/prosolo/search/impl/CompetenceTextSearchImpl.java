@@ -18,7 +18,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -77,7 +76,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
@@ -86,7 +85,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title");
 				
@@ -180,7 +179,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
@@ -189,7 +188,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
@@ -311,7 +310,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
@@ -320,7 +319,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
 				

@@ -1,0 +1,157 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:util="http://www.prosolo.com/util">
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        #{msg['label.rubric.plural']}
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="p" value="#{rubricsBean.paginationData.pageString}" default="1" />
+            <f:viewAction action="#{rubricsBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{msg['label.rubric.plural']}</h1>
+    </ui:define>
+
+    <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+        <p:growl id="growlMainRubricLibrary" showDetail="true" globalOnly="true" />
+
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New #{msg['label.rubric']}"
+                                        oncomplete="$('#newRubricModal\\:formNewRubricModal\\:inputTextRubricName').val('');
+                                        $('#newRubricModal').modal('show');"
+                                        update="newRubricModal:formNewRubricModal">
+                        </p:commandLink>
+
+                        <div class="searchBox">
+                            <h:form id="searchForm">
+                                <p:remoteCommand
+                                        name="execSearchRubrics"
+                                        process="inputRubricSearch"
+                                        update=":panelRubrics :pagination"
+                                        action="#{rubricsBean.resetAndSearch()}" />
+
+                                <h:inputText id="inputRubricSearch"
+                                             autofocus="true"
+                                             autocomplete="off"
+                                             type="search"
+                                             placeholder="Filter by Name"
+                                             value="#{rubricsBean.searchTerm}"
+                                             onclick="$(this).select();"
+                                             onkeyup="searchListener(execSearchRubrics);"/>
+                            </h:form>
+                        </div>
+                    </div>
+                    <div class="whiteBarRight">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="active">
+                            Rubrics
+                        </li>
+                    </ol>
+                </div>
+                <h:panelGroup id="panelRubrics" styleClass="col-md-12" layout="block">
+                    <ui:fragment rendered="#{empty rubricsBean.rubrics}">
+                        <div class="noContentMessage">
+                            <p>
+                                No rubrics.
+                            </p>
+                        </div>
+                    </ui:fragment>
+                    <ul class="whiteBox manageRubricsList">
+                        <ui:repeat value="#{rubricsBean.rubrics}" var="rubric">
+                            <li>
+                                <div class="manageRubricsListLeft">
+                                    <h2>
+                                        <h:link outcome="/manage/rubric-criteria">
+                                            #{rubric.name}
+                                            <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
+                                        </h:link>
+                                    </h2>
+
+                                    <div class="rubricsInfo">
+                                        <div class="creator">
+                                            Creator: <span>#{rubric.creatorFullName}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="manageRubricsListRight">
+                                    <h:link outcome="/manage/rubric-criteria" styleClass="btn btn-sm btn-green-stroke">
+                                        View
+                                        <f:param name="id" value="#{util:encodeId(rubric.id)}"></f:param>
+                                    </h:link>
+                                    <div class="dropdown optMoreMenu">
+                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                        <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                            <li>
+                                                <ui:fragment rendered="#{rubric.creatorId eq loggeduser.userId and not rubric.rubricUsed}">
+                                                    <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+                                                                   action="#{deleteRubricBean.setRubricForDelete(rubric)}"
+                                                                   oncomplete="$('#deleteModal').modal('show');">
+                                                        Delete
+                                                    </p:commandLink>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{rubric.creatorId != loggeduser.userId or rubric.rubricUsed}">
+                                                    <a  class="linkRed" data-toggle="tooltip"
+                                                        title="#{rubric.creatorId != loggeduser.userId ? 'Only creator can delete rubric'
+                                                         : 'Rubric can not be deleted because it is used in an activity'}"
+                                                        disabled="disabled">
+                                                        Delete
+                                                    </a>
+                                                </ui:fragment>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ui:repeat>
+                    </ul>
+                </h:panelGroup>
+            </div>
+
+            <utilcomp:pagination
+                    id="pagination"
+                    bean="#{rubricsBean}"
+                    updateUrl="true"
+                    toUpdate=":panelRubrics" />
+        </div>
+
+        <courses:newRubricModal
+                id="newRubricModal"
+                toUpdate=":panelRubrics" />
+
+
+        <courses:deleteModalDialog
+                deleteActionMethodName="delete"
+                deleteAction="#{deleteRubricBean.delete()}"
+                toUpdate=":panelRubrics :growlMainRubricLibrary"
+                modalDeleteTitle="#{msg['label.rubric']}"
+                modalDeleteText="#{msg['label.rubric'].toLowerCase()}"/>
+
+    </ui:define>
+</ui:composition>

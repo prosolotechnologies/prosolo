@@ -50,26 +50,26 @@
 
 	<ui:define name="content">
 	
-	<ui:remove><link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.css" /></ui:remove>
-	<ui:remove><link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.custom.css" /></ui:remove>
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/social-interaction.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css/timeline-graph.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.custom.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/social-interaction.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/timeline-graph.css" />
 
-	<ui:remove><script src="#{request.contextPath}/manage/js/slick.min.js"></script></ui:remove>
-	<script src="#{request.contextPath}/resources/javascript/underscore-min.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/d3.min.js"></script>
+	<script src="#{request.contextPath}/manage/js/slick.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/underscore-min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/d3.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/dimple.min.js"></script>
 	<script src="#{request.contextPath}/manage/js/shape.js"></script>
 	<script src="#{request.contextPath}/manage/js/quadrantchart.js"></script>
 	<script src="#{request.contextPath}/manage/js/jSvgConnect.js"></script>
 	<script src="#{request.contextPath}/manage/js/studentProfile.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript/timeline/timeline-graph.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/timeline/timeline-main.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-graph.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-main.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-service.js"></script>	
-	<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-graph.js"></script>
-	<script src="#{request.contextPath}/resources/javascript/social-interaction/social-interaction-main.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
 
  	<ui:param name="learningContext" value="name:user|id:#{studentProfileBean.decodedId}"></ui:param>
  	
@@ -105,7 +105,7 @@
 	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
 	                        <li role="presentation" class="active"><a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression</a></li>
 	                        <li role="presentation"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
-	                        <li role="presentation"><a href="#social" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
+	                        <li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
 	                        <li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
 	                    </ul>
 	                </div>

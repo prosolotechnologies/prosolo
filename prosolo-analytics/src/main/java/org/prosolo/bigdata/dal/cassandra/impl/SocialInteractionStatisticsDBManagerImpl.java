@@ -69,7 +69,14 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 		return SocialInteractionStatisticsDBManagerHolder.INSTANCE;
 	}
 	private List<Row> query(BoundStatement statement) {
-		return getSession().execute(statement).all();
+		List<Row> rows=null;
+		try{
+			rows= getSession().execute(statement).all();
+		}catch(Exception ex){
+			logger.error(ex);
+		}
+
+		return rows;
 	}
 	
 	private PreparedStatement getStatement(Session session, SocialInteractionsStatements statement) {
@@ -193,8 +200,9 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 	@Override
 	public List<OuterInteractionsCount> getOuterInteractions(Long course, Long student) {
-		System.out.println("get outer interactions:course:"+course+" student:"+student);
+
 		Long timestamp = getCurrentTimestampForTable(TableNames.OUTSIDE_CLUSTER_INTERACTIONS);
+		System.out.println("get outer interactions:course:"+course+" student:"+student+" timestamp:"+timestamp);
 		if (timestamp != null) {
 			PreparedStatement prepared = getStatement(getSession(), SocialInteractionsStatements.FIND_OUTSIDE_CLUSTER_INTERACTIONS);
 			BoundStatement statement = StatementUtil.statement(prepared, timestamp, course, student);

@@ -25,6 +25,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -71,9 +72,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 
 			// get ROLES
-			String roleUserTitle = "User";
-			String roleManagerTitle = "Manager";
-			String roleAdminTitle = "Admin";
+			String roleUserTitle = SystemRoleNames.USER;
+			String roleManagerTitle = SystemRoleNames.MANAGER;
+			String roleAdminTitle = SystemRoleNames.ADMIN;
 			Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleUserTitle);
 			Role roleManager = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleManagerTitle);
 			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
@@ -87,13 +88,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 
 			User userNickPowell = createUser(0,"Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
-			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell.getId());
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell.getId());
 
 			//generate event after roles are updated
 			Map<String, String> params = null;
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-					EventType.USER_ROLES_UPDATED, userNickPowell.getId(), userNickPowell, null, params);
+					EventType.USER_ROLES_UPDATED, UserContextData.ofActor(userNickPowell.getId()), userNickPowell, null, null, params);
 			
 			//create organization
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
@@ -849,7 +850,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			newUser = ServiceLocator
 					.getInstance()
 					.getService(RoleManager.class)
-					.assignRoleToUser(roleUser, newUser);
+					.assignRoleToUser(roleUser, newUser.getId());
 			
 			return newUser;
 		} catch (UserAlreadyRegisteredException e) {

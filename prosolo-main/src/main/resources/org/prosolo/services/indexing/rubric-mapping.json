@@ -1,0 +1,15 @@
+{
+  "rubric":{
+    "properties":{
+      "id":{
+        "store": false,
+        "type":"long"
+      },
+      "name":{
+        "store": false,
+        "type": "string"
+      }
+    }
+  }
+
+}

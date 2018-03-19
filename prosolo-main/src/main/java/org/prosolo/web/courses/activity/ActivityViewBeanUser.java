@@ -4,19 +4,21 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
@@ -27,7 +29,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +52,7 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private RoleManager roleManager;
 	@Inject private CommentManager commentManager;
 	@Inject private ActivityResultBean activityResultBean;
+	@Inject private RubricManager rubricManager;
 
 	private String actId;
 	private long decodedActId;
@@ -61,6 +63,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
+	private List<ActivityRubricCriterionData> rubricCriteria;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
@@ -93,8 +96,8 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void init() {
 		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
+		roles.add(SystemRoleNames.MANAGER);
+		roles.add(SystemRoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
 			this.roles = "Instructor";
@@ -112,22 +115,20 @@ public class ActivityViewBeanUser implements Serializable {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
-			
-				RestrictedAccessResult<CompetenceData1> res = activityManager
+
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
+
+				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), req);
+
+				competenceData = activityManager
 						.getFullTargetActivityOrActivityData(decodedCredId,
 								decodedCompId, decodedActId, loggedUser.getUserId(), false);
-				
-				unpackResult(res);
-				
 				//if user is enrolled he can always access the resource
-				if (!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/accessDenied.xhtml");
-					} catch (IOException e) {
-						e.printStackTrace();
-						logger.error(e);
-					}
+				if (!competenceData.getActivityToShowWithDetails().isEnrolled() && !access.isCanAccess()) {
+					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false, false);
@@ -153,29 +154,33 @@ public class ActivityViewBeanUser implements Serializable {
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
 			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 
-	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
-		competenceData = res.getResource();
-		access = res.getAccess();
+	public boolean isUserAllowedToSeeRubric() {
+		return competenceData.getActivityToShowWithDetails().getRubricVisibility() == ActivityRubricVisibility.ALWAYS;
+	}
+
+	public void initializeRubric() {
+		try {
+			if (rubricCriteria == null) {
+				rubricCriteria = rubricManager.getRubricDataForActivity(
+						competenceData.getActivityToShowWithDetails().getActivityId(),
+						0,
+						false);
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data. Please refresh the page and try again.");
+		}
 	}
 	
 	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
@@ -232,7 +237,7 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			LearningContextData lcd = new LearningContextData();
+			PageContextData lcd = new PageContextData();
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
@@ -245,9 +250,10 @@ public class ActivityViewBeanUser implements Serializable {
 				PageUtil.redirect("/competences/" + compId + "/" + actId);
 			}
 		} catch(DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -307,9 +313,11 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error marking the activity as completed");
+		} catch (EventException e) {
+			logger.error("Error", e);
 		}
 	}
 	
@@ -455,5 +463,8 @@ public class ActivityViewBeanUser implements Serializable {
 	public ResourceAccessData getAccess() {
 		return access;
 	}
-	
+
+	public List<ActivityRubricCriterionData> getRubricCriteria() {
+		return rubricCriteria;
+	}
 }

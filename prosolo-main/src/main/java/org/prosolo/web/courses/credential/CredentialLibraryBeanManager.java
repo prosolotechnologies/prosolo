@@ -5,13 +5,12 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
@@ -72,13 +71,12 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-				LearningContextData lcd = new LearningContextData(page, context, null);
+				PageContextData lcd = new PageContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();
 				params.put("query", searchTerm);
 				try {
-					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_CREDENTIALS, 
-							params, loggedUserBean.getIpAddress(), lcd);
+					loggingService.logServiceUse(loggedUserBean.getUserContext(lcd), ComponentName.SEARCH_CREDENTIALS,
+							null, params, loggedUserBean.getIpAddress());
 				} catch(Exception e) {
 					logger.error(e);
 				}
@@ -102,8 +100,12 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
 				loggedUserBean.getOrganizationId(), searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 				loggedUserBean.getUserId(), searchFilter, sortOption);
-		credentials = response.getFoundNodes();
-		this.paginationData.update((int) response.getHitsNumber());
+		extractResult(response);
+	}
+
+	private void extractResult(PaginatedResult<CredentialData> res) {
+		credentials = res.getFoundNodes();
+		this.paginationData.update((int) res.getHitsNumber());
 	}
 	
 	public void applySearchFilter(CredentialSearchFilterManager filter) {
@@ -135,7 +137,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 //			String page = PageUtil.getPostParameter("page");
 //			String lContext = PageUtil.getPostParameter("learningContext");
 //			String service = PageUtil.getPostParameter("service");
-//			LearningContextData context = new LearningContextData(page, lContext, service);
+//			PageContextData context = new PageContextData(page, lContext, service);
 //			if(cred.isBookmarkedByCurrentUser()) {
 //				credentialManager.deleteCredentialBookmark(cred.getId(), 
 //						loggedUserBean.getUserId(), context);
@@ -157,9 +159,11 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
-			} catch(DbConnectionException e) {
-				logger.error(e);
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+			} catch (EventException e) {
+				logger.error("Error", e);
 			}
 			if(archived) {
 				try {
@@ -181,9 +185,11 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
-			} catch(DbConnectionException e) {
-				logger.error(e);
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+			} catch (EventException e) {
+				logger.error("Error", e);
 			}
 			if(success) {
 				try {
@@ -198,10 +204,9 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	}
 	
 	private void reloadDataFromDB() {
-		paginationData.update((int) credManager.countNumberOfCredentials(searchFilter, 
-				loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
-		credentials = credManager.searchCredentialsForManager(searchFilter, paginationData.getLimit(), 
-				paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+		PaginatedResult<CredentialData> res = credManager.searchCredentialsForManager(
+				searchFilter, paginationData.getLimit(),paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+		extractResult(res);
 	}
 
 	/*

@@ -23,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.indexing.CredentialESService")
@@ -50,16 +48,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 				builder.field("id", cred.getId());
 
-				builder.startArray("units");
 				//retrieve units for original credential
 				long credId = cred.getType() == CredentialType.Original ? cred.getId() : cred.getDeliveryOf().getId();
 				List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(credId, session);
-				for (long id : units) {
-					builder.startObject();
-					builder.field("id", id);
-					builder.endObject();
-				}
-				builder.endArray();
+				addUnits(builder, units);
 
 				builder.field("archived", cred.isArchived());
 				builder.field("title", cred.getTitle());
@@ -68,14 +60,16 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				if (date != null) {
 					builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
 				}
+				String deliveryStart = null;
 				if (cred.getDeliveryStart() != null) {
-					builder.field("deliveryStart", ElasticsearchUtil.getDateStringRepresentation(
-							cred.getDeliveryStart()));
+					deliveryStart = ElasticsearchUtil.getDateStringRepresentation(cred.getDeliveryStart());
 				}
+				builder.field("deliveryStart", deliveryStart);
+				String deliveryEnd = null;
 				if (cred.getDeliveryEnd() != null) {
-					builder.field("deliveryEnd", ElasticsearchUtil.getDateStringRepresentation(
-							cred.getDeliveryEnd()));
+					deliveryEnd = ElasticsearchUtil.getDateStringRepresentation(cred.getDeliveryEnd());
 				}
+				builder.field("deliveryEnd", deliveryEnd);
 
 				builder.startArray("tags");
 				List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);
@@ -99,69 +93,93 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.field("type", cred.getType());
 				builder.field("visibleToAll", cred.isVisibleToAll());
 
-				builder.startArray("bookmarkedBy");
-				List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-						cred.getId(), session);
-				for (CredentialBookmark cb : bookmarks) {
-					builder.startObject();
-					builder.field("id", cb.getUser().getId());
-					builder.endObject();
-				}
-				builder.endArray();
-				List<Long> instructorsUserIds = credInstructorManager
-						.getCredentialInstructorsUserIds(cred.getId());
-				builder.startArray("instructors");
-				for (Long id : instructorsUserIds) {
-					builder.startObject();
-					builder.field("id", id);
-					builder.endObject();
-				}
-				builder.endArray();
-				List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
-						cred.getId());
-				List<CredentialUserGroup> editGroups = credGroups.stream().filter(
-						g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
-				List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
-						g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
-				builder.startArray("usersWithEditPrivilege");
-				for (CredentialUserGroup g : editGroups) {
-					for (UserGroupUser user : g.getUserGroup().getUsers()) {
-						builder.startObject();
-						builder.field("id", user.getUser().getId());
-						builder.endObject();
-					}
-				}
-				builder.endArray();
-				builder.startArray("usersWithViewPrivilege");
-				for (CredentialUserGroup g : viewGroups) {
-					for (UserGroupUser user : g.getUserGroup().getUsers()) {
-						builder.startObject();
-						builder.field("id", user.getUser().getId());
-						builder.endObject();
-					}
-				}
-				builder.endArray();
-				List<TargetCredential1> targetCreds = credentialManager.getTargetCredentialsForCredential(
-						cred.getId(), false);
-				builder.startArray("students");
-				for (TargetCredential1 tc : targetCreds) {
-					builder.startObject();
-					builder.field("id", tc.getUser().getId());
-					builder.endObject();
-				}
-				builder.endArray();
+				addBookmarks(builder, cred.getId(), session);
+				addInstructors(builder, cred.getId());
+				addUsersWithPrivileges(builder, cred.getId(), session);
+				addStudents(builder, cred.getId());
+
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
-				String indexType = ESIndexTypes.CREDENTIAL;
 				indexNode(
 						builder, String.valueOf(cred.getId()),
-						ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(
-								cred.getOrganization().getId()), indexType);
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, cred.getOrganization().getId()),
+						ESIndexTypes.CREDENTIAL);
 			}
 		} catch (IOException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
+	}
+
+	private void addUnits(XContentBuilder builder, List<Long> units) throws IOException {
+		builder.startArray("units");
+		for (long id : units) {
+			builder.startObject();
+			builder.field("id", id);
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addBookmarks(XContentBuilder builder, long credId, Session session) throws IOException {
+		builder.startArray("bookmarkedBy");
+		List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
+				credId, session);
+		for (CredentialBookmark cb : bookmarks) {
+			builder.startObject();
+			builder.field("id", cb.getUser().getId());
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addInstructors(XContentBuilder builder, long credId) throws IOException {
+		List<Long> instructorsUserIds = credInstructorManager.getCredentialInstructorsUserIds(credId);
+		builder.startArray("instructors");
+		for (Long id : instructorsUserIds) {
+			builder.startObject();
+			builder.field("id", id);
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addUsersWithPrivileges(XContentBuilder builder, long credId, Session session) throws IOException {
+		List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
+				credId, session);
+		List<CredentialUserGroup> editGroups = credGroups.stream().filter(
+				g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
+		List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
+				g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
+		builder.startArray("usersWithEditPrivilege");
+		for (CredentialUserGroup g : editGroups) {
+			for (UserGroupUser user : g.getUserGroup().getUsers()) {
+				builder.startObject();
+				builder.field("id", user.getUser().getId());
+				builder.endObject();
+			}
+		}
+		builder.endArray();
+		builder.startArray("usersWithViewPrivilege");
+		for (CredentialUserGroup g : viewGroups) {
+			for (UserGroupUser user : g.getUserGroup().getUsers()) {
+				builder.startObject();
+				builder.field("id", user.getUser().getId());
+				builder.endObject();
+			}
+		}
+		builder.endArray();
+	}
+
+	private void addStudents(XContentBuilder builder, long credId) throws IOException {
+		List<TargetCredential1> targetCreds = credentialManager.getTargetCredentialsForCredential(
+				credId, false);
+		builder.startArray("students");
+		for (TargetCredential1 tc : targetCreds) {
+			builder.startObject();
+			builder.field("id", tc.getUser().getId());
+			builder.endObject();
+		}
+		builder.endArray();
 	}
 	
 	@Override
@@ -169,17 +187,34 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void updateCredentialNode(Credential1 cred, Session session) {
 		saveCredentialNode(cred, session);
 	}
-	
+
+
 //	@Override
-//	@Transactional
-//	public void updateCredentialDraftVersionCreated(String id) {
+//	public void addBookmarkToCredentialIndex(long organizationId, long credId, long userId) {
+//		String script = "if (ctx._source[\"bookmarkedBy\"] == null) { " +
+//				"ctx._source.bookmarkedBy = bookmark " +
+//				"} else { " +
+//				"ctx._source.bookmarkedBy += bookmark " +
+//				"}";
+//		updateCredentialBookmarks(organizationId, credId, userId, script);
+//	}
+//
+//	@Override
+//	public void removeBookmarkFromCredentialIndex(long organizationId, long credId, long userId) {
+//		String script = "ctx._source.bookmarkedBy -= bookmark";
+//		updateCredentialBookmarks(organizationId, credId, userId, script);
+//	}
+//
+//	private void updateCredentialBookmarks(long organizationId, long credId, long userId, String script) {
 //		try {
-//			XContentBuilder doc = XContentFactory.jsonBuilder()
-//		            .startObject()
-//	                .field("hasDraft", true)
-//	                .field("published", false)
-//	                .endObject();
-//			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, id, doc);
+//			Map<String, Object> params = new HashMap<>();
+//			Map<String, Object> param = new HashMap<>();
+//			param.put("id", userId);
+//			params.put("bookmark", param);
+//
+//			partialUpdateByScript(
+//					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+//					ESIndexTypes.CREDENTIAL,credId+"", script, params);
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
@@ -187,137 +222,34 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 //	}
 	
 	@Override
-	public void addBookmarkToCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "if (ctx._source[\"bookmarkedBy\"] == null) { " +
-				"ctx._source.bookmarkedBy = bookmark " +
-				"} else { " +
-				"ctx._source.bookmarkedBy += bookmark " +
-				"}";
-		updateCredentialBookmarks(organizationId, credId, userId, script);
-	}
-	
-	@Override
-	public void removeBookmarkFromCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "ctx._source.bookmarkedBy -= bookmark";
-		updateCredentialBookmarks(organizationId, credId, userId, script);
-	}
-	
-	@Override
 	public void updateCredentialBookmarks(long organizationId, long credId, Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 		            .startObject();
-			builder.startArray("bookmarkedBy");
-			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-					credId, session);
-			for(CredentialBookmark cb : bookmarks) {
-				builder.startObject();
-				builder.field("id", cb.getUser().getId());
-				builder.endObject();
-			}
-			builder.endArray();
+			addBookmarks(builder, credId, session);
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
-	
-	private void updateCredentialBookmarks(long organizationId, long credId, long userId, String script) {
+
+	@Override
+	public void updateStudents(long organizationId, long credId) {
 		try {
-			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId);
-			params.put("bookmark", param);
-			
-			partialUpdateByScript(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL,credId+"", script, params);
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addStudents(builder, credId);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void addUserToCredentialIndex(long organizationId, long credId, long userId,
-										 UserGroupPrivilege privilege) {
-		//temporarely while collection of users with instruct privilege is not introduced
-		if (privilege != UserGroupPrivilege.Instruct) {
-			String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
-			String script = "if (ctx._source[\"" + field + "\"] == null) { " +
-					"ctx._source." + field + " = user " +
-					"} else { " +
-					"ctx._source." + field + " += user " +
-					"}";
-			updateCredentialUsers(organizationId, credId, userId, script);
-		}
-	}
-	
-	@Override
-	public void removeUserFromCredentialIndex(long organizationId, long credId, long userId,
-											  UserGroupPrivilege privilege) {
-		//temporarely while collection of users with instruct privilege is not introduced
-		if (privilege != UserGroupPrivilege.Instruct) {
-			String field = privilege == UserGroupPrivilege.Edit 
-					? "usersWithEditPrivilege" 
-					: "usersWithViewPrivilege";
-			String script = "ctx._source." + field + " -= user";
-			updateCredentialUsers(organizationId, credId, userId, script);
-		}
-	}
-	
-	private void updateCredentialUsers(long organizationId, long credId, long userId, String script) {
-		try {
-			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId);
-			params.put("user", param);
-			
-			partialUpdateByScript(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL,credId+"", script, params);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void addStudentToCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "if (ctx._source[\"students\"] == null) { " +
-				"ctx._source.students = student " +
-				"} else { " +
-				"ctx._source.students += student " +
-				"}";
-		updateCredentialStudents(organizationId, credId, userId, script);
-	}
-	
-	@Override
-	public void removeStudentFromCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "ctx._source.students -= student";
-		updateCredentialStudents(organizationId, credId, userId, script);
-	}
-	
-	private void updateCredentialStudents(long organizationId, long credId, long userId,
-										  String script) {
-		try {
-			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId);
-			params.put("student", param);
-			
-			partialUpdateByScript(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL,
-					credId+"", script, params);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -327,38 +259,14 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 		            .startObject();
-			List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
-					credId, session);
-			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
-			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
-			builder.startArray("usersWithEditPrivilege");
-			for(CredentialUserGroup g : editGroups) {
-				for(UserGroupUser user : g.getUserGroup().getUsers()) {
-					builder.startObject();
-					builder.field("id", user.getUser().getId());
-					builder.endObject();
-				}
-			}
-			builder.endArray();
-			builder.startArray("usersWithViewPrivilege");
-			for(CredentialUserGroup g : viewGroups) {
-				for(UserGroupUser user : g.getUserGroup().getUsers()) {
-					builder.startObject();
-					builder.field("id", user.getUser().getId());
-					builder.endObject();
-				}
-			}
-			builder.endArray();
+			addUsersWithPrivileges(builder, credId, session);
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -371,77 +279,40 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
-	
+
 	@Override
-	public void addInstructorToCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "if (ctx._source[\"instructors\"] == null) { " +
-				"ctx._source.instructors = instructor " +
-				"} else { " +
-				"ctx._source.instructors += instructor " +
-				"}";
-		updateCredentialInstructors(organizationId, credId, userId, script);
-	}
-	
-	@Override
-	public void removeInstructorFromCredentialIndex(long organizationId, long credId, long userId) {
-		String script = "ctx._source.instructors -= instructor";
-		updateCredentialInstructors(organizationId, credId, userId, script);
-	}
-	
-	private void updateCredentialInstructors(long organizationId, long credId, long userId,
-											 String script) {
+	public void updateInstructors(long organizationId, long credId, Session session) {
 		try {
-			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId);
-			params.put("instructor", param);
-			
-			partialUpdateByScript(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL,
-					credId+"", script, params);
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addInstructors(builder, credId);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
-	
+
 	@Override
-	public void archiveCredential(long organizationId, long credId) {
+	public void updateArchived(long organizationId, long credId, boolean archived) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
-			    .startObject()
-		        .field("archived", true)
-		        .endObject();
-			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					.startObject()
+					.field("archived", archived)
+					.endObject();
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", doc);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void restoreCredential(long organizationId, long credId) {
-		try {
-			XContentBuilder doc = XContentFactory.jsonBuilder()
-			    .startObject()
-		        .field("archived", false)
-		        .endObject();
-			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL, credId + "", doc);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
@@ -454,43 +325,63 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 
 	@Override
-	public void addUnitToCredentialIndex(long organizationId, long credId, long unitId) {
-		String script = "if (ctx._source[\"units\"] == null) { " +
-				"ctx._source.units = unit " +
-				"} else { " +
-				"ctx._source.units += unit " +
-				"}";
-		updateCredentialUnits(organizationId, credId, unitId, script);
+	public void updateUnitsForOriginalCredentialAndItsDeliveries(long organizationId, long credentialId, Session session) {
+		try {
+			//retrieve units for original credential
+			List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(credentialId, session);
+
+			updateUnits(organizationId, credentialId, units);
+			List<Long> deliveries = credentialManager.getDeliveryIdsForCredential(credentialId);
+			//update units for all credential deliveries
+			for (long id : deliveries) {
+				updateUnits(organizationId, id, units);
+			}
+		} catch(Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	private void updateUnits(long organizationId, long credId, List<Long> units) throws IOException {
+		XContentBuilder builder = XContentFactory.jsonBuilder()
+				.startObject();
+		addUnits(builder, units);
+		builder.endObject();
+
+		partialUpdate(
+				ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+				ESIndexTypes.CREDENTIAL, credId + "", builder);
 	}
 
 	@Override
-	public void removeUnitFromCredentialIndex(long organizationId, long credId, long unitId) {
-		String script = "ctx._source.units -= unit";
-		updateCredentialUnits(organizationId, credId, unitId, script);
-	}
-
-	private void updateCredentialUnits(long organizationId, long credId, long unitId, String script) {
+	public void updateDeliveryTimes(long organizationId, Credential1 delivery) {
 		try {
-			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", unitId);
-			params.put("unit", param);
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			String deliveryStartStr = null;
+			if (delivery.getDeliveryStart() != null) {
+				deliveryStartStr = ElasticsearchUtil.getDateStringRepresentation(delivery.getDeliveryStart());
+			}
+			builder.field("deliveryStart", deliveryStartStr);
+			String deliveryEndStr = null;
+			if (delivery.getDeliveryEnd() != null) {
+				deliveryEndStr = ElasticsearchUtil.getDateStringRepresentation(delivery.getDeliveryEnd());
+			}
+			builder.field("deliveryEnd", deliveryEndStr);
+			builder.endObject();
 
-			partialUpdateByScript(
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					ESIndexTypes.CREDENTIAL,credId+"", script, params);
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ESIndexTypes.CREDENTIAL, delivery.getId() + "", builder);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 }

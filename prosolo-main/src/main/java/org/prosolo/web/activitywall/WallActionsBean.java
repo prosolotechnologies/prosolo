@@ -1,12 +1,10 @@
 package org.prosolo.web.activitywall;
 
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
@@ -20,6 +18,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
 
 @ManagedBean(name = "wallactions")
 @Component("wallactions")
@@ -40,29 +40,22 @@ public class WallActionsBean {
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		
 		PageUtil.fireSuccessfulInfoMessage("The activity has been hidden");
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		LearningContextData lcd = new LearningContextData(page, lContext, service);
-		
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Session session = (Session) defaultManager.getPersistence().openSession();
-				
-				try {
-					SocialActivityConfig config = activityWallActionsManager
-							.hideNotification(socialActivity.getId(), loggedUser.getUserId(), 
-									lcd, session);
-					logger.debug("User "+loggedUser.getUserId()+" hid social activity  "+socialActivity.getId()+" from the Activity Wall. Config id: "+config.getId());
-					session.flush();
-				} catch (ResourceCouldNotBeLoadedException e1) {
-					logger.error(e1);
-				} catch (EventException e) {
-					logger.error(e);
-				} finally {
-					HibernateUtil.close(session);
-				}
+		UserContextData context = loggedUser.getUserContext();
+
+		taskExecutor.execute(() -> {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+
+			try {
+				SocialActivityConfig config = activityWallActionsManager
+						.hideNotification(socialActivity.getId(), context, session);
+				logger.debug("User "+loggedUser.getUserId()+" hid social activity  "+socialActivity.getId()+" from the Activity Wall. Config id: "+config.getId());
+				session.flush();
+			} catch (ResourceCouldNotBeLoadedException e1) {
+				logger.error(e1);
+			} catch (EventException e) {
+				logger.error(e);
+			} finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}
@@ -74,24 +67,19 @@ public class WallActionsBean {
 		
 		PageUtil.fireSuccessfulInfoMessage("The activity has been deleted!");
 		
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Session session = (Session) defaultManager.getPersistence().openSession();
-				
-				try {
-					activityWallActionsManager.deleteSocialActivity(loggedUser.getUserId(), 
-							socialActivity, new LearningContextData(page, lContext, service), session);
-					session.flush();
-					logger.debug("User "+loggedUser.getUserId()+" deleted social activity " + socialActivity.getId() + " from the Activity Wall");
-				} catch (DbConnectionException e) {
-					logger.error("There was an error when user "+loggedUser.getUserId()+" tried to delete social activity " + socialActivity.getId() + ". "+e);
-				} finally {
-					HibernateUtil.close(session);
-				}
+		UserContextData context = loggedUser.getUserContext();
+		taskExecutor.execute(() -> {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+
+			try {
+				activityWallActionsManager.deleteSocialActivity(
+						socialActivity, context, session);
+				session.flush();
+				logger.debug("User "+loggedUser.getUserId()+" deleted social activity " + socialActivity.getId() + " from the Activity Wall");
+			} catch (DbConnectionException e) {
+				logger.error("There was an error when user "+loggedUser.getUserId()+" tried to delete social activity " + socialActivity.getId() + ". "+e);
+			} finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}
@@ -100,26 +88,21 @@ public class WallActionsBean {
 		socialActivity.setCommentsDisabled(false);
 		PageUtil.fireSuccessfulInfoMessage("Comments have been enabled");
 
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long socialActivityId = socialActivity.getId();
-				
-				Session session = (Session) defaultManager.getPersistence().openSession();
-				
-				try {
-					activityWallActionsManager.enableComments(loggedUser.getUserId(), 
-							socialActivityId, new LearningContextData(page, lContext, service), session);
-					session.flush();
-					logger.debug("User "+loggedUser.getUserId()+" enabled comments on social activity "+socialActivityId+" on the Activity Wall");
-				} catch (DbConnectionException e) {
-					logger.error("Error when user "+loggedUser.getUserId()+" tried to enable comments on social activity "+socialActivityId+" on the Activity Wall."+e);
-				} finally {
-					HibernateUtil.close(session);
-				}
+		UserContextData context = loggedUser.getUserContext();
+		taskExecutor.execute(() -> {
+			long socialActivityId = socialActivity.getId();
+
+			Session session = (Session) defaultManager.getPersistence().openSession();
+
+			try {
+				activityWallActionsManager.enableComments(
+						socialActivityId, context, session);
+				session.flush();
+				logger.debug("User "+loggedUser.getUserId()+" enabled comments on social activity "+socialActivityId+" on the Activity Wall");
+			} catch (DbConnectionException e) {
+				logger.error("Error when user "+loggedUser.getUserId()+" tried to enable comments on social activity "+socialActivityId+" on the Activity Wall."+e);
+			} finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}
@@ -128,26 +111,21 @@ public class WallActionsBean {
 		socialActivity.setCommentsDisabled(true);
 		PageUtil.fireSuccessfulInfoMessage("Comments have been disabled");
 
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long socialActivityId = socialActivity.getId();
-				
-				Session session = (Session) defaultManager.getPersistence().openSession();
+		UserContextData context = loggedUser.getUserContext();
+		taskExecutor.execute(() -> {
+			long socialActivityId = socialActivity.getId();
 
-				try {
-					activityWallActionsManager.disableComments(loggedUser.getUserId(), 
-							socialActivityId, new LearningContextData(page, lContext, service), session);
-					session.flush();
-					logger.debug("User "+loggedUser.getUserId()+" disabled comments on social activity "+socialActivityId+" on the Activity Wall");
-				} catch (DbConnectionException e) {
-					logger.error("Error when user "+loggedUser.getUserId()+" tried to disable comments on social activity "+socialActivityId+" on the Activity Wall."+e);
-				} finally {
-					HibernateUtil.close(session);
-				}
+			Session session = (Session) defaultManager.getPersistence().openSession();
+
+			try {
+				activityWallActionsManager.disableComments(
+						socialActivityId, context, session);
+				session.flush();
+				logger.debug("User "+loggedUser.getUserId()+" disabled comments on social activity "+socialActivityId+" on the Activity Wall");
+			} catch (DbConnectionException e) {
+				logger.error("Error when user "+loggedUser.getUserId()+" tried to disable comments on social activity "+socialActivityId+" on the Activity Wall."+e);
+			} finally {
+				HibernateUtil.close(session);
 			}
 		});
 	}

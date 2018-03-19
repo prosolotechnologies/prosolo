@@ -3,9 +3,8 @@ package org.prosolo.services.nodes;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -127,4 +126,28 @@ public interface UnitManager extends AbstractManager{
             throws DbConnectionException;
 
     List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
+
+    List<Long> getUserUnitIdsWithUserCapability(long userId, String capability) throws DbConnectionException;
+
+    List<UnitData> getUnitsWithRubricSelectionInfo(long organizationId, long rubricId)
+            throws DbConnectionException;
+
+    void addRubricToUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> addRubricToUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    void removeRubricFromUnit(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> removeRubricFromUnitAndGetEvents(long rubricId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    boolean isCredentialConnectedToUnit(long credId, long unitId, CredentialType type) throws DbConnectionException;
+
+    boolean isCompetenceConnectedToUnit(long compId, long unitId) throws DbConnectionException;
+
+    boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException;
+
 }

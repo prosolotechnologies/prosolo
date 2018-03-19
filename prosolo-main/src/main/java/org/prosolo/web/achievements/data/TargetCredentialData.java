@@ -1,5 +1,7 @@
 package org.prosolo.web.achievements.data;
 
+import org.prosolo.services.nodes.util.TimeUtil;
+
 import java.io.Serializable;
 
 /**
@@ -16,6 +18,7 @@ public class TargetCredentialData implements Serializable {
 	private String title;
 	private boolean hiddenFromProfile;
 	private long duration = 0l;
+	private String durationString;
 	private long credentialId;
 	private int progress;
 	
@@ -32,6 +35,11 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = credentialId;
 		this.progress = progress;
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+		calculateDurationString();
+	}
+
+	public void calculateDurationString() {
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
 	public Long getId() {
@@ -97,5 +105,14 @@ public class TargetCredentialData implements Serializable {
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
 	}
-	
+
+	public String getDurationString() {
+		return durationString;
+	}
+
+	public void setDurationString(String durationString) {
+		this.durationString = durationString;
+	}
+
+
 }

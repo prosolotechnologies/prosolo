@@ -1,10 +1,6 @@
 package org.prosolo.common.domainmodel.annotation;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -28,6 +24,7 @@ public class Annotation1 extends BaseEntity {
 	}
 	
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public AnnotationType getAnnotationType() {
 		return annotationType;
 	}
@@ -54,6 +51,7 @@ public class Annotation1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	public AnnotatedResource getAnnotatedResource() {
 		return annotatedResource;
 	}

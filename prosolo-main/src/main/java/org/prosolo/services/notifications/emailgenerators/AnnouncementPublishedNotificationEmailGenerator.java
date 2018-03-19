@@ -1,12 +1,13 @@
 package org.prosolo.services.notifications.emailgenerators;
 
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.web.util.ResourceBundleUtil;
 
 public class AnnouncementPublishedNotificationEmailGenerator extends NotificationEmailGenerator {
 	
 	private String subject;
 	private String targetTitle;
 	private String text;
+	private String localizedCredentialLabel;
 	
 	@Override
 	public String getTemplateName() {
@@ -19,11 +20,12 @@ public class AnnouncementPublishedNotificationEmailGenerator extends Notificatio
 	}
 
 	public AnnouncementPublishedNotificationEmailGenerator(String name, String actor, String objectTitle, String credentialTargetTitle, String predicate,
-			String date, String link, NotificationType type, String text) {
+			String date, String link, String announcementTitle, String announcementText) {
 		super(name, actor, predicate, objectTitle, date, link);
-		this.subject = "Announcement for " + credentialTargetTitle;
+		this.subject = announcementTitle;
 		this.targetTitle = credentialTargetTitle;
-		this.text = text;
+		this.text = announcementText;
+		this.localizedCredentialLabel = ResourceBundleUtil.getLabel("label.credential").toLowerCase();
 	}
 
 	public String getText() {
@@ -33,5 +35,8 @@ public class AnnouncementPublishedNotificationEmailGenerator extends Notificatio
 	public String getTargetTitle() {
 		return targetTitle;
 	}
-	
+
+	public String getLocalizedCredentialLabel() {
+		return localizedCredentialLabel;
+	}
 }

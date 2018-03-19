@@ -1,15 +1,6 @@
 package org.prosolo.web;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.Logger;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDAccount;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDProvider;
@@ -19,9 +10,17 @@ import org.prosolo.web.openid.OpenIdAuthenticatorFactory;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
 import org.prosolo.web.openid.provider.OpenIdProvider;
 import org.prosolo.web.unauthorized.SelfRegistrationBean;
+import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.io.Serializable;
 
 /**
  *
@@ -63,29 +62,15 @@ public class OpenIDBean implements Serializable {
 	private String openIdLanguage;
 	private OpenIDProvider openIDProvider;
 
-
-	public OpenIDProvider getOpenIDProvider() {
-		return openIDProvider;
-	}
-
-	public void setOpenIDProvider(OpenIDProvider openIDProvider) {
-		this.openIDProvider = openIDProvider;
-	}
-
-	public void authenticateUser() {
+	public void authenticateUser(User user) {
 		System.out.println("authenticate user:" + validatedId);
 		OpenIDAccount openIDAccount = registrationManager.findOpenIDAccount(validatedId);
 		if (openIDAccount == null) {
 			// signup new openid account
-			boolean isEmailExists = registrationManager.isEmailAlreadyExists(openIdEmail);
 			openIDAccount = new OpenIDAccount();
 			openIDAccount.setValidatedId(validatedId);
 			openIDAccount.setOpenIDProvider(openIDProvider);
-			User user = null;
-			if (isEmailExists) {
-				// Connect openid with existing account
-				user = userManager.getUser(openIdEmail);
-			} else {
+			if (user == null) {
 				// Create new user
 				logger.info("create new user :" + openIdFirstName + " : " + openIdLastName + " : " + openIdEmail);
 				user = selfRegistration.registerUserOpenId(openIdFirstName, openIdLastName, openIdEmail);
@@ -93,9 +78,6 @@ public class OpenIDBean implements Serializable {
 			}
 			openIDAccount.setUser(user);
 			userManager.saveEntity(openIDAccount);
-
-		} else {
-			// openid account already registered
 		}
 		loggedUserBean.loginOpenId(openIdEmail);
 	}
@@ -118,18 +100,19 @@ public class OpenIDBean implements Serializable {
 			openIdEmail = userInfo.getEmail();
 			openIdFirstName = userInfo.getFirstName();
 			openIdLastName = userInfo.getLastName();
+			openIDProvider = OpenIDProvider.valueOf(request.getParameter("provider").toUpperCase());
 			validatedId = userInfo.getId();
 
-			authenticateUser();
-		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext()
-						.redirect(CommonSettings.getInstance().config.appConfig.domain
-								+ "login?openiderr=Error while trying to login through your " + provider + " account");
-			} catch (IOException e) {
-				e.printStackTrace();
-				logger.error(e);
+			User user = userManager.getUser(openIdEmail);
+			if (user != null && user.isDeleted()) {
+				//if user is deleted he should get the appropriate message that he can't log in - we use message from customized spring
+				// localization file since it is used in other places
+				PageUtil.redirect("/login?err=1&error=" + ResourceBundleUtil.getSpringMessage("AbstractUserDetailsAuthenticationProvider.locked"));
+			} else {
+				authenticateUser(user);
 			}
+		} else {
+			PageUtil.redirect("/login?error=Error while trying to login through your " + provider + " account");
 		}
 
 	}

@@ -72,7 +72,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
 			
@@ -80,7 +80,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
@@ -158,27 +158,49 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
 			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
+
+		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+		bQueryBuilder.filter(configureAndGetSearchFilter(
+				CredentialSearchConfig.forOriginal(true), userId, null));
+
+		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, sortOption);
+	}
+
+	@Override
+	public PaginatedResult<CredentialData> searchCredentialsForAdmin(
+			long organizationId, long unitId, String searchTerm, int page, int limit,
+			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			//admin should see all credentials from unit with passed id
+			bQueryBuilder.filter(termQuery("units.id", unitId));
+			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name().toLowerCase()));
+
+			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, sortOption);
+	}
+
+	private PaginatedResult<CredentialData> searchCredentials(
+			BoolQueryBuilder bQueryBuilder, long organizationId, String searchTerm, int page, int limit,
+			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
-			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
 
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			
+
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("title").field("description");
-				
+
 				bQueryBuilder.filter(qb);
 			}
-			
+
 			switch(filter) {
 				case ACTIVE:
 					bQueryBuilder.filter(termQuery("archived", false));
@@ -189,29 +211,25 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				default:
 					break;
 			}
-			
-			
-			bQueryBuilder.filter(configureAndGetSearchFilter(
-					CredentialSearchConfig.forOriginal(true), userId, null));
-			
+
 			String[] includes = {"id", "title", "archived"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
-			
-			
+
+
 			searchRequestBuilder.setFrom(start).setSize(limit);
-			
+
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
+			SortOrder order = sortOption.getSortOrder() ==
+					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
 					: SortOrder.DESC;
 			searchRequestBuilder.addSort(sortOption.getSortField(), order);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
-			
+
 			if(sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -229,6 +247,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						cd.setTitle(title);
 						cd.setArchived(archived);
 						cd.setDeliveries(credentialManager.getActiveDeliveries(id));
+						cd.startObservingChanges();
 						response.addFoundNode(cd);
 					}
 				}

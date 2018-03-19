@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -21,13 +22,19 @@ import java.util.List;
 
 public interface UserManager extends AbstractManager {
 
-	User getUser(String email);
+	User getUser(String email) throws DbConnectionException;
+
+	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
 	User getUser(long organizationId, String email) throws DbConnectionException;
 
-	boolean checkIfUserExists(String email);
+	boolean checkIfUserExists(String email) throws DbConnectionException;
 
-	Collection<User> getAllUsers();
+	boolean checkIfUserExistsAndNotDeleted(String email) throws DbConnectionException;
+
+	Collection<User> getAllUsers(long orgId);
+
+	Collection<User> getAllUsers(long orgId, Session session) throws DbConnectionException;
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
@@ -131,4 +138,6 @@ public interface UserManager extends AbstractManager {
 											String password, String position, long unitId,
 											long unitRoleId, long userGroupId, UserContextData context)
 			throws DbConnectionException, EventException;
+
+	long getUserOrganizationId(long userId) throws DbConnectionException;
 }

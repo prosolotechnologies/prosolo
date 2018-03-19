@@ -41,7 +41,7 @@ function initCredentialsSlider() {
 	$('#credentials .slides').slick({
 		infinite : false,
 		variableWidth: true,
-		slidesToShow : 4,
+		slidesToShow : 3,
 		slidesToScroll : 2,
 		prevArrow: '#credentials .sliderIconLeft',
 		nextArrow: '#credentials .sliderIconRight',
@@ -77,10 +77,10 @@ function initCompetenceSlider() {
 	$('#competencesBlock .slides').slick({
 		infinite : false,
 		variableWidth: true,
-		slidesToShow : 4,
+		slidesToShow : 3,
 		slidesToScroll : 2,
-		prevArrow: '#competencesBlock .sliderIconLeftCred',
-		nextArrow: '#competencesBlock .sliderIconRightCred',
+		prevArrow: '#competencesBlock .sliderIconLeft',
+		nextArrow: '#competencesBlock .sliderIconRight',
 		responsive: [
 		             {
 		            	 breakpoint: 1024,

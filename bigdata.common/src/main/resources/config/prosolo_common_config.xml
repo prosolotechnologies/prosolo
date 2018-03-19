@@ -48,16 +48,14 @@
 		<cluster-name>elasticsearch</cluster-name>
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
-		<documents-index>documents</documents-index>
 		<nodes-index>nodes</nodes-index>
 		<users-index>users</users-index>
 		<associationrules-index>associationrules</associationrules-index>
 		<recommendationdata-index>recommendationdata</recommendationdata-index>
-
 		<userGroup-index>usergroups</userGroup-index>
-
 		<logs-index>logs</logs-index>
-
+		<rubrics-index>rubrics</rubrics-index>
+		<jobsLogs-index>jobslogs</jobsLogs-index>
 	</elastic-search-config>
 	<mysql-config>
 		<host>localhost</host>
@@ -85,7 +83,7 @@
 				REPEATABLE_READ - 4
 				SERIALIZABLE - 8
 			-->
-		 <isolation>2</isolation>
+			<isolation>2</isolation>
 		</connection>
 		<cache>
 			<use-second-level-cache>true</use-second-level-cache>

@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSetting
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
@@ -32,6 +32,7 @@ import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -223,14 +224,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				//ipAddress = accessResolver.findRemoteIPAddress();
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserId(), getIpAddress());
+				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
 				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 						.getExternalContext().getRequest();
 				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl());
+				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
 				return;
 			}
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
@@ -265,8 +266,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(),
-							getOrganizationId(), event.getSession().getId(), null, null, null,
+					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+							getUserId(), getOrganizationId(), event.getSession().getId(), null),
 							null, null, null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
@@ -300,19 +301,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (playButtonPressed || isDoNotShowTutorial()) {
 			getSessionData().getPagesTutorialPlayed().add(page);
 
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Session session = (Session) userManager.getPersistence().openSession();
+			taskExecutor.execute(() -> {
+				Session session = (Session) userManager.getPersistence().openSession();
 
-					try {
-						setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
-						session.flush();
-					} catch (Exception e) {
-						logger.error("Exception in handling message", e);
-					} finally {
-						HibernateUtil.close(session);
-					}
+				try {
+					setUserSettings(interfaceSettingsManager.tutorialsPlayed(getUserId(), page, session));
+					session.flush();
+				} catch (Exception e) {
+					logger.error("Exception in handling message", e);
+				} finally {
+					HibernateUtil.close(session);
 				}
 			});
 		}
@@ -358,7 +356,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
@@ -379,7 +377,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void forceUserLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
-			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			loggingService.logEvent(EventType.LOGOUT, getUserContext(), ipAddress);
 			FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
 		} catch (Exception e) {
 			logger.error(e);
@@ -409,7 +407,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return getUserContext(PageUtil.extractLearningContextData());
 	}
 
-	public UserContextData getUserContext(LearningContextData context) {
+	public UserContextData getUserContext(PageContextData context) {
 		return UserContextData.of(getUserId(), getOrganizationId(), getSessionId(),
 				context);
 	}
@@ -562,7 +560,54 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public long getOrganizationId() {
-		return getSessionData() == null ? null : getSessionData().getOrganizationId();
+		/*
+		if organization id is 0 (which can happen for super admins who are not associated with organization)
+		we try to retrieve organization id from url query param
+		 */
+		return getSessionData() == null
+				? 0
+				: getSessionData().getOrganizationId() > 0
+					? getSessionData().getOrganizationId()
+					: getOrganizationIdFromUrlQueryParam();
+	}
+
+	public long getOrganizationId(HttpServletRequest req) {
+		/*
+		try to get organization id the standard way and if 0, try to retrieve it from reqest parameters
+		 */
+		return getSessionData() == null
+				? 0
+				: getSessionData().getOrganizationId() > 0
+					? getSessionData().getOrganizationId()
+					: getOrganizationIdFromRequestParameters(req);
+	}
+
+	/**
+	 * Query param name should be 'orgId' in order to be extracted
+	 *
+	 * @return
+	 */
+	private long getOrganizationIdFromUrlQueryParam() {
+		if (FacesContext.getCurrentInstance() != null) {
+			String orgId = PageUtil.getGetParameter("orgId");
+			return idEncoder.decodeId(orgId);
+		} else {
+			return 0L;
+		}
+	}
+
+	/**
+	 * Query param name should be 'orgId' in order to be extracted
+	 *
+	 * @return
+	 */
+	private long getOrganizationIdFromRequestParameters(HttpServletRequest req) {
+		if (req != null) {
+			String orgId = req.getParameter("orgId");
+			return idEncoder.decodeId(orgId);
+		} else {
+			return 0L;
+		}
 	}
 
 	public String getSessionId() {

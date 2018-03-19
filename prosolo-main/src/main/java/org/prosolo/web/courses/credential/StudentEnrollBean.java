@@ -6,13 +6,14 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -67,7 +68,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	
 	public void prepareStudentEnroll() {
 		if(userRoleId == 0) {
-			Role role = roleManager.getRoleByName("User");
+			Role role = roleManager.getRoleByName(SystemRoleNames.USER);
 			if(role != null) {
 				userRoleId = role.getId();
 			}
@@ -130,7 +131,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			credManager.enrollStudentsInCredential(credId, loggedUserBean.getUserId(), studentsToEnroll,
-					loggedUserBean.getUserContext(new LearningContextData(page, context, service)));
+					loggedUserBean.getUserContext(new PageContextData(page, context, service)));
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch(DbConnectionException e) {
 			logger.error(e);

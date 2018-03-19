@@ -17,7 +17,9 @@ import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,6 +59,8 @@ public class OrganizationEditBean implements Serializable {
     private RoleManager roleManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
+    @Inject
+    private PageAccessRightsResolver pageAccessRightsResolver;
 
     private OrganizationData organization;
     private List<UserData> admins;
@@ -71,22 +75,27 @@ public class OrganizationEditBean implements Serializable {
         logger.debug("initializing");
         admins = new ArrayList<UserData>();
         try {
-            rolesArray = new String[]{"Admin","Super Admin"};
-            adminRoles = roleManager.getRolesByNames(rolesArray);
-            for(Role r : adminRoles){
-                adminRolesIds.add(r.getId());
-            }
             decodedId = idEncoder.decodeId(id);
-            if (decodedId > 0) {
-                this.organization = organizationManager.getOrganizationDataById(decodedId,adminRoles);
 
-                if (organization == null) {
-                    this.organization = new OrganizationData();
-                    PageUtil.fireErrorMessage("Organization cannot be found");
+            if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
+                rolesArray = new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
+                adminRoles = roleManager.getRolesByNames(rolesArray);
+                for(Role r : adminRoles){
+                    adminRolesIds.add(r.getId());
                 }
-            }else{
-                organization = new OrganizationData();
-                this.organization.setAdmins(new ArrayList<>());
+                if (decodedId > 0) {
+                    this.organization = organizationManager.getOrganizationDataById(decodedId, adminRoles);
+
+                    if (organization == null) {
+                        this.organization = new OrganizationData();
+                        PageUtil.fireErrorMessage("Organization cannot be found");
+                    }
+                } else {
+                    organization = new OrganizationData();
+                    this.organization.setAdmins(new ArrayList<>());
+                }
+            } else {
+                PageUtil.accessDenied();
             }
         } catch (Exception e) {
             logger.error(e);
@@ -126,7 +135,7 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
-                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/edit");
+                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
             }else{
                 PageUtil.fireErrorMessage("Error creating the organization");
             }

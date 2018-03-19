@@ -1,6 +1,7 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -11,7 +12,9 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -53,6 +56,10 @@ public class UsersBean implements Serializable,Paginable{
 	private UserManager userManager;
 	@Inject
 	private OrganizationManager orgManager;
+	@Inject
+	private ImportUsersBean importUsersBean;
+	@Inject
+	private PageAccessRightsResolver pageAccessRightsResolver;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -72,28 +79,62 @@ public class UsersBean implements Serializable,Paginable{
 
 	public void initAdmins(){
 		logger.info("initializing users");
-		long filterId = getFilterId();
-		rolesArray = new String[]{"Admin","Super Admin"};
+		rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
 		roles = roleManager.getRolesByNames(rolesArray);
-		filter = new RoleFilter(filterId,"All", 0);
+		filter = getDefaultRoleFilter();
 		loadUsers();
+	}
+
+	private RoleFilter getDefaultRoleFilter() {
+		long filterId = getFilterId();
+		return new RoleFilter(filterId,"All", 0);
 	}
 
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
-		if (decodedOrgId > 0) {
-			orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
-			if (orgTitle == null) {
-				PageUtil.notFound();
+
+		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
+			if (decodedOrgId > 0) {
+				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
+				if (orgTitle == null) {
+					PageUtil.notFound();
+				} else {
+					long filterId = getFilterId();
+					filter = new RoleFilter(filterId, "All", 0);
+					loadUsers();
+				}
 			} else {
-				long filterId = getFilterId();
-				filter = new RoleFilter(filterId, "All", 0);
-				loadUsers();
+				PageUtil.notFound();
 			}
 		} else {
-			PageUtil.notFound();
+			PageUtil.accessDenied();
 		}
+	}
+
+	/*
+	Import users from file
+	 */
+
+	public void prepareImportingUsers() {
+		importUsersBean.init();
+	}
+
+	public void importUsers() {
+		importUsersBean.importUsersToOrganization(decodedOrgId);
+		resetSearchData();
+		try {
+			loadUsers();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the user data");
+		}
+	}
+
+	private void resetSearchData() {
+		searchTerm = "";
+		this.paginationData.setPage(1);
+		filter = getDefaultRoleFilter();
 	}
 
 	private long getFilterId() {
@@ -115,7 +156,6 @@ public class UsersBean implements Serializable,Paginable{
 		paginationData.setPage(1);
 		searchUsers();
 	}
-
 
 	@Override
 	public void changePage(int page) {

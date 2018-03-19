@@ -31,7 +31,7 @@
 		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
 
 	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+		src="#{request.contextPath}/resources/javascript2/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script
 		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
@@ -43,56 +43,22 @@
 		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
 		
 	<script src="https://www.youtube.com/iframe_api"/>
-	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript2/youtubevideo.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 	
 </h:head>
 
-<h:body>
+<h:body styleClass="#{bodyClass}">
 	<utilcomp:messagesBundle var="msg" />
 	<div class="bigWrapper">
 	<header>
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access') or loggeduser.hasCapability('basic.instructor.access')}">
-					<h:form>
-						<div class="dropdown roleChanger">
-							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
-							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
-								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/student', 'mainmenu');">
-										<span></span>Student
-									</h:link>
-								</li>
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/manage/library">
-										<span></span>Manage
-									</h:link>
-								</li>
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
-										outcome="/admin/organizations">
-										<span></span>Admin
-									</h:link>
-								</li>
-							</ul>
-
-						</div>
-					</h:form>
-					</c:if>
-
-					<h:link id="logo"
-						onclick="sendLogPageNavigation('index','logo');"
-						outcome="/index">
-						ProSolo
-					</h:link>
-
+					<ui:include src="/WEB-INF/roleChanger.xhtml">
+						<ui:param name="section" value="STUDENT" />
+					</ui:include>
 					<nav>
 						<ul class="nav nav-pills">
 							<li role="presentation"
@@ -101,7 +67,22 @@
 									value="Home" outcome="/index" />
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
+									or util:getPagePath(view.viewId)  == 'competenceLibrary'
+									or util:getPagePath(view.viewId)  == 'credential'
+									or util:getPagePath(view.viewId)  == 'credential-students'
+									or util:getPagePath(view.viewId)  == 'credential-students-compare'
+									or util:getPagePath(view.viewId)  == 'credential-keywords'
+									or util:getPagePath(view.viewId)  == 'credential-assessment'
+									or util:getPagePath(view.viewId)  == 'competence'
+									or util:getPagePath(view.viewId)  == 'create-competence'
+									or util:getPagePath(view.viewId)  == 'activity'
+									or util:getPagePath(view.viewId)  == 'create-activity'
+									or util:getPagePath(view.viewId)  == 'activity-response'
+									or util:getPagePath(view.viewId)  == 'activity-responses'
+									or util:getPagePath(view.viewId)  == 'assessments'
+									or util:getPagePath(view.viewId)  == 'announcement'
+									? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
 							</li>
@@ -114,24 +95,22 @@
 					</nav>
 				</div>
 				<div class="headerTopRight">
-					<div class="dropdown createMenu">
-						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="true">
-							Create
-						</a>
-						
-						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-							<li>
-								<h:link value="New #{msg['label.credential']}"
-									outcome="/create-credential.xhtml" />
-							</li>
-							<li>
-								<h:link value="New #{msg['label.competence']}"
-									outcome="/create-competence.xhtml" />
-							</li>
-						</ul>
-					</div>
-					
+					<ui:remove>
+						<div class="dropdown createMenu">
+							<a class="btn btn-orange btn-sm" data-toggle="dropdown"
+								aria-haspopup="true" aria-expanded="true">
+								Create
+							</a>
+
+							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="New #{msg['label.competence']}"
+										outcome="/create-competence.xhtml" />
+								</li>
+							</ul>
+						</div>
+					</ui:remove>
+
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" 
 							process="@this"

@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -219,29 +218,30 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"credObjectActor.lastname AS credObjectActorLastname, " +
 				"credObject.description AS credObjectDescription, " +
 				//comment social activity (competence and activity)
-				"sa.comment_object AS commentObjectId, " +
-				"commentObject.description AS commentObjectComment, " +
+						//types of social activity not used currently
+					//"sa.comment_object AS commentObjectId, " +
+					//"commentObject.description AS commentObjectComment, " +
 				//competence comment social activity
-				"sa.competence_target AS compTargetId, " +
-				"compTarget.title AS compTargetTitle, " +
+					//"sa.competence_target AS compTargetId, " +
+					//"compTarget.title AS compTargetTitle, " +
 				//activity comment social activity
-				"sa.activity_target AS actTargetId, " +
-				"actTarget.title AS actTargetTitle, " +
-				"compActivity.competence AS actTargetCompId, " +
-				"actTarget.dtype AS actTargetDType, " +
-				"actTarget.url_type AS actTargetUrlType, " +
+					//"sa.activity_target AS actTargetId, " +
+					//"actTarget.title AS actTargetTitle, " +
+					//"compActivity.competence AS actTargetCompId, " +
+					//"actTarget.dtype AS actTargetDType, " +
+					//"actTarget.url_type AS actTargetUrlType, " +
 				//activity complete
-				"tActObject.activity AS actObjectId, " +
-				"actObject.title AS actObjectTitle, " +
-				"actObject.duration AS actObjectDuration, " +
-				"actObject.type AS actObjectType, " +
-				"actObject.created_by AS actObjectActorId, " +
-				"actObjectActor.name AS actObjectActorName, " +
-				"actObjectActor.lastname AS actObjectActorLastname, " +
-				"actObject.description AS actObjectDescription, " +
-				"actObject.dtype AS actObjectDType, " +
-				"actObject.url_type AS actObjectUrlType, " +
-				"tComp.competence AS actObjectCompetenceId, " +
+//					"tActObject.activity AS actObjectId, " +
+//					"actObject.title AS actObjectTitle, " +
+//					"actObject.duration AS actObjectDuration, " +
+//					"actObject.type AS actObjectType, " +
+//					"actObject.created_by AS actObjectActorId, " +
+//					"actObjectActor.name AS actObjectActorName, " +
+//					"actObjectActor.lastname AS actObjectActorLastname, " +
+//					"actObject.description AS actObjectDescription, " +
+//					"actObject.dtype AS actObjectDType, " +
+//					"actObject.url_type AS actObjectUrlType, " +
+//					"tComp.competence AS actObjectCompetenceId, " +
 				//"tCred.credential AS actObjectCredentialId, " +
 				//competence complete
 				"tCompObject.competence AS compObjectId, " +
@@ -292,39 +292,44 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"   LEFT JOIN user AS compObjectActor " +
 				"       ON compObject.created_by = compObjectActor.id " +
 				//comment social activity (competence and activity)
-				"	LEFT JOIN comment1 AS commentObject \n" +
-				"		ON (sa.dType = :competenceCommentDType " +
-				"       OR sa.dType = :activityCommentDType) \n " +
-				"       AND sa.comment_object = commentObject.id \n " +
+//				"	LEFT JOIN comment1 AS commentObject \n" +
+//				"		ON (sa.dType = :competenceCommentDType " +
+//				"       OR sa.dType = :activityCommentDType) \n " +
+//				"       AND sa.comment_object = commentObject.id \n " +
 				//competence comment social activity
-				"	LEFT JOIN competence1 AS compTarget \n" +
-				"		ON sa.dType = :competenceCommentDType \n" +
-				"       AND sa.competence_target = compTarget.id \n " +
+//				"	LEFT JOIN competence1 AS compTarget \n" +
+//				"		ON sa.dType = :competenceCommentDType \n" +
+//				"       AND sa.competence_target = compTarget.id \n " +
 				//activity comment social activity
-				"	LEFT JOIN activity1 AS actTarget \n" +
-				"		ON sa.dType = :activityCommentDType \n" +
-				"       AND sa.activity_target = actTarget.id \n " +
-				"   LEFT JOIN (competence_activity1 compActivity \n " +   
-						"   INNER JOIN competence1 AS actTargetCompetence \n " +
-						"       ON compActivity.competence = actTargetCompetence.id) \n " + 
-				"       ON actTarget.id = compActivity.activity \n " +
+//				"	LEFT JOIN activity1 AS actTarget \n" +
+//				"		ON sa.dType = :activityCommentDType \n" +
+//				"       AND sa.activity_target = actTarget.id \n " +
+//				"   LEFT JOIN (competence_activity1 compActivity \n " +
+//						"   INNER JOIN competence1 AS actTargetCompetence \n " +
+//						"       ON compActivity.competence = actTargetCompetence.id) \n " +
+//				"       ON actTarget.id = compActivity.activity \n " +
 				//activity complete social activity
-				"	LEFT JOIN target_activity1 AS tActObject \n" +
-				"		ON sa.dType = :activityCompleteDType \n" +
-				"       AND sa.target_activity_object = tActObject.id \n " +
-				"   LEFT JOIN activity1 actObject " +
-				"       ON tActObject.activity = actObject.id " +
-				"   LEFT JOIN target_competence1 tComp " +
-				"       ON tActObject.target_competence = tComp.id " +
-				"   LEFT JOIN user AS actObjectActor " +
-				"       ON actObject.created_by = actObjectActor.id " +
+//				"	LEFT JOIN target_activity1 AS tActObject \n" +
+//				"		ON sa.dType = :activityCompleteDType \n" +
+//				"       AND sa.target_activity_object = tActObject.id \n " +
+//				"   LEFT JOIN activity1 actObject " +
+//				"       ON tActObject.activity = actObject.id " +
+//				"   LEFT JOIN target_competence1 tComp " +
+//				"       ON tActObject.target_competence = tComp.id " +
+//				"   LEFT JOIN user AS actObjectActor " +
+//				"       ON actObject.created_by = actObjectActor.id " +
+
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
 				"       AND annotation.annotated_resource = :annotatedResource " +
 				"		AND annotation.annotation_type = :annotationType " +
 				"		AND annotation.maker = :userId " +
 						
-				"WHERE sa.deleted = :saDeleted \n";
+				"WHERE sa.deleted = :saDeleted \n" +
+				//these social activity types are not used currently
+				"AND sa.dType != :competenceCommentDType " +
+				"AND sa.dType != :activityCommentDType " +
+				"AND sa.dType != :activityCompleteDType ";
 			
 		if (!shouldReturnHidden) {
 			q += " AND config.id IS NULL \n";
@@ -388,7 +393,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
 				//Sometimes Integer is returned and sometimes BigInteger
-				boolean liked = 1 == Integer.valueOf(tuple[73].toString());
+				boolean liked = 1 == Integer.valueOf(tuple[53].toString());
 
 				return socialActivityFactory.getSocialActivityData(
 						(BigInteger) tuple[0],
@@ -436,36 +441,37 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						(String) tuple[42],
 						(String) tuple[43],
 						(String) tuple[44],
+//not used social activity types
+//						(BigInteger) tuple[45],
+//						(String) tuple[46],
+//						(BigInteger) tuple[47],
+//						(String) tuple[48],
+//						(BigInteger) tuple[49],
+//						(String) tuple[50],
+//						(BigInteger) tuple[51],
+//						(String) tuple[52],
+//						(String) tuple [53],
+//						(BigInteger) tuple[54],
+//						(String) tuple[55],
+//						(BigInteger) tuple[56],
+//						(String) tuple[57],
+//						(BigInteger) tuple[58],
+//						(String) tuple[59],
+//						(String) tuple[60],
+//						(String) tuple[61],
+//						(String) tuple[62],
+//						(String) tuple[63],
+//						(BigInteger) tuple[64],
 						(BigInteger) tuple[45],
 						(String) tuple[46],
 						(BigInteger) tuple[47],
 						(String) tuple[48],
 						(BigInteger) tuple[49],
 						(String) tuple[50],
-						(BigInteger) tuple[51],
+						(String) tuple[51],
 						(String) tuple[52],
-						(String) tuple [53],
-						(BigInteger) tuple[54],
-						(String) tuple[55],
-						(BigInteger) tuple[56],
-						(String) tuple[57],
-						(BigInteger) tuple[58],
-						(String) tuple[59],
-						(String) tuple[60],
-						(String) tuple[61],
-						(String) tuple[62],
-						(String) tuple[63],
-						(BigInteger) tuple[64],
-						(BigInteger) tuple[65],
-						(String) tuple[66],
-						(BigInteger) tuple[67],
-						(String) tuple[68],
-						(BigInteger) tuple[69],
-						(String) tuple[70],
-						(String) tuple[71],
-						(String) tuple[72],
 						liked,
-						(BigInteger) tuple[74],
+						(BigInteger) tuple[54],
 						locale);
 			}
 
@@ -731,15 +737,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 createNewPost(long userId, SocialActivityData1 postData,
-			LearningContextData context) throws DbConnectionException {
+	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
+			UserContextData context) throws DbConnectionException {
 		try {
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
 			
-			PostSocialActivity1 post = resourceFactory.createNewPost(userId, postData.getText(), richContent);
-			
-			User user = new User();
-			user.setId(userId);
+			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
+
 			// generate events related to the content
 			//TODO richcontent1 is not a baseentity so event can't be generated
 			
@@ -747,14 +751,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				Session session = this.getPersistence().openSession();
 				try {
 					
-					generateEventForContent(user, postData.getText(), post);
+					generateEventForContent(context, postData.getText(), post);
 					
 					// generate Post event
-					String page = context != null ? context.getPage() : null;
-					String lContext = context != null ? context.getLearningContext() : null;
-					String service = context != null ? context.getService() : null;
-					eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
-							lContext, service, null);
+					eventFactory.generateEvent(EventType.Post, context, post, null, null, null);
 					
 					// generate MENTIONED event
 					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
@@ -763,8 +763,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						for (long mentionedUserId : mentionedUsers) {
 							User mentionedUser = (User) session.load(User.class, mentionedUserId);
 							
-							eventFactory.generateEvent(EventType.MENTIONED, userId, mentionedUser, post, page, 
-									lContext, service, null);
+							eventFactory.generateEvent(EventType.MENTIONED, context, mentionedUser, post, null, null);
 						}
 					}
 				} catch (Exception e) {
@@ -799,18 +798,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
-			LearningContextData context) throws DbConnectionException {
+	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
+			throws DbConnectionException {
 		try {
-			PostReshareSocialActivity postShare = resourceFactory.sharePost(userId, text, originalPostId);
-			
-			User user = new User();
-			user.setId(userId);
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.PostShare, user.getId(), postShare, null, page, 
-					lContext, service, null);
+			PostReshareSocialActivity postShare = resourceFactory.sharePost(context.getActorId(), text, originalPostId);
+
+			eventFactory.generateEvent(EventType.PostShare, context, postShare, null, null, null);
 			
 			return postShare;
 		} catch(Exception e) {
@@ -822,23 +815,16 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = false)
-	public PostSocialActivity1 updatePost(long userId, long postId, String newText, 
+	public PostSocialActivity1 updatePost(long postId, String newText,
 			UserContextData context) throws DbConnectionException {
 		try {
 			PostSocialActivity1 post = resourceFactory.updatePost(postId, newText);
-			
-			User user = new User();
-			user.setId(userId);
+
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
 			try {
-				LearningContextData lcd = context.getContext();
-				String page = lcd != null ? lcd.getPage() : null;
-				String lContext = lcd != null ? lcd.getLearningContext() : null;
-				String service = lcd != null ? lcd.getService() : null;
-				eventFactory.generateEvent(EventType.PostUpdate, context.getActorId(), context.getOrganizationId(),
-						context.getSessionId(), post, null, page, lContext, service, null, parameters);
+				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
 			} catch (EventException e) {
 				logger.error(e);
 			}
@@ -852,11 +838,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 
 	/**
-	 * @param user
+	 * @param context
 	 * @param text
 	 * @param post
 	 */
-	private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
+	private void generateEventForContent(final UserContextData context, final String text, final PostSocialActivity1 post) {
 		String addedLink = null;
 	
 		RichContent1 richContent = post.getRichContent();
@@ -864,13 +850,11 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			try {
 				switch (richContent.getContentType()) {
 				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
 					addedLink = richContent.getLink();
 					break;
 				case FILE:
-					eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
-							post);
+					eventFactory.generateEvent(EventType.FileUploaded, context, post, null, null, null);
 					break;
 				default:
 					break;
@@ -889,10 +873,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Override
 	@Transactional(readOnly = false)
 	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
-			long userId, CommentedResourceType resource, LearningContextData context) 
+			CommentedResourceType resource, UserContextData context)
 					throws DbConnectionException {
 		try {
-			Comment1 comment = commentManager.saveNewComment(data, userId, resource, context);
+			Comment1 comment = commentManager.saveNewComment(data, resource, context);
 			updateLastActionDate(socialActivityId, comment.getPostDate());
 			return comment;
 		} catch(Exception e) {
@@ -911,10 +895,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void updateSocialActivityComment(long id, CommentData data, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void updateSocialActivityComment(long id, CommentData data, UserContextData context)
+			throws DbConnectionException {
 		try {
-			commentManager.updateComment(data, userId, context);
+			commentManager.updateComment(data, context);
 			updateLastActionDate(id, new Date());
 		} catch(Exception e) {
 			logger.error(e);
@@ -925,10 +909,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void likeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void likeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.createAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.createAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 						   "SET sa.likeCount = sa.likeCount + 1 " +
@@ -942,8 +926,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.Like, userId, sa, null, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.Like, context, sa, null,null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -953,10 +936,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+	public void unlikeSocialActivity(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			annotationManager.deleteAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+			annotationManager.deleteAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
 					AnnotationType.Like);
 			String query = "UPDATE SocialActivity1 sa " +
 					   "SET sa.likeCount = sa.likeCount - 1 " +
@@ -970,8 +953,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
 			
-			eventFactory.generateEvent(EventType.RemoveLike, userId, sa, null, context.getPage(), 
-					context.getLearningContext(), context.getService(), null);
+			eventFactory.generateEvent(EventType.RemoveLike, context, sa, null, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

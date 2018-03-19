@@ -1,13 +1,9 @@
 package org.prosolo.common.domainmodel.user.oauth;
 
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
-
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.oauth.OpenIDProvider;
+
+import javax.persistence.*;
 
 /**
  * 
@@ -40,7 +36,8 @@ public class OpenIDAccount extends BaseEntity {
 		this.user = user;
 	}
 
-	@Enumerated
+	@Enumerated (EnumType.STRING)
+	@Column(nullable = false)
 	public OpenIDProvider getOpenIDProvider() {
 		return openIDProvider;
 	}

@@ -29,19 +29,15 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 	
 	@Override
 	public void process() {
-		Competence1 comp = (Competence1) event.getObject();
+		Competence1 comp = (Competence1) session.load(Competence1.class, event.getObject().getId());
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
-			if (event.getAction() == EventType.ADD_COMPETENCE_TO_UNIT) {
-				competenceESService.addUnitToCompetenceIndex(event.getOrganizationId(), event.getObject().getId(),
-						event.getTarget().getId());
-			} else if(event.getAction() == EventType.REMOVE_COMPETENCE_FROM_UNIT) {
-				competenceESService.removeUnitFromCompetenceIndex(event.getOrganizationId(), event.getObject().getId(),
-						event.getTarget().getId());
+			if (event.getAction() == EventType.ADD_COMPETENCE_TO_UNIT || event.getAction() == EventType.REMOVE_COMPETENCE_FROM_UNIT) {
+				competenceESService.updateUnits(event.getOrganizationId(), event.getObject().getId(), session);
 			} else if (event.getAction() == EventType.STATUS_CHANGED) {
-				competenceESService.updateStatus(event.getOrganizationId(), comp.getId(), comp.isPublished(), comp.getDatePublished());
+				competenceESService.updateStatus(event.getOrganizationId(), comp);
 			} else if (event.getAction() == EventType.OWNER_CHANGE) {
-				competenceESService.updateCompetenceOwner(event.getOrganizationId(), comp.getId(), Long.parseLong(params.get("newOwnerId")));
+				competenceESService.updateCompetenceOwner(event.getOrganizationId(), comp.getId(), comp.getCreatedBy().getId());
 			} else if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
 				competenceESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), comp.getId(), session);
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
@@ -62,10 +58,8 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 			competenceESService.saveCompetenceNode(comp, session);
 		} else if (operation == NodeOperation.Delete) {
 			competenceESService.deleteNodeFromES(comp);
-		} else if (operation == NodeOperation.Archive) {
-			competenceESService.archiveCompetence(event.getOrganizationId(), comp.getId());
-		} else if (operation == NodeOperation.Restore) {
-			competenceESService.restoreCompetence(event.getOrganizationId(), comp.getId());
+		} else if (operation == NodeOperation.Archive || operation == NodeOperation.Restore) {
+			competenceESService.updateArchived(event.getOrganizationId(), comp.getId(), comp.isArchived());
 		}
 	}
 
