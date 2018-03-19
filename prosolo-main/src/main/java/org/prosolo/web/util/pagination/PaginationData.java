@@ -16,7 +16,7 @@ public class PaginationData {
 
 	private List<PaginationLink> links;
 
-	private static final int DEFAULT_LIMIT = 2;
+	private static final int DEFAULT_LIMIT = 10;
 	
 	public PaginationData() {
 		this(DEFAULT_LIMIT);
