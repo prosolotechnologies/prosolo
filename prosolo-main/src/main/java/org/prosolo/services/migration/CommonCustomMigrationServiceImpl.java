@@ -4,9 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.*;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.GradingMode;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
@@ -27,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -193,6 +192,23 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             // get all credentials in the organization
             List<Credential1> allCredentials = credManager.getAllCredentials(org.getId(), persistence.currentManager());
 
+            // create assessment configs where they don't exist
+            for (Credential1 cred : allCredentials) {
+                if (cred.getAssessmentConfig() == null || cred.getAssessmentConfig().isEmpty()) {
+                    cred.setAssessmentConfig(new HashSet<>());
+
+                    for (AssessmentType assessmentType : AssessmentType.values()) {
+                        CredentialAssessmentConfig cac = new CredentialAssessmentConfig();
+                        cac.setCredential(cred);
+                        cac.setAssessmentType(assessmentType);
+                        cac.setEnabled(true);
+                        saveEntity(cac);
+
+                        cred.getAssessmentConfig().add(cac);
+                    }
+                }
+            }
+
             // get all users
             List<User> orgUsers = orgManager.getOrganizationUsers(org.getId(), false, persistence.currentManager(), null);
 
@@ -212,8 +228,21 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                         }
                     }
                 }
+            }
 
-
+            // create assessment configs if they don't exist
+            List<Competence1> competences = compManager.getAllCompetences(org.getId(), persistence.currentManager());
+            for (Competence1 competence : competences) {
+                if (competence.getAssessmentConfig() == null ||
+                        competence.getAssessmentConfig().isEmpty()) {
+                    for (AssessmentType atc : AssessmentType.values()) {
+                        CompetenceAssessmentConfig cac = new CompetenceAssessmentConfig();
+                        cac.setCompetence(competence);
+                        cac.setAssessmentType(atc);
+                        cac.setEnabled(true);
+                        saveEntity(cac);
+                    }
+                }
             }
         }
     }
