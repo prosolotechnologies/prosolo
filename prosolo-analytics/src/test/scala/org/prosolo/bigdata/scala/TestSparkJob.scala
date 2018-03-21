@@ -7,7 +7,7 @@ import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
 import org.prosolo.bigdata.scala.emails.NotificationsEmailManager
-import org.prosolo.bigdata.scala.instructorEmails.{InstructorEmailManager, InstructorEmailManager$}
+import org.prosolo.bigdata.scala.instructorEmails.{InstructorEmailManager}
 import org.prosolo.common.config.CommonSettings
 import org.prosolo.common.util.date.DateEpochUtil
 /**
@@ -21,13 +21,13 @@ object TestSparkJob extends App {
 
  // UserProfileClusteringManager.runClustering()
 
- // val emailManager = NotificationsEmailManager$.MODULE$
+  //val emailManager = NotificationsEmailManager$.MODULE$
  val date: Long = DateEpochUtil.getDaysSinceEpoch
   println("CURRENT DATE:"+date)
  val testDate=17589
-  //NotificationsEmailManager.runAnalyser(testDate)
+   NotificationsEmailManager.runAnalyser(testDate)
 
-  InstructorEmailManager.runJob()
+ // InstructorEmailManager.runJob()
 
  //testESInsert()
   def testESInsert(): Unit ={
