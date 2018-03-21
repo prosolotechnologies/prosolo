@@ -13,7 +13,7 @@
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
     <ui:define name="windowTitle">
-        #{msg['label.competence']} - #{competenceAssessmentBean.competenceAssessmentData.title} - Assessment
+        Assessment - #{competenceAssessmentBean.competenceAssessmentData.title} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -163,9 +163,10 @@
                     </ui:fragment>
 
                     <h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
-                        <h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{competenceAssessmentBean.isCurrentUserAssessor() and competenceAssessmentBean.competenceAssessmentData.assessorNotified}">
+                        <h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{competenceAssessmentBean.competenceAssessmentData.assessorNotified}">
                             <div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
                                 <p:commandButton id="btn"
+                                                 rendered="#{not competenceAssessmentBean.currentUserAssessedStudent}"
                                                  styleClass="close"
                                                  pt:data-dismiss="alert"
                                                  pt:aria-label="Close"
@@ -173,7 +174,7 @@
                                                  action="#{competenceAssessmentBean.removeAssessorNotification()}"
                                                  update="panelAssessorNotification :growlMain"
                                 />
-                                Student asked for assessment on this #{msg['label.competence'].toLowerCase()}.
+                                #{competenceAssessmentBean.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>

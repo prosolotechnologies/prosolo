@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;

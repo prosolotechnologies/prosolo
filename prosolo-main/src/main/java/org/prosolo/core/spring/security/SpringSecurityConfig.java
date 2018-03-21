@@ -129,8 +129,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //.antMatchers("/notfound").permitAll()
 
 		   .antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
+		   .antMatchers("/files/**").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
 			// we need to allow access to index.jsp as Tomcat by default tries to load this file
 		   .antMatchers("/index.jsp").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
+		   .antMatchers("/version.txt").hasAnyAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/home").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/achievements").hasAuthority("BASIC.USER.ACCESS")
@@ -163,10 +165,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/evidences").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/evidences/*").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/evidences/new").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/evidences/*/edit").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidence").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidence/*").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidence/new").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/evidence/*/edit").hasAuthority("BASIC.USER.ACCESS")
 			//remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -218,6 +220,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/assessments/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/assessments/activities/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/assessments/activities/*/*").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
+		   .antMatchers("/manage/credentials/*/assessments/competencies/*").hasAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/rss").hasAnyAuthority("MANAGE.CREDENTIAL.RSSFEEDS")
 		   .antMatchers("/manage/credentials/*/assessments").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/announcements").hasAnyAuthority("COURSE.ANNOUNCEMENTS.VIEW")
@@ -252,6 +255,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   
 		   //.antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/").hasAuthority("BASIC.ADMIN.ACCESS")
@@ -271,7 +275,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/organizations/*/users").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/new").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/settings").hasAuthority("ORGANIZATION.ADMINISTRATION")
-           .antMatchers("/admin/admins/*/edit").hasAuthority("ORGANIZATION.ADMINISTRATIOND")
+           .antMatchers("/admin/admins/*/edit").hasAuthority("ORGANIZATION.ADMINISTRATION")
            .antMatchers("/admin/admins/*/edit/password").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations").hasAuthority("ORGANIZATION.ADMINISTRATION")
 		   .antMatchers("/admin/organizations/*/units").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")

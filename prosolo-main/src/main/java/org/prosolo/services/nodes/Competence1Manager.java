@@ -76,7 +76,7 @@ public interface Competence1Manager {
 			IllegalDataStateException;
 	
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadActivities) throws DbConnectionException;
+		  boolean loadLearningPathData) throws DbConnectionException;
 	
 	
 	/**
@@ -440,5 +440,15 @@ public interface Competence1Manager {
 	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
 
 	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
+	 * and if not throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
 
 }

@@ -113,7 +113,7 @@ public class ReliableClientImpl implements ReliableClient {
 	@Override
 	public void setQueue(String queue) {
 		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
-		System.out.println("SET QUEUE:"+this.queue);
+		logger.debug("SET QUEUE:"+this.queue);
 	}
 
 }

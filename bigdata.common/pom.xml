@@ -24,6 +24,8 @@
                 <version>3.0-alpha-1</version>
             </dependency-->
 		<!-- Hibernate dependencies -->
+		<!-- https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp -->
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
@@ -227,6 +229,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.38</version>
 		</dependency>
 
 	</dependencies>

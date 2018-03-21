@@ -278,10 +278,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
-							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
-								List<ActivityData> activities = activityManager
-										.getTargetActivitiesData(compData.getTargetCompId());
-								compData.setActivities(activities);
+							if (compData != null && loadLearningPathData) {
+								if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+									List<ActivityData> activities = activityManager
+											.getTargetActivitiesData(compData.getTargetCompId());
+									compData.setActivities(activities);
+								} else {
+									//load user evidences
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									compData.setEvidences(compEvidences);
+								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
@@ -2770,6 +2776,32 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving target competence id");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
+			throws ResourceNotFoundException {
+		/*
+		 * check if passed credential has specified competence
+		 */
+		if(credId > 0) {
+			String query1 = "SELECT credComp.id " +
+					"FROM CredentialCompetence1 credComp " +
+					"WHERE credComp.credential.id = :credId " +
+					"AND credComp.competence.id = :compId";
+
+			@SuppressWarnings("unchecked")
+			List<Long> res1 = persistence.currentManager()
+					.createQuery(query1)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.list();
+
+			if(res1 == null || res1.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
 		}
 	}
 

@@ -10,6 +10,8 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -55,4 +57,5 @@ public interface LearningEvidenceManager {
 
     void updateEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
+    ResourceAccessData getResourceAccessRightsForEvidence(long evidenceId, long userId, ResourceAccessRequirements accessRequirements) throws DbConnectionException;
 }

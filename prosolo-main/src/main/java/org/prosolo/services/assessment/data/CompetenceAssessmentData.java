@@ -4,10 +4,12 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -26,6 +28,7 @@ public class CompetenceAssessmentData {
 	private String competenceAssessmentEncodedId;
 	private long competenceId;
 	private List<ActivityAssessmentData> activityAssessmentData;
+	private List<LearningEvidenceData> evidences;
 	private GradeData gradeData;
 	//if true, activity assessments can't be graded and messages can't be posted
 	private boolean readOnly;
@@ -73,13 +76,22 @@ public class CompetenceAssessmentData {
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
 				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
+		return from(cd, compAssessment, credAssessment, encoder, userId, dateFormat);
+	}
+
+	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
+												CredentialAssessment credAssessment, UrlIdEncoder encoder,
+												long userId, DateFormat dateFormat) {
 
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
+		if (credAssessment != null) {
+			data.setCredentialAssessmentId(credAssessment.getId());
+			data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		}
+
 		data.setTitle(cd.getTitle());
 		data.setCompetenceId(cd.getCompetenceId());
-		data.setCredentialAssessmentId(credAssessment.getId());
-		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
-		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
 		data.setAssessorId(compAssessment.getAssessor() != null ? compAssessment.getAssessor().getId() : 0);
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
@@ -92,15 +104,20 @@ public class CompetenceAssessmentData {
 		}
 
 		int maxPoints = 0;
-		List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
-		for (ActivityData ad : cd.getActivities()) {
-			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-					credAssessment, encoder, userId);
-			if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
-				maxPoints += assessmentData.getGrade().getMaxGrade();
+		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+			List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
+			for (ActivityData ad : cd.getActivities()) {
+				ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
+						credAssessment, encoder, userId);
+				if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
+					maxPoints += assessmentData.getGrade().getMaxGrade();
+				}
+				assessmentData.setCompAssessment(data);
+				activityAssessmentData.add(assessmentData);
 			}
-			assessmentData.setCompAssessment(data);
-			activityAssessmentData.add(assessmentData);
+			data.setActivityAssessmentData(activityAssessmentData);
+		} else {
+			data.setEvidences(cd.getEvidences());
 		}
 		if (cd.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC) {
 			maxPoints = cd.getAssessmentSettings().getMaxPoints();
@@ -119,7 +136,6 @@ public class CompetenceAssessmentData {
 				rubricId,
 				rubricType
 		));
-		data.setActivityAssessmentData(activityAssessmentData);
 
 		data.setNumberOfMessages(compAssessment.getMessages().size());
 		CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
@@ -335,5 +351,13 @@ public class CompetenceAssessmentData {
 
 	public void setDateValue(String dateValue) {
 		this.dateValue = dateValue;
+	}
+
+	public List<LearningEvidenceData> getEvidences() {
+		return evidences;
+	}
+
+	public void setEvidences(List<LearningEvidenceData> evidences) {
+		this.evidences = evidences;
 	}
 }

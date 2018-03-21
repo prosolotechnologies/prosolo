@@ -179,35 +179,37 @@
 							</h:panelGroup>
 						</p:commandLink>
 					
-						<h:panelGroup layout="block" id="notificationsContainer" 
-							class="dropdown-menu bullet pull-center"
+						<div class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
-								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
-										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3> 
-										#{notificationData.predicate}
-										<h3>#{notificationData.objectTitle}</h3>
-										#{notificationData.relationToTarget}
-										<h3>#{notificationData.targetTitle}</h3>
-										<span class="timestamp">
-											<utilcomp:convertTimeOutput
-													millis="#{notificationData.notificationTime}"
-													format="rel"
-											/>
-										</span>
-									</h:outputLink>
+
+							<h:panelGroup id="notificationsContainer">
+
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
+									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
+										<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
+											<span class="icon"></span>
+											<h3>#{notificationData.actor.fullName}</h3>
+											#{notificationData.predicate}
+											<h3>#{notificationData.objectTitle}</h3>
+											#{notificationData.relationToTarget}
+											<h3>#{notificationData.targetTitle}</h3>
+											<span class="timestamp">
+												<utilcomp:convertTimeOutput
+														millis="#{notificationData.notificationTime}"
+														format="rel"
+												/>
+											</span>
+										</h:outputLink>
+									</li>
+								</ui:repeat>
+
+								<li class="linkAllNotifications">
+									<h:link value="View all"
+										onclick="sendLogPageNavigation('notifications','mainmenu');"
+										outcome="/manage/notifications" />
 								</li>
-							</ui:repeat>
-							
-							<li class="linkAllNotifications">
-								<h:link value="View all"
-									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/manage/notifications" />
-							</li>
-						</h:panelGroup>
+							</h:panelGroup>
+						</div>
 					</div>
 					
 					<h:form id="userMenuForm">

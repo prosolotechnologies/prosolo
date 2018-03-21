@@ -10,16 +10,16 @@
 
 	<utilcomp:messagesBundle var="msg" />
 
+	<ui:define name="windowTitle">
+		Announcements - #{msg['label.delivery']}: #{announcementBeanManager.credentialData.title} - ProSolo
+	</ui:define>
+
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
 			<f:viewParam name="p" value="#{announcementBeanManager.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{announcementBeanManager.init()}" />
 		</f:metadata>
-	</ui:define>
-
-	<ui:define name="windowTitle">
-		#{msg['label.delivery']} - #{announcementBeanManager.credentialData.title} - Announcements
 	</ui:define>
 
 	<ui:define name="resourceTitle">

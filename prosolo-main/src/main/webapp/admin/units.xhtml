@@ -12,7 +12,9 @@
 
 	<utilcomp:messagesBundle var="msg" />
 
-	<ui:define name="windowTitle" >#{msg['label.unit.plural']}</ui:define>
+	<ui:define name="windowTitle" >
+		#{msg['label.unit.plural']} - #{unitsBean.organizationData.title} - ProSolo
+	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
