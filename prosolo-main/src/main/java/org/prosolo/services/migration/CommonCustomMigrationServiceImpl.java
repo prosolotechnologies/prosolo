@@ -91,20 +91,6 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                         if (assessorId > 0 && assessorId != studentId) {
                             participantIds.add(assessorId);
                         }
-                        Date now = new Date();
-
-                        for (Long userId : participantIds) {
-                            CompetenceAssessmentDiscussionParticipant participant = new CompetenceAssessmentDiscussionParticipant();
-
-                            User user = loadResource(User.class, userId);
-                            participant.setAssessment(compAssessment);
-                            participant.setDateCreated(now);
-                            //there are no unread messages at the moment of assessment creation
-                            participant.setRead(true);
-
-                            participant.setParticipant(user);
-                            saveEntity(participant);
-                        }
 
                         int compPoints = 0;
                         boolean atLeastOneActivityGraded = false;
