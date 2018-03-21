@@ -31,7 +31,6 @@ val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domai
 
   def hasComments():Boolean={hasNotificationType(NotificationType.Comment) }
   def commentsCount():Int={ getNotificationTypeCount(NotificationType.Comment)}
-  def commentsFilter
 
   def comments():java.util.List[Notification]={ getNotificationsByType(NotificationType.Comment)}
 
