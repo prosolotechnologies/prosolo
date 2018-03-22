@@ -81,7 +81,9 @@ public class AnalyticalEventsObserver implements EventObserver {
 						twitterHashtagsStreamsManager.adminEnableHashtag(hashtag);
 						TwitterStatusBuffer$.MODULE$.enableHashtagInFilter(hashtag);
 					}
-				} else {
+				} else if (analyticsEvent.getDataName().equals(DataName.STORENOTIFICATIONDATA)) {
+					AnalyticalEventDBManagerImpl.getInstance().insertNotificationDataRecord(analyticsEvent);
+				}else {
 					AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(analyticsEvent);
 				}
 			} else if (analyticsEvent.getDataType().equals(DataType.PROCESS)) {

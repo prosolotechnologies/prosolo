@@ -4,12 +4,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
-import org.prosolo.bigdata.dal.persistence.CourseDAO;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
-import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
+import org.prosolo.bigdata.es.ESAdministration;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
@@ -47,7 +47,12 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
 
 		}
-		//ESAdministration esAdmin = new ESAdministrationImpl();
+		 ESAdministration esAdmin = new ESAdministrationImpl();
+		try {
+			esAdmin.createIndexes();
+		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
+			indexingServiceNotAvailable.printStackTrace();
+		}
 		/*if (Settings.getInstance().config.initConfig.formatES) {
 
 			try {
@@ -65,7 +70,7 @@ public class ContextLoader implements ServletContextListener {
 		// TwitterHashtagsStreamsManagerImpl();
 		// manager.initialize();
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming){
-			logger.info("INITIALIZED TWITTER STREAMING");
+			System.out.println("INITIALIZED TWITTER STREAMING");
 		
 			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
 			twitterManager.initialize();
@@ -76,13 +81,11 @@ public class ContextLoader implements ServletContextListener {
 		// Initialization of Streaming manager that is responsible for
 		// collecting information from Prosolo through the Rabbitmq
 		if(Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming){
-			logger.info("INITIALIZED RABBITMQ STREAMING");
+			System.out.println("INITIALIZED RABBITMQ STREAMING");
 			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
 			streamingManager.initializeStreaming();
 		}
-		CourseDAO courseDAO=new CourseDAOImpl(false);
-		courseDAO.getAllCredentialIds();
-		logger.info("CONTEXT INITIALIZATION FINISHED");
+		System.out.println("CONTEXT INITIALIZATION FINISHED");
 	}
 
 	@Override

@@ -1,14 +1,5 @@
 package org.prosolo.services.notifications.impl;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -22,7 +13,6 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator1;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailGenerator;
@@ -31,9 +21,19 @@ import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.services.notifications.factory.NotificationDataFactory;
 import org.prosolo.services.notifications.factory.NotificationSectionDataFactory;
 import org.prosolo.web.util.page.PageSection;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 @Service("org.prosolo.services.notifications.NotificationManager")
 public class NotificationManagerImpl extends AbstractManagerImpl implements NotificationManager {
@@ -136,31 +136,43 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			throw new DbConnectionException("Error while saving notification");
 		}
 	}
-	
+
+	/**
+	 *
+	 *
+	 * @param userId
+	 * @param page
+	 * @param limit
+	 * @param filters	if empty, then no filtering will be applied
+	 * @param locale
+	 * @param section
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Override
 	@Transactional (readOnly = true)
-	public List<NotificationData> getNotificationsForUser(long userId, int page, int limit, 
-			List<NotificationType> typesToInclude, Locale locale, NotificationSection section) throws DbConnectionException {
+	public List<NotificationData> getNotificationsForUser(long userId, int page, int limit,
+														  List<NotificationType> filters, Locale locale,
+														  NotificationSection section) throws DbConnectionException {
 		try {
-			boolean shouldFilterTypes = typesToInclude != null && !typesToInclude.isEmpty();
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.append("SELECT DISTINCT notification " +
 								"FROM Notification1 notification " +
 								"INNER JOIN FETCH notification.actor actor " +
 								"WHERE notification.receiver.id = :userId " +
 								"AND notification.section =:section ");
-			if(shouldFilterTypes) {
+			if (filters != null && !filters.isEmpty()) {
 				queryBuilder.append("AND notification.type IN (:types) ");
 			}
 			queryBuilder.append("ORDER BY notification.dateCreated DESC");
 		  	
 			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
 			  	.setLong("userId", userId).setString("section",section.toString());
-			
-			if(shouldFilterTypes) {
-				q.setParameterList("types", typesToInclude);
+
+			if (filters != null && !filters.isEmpty()) {
+				q.setParameterList("types", filters);
 			}
-			if(limit != 0) {
+			if (limit != 0) {
 				q.setFirstResult(page * limit)
 				 .setMaxResults(limit);
 			}
@@ -309,19 +321,20 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 							    "FROM Notification1 notification " +
 								"WHERE notification.receiver.id = :userId " +
 								"AND notification.section = :section ");
-		    
-		    if(types != null && !types.isEmpty()) {
+
+			if (types != null && !types.isEmpty()) {
 		    	queryBuilder.append("AND notification.type IN (:types)");
 		    }
 			
 			Query q = persistence.currentManager().createQuery(queryBuilder.toString())
-			  	.setLong("userId", userId).setString("section",section.toString());
-			if(types != null && !types.isEmpty()) {
+					.setLong("userId", userId)
+					.setString("section", section.toString());
+
+			if (types != null && !types.isEmpty()) {
 				q.setParameterList("types", types);
 			}
 			
-			Integer resNumber = (Integer) q.uniqueResult();
-		  	return resNumber;
+		  	return (Integer) q.uniqueResult();
 		} catch(Exception e) {
 			logger.error(e);
 			throw new DbConnectionException("Error while retrieving notification data");

@@ -145,8 +145,14 @@ public class Settings {
 		System.setProperty("cassandra.dbHost",this.config.dbConfig.dbServerConfig.dbHost);
 		System.setProperty("cassandra.dbPort",String.valueOf(this.config.dbConfig.dbServerConfig.dbPort));
 		System.setProperty("elasticsearch.host",CommonSettings.getInstance().config.elasticSearch.esHostsConfig.esHosts.get(0).host);
-		System.setProperty("elasticsearch.port",String.valueOf(CommonSettings.getInstance().config.elasticSearch.esHostsConfig.esHosts.get(0).port));
-		System.setProperty("elasticsearch.jobsIndex",String.valueOf(CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex));
+		System.setProperty("elasticsearch.port",String.valueOf(this.config.sparkConfig.elasticsearchConnectorPort));
+		System.setProperty("elasticsearch.jobsIndex",String.valueOf(CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex)+CommonSettings.getInstance().config.getNamespaceSufix());
+		System.setProperty("mysql.dbHost",CommonSettings.getInstance().config.mysqlConfig.host);
+		System.setProperty("mysql.dbName",CommonSettings.getInstance().config.mysqlConfig.database);
+		System.setProperty("mysql.dbPort",String.valueOf(CommonSettings.getInstance().config.mysqlConfig.port));
+		System.setProperty("mysql.dbUser",CommonSettings.getInstance().config.mysqlConfig.user);
+		System.setProperty("mysql.dbPass",CommonSettings.getInstance().config.mysqlConfig.password);
+		System.setProperty("app.domain",CommonSettings.getInstance().config.appConfig.domain);
 	}
 
 	public void initializeLogger() {

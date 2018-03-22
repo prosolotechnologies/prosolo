@@ -28,7 +28,7 @@ public class CompetenceCloneFactory {
 	
 	/**
 	 * Creates a new {@link CredentialCompetence1} instance that is a clone of the given original. The method internally 
-	 * calls the {@link #clone(Competence1)} method to duplicate a competence. Newly created CredentialCompetence1 is not 
+	 * calls the {@link #clone(Competence1)} method to bcc a competence. Newly created CredentialCompetence1 is not
 	 * persisted as it does not have a reference to a credential at this point.
 	 * 
 	 * @param credComp CredentialCompetence1 instance to be cloned

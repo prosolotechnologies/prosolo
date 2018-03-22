@@ -6,7 +6,10 @@ import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringM
 import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.rdd.EsSpark
+import org.prosolo.bigdata.scala.emails.NotificationsEmailManager
+import org.prosolo.bigdata.scala.instructorEmails.{InstructorEmailManager}
 import org.prosolo.common.config.CommonSettings
+import org.prosolo.common.util.date.DateEpochUtil
 /**
   *
   * @author Zoran Jeremic
@@ -16,7 +19,16 @@ import org.prosolo.common.config.CommonSettings
 
 object TestSparkJob extends App {
 
-  UserProfileClusteringManager.runClustering()
+ // UserProfileClusteringManager.runClustering()
+
+  //val emailManager = NotificationsEmailManager$.MODULE$
+ val date: Long = DateEpochUtil.getDaysSinceEpoch
+  println("CURRENT DATE:"+date)
+ val testDate=17589
+   NotificationsEmailManager.runAnalyser(testDate)
+
+ // InstructorEmailManager.runJob()
+
  //testESInsert()
   def testESInsert(): Unit ={
     val sparkSession:SparkSession=SparkManager.sparkContextLoader.getSparkSession
@@ -32,11 +44,11 @@ object TestSparkJob extends App {
     val rddFailed= sparkSession.sparkContext.makeRDD(Seq(failedTask,failedTask2))
     EsSpark.saveToEs(rddFailed,resource+"/failed", mapping)
 
-    val upcomingTrip = org.prosolo.bigdata.scala.spark.Trip("OTP2", "SFO2")
-    val lastWeekTrip = org.prosolo.bigdata.scala.spark.Trip("MUC2", "OTP2")
+   // val upcomingTrip = org.prosolo.bigdata.scala.spark.Trip("OTP2", "SFO2")
+    //val lastWeekTrip = org.prosolo.bigdata.scala.spark.Trip("MUC2", "OTP2")
 
-    val rdd = sc.makeRDD(Seq(upcomingTrip, lastWeekTrip))
-    EsSpark.saveToEs(rdd, resource+"/docs")
+  //  val rdd = sc.makeRDD(Seq(upcomingTrip, lastWeekTrip))
+    //EsSpark.saveToEs(rdd, resource+"/docs")
 
 
 

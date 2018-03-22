@@ -21,6 +21,5 @@ public enum NotificationType {
 	Assessment_Comment,
 	//Started_Learning, 
 	AnnouncementPublished,
-	GradeAdded,
-	;
+	GradeAdded;
 }
