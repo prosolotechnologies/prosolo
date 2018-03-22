@@ -1809,7 +1809,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //	}
 
 	/**
-	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
+	 * Creates a new {@link CompetenceActivity1} instance that is a bcc of the given original.
 	 * 
 	 * @param original
 	 * @return newly created {@link CompetenceActivity1} instance

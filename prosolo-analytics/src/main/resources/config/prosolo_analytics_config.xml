@@ -17,6 +17,7 @@
 		<max-cores>4</max-cores>
 		<executor-memory>4g</executor-memory>
 		<app-name>prosolo.bigdata</app-name>
+		<elasticsearch-connector-port>9200</elasticsearch-connector-port>
 		<one-jar>/home/zoran/git/prosolo-multimodule/spark-jobs/target/spark-jobs-one-jar.jar</one-jar><!--absolute path to the spark-job jar file when working in standalone mode-->
 	</spark-config>
 
@@ -51,7 +52,13 @@
 					<schedule>0 0 6 * * ?</schedule><!--0 0 6 * * ? Executes every day at 6AM-->
 				</job>
 			</class>
-
+			<class name="org.prosolo.bigdata.jobs.GenerateNotificationsJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 1 * * ?</schedule><!--0 0 6 * * ? Executes every day at 1AM-->
+				</job>
+			</class>
 			<class name="org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob">
 				<job>
 					<activated>false</activated>

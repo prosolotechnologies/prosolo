@@ -15,6 +15,12 @@ public class EmailNotifierConfig {
 	
 	@Element(name = "monthly")
 	public boolean monthly = false;
+
+	@Element(name="bcc")
+	public boolean bcc =false;
+
+	@Element(name="bcc-email")
+	public String bccEmail;
 	
 	@Element(name = "smtp-config")
 	public SMTPConfig smtpConfig;

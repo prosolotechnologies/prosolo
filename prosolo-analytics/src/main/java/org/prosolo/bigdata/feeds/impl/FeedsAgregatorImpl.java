@@ -212,7 +212,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 //		if (participantsFeedEntries != null && !participantsFeedEntries.isEmpty()) {
 //			String courseTokenizedString = resourceTokenizer.getTokenizedStringForCourse(course);
 //			
-//			// we need to duplicate all feed entries and calculate relevance for the course
+//			// we need to bcc all feed entries and calculate relevance for the course
 //			
 //			for (FeedEntry feedEntry : participantsFeedEntries) {
 //				FeedEntry cloneFeedEntry = new FeedEntry();
