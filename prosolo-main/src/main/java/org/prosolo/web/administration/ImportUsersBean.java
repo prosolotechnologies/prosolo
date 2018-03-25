@@ -38,6 +38,7 @@ public class ImportUsersBean implements Serializable {
 
 	private UploadedFile file;
 	private boolean fileContentValid;
+	private int lastSuccessfullyParsedLine;
 	private List<UserImportData> users;
 
 	private List<String> usersNotImported;
@@ -74,12 +75,14 @@ public class ImportUsersBean implements Serializable {
 
 	private void parseAndValidateImportedData() {
 		try (
-				InputStream inputStream = file.getInputstream();
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(
-						inputStream, "UTF-8"))) {
+			InputStream inputStream = file.getInputstream();
+			BufferedReader bReader = new BufferedReader(new InputStreamReader(
+					inputStream, "UTF-8"))) {
 			Set<String> uniqueEmails = new HashSet<>();
+			lastSuccessfullyParsedLine = 0;
 			String line;
 			boolean firstLine = true;
+
 			while ((line = bReader.readLine()) != null) {
 				int numberOfCommas = StringUtils.countMatches(line, ",");
 				if (numberOfCommas != 3) {
@@ -131,6 +134,7 @@ public class ImportUsersBean implements Serializable {
 
 				users.add(new UserImportData(email, firstName, lastName, position));
 				uniqueEmails.add(email);
+				lastSuccessfullyParsedLine++;
 			}
 			fileContentValid = true;
 		} catch (IOException e) {
@@ -189,6 +193,13 @@ public class ImportUsersBean implements Serializable {
 			   + (user.getPosition() != null ? user.getPosition() : "");
 	}
 
+	/*
+	 * GETTERS / SETTERS
+	 */
+	public UploadedFile getFile() {
+		return file;
+	}
+
 	public boolean isFileTypeValid() {
 		return file != null ? file.getFileName().endsWith(".csv") : false;
 	}
@@ -200,11 +211,9 @@ public class ImportUsersBean implements Serializable {
 	public boolean isFileValid() {
 		return isFileTypeValid() && isFileContentValid();
 	}
-	/*
-	 * GETTERS / SETTERS
-	 */
-	public UploadedFile getFile() {
-		return file;
+
+	public int getLastSuccessfullyParsedLine() {
+		return lastSuccessfullyParsedLine;
 	}
 
 	public List<String> getUsersNotImported() {
