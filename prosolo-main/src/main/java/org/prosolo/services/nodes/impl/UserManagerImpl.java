@@ -372,16 +372,69 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+						   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
 			throws DbConnectionException {
-		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, roles, rolesToUpdate);
+		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
+				changePassword, password, position, newRoleList, allRoles, context);
 
-		eventFactory.generateEvent(EventType.Edit_Profile, context, user, null, null, null);
-		return user;
+		eventFactory.generateEvents(result.getEventQueue());
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+											   boolean emailVerified, boolean changePassword, String password,
+											   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context) throws DbConnectionException {
+		Result<User> result = new Result<>();
+		try {
+			User user = loadResource(User.class, userId);
+			user.setName(name);
+			user.setLastname(lastName);
+			user.setPosition(position);
+			user.setEmail(email);
+			user.setVerified(true);
+
+			if (changePassword) {
+				user.setPassword(passwordEncoder.encode(password));
+				user.setPasswordLength(password.length());
+			}
+
+			// remove the following roles (if user has them)
+			Set<Long> removedRoles = new HashSet<>(allRoles);
+			removedRoles.removeAll(newRoleList);
+
+			for (Long roleId : removedRoles) {
+				boolean removed = user.removeRoleById(roleId);
+
+				if (removed) {
+					// delete all unit memberships in roles that are removed
+					result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+				}
+			}
+
+			// add roles that user did not have previously
+			for (Long roleId : newRoleList) {
+				if (!user.hasRole(roleId)) {
+					Role role = (Role) persistence.currentManager().load(Role.class, roleId);
+					user.addRole(role);
+				}
+			}
+
+			result.setResult(user);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, context, user, null, null, null));
+
+			return result;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user data");
+		}
 	}
 
 	@Override
