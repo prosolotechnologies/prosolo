@@ -79,10 +79,10 @@ public class UserEditBean implements Serializable {
 	private UserData userToDelete;
 	private UserData user;
 	private UserData newOwner = new UserData();
-	private List<RoleCheckboxData> allRoles;
 	private List<UserData> users;
 	private String searchTerm;
-	private List<Role> userRoles;
+	private List<Role> allRoles;
+	private List<RoleCheckboxData> allRolesCheckBoxData;
 	private List<UserData> usersToExclude = new ArrayList<>();
 
 	private String organizationTitle;
@@ -162,7 +162,7 @@ public class UserEditBean implements Serializable {
 			else {
 				user = new UserData();
 			}
-			userRoles = roleManager.getRolesByNames(rolesArray);
+			allRoles = roleManager.getRolesByNames(rolesArray);
 			usersToExclude.add(user);
 			prepareRoles();
 		} catch (Exception e) {
@@ -173,12 +173,12 @@ public class UserEditBean implements Serializable {
 
 	private void prepareRoles() {
 		try {
-			allRoles = new ArrayList<>();
-			if (userRoles != null) {
-				for (int i = 0; i < userRoles.size(); i++) {
-					Role r = userRoles.get(i);
+			allRolesCheckBoxData = new ArrayList<>();
+			if (allRoles != null) {
+				for (int i = 0; i < allRoles.size(); i++) {
+					Role r = allRoles.get(i);
 					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(), this.user.hasRole(r.getId()), r.getId());
-					allRoles.add(roleCheckboxData);
+					allRolesCheckBoxData.add(roleCheckboxData);
 				}
 			}
 		} catch (DbConnectionException e) {
@@ -196,8 +196,8 @@ public class UserEditBean implements Serializable {
 	}
 
 	private List<Long> getSelectedRoles(){
-		return allRoles.stream()
-				.filter(r -> r.isSelected())
+		return allRolesCheckBoxData.stream()
+				.filter(RoleCheckboxData::isSelected)
 				.map(RoleCheckboxData::getId)
 				.collect(Collectors.toList());
 	}
@@ -239,10 +239,13 @@ public class UserEditBean implements Serializable {
 					this.user.getPassword(),
 					this.user.getPosition(),
 					getSelectedRoles(),
-					userRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
+					allRoles.stream().map(Role::getId).collect(Collectors.toList()),
 					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
+
+			// refresh user roles
+			this.user.setRoleIds(getSelectedRoles());
 
 			PageUtil.fireSuccessfulInfoMessage("The user has been updated");
 		} catch (DbConnectionException e) {
@@ -365,16 +368,16 @@ public class UserEditBean implements Serializable {
 		this.id = id;
 	}
 
+	public List<RoleCheckboxData> getAllRolesCheckBoxData() {
+		return allRolesCheckBoxData;
+	}
+
+	public void setAllRolesCheckBoxData(List<RoleCheckboxData> allRolesCheckBoxData) {
+		this.allRolesCheckBoxData = allRolesCheckBoxData;
+	}
+
 	public long getDecodedId() {
 		return decodedId;
-	}
-
-	public List<RoleCheckboxData> getAllRoles() {
-		return allRoles;
-	}
-
-	public void setAllRoles(List<RoleCheckboxData> allRoles) {
-		this.allRoles = allRoles;
 	}
 
 	public UserData getAccountData() {

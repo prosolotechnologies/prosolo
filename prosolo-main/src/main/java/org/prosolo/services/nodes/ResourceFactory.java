@@ -63,10 +63,6 @@ public interface ResourceFactory extends AbstractManager {
 	PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
    			throws DbConnectionException;
 	
-	User updateUser(long userId, String name, String lastName, String email,
-			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException;
-	
 	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
 
 	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;

@@ -14,18 +14,19 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.*;
+import org.prosolo.common.domainmodel.user.AnonUser;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Nikola Milikic
@@ -53,11 +57,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
-    @Inject private ActivityDataFactory activityFactory;
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
-    @Inject private EventFactory eventFactory;
-    @Inject private UserGroupManager userGroupManager;
+    @Inject private UnitManager unitManager;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -340,58 +342,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             throw new DbConnectionException("Error while updating post");
         }
 
-    }
-
-    @Override
-    @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public User updateUser(long userId, String name, String lastName, String email,
-                           boolean emailVerified, boolean changePassword, String password,
-                           String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException {
-        try {
-            User user = loadResource(User.class, userId);
-            user.setName(name);
-            user.setLastname(lastName);
-            user.setPosition(position);
-            user.setEmail(email);
-            user.setVerified(true);
-
-            if (changePassword) {
-                user.setPassword(passwordEncoder.encode(password));
-                user.setPasswordLength(password.length());
-            }
-
-            if(roles != null) {
-                Set<Long> rolesToAdd = new HashSet<>(roles);
-                /*
-                roles that should be deleted (if user had them) are all roles that should be updated
-                except for roles that should be added
-                 */
-                Set<Long> rolesToDelete = new HashSet<>(rolesToUpdate);
-                rolesToDelete.removeAll(rolesToAdd);
-
-                //update only roles that should be updated based on a rolesToUpdate argument
-                Iterator<Role> roleIterator = user.getRoles().iterator();
-                while (roleIterator.hasNext()) {
-                    Role r = roleIterator.next();
-                    boolean keepRole = rolesToAdd.remove(r.getId());
-                    if (!keepRole) {
-                        if (rolesToDelete.contains(r.getId())) {
-                            roleIterator.remove();
-                        }
-                    }
-                }
-                //assign new roles to user
-                for (Long roleId : rolesToAdd) {
-                    Role role = (Role) persistence.currentManager().load(Role.class, roleId);
-                    user.addRole(role);
-                }
-            }
-            return user;
-        } catch(Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while updating user data");
-        }
     }
 
     @Override

@@ -63,6 +63,10 @@ public interface UserManager extends AbstractManager {
 			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException;
 
+	Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+					boolean emailVerified, boolean changePassword, String password,
+					String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
+
 	List<User> getUsers(Long[] toExclude, int limit);
 
 	/**
