@@ -7,13 +7,11 @@ import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.event.Event;
@@ -43,7 +41,8 @@ public class SocialStreamObserver extends EventObserver {
 			//TODO for now we do not create social activities for competency and activity comments. This should be rethinked.
 			//EventType.Comment,
 			EventType.Post, 
-			EventType.Completion, 
+			EventType.Completion,
+			EventType.Edit
 		};
 	}
 
@@ -56,6 +55,7 @@ public class SocialStreamObserver extends EventObserver {
 			//TargetActivity1.class,
 			//TODO for now we do not create social activities for competency and activity comments. This should be rethinked.
 			//Comment1.class
+		    Unit.class
 		};
 	}
 
@@ -87,10 +87,9 @@ public class SocialStreamObserver extends EventObserver {
 		
 		try {
 			Transaction transaction = null;
-			SocialActivity1 socialActivity = null;
 			try {
 				transaction = session.beginTransaction();
-			 	socialActivity = socialActivityFactory.createSocialActivity(event, session);
+			 	socialActivityFactory.createOrDeleteSocialActivity(event, session);
 			 	transaction.commit();
 			} catch(Exception e) {
 				e.printStackTrace();

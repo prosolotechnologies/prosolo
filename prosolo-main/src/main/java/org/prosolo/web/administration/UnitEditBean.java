@@ -71,7 +71,7 @@ public class UnitEditBean implements Serializable {
     public void updateUnit(){
         try {
             //TODO add organization id to user context
-            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(), loggedUser.getUserContext(0));
+            unitManager.updateUnit(this.unit, loggedUser.getUserContext(0));
 
             logger.debug(ResourceBundleUtil.getMessage("label.unit") + "(" + this.unit.getId() + ") updated by the user "
                     + loggedUser.getUserId());

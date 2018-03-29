@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -502,6 +503,56 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving social activity");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void saveUnitWelcomePostSocialActivityIfNotExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			Optional<UnitWelcomePostSocialActivity> sa = getUnitWelcomePostSocialActivityIfExists(unitId, session);
+			if (!sa.isPresent()) {
+				UnitWelcomePostSocialActivity unitWelcomePostSocialActivity = new UnitWelcomePostSocialActivity();
+				Date now = new Date();
+				unitWelcomePostSocialActivity.setDateCreated(now);
+				unitWelcomePostSocialActivity.setLastAction(now);
+				unitWelcomePostSocialActivity.setUnit((Unit) session.load(Unit.class, unitId));
+				saveEntity(unitWelcomePostSocialActivity, session);
+			}
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving the unit welcome post social activity");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void deleteUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			Optional<UnitWelcomePostSocialActivity> sa = getUnitWelcomePostSocialActivityIfExists(unitId, session);
+			if (sa.isPresent()) {
+				session.delete(sa.get());
+			}
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error deleting the unit welcome post social activity");
+		}
+	}
+
+	private Optional<UnitWelcomePostSocialActivity> getUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			String query = "SELECT sa " +
+					"FROM UnitWelcomePostSocialActivity sa " +
+					"WHERE sa.unit.id = :unitId";
+			UnitWelcomePostSocialActivity sa = (UnitWelcomePostSocialActivity) session.createQuery(query)
+					.setLong("unitId", unitId)
+					.uniqueResult();
+
+			return Optional.ofNullable(sa);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving social activity");
 		}
 	}
 	
