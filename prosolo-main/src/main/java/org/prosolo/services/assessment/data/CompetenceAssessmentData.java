@@ -1,13 +1,11 @@
 package org.prosolo.services.assessment.data;
 
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -20,6 +18,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class CompetenceAssessmentData {
 	
@@ -80,13 +79,15 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
+				Pair<Integer, Integer> rubricGradeSummary, Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary,
 				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-		return from(cd, compAssessment, credAssessment, encoder, userId, dateFormat);
+		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat);
 	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
-												CredentialAssessment credAssessment, UrlIdEncoder encoder,
+												CredentialAssessment credAssessment, Pair<Integer, Integer> rubricGradeSummary,
+												Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary, UrlIdEncoder encoder,
 												long userId, DateFormat dateFormat) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
@@ -119,8 +120,9 @@ public class CompetenceAssessmentData {
 		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
 			List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
 			for (ActivityData ad : cd.getActivities()) {
+				ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
 				ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-						credAssessment, encoder, userId);
+						credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId);
 				if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
 					maxPoints += assessmentData.getGrade().getMaxGrade();
 				}
@@ -146,7 +148,8 @@ public class CompetenceAssessmentData {
 				maxPoints,
 				compAssessment.getPoints(),
 				rubricId,
-				rubricType
+				rubricType,
+				rubricGradeSummary
 		));
 
 		data.setNumberOfMessages(compAssessment.getMessages().size());

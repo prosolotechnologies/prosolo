@@ -1,13 +1,15 @@
 package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -16,6 +18,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class AssessmentDataFull {
 
@@ -50,7 +53,8 @@ public class AssessmentDataFull {
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+													Pair<Integer, Integer> credAssessmentGradeSummary, Map<Long, Pair<Integer, Integer>> compAssessmentsGradeSummary,
+													Map<Long, Pair<Integer, Integer>> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setMessage(assessment.getMessage());
@@ -78,7 +82,9 @@ public class AssessmentDataFull {
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceData1 compData : userComps) {
-			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, null);
+			CompetenceAssessment ca = assessment.getCompetenceAssessmentByCompetenceId(compData.getCompetenceId());
+			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, ca, assessment,
+					compAssessmentsGradeSummary.get(ca.getId()), actAssessmentsGradeSummary, encoder, userId, null);
 			//only for automatic grading max points is sum of competences max points
 			if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
 				maxPoints += cas.getGradeData().getMaxGrade();
@@ -101,7 +107,8 @@ public class AssessmentDataFull {
 				maxPoints,
 				credAssessmentPoints,
 				rubricId,
-				rubricType
+				rubricType,
+				credAssessmentGradeSummary
 		));
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));

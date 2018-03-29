@@ -6,6 +6,7 @@ import javax.faces.bean.ManagedBean;
 
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
@@ -120,6 +121,21 @@ public class StyleUtilBean implements Serializable {
 			default:
 				return "";	
 		}
+	}
+
+	public String getGradeStarClass(Pair<Integer, Integer> starData, String nongradedClass, boolean returnGradeClass) {
+		if (starData == null || starData.getFirst() == 0) {
+			return nongradedClass;
+		}
+		return returnGradeClass ? "rubricStars has" + starData.getSecond() + "Stars rubricStar0" + starData.getFirst() : "";
+	}
+
+	public String getGradeStarClass(Pair<Integer, Integer> starData) {
+		return getGradeStarClass(starData, "", true);
+	}
+
+	public String getEmptyStarClass(Pair<Integer, Integer> starData) {
+		return getGradeStarClass(starData, "starEmpty",false);
 	}
 
 }
