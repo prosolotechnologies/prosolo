@@ -96,7 +96,7 @@ public class AfterContextLoader implements ServletContextListener {
 			try {
 				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
 			} catch (IndexingServiceNotAvailable e) {
-				logger.error("Error", e);
+				logger.warn("Warning", e);
 			}
 		}
 	
