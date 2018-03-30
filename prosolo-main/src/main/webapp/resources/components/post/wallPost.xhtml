@@ -243,11 +243,33 @@
 		   </ui:fragment>
 
 			<ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Unit_Welcome_Post'}">
-				<div class="wallPostHead"></div>
+				<div class="wallPostHead">
+					<div class="user32">
+						<h:link outcome="/profile">
+							<utilcomp:userAvatar
+									avatar="#{request.contextPath}/resources/images2/logo-simple.svg"
+									fullName="ProSolo"
+									width="32"
+									height="32"
+							/>
+							<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+						</h:link>
+
+						<h3>
+							ProSolo
+						</h3>
+					</div>
+				</div>
 				<div class="wallPostBody">
 					<ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
 						<div id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
 							<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+						</div>
+						<div class="previewLink previewLinkBig">
+							<a href="#" class="previewLinkImage">
+								<h:graphicImage value="#{request.contextPath}/resources/images2/welcome-img.jpg"
+												alt="Welcome post" />
+							</a>
 						</div>
 					</ui:fragment>
 				</div>
