@@ -1,9 +1,5 @@
 package org.prosolo.web.util.style;
 
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.util.Pair;
@@ -12,6 +8,9 @@ import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
 
 @ManagedBean(name = "styleUtilBean")
 @Component("styleUtilBean")
@@ -54,6 +53,7 @@ public class StyleUtilBean implements Serializable {
 			case Assessment_Approved:
 			case Assessment_Comment:
 			case Assessment_Requested:
+			case GradeAdded:
 				return "notifAssessment";
 			case Mention:
 				return "notifMention";
