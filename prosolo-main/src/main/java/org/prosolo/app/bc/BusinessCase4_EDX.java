@@ -3,6 +3,7 @@ package org.prosolo.app.bc;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -16,6 +17,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.BulkDataAdministrationService;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -859,6 +861,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 		credentialData.setTagsString(tags);
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
+		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
+		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
+		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
+		credentialData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+
 		Credential1 credNP1 = extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
@@ -882,6 +889,10 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		compData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
+		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
+		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
+		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
+		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
 
 		Competence1 comp;
 		try {
