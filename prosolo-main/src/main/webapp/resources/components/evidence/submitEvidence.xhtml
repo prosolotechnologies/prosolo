@@ -4,20 +4,19 @@
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-		xmlns:post="http://java.sun.com/jsf/composite/components/post"
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-		xmlns:f="http://java.sun.com/jsf/core">
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
 		<composite:attribute name="learningContext" default=""/>
-		<composite:attribute name="includeExistingEvidencesOption" required="true" />
 		<composite:attribute name="update" default="" />
 		<composite:attribute name="submitButtonText" default="Submit" />
 		<composite:attribute name="displayCancelButton" default="false" />
 		<composite:attribute name="allowEvidenceTypeChangeForExistingEvidence" default="true" />
+		<composite:attribute name="addEvidenceToCompetence" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -61,7 +60,7 @@
 							Text
 						</p:commandLink>
 					</li>
-					<c:if test="#{cc.attrs.includeExistingEvidencesOption}">
+					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 						<li role="presentation">
 							<p:commandLink
 									pt:role="tab"
@@ -70,7 +69,7 @@
 									action="#{cc.attrs.bean.prepareExistingEvidenceSearch()}"
 									update=":#{cc.clientId}:panelExistingEvidence"
 									oncomplete="$('#documentTabLink').tab('show');">
-								Existing Document
+								Existing Evidence
 							</p:commandLink>
 						</li>
 					</c:if>
@@ -78,7 +77,7 @@
 				<a id="uploadTabLink" href="#upload" style="display: none;"></a>
 				<a id="urlTabLink" href="#url" style="display: none;"></a>
 				<a id="textTabLink" href="#text" style="display: none;"></a>
-				<c:if test="#{cc.attrs.includeExistingEvidencesOption}">
+				<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 					<a id="documentTabLink" href="#document" style="display: none;"></a>
 				</c:if>
 			</div>
@@ -90,14 +89,21 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Title is required"
 								autocomplete="off"
 						/>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{submitEvidenceBean.evidence.text}"></h:inputTextarea>
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+
 						<h:panelGroup id="panelUploadEvidence">
 							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
 								<utilcomp:fileUpload
@@ -148,6 +154,11 @@
 						</h:inputText>
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
+
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
 										   action="#{cc.attrs.bean.postFileEvidence()}"
@@ -170,14 +181,20 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Title is required"
 								autocomplete="off"
 						/>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText" placeholder="Short description here (optional)" value="#{submitEvidenceBean.evidence.text}"></h:inputTextarea>
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText id="inputUrl"
 									 styleClass="urlInput"
@@ -197,6 +214,11 @@
 									 autocomplete="off">
 						</h:inputText>
 						<script>$('.tagsInputEvidence').tagsinput();</script>
+
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
 
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
@@ -220,7 +242,7 @@
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence Title"
+								placeholder="Evidence title"
 								required="true"
 								requiredMessage="Required field"
 								autocomplete="off"
@@ -228,10 +250,11 @@
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
 						<h:inputTextarea id="textareaEvidenceText"
-										 placeholder="Type here..."
+										 placeholder="Short description here"
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
-										 requiredMessage="Required field"></h:inputTextarea>
+										 requiredMessage="Description is required" />
+
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText styleClass="tagsInputEvidence"
@@ -242,6 +265,11 @@
 									 autocomplete="off">
 						</h:inputText>
 						<script>$('.tagsInputEvidence').tagsinput();</script>
+
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
 
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
@@ -259,7 +287,7 @@
 					</h:form>
 				</div>
 			</c:if>
-			<c:if test="#{cc.attrs.includeExistingEvidencesOption and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
+			<c:if test="#{cc.attrs.addEvidenceToCompetence and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="document">
 					<h:panelGroup layout="block" id="panelExistingEvidence" styleClass="whiteBox manageVisibility">
 						<div class="innerWrapper">
@@ -276,7 +304,7 @@
 
 								<h:inputText id="inputEvidenceSearch"
 											 type="search"
-											 placeholder="Search Evidences"
+											 placeholder="Search Evidence"
 											 value="#{learningEvidenceSearchBean.searchTerm}"
 											 onclick="$(this).select();"
 											 onkeyup="searchListener(execSearchEvidences);"
@@ -287,17 +315,22 @@
 						<h:panelGroup id="panelEvidenceSearchResults">
 							<ul class="list">
 								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-									<li class="noPeople">No evidences</li>
+									<li class="noPeople">No evidence</li>
 								</ui:fragment>
 								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
 									<li>
 										<div>#{ev.title}</div>
 										<div class="evidenceActions">
-											<a href="#" target="_blank">View</a>
+											<h:link outcome="/evidence" target="_blank">
+												View
+												<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+											</h:link>
 											<p:commandLink
+													pt:data-toggle="modal"
 													process="@this"
-													action="#{cc.attrs.bean.postExistingEvidence(ev)}"
-													update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence">
+													action="#{submitEvidenceBean.setEvidence(ev)}"
+													update=":#{cc.clientId}:formAddExistingEvidence:panelAddExistingEvidence"
+													oncomplete="$('#whyAddEvidence').modal('show')">
 												Add
 											</p:commandLink>
 										</div>
@@ -313,6 +346,42 @@
 						/>
 					</h:panelGroup>
 				</div>
+
+				<h:form id="formAddExistingEvidence">
+					<div class="modal fade" id="whyAddEvidence" tabindex="-1" role="dialog" aria-labelledby="whyEvidence">
+						<div class="modal-dialog" role="document">
+							<h:panelGroup layout="block" id="panelAddExistingEvidence" class="modal-content">
+								<div class="modal-header alignLeft">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+									<h2 class="modal-title" id="whyEvidence">Add Evidence</h2>
+								</div>
+								<div class="assessmentModalMeta">
+									<div class="assessmentModalMetaLine">
+										<div class="assessmentModalMetaLeft">
+											Evidence:
+										</div>
+										<div class="assessmentModalMetaRight">
+											<h3>#{submitEvidenceBean.evidence.title}</h3>
+										</div>
+									</div>
+								</div>
+								<div class="modal-body alignLeft">
+									<h:inputTextarea id="inputRelToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputTextarea>
+									<small class="redText bottom30 topMinus30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
+								</div>
+								<div class="modal-footer alignLeft">
+									<p:commandLink
+											styleClass="btn btn-green"
+											action="#{cc.attrs.bean.postEvidence()}"
+											update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
+											oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
+										Add
+									</p:commandLink>
+								</div>
+							</h:panelGroup>
+						</div>
+					</div>
+				</h:form>
 			</c:if>
 		</div>
 	</composite:implementation>

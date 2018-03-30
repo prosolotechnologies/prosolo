@@ -38,7 +38,7 @@ public class ToolSetManagerTest {
 		LtiTool tool = new LtiTool();
 		tool.setName("Tool 1");
 		tool.setActivityId(1);
-		tool.setLearningGoalId(1);
+		tool.setCredentialId(1);
 		tool.setCompetenceId(1);
 		User u = new User();
 		u.setId(2);
@@ -52,7 +52,7 @@ public class ToolSetManagerTest {
 		LtiTool tool = new LtiTool();
 		tool.setName("Tool 1");
 		tool.setActivityId(1);
-		tool.setLearningGoalId(1);
+		tool.setCredentialId(1);
 		tool.setCompetenceId(1);
 		User u = new User();
 		u.setId(12365);

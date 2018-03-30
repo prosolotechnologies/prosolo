@@ -15,7 +15,6 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -39,11 +38,11 @@ public interface UserManager extends AbstractManager {
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException, UserAlreadyRegisteredException;
+			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
 
 	Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 										   String password, String position, InputStream avatarStream,
-										   String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException, UserAlreadyRegisteredException;
+										   String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
@@ -64,6 +63,10 @@ public interface UserManager extends AbstractManager {
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException;
+
+	Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+					boolean emailVerified, boolean changePassword, String password,
+					String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 
@@ -114,8 +117,8 @@ public interface UserManager extends AbstractManager {
 			throws DbConnectionException;
 
 	/**
-	 * Creates account for a users if it does not exist, recreates deleted user account and if user exists
-	 * it only updates his roles (adds role with {@code unitRoleId} id if not already added.
+	 * Creates account for a user if it does not exist, revokes deleted user account (if it was deleted)
+	 * and if user exists it only updates his roles (adds role with {@code unitRoleId} id if not already added.
 	 *
 	 * Also it adds user to the unit with {@code unitId} id with role ({@code unitRoleId}) if {@code unitId}
 	 * and {@code unitRoleId} are greater than 0; adds user to the user group ({@code userGroupId})
@@ -133,7 +136,7 @@ public interface UserManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	boolean createNewUserAndConnectToResources(
+	User createNewUserAndConnectToResources(
 											String name, String lastname, String emailAddress,
 											String password, String position, long unitId,
 											long unitRoleId, long userGroupId, UserContextData context)

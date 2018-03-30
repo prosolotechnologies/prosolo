@@ -4,13 +4,16 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -18,6 +21,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.AskForCompetenceAssessmentBean;
 import org.prosolo.web.learningevidence.SubmitEvidenceBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -52,6 +56,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
 	@Inject private SubmitEvidenceBean submitEvidenceBean;
+	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
 
 	private String credId;
 	private long decodedCredId;
@@ -88,7 +93,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
-				
+
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
 						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
@@ -125,6 +130,10 @@ public class CompetenceViewBeanUser implements Serializable {
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType);
 	}
 	
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
@@ -197,12 +206,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		postEvidence();
 	}
 
-	public void postExistingEvidence(LearningEvidenceData evidence) {
-		submitEvidenceBean.preparePostExistingEvidence(evidence);
-		postEvidence();
-	}
-
-	private void postEvidence() {
+	public void postEvidence() {
 		try {
 			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
 					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());
@@ -242,6 +246,20 @@ public class CompetenceViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing the evidence");
+		}
+	}
+
+	public void completeCompetence() {
+		try {
+			competenceManager.completeCompetence(
+					competenceData.getTargetCompId(),
+					loggedUser.getUserContext());
+			competenceData.setProgress(100);
+
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " has been completed");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error marking the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " as completed");
 		}
 	}
 

@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,23 +66,21 @@ public class UsersImportingBean implements Serializable {
 					String lastName = userRow[2];
 //					String affiliation = userRow[3];
 					String emailAddress = userRow[4];
-//					String fakeEmail="prosolo.2013@gmail.com"; 
 					String rolePosition = userRow[5];
-//					String levelOfEducation = userRow[6];
-					
+
 					if (!timestamp.equals("Timestamp")) {
+						User user = null;
 						try {
-							User user = ServiceLocator
-									.getInstance()
-									.getService(UserManager.class)
-									.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null, false);
-							
+							user = ServiceLocator
+                                    .getInstance()
+                                    .getService(UserManager.class)
+                                    .createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null, false);
+
 							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
-							
+
 							noUsersCreated++;
-						} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
+						} catch (IllegalDataStateException e) {
 							logger.error(e);
-							noUsersDidntCreated++;
 						}
 					}
 				}

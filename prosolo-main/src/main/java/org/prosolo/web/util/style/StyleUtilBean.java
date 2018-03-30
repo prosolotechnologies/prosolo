@@ -20,6 +20,9 @@ public class StyleUtilBean implements Serializable {
 	private static final long serialVersionUID = 3275340449093388469L;
 
 	public String getStyleClassBasedOnActivityType(ActivityType type) {
+		if (type == null) {
+			return "";
+		}
 		switch(type) {
 			case TEXT:
 				return "activityText";
@@ -35,6 +38,9 @@ public class StyleUtilBean implements Serializable {
 	}
 	
 	public String getStyleClassBasedOnNotificationType(NotificationType type) {
+		if (type == null) {
+			return "";
+		}
 		switch(type) {
 			case Follow_User:
 				return "notifFollowed";

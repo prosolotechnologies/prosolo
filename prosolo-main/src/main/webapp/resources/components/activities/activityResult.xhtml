@@ -11,6 +11,7 @@
 		xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
+		<composite:attribute name="activityTitle" required="true" />
 		<composite:attribute name="bean"/>
 		<composite:attribute name="resultData" required="true" />
 		<composite:attribute name="resultType" required="true"/>
@@ -32,9 +33,13 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		
+
 		<c:if test="#{cc.attrs.resultType eq 'FILE_UPLOAD'}">
 			<div id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultFile">
+				<div class="innerWrapper">
+					<h2 class="bottom0">#{cc.attrs.activityTitle}</h2>
+					<div class="clear1px"></div>
+				</div>
 				<div class="activityResultHead">
 					<div class="user32">
 						<utilcomp:userAvatar
@@ -77,7 +82,7 @@
 							<ui:repeat var="commentInfo" value="#{cc.attrs.resultData.otherResultsComments}">
 								<li>
 									<p:commandLink pt:data-toggle="modal"
-										action="#{cc.attrs.bean.loadActivityDiscussionById(commentInfo.targetActivityId, false, true)}"
+										action="#{cc.attrs.bean.loadActivityAssessmentComments(commentInfo.targetActivityId, cc.attrs.resultData, false, true)}"
 										update="#{cc.attrs.toUpdateOtherResultCommentModal}"
 										oncomplete="$('##{cc.attrs.otherResultCommentModalId}').modal('show');">
 										Commented #{commentInfo.noOfComments} time#{commentInfo.noOfComments > 1 ? 's' : ''} on the result by #{commentInfo.resultCreator}
@@ -91,30 +96,28 @@
 						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
+							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
+									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-								/
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</ui:fragment>
 							</p:commandLink>
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
 								<a href="javascript:void(0);" class="grade"
 								   data-toggle="tooltip"
 								   title="Nongraded activity">
-									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-									/
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
 								</a>
 							</ui:fragment>
 						</ui:fragment>
@@ -125,9 +128,10 @@
 									disabled="disabled"
 									data-toggle="tooltip"
 									title="Only assessor can update the grade">
-								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-								/
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</ui:fragment>
 							</a>
 						</ui:fragment>
 					</h:panelGroup>
@@ -171,7 +175,7 @@
 					showSortOptions="false"
 					isCollapsible="true"
 					growlToUpdate="#{cc.attrs.growlToUpdate}"
-					learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+					learningContext="#{cc.attrs.learningContext}"
 					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
 					toUpdateOnCommentSave=""
 				/>
@@ -180,6 +184,10 @@
 		
 		<c:if test="#{cc.attrs.resultType eq 'TEXT' or cc.attrs.resultType eq 'NONE'}">
 			<article id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultText">
+				<div class="innerWrapper">
+					<h2 class="bottom0">#{cc.attrs.activityTitle}</h2>
+					<div class="clear1px"></div>
+				</div>
 				<div class="activityResultHead">
 					<div class="user32">
 						<utilcomp:userAvatar
@@ -262,7 +270,7 @@
 							<ui:repeat var="commentInfo" value="#{cc.attrs.resultData.otherResultsComments}">
 								<li>
 									<p:commandLink pt:data-toggle="modal"
-										action="#{cc.attrs.bean.loadActivityDiscussionById(commentInfo.targetActivityId, false, true)}"
+										action="#{cc.attrs.bean.loadActivityAssessmentComments(commentInfo.targetActivityId, cc.attrs.resultData, false, true)}"
 										update="#{cc.attrs.toUpdateOtherResultCommentModal}"
 										oncomplete="$('##{cc.attrs.otherResultCommentModalId}').modal('show');">
 										Commented #{commentInfo.noOfComments} time#{commentInfo.noOfComments > 1 ? 's' : ''} on the result by #{commentInfo.resultCreator}
@@ -276,30 +284,28 @@
 						<span>Assessment Comments:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareActivityAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
+							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.maxGrade ne 0}"
+							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
 									styleClass="grade #{cc.attrs.gradeLink}"
-									action="#{activityAssessmentBean.prepareActivityAssessmentForGrading(cc.attrs.resultData.assessment)}"
+									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-								/
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</ui:fragment>
 							</p:commandLink>
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.maxGrade eq 0}">
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
 								<a href="javascript:void(0);" class="grade"
 								   data-toggle="tooltip"
 								   title="Nongraded activity">
-									#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-									/
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
 								</a>
 							</ui:fragment>
 						</ui:fragment>
@@ -310,9 +316,10 @@
 									disabled="disabled"
 									data-toggle="tooltip"
 									title="Only assessor can update the grade">
-								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
-								/
-								#{cc.attrs.resultData.assessment.grade.maxGrade}
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+									#{cc.attrs.resultData.assessment.grade.maxGrade}
+								</ui:fragment>
 							</a>
 						</ui:fragment>
 					</h:panelGroup>
@@ -362,7 +369,7 @@
 						commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
 						showSortOptions="false" isCollapsible="true"
 						growlToUpdate="#{cc.attrs.growlToUpdate}"
-						learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+						learningContext="#{cc.attrs.learningContext}"
 						toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
 						toUpdateOnCommentSave="" />
 				</c:if>

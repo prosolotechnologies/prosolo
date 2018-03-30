@@ -13,7 +13,9 @@
 		<composite:attribute name="evidence" type="org.prosolo.services.nodes.data.evidence.LearningEvidenceData" required="true"/>
 		<composite:attribute name="showEvidenceManagementOptions" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="showDetails" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="canEdit" required="true" type="java.lang.Boolean" />
         <composite:attribute name="deleteModalId" default="" />
+        <composite:attribute name="role" default="USER" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -30,7 +32,7 @@
 				</div>
 				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
 					<div class="evidenceTopRight">
-						<div class="dropdown optMoreMenu">
+						<h:panelGroup layout="block" rendered="#{cc.attrs.canEdit}" styleClass="dropdown optMoreMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
 								<li>
@@ -41,8 +43,8 @@
 									</p:commandLink>
 								</li>
 							</ul>
-						</div>
-                        <h:link outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
+						</h:panelGroup>
+                        <h:link rendered="#{cc.attrs.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
 							Edit
 							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
 						</h:link>
@@ -59,12 +61,22 @@
 				<tr>
 					<td class="col01">In #{msg['label.competence.plural']}:</td>
 					<td>
+						<ui:fragment rendered="#{empty cc.attrs.evidence.competences}">
+							<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
+						</ui:fragment>
 						<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
-							<h:link outcome="/competence"
+							<h:link rendered="#{cc.attrs.role == 'USER'}"
+								outcome="/competence"
 								value="#{c.title}">
 								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
 							</h:link>
-							<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}">, </ui:fragment>
+							<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
+									outcome="/manage/competence"
+									value="#{c.title}">
+								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+							</h:link>
+							- #{c.description}
+							<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
 						</ui:repeat>
 					</td>
 				</tr>
@@ -72,6 +84,9 @@
 					<td class="col01">Keywords:</td>
 					<td>
 						<ul class="tags">
+							<ui:fragment rendered="#{empty cc.attrs.evidence.tags}">
+								<span class="lightText">no keywords</span>
+							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.evidence.tags}" var="kw">
 								<li>#{kw}</li>
 							</ui:repeat>

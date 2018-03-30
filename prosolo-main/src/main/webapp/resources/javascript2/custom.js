@@ -114,11 +114,10 @@ function scrollToNewestComment(hiddenFieldId) {
 	scrollTo('comment_'+id);
 }
 
-function showLoader(comp) {
-	$(comp).css('text-align', 'center');
-	//$(comp).html('<img src="' + context + '/resources/images/style/ajax-loader-black.gif"/>');
-	$(comp).html('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
-	$(comp).show();
+function showLoader(elem, context) {
+	$(elem).css('text-align', 'center');
+	$(elem).html('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
+	$(elem).show();
 };
 
 function hideLoader(comp) {

@@ -41,9 +41,6 @@ class UserProfileClusteringSparkJob(kName:String, numFeatures:Int, numClusters:I
     val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
     println("ALL CREDENTIALS:" + credentialsIdsScala.mkString(","))
 
-
-
-
     val credentialsRDD: RDD[Long] = sc.parallelize(credentialsIdsScala.map {
       Long2long
     })

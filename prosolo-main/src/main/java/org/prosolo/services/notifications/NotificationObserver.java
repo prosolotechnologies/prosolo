@@ -13,8 +13,11 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.messaging.AnalyticalServiceMessageDistributer;
 import org.prosolo.services.messaging.SessionMessageDistributer;
+import org.prosolo.services.messaging.SystemMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessor;
 import org.prosolo.services.notifications.eventprocessing.NotificationEventProcessorFactory;
@@ -41,10 +44,12 @@ public class NotificationObserver extends EventObserver {
 	@Inject private DefaultManager defaultManager;
 	@Inject private NotificationCacheUpdater notificationCacheUpdater;
 	@Inject private SessionMessageDistributer messageDistributer;
+	@Inject private AnalyticalServiceCollector analyticalServiceCollector;
 	@Inject private NotificationEventProcessorFactory notificationEventProcessorFactory;
 	@Inject private InterfaceSettingsManager interfaceSettingsManager;
 	@Inject private NotificationManager notificationManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+
 	
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -59,7 +64,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.AssessmentRequested,
 				EventType.AssessmentApproved,
 				EventType.AssessmentComment,
-				EventType.AnnouncementPublished
+				EventType.AnnouncementPublished,
+				EventType.GRADE_ADDED,
 		};
 	}
 
@@ -127,7 +133,8 @@ public class NotificationObserver extends EventObserver {
 									try {
 										String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
 										logger.info("Sending notification via email to " + email);
-
+										analyticalServiceCollector.storeNotificationData(email, notificationData);
+										/*
 										boolean sent = notificationManager.sendNotificationByEmail(
 												email,
 												notificationData.getReceiver().getFullName(),
@@ -145,7 +152,7 @@ public class NotificationObserver extends EventObserver {
 											logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
 										} else {
 											logger.error("Error sending email notification to " + email);
-										}
+										}*/
 									} finally {
 										HibernateUtil.close(session1);
 									}

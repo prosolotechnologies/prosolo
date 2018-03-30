@@ -18,6 +18,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
@@ -52,6 +53,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     private UserGroupManager userGroupManager;
     @Inject
     private UnitManager self;
+    @Inject private RoleManager roleManager;
 
     public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
@@ -296,6 +298,67 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    //nt
+    public void removeUserFromAllUnitsWithRole(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = self.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context);
+
+        eventFactory.generateEvents(res.getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> result = new Result<>();
+        try {
+            String query =
+                    "SELECT unit.id " +
+                    "FROM UnitRoleMembership urm " +
+                    "WHERE urm.user.id = :userId " +
+                        "AND urm.role.id = :roleId";
+
+            List<Long> unitIds = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            if (unitIds.size() > 0) {
+
+                String query1 =
+                        "DELETE FROM UnitRoleMembership urm " +
+                                "WHERE urm.unit.id IN (:unitIds) " +
+                                "AND urm.user.id = :userId " +
+                                "AND urm.role.id = :roleId";
+
+                int affected = persistence.currentManager()
+                        .createQuery(query1)
+                        .setParameterList("unitIds", unitIds)
+                        .setLong("userId", userId)
+                        .setLong("roleId", roleId)
+                        .executeUpdate();
+
+                logger.info("Deleted user memebership from " + affected + " units in role " + roleId);
+
+                for (Long unitId : unitIds) {
+                    User user = new User(userId);
+                    Unit unit = new Unit();
+                    unit.setId(unitId);
+                    Map<String, String> params = new HashMap<>();
+                    params.put("roleId", roleId + "");
+                    result.appendEvent(eventFactory.generateEventData(
+                            EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing user from unit");
+        }
+    }
 
     @Override
     //nt
@@ -898,6 +961,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, String roleName)
+            throws DbConnectionException {
+       return checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, roleManager.getRoleIdByName(roleName));
+    }
+
+
     private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
         if (unitIds == null || unitIds.isEmpty()) {
             return false;
@@ -939,6 +1010,18 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException {
+        try {
+            long roleId = roleManager.getRoleIdByName(role);
+            return getUserUnitIdsInRole(userId, roleId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving user units");
         }
     }
 

@@ -11,21 +11,25 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
@@ -39,8 +43,8 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.achievements.data.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -79,6 +83,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private UnitManager unitManager;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
+	@Inject private RubricManager rubricManager;
+	@Inject private AssessmentManager assessmentManager;
 
 	@Override
 	//nt
@@ -128,7 +134,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 
+			setAssessmentRelatedData(comp, data, true);
+
 			saveEntity(comp);
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					CompetenceAssessmentConfig cac = new CompetenceAssessmentConfig();
+					cac.setCompetence(comp);
+					cac.setAssessmentType(atc.getType());
+					cac.setEnabled(atc.isEnabled());
+					saveEntity(cac);
+				}
+			}
 
 			if (data.getLearningPathType() == LearningPathType.ACTIVITY && data.getActivities() != null) {
 				for (ActivityData bad : data.getActivities()) {
@@ -170,6 +188,31 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving competence");
 		}
+	}
+
+	private void setAssessmentRelatedData(Competence1 competence, CompetenceData1 data, boolean updateRubric) throws IllegalDataStateException {
+		competence.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
+			case AUTOMATIC:
+				competence.setRubric(null);
+				break;
+			case MANUAL:
+				if (updateRubric) {
+					competence.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
+				}
+				break;
+			case NONGRADED:
+				competence.setRubric(null);
+				break;
+		}
+		competence.setMaxPoints(
+				isPointBasedCompetence(competence.getGradingMode(), competence.getRubric())
+						? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
+						: 0);
+	}
+
+	private boolean isPointBasedCompetence(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode == GradingMode.MANUAL && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	/**
@@ -235,15 +278,21 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
 						CompetenceData1 compData;
 						if (tComp != null) {
-							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
+							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
-							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
-								List<ActivityData> activities = activityManager
-										.getTargetActivitiesData(compData.getTargetCompId());
-								compData.setActivities(activities);
+							if (compData != null && loadLearningPathData) {
+								if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+									List<ActivityData> activities = activityManager
+											.getTargetActivitiesData(compData.getTargetCompId());
+									compData.setActivities(activities);
+								} else {
+									//load user evidences
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									compData.setEvidences(compEvidences);
+								}
 							}
 						} else {
-							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
+							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
 							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 										compData.getCompetenceId());
@@ -278,7 +327,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
 			TargetCompetence1 targetComp = res.getResult();
 			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, 0, targetComp.getCompetence().getTags(), null, false);
+					targetComp, 0, targetComp.getCompetence().getAssessmentConfig(), targetComp.getCompetence().getTags(), null, false);
 			
 			if(targetComp.getTargetActivities() != null) {
 				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
@@ -341,6 +390,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			res.setResult(targetComp);
 			res.appendEvent(eventFactory.generateEventData(EventType.ENROLL_COMPETENCE, context, competence, null, null, params));
 
+			//create self assessment if enabled
+			if (comp.getAssessmentConfig()
+					.stream()
+					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
+					.findFirst().get()
+					.isEnabled()) {
+				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(compId, userId, context).getEventQueue());
+			}
+
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -352,14 +410,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
-			boolean loadCreator, boolean loadTags, boolean loadActivities, long userId, 
+			boolean loadCreator, boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId,
 			ResourceAccessRequirements req, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
 			if(req == null) {
 				throw new IllegalArgumentException();
 			}
-			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadTags, loadActivities, 
+			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
 					shouldTrackChanges);
 			
 			ResourceAccessData access = getResourceAccessData(compId, userId, req);
@@ -380,20 +438,21 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, DbConnectionException {
 		try {
 			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
 			
-			if(comp == null) {
+			if (comp == null) {
 				throw new ResourceNotFoundException();
 			}
 			
 			User creator = loadCreator ? comp.getCreatedBy() : null;
+			Set<CompetenceAssessmentConfig> assessmentConfig = loadAssessmentConfig ? comp.getAssessmentConfig() : null;
 			Set<Tag> tags = loadTags ? comp.getTags() : null;
 			
 			CompetenceData1 compData = competenceFactory.getCompetenceData(
-					creator, comp, tags, shouldTrackChanges);
+					creator, comp, assessmentConfig, tags, shouldTrackChanges);
 
 			//activities should be loaded only if learning path is activity based
 			if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadActivities) {
@@ -549,13 +608,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new StaleDataException("Competence edited in the meantime");
 		}
 		
-		/* if competence should be unpublished we need to check if there are active deliveries with this competence 
+		/* if competence should be unpublished we need to check if there are ongoing deliveries with this competence
 		 * and if so, unpublish should not be allowed
 		 */
 		if(!data.isPublished() && data.isPublishedChanged()) {
-			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(data.getCompetenceId());
+			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(data.getCompetenceId());
 			if(!canUnpublish) {
-				throw new IllegalDataStateException("Competency can not be unpublished because there is an active credential delivery with this competency");
+				throw new IllegalDataStateException("Competency can not be unpublished because there is an ongoing credential delivery with this competency");
 			}
 		}
 		
@@ -627,6 +686,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.getActivities().clear();
 				compToUpdate.setDuration(0);
 			}
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					if (atc.hasObjectChanged()) {
+						CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
+						cac.setEnabled(atc.isEnabled());
+					}
+				}
+			}
+			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
 	    
 	    return compToUpdate;
@@ -699,7 +768,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				Set<Tag> tags = loadTags ? credComp.getCompetence().getTags() : null;
 				
 				CompetenceData1 compData = competenceFactory.getCompetenceData(
-						creator, credComp, tags, true);
+						creator, credComp, null, tags, true);
 				
 				if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
@@ -1033,7 +1102,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
-			compData = getTargetCompetenceData(credId, compId, userId, true);
+			compData = getTargetCompetenceData(credId, compId, userId, true, true);
 			if (compData == null) {
 //				compData = getCompetenceData(compId, true, true, true, userId,
 //						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
@@ -1042,7 +1111,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
+				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
 						req, false);
 			}
 				
@@ -1074,9 +1143,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
-			boolean loadLearningPathContent) throws DbConnectionException {
-		CompetenceData1 compData = null;
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
+			boolean loadAssessmentConfig, boolean loadLearningPathContent) throws DbConnectionException {
+		CompetenceData1 compData;
 		try {
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT targetComp " +
@@ -1107,8 +1178,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
 
 			if (res != null) {
+				Set<CompetenceAssessmentConfig> assessmentSettings = loadAssessmentConfig ? res.getCompetence().getAssessmentConfig() : null;
 				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 0,
-						res.getCompetence().getTags(), null, true);
+						assessmentSettings, res.getCompetence().getTags(), null, true);
 
 				if (compData != null && loadLearningPathContent) {
 					if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
@@ -1472,7 +1544,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					compData = competenceFactory.getCompetenceDataWithProgress(creator, comp, null, 
 							paramProgress.intValue(), nextActId.longValue(), false);
 				} else {
-					compData = competenceFactory.getCompetenceData(creator, comp, null, false);
+					compData = competenceFactory.getCompetenceData(creator, comp, null, null, false);
 				}
 				if(paramBookmarkId != null) {
 					compData.setBookmarkedByCurrentUser(true);
@@ -1512,7 +1584,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
 
-				compData = competenceFactory.getCompetenceData(creator, comp, null, false);
+				compData = competenceFactory.getCompetenceData(creator, comp, null, null, false);
 
 				if(paramBookmarkId != null) {
 					compData.setBookmarkedByCurrentUser(true);
@@ -1870,7 +1942,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			List<CompetenceData1> res = new ArrayList<>();
 			for(Competence1 c : comps) {
-				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, false);
+				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, null, false);
 				cd.setNumberOfStudents(countNumberOfStudentsLearningCompetence(cd.getCompetenceId()));
 				res.add(cd);
 			}
@@ -1900,7 +1972,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			return duplicateCompetence(comp, "Copy of " + comp.getTitle(), comp, null, null, context);
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error creating the competence duplicate");
+			throw new DbConnectionException("Error creating the competence bcc");
 		}
 	}
 
@@ -1975,7 +2047,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		competence.setOriginalVersion(versionOf);
 		competence.setLearningStage(lStage);
 		competence.setFirstLearningStageCompetence(firstStageComp);
+		//set assessment related data
+		competence.setGradingMode(original.getGradingMode());
+		competence.setMaxPoints(original.getMaxPoints());
+		competence.setRubric(original.getRubric());
 		saveEntity(competence);
+		for (CompetenceAssessmentConfig cac : original.getAssessmentConfig()) {
+			CompetenceAssessmentConfig compAssessmentConfig = new CompetenceAssessmentConfig();
+			compAssessmentConfig.setCompetence(competence);
+			compAssessmentConfig.setAssessmentType(cac.getAssessmentType());
+			compAssessmentConfig.setEnabled(cac.isEnabled());
+			saveEntity(compAssessmentConfig);
+		}
 		/*
 		if this line is put before saveEntity and there is an exception thrown so competence can't be saved, hibernate would still issue
 		insert statements for saving competence tags which would lead to another exception because competence is not saved.
@@ -2020,7 +2103,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) 
+	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type)
 			throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder(
@@ -2119,10 +2202,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
 					req, true);
 			
-			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(compId);
+			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(compId);
 			res.getResource().setCanUnpublish(canUnpublish);
 			
 			return res;
@@ -2135,7 +2218,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	private boolean isThereAnActiveDeliveryWithACompetence(long compId) throws DbConnectionException {
+	private boolean isThereOngoingDeliveryWithCompetence(long compId) throws DbConnectionException {
 		String query = "SELECT COUNT(cred.id) " +
 					   "FROM CredentialCompetence1 credComp " +
 					   "INNER JOIN credComp.credential cred " +
@@ -2607,6 +2690,200 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading competence learning path type");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT user " +
+					"FROM TargetCompetence1 tComp " +
+					"INNER JOIN tComp.user user " +
+					"WHERE tComp.competence.id = :compId " +
+					"AND user.id != :userId " +
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CompetenceAssessment assessment " +
+						"WHERE assessment.student.id = :userId " +
+						"AND assessment.competence.id = :compId " +
+						"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
+						"AND assessment.type = :aType " +
+					") " +
+					"ORDER BY RAND()";
+
+			@SuppressWarnings("unchecked")
+			User res = (User) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setLong("userId", userId)
+					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
+					.setMaxResults(1)
+					.uniqueResult();
+
+			return res != null ? new UserData(res) : null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving random peer");
+		}
+	}
+
+	@Override
+	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager()
+					.load(TargetCompetence1.class, targetCompetenceId);
+			tc.setProgress(100);
+			tc.setDateCompleted(new Date());
+
+			Result<Void> res = new Result<>();
+			TargetCompetence1 tComp = new TargetCompetence1();
+			tComp.setId(targetCompetenceId);
+			res.appendEvent(eventFactory.generateEventData(
+					EventType.Completion, context, tComp, null, null, null));
+
+			EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+					context, tComp, null, null, null);
+			ev.setProgress(100);
+			res.appendEvent(ev);
+
+			//flush in order to calculate correct progress for credential
+			persistence.currentManager().flush();
+			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
+
+			return res;
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error marking the competence as completed");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tComp " +
+					"FROM TargetCompetence1 tComp " +
+					"WHERE tComp.competence.id = :compId " +
+					"AND tComp.user.id = :userId ";
+
+			return (TargetCompetence1) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setLong("userId", userId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving target competence id");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
+			throws ResourceNotFoundException {
+		/*
+		 * check if passed credential has specified competence
+		 */
+		if(credId > 0) {
+			String query1 = "SELECT credComp.id " +
+					"FROM CredentialCompetence1 credComp " +
+					"WHERE credComp.credential.id = :credId " +
+					"AND credComp.competence.id = :compId";
+
+			@SuppressWarnings("unchecked")
+			List<Long> res1 = persistence.currentManager()
+					.createQuery(query1)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.list();
+
+			if(res1 == null || res1.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserEnrolled(long compId, long userId) throws DbConnectionException {
+		try {
+			return getTargetCompetenceId(compId, userId) > 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if user is enrolled in a competence");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceOrCompetenceData(
+			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+		try {
+			CompetenceData1 compData = getTargetCompetenceData(0, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
+			if (compData == null) {
+				compData = getCompetenceData(0, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
+			}
+
+			return compData;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the competence data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT conf FROM CompetenceAssessmentConfig conf " +
+					"WHERE conf.competence.id = :compId";
+			@SuppressWarnings("unchecked")
+			List<CompetenceAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
+					.createQuery(q)
+					.setLong("compId", compId)
+					.list();
+			return competenceFactory.getAssessmentConfig(assessmentTypesConfig);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the assessment types config for competence");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT tc.id " +
+					"FROM TargetCompetence1 tc " +
+					"WHERE tc.user.id = :userId " +
+					"AND tc.competence.id = :compId";
+
+			Long result = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("compId", compId)
+					.uniqueResult();
+
+			return result != null ? result.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target competence id");
 		}
 	}
 

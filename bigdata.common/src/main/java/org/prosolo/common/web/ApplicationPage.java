@@ -3,7 +3,8 @@ package org.prosolo.common.web;
 public enum ApplicationPage {
 
 	LOGIN("/login.xhtml"),
-	INDEX("/index.xhtml"), 
+	INDEX("/index.xhtml"),
+	 ROOT("/root.xhtml"),
 	//LEARN("/learn.xhtml"), 
 	//PLAN("/plan.xhtml"), 
 	//BROWSE_CREDENTIALS("/courseBrowse.xhtml"),
@@ -26,12 +27,10 @@ public enum ApplicationPage {
 	EXTERNAL_TOOLS("/manage/tools.xhtml"),
 	EXTERNAL_TOOL_DETAILS("/manage/externalTools/toolDetails.xhtml"),
 	CREDENTIAL_FEEDS("/manage/credential-feeds.xhtml"),
-	ADMIN_ADMINISTRATION("/admin/adminAdmins.xhtml"),
 	ADMIN_EDIT_ORGANIZATION("/admin/organization-settings.xhtml"),
 	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
 	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
 	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
-	ADMIN_USER_EDIT("/admin/adminUserEdit.xhtml"),
 	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
 	ADMIN_MESSAGES("/admin/messages.xhtml"),
 	ADMIN_OTHER("/admin/other.xhtml"),
@@ -107,7 +106,9 @@ public enum ApplicationPage {
 	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
 	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
-	ADMIN_ACTIVITY("/admin/activity.xhtml");
+	ADMIN_ACTIVITY("/admin/activity.xhtml"),
+	ADMIN_MIGRATIONS("/admin/migrations.xhtml"),
+	;
 
     private String uri; 
     

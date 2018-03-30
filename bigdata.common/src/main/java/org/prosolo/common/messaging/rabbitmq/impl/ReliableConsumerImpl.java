@@ -165,7 +165,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 @Override
 	public void StartAsynchronousConsumer() {
 		this.exService = Executors.newSingleThreadExecutor();
-	System.out.println("START ASYNCHRONOUSE CONSUMER CALLED");
+	logger.info("START ASYNCHRONOUS CONSUMER CALLED");
 		this.exService.execute(new Runnable() {
 
 			@Override

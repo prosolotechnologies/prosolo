@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -19,6 +20,9 @@ import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +69,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 ev = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidence.getId());
             }
 
-            CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev);
+            CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev, evidence.getRelationToCompetence());
             res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags()));
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
@@ -123,7 +127,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     @Override
     @Transactional
-    public CompetenceEvidence attachEvidenceToCompetence(long targetCompId, LearningEvidence evidence) throws DbConnectionException {
+    public CompetenceEvidence attachEvidenceToCompetence(long targetCompId, LearningEvidence evidence, String relationToCompetence) throws DbConnectionException {
         try {
             CompetenceEvidence ce = new CompetenceEvidence();
             TargetCompetence1 targetCompetence = (TargetCompetence1) persistence.currentManager()
@@ -131,6 +135,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             ce.setCompetence(targetCompetence);
             ce.setEvidence(evidence);
             ce.setDateCreated(new Date());
+            ce.setDescription(relationToCompetence);
             saveEntity(ce);
             return ce;
         } catch (Exception e) {
@@ -274,7 +279,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException {
         try {
             String query =
-                    "SELECT comp " +
+                    "SELECT comp, ce.description " +
                             "FROM CompetenceEvidence ce " +
                             "INNER JOIN ce.competence tc " +
                             "INNER JOIN tc.competence comp " +
@@ -282,14 +287,15 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                             "AND ce.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
-            List<Competence1> competences = persistence.currentManager()
+            List<Object[]> competences = persistence.currentManager()
                     .createQuery(query)
                     .setLong("evId", evidenceId)
                     .list();
 
             List<BasicObjectInfo> comps = new ArrayList<>();
-            for (Competence1 comp : competences) {
-                comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle()));
+            for (Object[] row : competences) {
+                Competence1 comp = (Competence1) row[0];
+                comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle(), (String) row[1]));
             }
             return comps;
         } catch (Exception e) {
@@ -417,6 +423,52 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error updating the learning evidence");
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResourceAccessData getResourceAccessRightsForEvidence(long evidenceId, long userId, ResourceAccessRequirements accessRequirements) throws DbConnectionException {
+        try {
+            LearningEvidence le = (LearningEvidence) persistence.currentManager()
+                .load(LearningEvidence.class, evidenceId);
+            //if user is evidence owner resource access data with full privileges is returned
+            if (accessRequirements.getAccessMode() == AccessMode.USER && le.getUser().getId() == userId) {
+                return new ResourceAccessData(true, true, true, false, false);
+            }
+
+            String query =
+                    "SELECT ca.id FROM CompetenceAssessment ca " +
+                    "INNER JOIN ca.competence comp " +
+                    "INNER JOIN comp.targetCompetences tc " +
+                            "WITH tc.user.id = :studentId " +
+                    "INNER JOIN tc.evidences ce " +
+                    "WHERE ce.evidence.id = :evId " +
+                    "AND ce.deleted IS FALSE " +
+                    "AND ca.assessor.id = :userId " +
+                    "AND ca.type = :type";
+
+            AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
+                    ? AssessmentType.PEER_ASSESSMENT
+                    : AssessmentType.INSTRUCTOR_ASSESSMENT;
+
+            Long id = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("studentId", le.getUser().getId())
+                    .setLong("evId", evidenceId)
+                    .setLong("userId", userId)
+                    .setString("type", aType.name())
+                    .setMaxResults(1)
+                    .uniqueResult();
+
+            if (id != null) {
+                return new ResourceAccessData(true, true, false, false, false);
+            }
+
+            return new ResourceAccessData(false, false, false, false, false);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error determining learning evidence access rights");
         }
     }
 

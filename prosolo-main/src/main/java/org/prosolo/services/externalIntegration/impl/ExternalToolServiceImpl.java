@@ -22,7 +22,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.XMLUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +160,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
 								//TODO how to include organization id in event here
 								res.appendEvents(assessmentManager
-									.updateActivityGradeInAllAssessmentsAndGetEvents(
+									.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
 											userId, activityId, calculatedScore, session, UserContextData.ofLearningContext(lcd)).getEventQueue());
 							}
 						}

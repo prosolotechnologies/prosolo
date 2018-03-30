@@ -9,10 +9,13 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -26,15 +29,14 @@ import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentsSummaryData;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.GradeData;
-import org.prosolo.services.nodes.data.assessments.factory.AssessmentDataFactory;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
+import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private Activity1Manager self;
 	@Inject private TagManager tagManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -190,20 +193,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 		}
 
-		activity.setGradingMode(data.getGradingMode());
-		switch (data.getGradingMode()) {
+		activity.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
 			case AUTOMATIC:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				activity.accept(new ExternalActivityVisitor(data.isAcceptGrades()));
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				break;
 			case MANUAL:
-				activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 				if (updateRubric) {
-					activity.setRubric(getRubricToSet(data));
+					activity.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
 				}
-				if (data.getRubricId() > 0) {
+				if (data.getAssessmentSettings().getRubricId() > 0) {
 					activity.setRubricVisibility(data.getRubricVisibility());
 				} else {
 					activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
@@ -212,29 +213,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 			case NONGRADED:
-				activity.setMaxPoints(0);
 				activity.setRubric(null);
 				activity.setRubricVisibility(ActivityRubricVisibility.NEVER);
 				activity.accept(new ExternalActivityVisitor(false));
 				break;
 		}
+		activity.setMaxPoints(
+				isPointBasedActivity(activity.getGradingMode(), activity.getRubric())
+					? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
+					: 0);
 	}
 
-	private Rubric getRubricToSet(ActivityData activityData) throws IllegalDataStateException {
-		//set rubric data
-		Rubric rubric = null;
-		if (activityData.getRubricId() > 0) {
-			/*
-			set a lock on a rubric so we can be sure that status will not change between read
-			and update
-			 */
-			rubric = (Rubric) persistence.currentManager().load(
-					Rubric.class, activityData.getRubricId(), LockOptions.UPGRADE);
-			if (!rubric.isReadyToUse()) {
-				throw new IllegalDataStateException("Selected " + ResourceBundleUtil.getLabel("rubric").toLowerCase() + " has been changed in the meantime and can't be used. Please choose another one and try again.");
-			}
-		}
-		return rubric;
+	private boolean isPointBasedActivity(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode != GradingMode.NONGRADED && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	@Override
@@ -496,38 +487,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading activity data");
 		}
 	}
-	
-	/**
-	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
-	 * 
-	 * @param credId
-	 * @param compId
-	 * @throws ResourceNotFoundException
-	 */
-	private void checkIfCompetenceIsPartOfACredential(long credId, long compId) 
-			throws ResourceNotFoundException {
-		/*
-		 * check if passed credential has specified competence
-		 */
-		if(credId > 0) {
-			String query1 = "SELECT credComp.id " +
-							"FROM CredentialCompetence1 credComp " +
-							"WHERE credComp.credential.id = :credId " +
-							"AND credComp.competence.id = :compId";
-			
-			@SuppressWarnings("unchecked")
-			List<Long> res1 = persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.list();
-			
-			if(res1 == null || res1.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}
-		}
-	}
 
 	/**
 	 * Checks if activity specified with {@code actId} id is part of a credential with {@code credId} id
@@ -564,7 +523,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadTags, boolean loadCompetence) {
 		try {
-			checkIfCompetenceIsPartOfACredential(credId, competenceId);
+			compManager.checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
 			 * we need to make sure that activity is bound to competence with passed id
 			 */
@@ -713,7 +672,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (!compOncePublished) {
 				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 
-				setAssessmentRelatedData(actToUpdate, data, data.isRubricChanged());
+				setAssessmentRelatedData(actToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 			}
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
@@ -1044,7 +1003,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			/*
 			 * check if competence is part of a credential
 			 */
-			checkIfCompetenceIsPartOfACredential(credId, compId);
+			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
 			
 			StringBuilder query = new StringBuilder("SELECT targetAct " +
 					   "FROM TargetActivity1 targetAct " +
@@ -1334,7 +1293,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder query = new StringBuilder(
 					"SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 						"u.id as uId, u.name, u.lastname, u.avatar_url, " +
-						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence, targetAct.completed " +
+						"COUNT(distinct com.id), ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id, act.grading_mode, act.rubric, act.accept_grades, ad.points, targetComp.competence, targetAct.completed, rubric.rubric_type " +
 						"FROM target_activity1 targetAct " +
 						"INNER JOIN target_competence1 targetComp " +
 						"ON (targetAct.target_competence = targetComp.id) " +
@@ -1343,6 +1302,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"INNER JOIN activity1 act " +
 						"ON (targetAct.activity = act.id " +
 						"AND act.id = :actId) " +
+						"LEFT JOIN rubric " +
+							"ON (act.rubric = rubric.id) " +
 						"LEFT JOIN (activity_assessment ad " +
 						"INNER JOIN competence_assessment compAssessment " +
 						"ON compAssessment.id = ad.competence_assessment " +
@@ -1441,32 +1402,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCompetenceId(compId);
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
-					if (assessmentId != null) {
-						ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
-						ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
-						ad.setAllRead(((Character) row[11]).charValue() == 'T');
-						GradeData gd = new GradeData();
-						gd.setMinGrade(0);
-						gd.setMaxGrade((Integer) row[12]);
-						gd.setValue((Integer) row[17]);
-						if(gd.getValue() < 0) {
-							gd.setValue(0);
-						} else {
-							gd.setAssessed(true);
-						}
-						ad.setGrade(gd);
-					} else {
-						// there is no activity assessment created yet
-						GradeData gd = new GradeData();
-						gd.setMinGrade(0);
-						gd.setMaxGrade((Integer) row[12]);
-						gd.setValue(0);
-						ad.setGrade(gd);
-					}
+
+					ad.setActivityAssessmentId(assessmentId.longValue());
+					ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessmentId.longValue()));
+					ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
+					ad.setAllRead(((Character) row[11]).charValue() == 'T');
+
+					//set grade data
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
-					ad.getGrade().setGradingMode(ActivityAssessmentData.getGradingMode(
-							GradingMode.valueOf((String) row[14]), rubricId, ((Character) row[16]).charValue() == 'T'));
+					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
+					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
+							GradingMode.valueOf((String) row[14]),
+							(int) row[12],
+							(int) row[17],
+							rubricId,
+							rubricType,
+							null,
+							((Character) row[16]).charValue() == 'T'));
 
 					//load additional assessment data
 					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
@@ -1475,7 +1428,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
 						ad.setCredAssessmentId(abd.getCredentialAssessmentId());
 						ad.setAssessorId(abd.getAssessorId());
-						ad.setType(abd.getType());
 					}
 				}
 			}
@@ -1857,7 +1809,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //	}
 
 	/**
-	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
+	 * Creates a new {@link CompetenceActivity1} instance that is a bcc of the given original.
 	 * 
 	 * @param original
 	 * @return newly created {@link CompetenceActivity1} instance

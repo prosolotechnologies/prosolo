@@ -31,7 +31,7 @@
 		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
 
 	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+		src="#{request.contextPath}/resources/javascript2/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script
 		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
@@ -43,7 +43,7 @@
 		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
 		
 	<script src="https://www.youtube.com/iframe_api"/>
-	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	<script	src="#{request.contextPath}/resources/javascript2/youtubevideo.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 	
@@ -92,11 +92,11 @@
 									value="People" outcome="/people" />
 							</li>
 							<li role="presentation" class="#{util:getPagePath(view.viewId)  eq 'evidences'
-								or util:getPagePath(view.viewId)  eq 'evidence'
+								or util:getPagePath(view.viewId) eq 'evidence'
 								or util:getPagePath(view.viewId) eq 'evidence-edit'
 								? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('evidences', 'mainmenu');"
-										value="Evidences" outcome="/evidences" />
+								<h:link onclick="sendLogPageNavigation('evidence', 'mainmenu');"
+										value="Evidence" outcome="/evidences" />
 							</li>
 						</ul>
 					</nav>
@@ -121,7 +121,7 @@
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" 
 							process="@this"
-							update=":messagesLink :notificationsIcon :notificationsContainer" 
+							update=":messagesLink :notificationsIcon :notificationsContainer"
 							widgetVar="messagesPoll" 
 							autoStart="true" />
 					</h:form>
@@ -137,14 +137,14 @@
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="notificationsIcon"
-							styleClass="iconNotifications #{studentNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
-							pt:data-toggle="dropdown" 
-							pt:aria-haspopup="true" 
-							pt:aria-expanded="true"
-							action="#{studentNotificationsBean.markNotificationsAsRead}"
-							process="@this"
-							update="notificationLoop @this">
-							
+									   styleClass="iconNotifications #{studentNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
+									   pt:data-toggle="dropdown"
+									   pt:aria-haspopup="true"
+									   pt:aria-expanded="true"
+									   action="#{studentNotificationsBean.markNotificationsAsRead}"
+									   process="@this"
+									   update="notificationLoop @this">
+
 							Notifications
 							
 							<h:panelGroup id="unreadNotificationsDot">
@@ -152,36 +152,38 @@
 									class="#{studentNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
-					
-						<h:panelGroup layout="block" id="notificationsContainer" 
-							class="dropdown-menu bullet pull-center"
+
+						<div class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationDatas}">
-								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{studentNotificationsBean.domainPrefix}#{notificationData.link}">
-										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3> 
-										#{notificationData.predicate}
-										<h3>#{notificationData.objectTitle}</h3>
-										#{notificationData.relationToTarget}
-										<h3>#{notificationData.targetTitle}</h3>
-										<span class="timestamp">
-											<utilcomp:convertTimeOutput
-													millis="#{notificationData.notificationTime}"
-													format="rel"
-											/>
-										</span>
-									</h:outputLink>
+
+							<h:panelGroup id="notificationsContainer">
+
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationDatas}">
+									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
+										<h:outputLink value="#{studentNotificationsBean.domainPrefix}#{notificationData.link}">
+											<span class="icon"></span>
+											<h3>#{notificationData.actor.fullName}</h3>
+											#{notificationData.predicate}
+											<h3>#{notificationData.objectTitle}</h3>
+											#{notificationData.relationToTarget}
+											<h3>#{notificationData.targetTitle}</h3>
+											<span class="timestamp">
+												<utilcomp:convertTimeOutput
+														millis="#{notificationData.notificationTime}"
+														format="rel"
+												/>
+											</span>
+										</h:outputLink>
+									</li>
+								</ui:repeat>
+
+								<li class="linkAllNotifications">
+									<h:link value="View all"
+										onclick="sendLogPageNavigation('notifications','mainmenu');"
+										outcome="/notifications" />
 								</li>
-							</ui:repeat>
-							
-							<li class="linkAllNotifications">
-								<h:link value="View all"
-									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/notifications" />
-							</li>
-						</h:panelGroup>
+							</h:panelGroup>
+						</div>
 					</div>
 
 					<h:form id="userMenuForm">

@@ -11,8 +11,7 @@
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
     <ui:define name="windowTitle" >
-        <ui:fragment rendered="#{organizationEditBean.decodedId == 0}">New Organization</ui:fragment>
-        <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">Edit Organization</ui:fragment>
+        #{organizationEditBean.decodedId gt 0 ? 'Settings - '.concat(organizationEditBean.organization.title) : 'New Organization'} - ProSolo
     </ui:define>
 
     <ui:define name="navLinks">

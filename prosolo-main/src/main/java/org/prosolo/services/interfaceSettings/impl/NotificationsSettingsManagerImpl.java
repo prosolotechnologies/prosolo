@@ -5,24 +5,21 @@ package org.prosolo.services.interfaceSettings.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.web.settings.data.NotificationSettingsData;
-import org.prosolo.web.settings.data.UserNotificationSettingsData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author "Nikola Milikic"
@@ -37,38 +34,40 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 
 	@Override
 	@Transactional (readOnly = false)
-	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId) {
+	public List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId) {
 		return getOrCreateNotificationsSettings(userId, persistence.currentManager());
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) 
+	public List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId, Session session)
 		throws DbConnectionException {
 		try {
-			UserNotificationsSettings result = getNotificationsSettings(userId, session);
+			List<NotificationSettings> result = getAllUserNotificationsSettings(userId, session);
 			
-			if (result != null) {
-				return result;
-			} else {
+			if (result == null || result.isEmpty()) {
+				result = new LinkedList<>();
+
 				User user = (User) session.load(User.class, userId);
-				UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
-				notificationsSettings.setUser(user);
-				notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
-				
-				session.saveOrUpdate(notificationsSettings);
-				session.flush();
-				
-				return notificationsSettings;
+
+				for (NotificationType notificationType : NotificationType.values()) {
+					NotificationSettings settings = new NotificationSettings();
+					settings.setUser(user);
+					settings.setSubscribedEmail(true);
+					settings.setType(notificationType);
+					session.save(settings);
+
+					result.add(settings);
+				}
 			}
-		} catch (ConstraintViolationException e) {
-			session.clear();
-			try {
-				return getNotificationsSettings(userId, session);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				throw new DbConnectionException("Error while retrieving notification settings");
+
+			List<NotificationSettingsData> notificationSettingsData = new LinkedList<>();
+
+			for (NotificationSettings settings : result) {
+				notificationSettingsData.add(new NotificationSettingsData(settings));
 			}
+
+			return notificationSettingsData;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -78,44 +77,40 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = true)
-	public UserNotificationsSettings getNotificationsSettings(long userId, Session session) {
+	public List<NotificationSettings> getAllUserNotificationsSettings(long userId, Session session) {
 		String query =
 			"SELECT settings " + 
-			"FROM UserNotificationsSettings settings " + 
-				"LEFT JOIN settings.user user " + 
-			"WHERE user.id = :userId";
-		
-		UserNotificationsSettings result = (UserNotificationsSettings) session.createQuery(query)
+			"FROM NotificationSettings settings " +
+			"WHERE settings.user.id = :userId";
+
+		return session.createQuery(query)
 				.setLong("userId", userId)
-				.uniqueResult();
-		return result;
+				.list();
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session)
+	public boolean shouldUserReceiveEmail(long userId, NotificationType type, Session session)
 		throws DbConnectionException {
 		if (userId == 0) {
 			System.out.println();
 		}
 
 		try {
-			NotificationSettings settings = getEmailNotificationsSettings(userId, type);
+			NotificationSettings settings = getNotificationSettings(userId, type);
 			
 			if (settings != null) {
-				return settings;
+				return settings.isSubscribedEmail();
 			} else {
-				UserNotificationsSettings userNotificationsSettings = getOrCreateNotificationsSettings(userId, session);
-				List<NotificationSettings> notifications = userNotificationsSettings.getNotifications();
-				if(notifications != null) {
-					for(NotificationSettings ns : userNotificationsSettings.getNotifications()) {
-						if(ns.getType() == type) {
-							return ns;
-						}
-					}
+				List<NotificationSettingsData> notificationSettingsData = getOrCreateNotificationsSettings(userId, session);
+
+				Optional<NotificationSettingsData> settingsData = notificationSettingsData.stream().filter(s -> s.getType() == type).findFirst();
+
+				if (settingsData.isPresent()) {
+					return settingsData.get().isSubscribedEmail();
 				}
-				
-				return null;
+
+				return false;
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -126,14 +121,12 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = true)
-	public NotificationSettings getEmailNotificationsSettings(long userId, NotificationType type) {
+	public NotificationSettings getNotificationSettings(long userId, NotificationType type) {
 		String query =
-				"SELECT notifications " + 
-				"FROM UserNotificationsSettings settings " + 
-				"LEFT JOIN settings.notifications notifications " + 
-				"LEFT JOIN settings.user user " + 
-				"WHERE user.id = :userId " +
-					"AND notifications.type = :type";
+				"SELECT settings " +
+				"FROM NotificationSettings settings " +
+				"WHERE settings.user.id = :userId " +
+					"AND settings.type = :type";
 		
 		NotificationSettings result = (NotificationSettings) persistence.currentManager().createQuery(query)
 				.setLong("userId", userId)
@@ -144,35 +137,17 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserNotificationsSettings updateNotificationSettings(UserNotificationsSettings notificationsSettings, UserNotificationSettingsData notificationsSettingsData) {
-		Iterator<NotificationSettingsData> notDataIterator = notificationsSettingsData.getSettings().iterator();
-		Iterator<NotificationSettings> notIterator = notificationsSettings.getNotifications().iterator();
-		
-		while (notDataIterator.hasNext()) {
-			NotificationSettingsData notificationSettingsData = notDataIterator.next();
-			NotificationSettings notificationSettings = notIterator.next();
-			
-			notificationSettings.setSubscribedEmail(notificationSettingsData.isSubscribedEmail());
+	public void updateNotificationSettings(long userId, List<NotificationSettingsData> updatedNotificationSettings) {
+		List<NotificationSettings> userNotificationSettings = getAllUserNotificationsSettings(userId, getPersistence().currentManager());
 
-			saveEntity(notificationSettings);
+		for (NotificationSettings notificationSetting : userNotificationSettings) {
+			NotificationSettingsData updatedNotificationSettingsData = updatedNotificationSettings.stream().filter(s -> s.getType() == notificationSetting.getType()).findFirst().get();
+
+			if (notificationSetting.isSubscribedEmail() != updatedNotificationSettingsData.isSubscribedEmail()) {
+				notificationSetting.setSubscribedEmail(updatedNotificationSettingsData.isSubscribedEmail());
+				saveEntity(notificationSetting);
+			}
 		}
-		return saveEntity(notificationsSettings);
-	}
-	
-	private List<NotificationSettings> getDefaultSubscribedEventTypes() {
-		List<NotificationSettings> notificationTypes = new ArrayList<NotificationSettings>();
-		
-		notificationTypes.add(new NotificationSettings(NotificationType.Follow_User, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Requested, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Approved, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Comment, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Comment, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Comment_Like, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Social_Activity_Like, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.Mention, true));
-		notificationTypes.add(new NotificationSettings(NotificationType.AnnouncementPublished, true));
-		
-		return notificationTypes;
 	}
 	
 }

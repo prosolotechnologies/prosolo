@@ -33,9 +33,11 @@ public class LearningEvidenceDataFactory {
         evidenceData.setType(evidence.getType());
         evidenceData.setUrl(evidence.getUrl());
         evidenceData.setDateCreated(DateUtil.getMillisFromDate(evidence.getDateCreated()));
+
         if (compEvidence != null) {
             evidenceData.setCompetenceEvidenceId(compEvidence.getId());
             evidenceData.setDateAttached(DateUtil.getMillisFromDate(compEvidence.getDateCreated()));
+            evidenceData.setRelationToCompetence(compEvidence.getDescription());
         }
         return evidenceData;
     }

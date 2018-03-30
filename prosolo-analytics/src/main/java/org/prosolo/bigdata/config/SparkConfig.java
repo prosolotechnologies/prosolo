@@ -23,4 +23,10 @@ public class SparkConfig {
 
     @Element(name = "app-name", required = true)
     public String appName;
+
+    @Element(name = "elasticsearch-connector-port", required = true)
+    public int elasticsearchConnectorPort;
+
+    @Element(name = "one-jar", required = false)
+    public String oneJar;
 }

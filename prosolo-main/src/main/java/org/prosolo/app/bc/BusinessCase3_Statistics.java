@@ -24,7 +24,6 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -821,7 +820,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.assignRoleToUser(roleUser, newUser.getId());
 			
 			return newUser;
-		} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
+		} catch (IllegalDataStateException e) {
 			logger.error(e.getLocalizedMessage());
 		}
 		return null;

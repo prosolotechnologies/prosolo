@@ -8,7 +8,15 @@ public abstract class LtiMessageBuilder {
 	public LTIMessage getLtiMessage() throws Exception{
 		LTIMessage msg = getLtiMessageSpecific();
 		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));
-		msg.setId(PageUtil.getPostParameter(LTIConstants.TOOL_ID));
+		try{
+			msg.setId(PageUtil.getGetParameter(LTIConstants.TOOL_ID));
+		}catch(Exception ex){
+			//msg.setId("1");
+			return null;
+		}
+
+
+
 		return msg;
 	}
 

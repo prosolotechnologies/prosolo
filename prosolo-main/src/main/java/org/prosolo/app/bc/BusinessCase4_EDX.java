@@ -5,6 +5,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -25,7 +26,6 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -750,7 +750,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events);
 
 		try {
-			logger.info("Reindexing all indexes since we know some observers have failed");
+			logger.info("Reindexing all indices since we know some observers have failed");
 			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndInitElasticSearchIndexes();
 		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
 			logger.error(indexingServiceNotAvailable);
@@ -794,8 +794,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					.getService(UserManager.class)
 					.createNewUserAndGetEvents(orgId, name, lastname, emailAddress,
 							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, Arrays.asList(roleUser.getId()),false);
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
 		} catch (IllegalDataStateException e) {
 			e.printStackTrace();
 		}
@@ -810,6 +808,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setDescription(description);
 		actData.setActivityType(type);
 		actData.setStudentCanSeeOtherResponses(true);
+		actData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
+		actData.getAssessmentSettings().setMaxPoints(100);
 
 		switch (type) {
 			case VIDEO:
@@ -857,6 +857,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
+		credentialData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
 		Credential1 credNP1 = extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()
@@ -879,6 +880,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setTagsString(tags);
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
+		compData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
+
 
 		Competence1 comp;
 		try {

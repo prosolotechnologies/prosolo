@@ -5,6 +5,7 @@ package org.prosolo.services.notifications.emailgenerators;
 
 import org.prosolo.common.email.generators.EmailContentGenerator;
 
+
 public abstract class NotificationEmailGenerator extends EmailContentGenerator {
 	
 	private String name;

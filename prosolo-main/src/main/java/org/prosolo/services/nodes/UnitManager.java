@@ -45,6 +45,11 @@ public interface UnitManager extends AbstractManager{
     Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context)
             throws DbConnectionException;
 
+    void removeUserFromAllUnitsWithRole(long userId, long roleId, UserContextData context) throws DbConnectionException;
+
+    Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
+            throws DbConnectionException;
+
     List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException;
 
     UnitData getUnitData(long unitId) throws DbConnectionException;
@@ -124,7 +129,12 @@ public interface UnitManager extends AbstractManager{
     boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
             throws DbConnectionException;
 
+    boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, String roleName)
+            throws DbConnectionException;
+
     List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
+
+    List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException;
 
     List<Long> getUserUnitIdsWithUserCapability(long userId, String capability) throws DbConnectionException;
 

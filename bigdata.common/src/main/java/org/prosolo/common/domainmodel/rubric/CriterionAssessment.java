@@ -1,32 +1,24 @@
 package org.prosolo.common.domainmodel.rubric;
 
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
-import javax.persistence.*;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 
 /**
  * @author stefanvuckovic
- * @date 2017-10-11
- * @since 1.0.0
+ * @date 2018-01-30
+ * @since 1.2.0
  */
-@Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"assessment", "criterion"})})
+@MappedSuperclass
 public class CriterionAssessment extends BaseEntity {
 
-    private ActivityAssessment assessment;
+    private static final long serialVersionUID = 5736873719391939079L;
+
     private Criterion criterion;
     private Level level;
     private String comment;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    public ActivityAssessment getAssessment() {
-        return assessment;
-    }
-
-    public void setAssessment(ActivityAssessment assessment) {
-        this.assessment = assessment;
-    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     public Criterion getCriterion() {

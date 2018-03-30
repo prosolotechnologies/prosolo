@@ -9,7 +9,7 @@
 				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 	
 	<ui:define name="windowTitle">
-		#{profileBean.userData.fullName}
+		#{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
 	</ui:define>
 	
 	<ui:define name="metadata">

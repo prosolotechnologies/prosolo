@@ -1,0 +1,188 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="templates/masterLayout2.xhtml"
+				xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
+				xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+				xmlns:util="http://www.prosolo.com/util"
+				xmlns:p="http://primefaces.org/ui"
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<ui:define name="windowTitle">
+		Assessments - #{studentCompetencePeerAssessmentsBean.competenceTitle} - ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="p" value="#{studentCompetencePeerAssessmentsBean.page}" default="1" />
+			<f:viewParam name="compId" value="#{studentCompetencePeerAssessmentsBean.compId}" default="null" />
+			<f:viewParam name="credId" value="#{studentCompetencePeerAssessmentsBean.credId}" default="null" />
+			<f:viewAction action="#{studentCompetencePeerAssessmentsBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+		<h1>#{studentCompetencePeerAssessmentsBean.competenceTitle}</h1>
+    </ui:define>
+
+	<ui:define name="navLinks">
+		<competence:competenceStudentNavLinks
+				enrolled="#{true}"
+				credId="#{util:decodeId(param.credId)}"
+				compId="#{util:decodeId(param.compId)}"
+		/>
+	</ui:define>
+    
+	<ui:define name="content">
+
+		<p:growl id="growlMain" globalOnly="true" showDetail="true" />
+
+		<div class="whiteBar">
+
+		</div>
+
+		<div class="container">
+			<ui:fragment rendered="#{not empty param.credId}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link value="#{msg['label.credential.plural']}" outcome="/credentialLibrary"/>
+					</li>
+					<li>
+						<h:link
+								value="#{studentCompetencePeerAssessmentsBean.credentialTitle}"
+								outcome="/credential">
+							<f:param name="id" value="#{param.credId}"></f:param>
+						</h:link>
+					</li>
+					<li>
+						<h:link
+								value="#{studentCompetencePeerAssessmentsBean.competenceTitle}"
+								outcome="/competence">
+							<f:param name="credId" value="#{param.credId}"></f:param>
+							<f:param name="compId" value="#{param.compId}"/>
+						</h:link>
+					</li>
+					<li class="active">
+						Assessments
+					</li>
+				</ol>
+			</ui:fragment>
+			<ui:fragment rendered="#{empty param.credId}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link
+								value="#{msg['label.competence.plural']}"
+								outcome="/competenceLibrary">
+						</h:link>
+					</li>
+					<li>
+						<h:link
+								value="#{studentCompetencePeerAssessmentsBean.competenceTitle}"
+								outcome="competence">
+							<f:param name="compId" value="#{param.compId}"/>
+						</h:link>
+					</li>
+					<li class="active">
+						Assessments
+					</li>
+				</ol>
+			</ui:fragment>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<assessment:competenceAssessmentStudentTabs
+							selfAssessmentEnabled="#{studentCompetencePeerAssessmentsBean.selfAssessmentEnabled}"
+							peerAssessmentEnabled="#{studentCompetencePeerAssessmentsBean.peerAssessmentEnabled}"
+					/>
+
+					<div class="assessmentsTab" id="peer">
+						<div class="row">
+							<div class="col-md-9">
+								<h:panelGroup id="panelAssessments">
+									<ui:fragment rendered="#{empty studentCompetencePeerAssessmentsBean.assessments}">
+										<div class="noContentMessage">
+											<p>
+												No assessments.
+											</p>
+										</div>
+									</ui:fragment>
+
+
+									<ui:repeat var="assessment" value="#{studentCompetencePeerAssessmentsBean.assessments}">
+										<div class="whiteBox assessmentsBox">
+											<div class="assessmentsBoxTop">
+												<div class="user32">
+													<h:link outcome="/competence-peer-assessment">
+														<utilcomp:userAvatar avatar="#{assessment.assessorAvatarUrl}" fullName="#{assessment.assessorFullName}"/>
+														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+														<f:param value="#{param.compId}" name="compId" />
+														<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
+													</h:link>
+
+													<h3>
+														<h:link outcome="/competence-peer-assessment">
+															#{assessment.assessorFullName}
+															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+															<f:param value="#{param.compId}" name="compId" />
+															<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
+														</h:link>
+													</h3>
+												</div>
+												<div class="timestamp">
+													#{assessment.dateValue}
+												</div>
+											</div>
+											<h:panelGroup layout="block" styleClass="tagApproved left bottom30" rendered="#{assessment.approved}">Approved</h:panelGroup>
+											<h:link outcome="/competence-peer-assessment">
+												View Details
+												<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+												<f:param value="#{param.compId}" name="compId" />
+												<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
+											</h:link>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+
+								<utilcomp:pagination
+										id="pagination"
+										bean="#{studentCompetencePeerAssessmentsBean}"
+										updateUrl="true"
+										toUpdate=":panelAssessments"
+								/>
+							</div>
+
+							<div class="col-md-3">
+								<p:commandLink
+										styleClass="btn btn-green"
+										pt:data-toggle="modal"
+										process="@this"
+										value="New #{msg['label.assessment.type.PEER_ASSESSMENT']}"
+										action="#{studentCompetencePeerAssessmentsBean.initAskForAssessment()}"
+										update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+										oncomplete="$('#askAssessment').modal('show');">
+								</p:commandLink>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<h:form id="formAskForAssessment">
+			<assessment:askForAssessment
+					id="askForAssessment"
+					bean="#{askForCompetenceAssessmentBean}"
+					submitAssessmentRequestActionMethodName="submitAssessment"
+					submitAssessmentRequestAction="#{studentCompetencePeerAssessmentsBean.submitAssessment}"
+					resource="COMPETENCE"
+					resourceTitle="#{studentCompetencePeerAssessmentsBean.competenceTitle}"
+					toUpdate=":growlMain :panelAssessments :pagination"
+					learningContext="name:competence|id:#{util:decodeId(param.compId)}"
+			/>
+		</h:form>
+	</ui:define>
+</ui:composition>

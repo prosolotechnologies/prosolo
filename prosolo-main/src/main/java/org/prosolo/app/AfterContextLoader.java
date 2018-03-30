@@ -21,7 +21,6 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
@@ -167,23 +166,22 @@ public class AfterContextLoader implements ServletContextListener {
 	}
 	
 	private void initStaticData() {
-		try {
-			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
+		Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
 
-			ServiceLocator.getInstance().getService(UserManager.class)
-					.createNewUser(
-							0,
-							Settings.getInstance().config.init.defaultUser.name,
-							Settings.getInstance().config.init.defaultUser.lastname,
-							Settings.getInstance().config.init.defaultUser.email,
-							true,
-							Settings.getInstance().config.init.defaultUser.pass,
-							null, 
-							null,
-							null,
-							Arrays.asList(superAdminRoleId),
-							true);
-		} catch (UserAlreadyRegisteredException | IllegalDataStateException e) {
+		try {
+			ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
+                    0,
+                    Settings.getInstance().config.init.defaultUser.name,
+                    Settings.getInstance().config.init.defaultUser.lastname,
+                    Settings.getInstance().config.init.defaultUser.email,
+                    true,
+                    Settings.getInstance().config.init.defaultUser.pass,
+                    null,
+                    null,
+                    null,
+                    Arrays.asList(superAdminRoleId),
+                    true);
+		} catch (IllegalDataStateException e) {
 			logger.error(e);
 		}
 	}

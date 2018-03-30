@@ -22,7 +22,7 @@
         <property name="c3p0.min_size">1</property>
         <property name="c3p0.timeout">10000</property>
         <property name="c3p0.max_size">3</property>
-        <property name="c3p0.idle_test_period">5000</property>
+        <property name="c3p0.idle_test_period">30</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <!-- property name="connection.username">root</property>
@@ -33,7 +33,8 @@
         <property name="hibernate.current_session_context_class">thread</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</property>
-                          
+
+
         <!-- mapping class="model.beans.TestBean"/-->
         <mapping package="org.prosolo.common.domainmodel" />
         <mapping package="org.prosolo.common.domainmodel.user" />

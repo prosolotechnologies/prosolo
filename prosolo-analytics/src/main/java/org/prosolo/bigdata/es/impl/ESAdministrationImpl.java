@@ -13,6 +13,7 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.elasticsearch.client.Requests.*;
@@ -21,90 +22,95 @@ import static org.elasticsearch.client.Requests.*;
  * @author Zoran Jeremic May 9, 2015
  */
 
-public class ESAdministrationImpl extends AbstractESIndexer implements
-        ESAdministration {
-    private static final long serialVersionUID = 830150223713546004L;
-    private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
+public class ESAdministrationImpl extends AbstractESIndexer implements ESAdministration {
 
-    @Override
-    public boolean createIndexes() throws IndexingServiceNotAvailable {
-        List<String> indexes = ESIndexNames.getAllIndexes();
+	private static final long serialVersionUID = 830150223713546004L;
+	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
 
-        for (String index : indexes) {
-            createIndex(index);
-        }
-        return true;
-    }
+	@Override
+	public boolean createIndexes() throws IndexingServiceNotAvailable {
+		//List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes=new ArrayList<>();
+		indexes.add(ESIndexNames.INDEX_JOBS_LOGS);
+		indexes.add(ESIndexNames.INDEX_RECOMMENDATION_DATA);
+		indexes.add(ESIndexNames.INDEX_LOGS);
+		indexes.add(ESIndexNames.INDEX_ASSOCRULES);
 
-    // @Override
-    public void createIndex(String indexName)
-            throws IndexingServiceNotAvailable {
-        Client client = ElasticSearchConnector.getClient();
-        boolean exists = client.admin().indices().prepareExists(indexName)
-                .execute().actionGet().isExists();
-        if (!exists) {
-            ElasticSearchConfig elasticSearchConfig = CommonSettings
-                    .getInstance().config.elasticSearch;
-            Settings.Builder elasticsearchSettings = Settings
-                    .settingsBuilder()
-                    .put("http.enabled", "false")
-                    .put("cluster.name", elasticSearchConfig.clusterName)
-                    .put("index.number_of_replicas",
-                            elasticSearchConfig.replicasNumber)
-                    .put("index.number_of_shards",
-                            elasticSearchConfig.shardsNumber);
-            client.admin()
-                    .indices()
-                    .create(createIndexRequest(indexName).settings(
-                            elasticsearchSettings)
-                            // )
-                    ).actionGet();
-            logger.debug("Running Cluster Health");
-            ClusterHealthResponse clusterHealth = client.admin().cluster()
-                    .health(clusterHealthRequest().waitForGreenStatus())
-                    .actionGet();
-            logger.debug("Done Cluster Health, status "
-                    + clusterHealth.getStatus());
+		for (String index : indexes) {
+			createIndex(index);
+		}
+		return true;
+	}
 
-            // String indexType="";
-            // String mappingPath=null;
-            if (indexName.equals(ESIndexNames.INDEX_ASSOCRULES)) {
-                // indexType=ESIndexTypes.DOCUMENT;
-                // mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
-                addMapping(client, indexName,
-                        ESIndexTypes.COMPETENCE_ACTIVITIES);
-            }
-        }
-    }
+	// @Override
+	public void createIndex(String indexName)
+			throws IndexingServiceNotAvailable {
+		Client client = ElasticSearchConnector.getClient();
+		boolean exists = client.admin().indices().prepareExists(indexName)
+				.execute().actionGet().isExists();
+		if (!exists) {
+			ElasticSearchConfig elasticSearchConfig = CommonSettings
+					.getInstance().config.elasticSearch;
+			 Settings.Builder elasticsearchSettings =  Settings
+					.settingsBuilder()
+					.put("http.enabled", "false")
+					.put("cluster.name", elasticSearchConfig.clusterName)
+					.put("index.number_of_replicas",
+							elasticSearchConfig.replicasNumber)
+					.put("index.number_of_shards",
+							elasticSearchConfig.shardsNumber);
+			client.admin()
+					.indices()
+					.create(createIndexRequest(indexName).settings(
+							elasticsearchSettings)
+					// )
+					).actionGet();
+			logger.debug("Running Cluster Health");
+			ClusterHealthResponse clusterHealth = client.admin().cluster()
+					.health(clusterHealthRequest().waitForGreenStatus())
+					.actionGet();
+			logger.debug("Done Cluster Health, status "
+					+ clusterHealth.getStatus());
 
-    @Override
-    public boolean deleteIndexes() throws IndexingServiceNotAvailable {
-        List<String> indexes = ESIndexNames.getAllIndexes();
+			// String indexType="";
+			// String mappingPath=null;
+			if (indexName.equals(ESIndexNames.INDEX_ASSOCRULES)) {
+				// indexType=ESIndexTypes.DOCUMENT;
+				// mappingPath="/org/prosolo/services/indexing/"+indexName+"-mapping.json";
+				addMapping(client, indexName,
+						ESIndexTypes.COMPETENCE_ACTIVITIES);
+			}
+		}
+	}
 
-        for (String index : indexes) {
-            deleteIndex(index);
-        }
-        return true;
-    }
+	@Override
+	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
+		List<String> indexes = ESIndexNames.getAllIndexes();
 
-    @Override
-    public void deleteIndex(String indexName)
-            throws IndexingServiceNotAvailable {
+		for (String index : indexes) {
+			deleteIndex(index);
+		}
+		return true;
+	}
 
-        logger.debug("deleting index [" + indexName + "]");
+	@Override
+	public void deleteIndex(String indexName)
+			throws IndexingServiceNotAvailable {
+		logger.debug("deleting index [" + indexName + "]");
+try{
 
-        try {
-            Client client = ElasticSearchConnector.getClient();
-            boolean exists = client.admin().indices().prepareExists(indexName)
-                    .execute().actionGet().isExists();
-            if (exists) {
-                client.admin().indices().delete(deleteIndexRequest(indexName))
-                        .actionGet();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        // client.close();
-    }
+
+		Client client = ElasticSearchConnector.getClient();
+		boolean exists = client.admin().indices().prepareExists(indexName)
+				.execute().actionGet().isExists();
+		if (exists) {
+			client.admin().indices().delete(deleteIndexRequest(indexName))
+					.actionGet();
+		}
+}catch(Exception ex){
+	ex.printStackTrace();
+}
+		// client.close();
+	}
 
 }
