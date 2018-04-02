@@ -212,9 +212,9 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		//BoundStatement boundStatement=new BoundStatement(preparedStatement);
 
 		JsonObject data = event.getData();
-			System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:"+data.getAsString());
+			System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:"+data.toString());
 		//System.out.println("DATA:"+data.getAsString());
-		String dateString=data.get("date").getAsString();
+	//	String dateString=data.get("date").getAsString();
 		Long date= DateEpochUtil.getDaysSinceEpoch();
 		Long id=data.get("id").getAsLong();
 		String notificationType=data.get("notificationType").getAsString();
