@@ -131,6 +131,53 @@ public class GradeDataFactory {
         return gd;
     }
 
+    public static void updateAssessmentStarData(GradeData gd, Pair<Integer, Integer> rubricGradeSummary) {
+        gd.accept(new GradeDataVisitor<Void>() {
+            @Override
+            public Void visit(ManualSimpleGradeData gradeData) {
+                gradeData.calculateAssessmentStarData();
+                return null;
+            }
+
+            @Override
+            public Void visit(AutomaticGradeData gradeData) {
+                gradeData.calculateAssessmentStarData();
+                return null;
+            }
+
+            @Override
+            public Void visit(ExternalToolAutoGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(CompletionAutoGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(NongradedGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(RubricGradeData gradeData) {
+                gradeData.setAssessmentStarData(rubricGradeSummary);
+                return null;
+            }
+
+            @Override
+            public Void visit(DescriptiveRubricGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(PointRubricGradeData gradeData) {
+                return null;
+            }
+        });
+    }
+
     public static RubricCriterionGradeData getRubricCriterionGradeData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {
         RubricCriterionGradeData criterionData = crit.accept(new CriterionVisitor<RubricCriterionGradeData>() {
             @Override

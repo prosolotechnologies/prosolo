@@ -1923,6 +1923,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					updateScoreForCompetenceAssessmentIfNeeded(ad.getAssessment().getId());
 				}
 
+				//update assessment star data
+				Map<Long, Pair<Integer, Integer>> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
+						Arrays.asList(activityAssessmentId));
+				GradeDataFactory.updateAssessmentStarData(grade, actAssessmentGradeSummary.get(activityAssessmentId));
+
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(ad.getId());
 				Map<String, String> params = new HashMap<>();
@@ -1980,6 +1985,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.COMPETENCE);
 
 				saveEntity(ca);
+
+				//update assessment star data
+				Map<Long, Pair<Integer, Integer>> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
+				GradeDataFactory.updateAssessmentStarData(grade, compAssessmentGradeSummary.get(assessmentId));
 
 				CompetenceAssessment compA = new CompetenceAssessment();
 				compA.setId(ca.getId());
@@ -2043,6 +2052,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				ca.setLastAssessment(new Date());
 
 				saveEntity(ca);
+
+				//update assessment star data
+				Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessmentId);
+				GradeDataFactory.updateAssessmentStarData(grade, credGradeSummary);
 
 				CredentialAssessment credA = new CredentialAssessment();
 				credA.setId(ca.getId());
