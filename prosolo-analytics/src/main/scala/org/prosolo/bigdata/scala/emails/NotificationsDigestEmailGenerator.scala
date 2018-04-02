@@ -17,7 +17,7 @@ class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, va
 
   override def getTemplateName: String = {"notifications/notification-digest"}
 
-  override def getSubject: String = {"Your Daily Notifications Diggest"}
+  override def getSubject: String = {"Your Prosolo Daily Notifications"}
   val domain=System.getProperty("app.domain")
 val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domain+"/notifications"
 
@@ -31,11 +31,11 @@ val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domai
 
   def hasComments():Boolean={hasNotificationType(NotificationType.Comment) }
   def commentsCount():Int={ getNotificationTypeCount(NotificationType.Comment)}
-
   def comments():java.util.List[Notification]={ getNotificationsByType(NotificationType.Comment)}
 
   def hasAssessmentsApproved():Boolean={hasNotificationType(NotificationType.Assessment_Approved)}
   def assessmentsApprovedCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Approved)}
+  def assessmentsApproved():java.util.List[Notification]={ getNotificationsByType(NotificationType.Assessment_Approved)}
 
   def hasAssessmentsComments():Boolean={hasNotificationType(NotificationType.Assessment_Comment)}
   def assessmentsCommentsCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Comment)}
@@ -43,12 +43,15 @@ val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domai
 
   def hasAssessmentsRequest():Boolean={hasNotificationType(NotificationType.Assessment_Requested)}
   def assessmentsRequestsCount():Int={ getNotificationTypeCount(NotificationType.Assessment_Requested)}
+  def assessmentsRequests():java.util.List[Notification]={ getNotificationsByType(NotificationType.Assessment_Requested)}
 
   def hasGradeAdded():Boolean={hasNotificationType(NotificationType.GradeAdded)}
   def gradeAddedCount():Int={ getNotificationTypeCount(NotificationType.GradeAdded)}
+  def gradesAdded():java.util.List[Notification]={ getNotificationsByType(NotificationType.GradeAdded)}
 
   def hasCommentLiked():Boolean={hasNotificationType(NotificationType.Comment_Like)}
   def commentLikeCount():Int={ getNotificationTypeCount(NotificationType.Comment_Like)}
+  def commentLikes():java.util.List[Notification]={ getNotificationsByType(NotificationType.Comment_Like)}
 
   def hasSocialActivityLiked():Boolean={hasNotificationType(NotificationType.Social_Activity_Like)}
   def socialActivityLikeCount():Int={ getNotificationTypeCount(NotificationType.Social_Activity_Like)}

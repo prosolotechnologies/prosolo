@@ -2,7 +2,7 @@ package org.prosolo.bigdata.scala.notifications
 
 import org.prosolo.bigdata.email.EmailSender
 import org.prosolo.bigdata.scala.emails.NotificationsEmailServiceImpl
-import org.prosolo.bigdata.scala.spark.emails.{Notification, NotificationReceiverSummary, NotificationsSummary, Receiver}
+import org.prosolo.bigdata.scala.spark.emails.{ NotificationReceiverSummary, NotificationsSummary, Receiver}
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -18,15 +18,15 @@ class NotificationsTests extends FunSuite with BeforeAndAfter{
     notificationTypesCounts+=(NotificationType.Comment.toString->4)
     notificationTypesCounts+=(NotificationType.Comment_Like.toString->3)
     notificationTypesCounts+=(NotificationType.Follow_User.toString->2)
-    val notification1=Notification(1234,NotificationType.Follow_User.name(),123,"Follower 1",123,"zoran.jeremic@gmail.com","xxxxx","yyyy",
-    "","Erika Ames",111)
-    val notification2=Notification(1234,NotificationType.Follow_User.name(),123,"Follower 1",123,"zoran.jeremic@gmail.com","xxxxx","yyyy",
-      "","Erika Ames",111)
-    val notifications=Array(notification1,notification2)
-    var notificationsMap=new HashMap[String,Array[Notification]]
-    notificationsMap+=(NotificationType.Follow_User.name()->notifications)
+   // val notification1=Notification(1234,NotificationType.Follow_User.name(),123,"Follower 1",123,"zoran.jeremic@gmail.com","xxxxx","yyyy",
+   // "","Erika Ames",111)
+    //val notification2=Notification(1234,NotificationType.Follow_User.name(),123,"Follower 1",123,"zoran.jeremic@gmail.com","xxxxx","yyyy",
+     // "","Erika Ames",111)
+   // val notifications=Array(notification1,notification2)
+  //  var notificationsMap=new HashMap[String,Array[Notification]]
+  //  notificationsMap+=(NotificationType.Follow_User.name()->notifications)
 
-     notificationsSummary=NotificationsSummary(receiverId:Long, total:Int, notificationTypesCounts:HashMap[String,Int],notificationsMap)
+    // notificationsSummary=NotificationsSummary(receiverId:Long, total:Int, notificationTypesCounts:HashMap[String,Int],notificationsMap)
 
     val receiver=Receiver(2,"Zoran Jeremic","zoran.jeremic@gmail.com")
     notificationReceiverSummary=NotificationReceiverSummary(receiver,notificationsSummary)

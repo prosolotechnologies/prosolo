@@ -43,11 +43,12 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     //Create notification instances and group it by receiver id
     val domain=System.getProperty("app.domain");
     val receiversDF=dayNotificationsDF.map{
-      case Row(date:Long,notificationType:String, id:Long, actorfullname:String, actorId:Long, email:String, link:String, objectTitle:String,
-      objectType:String, receiverFullName:String, receiverId:Long)=>{
+      case Row(date:Long,notificationType:String, id:Long, actorfullname:String, actorid:Long, email:String, link:String,
+      objectid:Long,objectTitle:String, objectType:String, predicate:String, receiverFullName:String, receiverId:Long, relationtotarget:String, section:String, targetid:Long, targettitle:String
+      )=>{
         val url= if(domain.endsWith("/") && link.startsWith("/"))  domain+link.substring(1) else domain+link
-        (receiverId,Notification(date,notificationType, id,actorfullname, actorId, email, url, objectTitle,
-          objectType, receiverFullName, receiverId))
+        (receiverId,Notification(date,notificationType, id,actorfullname, actorid, email, url, objectTitle,
+          objectType, receiverFullName, receiverId,objectid,targetid,targettitle,section,relationtotarget,predicate))
       }
     }.rdd.groupByKey
     //create RDD of receivers containing id, fullname and email
