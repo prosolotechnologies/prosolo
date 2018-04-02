@@ -245,15 +245,12 @@
 			<ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Unit_Welcome_Post'}">
 				<div class="wallPostHead">
 					<div class="user32">
-						<h:link outcome="/profile">
-							<utilcomp:userAvatar
-									avatar="#{request.contextPath}/resources/images2/logo-simple.svg"
-									fullName="ProSolo"
-									width="32"
-									height="32"
-							/>
-							<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
-						</h:link>
+						<utilcomp:userAvatar
+								avatar="#{request.contextPath}/resources/images2/logo-simple.svg"
+								fullName="ProSolo"
+								width="32"
+								height="32"
+						/>
 
 						<h3>
 							ProSolo
@@ -262,7 +259,7 @@
 				</div>
 				<div class="wallPostBody">
 					<ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
-						<div id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
+						<div class="wallPostContent">
 							<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
 						</div>
 						<div class="previewLink previewLinkBig">

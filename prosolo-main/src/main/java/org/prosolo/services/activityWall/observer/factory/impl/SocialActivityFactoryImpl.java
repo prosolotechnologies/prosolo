@@ -62,6 +62,7 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 				processor = new CredentialObjectSocialActivityProcessor(session, event, 
 						socialActivityManager);
 				break;
+			case Create:
 			case Edit:
 				if (event.getObject() instanceof Unit) {
 					processor = new UnitWelcomePostSocialActivityProcessor(session, event, socialActivityManager);

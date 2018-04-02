@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -69,6 +70,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Transactional
     public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        String defaultWelcomeMsg = "<p>Welcome to ProSolo. To start your learning, navigate to the <a href=\"" + CommonSettings.getInstance().config.appConfig.domain + "library\">Library</a> page</p>";
         try {
             Result<Unit> res = new Result<>();
             Organization organization = new Organization();
@@ -76,6 +78,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = new Unit();
             unit.setTitle(title);
             unit.setOrganization(organization);
+            unit.setWelcomeMessage(defaultWelcomeMsg);
 
             if(parentUnitId == 0) {
                 unit.setParentUnit(null);
@@ -459,6 +462,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unitToUpdate = (Unit) persistence.currentManager().load(Unit.class, unit.getId());
             unitToUpdate.setTitle(unit.getTitle());
             unitToUpdate.setWelcomeMessage(unit.getWelcomeMessage());
+            persistence.currentManager().flush();
 
             res.setResult(unitToUpdate);
 

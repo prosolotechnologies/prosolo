@@ -42,7 +42,8 @@ public class SocialStreamObserver extends EventObserver {
 			//EventType.Comment,
 			EventType.Post, 
 			EventType.Completion,
-			EventType.Edit
+			EventType.Edit,
+			EventType.Create
 		};
 	}
 
