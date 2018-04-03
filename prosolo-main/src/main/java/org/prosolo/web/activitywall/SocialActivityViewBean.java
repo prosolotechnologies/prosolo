@@ -125,7 +125,7 @@ public class SocialActivityViewBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator(SocialActivityData1 sa) {
-		return loggedUser.getUserId() == sa.getActor().getId();
+		return sa.getActor() != null && loggedUser.getUserId() == sa.getActor().getId();
 	}
 	
 	/*

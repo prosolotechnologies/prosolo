@@ -4,11 +4,11 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.activityWall.observer.processor.*;
@@ -32,7 +32,7 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 	@Inject private SocialActivityManager socialActivityManager;
 
 	@Override
-	public synchronized SocialActivity1 createSocialActivity(Event event, Session session) {
+	public synchronized void createOrDeleteSocialActivity(Event event, Session session) {
 		EventType action = event.getAction();
 		SocialActivityProcessor processor = null;
 
@@ -62,19 +62,23 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 				processor = new CredentialObjectSocialActivityProcessor(session, event, 
 						socialActivityManager);
 				break;
+			case Create:
+			case Edit:
+				if (event.getObject() instanceof Unit) {
+					processor = new UnitWelcomePostSocialActivityProcessor(session, event, socialActivityManager);
+				}
+				break;
 			default:
-				return null;
+				break;
 		}
 		
 		if (processor != null) {
 			try {
-				return processor.createSocialActivity();
+				processor.createOrDeleteSocialActivity();
 			} catch(DbConnectionException e) {
 				logger.error(e);
 			}
 		}
-		
-		return null;
 	}
 	
 //	private SocialActivity createTwitterPostSocialActivity(Event event, Session session) {

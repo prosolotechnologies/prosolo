@@ -19,10 +19,10 @@ public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
+	public void createOrDeleteSocialActivity() {
 		PostSocialActivity1 post = (PostSocialActivity1) event.getObject();
 		if(post == null) {
-			return null;
+			return;
 		}
 		PostReshareSocialActivity act = new PostReshareSocialActivity();
 		Date now = new Date();
@@ -30,7 +30,7 @@ public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 		act.setLastAction(now);
 		act.setActor(new User(event.getActorId()));
 		act.setPostObject(post);
-		return socialActivityManager.saveNewSocialActivity(act, session);
+		socialActivityManager.saveNewSocialActivity(act, session);
 	}
 
 }

@@ -19,6 +19,7 @@ public class UnitData implements Serializable,Comparable<UnitData> {
     private List<UnitData> childrenUnits;
     private boolean hasUsers;
     private boolean selected;
+    private String welcomeMessage;
 
     public UnitData(){
         childrenUnits = new ArrayList<>();
@@ -28,6 +29,7 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this();
         this.id = unit.getId();
         this.title = unit.getTitle();
+        this.welcomeMessage = unit.getWelcomeMessage();
     }
 
     public UnitData(Unit unit,long parentUnitId){
@@ -99,6 +101,14 @@ public class UnitData implements Serializable,Comparable<UnitData> {
 
     public void changeSelectionStatus() {
         this.selected = !this.selected;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
+    }
+
+    public void setWelcomeMessage(String welcomeMessage) {
+        this.welcomeMessage = welcomeMessage;
     }
 
     @Override
