@@ -88,8 +88,13 @@ public class NotificationEventProcessorFactory {
 						notificationsSettingsManager, idEncoder, assessmentManager);
 			}
 		case AssessmentApproved:
-			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, contextJsonParserService);
+			if (event.getObject() instanceof CredentialAssessment) {
+				return new CredentialAssessmentApprovedEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder);
+			} if (event.getObject() instanceof CompetenceAssessment) {
+			return new CompetenceAssessmentApprovedEventProcessor(event, session, notificationManager,
+					notificationsSettingsManager, idEncoder);
+		}
 		case AssessmentRequested:
 			if (event.getObject() instanceof CredentialAssessment) {
 				return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,

@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -302,7 +303,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 			compAssessment.setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the competence for " + compAssessment.getStudentFullName());
+					"You have approved the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " for " + compAssessment.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");

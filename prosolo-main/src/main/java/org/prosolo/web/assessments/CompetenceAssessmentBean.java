@@ -194,10 +194,10 @@ public class CompetenceAssessmentBean extends LearningResourceAssessmentBean {
 			competenceAssessmentData.setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+					"You have approved the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 

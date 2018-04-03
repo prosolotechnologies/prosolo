@@ -23,6 +23,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -503,7 +504,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			markCompetenceApproved(competenceAssessmentId);
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
+					"You have approved the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
 			PageUtil.fireErrorMessage("Error approving the assessment");
