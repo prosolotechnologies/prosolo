@@ -24,7 +24,7 @@ import org.prosolo.bigdata.scala.twitter.TwitterStatusBuffer$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
 //import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

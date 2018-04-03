@@ -1,7 +1,5 @@
 package org.prosolo.bigdata.events.observers;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.impl.CompetenceDAOImpl;
 import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
@@ -11,9 +9,11 @@ import org.prosolo.bigdata.jobs.data.Resource;
 import org.prosolo.bigdata.services.credentials.VisibilityService;
 import org.prosolo.bigdata.services.credentials.impl.ResourceVisibilityServiceImpl;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.quartz.SchedulerException;
+
+import java.util.Date;
 
 public class ScheduledResourceVisibilityUpdateObserver implements EventObserver {
 	

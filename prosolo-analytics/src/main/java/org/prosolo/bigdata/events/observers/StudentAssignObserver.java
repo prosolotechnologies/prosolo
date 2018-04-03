@@ -1,20 +1,20 @@
 package org.prosolo.bigdata.events.observers;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.cassandra.impl.StudentAssignEventDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssign;
 import org.prosolo.bigdata.dal.cassandra.impl.data.StudentAssignEventData;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
-//import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
+
+//import org.prosolo.bigdata.scala.twitter.util.TwitterUtils$;
 
 
 public class StudentAssignObserver implements EventObserver {
