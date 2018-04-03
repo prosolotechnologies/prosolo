@@ -3,6 +3,7 @@ package org.prosolo.services.assessment.data;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
@@ -47,7 +48,8 @@ public class ActivityAssessmentData {
 	private CompetenceAssessmentData compAssessment;
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
-											  CredentialAssessment credAssessment, UrlIdEncoder encoder, long userId) {
+											  CredentialAssessment credAssessment, Pair<Integer, Integer> rubricGradeSummary,
+											  UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
@@ -107,7 +109,8 @@ public class ActivityAssessmentData {
 						actData.getAssessmentSettings().getRubricId(),
 						actData.getAssessmentSettings().getRubricType(),
 						actData.getRubricVisibility(),
-						actData.isAcceptGrades()));
+						actData.isAcceptGrades(),
+						rubricGradeSummary));
 
 		return data;
 	}

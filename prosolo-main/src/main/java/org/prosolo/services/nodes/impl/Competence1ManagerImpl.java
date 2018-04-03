@@ -1192,6 +1192,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), true);
 						compData.setEvidences(compEvidences);
 					}
+					if (loadAssessmentConfig) {
+						for (AssessmentTypeConfig conf : compData.getAssessmentTypes()) {
+							if (conf.isEnabled()) {
+								conf.setGradeSummary(assessmentManager.getCompetenceAssessmentsGradeSummary(compId, userId, conf.getType()));
+							}
+						}
+					}
 				}
 				return compData;
 			}

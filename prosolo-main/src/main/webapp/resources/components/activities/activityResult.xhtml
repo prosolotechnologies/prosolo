@@ -105,7 +105,7 @@
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
-									styleClass="grade #{cc.attrs.gradeLink}"
+									styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
 									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
@@ -124,7 +124,7 @@
 
 						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<a
-									class="grade"
+									class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
 									disabled="disabled"
 									data-toggle="tooltip"
 									title="Only assessor can update the grade">
@@ -293,7 +293,7 @@
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
-									styleClass="grade #{cc.attrs.gradeLink}"
+									styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
 									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
 									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
 									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
@@ -312,7 +312,7 @@
 
 						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<a
-									class="grade"
+									class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
 									disabled="disabled"
 									data-toggle="tooltip"
 									title="Only assessor can update the grade">

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.GradeData;
@@ -25,6 +26,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface AssessmentManager {
@@ -309,4 +311,28 @@ public interface AssessmentManager {
 
 	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
 			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+
+	Map<Long, Pair<Integer, Integer>> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
+
+	/**
+	 * Returns pair of numbers for students credential assessments of given type where first number represents
+	 * average grade for that student and second number is a maximum grade that can be given
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @param type
+	 * @return
+	 */
+	Pair<Integer, Integer> getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type);
+
+	/**
+	 * Returns pair of numbers for students' competence assessments of given type where first number represents
+	 * average grade for that student and second number is a maximum grade that can be given
+	 *
+	 * @param competenceId
+	 * @param studentId
+	 * @param type
+	 * @return
+	 */
+	Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
 }
