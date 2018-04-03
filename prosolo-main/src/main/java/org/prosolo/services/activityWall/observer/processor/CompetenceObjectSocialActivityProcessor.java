@@ -19,13 +19,13 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
+	public void createOrDeleteSocialActivity() {
 		SocialActivity1 act = null;
 
 		if(event.getAction() == EventType.Completion) {
 			TargetCompetence1 tc = (TargetCompetence1) event.getObject();
 			if(tc == null) {
-				return null;
+				return;
 			}
 			act = new CompetenceCompleteSocialActivity();
 			((CompetenceCompleteSocialActivity) act).setTargetCompetenceObject(tc);
@@ -36,7 +36,7 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 		act.setLastAction(now);
 		act.setActor(new User(event.getActorId()));
 		
-		return socialActivityManager.saveNewSocialActivity(act, session);
+		socialActivityManager.saveNewSocialActivity(act, session);
 	}
 
 }

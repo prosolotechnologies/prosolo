@@ -18,6 +18,6 @@ public abstract class SocialActivityProcessor {
 		this.socialActivityManager = socialActivityManager;
 	}
 	
-	public abstract SocialActivity1 createSocialActivity();
+	public abstract void createOrDeleteSocialActivity();
 	
 }

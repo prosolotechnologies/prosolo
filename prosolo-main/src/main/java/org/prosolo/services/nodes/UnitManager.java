@@ -54,10 +54,10 @@ public interface UnitManager extends AbstractManager{
 
     UnitData getUnitData(long unitId) throws DbConnectionException;
 
-    Unit updateUnit(long unitId,String title, UserContextData context) throws
+    Unit updateUnit(UnitData unit, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Unit> updateUnitAndGetEvents(long unitId,String title, UserContextData context) throws
+    Result<Unit> updateUnitAndGetEvents(UnitData unit, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     String getUnitTitle(long organizationId, long unitId) throws DbConnectionException;

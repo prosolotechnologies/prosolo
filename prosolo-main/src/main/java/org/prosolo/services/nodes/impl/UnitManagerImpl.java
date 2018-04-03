@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -15,6 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -54,6 +56,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Inject
     private UnitManager self;
     @Inject private RoleManager roleManager;
+    @Inject private SocialActivityManager socialActivityManager;
 
     public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
@@ -67,6 +70,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Transactional
     public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        String defaultWelcomeMsg = "<p>Welcome to ProSolo. To start your learning, navigate to the <a href=\"" + CommonSettings.getInstance().config.appConfig.domain + "library\">Library</a> page</p>";
         try {
             Result<Unit> res = new Result<>();
             Organization organization = new Organization();
@@ -74,6 +78,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = new Unit();
             unit.setTitle(title);
             unit.setOrganization(organization);
+            unit.setWelcomeMessage(defaultWelcomeMsg);
 
             if(parentUnitId == 0) {
                 unit.setParentUnit(null);
@@ -440,34 +445,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public Unit updateUnit(long unitId, String title, UserContextData context)
+    public Unit updateUnit(UnitData unit, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
-        Result<Unit> res = self.updateUnitAndGetEvents(unitId, title, context);
+        Result<Unit> res = self.updateUnitAndGetEvents(unit, context);
         eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
     @Override
-    public Result<Unit> updateUnitAndGetEvents(long unitId, String title, UserContextData context)
+    @Transactional
+    public Result<Unit> updateUnitAndGetEvents(UnitData unit, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Unit> res = new Result<>();
-            Unit unit = new Unit();
-            unit.setId(unitId);
 
-            String query =
-                    "UPDATE Unit unit " +
-                            "SET unit.title = :title " +
-                            "WHERE unit.id = :unitId ";
+            Unit unitToUpdate = (Unit) persistence.currentManager().load(Unit.class, unit.getId());
+            unitToUpdate.setTitle(unit.getTitle());
+            unitToUpdate.setWelcomeMessage(unit.getWelcomeMessage());
+            persistence.currentManager().flush();
 
-            persistence.currentManager()
-                    .createQuery(query)
-                    .setString("title", title)
-                    .setParameter("unitId", unitId)
-                    .executeUpdate();
+            res.setResult(unitToUpdate);
 
-            res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, unit, null, null, null));
-            res.setResult(unit);
+            Unit u = new Unit();
+            u.setId(unit.getId());
+            res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, u, null, null, null));
 
             return res;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
@@ -623,6 +624,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             if(numberOfUsers != 0){
                 throw new IllegalStateException("Unit can not be deleted as there are users associated with it");
             }
+
+            //delete unit welcome post social activity if exists
+            socialActivityManager.deleteUnitWelcomePostSocialActivityIfExists(unitId, persistence.currentManager());
 
             String deleteQuery =
                     "DELETE FROM Unit unit " +

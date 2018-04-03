@@ -21,13 +21,13 @@ public class CredentialObjectSocialActivityProcessor extends SocialActivityProce
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
+	public void createOrDeleteSocialActivity() {
 		SocialActivity1 act = null;
 
 		if(event.getAction() == EventType.ENROLL_COURSE) {
 			Credential1 cred = (Credential1) event.getObject();
 			if(cred == null) {
-				return null;
+				return;
 			}
 			act = new CredentialEnrollSocialActivity();
 			((CredentialEnrollSocialActivity) act).setCredentialObject(cred);
@@ -39,7 +39,7 @@ public class CredentialObjectSocialActivityProcessor extends SocialActivityProce
 				cred = tc.getCredential();
 			}
 			if(cred == null) {
-				return null;
+				return;
 			}
 			act = new CredentialCompleteSocialActivity();
 			((CredentialCompleteSocialActivity) act).setCredentialObject(cred);
@@ -50,7 +50,7 @@ public class CredentialObjectSocialActivityProcessor extends SocialActivityProce
 		act.setLastAction(now);
 		act.setActor(new User(event.getActorId()));
 		
-		return socialActivityManager.saveNewSocialActivity(act, session);
+		socialActivityManager.saveNewSocialActivity(act, session);
 	}
 
 }

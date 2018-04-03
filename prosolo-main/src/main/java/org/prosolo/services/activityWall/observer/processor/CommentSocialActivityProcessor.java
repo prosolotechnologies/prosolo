@@ -23,11 +23,11 @@ public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
+	public void createOrDeleteSocialActivity() {
 		Comment1 comment = (Comment1) event.getObject();
 		BaseEntity target = event.getTarget();
 		if (target == null) {
-			return null;
+			return;
 		}
 		CommentSocialActivity act = createNewSocialActivity(target);
 
@@ -38,10 +38,8 @@ public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 			act.setActor(new User(event.getActorId()));
 			act.setCommentObject(comment);
 
-			return socialActivityManager.saveNewSocialActivity(act, session);
+			socialActivityManager.saveNewSocialActivity(act, session);
 		}
-
-		return null;
 	}
 	
 	private CommentSocialActivity createNewSocialActivity(BaseEntity target) {
