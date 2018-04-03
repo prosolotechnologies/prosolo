@@ -5,6 +5,7 @@ import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.*;
 
 import java.util.ArrayList;
@@ -27,9 +28,10 @@ public class GradeDataFactory {
                                          long rubricId,
                                          RubricType rubricType,
                                          ActivityRubricVisibility rubricVisibilityForStudent,
-                                         boolean acceptGrades) {
+                                         boolean acceptGrades,
+                                         Pair<Integer, Integer> rubricGradeSummary) {
         GradeData gd = getGradeDataObject(LearningResourceType.ACTIVITY, gradingMode, rubricId, rubricType, acceptGrades);
-        return getGradeData(LearningResourceType.ACTIVITY, gd, maxPoints, currentGrade, rubricVisibilityForStudent);
+        return getGradeData(LearningResourceType.ACTIVITY, gd, maxPoints, currentGrade, rubricVisibilityForStudent, rubricGradeSummary);
     }
 
     public static GradeData getGradeDataForLearningResource(
@@ -37,9 +39,10 @@ public class GradeDataFactory {
             int maxPoints,
             int currentGrade,
             long rubricId,
-            RubricType rubricType) {
+            RubricType rubricType,
+            Pair<Integer, Integer> rubricGradeSummary) {
         GradeData gd = getGradeDataObject(LearningResourceType.OTHER, gradingMode, rubricId, rubricType, false);
-        return getGradeData(LearningResourceType.OTHER, gd, maxPoints, currentGrade, null);
+        return getGradeData(LearningResourceType.OTHER, gd, maxPoints, currentGrade, null, rubricGradeSummary);
     }
 
     private static GradeData getGradeDataObject(LearningResourceType resourceType, org.prosolo.common.domainmodel.credential.GradingMode gradingMode, long rubricId, RubricType rubricType, boolean acceptGrades) {
@@ -72,18 +75,20 @@ public class GradeDataFactory {
         }
     }
 
-    private static GradeData getGradeData(LearningResourceType resourceType, GradeData gd, int maxPoints, int currentGrade, ActivityRubricVisibility rubricVisibilityForStudent) {
+    private static GradeData getGradeData(LearningResourceType resourceType, GradeData gd, int maxPoints, int currentGrade, ActivityRubricVisibility rubricVisibilityForStudent, Pair<Integer, Integer> rubricGradeSummary) {
         gd.accept(new GradeDataVisitor<Void>() {
             @Override
             public Void visit(ManualSimpleGradeData gradeData) {
                 gradeData.setGradeInfo(maxPoints, currentGrade);
                 gradeData.setNewGrade(currentGrade > 0 ? currentGrade : 0);
+                gradeData.calculateAssessmentStarData();
                 return null;
             }
 
             @Override
             public Void visit(AutomaticGradeData gradeData) {
                 gradeData.setGradeInfo(maxPoints, currentGrade);
+                gradeData.calculateAssessmentStarData();
                 return null;
             }
 
@@ -107,6 +112,7 @@ public class GradeDataFactory {
                 if (resourceType == LearningResourceType.ACTIVITY) {
                     gradeData.setRubricVisibilityForStudent(rubricVisibilityForStudent);
                 }
+                gradeData.setAssessmentStarData(rubricGradeSummary);
                 return null;
             }
 
@@ -123,6 +129,53 @@ public class GradeDataFactory {
             }
         });
         return gd;
+    }
+
+    public static void updateAssessmentStarData(GradeData gd, Pair<Integer, Integer> rubricGradeSummary) {
+        gd.accept(new GradeDataVisitor<Void>() {
+            @Override
+            public Void visit(ManualSimpleGradeData gradeData) {
+                gradeData.calculateAssessmentStarData();
+                return null;
+            }
+
+            @Override
+            public Void visit(AutomaticGradeData gradeData) {
+                gradeData.calculateAssessmentStarData();
+                return null;
+            }
+
+            @Override
+            public Void visit(ExternalToolAutoGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(CompletionAutoGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(NongradedGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(RubricGradeData gradeData) {
+                gradeData.setAssessmentStarData(rubricGradeSummary);
+                return null;
+            }
+
+            @Override
+            public Void visit(DescriptiveRubricGradeData gradeData) {
+                return null;
+            }
+
+            @Override
+            public Void visit(PointRubricGradeData gradeData) {
+                return null;
+            }
+        });
     }
 
     public static RubricCriterionGradeData getRubricCriterionGradeData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {

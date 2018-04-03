@@ -421,6 +421,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					List<CompetenceData1> targetCompData = compManager
 							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
+					if (loadAssessmentConfig) {
+						for (AssessmentTypeConfig conf : credData.getAssessmentTypes()) {
+							if (conf.isEnabled()) {
+								conf.setGradeSummary(assessmentManager.getCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
+							}
+						}
+					}
 				}
 				return credData;
 			}

@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data.grading;
 
+import org.prosolo.common.util.Pair;
+
 public interface GradeData {
 
 	<T> T accept(GradeDataVisitor<T> visitor);
@@ -27,4 +29,8 @@ public interface GradeData {
 
 	GradingMode getGradingMode();
 	boolean isPointBasedGrading();
+
+	default Pair<Integer, Integer> getAssessmentStarData() {
+		return null;
+	}
 }

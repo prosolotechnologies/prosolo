@@ -91,6 +91,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/favicon.ico").permitAll()
 				.antMatchers("/resources/css2/**").permitAll()
 				.antMatchers("/resources/images2/**").permitAll()
+				.antMatchers("/resources/fonts/**").permitAll()
 				.antMatchers("/resources/javascript2/**").permitAll()
 				.antMatchers("/resources/javascript/**").permitAll()
 				.antMatchers("/javax.faces.resource/**").permitAll()
