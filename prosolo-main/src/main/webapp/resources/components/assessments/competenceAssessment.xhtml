@@ -84,6 +84,7 @@
 									  styleClass="tagApproved" layout="block">
 							Approved
 						</h:panelGroup>
+						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
 						<p:commandLink styleClass="linkApprove"
 									   process="@this"
@@ -92,7 +93,9 @@
 									   rendered="#{not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
 							Approve<span></span>
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{compAssessmentLearningContext}" />
 						</p:commandLink>
+
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
@@ -100,8 +103,6 @@
 									   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 							#{cc.attrs.competenceAssessment.numberOfMessages}
 						</p:commandLink>
-
-						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
 						<assessment:gradeLabel
 								assessment="#{cc.attrs.competenceAssessment}"

@@ -493,7 +493,7 @@
 							<div class="assessmentModalMeta">
 								<div class="assessmentModalMetaLine">
 									<div class="assessmentModalMetaLeft">
-										Credential:
+										#{msg['label.credential']}:
 									</div>
 									<div class="assessmentModalMetaRight">
 										<h3>#{cc.attrs.bean.credentialTitle}</h3>
@@ -512,7 +512,7 @@
 								</div>
 							</div>
 							<div class="alert alert-warning" role="alert">
-								Please enter the review description.
+								Please enter the assessment comment.
 							</div>
 							<div class="modal-body alignLeft">
 								<h:inputTextarea
@@ -543,10 +543,11 @@
 								<p:commandLink
 										styleClass="btn btn-green"
 										value="Submit"
-										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
+										update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''} :#{cc.clientId}:growlMain"
 										action="#{cc.attrs.bean.approveCredential()}"
 										oncomplete="$('#approveAssessment').modal('hide')">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+									<f:param name="learningContext" value="#{learningContext}" />
 								</p:commandLink>
 							</div>
 						</div>
