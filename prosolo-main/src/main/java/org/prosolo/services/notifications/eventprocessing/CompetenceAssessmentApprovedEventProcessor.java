@@ -6,6 +6,10 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -22,16 +26,22 @@ public class CompetenceAssessmentApprovedEventProcessor extends NotificationEven
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentApprovedEventProcessor.class);
 
 	private CompetenceAssessment competenceAssessment;
+	private ContextJsonParserService contextJsonParserService;
+	private AssessmentManager assessmentManager;
 
 	public CompetenceAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                                      NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+													  AssessmentManager assessmentManager, ContextJsonParserService contextJsonParserService) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		competenceAssessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
+		this.contextJsonParserService = contextJsonParserService;
+		this.assessmentManager = assessmentManager;
+		this.competenceAssessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
 	}
 
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
-		return true;
+		// notification should not be sent in case of a self-assessment
+		return sender != receiver;
 	}
 
 	@Override
@@ -67,9 +77,15 @@ public class CompetenceAssessmentApprovedEventProcessor extends NotificationEven
 		return competenceAssessment.getCompetence().getId();
 	}
 
-	private String getNotificationLink(AssessmentType aType) {
+	private String getNotificationLink(AssessmentType assessmentType) {
+		Context context = contextJsonParserService.parseContext(event.getContext());
+		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
+		long competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
+		long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
+
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				0, 0, competenceAssessment.getCompetence().getId(), competenceAssessment.getId(), aType, idEncoder, PageSection.STUDENT);
+				context, credentialId, competenceId, competenceAssessmentId, assessmentType, assessmentManager, idEncoder,
+				session, PageSection.STUDENT);
 	}
 
 }

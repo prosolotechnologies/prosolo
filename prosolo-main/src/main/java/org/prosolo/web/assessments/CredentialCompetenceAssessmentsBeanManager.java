@@ -302,11 +302,10 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 			compAssessment.setApproved(true);
 			compAssessment.setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " for " + compAssessment.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 

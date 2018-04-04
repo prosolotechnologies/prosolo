@@ -31,7 +31,8 @@ public class CredentialAssessmentApprovedEventProcessor extends NotificationEven
 
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
-		return true;
+		// notification should not be sent in case of a self-assessment
+		return sender != receiver;
 	}
 
 	@Override

@@ -479,11 +479,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						.get().setApproved(true);
 			}
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " approved");
 		} catch (Exception e) {
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error approving the assessment", e);
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("credential").toLowerCase());
 		}
 	}
 
@@ -503,11 +502,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessmentManager.approveCompetence(competenceAssessmentId, loggedUserBean.getUserContext());
 			markCompetenceApproved(competenceAssessmentId);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " for " + fullAssessmentData.getStudentFullName());
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the "+ ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 
