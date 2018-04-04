@@ -199,7 +199,7 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>6.1.1</version>
+			<version>6.2.3</version>
 			<exclusions>
 				<!--exclusion>
 					<artifactId>netty</artifactId>
@@ -210,7 +210,7 @@
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>6.1.1</version>
+			<version>6.2.3</version>
 		</dependency>
 		<!--dependency>
 			<groupId>org.elasticsearch</groupId>

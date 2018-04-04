@@ -167,7 +167,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//admin should see all credentials from unit with passed id
 			bQueryBuilder.filter(termQuery("units.id", unitId));
-			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name().toLowerCase()));
+			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name()));
 
 			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, sortOption);
 	}

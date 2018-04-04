@@ -199,28 +199,23 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					break;
 				case FROM_CREATOR:
 					bQueryBuilder.filter(termQuery("creatorId", userId));
+					//this filter returns competencies created by student with userId but only if
+					bQueryBuilder.filter(termQuery("type",
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case BY_OTHER_STUDENTS:
 					bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
+					bQueryBuilder.filter(termQuery("type",
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case UNIVERSITY:
 					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
+							LearningResourceType.UNIVERSITY_CREATED.toString()));
 					break;
 				case BY_STUDENTS:
 					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
 					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case ENROLLED:
 					bQueryBuilder.filter(termQuery("students.id", userId));

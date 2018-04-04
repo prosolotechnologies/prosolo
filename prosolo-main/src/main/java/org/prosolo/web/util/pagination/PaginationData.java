@@ -129,10 +129,6 @@ public class PaginationData {
 		return numberOfResults;
 	}
 
-	public void setNumberOfResults(int numberOfResults) {
-		this.numberOfResults = numberOfResults;
-	}
-
 	public int getLimit() {
 		return limit;
 	}

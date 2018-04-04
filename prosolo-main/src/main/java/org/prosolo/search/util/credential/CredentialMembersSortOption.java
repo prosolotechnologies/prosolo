@@ -14,7 +14,7 @@ public enum CredentialMembersSortOption {
 	private SortingOption sortOrder;
 	private boolean nestedSort;
 	
-	private CredentialMembersSortOption(String label, String[] sortFields, boolean nestedSort, SortingOption sortOrder) {
+	CredentialMembersSortOption(String label, String[] sortFields, boolean nestedSort, SortingOption sortOrder) {
 		this.label = label;
 		this.sortFields = sortFields;
 		this.nestedSort = nestedSort;

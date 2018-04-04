@@ -113,7 +113,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param peersToExcludeFromSearch user ids to exclude from search
 	 * @return response containing initialized UserData that matches the search.
 	 */
-	PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
+	PaginatedResult<UserData> searchCredentialPeers(
 			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 	
 	/**

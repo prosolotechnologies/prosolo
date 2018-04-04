@@ -127,7 +127,7 @@ public class PeopleBean implements Paginable, Serializable {
 				paginationData.getPage() - 1, paginationData.getLimit(), 
 				loggedUser.getUserId());
 
-		paginationData.setNumberOfResults((int) searchResponse.getHitsNumber());
+		paginationData.update((int) searchResponse.getHitsNumber());
 		followingUsers = searchResponse.getFoundNodes();
 	}
 

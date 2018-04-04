@@ -86,7 +86,7 @@ public class AskForAssessmentBean implements Serializable {
                     peersToExcludeFromSearch.add(loggedUser.getUserId());
                 }
 
-                PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+                PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
                         loggedUser.getOrganizationId(), peerSearchTerm, 3, idEncoder.decodeId(credentialId), peersToExcludeFromSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {

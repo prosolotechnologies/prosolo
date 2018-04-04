@@ -4,9 +4,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -17,14 +19,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.io.Streams;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.*;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
-import org.elasticsearch.index.mapper.Mapping;
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.common.xcontent.XContentHelper;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -33,15 +35,15 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.elasticsearch.client.ESRestClient;
+import org.prosolo.common.util.Pair;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.elasticsearch.client.Requests.putMappingRequest;
+import static org.elasticsearch.client.Requests.clusterHealthRequest;
+import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 
 /**
@@ -73,10 +75,7 @@ public class ESRestClientImpl implements ESRestClient {
             healthStatus = ClusterHealthStatus.fromString((String) map.get("status"));
         }
 
-        if (healthStatus == ClusterHealthStatus.GREEN) {
-            return true;
-        }
-        return false;
+        return healthStatus == ClusterHealthStatus.GREEN;
     }
 
     @Override
@@ -114,7 +113,7 @@ public class ESRestClientImpl implements ESRestClient {
     @Override
     public boolean deleteIndex(String... indexNames) throws IOException {
         try {
-            highLevelClient.indices().deleteIndex(new DeleteIndexRequest(indexNames));
+            highLevelClient.indices().delete(new DeleteIndexRequest(indexNames));
             return true;
         } catch (ElasticsearchException e) {
             if (e.status() == RestStatus.NOT_FOUND) {
@@ -128,7 +127,7 @@ public class ESRestClientImpl implements ESRestClient {
     public boolean exists(String indexName) throws IOException {
         Response response = highLevelClient.getLowLevelClient().performRequest("HEAD", "/" + indexName);
         int status = response.getStatusLine().getStatusCode();
-        logger.info("DELETE INDEX RESPONSE STATUS: " + status);
+        logger.info("INDEX EXISTS RESPONSE STATUS: " + status);
         return status == HttpStatus.SC_OK;
     }
 
@@ -141,73 +140,63 @@ public class ESRestClientImpl implements ESRestClient {
                 Collections.emptyMap(),
                 entity);
         int status = response.getStatusLine().getStatusCode();
-        logger.info("DELETE INDEX RESPONSE STATUS: " + status);
+        logger.info("DELETE BY QUERY RESPONSE STATUS: " + status);
         return status == HttpStatus.SC_OK;
     }
 
     @Override
     public boolean createIndex(String indexName) throws IOException {
-        ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
-        Settings.Builder elasticsearchSettings =  Settings.builder()
-                .loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"), false)
-                //.put("http.enabled", "false")
-                //.put("cluster.name", elasticSearchConfig.clusterName)
-                .put("index.number_of_replicas",
-                        elasticSearchConfig.replicasNumber)
-                .put("index.number_of_shards",
-                        elasticSearchConfig.shardsNumber);
-        String indexSettings = getCreateIndexRequestBody(elasticsearchSettings.build().toString(), getMappingString(indexName));
+        if (!exists(indexName)) {
+            ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
+            Settings.Builder elasticsearchSettings = Settings.builder()
+                    .loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"), false)
+                    //.put("http.enabled", "false")
+                    //.put("cluster.name", elasticSearchConfig.clusterName)
+                    .put("index.number_of_replicas",
+                            elasticSearchConfig.replicasNumber)
+                    .put("index.number_of_shards",
+                            elasticSearchConfig.shardsNumber);
 
-        HttpEntity entity = new NStringEntity(indexSettings, ContentType.APPLICATION_JSON);
-        Response response = highLevelClient.getLowLevelClient().performRequest("PUT", "/" + indexName, Collections.emptyMap(), entity);
-
-        int status = response.getStatusLine().getStatusCode();
-        logger.info("CREATE INDEX RESPONSE STATUS: " + status);
-        return status == HttpStatus.SC_OK;
-    }
-
-    private String getCreateIndexRequestBody(String settingsJson, String mappingsJson) {
-        //this is an option to insert existing json string (field, object, array) to XContentBuilder
-//        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder();
-//        XContentParser settingsParser = JsonXContent.jsonXContent
-//                .createParser(NamedXContentRegistry.EMPTY, settingsJson);
-//        jsonBuilder.copyCurrentStructure(settingsParser);
-        String indexSettings = "";
-        if (settingsJson != null && !settingsJson.isEmpty()) {
-            indexSettings = "\"settings\": " + settingsJson;
-        }
-
-        if (mappingsJson != null && !mappingsJson.isEmpty()) {
-            if (!indexSettings.isEmpty()) {
-                //add comma between settings and mappings objects
-                indexSettings += ", ";
+            Pair<String, String> mapping = getMappingTypeAndContent(indexName);
+            CreateIndexRequest req = createIndexRequest(indexName).settings(elasticsearchSettings);
+            if (mapping != null) {
+                req.mapping(mapping.getFirst(), mapping.getSecond(), XContentType.JSON);
             }
-            indexSettings += "\"mappings\": " + mappingsJson;
+            CreateIndexResponse response = highLevelClient.indices().create(req);
+            return response.isAcknowledged();
         }
-        //put everything in one object and return
-        return "{" + indexSettings + "}";
+        return false;
     }
 
-    private String getMappingString(String indexName) {
+    private Pair<String, String> getMappingTypeAndContent(String indexName) {
+        String type = null;
+        String content = null;
         if (indexName.startsWith(ESIndexNames.INDEX_CREDENTIALS)) {
-            return getMappingStringForType(ESIndexTypes.CREDENTIAL);
+            type = ESIndexTypes.CREDENTIAL;
+            content = getMappingStringForType(type);
         } else if (indexName.startsWith(ESIndexNames.INDEX_COMPETENCES)) {
-            return getMappingStringForType(ESIndexTypes.COMPETENCE);
+            type = ESIndexTypes.COMPETENCE;
+            content = getMappingStringForType(type);
         } else if (indexName.startsWith(ESIndexNames.INDEX_USERS)) {
             if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-                return getMappingStringForType(ESIndexTypes.USER);
+                type = ESIndexTypes.USER;
+                content = getMappingStringForType(type);
             } else {
                 //index has organization suffix so it is organization user index
-                return getMappingStringForType(ESIndexTypes.ORGANIZATION_USER);
+                type = ESIndexTypes.ORGANIZATION_USER;
+                content = getMappingStringForType(type);
             }
         } else if (indexName.startsWith(ESIndexNames.INDEX_USER_GROUP)) {
-            return getMappingStringForType(ESIndexTypes.USER_GROUP);
+            type = ESIndexTypes.USER_GROUP;
+            content = getMappingStringForType(type);
         } else if (indexName.startsWith(ESIndexNames.INDEX_RUBRIC_NAME)) {
-           return getMappingStringForType(ESIndexTypes.RUBRIC);
+            type = ESIndexTypes.RUBRIC;
+            content = getMappingStringForType(type);
         } else if (indexName.equals(ESIndexNames.INDEX_ASSOCRULES)) {
-            return getMappingStringForType(ESIndexTypes.COMPETENCE_ACTIVITIES);
+            type = ESIndexTypes.COMPETENCE_ACTIVITIES;
+            content = getMappingStringForType(type);
         }
-        return "";
+        return type != null && content != null ? new Pair<>(type, content) : null;
     }
 
     private String getMappingStringForType(String indexType) {
@@ -218,7 +207,7 @@ public class ESRestClientImpl implements ESRestClient {
         try {
             mapping = copyToStringFromClasspath(mappingPath);
         } catch (IOException e1) {
-            logger.error(e1);
+            logger.error("Error", e1);
         }
         return mapping;
     }
