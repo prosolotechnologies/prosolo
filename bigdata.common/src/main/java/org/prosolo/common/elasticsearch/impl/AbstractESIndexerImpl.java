@@ -75,8 +75,6 @@ public class AbstractESIndexerImpl implements AbstractESIndexer {
 		try {
 			IndexRequest indexReq = new IndexRequest(indexName, indexType, indexId).source(builder);
 			ESRestClient client = ElasticSearchConnector.getClient();
-			//TODO es migration - is mapping necessary
-			//addMapping(client, indexName, indexType);
 			client.index(indexReq);
 			logger.info("Saving document for index name: " + indexName + ", indexType " + indexType + ", document id: " + indexId);
 		} catch (IOException e) {

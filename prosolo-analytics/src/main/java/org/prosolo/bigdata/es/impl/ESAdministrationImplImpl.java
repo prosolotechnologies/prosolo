@@ -76,7 +76,6 @@ public class ESAdministrationImplImpl extends AbstractESIndexerImpl implements
 //						ESIndexTypes.COMPETENCE_ACTIVITIES);
 //			}
 //		}
-		//TODO ES migration check if index creation works
 		ElasticSearchConnector.getClient().createIndex(indexName);
 	}
 
