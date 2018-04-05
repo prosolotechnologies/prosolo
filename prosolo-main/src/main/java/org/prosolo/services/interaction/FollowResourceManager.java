@@ -41,6 +41,6 @@ public interface FollowResourceManager extends AbstractManager {
 	
 	int getNumberOfFollowingUsers(long userId) throws DbConnectionException;
 
-	List<User> getFollowers(long userId) throws DbConnectionException;
+	List<User> getFollowers(long userId, Session session) throws DbConnectionException;
 
 }

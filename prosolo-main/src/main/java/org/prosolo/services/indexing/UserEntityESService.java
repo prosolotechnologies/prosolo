@@ -27,7 +27,7 @@ public interface UserEntityESService extends AbstractESIndexer {
 	
 	void updateBasicUserData(User user, Session session);
 
-	void updateFollowers(long orgId, long userId);
+	void updateFollowers(long orgId, long userId, Session session);
 
 	void updateCompetences(long orgId, long userId, Session session);
 

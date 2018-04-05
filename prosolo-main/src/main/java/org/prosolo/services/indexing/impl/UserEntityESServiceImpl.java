@@ -136,7 +136,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 
 				addCredentials(builder, user.getId(), session);
 				addCredentialsWithInstructorRole(builder, user.getId());
-				addFollowers(builder, user.getId());
+				addFollowers(builder, user.getId(), session);
 				addCompetences(builder, user.getId(), session);
 				addGroups(builder, user.getId());
 
@@ -253,9 +253,9 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 		builder.endArray();
 	}
 
-	private void addFollowers(XContentBuilder builder, long userId) throws IOException {
+	private void addFollowers(XContentBuilder builder, long userId, Session session) throws IOException {
 		builder.startArray("followers");
-		List<User> followers = followResourceManager.getFollowers(userId);
+		List<User> followers = followResourceManager.getFollowers(userId, session);
 		for (User follower : followers) {
 			builder.startObject();
 			builder.field("id", follower.getId());
@@ -311,8 +311,8 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	@Override
 	public void assignInstructorToUserInCredential(long orgId, long userId, long credId, long instructorId) {
 		try {
-			String script = "ctx._source.credentials.findAll {it.id == credId } " +
-					".each {it.instructorId = instructorId }";
+			String script = "ctx._source.credentials.findAll(it -> it.id == params.credId) " +
+					".each(it -> it.instructorId = params.instructorId)";
 			
 			Map<String, Object> params = new HashMap<>();
 			params.put("credId", credId);
@@ -342,8 +342,8 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	@Override
 	public void changeCredentialProgress(long orgId, long userId, long credId, int progress) {
 		try {
-			String script = "ctx._source.credentials.findAll {it.id == credId } " +
-					".each {it.progress = progress }";
+			String script = "ctx._source.credentials.findAll(it -> it.id == params.credId)" +
+					".each(it -> it.progress = params.progress)";
 			
 			Map<String, Object> params = new HashMap<>();
 			params.put("credId", credId);
@@ -356,11 +356,11 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	}
 
 	@Override
-	public void updateFollowers(long orgId, long userId) {
+	public void updateFollowers(long orgId, long userId, Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
-			addFollowers(builder, userId);
+			addFollowers(builder, userId, session);
 			builder.endObject();
 
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
@@ -388,8 +388,8 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	@Override
 	public void updateCompetenceProgress(long orgId, long userId, TargetCompetence1 tComp) {
 		try {
-			String script = "ctx._source.competences.findAll {it.id == compId } " +
-					".each {it.progress = progress; it.dateCompleted = date }";
+			String script = "ctx._source.competences.findAll(it -> it.id == params.compId) " +
+					".each(it -> { it.progress = params.progress; it.dateCompleted = params.date})";
 			
 			Map<String, Object> params = new HashMap<>();
 			params.put("compId", tComp.getCompetence().getId());
