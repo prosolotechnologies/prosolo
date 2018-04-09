@@ -1,11 +1,10 @@
-Current date:2018/02/19-08:44:40
-Source branch:PRS-3054-when-grade-is-addedupdated-send
+Current date:2018/03/21-21:41:07
+Source branch:1.2.0
 Project version:1
 Git version:
-commit f40a9868e9b92471a0dedb731973f9ac38cf8425
-Author: Nikola Milikic <nikola.milikic@gmail.com>
-Date:   Mon Feb 19 07:15:07 2018 +0100
+commit 16c838d6faf19842b1260e77a9223ae736c8f306
+Merge: 2b6ee1046 34ecccfc6
+Author: jeremycod <zoran.jeremic@gmail.com>
+Date:   Wed Mar 21 21:33:56 2018 -0700
 
-    Updating YouTube API key since the last one has expired.
-    Updating growl messages in several places.
-    Updated a label on the competence page "Existing Document" -> "Existing Evidence"
+    Merge branch 'PRS-2945-digest-for-notifications' into release/1.2.0

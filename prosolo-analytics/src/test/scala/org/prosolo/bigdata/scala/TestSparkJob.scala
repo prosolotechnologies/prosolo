@@ -24,7 +24,7 @@ object TestSparkJob extends App {
   //val emailManager = NotificationsEmailManager$.MODULE$
  val date: Long = DateEpochUtil.getDaysSinceEpoch
   println("CURRENT DATE:"+date)
- val testDate=17622
+ val testDate=17629
    NotificationsEmailManager.runAnalyser(testDate)
 
  // InstructorEmailManager.runJob()
