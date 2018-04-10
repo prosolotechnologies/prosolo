@@ -37,4 +37,6 @@ public interface CredentialESService extends AbstractESIndexer {
 
 	void updateDeliveryTimes(long organizationId, Credential1 delivery);
 
+	void updateLearningStageInfo(Credential1 cred);
+
 }

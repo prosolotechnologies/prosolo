@@ -90,7 +90,12 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return response;
 	}
-	
+
+	/**
+	 * This method is used for /manage/students, but for now we are not using that page
+	 * @deprecated
+	 */
+	@Deprecated
 	@Override
 	@Transactional
 	public PaginatedResult<UserGroupData> searchUserGroupsForUser (

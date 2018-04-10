@@ -204,7 +204,8 @@
 					linkLoaderContainerSelector: '.linkLoaderContainer',
 					userSuggestionRegionSelector: '.userSuggestRegionSelector',
 					userSearchInputSelector: '.userSuggestInputSelector',
-					userSearchAction: searchUsersMentionedInPost
+					userSearchAction: searchUsersMentionedInPost,
+					context: '#{request.contextPath}'
 				});
 				newPost = $('.newWallPost').data('newpost');
 			}

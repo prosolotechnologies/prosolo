@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.RubricsESService;
-import org.prosolo.services.nodes.RubricManager;
+import org.prosolo.services.assessment.RubricManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

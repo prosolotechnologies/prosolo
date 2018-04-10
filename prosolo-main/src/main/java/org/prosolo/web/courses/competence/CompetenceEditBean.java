@@ -8,16 +8,20 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.competence.util.LearningPathDescription;
+import org.prosolo.web.courses.credential.CompoundLearningResourceAssessmentSettingsBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
@@ -32,7 +36,7 @@ import java.util.*;
 @ManagedBean(name = "competenceEditBean")
 @Component("competenceEditBean")
 @Scope("view")
-public class CompetenceEditBean implements Serializable {
+public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = -2951979198939808173L;
 
@@ -44,6 +48,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
 	@Inject private CompetenceUserPrivilegeBean visibilityBean;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private String credId;
@@ -81,6 +86,7 @@ public class CompetenceEditBean implements Serializable {
 				if(decodedCredId > 0) {
 					addToCredential = true;
 				}
+				competenceData.setAssessmentTypes(getAssessmentTypes());
 			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing competence with id " + decodedId);
@@ -103,6 +109,7 @@ public class CompetenceEditBean implements Serializable {
 					}
 				}
 			}
+			loadAssessmentData();
 			initializeStatuses();
 			learningPaths = LearningPathDescription.values();
 		} catch(Exception e) {
@@ -117,20 +124,41 @@ public class CompetenceEditBean implements Serializable {
 		competenceData = res.getResource();
 		access = res.getAccess();
 	}
-	
-	//competence is draft when it has never been published or when date of first publish is null
-	public boolean isDraft() {
-		return competenceData.getDatePublished() == null;
-	}
-	
+
+	@Override
 	/**
 	 * if this method returns true only limited edits are allowed
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isLimitedEdit() {
 		//if competence was once published 'big' changes are not allowed
 		return competenceData.getDatePublished() != null;
+	}
+
+	@Override
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return competenceData.getAssessmentSettings();
+	}
+
+	@Override
+	public List<Long> getAllUnitsResourceIsConnectedTo() {
+		if (decodedId > 0) {
+			return unitManager.getAllUnitIdsCompetenceIsConnectedTo(competenceData.getCompetenceId());
+		} else {
+			//if new competence is being created, we return units where competence creator is added as manager
+			return unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), SystemRoleNames.MANAGER);
+		}
+	}
+
+	@Override
+	public boolean isPointBasedResource() {
+		return isPointBasedResource(competenceData.getAssessmentSettings().getGradingMode(), competenceData.getAssessmentSettings().getRubricId(), competenceData.getAssessmentSettings().getRubricType());
+	}
+	
+	//competence is draft when it has never been published or when date of first publish is null
+	public boolean isDraft() {
+		return competenceData.getDatePublished() == null;
 	}
 	
 //	public void initVisibilityManageData() {
@@ -455,7 +483,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	 
 	public String getPageHeaderTitle() {
-		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New Competence";
+		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.competence");
 	}
 	
 	public boolean isCreateUseCase() {

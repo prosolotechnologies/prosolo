@@ -200,7 +200,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					break;
 			}
 
-			String[] includes = {"id", "title", "archived"};
+			//include only credentials for which learning in stages is disabled and first stage credentials
+			bQueryBuilder.filter(termQuery("firstStageCredentialId", 0));
+
+			String[] includes = {"id", "title", "archived", "learningStageId"};
 			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 			searchSourceBuilder
 					.query(bQueryBuilder)
@@ -228,11 +231,25 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 						String title = hit.getSourceAsMap().get("title").toString();
 						boolean archived = Boolean.parseBoolean(hit.getSourceAsMap().get("archived").toString());
+						long lStageId = Long.parseLong(hit.getSourceAsMap().get("learningStageId").toString());
+
 						CredentialData cd = new CredentialData(false);
 						cd.setId(id);
 						cd.setTitle(title);
 						cd.setArchived(archived);
-						cd.setDeliveries(credentialManager.getActiveDeliveries(id));
+						cd.setLearningStageEnabled(lStageId > 0);
+						List<CredentialData> deliveries;
+						//if learning in stages is enabled, return active deliveries from all stages
+						if (lStageId > 0) {
+							/*
+							since we return only first stage credential we know that credential id is actually
+							first stage credential id
+							 */
+							deliveries = credentialManager.getOngoingDeliveriesFromAllStages(id);
+						} else {
+							deliveries = credentialManager.getOngoingDeliveries(id);
+						}
+						cd.setDeliveries(deliveries);
 						cd.startObservingChanges();
 						response.addFoundNode(cd);
 					}

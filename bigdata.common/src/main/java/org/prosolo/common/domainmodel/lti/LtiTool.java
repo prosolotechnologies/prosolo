@@ -1,17 +1,11 @@
 package org.prosolo.common.domainmodel.lti;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 
-import antlr.Tool;
+import javax.persistence.*;
 
 
 @Entity
@@ -24,7 +18,7 @@ public class LtiTool extends BaseLtiEntity {
 	private String name;
 	private String description;
 	private String launchUrl;
-	private long learningGoalId = -1;
+	private long credentialId = -1;
 	private long competenceId = -1;
 	private long activityId = -1;
 	private ResourceType toolType;
@@ -33,18 +27,21 @@ public class LtiTool extends BaseLtiEntity {
 	private LtiToolSet toolSet;
 	private String customCss;
 	private boolean enabled = true;
+	private Organization organization;
+	private Unit unit;
+	private UserGroup userGroup;
 
 	public LtiTool(){
 
 	}
 	
 	public LtiTool(long id, boolean enabled, boolean delted,  String customCss, ResourceType toolType, long activityId, 
-			long competenceId, long learningGoalId, long toolSetId, long consumerId,
+			long competenceId, long credentialId, long toolSetId, long consumerId,
 			String keyLtiOne, String secretLtiOne, String keyLtiTwo, String secretLtiTwo, String launchUrl) {
 		
 		setId(id);
 		this.toolType = toolType;
-		this.learningGoalId = learningGoalId;
+		this.credentialId = credentialId;
 		this.competenceId = competenceId;
 		this.activityId = activityId;
 		this.customCss = customCss;
@@ -104,12 +101,12 @@ public class LtiTool extends BaseLtiEntity {
 		this.launchUrl = launchUrl;
 	}
 
-	public long getLearningGoalId() {
-		return learningGoalId;
+	public long getCredentialId() {
+		return credentialId;
 	}
 
-	public void setLearningGoalId(long learningGoalId) {
-		this.learningGoalId = learningGoalId;
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
 	}
 
 	public long getCompetenceId() {
@@ -188,4 +185,31 @@ public class LtiTool extends BaseLtiEntity {
 		return launchUrl+"?id="+getId();
 	}
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public UserGroup getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(UserGroup userGroup) {
+		this.userGroup = userGroup;
+	}
 }

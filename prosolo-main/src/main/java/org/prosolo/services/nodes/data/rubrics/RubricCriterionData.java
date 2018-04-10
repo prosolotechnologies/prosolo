@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data.rubrics;
 
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,23 +13,25 @@ import java.util.Map;
  */
 public class RubricCriterionData extends RubricItemData {
 
-    //collection of levels for criterion
-    private Map<RubricItemData, RubricItemDescriptionData> levels = new HashMap<>();
+    private double points;
 
-    public RubricCriterionData() {
-        super();
+    //collection of levels for criterion
+    private Map<RubricLevelData, RubricItemDescriptionData> levels = new HashMap<>();
+
+    public RubricCriterionData(long id, String name, int order) {
+        super(id, name, order);
+    }
+
+    public RubricCriterionData(long id, String name, int order, double points) {
+        super(id, name, order);
+        this.points = points;
     }
 
     public RubricCriterionData(ObjectStatus status) {
         super(status);
     }
 
-    public RubricCriterionData(long id, String name, double points, int order) {
-        super(id, name, points, order);
-    }
-
-
-    public void addLevel(RubricItemData level, String description) {
+    public void addLevel(RubricLevelData level, String description) {
         RubricItemDescriptionData itemDesc = new RubricItemDescriptionData(description);
         if (listenChanges) {
             itemDesc.startObservingChanges();
@@ -36,7 +39,23 @@ public class RubricCriterionData extends RubricItemData {
         levels.put(level, itemDesc);
     }
 
-    public Map<RubricItemData, RubricItemDescriptionData> getLevels() {
+    public Map<RubricLevelData, RubricItemDescriptionData> getLevels() {
         return levels;
+    }
+
+    public double getPoints() {
+        return points;
+    }
+
+    public void setPoints(double points) {
+        observeAttributeChange("points", this.points, points);
+        this.points = points;
+        if (listenChanges) {
+            if (arePointsChanged()) {
+                setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
+            } else if (!hasObjectChanged()) {
+                setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
+            }
+        }
     }
 }

@@ -252,4 +252,9 @@ public class PageUtil {
 		forward(getSectionForUri(uri).getPrefix() + "/notfound");
 	}
 
+	public static boolean isInManageSection() {
+		String currentUrl = getRewriteURL();
+		return currentUrl.contains("/manage/");
+	}
+
 }

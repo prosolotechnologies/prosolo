@@ -1,7 +1,12 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -72,12 +77,25 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long firstLearningStageCredentialId;
 	private boolean learningStagesInitialized;
 	private List<LearningResourceLearningStage> learningStages;
+
+	//assessment
+	private LearningResourceAssessmentSettings assessmentSettings;
+	private List<AssessmentTypeConfig> assessmentTypes;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
 		learningStages = new ArrayList<>();
+		assessmentSettings = new LearningResourceAssessmentSettings();
+		assessmentTypes = new ArrayList<>();
 		this.listenChanges = listenChanges;
+	}
+
+	public CredentialData(Credential1 credential){
+		this.id = credential.getId();
+		this.title = credential.getTitle();
+		assessmentSettings = new LearningResourceAssessmentSettings();
+		assessmentTypes = new ArrayList<>();
 	}
 
 	/**
@@ -88,13 +106,58 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean hasObjectChanged() {
 		boolean changed = super.hasObjectChanged();
 		if(!changed) {
-			for(CompetenceData1 cd : getCompetences()) {
+			for (CompetenceData1 cd : getCompetences()) {
 				if(cd.getObjectStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
 			}
+
+			if (getAssessmentSettings().hasObjectChanged()) {
+				return true;
+			}
+
+			for (AssessmentTypeConfig atc : getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					return true;
+				}
+			}
 		}
+
 		return changed;
+	}
+
+	@Override
+	public void startObservingChanges() {
+		super.startObservingChanges();
+		getAssessmentSettings().startObservingChanges();
+		for (AssessmentTypeConfig atc : getAssessmentTypes()) {
+			atc.startObservingChanges();
+		}
+	}
+
+	public boolean isPeerAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
+	}
+
+	public boolean isSelfAssessmentEnabled() {
+		return isAssessmentTypeEnabled(AssessmentType.SELF_ASSESSMENT);
+	}
+
+	public Pair<Integer, Integer> getGradeSummary(AssessmentType type) {
+		AssessmentTypeConfig aType = getAssessmentTypeConfig(type);
+		return aType == null ? null : aType.getGradeSummary();
+	}
+
+	private boolean isAssessmentTypeEnabled(AssessmentType type) {
+		AssessmentTypeConfig aType = getAssessmentTypeConfig(type);
+		return aType != null && aType.isEnabled();
+	}
+
+	private AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
+		if (assessmentTypes == null) {
+			return null;
+		}
+		return assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
 	}
 
 	public boolean isFirstStageCredential() {
@@ -530,5 +593,17 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setLearningStagesInitialized(boolean learningStagesInitialized) {
 		this.learningStagesInitialized = learningStagesInitialized;
+	}
+
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return assessmentSettings;
+	}
+
+	public List<AssessmentTypeConfig> getAssessmentTypes() {
+		return assessmentTypes;
+	}
+
+	public void setAssessmentTypes(List<AssessmentTypeConfig> assessmentTypes) {
+		this.assessmentTypes = assessmentTypes;
 	}
 }

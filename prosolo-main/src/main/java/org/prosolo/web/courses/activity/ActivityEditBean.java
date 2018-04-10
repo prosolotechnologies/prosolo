@@ -2,7 +2,6 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.mobile.component.page.Page;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -12,9 +11,12 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.*;
@@ -23,34 +25,29 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.LearningResourceAssessmentSettingsBean;
 import org.prosolo.web.courses.activity.util.ActivityRubricVisibilityDescription;
-import org.prosolo.web.courses.activity.util.GradingModeDescription;
-import org.prosolo.web.courses.validator.NumberValidatorUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "activityEditBean")
 @Component("activityEditBean")
 @Scope("view")
-public class ActivityEditBean implements Serializable {
+public class ActivityEditBean extends LearningResourceAssessmentSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 7678126570859694510L;
 
@@ -84,14 +81,12 @@ public class ActivityEditBean implements Serializable {
 	
 	private ActivityResultType[] resultTypes;
 
-	private GradingModeDescription[] gradingModes;
-	private List<RubricData> rubrics;
 	private ActivityRubricVisibilityDescription[] rubricVisibilityTypes;
 	
 	private String context;
 	
 	private boolean manageSection;
-	
+
 	public void init() {
 		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
@@ -128,33 +123,39 @@ public class ActivityEditBean implements Serializable {
 		
 	}
 
-	private void loadAssessmentData() {
-		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
-		if (isLimitedEdit()) {
-			Optional<GradingModeDescription> gradingMode = Arrays.stream(GradingModeDescription.values()).filter(gm -> activityData.getGradingMode() == gm.getGradingMode()).findFirst();
-			gradingModes = new GradingModeDescription[] {gradingMode.get()};
-			if (activityData.getRubricId() > 0) {
-				activityData.setRubricName(rubricManager.getRubricName(activityData.getRubricId()));
-			}
-		} else {
-			gradingModes = GradingModeDescription.values();
-			List<Long> unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
-			if (unitIds.isEmpty()) {
-				rubrics = new ArrayList<>();
-			} else {
-				rubrics = rubricManager.getPreparedRubricsFromUnits(unitIds);
-			}
-		}
+	public boolean isLimitedEdit() {
+		//if competence with this activity was once published, only limited edit is allowed
+		return activityData.isOncePublished();
+	}
+
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return activityData.getAssessmentSettings();
+	}
+
+	public List<Long> getAllUnitsResourceIsConnectedTo() {
+		return unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
+	}
+
+	public boolean isPointBasedResource(GradingMode gradingMode, long rubricId, RubricType rubricType) {
+		return gradingMode != GradingMode.NONGRADED
+				&& (rubricId == 0 || rubricType == RubricType.POINT
+				|| rubricType == RubricType.POINT_RANGE);
 	}
 
 	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
 		activityData = res.getResource();
 		access = res.getAccess();
 	}
-	
-	public boolean isLimitedEdit() {
-		//if competence with this activity was once published, only limited edit is allowed
-		return activityData.isOncePublished();
+
+	@Override
+	public boolean isPointBasedResource() {
+		return isPointBasedResource(activityData.getAssessmentSettings().getGradingMode(), activityData.getAssessmentSettings().getRubricId(), activityData.getAssessmentSettings().getRubricType());
+	}
+
+	public boolean isPointBasedActivity(GradingMode gradingMode, long rubricId, RubricType rubricType) {
+		return gradingMode != GradingMode.NONGRADED
+				&& (rubricId == 0 || rubricType == RubricType.POINT
+				|| rubricType == RubricType.POINT_RANGE);
 	}
 	
 	private void setContext() {
@@ -464,34 +465,6 @@ public class ActivityEditBean implements Serializable {
 	public String getPageHeaderTitle() {
 		return activityData.getActivityId() > 0 ? activityData.getTitle() : "New Activity";
 	}
-
-	/*
-	VALIDATORS
-	 */
-
-	public void validateMaxPoints(FacesContext context, UIComponent component, Object value) {
-		UIInput input = (UIInput) component.getAttributes().get("gradingModeComp");
-		if (input != null && GradingMode.NONGRADED != input.getValue()) {
-			String validationMsg = null;
-			boolean valid = true;
-			//we check if value is entered and whether integer is greater than zero, other validator checks if valid number is entered
-			if (value == null || value.toString().trim().isEmpty()) {
-				validationMsg = "Maximum number of points must be defined";
-				valid = false;
-			} else if (NumberValidatorUtil.isInteger(value.toString())) {
-				int i = Integer.parseInt(value.toString());
-				if (i <= 0) {
-					validationMsg = "Maximum number of points must be greater than zero";
-					valid = false;
-				}
-			}
-			if (!valid) {
-				FacesMessage msg = new FacesMessage(validationMsg);
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				throw new ValidatorException(msg);
-			}
-		}
-	}
 	
 	/*
 	 * GETTERS / SETTERS
@@ -561,15 +534,7 @@ public class ActivityEditBean implements Serializable {
 		this.resultTypes = resultTypes;
 	}
 
-	public List<RubricData> getRubrics() {
-		return rubrics;
-	}
-
 	public ActivityRubricVisibilityDescription[] getRubricVisibilityTypes() {
 		return rubricVisibilityTypes;
-	}
-
-	public GradingModeDescription[] getGradingModes() {
-		return gradingModes;
 	}
 }

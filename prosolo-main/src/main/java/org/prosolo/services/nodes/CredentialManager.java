@@ -13,12 +13,13 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -74,7 +75,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws ResourceNotFoundException
 	 * @throws DbConnectionException
 	 */
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadAssessmentConfig,
 			boolean loadCompetences, long userId, AccessMode accessMode)
 					throws ResourceNotFoundException, DbConnectionException;
 
@@ -214,7 +215,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCredentialData> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all completed credentials (credentials that has progress == 100)
@@ -224,17 +225,17 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
 	 * 
 	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	List<TargetCredentialData> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 
 		
 	/**
@@ -306,17 +307,6 @@ public interface CredentialManager extends AbstractManager {
 
 	UserData chooseRandomPeer(long credId, long userId);
 	
-	
-	/**
-	 * Returns list of ids of all assessors that this particular user has asked
-	 * for assessment for the credential with the given id
-	 * 
-	 * @param credentialId credential id
-	 * @param userId user id
-	 * @return list of ids
-	 */
-	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
-	
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 
@@ -360,16 +350,18 @@ public interface CredentialManager extends AbstractManager {
 
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 
-	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadAssessmentConfig, boolean loadCompetences)
 			throws DbConnectionException;
 	
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException;
 	
-	List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException;
+	List<CredentialData> getOngoingDeliveries(long credId) throws DbConnectionException;
+
+	List<CredentialData> getOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
-			long userId) throws DbConnectionException;
+			long userId, CredentialSearchFilterManager filter) throws DbConnectionException;
 	
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 
@@ -442,9 +434,25 @@ public interface CredentialManager extends AbstractManager {
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
 
+	Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException;
+
+	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
+
 	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 
 	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 
-	void disableLearningStagesForOrganizationCredentials(long orgId) throws DbConnectionException;
+	/**
+	 * Disables learning in stages for all original credentials, but not for deliveries
+	 *
+	 * @param orgId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
+
+	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
+
+	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 }

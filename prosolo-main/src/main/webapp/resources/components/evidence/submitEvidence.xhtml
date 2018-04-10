@@ -1,0 +1,388 @@
+<ui:component
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="update" default="" />
+		<composite:attribute name="submitButtonText" default="Submit" />
+		<composite:attribute name="displayCancelButton" default="false" />
+		<composite:attribute name="allowEvidenceTypeChangeForExistingEvidence" default="true" />
+		<composite:attribute name="addEvidenceToCompetence" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+		<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
+			<div class="whiteBox">
+				<ul class="nav nav-tabs pageSubmenu" role="tablist">
+					<li role="presentation" class="#{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'active' : ''}">
+						<p:commandLink
+								pt:role="tab"
+								pt:data-toggle="tab"
+								process="@this"
+								action="#{submitEvidenceBean.resetEvidence()}"
+								update=":#{cc.clientId}:formFileEvidence"
+								oncomplete="$('#uploadTabLink').tab('show');">
+							Upload File
+						</p:commandLink>
+					</li>
+					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'LINK' ? 'active' : ''}">
+						<p:commandLink href="javascript:void(0);"
+									   pt:role="tab"
+									   pt:data-toggle="tab"
+									   process="@this"
+									   action="#{submitEvidenceBean.resetEvidence()}"
+									   update=":#{cc.clientId}:formUrlEvidence"
+									   oncomplete="$('#urlTabLink').tab('show');">
+							URL
+						</p:commandLink>
+					</li>
+					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
+						<p:commandLink
+								pt:role="tab"
+								pt:data-toggle="tab"
+								process="@this"
+								action="#{submitEvidenceBean.resetEvidence()}"
+								update=":#{cc.clientId}:formTextEvidence"
+								oncomplete="$('#textTabLink').tab('show');">
+							Text
+						</p:commandLink>
+					</li>
+					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+						<li role="presentation">
+							<p:commandLink
+									pt:role="tab"
+									pt:data-toggle="tab"
+									process="@this"
+									action="#{cc.attrs.bean.prepareExistingEvidenceSearch()}"
+									update=":#{cc.clientId}:panelExistingEvidence"
+									oncomplete="$('#documentTabLink').tab('show');">
+								Existing Evidence
+							</p:commandLink>
+						</li>
+					</c:if>
+				</ul>
+				<a id="uploadTabLink" href="#upload" style="display: none;"></a>
+				<a id="urlTabLink" href="#url" style="display: none;"></a>
+				<a id="textTabLink" href="#text" style="display: none;"></a>
+				<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+					<a id="documentTabLink" href="#document" style="display: none;"></a>
+				</c:if>
+			</div>
+		</c:if>
+		<div class="tab-content">
+			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
+				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
+					<h:form id="formFileEvidence" enctype="multipart/form-data">
+						<h:inputText
+								id="inputTitle"
+								value="#{submitEvidenceBean.evidence.title}"
+								placeholder="Evidence title"
+								required="true"
+								requiredMessage="Title is required"
+								autocomplete="off"
+						/>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+
+						<h:panelGroup id="panelUploadEvidence">
+							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
+								<utilcomp:fileUpload
+										uploadFileInfo="Upload File"
+										fileUploadListenerMethodName="handleFileUpload"
+										fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
+										disabled="false"
+										toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
+								/>
+								<h:inputHidden id="inputHiddenFileEvidence" value="0" validator="#{submitEvidenceBean.validateFileEvidence}"/>
+								<ui:fragment rendered="#{facesContext.validationFailed and not empty facesContext.getMessageList(cc.clientId.concat(':formFileEvidence:inputHiddenFileEvidence'))}">
+									<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputHiddenFileEvidence"></h:message></small>
+								</ui:fragment>
+							</ui:fragment>
+							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
+								<div class="whiteBox evidenceBox evidenceBoxSmall">
+									<div class="evidenceTop">
+										<div class="evidenceTopLeft">
+											<div class="icon doc"></div>
+											<h3>#{submitEvidenceBean.evidence.fileName}</h3>
+										</div>
+										<div class="evidenceTopRight">
+											<div class="dropdown optMoreMenu">
+												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
+													<li>
+														<p:commandLink
+																process="@this"
+																action="#{submitEvidenceBean.removeUploadedEvidence()}"
+																update=":#{cc.clientId}:formFileEvidence:panelUploadEvidence">
+															Remove
+														</p:commandLink>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:panelGroup>
+
+						<h:inputText styleClass="tagsInputEvidence"
+									 id="inputKeywords"
+									 value="#{submitEvidenceBean.evidence.tagsString}"
+									 placeholder="Keywords - Type and press 'Enter'"
+									 pt:data-role="tagsinput"
+									 autocomplete="off">
+						</h:inputText>
+						<script>$('.tagsInputEvidence').tagsinput();</script>
+
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
+
+						<div class="lastRow">
+							<p:commandLink styleClass="btn btn-green"
+										   action="#{cc.attrs.bean.postFileEvidence()}"
+										   update="#{cc.attrs.update} :#{cc.clientId}:formFileEvidence">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formFileEvidence:inputTitle" />
+								#{cc.attrs.submitButtonText}
+							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
+								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
+							</ui:fragment>
+						</div>
+					</h:form>
+				</div>
+			</c:if>
+			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
+				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'LINK' ? 'in active' : ''}" id="url">
+					<h:form id="formUrlEvidence">
+						<h:inputText
+								id="inputTitle"
+								value="#{submitEvidenceBean.evidence.title}"
+								placeholder="Evidence title"
+								required="true"
+								requiredMessage="Title is required"
+								autocomplete="off"
+						/>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+
+						<h:inputText id="inputUrl"
+									 styleClass="urlInput"
+									 placeholder="http://..."
+									 required="true"
+									 requiredMessage="URL is required"
+									 validator="urlValidator"
+									 autocomplete="off"
+									 value="#{submitEvidenceBean.evidence.url}"/>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
+
+						<h:inputText styleClass="tagsInputEvidence"
+									 id="inputKeywords"
+									 value="#{submitEvidenceBean.evidence.tagsString}"
+									 placeholder="Keywords - Type and press 'Enter'"
+									 pt:data-role="tagsinput"
+									 autocomplete="off">
+						</h:inputText>
+						<script>$('.tagsInputEvidence').tagsinput();</script>
+
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
+
+						<div class="lastRow">
+							<p:commandLink styleClass="btn btn-green"
+										   action="#{cc.attrs.bean.postUrlEvidence()}"
+										   update="#{cc.attrs.update} :#{cc.clientId}:formUrlEvidence">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formUrlEvidence:inputTitle" />
+								#{cc.attrs.submitButtonText}
+							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
+								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
+							</ui:fragment>
+						</div>
+					</h:form>
+				</div>
+			</c:if>
+			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
+				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'TEXT' ? 'in active' : ''}" id="text">
+					<h:form id="formTextEvidence">
+						<h:inputText
+								id="inputTitle"
+								value="#{submitEvidenceBean.evidence.title}"
+								placeholder="Evidence title"
+								required="true"
+								requiredMessage="Required field"
+								autocomplete="off"
+						/>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+
+						<h:inputTextarea id="textareaEvidenceText"
+										 placeholder="Short description here"
+										 value="#{submitEvidenceBean.evidence.text}"
+										 required="true"
+										 requiredMessage="Description is required" />
+
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+
+						<h:inputText styleClass="tagsInputEvidence"
+									 id="inputKeywords"
+									 value="#{submitEvidenceBean.evidence.tagsString}"
+									 placeholder="Keywords - Type and press 'Enter'"
+									 pt:data-role="tagsinput"
+									 autocomplete="off">
+						</h:inputText>
+						<script>$('.tagsInputEvidence').tagsinput();</script>
+
+						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+						</c:if>
+
+						<div class="lastRow">
+							<p:commandLink styleClass="btn btn-green"
+										   action="#{cc.attrs.bean.postTextEvidence()}"
+										   update="#{cc.attrs.update} :#{cc.clientId}:formTextEvidence">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formTextEvidence:inputTitle" />
+								#{cc.attrs.submitButtonText}
+							</p:commandLink>
+							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
+								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
+							</ui:fragment>
+						</div>
+					</h:form>
+				</div>
+			</c:if>
+			<c:if test="#{cc.attrs.addEvidenceToCompetence and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
+				<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="document">
+					<h:panelGroup layout="block" id="panelExistingEvidence" styleClass="whiteBox manageVisibility">
+						<div class="innerWrapper">
+							<h3>Your Evidence Library</h3>
+						</div>
+						<div class="searchInstructors">
+							<h:form id="formSearchEvidences">
+								<p:remoteCommand
+										name="execSearchEvidences"
+										process="inputEvidenceSearch"
+										update=":#{cc.clientId}:panelEvidenceSearchResults :#{cc.clientId}:pagination"
+										action="#{learningEvidenceSearchBean.search()}">
+								</p:remoteCommand>
+
+								<h:inputText id="inputEvidenceSearch"
+											 type="search"
+											 placeholder="Search Evidence"
+											 value="#{learningEvidenceSearchBean.searchTerm}"
+											 onclick="$(this).select();"
+											 onkeyup="searchListener(execSearchEvidences);"
+											 autocomplete="off">
+								</h:inputText>
+							</h:form>
+						</div>
+						<h:panelGroup id="panelEvidenceSearchResults">
+							<ul class="list">
+								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
+									<li class="noPeople">No evidence</li>
+								</ui:fragment>
+								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
+									<li>
+										<div>#{ev.title}</div>
+										<div class="evidenceActions">
+											<h:link outcome="/evidence" target="_blank">
+												View
+												<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+											</h:link>
+											<p:commandLink
+													pt:data-toggle="modal"
+													process="@this"
+													action="#{submitEvidenceBean.setEvidence(ev)}"
+													update=":#{cc.clientId}:formAddExistingEvidence:panelAddExistingEvidence"
+													oncomplete="$('#whyAddEvidence').modal('show')">
+												Add
+											</p:commandLink>
+										</div>
+									</li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+						<utilcomp:pagination
+								id="pagination"
+								bean="#{learningEvidenceSearchBean}"
+								updateUrl="false"
+								toUpdate=":#{cc.clientId}:panelEvidenceSearchResults"
+						/>
+					</h:panelGroup>
+				</div>
+
+				<h:form id="formAddExistingEvidence">
+					<div class="modal fade" id="whyAddEvidence" tabindex="-1" role="dialog" aria-labelledby="whyEvidence">
+						<div class="modal-dialog" role="document">
+							<h:panelGroup layout="block" id="panelAddExistingEvidence" class="modal-content">
+								<div class="modal-header alignLeft">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+									<h2 class="modal-title" id="whyEvidence">Add Evidence</h2>
+								</div>
+								<div class="assessmentModalMeta">
+									<div class="assessmentModalMetaLine">
+										<div class="assessmentModalMetaLeft">
+											Evidence:
+										</div>
+										<div class="assessmentModalMetaRight">
+											<h3>#{submitEvidenceBean.evidence.title}</h3>
+										</div>
+									</div>
+								</div>
+								<div class="modal-body alignLeft">
+									<h:inputTextarea id="inputRelToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputTextarea>
+									<small class="redText bottom30 topMinus30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
+								</div>
+								<div class="modal-footer alignLeft">
+									<p:commandLink
+											styleClass="btn btn-green"
+											action="#{cc.attrs.bean.postEvidence()}"
+											update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
+											oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
+										Add
+									</p:commandLink>
+								</div>
+							</h:panelGroup>
+						</div>
+					</div>
+				</h:form>
+			</c:if>
+		</div>
+	</composite:implementation>
+</ui:component>

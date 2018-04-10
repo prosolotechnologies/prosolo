@@ -39,7 +39,9 @@
 					</span>
                  	
 					<h3 class="media-heading">#{comment.creator.fullName}
-						<ui:fragment rendered="#{comment.instructor}"><span>INSTRUCTOR</span></ui:fragment>
+						<ui:remove>
+							<ui:fragment rendered="#{comment.instructor}"><span>#{msg['label.instructor'].toUpperCase()}</span></ui:fragment>
+						</ui:remove>
 					</h3>
 					<p class="commentText">
 						<h:outputText escape="false" value="#{comment.comment}" />

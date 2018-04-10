@@ -91,7 +91,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		searchCredentials(true);
 	}
 	
-	public void selectCredential(CredentialData cred) {
+	public void select(CredentialData cred) {
 		this.selectedCred = cred;
 	}
 

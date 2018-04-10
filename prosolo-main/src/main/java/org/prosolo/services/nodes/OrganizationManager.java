@@ -8,10 +8,12 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -49,5 +51,7 @@ public interface OrganizationManager extends AbstractManager {
     String getOrganizationTitle(long organizationId) throws DbConnectionException;
 
     List<LearningResourceLearningStage> getOrganizationLearningStagesForLearningResource(long orgId) throws DbConnectionException;
+
+    LearningStageData getLearningStageData(long learningStageId) throws DbConnectionException;
 }
 

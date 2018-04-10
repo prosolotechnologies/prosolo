@@ -44,7 +44,7 @@
 											<small class="redText">Only CSV files allowed.</small>
 										</ui:fragment>
 										<ui:fragment rendered="#{importUsersBean.isFileTypeValid() and not importUsersBean.isFileContentValid()}">
-											<small class="redText">File contents not valid. Some of the lines do not follow specified format.</small>
+											<small class="redText">File contents not valid. Error parsing line #{importUsersBean.lastSuccessfullyParsedLine + 1}.</small>
 										</ui:fragment>
 									</ui:fragment>
 								</h:panelGroup>

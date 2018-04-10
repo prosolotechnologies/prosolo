@@ -6,11 +6,13 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
@@ -56,6 +58,10 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     private RubricManager rubricManager;
     @Inject
     private RubricsESService rubricsESService;
+    @Inject
+    private LearningEvidenceManager learningEvidenceManager;
+    @Inject
+    private LearningEvidenceESService learningEvidenceESService;
 
     @Override
     public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -64,17 +70,19 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     }
 
     @Override
-    public void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
+    public void deleteAndReindexLearningContent(long orgId) throws IndexingServiceNotAvailable {
         //delete credentials and competences indexes
         esAdministration.deleteIndex(
                 new String[] {
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, orgId) : ESIndexNames.INDEX_CREDENTIALS + "*",
-                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, orgId) : ESIndexNames.INDEX_COMPETENCES + "*"
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, orgId) : ESIndexNames.INDEX_COMPETENCES + "*",
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_EVIDENCE, orgId) : ESIndexNames.INDEX_EVIDENCE + "*"
                 });
 
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_CREDENTIALS, ESIndexNames.INDEX_COMPETENCES});
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_CREDENTIALS, ESIndexNames.INDEX_COMPETENCES, ESIndexNames.INDEX_EVIDENCE});
 
         indexNodes(orgId);
+        indexEvidences(orgId);
     }
 
     @Override
@@ -157,6 +165,17 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
         }
     }
 
+    private void indexEvidences(long orgId) {
+        Session session = (Session) defaultManager.getPersistence().openSession();
+        try {
+            indexEvidences(orgId, session);
+        } catch (Exception e) {
+            logger.error("Exception in handling message", e);
+        } finally {
+            HibernateUtil.close(session);
+        }
+    }
+
     private void indexRubrics(long orgId) {
         Session session = (Session) defaultManager.getPersistence().openSession();
         try {
@@ -176,6 +195,7 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
             indexNodes(0, session);
             indexUserGroups(0, session);
             indexRubrics(0, session);
+            indexEvidences(0, session);
         } catch (Exception e) {
             logger.error("Exception in handling message", e);
         } finally {
@@ -215,6 +235,13 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
         List<Rubric> rubrics = rubricManager.getAllRubrics(orgId, session);
         for (Rubric r : rubrics) {
             rubricsESService.saveRubric(r.getOrganization().getId(), r);
+        }
+    }
+
+    private void indexEvidences(long orgId, Session session) {
+        List<LearningEvidence> evidences = learningEvidenceManager.getAllEvidences(orgId, session);
+        for (LearningEvidence le : evidences) {
+            learningEvidenceESService.saveEvidence(le);
         }
     }
 }

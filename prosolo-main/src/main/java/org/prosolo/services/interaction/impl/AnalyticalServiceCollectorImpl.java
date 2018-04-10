@@ -2,6 +2,8 @@ package org.prosolo.services.interaction.impl;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -9,6 +11,7 @@ import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.prosolo.services.messaging.AnalyticalServiceMessageDistributer;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +22,7 @@ import com.google.gson.JsonPrimitive;
  * @author Zoran Jeremic
  * @deprecated since 0.7
  */
-@Deprecated
+//@Deprecated
 @Service("org.prosolo.services.interaction.AnalyticalServiceCollector")
 public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollector{
 	
@@ -149,6 +152,15 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		data.add("source", new JsonPrimitive(source));
 		data.add("target", new JsonPrimitive(target));
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.SOCIALINTERACTIONCOUNT, DataType.COUNTER, data);
+		messageDistributer.distributeMessage(message);
+	}
+
+	@Override
+	public void storeNotificationData(String email, NotificationData notificationData){
+		Gson gson = new Gson();
+		JsonObject data=(JsonObject) new JsonParser().parse(gson.toJson(notificationData));
+		data.add("email",new JsonPrimitive(email));
+		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.STORENOTIFICATIONDATA, DataType.RECORD, data);
 		messageDistributer.distributeMessage(message);
 	}
 	

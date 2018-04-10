@@ -49,20 +49,16 @@
 		<cluster-name>elasticsearch</cluster-name>
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
-		<documents-index>documents</documents-index>
 		<credentials-index>credentials</credentials-index>
 		<competences-index>competences</competences-index>
 		<users-index>users</users-index>
 		<associationrules-index>associationrules</associationrules-index>
 		<recommendationdata-index>recommendationdata</recommendationdata-index>
-
 		<userGroup-index>usergroups</userGroup-index>
-
 		<logs-index>logs</logs-index>
-
 		<rubrics-index>rubrics</rubrics-index>
 		<jobsLogs-index>jobslogs</jobsLogs-index>
-
+		<evidences-index>evidence</evidences-index>
 	</elastic-search-config>
 	<mysql-config>
 		<host>localhost</host>
@@ -113,6 +109,8 @@
 		<daily>false</daily>
 		<weekly>false</weekly>
 		<monthly>false</monthly>
+		<bcc>false</bcc>
+		<bcc-email>test@prosolo.ca</bcc-email>
 		<smtp-config>
 			<host>email-smtp.us-east-1.amazonaws.com</host>
 			<user>AKIAIZ7V7VE3IKI7MWNA</user>

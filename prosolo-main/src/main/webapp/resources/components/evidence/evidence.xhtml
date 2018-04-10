@@ -1,0 +1,108 @@
+<ui:component
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="evidence" type="org.prosolo.services.nodes.data.evidence.LearningEvidenceData" required="true"/>
+		<composite:attribute name="showEvidenceManagementOptions" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="showDetails" type="java.lang.Boolean" default="false" />
+		<composite:attribute name="canEdit" required="true" type="java.lang.Boolean" />
+        <composite:attribute name="deleteModalId" default="" />
+        <composite:attribute name="role" default="USER" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="whiteBox evidenceBox">
+			<div class="evidenceTop">
+				<div class="evidenceTopLeft">
+					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : cc.attrs.evidence.type eq 'TEXT' ? 'text' : 'doc'}"></div>
+					<h3>
+						<h:link outcome="/evidence">
+							#{cc.attrs.evidence.title}
+							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}"/>
+						</h:link>
+					</h3>
+				</div>
+				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
+					<div class="evidenceTopRight">
+						<h:panelGroup layout="block" rendered="#{cc.attrs.canEdit}" styleClass="dropdown optMoreMenu">
+							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
+								<li>
+									<p:commandLink
+                                        pt:data-toggle="modal"
+                                        oncomplete="$('##{cc.attrs.deleteModalId}').modal('show')">
+										Delete Evidence
+									</p:commandLink>
+								</li>
+							</ul>
+						</h:panelGroup>
+                        <h:link rendered="#{cc.attrs.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
+							Edit
+							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
+						</h:link>
+						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
+							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
+						</ui:fragment>
+					</div>
+				</c:if>
+			</div>
+			<c:if test="#{cc.attrs.showDetails}">
+				<p><h:outputText escape="false" value="#{cc.attrs.evidence.text}"/></p>
+			</c:if>
+			<table>
+				<tr>
+					<td class="col01">In #{msg['label.competence.plural']}:</td>
+					<td>
+						<ui:fragment rendered="#{empty cc.attrs.evidence.competences}">
+							<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
+						</ui:fragment>
+						<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
+							<h:link rendered="#{cc.attrs.role == 'USER'}"
+								outcome="/competence"
+								value="#{c.title}">
+								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+							</h:link>
+							<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
+									outcome="/manage/competence"
+									value="#{c.title}">
+								<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+							</h:link>
+							- #{c.description}
+							<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
+						</ui:repeat>
+					</td>
+				</tr>
+				<tr>
+					<td class="col01">Keywords:</td>
+					<td>
+						<ul class="tags">
+							<ui:fragment rendered="#{empty cc.attrs.evidence.tags}">
+								<span class="lightText">no keywords</span>
+							</ui:fragment>
+							<ui:repeat value="#{cc.attrs.evidence.tags}" var="kw">
+								<li>#{kw}</li>
+							</ui:repeat>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td class="col01">Created:</td>
+					<td>
+						<utilcomp:convertTimeOutput
+								millis="#{cc.attrs.evidence.dateCreated}"
+								format="MMM DD, YYYY"
+						/>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</composite:implementation>
+</ui:component>

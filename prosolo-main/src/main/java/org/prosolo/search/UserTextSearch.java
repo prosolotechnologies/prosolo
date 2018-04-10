@@ -115,6 +115,9 @@ public interface UserTextSearch extends AbstractManager {
 	 */
 	PaginatedResult<UserData> searchCredentialPeers(
 			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
+
+	PaginatedResult<UserData> searchUsersLearningCompetence(
+			long orgId, String searchTerm, int limit, long compId, List<Long> usersToExcludeFromSearch);
 	
 	/**
 	 * Returns list of students currently learning competence specified by {@code compId}.

@@ -1,22 +1,26 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 
 @Service
 public class NotificationEventProcessorFactory {
@@ -50,7 +54,7 @@ public class NotificationEventProcessorFactory {
 		case Comment:
 		case Comment_Reply:
 			return new CommentPostEventProcessor(event, session, notificationManager,
-					notificationsSettingsManager, idEncoder, commentManager, 
+					notificationsSettingsManager, activityManager, idEncoder, commentManager,
 					contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
@@ -62,7 +66,7 @@ public class NotificationEventProcessorFactory {
 		case Dislike:
 			if (event.getObject() instanceof Comment1) {
 				return new CommentLikeEventProcessor(event, session, notificationManager, 
-						notificationsSettingsManager, idEncoder, 
+						notificationsSettingsManager, activityManager, idEncoder,
 						contextJsonParserService);
 			} else if (event.getObject() instanceof SocialActivity1) {
 				return new SocialActivityLikeEventProcessor(event, session, notificationManager, 
@@ -72,17 +76,34 @@ public class NotificationEventProcessorFactory {
 			return new FollowUserEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder, followResourceManager);
 		case AssessmentComment:
-			return new AssessmentCommentEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, assessmentManager);
+			BaseEntity target = event.getTarget();
+			if (target instanceof ActivityAssessment) {
+				return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
+			} else if (target instanceof CompetenceAssessment) {
+				return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
+			} else if (target instanceof CredentialAssessment) {
+				return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager);
+			}
 		case AssessmentApproved:
 			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder);
+					notificationsSettingsManager, idEncoder, contextJsonParserService);
 		case AssessmentRequested:
-			return new AssessmentRequestEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder);
+			if (event.getObject() instanceof CredentialAssessment) {
+				return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder);
+			} else if (event.getObject() instanceof CompetenceAssessment) {
+				return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
+			}
 		case AnnouncementPublished:
 			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, 
 					notificationsSettingsManager, idEncoder, credentialManager);
+		case GRADE_ADDED:
+			return new GradeAddedEventProcessor(event, session, notificationManager,
+					notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
 		default:
 			return null;
 		}

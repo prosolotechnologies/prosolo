@@ -5,7 +5,12 @@
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-		xmlns:post="http://java.sun.com/jsf/composite/components/post">
+		xmlns:post="http://java.sun.com/jsf/composite/components/post"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -14,26 +19,114 @@
 		<composite:attribute name="readOnly" required="true" />
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="startedLearning" default="false" />
+		<composite:attribute name="toUpdateOnEvidencePost" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
 		<div class="container">
 			<div class="row">
 				<div class="col-md-8">
 					<h2>About #{msg['label.competence']}</h2>
 					<p><h:outputText escape="false" value="#{cc.attrs.bean.competenceData.description}"/></p>
-					<div class="whiteBox activitiesList">
-						<courses:activityList
-									activities="#{cc.attrs.bean.competenceData.activities}"
-									encodedCredentialId="#{param['credId']}"
-									encodedCompetenceId="#{param['compId']}"
-									bean="#{cc.attrs.bean}"
-									isEdit="false"
-									showMarkedIfCompleted="true"
-									readOnly="#{cc.attrs.readOnly}"
+					<c:if test="#{cc.attrs.bean.competenceData.learningPathType eq 'ACTIVITY'}">
+						<div class="whiteBox activitiesList">
+							<courses:activityList
+										activities="#{cc.attrs.bean.competenceData.activities}"
+										encodedCredentialId="#{param['credId']}"
+										encodedCompetenceId="#{param['compId']}"
+										bean="#{cc.attrs.bean}"
+										isEdit="false"
+										showMarkedIfCompleted="true"
+										readOnly="#{cc.attrs.readOnly}"
+							/>
+					   </div>
+					</c:if>
+
+					<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
+						<h2>Submit Evidence</h2>
+						<evidence:submitEvidence
+								id="submitEvidence"
+								bean="#{cc.attrs.bean}"
+								addEvidenceToCompetence="true"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences #{cc.attrs.toUpdateOnEvidencePost}"
+								learningContext="#{cc.attrs.learningContext}"
+								submitButtonText="Submit"
 						/>
-				   </div>
-				   <c:if test="#{cc.attrs.role ne 'ADMIN'}">
+
+						<h2>Your Evidence</h2>
+						<h:panelGroup id="panelEvidences">
+							<ui:repeat value="#{cc.attrs.bean.competenceData.evidences}" var="ev">
+								<div class="whiteBox evidenceBox">
+									<div class="evidenceTop">
+										<div class="evidenceTopLeft">
+											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
+											<h3>
+												<h:link outcome="/evidence">
+													#{ev.title}
+													<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+												</h:link>
+											</h3>
+										</div>
+										<div class="evidenceTopRight">
+											<div class="dropdown optMoreMenu">
+												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
+													<li>
+														<p:commandLink
+															pt:data-toggle="modal"
+															action="#{cc.attrs.bean.setEvidenceToRemove(ev)}"
+															oncomplete="$('#deleteEvidence').modal('show');">
+															Remove Evidence
+														</p:commandLink>
+													</li>
+												</ul>
+											</div>
+											<ui:fragment rendered="#{ev.type ne 'TEXT'}">
+												<a href="#{ev.url}" target="_blank" class="btn btn-green btn-sm">#{ev.type eq 'LINK' ? 'Open' : 'Download'}</a>
+											</ui:fragment>
+										</div>
+									</div>
+									<p><h:outputText escape="false" value="#{ev.text}"/></p>
+									<table>
+										<tr>
+											<td class="col01">Keywords:</td>
+											<td>
+												<ul class="tags">
+													<ui:fragment rendered="#{empty ev.tags}">
+														<span class="lightText">no keywords</span>
+													</ui:fragment>
+													<ui:repeat value="#{ev.tags}" var="kw">
+														<li>#{kw}</li>
+													</ui:repeat>
+												</ul>
+											</td>
+										</tr>
+										<tr>
+											<td class="col01">Added:</td>
+											<td>
+												<utilcomp:convertTimeOutput
+														millis="#{ev.dateAttached}"
+														format="MMM DD, YYYY"
+												/>
+											</td>
+										</tr>
+										<tr>
+										    <td class="col01">Relation:</td>
+											<td>#{ev.relationToCompetence}</td>
+										</tr>
+									</table>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+					</ui:fragment>
+
+					<c:if test="#{cc.attrs.role ne 'ADMIN'}">
 					   <post:comments
 							id="comments"
 							comments="#{cc.attrs.bean.commentsData}"
@@ -45,7 +138,13 @@
 					   />
 				   </c:if>
 				</div>
+
 				<div class="col-md-4">
+					<h:panelGroup layout="block" styleClass="sidebarBlock" rendered="#{cc.attrs.bean.competenceData.learningStageEnabled}">
+						<div class="whiteBox sidebarStage">
+							<h2>Stage #{cc.attrs.bean.competenceData.learningStage.order}: #{cc.attrs.bean.competenceData.learningStage.title}</h2>
+						</div>
+					</h:panelGroup>
 					<ui:fragment rendered="#{not empty cc.attrs.bean.competenceData.tags}">
 						<div class="sidebarBlock">
 							<h2>Keywords</h2>
@@ -68,10 +167,114 @@
 							<h3><a href="#">#{cc.attrs.bean.competenceData.creator.name}</a></h3>
 						</div>
 					</div>
+					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.startedLearning and (cc.attrs.bean.decodedCredId gt 0 or cc.attrs.bean.competenceData.peerAssessmentEnabled or cc.attrs.bean.competenceData.selfAssessmentEnabled)}">
+						<div class="sidebarBlock">
+							<div class="assessmentsSidebarHead">
+								<h2>Assessments</h2>
+								<h:link
+										value="View All"
+										outcome="/competence-instructor-assessments">
+									<f:param name="credId" value="#{param.credid}" disable="#{empty param.credId}"></f:param>
+									<f:param name="compId" value="#{param.compId}" />
+								</h:link>
+							</div>
+							<ul class="assessmentsSidebar">
+
+								<c:if test="#{cc.attrs.bean.competenceData.peerAssessmentEnabled}">
+									<li>
+										<h3>Peer Assessment</h3>
+										<div class="right">
+											<p:commandLink
+													pt:data-toggle="modal"
+													value="Ask"
+													action="#{cc.attrs.bean.initAskForAssessment('PEER_ASSESSMENT')}"
+													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+													oncomplete="$('#askAssessment').modal('show');">
+											</p:commandLink>
+											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}">
+												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}"></div>
+											</div>
+										</div>
+									</li>
+								</c:if>
+
+								<c:if test="#{cc.attrs.bean.decodedCredId gt 0}">
+									<li>
+										<h3>Tutor Assessment</h3>
+										<div class="right">
+											<p:commandLink
+													pt:data-toggle="modal"
+													value="Ask"
+													action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
+													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+													oncomplete="$('#askAssessment').modal('show');">
+											</p:commandLink>
+											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
+												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>
+											</div>
+										</div>
+									</li>
+								</c:if>
+								<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
+									<li>
+										<h3>Self-Assessment</h3>
+										<div class="right">
+											<h:link outcome="/competence-self-assessment" value="Write">
+												<f:param name="compId" value="#{param.compId}"/>
+												<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}" />
+											</h:link>
+											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}">
+												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}"></div>
+											</div>
+										</div>
+									</li>
+								</c:if>
+							</ul>
+							<h:form id="formAskForAssessment">
+								<assessment:askForAssessment
+										id="askForAssessment"
+										bean="#{askForCompetenceAssessmentBean}"
+										submitAssessmentRequestActionMethodName="submitAssessment"
+										submitAssessmentRequestAction="#{askForCompetenceAssessmentBean.submitAssessment}"
+										resource="COMPETENCE"
+										resourceTitle="#{cc.attrs.bean.competenceData.title}"
+										toUpdate="#{cc.attrs.growlToUpdate}"
+										learningContext="#{cc.attrs.learningContext}"
+								/>
+							</h:form>
+						</div>
+					</c:if>
 				</div>
 			</div>
 
 		</div>
+
+		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
+			<div class="modal fade" id="deleteEvidence" tabindex="-1" role="dialog" aria-labelledby="deleteEvid">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+							<h2 class="modal-title" id="deleteEvid">Remove Evidence?</h2>
+						</div>
+						<div class="modal-body">
+							<p>Are you sure you want to remove the evidence from the #{msg['label.competence'].toLowerCase()}?<br/><br/>
+								<small>Note: Evidence won't be deleted from the Evidence Repository.</small></p>
+						</div>
+						<div class="modal-footer">
+							<p:commandLink styleClass="btn btn-red"
+							   	process="@this"
+								action="#{cc.attrs.bean.removeEvidenceFromCompetence()}"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence"
+								oncomplete="$('#deleteEvidence').modal('hide')">
+								Remove
+							</p:commandLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</ui:fragment>
 
 		<c:if test="#{cc.attrs.role ne 'ADMIN' and not empty param['comment']}">
 			<script>

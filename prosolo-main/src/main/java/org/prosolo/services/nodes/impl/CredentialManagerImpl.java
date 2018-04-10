@@ -11,11 +11,14 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -27,6 +30,9 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -41,6 +47,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -95,6 +102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private LearningResourceLearningStageDataFactory learningResourceLearningStageDataFactory;
 	@Inject
 	private OrganizationManager orgManager;
+	@Inject private RubricManager rubricManager;
 
 	@Override
 	//nt
@@ -121,15 +129,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDateCreated(new Date());
 			cred.setCompetenceOrderMandatory(data.isMandatoryFlow());
 			cred.setDuration(data.getDuration());
-			cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
-			cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
+			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
 			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 
 			if (data.isLearningStageEnabled()) {
 				cred.setLearningStage((LearningStage) persistence.currentManager().load(LearningStage.class, data.getLearningStage().getId()));
 			}
 
+			setAssessmentRelatedData(cred, data, true);
+
 			saveEntity(cred);
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					CredentialAssessmentConfig cac = new CredentialAssessmentConfig();
+					cac.setCredential(cred);
+					cac.setAssessmentType(atc.getType());
+					cac.setEnabled(atc.isEnabled());
+					saveEntity(cac);
+				}
+			}
 
 			if (data.getCompetences() != null) {
 				for (CompetenceData1 cd : data.getCompetences()) {
@@ -170,6 +190,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
 		}
+	}
+
+	private void setAssessmentRelatedData(Credential1 credential, CredentialData data, boolean updateRubric) throws IllegalDataStateException {
+		credential.setGradingMode(data.getAssessmentSettings().getGradingMode());
+		switch (data.getAssessmentSettings().getGradingMode()) {
+			case AUTOMATIC:
+				credential.setRubric(null);
+				break;
+			case MANUAL:
+				if (updateRubric) {
+					credential.setRubric(rubricManager.getRubricForLearningResource(data.getAssessmentSettings()));
+				}
+				break;
+			case NONGRADED:
+				credential.setRubric(null);
+				break;
+		}
+		credential.setMaxPoints(
+				isPointBasedCredential(credential.getGradingMode(), credential.getRubric())
+						? (data.getAssessmentSettings().getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getAssessmentSettings().getMaxPointsString()))
+						: 0);
+	}
+
+	private boolean isPointBasedCredential(GradingMode gradingMode, Rubric rubric) {
+		return gradingMode == GradingMode.MANUAL && (rubric == null || rubric.getRubricType() == RubricType.POINT || rubric.getRubricType() == RubricType.POINT_RANGE);
 	}
 
 	/**
@@ -266,7 +311,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null,
 							null, false, paramProgress.intValue(), nextCompId.longValue());
 				} else {
-					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
 				}
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -324,7 +369,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
 
-				credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+				credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
 
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -346,9 +391,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws ResourceNotFoundException, DbConnectionException {
 		CredentialData credData;
 		try {
-			credData = getTargetCredentialData(credentialId, userId, true);
+			credData = getTargetCredentialData(credentialId, userId, true,true);
 			if (credData == null) {
-				return getCredentialData(credentialId, true, true, userId, AccessMode.USER);
+				return getCredentialData(credentialId, true, true, true, userId, AccessMode.USER);
 			}
 
 			return credData;
@@ -362,19 +407,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId,
-												  boolean loadCompetences) throws DbConnectionException {
+												  boolean loadAssessmentConfig, boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, true);
 
 			if (res != null) {
+				Set<CredentialAssessmentConfig> aConfig = loadAssessmentConfig ? res.getCredential().getAssessmentConfig() : null;
 				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(),
-						res, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
+						res, aConfig, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
 
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
 							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
+					if (loadAssessmentConfig) {
+						for (AssessmentTypeConfig conf : credData.getAssessmentTypes()) {
+							if (conf.isEnabled()) {
+								conf.setGradeSummary(assessmentManager.getCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
+							}
+						}
+					}
 				}
 				return credData;
 			}
@@ -424,7 +477,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataForEdit(long credentialId) throws DbConnectionException {
 		try {
-			CredentialData cd = getCredentialData(credentialId, true, true, 0, AccessMode.MANAGER);
+			CredentialData cd = getCredentialData(credentialId, true, true, true, 0, AccessMode.MANAGER);
 			/*
 			if learning in stages is enabled for credential, learning stages with credential info for each stage are loaded
 			but if learning in stages is not enabled, only learning stages are retrieved.
@@ -470,8 +523,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
-																	boolean loadCompetences, long userId,
-																	AccessMode accessMode)
+															   boolean loadAssessmentConfig,
+															   boolean loadCompetences, long userId,
+															   AccessMode accessMode)
 			throws ResourceNotFoundException, DbConnectionException {
 		try {
 			Credential1 cred = getCredential(credentialId, loadCreatorData);
@@ -481,7 +535,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
-			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, cred.getTags(),
+			Set<CredentialAssessmentConfig> assessmentConfig = loadAssessmentConfig ? cred.getAssessmentConfig() : null;
+			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, assessmentConfig, cred.getTags(),
 					cred.getHashtags(), true);
 
 			if (loadCompetences) {
@@ -642,18 +697,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setTitle(data.getTitle());
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
+		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 		if (data.isTagsStringChanged()) {
-			credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getTagsString())));
 		}
 		if (data.isHashtagsStringChanged()) {
-			credToUpdate.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+			credToUpdate.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getHashtagsString())));
 		}
 
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
-			credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 			credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 
 			LearningStage learningStage = null;
@@ -676,6 +731,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					credToUpdate.setLearningStage(null);
 				}
 			}
+
+			if (data.getAssessmentTypes() != null) {
+				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+					if (atc.hasObjectChanged()) {
+						CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
+						cac.setEnabled(atc.isEnabled());
+					}
+				}
+			}
+			setAssessmentRelatedData(credToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 
 			List<CompetenceData1> comps = data.getCompetences();
 			if (comps != null) {
@@ -745,9 +810,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				this would not work for those competencies because they should have learning stage
 				updated even if credential learning in stages flag have not changed
 				 */
-				setLearningStageForCredentialCompetences(data.getId(), learningStage);
+				res.appendEvents(setLearningStageForCredentialCompetences(data.getId(), learningStage, context));
 				if (learningStage == null) {
-					disableStagesForCredentialsInOtherStages(firstStageCredId, data.getId());
+					res.appendEvents(disableStagesForCredentialsInOtherStages(firstStageCredId, data.getId(), context));
 				}
 			}
     	} else {
@@ -758,41 +823,51 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res;
 	}
 
-	private void setLearningStageForCredentialCompetences(long credentialId, LearningStage stage) {
-		String query =
-				"UPDATE credential_competence1 cc " +
-				"INNER JOIN competence1 c ON cc.competence = c.id ";
-		if (stage == null) {
-			query +=
-					"SET c.learning_stage = NULL, " +
-					"c.first_learning_stage_competence = NULL ";
-		} else {
-			query +=
-					"SET c.learning_stage = :learningStageId ";
+	private EventQueue setLearningStageForCredentialCompetences(long credentialId, LearningStage stage, UserContextData context) {
+//		String query =
+//				"UPDATE credential_competence1 cc " +
+//				"INNER JOIN competence1 c ON cc.competence = c.id ";
+//		if (stage == null) {
+//			query +=
+//					"SET c.learning_stage = NULL, " +
+//					"c.first_learning_stage_competence = NULL ";
+//		} else {
+//			query +=
+//					"SET c.learning_stage = :learningStageId ";
+//		}
+//
+//		query +=
+//				"WHERE cc.credential = :credId";
+//
+//		Query q = persistence.currentManager()
+//				.createSQLQuery(query)
+//				.setLong("credId", credentialId);
+//
+//		if (stage != null) {
+//			q.setLong("learningStageId", stage.getId());
+//		}
+//
+//		int affected = q.executeUpdate();
+//
+//		logger.info("Number of credential competences with updated learning stage: " + affected);
+
+		List<CredentialCompetence1> credComps = compManager.getCredentialCompetences(
+				credentialId, false, false, true, false);
+		EventQueue queue = EventQueue.newEventQueue();
+		for (CredentialCompetence1 cc : credComps) {
+			queue.appendEvents(compManager.updateCompetenceLearningStage(cc.getCompetence(), stage, context));
 		}
-
-		query +=
-				"WHERE cc.credential = :credId";
-
-		Query q = persistence.currentManager()
-				.createSQLQuery(query)
-				.setLong("credId", credentialId);
-
-		if (stage != null) {
-			q.setLong("learningStageId", stage.getId());
-		}
-
-		int affected = q.executeUpdate();
-
-		logger.info("Number of credential competences with updated learning stage: " + affected);
+		return queue;
 	}
 
-	private void disableStagesForCredentialsInOtherStages(long firstStageCredId, long credentialToExcludeId) {
+	private EventQueue disableStagesForCredentialsInOtherStages(long firstStageCredId, long credentialToExcludeId, UserContextData context) {
 		List<Credential1> credentials = getOtherCredentialsFromLearningStageGroup(firstStageCredId, credentialToExcludeId);
+		EventQueue queue = EventQueue.newEventQueue();
 		for (Credential1 cred : credentials) {
-			disableLearningInStagesForCredential(cred);
-			setLearningStageForCredentialCompetences(cred.getId(), null);
+			queue.appendEvents(disableLearningInStagesForCredential(cred, context));
+			queue.appendEvents(setLearningStageForCredentialCompetences(cred.getId(), null, context));
 		}
+		return queue;
 	}
 
 	private List<Credential1> getOtherCredentialsFromLearningStageGroup(long firstStageCredId, long credentialToExcludeId) {
@@ -860,7 +935,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 
 			//create default assessment for user
-			assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
+			//create self assessment if enabled
+			if (cred.getAssessmentConfig()
+					.stream()
+					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
+					.findFirst().get()
+					.isEnabled()) {
+				result.appendEvents(assessmentManager.createSelfAssessmentAndGetEvents(targetCred, context).getEventQueue());
+			}
 
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
@@ -1305,11 +1388,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public EventQueue updateCredentialProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			EventQueue events = EventQueue.newEventQueue();
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager().load(
+					TargetCompetence1.class, targetCompId);
 			String query = "SELECT tCred.id, cred.id, comp.id, coalesce(tComp.progress, 0) " +
 					"FROM TargetCredential1 tCred " +
 					"INNER JOIN tCred.credential cred " +
@@ -1320,15 +1405,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"INNER JOIN cred.competences credComp " +
 					"INNER JOIN credComp.competence comp " +
 					"LEFT JOIN comp.targetCompetences tComp " +
-					"WITH tComp.user.id = :userId " +
-					"WHERE tCred.user.id = :userId " +
+					"WITH tComp.user.id = :studentId " +
+					"WHERE tCred.user.id = :studentId " +
 					"ORDER BY tCred.id, credComp.order";
 
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("targetCompId", targetCompId)
-					.setLong("userId", context.getActorId())
+					.setLong("studentId", tc.getUser().getId())
 					.list();
 
 			long currentTCredId = 0;
@@ -1434,7 +1519,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
-		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false);
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, false,false);
 		if (credentialData != null && credentialData.isEnrolled()) {
 			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, false, false, true));
 			return credentialData;
@@ -1482,15 +1567,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.ANY);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<TargetCredential1> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
+	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList<>();
 		try {
 			String query =
 					"SELECT targetCredential1 " +
@@ -1515,28 +1599,36 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			query += "ORDER BY cred.title";
 
-			result = persistence.currentManager()
+			List<TargetCredentialData> resultList = new ArrayList<>();
+
+			List<TargetCredential1> result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
 					.list();
+
+			for(TargetCredential1 targetCredential1 : result){
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1);
+				resultList.add(targetCredentialData);
+			}
+
+			return resultList;
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			throw new DbConnectionException();
 		}
-		return result;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredential1> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<TargetCredentialData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 
@@ -1685,9 +1777,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT targetCredential.user.id " +
-							"FROM TargetCredential1 targetCredential " +
-							"WHERE targetCredential.credential.id = :credentialId " +
-							"AND targetCredential.progress < 100";
+					"FROM TargetCredential1 targetCredential " +
+					"WHERE targetCredential.credential.id = :credentialId " +
+						"AND targetCredential.progress < 100";
 
 			@SuppressWarnings("unchecked")
 			List<Long> res = persistence.currentManager().createQuery(query)
@@ -1892,7 +1984,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					User creator = (User) row[1];
 					Long bookmarkId = (Long) row[2];
 					CredentialData cd = credentialFactory.getCredentialData(creator,
-							tc, null, null, false);
+							tc, null, null, null, false);
 					if (bookmarkId != null) {
 						cd.setBookmarkedByCurrentUser(true);
 					}
@@ -2010,7 +2102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					}
 					sd.setProgress(tc.getProgress());
 					Optional<Long> credAssessmentId = assessmentManager
-							.getDefaultCredentialAssessmentId(credId, sd.getUser().getId());
+							.getInstructorCredentialAssessmentId(credId, sd.getUser().getId());
 					if (credAssessmentId.isPresent()) {
 						sd.setAssessmentId(credAssessmentId.get());
 					}
@@ -2079,9 +2171,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						"FROM CredentialAssessment assessment " +
 						"INNER JOIN assessment.targetCredential tCred " +
 						"INNER JOIN tCred.credential cred " +
-						"WHERE assessment.assessedStudent.id = :userId " +
+						"WHERE assessment.student.id = :userId " +
 							"AND cred.id = :credId " +
 							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
+						"AND assessment.type = :aType " +
 						") " +
 				"ORDER BY RAND()";
 
@@ -2090,6 +2183,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.createQuery(query)
 					.setLong("credId", credId)
 					.setLong("userId", userId)
+					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
 					.setMaxResults(1)
 					.list();
 
@@ -2103,38 +2197,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving random peer");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
-		try {
-			String query =
-					"SELECT assessment.assessor.id " +
-							"FROM CredentialAssessment assessment " +
-							"INNER JOIN assessment.targetCredential tCred " +
-							"INNER JOIN tCred.credential cred " +
-							"WHERE assessment.assessedStudent.id = :userId " +
-							"AND cred.id = :credId " +
-							"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
-
-			@SuppressWarnings("unchecked")
-			List<Long> res = (List<Long>) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("credId", credentialId)
-					.list();
-
-			if (res != null) {
-				return res;
-			}
-
-			return new ArrayList<Long>();
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
 
@@ -2245,7 +2307,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
-		String query = "SELECT DISTINCT comp " +
+		String query =
+				"SELECT DISTINCT comp " +
 				"FROM Competence1 comp " +
 				"LEFT JOIN FETCH comp.tags tag " +
 				"INNER JOIN comp.credentialCompetences cComp " +
@@ -2260,7 +2323,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CompetenceData1> data = new ArrayList<>();
 		for (Competence1 competence : competences) {
-			data.add(competenceFactory.getCompetenceData(null, competence,
+			data.add(competenceFactory.getCompetenceData(null, competence, null,
 					competence.getTags(), false));
 		}
 		return data;
@@ -2272,13 +2335,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT DISTINCT cAct " +
-							"FROM CompetenceActivity1 cAct " +
-							"INNER JOIN fetch cAct.activity act " +
-							"LEFT JOIN FETCH act.tags tag " +
-							"INNER JOIN cAct.competence comp " +
-							"INNER JOIN comp.credentialCompetences cComp " +
-							"WITH cComp.credential.id = :credId " +
-							"ORDER BY act.title";
+					"FROM CompetenceActivity1 cAct " +
+					"INNER JOIN fetch cAct.activity act " +
+					"LEFT JOIN FETCH act.tags tag " +
+					"INNER JOIN cAct.competence comp " +
+					"INNER JOIN comp.credentialCompetences cComp " +
+					"WITH cComp.credential.id = :credId " +
+					"ORDER BY act.title";
 
 			@SuppressWarnings("unchecked")
 			List<CompetenceActivity1> activities = (List<CompetenceActivity1>) persistence.currentManager()
@@ -2502,22 +2565,56 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException {
-		return getDeliveries(credId, true);
+	public List<CredentialData> getOngoingDeliveries(long credId) throws DbConnectionException {
+		return getDeliveries(credId, true, CredentialSearchFilterManager.ACTIVE);
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public List<CredentialData> getOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT del " +
+					"FROM Credential1 del " +
+					"INNER JOIN del.deliveryOf origCred " +
+							"WITH origCred.id = :credId or origCred.firstLearningStageCredential.id = :credId " +
+					"WHERE del.type = :type " +
+					"AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
+					"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now))";
+
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", firstStageCredentialId)
+					.setParameter("type", CredentialType.Delivery)
+					.setTimestamp("now", new Date());
+
+			@SuppressWarnings("unchecked")
+			List<Credential1> result = q.list();
+
+			List<CredentialData> deliveries = new ArrayList<>();
+			for (Credential1 d : result) {
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
+			}
+			return deliveries;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential deliveries");
+		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId,
-																								long userId) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false);
+																								long userId, CredentialSearchFilterManager filter ) throws DbConnectionException {
+		List<CredentialData> credentials = getDeliveries(credId, false, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyActive)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
@@ -2526,9 +2623,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							"WHERE del.type = :type " +
 							"AND del.deliveryOf.id = :credId ");
 
-			if (onlyActive) {
+			if (onlyOngoing) {
 				query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
 						"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now))");
+			}
+
+			if (filter.equals(CredentialSearchFilterManager.ACTIVE)) {
+				query.append(" AND del.archived IS FALSE");
+			} else if (filter.equals(CredentialSearchFilterManager.ARCHIVED)) {
+				query.append(" AND del.archived IS TRUE");
 			}
 
 			Query q = persistence.currentManager()
@@ -2536,7 +2639,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("credId", credId)
 					.setParameter("type", CredentialType.Delivery);
 
-			if (onlyActive) {
+			if (onlyOngoing) {
 				q.setTimestamp("now", new Date());
 			}
 
@@ -2545,7 +2648,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, true));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2711,8 +2814,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, false);
-			cd.setDeliveries(getActiveDeliveries(c.getId()));
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, false);
+			cd.setDeliveries(getOngoingDeliveries(c.getId()));
 			res.add(cd);
 		}
 		return res;
@@ -2797,22 +2900,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Credential1 original = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
 
-			Credential1 cred = new Credential1();
-			cred.setOrganization(original.getOrganization());
-			cred.setTitle(original.getTitle());
-			cred.setDescription(original.getDescription());
-			cred.setCreatedBy(original.getCreatedBy());
-			cred.setDateCreated(new Date());
-			cred.setTags(new HashSet<Tag>(original.getTags()));
-			cred.setHashtags(new HashSet<Tag>(original.getHashtags()));
-			cred.setCompetenceOrderMandatory(original.isCompetenceOrderMandatory());
+			Credential1 cred = duplicateCredential(original, original, original.getCreatedBy().getId(), CredentialType.Delivery,
+					start, end);
 			cred.setDuration(original.getDuration());
-			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
-			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
-			cred.setType(CredentialType.Delivery);
-			cred.setDeliveryOf(original);
-			cred.setDeliveryStart(start);
-			cred.setDeliveryEnd(end);
+			cred.setLearningStage(original.getLearningStage());
 
 			saveEntity(cred);
 			Result<Credential1> res = new Result<>();
@@ -3011,7 +3102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, false));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, false));
 			}
 
 			return deliveries;
@@ -3196,29 +3287,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isUserEnrolled(long credId, long userId) {
-		String query =
-				"SELECT targetCredential.id " +
-				"FROM TargetCredential1 targetCredential " +
-				"WHERE targetCredential.user.id = :userId " +
-					"AND targetCredential.credential.id = :credId";
-
-		Long result = (Long) persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", userId)
-				.setLong("credId", credId)
-				.uniqueResult();
-
-		return result != null;
+		long tcId = getTargetCredentialId(credId, userId);
+		return tcId > 0;
 	}
+
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
 															int page, LearningResourceSortOption sortOption) {
-
+		//return only first stage credentials and credentials with disabled learning in stages
 		StringBuilder query = new StringBuilder(
 				"SELECT c " +
 				"FROM Credential1 c " +
 				"INNER JOIN c.credentialUnits u " +
 						"WITH u.unit.id = :unitId " +
-				"WHERE c.type = :credType ");
+				"WHERE c.type = :credType " +
+				"AND c.firstLearningStageCredential IS NULL ");
 
 		switch (searchFilter) {
 			case ACTIVE:
@@ -3229,7 +3311,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				break;
 		}
 
-		query.append("ORDER BY c." + sortOption.getSortFieldDB() + " " + sortOption.getSortOrder());
+		query.append("ORDER BY lower(c." + sortOption.getSortFieldDB() + ") " + sortOption.getSortOrder());
 
 		@SuppressWarnings("unchecked")
 		List<Credential1> creds = persistence.currentManager()
@@ -3242,8 +3324,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, true);
-			cd.setDeliveries(getActiveDeliveries(c.getId()));
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, true);
+			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
+			if (cd.isLearningStageEnabled()) {
+				cd.setDeliveries(getOngoingDeliveriesFromAllStages(c.getId()));
+			} else {
+				cd.setDeliveries(getOngoingDeliveries(c.getId()));
+			}
 			res.add(cd);
 		}
 		return res;
@@ -3401,6 +3488,47 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT cred FROM Credential1 cred " +
+							"LEFT JOIN fetch cred.competences credComp " +
+							"LEFT JOIN fetch credComp.competence comp " +
+							"WHERE cred.id = :credId " +
+							"AND cred.type = :deliveryType";
+
+			return (Credential1) persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credentialId)
+					.setString("deliveryType", type.name())
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the credential data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException {
+		try {
+			String usersLearningQ =
+					"SELECT targetCred.user.id FROM TargetCredential1 targetCred " +
+					"WHERE targetCred.credential.id = :credId";
+			@SuppressWarnings("unchecked")
+			List<Long> usersLearningCredential = persistence.currentManager()
+					.createQuery(usersLearningQ)
+					.setLong("credId", deliveryId)
+					.list();
+			return usersLearningCredential;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the students data");
+		}
+	}
+
+	@Override
 	//nt
 	public long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException {
 		Result<Credential1> res = self.createCredentialInLearningStageAndGetEvents(basedOnCredentialId, learningStageId, copyCompetences, context);
@@ -3416,7 +3544,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			Credential1 original = (Credential1) persistence.currentManager().load(Credential1.class, basedOnCredentialId);
 
-			Credential1 newCredential = duplicateCredential(original, context.getActorId());
+			Credential1 newCredential = duplicateCredential(original, original.getDeliveryOf(), context.getActorId(), original.getType(),
+					original.getDeliveryStart(), original.getDeliveryEnd());
 			newCredential.setLearningStage((LearningStage) persistence.currentManager().load(LearningStage.class, learningStageId));
 
 			Credential1 firstStageCred = original.getFirstLearningStageCredential() != null
@@ -3469,7 +3598,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private Credential1 duplicateCredential(Credential1 original, long creatorId) {
+	private Credential1 duplicateCredential(Credential1 original, Credential1 deliveryOf, long creatorId, CredentialType type,
+											Date deliveryStart, Date deliveryEnd) {
 		try {
 			Credential1 cred = new Credential1();
 			cred.setOrganization(original.getOrganization());
@@ -3483,11 +3613,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//cred.setDuration(original.getDuration());
 			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
 			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
-			cred.setType(original.getType());
-			cred.setDeliveryOf(original.getDeliveryOf());
-			cred.setDeliveryStart(original.getDeliveryStart());
-			cred.setDeliveryEnd(original.getDeliveryEnd());
+			cred.setType(type);
+			cred.setDeliveryOf(deliveryOf);
+			cred.setDeliveryStart(deliveryStart);
+			cred.setDeliveryEnd(deliveryEnd);
 			cred.setVisibleToAll(original.isVisibleToAll());
+			//set assessment related data
+			cred.setGradingMode(original.getGradingMode());
+			cred.setMaxPoints(original.getMaxPoints());
+			cred.setRubric(original.getRubric());
+			saveEntity(cred);
+			for (CredentialAssessmentConfig cac : original.getAssessmentConfig()) {
+				CredentialAssessmentConfig credAssessmentConf = new CredentialAssessmentConfig();
+				credAssessmentConf.setCredential(cred);
+				credAssessmentConf.setAssessmentType(cac.getAssessmentType());
+				credAssessmentConf.setEnabled(cac.isEnabled());
+				saveEntity(credAssessmentConf);
+			}
 
 			return cred;
 		} catch (Exception e) {
@@ -3496,40 +3638,98 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	 @Override
-	 @Transactional
-	 public void disableLearningStagesForOrganizationCredentials(long orgId) throws DbConnectionException {
+	@Override
+	@Transactional
+	public EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException {
 		try {
 			List<Credential1> creds = getAllCredentialsWithLearningStagesEnabled(orgId);
+			EventQueue queue = EventQueue.newEventQueue();
 			for (Credential1 cred : creds) {
-				disableLearningInStagesForCredential(cred);
+				queue.appendEvents(disableLearningInStagesForCredential(cred, context));
 			}
+			return queue;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error disabling learning in stages for credentials in organization: " + orgId);
 		}
-	 }
+	}
 
-	 private void disableLearningInStagesForCredential(Credential1 cred) {
+	private EventQueue disableLearningInStagesForCredential(Credential1 cred, UserContextData context) {
 		 cred.setLearningStage(null);
 		 cred.setFirstLearningStageCredential(null);
-		 //we will probably need event generated here
+
+		 Credential1 credential = new Credential1();
+		 credential.setId(cred.getId());
+		 EventQueue queue = EventQueue.newEventQueue();
+		 queue.appendEvent(eventFactory.generateEventData(EventType.LEARNING_STAGE_UPDATE, context, credential, null, null, null));
+	 	 return queue;
 	 }
 
+	/**
+	 * Does not return deliveries
+	 *
+	 * @param orgId
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	private List<Credential1> getAllCredentialsWithLearningStagesEnabled(long orgId) throws DbConnectionException {
 		String query =
 				"SELECT cred " +
 				"FROM Credential1 cred " +
 				"WHERE cred.deleted IS FALSE " +
 				"AND cred.organization.id = :orgId " +
-				"AND cred.learningStage IS NOT NULL";
+				"AND cred.learningStage IS NOT NULL " +
+				"AND cred.type = :originalType";
 
 		@SuppressWarnings("unchecked")
 		List<Credential1> result = persistence.currentManager()
 				.createQuery(query)
 				.setLong("orgId", orgId)
+				.setString("originalType", CredentialType.Original.name())
 				.list();
 
 		return result;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException {
+		try {
+			String q =
+					"SELECT conf FROM CredentialAssessmentConfig conf " +
+					"WHERE conf.credential.id = :credId";
+			@SuppressWarnings("unchecked")
+			List<CredentialAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credId)
+					.list();
+			return credentialFactory.getAssessmentConfig(assessmentTypesConfig);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the assessment types config for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getTargetCredentialId(long credId, long studentId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential.id " +
+							"FROM TargetCredential1 targetCredential " +
+							"WHERE targetCredential.user.id = :userId " +
+							"AND targetCredential.credential.id = :credId";
+
+			Long result = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("credId", credId)
+					.uniqueResult();
+
+			return result != null ? result.longValue() : 0;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credential id");
+		}
 	}
 }

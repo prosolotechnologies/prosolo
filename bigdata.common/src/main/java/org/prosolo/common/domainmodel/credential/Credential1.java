@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.CredentialUnit;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -63,6 +64,12 @@ public class Credential1 extends BaseEntity {
 	
 	private List<CredentialUserGroup> userGroups;
 	private List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential;
+
+	//assessment
+	private GradingMode gradingMode = GradingMode.MANUAL;
+	private Rubric rubric;
+	private int maxPoints;
+	private Set<CredentialAssessmentConfig> assessmentConfig;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -71,6 +78,7 @@ public class Credential1 extends BaseEntity {
 		blogs = new ArrayList<FeedSource>();
 		excludedFeedSources = new ArrayList<FeedSource>();
 		announcements = new ArrayList<>();
+		assessmentConfig = new HashSet<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -103,6 +111,7 @@ public class Credential1 extends BaseEntity {
 
 	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
+	@OrderBy("order ASC")
 	public List<CredentialCompetence1> getCompetences() {
 		return competences;
 	}
@@ -353,5 +362,41 @@ public class Credential1 extends BaseEntity {
 
 	public void setFirstLearningStageCredential(Credential1 firstLearningStageCredential) {
 		this.firstLearningStageCredential = firstLearningStageCredential;
+	}
+
+	@OneToMany(mappedBy = "credential")
+	public Set<CredentialAssessmentConfig> getAssessmentConfig() {
+		return assessmentConfig;
+	}
+
+	public void setAssessmentConfig(Set<CredentialAssessmentConfig> assessmentConfig) {
+		this.assessmentConfig = assessmentConfig;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Rubric getRubric() {
+		return rubric;
+	}
+
+	public void setRubric(Rubric rubric) {
+		this.rubric = rubric;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public GradingMode getGradingMode() {
+		return gradingMode;
+	}
+
+	public void setGradingMode(GradingMode gradingMode) {
+		this.gradingMode = gradingMode;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
 	}
 }

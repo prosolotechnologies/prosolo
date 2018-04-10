@@ -2,7 +2,6 @@ package org.prosolo.web.users;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -32,7 +31,6 @@ public class JoinGroupBean implements Serializable {
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private UnitManager unitManager;
 	@Inject private RoleManager roleManager;
-	@Inject private EventFactory eventFactory;
 
 	private String id;
 	private long decodedId;

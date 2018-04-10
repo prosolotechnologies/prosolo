@@ -35,7 +35,7 @@ public interface UserEntityESService extends AbstractESIndexer {
 
 	void updateRoles(long userId, Session session);
 
-	void updateGroups(long orgId, long userId);
+	void updateGroups(long orgId, long userId, Session session);
 
 	void removeUserFromIndex(User user);
 

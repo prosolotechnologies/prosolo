@@ -20,6 +20,7 @@ public class ESIndexNames {
 	public static String INDEX_USER_GROUP = CommonSettings.getInstance().config.elasticSearch.userGroupIndex + CommonSettings.getInstance().config.getNamespaceSufix();
 	public static String INDEX_JOBS_LOGS = CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex + CommonSettings.getInstance().config.getNamespaceSufix();
 	public static String INDEX_RUBRIC_NAME = CommonSettings.getInstance().config.elasticSearch.rubricsIndex + CommonSettings.getInstance().config.getNamespaceSufix();
+	public static String INDEX_EVIDENCE = CommonSettings.getInstance().config.elasticSearch.evidencesIndex + CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_RECOMMENDATIONDATA = CommonSettings
 			//.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex
@@ -51,7 +52,7 @@ public class ESIndexNames {
 	 * @return
 	 */
 	public static List<String> getRecreatableIndexes() {
-		return Arrays.asList(INDEX_USERS, INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+		return Arrays.asList(INDEX_USERS, INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USER_GROUP, INDEX_RUBRIC_NAME, INDEX_EVIDENCE);
 	}
 
 	public static List<String> getSystemIndexes() {
@@ -59,7 +60,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getOrganizationIndexes() {
-		return Arrays.asList(INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME);
+		return Arrays.asList(INDEX_CREDENTIALS, INDEX_COMPETENCES, INDEX_USERS, INDEX_USER_GROUP, INDEX_RUBRIC_NAME, INDEX_EVIDENCE);
 	}
 
 	/**

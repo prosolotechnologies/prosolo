@@ -8,7 +8,6 @@ import org.joda.time.DateTime
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.jobs.GenerateUserProfileClusters
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.spark.scala.clustering.UserProfileClusteringSparkJob
 import org.prosolo.common.config.CommonSettings
 
@@ -37,12 +36,12 @@ object UserProfileClusteringManager {
   val startDate:Date=new Date(endDate.getTime-(periodToCalculate*DAY_IN_MS))
   val days:IndexedSeq[DateTime]=(0 until periodToCalculate).map(new DateTime(startDate).plusDays(_))
   println("NUMBER OF DAYS:"+days.length+" DAYS:"+days.mkString(","))
-  val clusteringDAOManager=new ClusteringDAOImpl
+
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
 
   def runClustering()={
     println("INITIALIZE USER PROFILE CLUSTERING ")
-
+    val clusteringDAOManager=new ClusteringDAOImpl
      val credentialsIds=clusteringDAOManager.getAllActiveDeliveriesIds
     //val credentialsIds=new java.util.List[Long]()
 val userProfileClusteringSparkJob=new UserProfileClusteringSparkJob(dbName, numFeatures,numClusters)

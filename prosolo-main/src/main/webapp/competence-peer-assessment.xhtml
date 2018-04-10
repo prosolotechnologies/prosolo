@@ -1,0 +1,43 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
+                xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
+
+    <ui:param name="bodyClass" value="cbp-spmenu-push"/>
+
+    <ui:define name="windowTitle">
+        Assessment - #{competenceAssessmentBean.competenceAssessmentData.title} - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="assessmentId" value="#{competenceAssessmentBean.competenceAssessmentId}" default="null" />
+            <f:viewParam name="compId" value="#{competenceAssessmentBean.competenceId}" default="null" />
+            <f:viewParam name="credId" value="#{competenceAssessmentBean.credId}" default="null" />
+            <f:viewAction action="#{competenceAssessmentBean.initPeerAssessment()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{competenceAssessmentBean.competenceAssessmentData.title}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <c:if test="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}">
+            <competence:competenceStudentNavLinks
+                    enrolled="#{true}"
+                    credId="#{util:decodeId(param.credId)}"
+                    compId="#{util:decodeId(param.compId)}"
+            />
+        </c:if>
+    </ui:define>
+    <ui:define name="content">
+        <assessments:competenceAssessmentPreview
+                credentialId="#{util:decodeId(param.credId)}"
+        />
+    </ui:define>
+</ui:composition>

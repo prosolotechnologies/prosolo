@@ -1,5 +1,9 @@
 package org.prosolo.web.achievements.data;
 
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.util.TimeUtil;
+
 import java.io.Serializable;
 
 /**
@@ -16,22 +20,35 @@ public class TargetCredentialData implements Serializable {
 	private String title;
 	private boolean hiddenFromProfile;
 	private long duration = 0l;
+	private String durationString;
 	private long credentialId;
 	private int progress;
+	private CredentialData credential;
 	
 	private long nextCompetenceToLearnId;
 
-	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
-			long duration, long credentialId,
-			int progress, long nextCompetenceToLearnId) {
-		this.id = id;
-		this.title = title;
-		this.description = description;
-		this.hiddenFromProfile = hiddenFromProfile;
-		this.duration = duration;
-		this.credentialId = credentialId;
-		this.progress = progress;
-		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	public void calculateDurationString() {
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
+	}
+
+	public TargetCredentialData(TargetCredential1 targetCredential1) {
+		this.id = targetCredential1.getId();
+		this.title = targetCredential1.getCredential().getTitle();
+		this.description = targetCredential1.getCredential().getDescription();
+		this.hiddenFromProfile = targetCredential1.isHiddenFromProfile();
+		this.duration = targetCredential1.getCredential().getDuration();
+		this.credentialId = targetCredential1.getCredential().getId();
+		this.progress = targetCredential1.getProgress();
+		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
+		calculateDurationString();
+	}
+
+	public CredentialData getCredential() {
+		return credential;
+	}
+
+	public void setCredential(CredentialData credential) {
+		this.credential = credential;
 	}
 
 	public Long getId() {
@@ -97,5 +114,14 @@ public class TargetCredentialData implements Serializable {
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
 	}
-	
+
+	public String getDurationString() {
+		return durationString;
+	}
+
+	public void setDurationString(String durationString) {
+		this.durationString = durationString;
+	}
+
+
 }

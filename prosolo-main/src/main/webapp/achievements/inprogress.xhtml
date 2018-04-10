@@ -10,7 +10,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		Achievements - In Progress
+		In Progress Achievements - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -50,7 +50,7 @@
 				<h:form id="inProgressCredentialsForm">
 					<p:growl id="inProgressCredentialsGrowl" showDetail="true"></p:growl>
 					
-					<ui:fragment rendered="#{empty credentialAchievementsBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+					<ui:fragment rendered="#{empty credentialAchievementsBean.targetCredential1ListInProgress}">
 						<div class="col-md-12">
 							<div class="noContentMessage">
 								<p>
@@ -64,7 +64,7 @@
 					</ui:fragment>
 					
 					<ui:repeat var="targetCredential"
-						value="#{credentialAchievementsBean.inProgressCredentialAchievementsData.targetCredentialDataList}"
+						value="#{credentialAchievementsBean.targetCredential1ListInProgress}"
 						varStatus="iterator">
 						
 						<div class="col-md-6">

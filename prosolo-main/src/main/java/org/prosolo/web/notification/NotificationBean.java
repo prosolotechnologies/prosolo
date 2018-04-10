@@ -1,26 +1,26 @@
 package org.prosolo.web.notification;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
+import org.prosolo.services.notifications.factory.NotificationSectionDataFactory;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.notification.data.FilterNotificationType;
-import org.prosolo.web.notification.data.NotificationTypeFilter;
+import org.prosolo.web.notification.data.NotificationFilter;
+import org.prosolo.web.notification.data.NotificationFilterType;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ManagedBean(name = "notificationBean")
 @Component("notificationBean")
@@ -33,27 +33,40 @@ public class NotificationBean implements Serializable, Paginable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private NotificationManager notificationManager;
-	
+	@Inject private NotificationSectionDataFactory notificationSectionDataFactory;
+
 	private List<NotificationData> notifications = new ArrayList<>();
 	private PaginationData paginationData = new PaginationData(5);
-	private List<FilterNotificationType> filters = new ArrayList<>();
-	private List<NotificationType> notificationTypes = new ArrayList<>();
-	
-	@PostConstruct
+	private List<NotificationFilter> filters;
+
 	public void init() {
-		for (NotificationTypeFilter filterEnum : NotificationTypeFilter.values()) {
-			FilterNotificationType f = new FilterNotificationType(filterEnum, true);
-			filters.add(f);
-			notificationTypes.add(filterEnum.getType());
+		filters = new LinkedList<>();
+		for (NotificationFilterType notificationFilterType : NotificationFilterType.values()) {
+			filters.add(new NotificationFilter(notificationFilterType, true));
 		}
+
+		filters.sort(Comparator.comparing(f -> f.getType().getLabel()));
+
+		String selectedFiltersParam = PageUtil.getGetParameter("filters");
+		if (selectedFiltersParam != null && !selectedFiltersParam.isEmpty()) {
+			List<String> selectedFilters = Arrays.stream(selectedFiltersParam.split(","))
+					.map(String::toLowerCase)
+					.collect(Collectors.toList());
+
+			filters.stream()
+					.filter(f -> !selectedFilters.contains((f.getType().getNotificationType().name().toLowerCase())))
+					.forEach(f -> f.setApplied(false));
+		}
+
 		int page = PageUtil.getGetParameterAsInteger("p");
 		this.paginationData.setPage(page == 0 ? 1 : page);
+
 		loadNotifications(true);
 	}
 	
 	public void loadNotifications(boolean recalculateTotalNumber) {
 		try {
-			if (notificationTypes.isEmpty()) {
+			if (filters.stream().noneMatch(NotificationFilter::isApplied)) {
 				paginationData.update(0);
 				notifications = new ArrayList<>();
 			} else {
@@ -61,18 +74,26 @@ public class NotificationBean implements Serializable, Paginable {
 				 * if all filters are applied, it is more performant to just not filter notifications
 				 * which is achieved by passing null for notification type list
 				 */
-				List<NotificationType> filterTypes = notificationTypes.size() == filters.size() 
-						? null 
-						: notificationTypes;
+				List<NotificationType> selectedFilters = filters.stream().allMatch(NotificationFilter::isApplied)
+						? null
+						: filters.stream()
+							.filter(NotificationFilter::isApplied)
+							.map(NotificationFilter::getType)
+							.map(NotificationFilterType::getNotificationType)
+							.collect(Collectors.toList());
+
+				NotificationSection section = notificationSectionDataFactory.getSection(PageUtil.getSectionForView());
 				
 				paginationData.update(notificationManager.getNumberOfNotificationsForUser(
-						loggedUser.getUserId(), filterTypes));
+						loggedUser.getUserId(), selectedFilters, section));
 				
 				if (paginationData.getNumberOfResults() > 0) {
 					notifications = notificationManager.getNotificationsForUser(
 							loggedUser.getUserId(),
-							paginationData.getPage() - 1, paginationData.getLimit(), filterTypes, 
-							loggedUser.getLocale());
+							paginationData.getPage() - 1,
+							paginationData.getLimit(),
+							selectedFilters,
+							loggedUser.getLocale(), section);
 				} else {
 					notifications = new ArrayList<>();
 				}
@@ -82,38 +103,23 @@ public class NotificationBean implements Serializable, Paginable {
 		}
 	}
 	
-	public void filterChanged(FilterNotificationType filter) {
-		if(filter.isApplied()) {
-			notificationTypes.add(filter.getFilter().getType());
-		} else {
-			notificationTypes.remove(filter.getFilter().getType());
-		}
+	public void filterChanged(NotificationFilter filter) {
+		filters.stream().filter(f -> f.getType().equals(filter.getType())).forEach(f -> f.setApplied(filter.isApplied()));
+
 		paginationData.setPage(1);
 		loadNotifications(true);
 	}
 	
 	public void checkAllFilters() {
-		if(notificationTypes.size() != filters.size()) {
-			for(FilterNotificationType filter : filters) {
-				if(!filter.isApplied()) {
-					filter.setApplied(true);
-					notificationTypes.add(filter.getFilter().getType());
-				}
-			}
-			paginationData.setPage(1);
-			loadNotifications(true);
-		}
+		filters.stream().forEach(f -> f.setApplied(true));
+		paginationData.setPage(1);
+		loadNotifications(true);
 	}
 	
 	public void uncheckAllFilters() {
-		if(!notificationTypes.isEmpty()) {
-			notificationTypes.clear();
-			for(FilterNotificationType filter : filters) {
-				filter.setApplied(false);
-			}
-			paginationData.setPage(1);
-			loadNotifications(true);
-		}
+		filters.stream().forEach(f -> f.setApplied(false));
+		paginationData.setPage(1);
+		loadNotifications(true);
 	}
 	
 	//pagination helper methods
@@ -140,12 +146,7 @@ public class NotificationBean implements Serializable, Paginable {
 		return paginationData;
 	}
 
-	public List<FilterNotificationType> getFilters() {
+	public List<NotificationFilter> getFilters() {
 		return filters;
 	}
-
-	public void setFilters(List<FilterNotificationType> filters) {
-		this.filters = filters;
-	}
-	
 }

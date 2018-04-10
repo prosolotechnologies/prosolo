@@ -1,33 +1,28 @@
 package org.prosolo.web.notification;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
+import java.util.*;
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "topNotificationsBean1")
-@Component("topNotificationsBean1")
-@Scope("session")
-public class TopNotificationsBean1 {
+public abstract class TopNotificationsBean1 {
 
 	private static Logger logger = Logger.getLogger(TopNotificationsBean1.class);
 
-	@Autowired
+	public abstract NotificationSection getSection();
+
+	@Inject
 	private LoggedUserBean loggedUser;
-	@Autowired
+	@Inject
 	private NotificationManager notificationsManager;
 
 	private LinkedList<NotificationData> notificationDatas;
@@ -38,24 +33,24 @@ public class TopNotificationsBean1 {
 	private String domainPrefix = CommonSettings.getInstance().config.appConfig.domain.substring(0, CommonSettings.getInstance().config.appConfig.domain.length()-1);
 
 	@PostConstruct
-	public void init() {
+	public void init(){
 		initNotificationsNo();
 		fetchNotifications();
 	}
 
-	private void initNotificationsNo() {
+	public void initNotificationsNo() {
 		logger.debug("Initializing unread notifications number.");
 
 		if (loggedUser.isLoggedIn())
-			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId());
+			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId(), getSection());
 	}
-	
+
 	public void fetchNotifications() {
 		logger.debug("Initializing notifications.");
 
 		try {
 			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
-					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale());
+					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale(), getSection());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 		}
@@ -88,7 +83,7 @@ public class TopNotificationsBean1 {
 	public void markNotificationsAsRead() {
 		unreadNotificationsNo = 0;
 	}
-	
+
 	public LinkedList<NotificationData> getNotificationDatas() {
 		return notificationDatas;
 	}
@@ -112,9 +107,8 @@ public class TopNotificationsBean1 {
 	public void setRefreshRate(int refreshRate) {
 		this.refreshRate = refreshRate;
 	}
-	
+
 	public String getDomainPrefix() {
 		return domainPrefix;
 	}
-	
 }

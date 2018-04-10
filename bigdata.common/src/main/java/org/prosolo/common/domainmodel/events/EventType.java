@@ -21,7 +21,6 @@ public enum EventType {
 	Edit, 
 	Edit_Profile, 
 	Edit_Draft,
-	View_Profile, 
 	Create,
 	Create_Manager,
 	Create_Draft,
@@ -157,7 +156,8 @@ public enum EventType {
 	REMOVE_COMPETENCE_FROM_UNIT,
 	ADD_RUBRIC_TO_UNIT,
 	REMOVE_RUBRIC_FROM_UNIT,
-	UPDATE_DELIVERY_TIMES;
+	UPDATE_DELIVERY_TIMES,
+	LEARNING_STAGE_UPDATE;
 	
 	private String customText;
 	

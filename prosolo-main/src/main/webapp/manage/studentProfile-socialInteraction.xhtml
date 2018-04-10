@@ -5,49 +5,66 @@
 	xmlns:p="http://primefaces.org/ui">
 
 	<div role="tabpanel" class="tab-pane fade" id="social">
-		<div class="whiteBox">
-			<h2>Social interaction graph</h2>
-		
-			<div class="socialGraph">
-				<div class="socialLeft">
-					<p id="social-interactions-nonodeselected">Select one of the nodes to display more information</p>
-					
-					<div id="social-interactions-selectedstudent" style="display: none">
-						<h2>Selected student</h2>
-							<div id="social-interactions-selected" class="user32">
-							<a href="#"><img id="social-interactions-selected-avatar" style="display: none" class="img-circle" alt="Walter White" height="32" width="32" /></a>
-							<h3><a href="#" id="social-interactions-selected-name"></a></h3>
-						</div>
-					</div>
-					
-					<div id="social-interactions-by-type-panel" style="display: none">
-						<div id="social-interactions-bytype">
-							<h2>Social interactions by type</h2>
-						</div>
-					</div>
-					
-					<div id="social-interactions-by-peer-panel" style="display: none">
-						<div id="social-interactions-bypeers">
-							<h2>Social interactions by peers</h2>
-						</div>
-					</div>
-				</div>
+		<div class="whiteBox socialTab">
+			<h3>Social interaction graph</h3>
 
+			<div id="noDataMessage"></div>
 
+			<div id="interactionGraph">
 				<h:form id="socialInteractionDataForm">
-					<p:remoteCommand name="updateSocialInteractionDataRegion" update="socialInteractionData" oncomplete="loadSocialInteractionGraph()" />
-					<h:panelGroup layout="block" id="socialInteractionData" class="socialRight">
-						<div id="social-interaction"
-							 data-api="#{socialInteractionBean.servicesDomain}"
-							 data-student-id="#{studentProfileBean.decodedId}"
-							 data-course-id="#{studentProfileBean.getSelectedCredentialId()}"
-							 class="container manage">
-							<div id="graph"></div>
-						</div>
-					</h:panelGroup>
+					<p:remoteCommand name="loadSocialInteractionGraphRemote" update="@form" oncomplete="loadSocialInteractionGraph()" />
+					<span id="socialInteractionData"
+								  data-api="#{socialInteractionBean.servicesDomain}"
+								  data-student-id="#{studentProfileBean.student.id}"
+								  data-student-name="#{studentProfileBean.student.name}"
+								  data-student-avatar="#{studentProfileBean.student.avatar}"
+								  data-course-id="#{studentProfileBean.getSelectedCredentialId()}"></span>
+					<div id="graph" class="graphWrapper"></div>
 				</h:form>
 
-				<div class="clear"></div>
+				<h3>Selected student:</h3>
+				<div class="user32">
+					<a href="#"><img src="" class="img-circle selectedStudentAvatar" width="32" height="32" alt="" /></a>
+					<h3><span class="selectedStudentName"></span></h3>
+				</div>
+				<div class="tablesWrapper">
+					<h3>Social interactions by type</h3>
+					<table class="interactionsByType">
+						<tr>
+							<th>Type</th>
+							<th>OUT</th>
+							<th>IN</th>
+						</tr>
+						<tr>
+							<td>COMMENT</td>
+							<td>2 (11%)</td>
+							<td>4 (21%)</td>
+						</tr>
+						<tr>
+							<td>LIKE</td>
+							<td>1 (5%)</td>
+							<td>12 (63%)</td>
+						</tr>
+					</table>
+					<h3>Social interactions by peers</h3>
+					<table class="interactionsByPeers">
+						<tr>
+							<th>Student</th>
+							<th>OUT</th>
+							<th>IN</th>
+						</tr>
+						<tr>
+							<td>Walter White</td>
+							<td>2 (11%)</td>
+							<td>4 (21%)</td>
+						</tr>
+						<tr>
+							<td>Jesse Pinkman</td>
+							<td>1 (5%)</td>
+							<td>12 (63%)</td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

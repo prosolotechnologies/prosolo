@@ -103,7 +103,7 @@
 									<label>Role</label>
 									<div class="formLineRight">
 
-										<ui:repeat value="#{userEditBean.allRoles}" var="role">
+										<ui:repeat value="#{userEditBean.allRolesCheckBoxData}" var="role">
 											<div class="checkbox checkLine">
 												<h:selectBooleanCheckbox id="selectRoles" label="#{role.label}"
 																		 value="#{role.selected}" />
@@ -119,7 +119,7 @@
 									<div class="formLine">
 										<label>&#160;</label>
 										<div class="formLineRight">
-											<p>Email with password setup instructions will be sent to user.</p>
+											<p>Email with password setup instructions will be sent to the user.</p>
 										</div>
 									</div>
 								</ui:fragment>

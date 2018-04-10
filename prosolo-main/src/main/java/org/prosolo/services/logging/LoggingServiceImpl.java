@@ -221,7 +221,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
  	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId=extractCourseIdFromContext(learningContext.getContext());
+		Long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
 		/*if(learningContext != null && learningContext.getContext() != null) {
 			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
 					courseId=learningContext.getContext().getContext().getId();
@@ -231,14 +231,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		System.out.println("EXTRACTED COURSE ID:"+courseId);
 		return courseId;
 	}
-	private Long extractCourseIdFromContext(Context context){
-		if(context==null){
-			return 0l;
-		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
-			return context.getId();
-		}else return extractCourseIdFromContext(context.getContext());
-	}
-
 
 	@Override
 	public void recordUserActivity(long userid, long time) throws LoggingException {
@@ -521,10 +513,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if(Arrays.asList(interactions).contains(eventType)){
 				System.out.println("TARGET USER SHOULD BE EXTRACTED FOR THIS EVENT:"+logObject.toString());
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
-
-			}else{
-				System.out.println("We are not interested in this interaction for target user id:"+eventType.name());
 			}
+
 			logObject.put("targetUserId", targetUserId);
 
 			Object timestamp = logObject.get("timestamp");

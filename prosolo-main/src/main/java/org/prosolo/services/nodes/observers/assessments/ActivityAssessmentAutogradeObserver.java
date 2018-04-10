@@ -14,7 +14,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventObserver;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.springframework.stereotype.Service;
@@ -62,9 +62,8 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 			if (ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde) {
 				PageContextData lcd = new PageContextData();
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
-				result = assessmentManager.updateActivityGradeInAllAssessmentsAndGetEvents(
-						userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-						ta.getTargetCompetence().getId(), ta.getId(), ta.getActivity().getMaxPoints(), session,
+				result = assessmentManager.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
+						userId, ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
 						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
 			}
 			transaction.commit();

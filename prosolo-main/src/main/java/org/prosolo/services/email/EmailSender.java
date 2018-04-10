@@ -87,7 +87,7 @@ public class EmailSender {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		try {
 			EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Nik", "http://example.com");
-			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com");
+			new EmailSender().sendEmail(contentGenerator,  "test@prosolo.ca");
 		} catch (AddressException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {

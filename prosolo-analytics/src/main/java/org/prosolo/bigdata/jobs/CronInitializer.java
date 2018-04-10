@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.JobsMap;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.Settings;
-import org.prosolo.bigdata.scala.spark.SparkContextLoader;
+
 import org.quartz.SchedulerException;
 
 /**
@@ -32,17 +32,20 @@ public class CronInitializer extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		// @SuppressWarnings("unused")
-		System.out.println("CRON INITIALIZER INIT");
+		logger.info("CRON INITIALIZER INIT");
 		CronScheduler cronScheduler = CronSchedulerImpl.getInstance();
 	 	Map<String, QuartzJobConfig> jobs=Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
 		//Map<String, QuartzJobConfig> jobs=null;
 		//List<QuartzJobConfig> jobsConfigs = Settings.getInstance().config.schedulerConfig.jobs.jobsConfig;
 		// Set<String> jobsKeys=jobsMap.keySet();
-		System.out.println("JOBS NUMBER:"+jobs.size());
+		logger.info("JOBS NUMBER:"+jobs.size());
 
 		for(Map.Entry<String, QuartzJobConfig> entry: jobs.entrySet()){
 			try {
-				cronScheduler.checkAndActivateJob(entry.getKey(), entry.getValue());
+				if (cronScheduler.isSchedulerActivated()){
+					cronScheduler.checkAndActivateJob(entry.getKey(), entry.getValue());
+				}
+
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -51,6 +54,7 @@ public class CronInitializer extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		logger.info("CRON INITIALIZER FINISHED");
 		/*for (QuartzJobConfig jobConfig : jobsConfigs) {
 			// QuartzJobConfig jobConfig= jobsMap.get(jobKey);
 			try {

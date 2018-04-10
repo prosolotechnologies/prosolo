@@ -9,7 +9,7 @@
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
     <ui:define name="windowTitle">
-        #{announcementBeanStudent.credentialData.title} - Announcements
+        Announcements - #{announcementBeanStudent.credentialData.title} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -61,7 +61,7 @@
                                 <div class="tagCompleted item">Completed</div>
                             </ui:fragment>
 
-                            <ui:fragment>
+                            <ui:remove>
                                 <h:link outcome="/assessments"
                                         class="btn btn-green-stroke btn-sm item">
                                     View Assessments
@@ -80,7 +80,7 @@
                                                                credentialTitle="#{announcementBeanStudent.credentialData.title}"
                                                                role="#{cc.attrs.role}"
                                                                toUpdate=":formMain:growlMain"/>
-                            </ui:fragment>
+                            </ui:remove>
                         </div>
                         <div class="whiteBarRight">
                             <h:panelGroup

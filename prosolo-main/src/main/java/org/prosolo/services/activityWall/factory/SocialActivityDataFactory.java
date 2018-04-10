@@ -111,6 +111,7 @@ public class SocialActivityDataFactory {
 			String compObjectActorName,
 			String compObjectActorLastname,
 			String compObjectDescription,
+			String unitWelcomeMessage,
 			boolean liked,
 			BigInteger commentsNumber,
 			Locale locale) {
@@ -119,7 +120,7 @@ public class SocialActivityDataFactory {
 		sad.setDateCreated(dateCreated);
 		sad.setLastAction(lastAction);
 		sad.setCommentsDisabled(commentsDisabled.charValue() == 'T');
-		if(!dType.equals(TwitterPostSocialActivity1.class.getSimpleName())) {
+		if(!dType.equals(TwitterPostSocialActivity1.class.getSimpleName()) && !dType.equals(UnitWelcomePostSocialActivity.class.getSimpleName())) {
 			sad.setText(text);
 		}
 		sad.setLikeCount(likeCount);
@@ -232,6 +233,10 @@ public class SocialActivityDataFactory {
 					compObjectDuration.longValue(), compObjectTitle, compObjectDescription, 
 					LearningResourceType.valueOf(compObjectType), compObjectActorName, 
 					compObjectActorLastname, 0);
+		} else if (dType.equals(UnitWelcomePostSocialActivity.class.getSimpleName())) {
+			sad.setType(SocialActivityType.Unit_Welcome_Post);
+			//set welcome message as social activity text
+			sad.setText(unitWelcomeMessage);
 		}
 		//these social activity types are not used currently
 //		else if(dType.equals(CompetenceCommentSocialActivity.class.getSimpleName())) {

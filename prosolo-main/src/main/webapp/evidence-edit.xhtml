@@ -1,0 +1,69 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+>
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        Edit - #{learningEvidenceEditBean.evidence.title} - Evidence - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{learningEvidenceEditBean.evidenceId}" default="null"/>
+            <f:viewAction action="#{learningEvidenceEditBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{learningEvidenceEditBean.createUseCase ? 'Add Evidence' : learningEvidenceEditBean.evidence.title}</h1>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <ui:param name="learningContext" value="#{learningEvidenceEditBean.createUseCase ? 'name:new_evidence' : 'name:evidence|id:'.concat(learningEvidenceEditBean.evidence.id)}"></ui:param>
+
+        <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
+
+        <div class="whiteBar">
+
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link outcome="/evidences">
+                        Evidence
+                    </h:link>
+                </li>
+                <li class="active">#{learningEvidenceEditBean.createUseCase ? 'New Evidence' : learningEvidenceEditBean.evidence.title}</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-md-12 addEvidencePage">
+                    <evidence:submitEvidence
+                            id="submitEvidence"
+                            bean="#{learningEvidenceEditBean}"
+                            addEvidenceToCompetence="false"
+                            update=":growlMain"
+                            learningContext="#{learningContext}"
+                            submitButtonText="#{learningEvidenceEditBean.createUseCase ? 'Add' : 'Save Changes'}"
+                            displayCancelButton="true"
+                            allowEvidenceTypeChangeForExistingEvidence="false"
+                    />
+                </div>
+
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

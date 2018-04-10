@@ -1,7 +1,7 @@
 package org.prosolo.services.lti.util;
 
 public enum ToolSearchFilterEnum {
-	general(""), learningGoalId("Credential"), competenceId("Competence"), activityId("Activity");
+	general(""), credentialId("Credential"), competenceId("Competence"), activityId("Activity");
 		
 		private final String val;
 		

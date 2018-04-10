@@ -11,8 +11,7 @@
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
     <ui:define name="windowTitle" >
-        <ui:fragment rendered="#{organizationEditBean.decodedId == 0}">New Organization</ui:fragment>
-        <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">Edit Organization</ui:fragment>
+        #{organizationEditBean.decodedId gt 0 ? 'Settings - '.concat(organizationEditBean.organization.title) : 'New Organization'} - ProSolo
     </ui:define>
 
     <ui:define name="navLinks">
@@ -295,7 +294,7 @@
                                            action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
                             <p:commandLink value="Content"
                                            styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexNodes(organizationEditBean.decodedId)}"	/>
+                                           action="#{bulkDataAdministration.deleteAndReindexLearningContent(organizationEditBean.decodedId)}"	/>
                             <p:commandLink value="#{msg['label.rubric.plural']}"
                                            styleClass="btn btn-green"
                                            action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
@@ -316,10 +315,12 @@
                                 <h2 class="modal-title">#{organizationEditBean.createLearningStageUseCase ? 'Add' : 'Rename'} Learning Stage</h2>
                             </div>
                             <div class="modal-body alignLeft">
-                                <h:inputText id="inputLearningStage" value="#{organizationEditBean.selectedLearningStage.title}"
-                                    placeholder="Learning stage name"
-                                    required="true" requiredMessage="Learning stage name is required"
-                                    validator="#{organizationEditBean.validateLearningStage}"></h:inputText>
+                                <h:inputText id="inputLearningStage"
+                                             value="#{organizationEditBean.selectedLearningStage.title}"
+                                             placeholder="Learning stage name"
+                                             required="true" requiredMessage="Learning stage name is required"
+                                             validator="#{organizationEditBean.validateLearningStage}"
+                                             autocomplete="off" />
                                 <small class="redText bottom5 topMinus20 displayBlock"><h:message id="inputLearninStageMsg" for="inputLearningStage"></h:message></small>
                             </div>
                             <div class="modal-footer alignLeft">

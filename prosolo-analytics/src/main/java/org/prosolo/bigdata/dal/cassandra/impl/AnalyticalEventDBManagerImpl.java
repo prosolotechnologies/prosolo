@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 /**
  * @author Zoran Jeremic Apr 14, 2015
@@ -51,7 +52,9 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE "+TablesNames.DASH_USER_EVENT_DAILY_COUNT+"  SET count=count+1 WHERE user=? AND event=? AND date=?;");
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE "+TablesNames.FAILED_FEEDS+"   SET count=count+1 WHERE url=? AND date=?;");
 		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
-
+		statements.put(Statements.INSERT_STORENOTIFICATIONDATA,"INSERT INTO "+TablesNames.NOTIFICATION_DATA+
+				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?);");
 
 
 
@@ -147,8 +150,10 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	
 	@Override
 	public void insertAnalyticsEventRecord(AnalyticsEvent event) {
+		try {
 		String statementName = "INSERT_"
 				+ event.getDataName().name().toUpperCase();
+
 		Statements statement=Statements.valueOf(statementName);
 		PreparedStatement preparedStatement=getStatement(getSession(),statement);
 		BoundStatement boundStatement=new BoundStatement(preparedStatement);
@@ -158,11 +163,12 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		String paramsStr = str
 				.substring(str.indexOf("(") + 1, str.indexOf(")"));
 		String[] words = paramsStr.split("\\s*,\\s*");
+
 		for (int i = 0; i < words.length; i++) {
 			String param = words[i];
 			// JsonPrimitive element=(JsonPrimitive) data.get(param);
 			JsonElement element = (JsonElement) data.get(param);
-			if (element.isJsonPrimitive()) {
+				if (element.isJsonPrimitive()) {
 				JsonPrimitive prElement = (JsonPrimitive) element;
 				if (prElement.isString()) {
 					boundStatement.setString(i, prElement.getAsString());
@@ -185,11 +191,59 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
-
 			}
 		}
-		try {
+
 			ResultSet rs = this.getSession().execute(boundStatement);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	@Override
+	public void insertNotificationDataRecord(AnalyticsEvent event) {
+		try {
+		//String statementName = "INSERT_"
+			//	+ event.getDataName().name().toUpperCase();
+		System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:");
+		//Statements statement=Statements.valueOf(statementName);
+		 PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
+			BoundStatement boundStatement=new BoundStatement(preparedStatement);
+			//PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
+		//BoundStatement boundStatement=new BoundStatement(preparedStatement);
+
+		JsonObject data = event.getData();
+		//System.out.println("DATA:"+data.getAsString());
+		String dateString=data.get("date").getAsString();
+		Long date= DateEpochUtil.getDaysSinceEpoch();
+		Long id=data.get("id").getAsLong();
+		String notificationType=data.get("notificationType").getAsString();
+			Long receiverid=data.get("receiver").getAsJsonObject().get("id").getAsLong();
+			String receiverfullname=data.get("receiver").getAsJsonObject().get("fullName").getAsString();
+			String email=data.get("email").getAsString();
+			Long 	actorid=data.get("actor").getAsJsonObject().get("id").getAsLong();
+			String actorfullname=data.get("actor").getAsJsonObject().get("fullName").getAsString();
+			String objecttype="";
+			String objecttitle="";
+			if(data.has("objectType")){
+				objecttype=data.get("objectType").getAsString();
+				objecttitle=data.get("objectTitle").getAsString();
+			}
+
+
+			String link=data.get("link").getAsString();
+			boundStatement.setLong(0,date);
+			boundStatement.setString(1,notificationType);
+			boundStatement.setLong(2,id);
+			boundStatement.setLong(3,receiverid);
+			boundStatement.setString(4,receiverfullname);
+			boundStatement.setString(5,email);
+			boundStatement.setLong(6,actorid);
+			boundStatement.setString(7,actorfullname);
+			boundStatement.setString(8,objecttype);
+			boundStatement.setString(9,objecttitle);
+			boundStatement.setString(10,link);
+			ResultSet rs = this.getSession().execute(boundStatement);
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -333,6 +387,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 
 		FIND_ALLCOMPETENCES,
 		 UPDATE_USERACTIVITY,
+		INSERT_STORENOTIFICATIONDATA,
 		UPDATE_SOCIALINTERACTIONCOUNT
 	}
 

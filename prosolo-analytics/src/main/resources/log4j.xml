@@ -41,6 +41,10 @@
 		<level value="DEBUG" />
 		<appender-ref ref="console" />
 	</logger>
+	<logger name="org.prosolo.bigdata">
+		<level value="INFO" />
+		<appender-ref ref="console" />
+	</logger>
 
 
 
@@ -86,7 +90,7 @@
 
 
 
-	<logger name="org.au.morph" additivity="false">
+	<logger name="org.prosolo" additivity="false">
 		<level value="INFO" />
 		<appender-ref ref="console" />
 		<appender-ref ref="default.file" />

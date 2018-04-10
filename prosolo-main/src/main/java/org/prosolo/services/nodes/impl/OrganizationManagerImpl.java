@@ -17,6 +17,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
@@ -84,7 +85,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             res.appendEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
 
-            updateOrganizationLearningStages(organization.getId(), org);
+            res.appendEvents(updateOrganizationLearningStages(organization.getId(), org, context));
 
             res.setResult(organization);
             return res;
@@ -107,8 +108,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    private void updateOrganizationLearningStages(long orgId, OrganizationData organization) {
+    private EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context) {
         //if learning stages are not enabled, we don't update learning stages for organization
+        EventQueue queue = EventQueue.newEventQueue();
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
             try {
                 Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
@@ -117,8 +119,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 from all credentials and competences in this organization
                  */
                 if (org.isLearningInStagesEnabled() && !organization.isLearningInStagesEnabled()) {
-                    credManager.disableLearningStagesForOrganizationCredentials(orgId);
-                    compManager.disableLearningStagesForOrganizationCompetences(orgId);
+                    queue.appendEvents(credManager.disableLearningStagesForOrganizationCredentials(orgId, context));
+                    queue.appendEvents(compManager.disableLearningStagesForOrganizationCompetences(orgId, context));
                 }
                 org.setLearningInStagesEnabled(organization.isLearningInStagesEnabled());
                 for (LearningStageData ls : organization.getLearningStagesForDeletion()) {
@@ -157,12 +159,12 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 throw new DbConnectionException("Error updating the learning stages");
             }
         }
+        return queue;
     }
 
     @Override
     @Transactional (readOnly = true)
     public OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException {
-
         try{
             String query = "SELECT organization " +
                 "FROM Organization organization " +
@@ -304,7 +306,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             saveEntity(organization);
 
-            updateOrganizationLearningStages(org.getId(), org);
+            res.appendEvents(updateOrganizationLearningStages(org.getId(), org, context));
 
             return res;
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
@@ -455,6 +457,18 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving organization title");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LearningStageData getLearningStageData(long learningStageId) throws DbConnectionException {
+        try {
+            LearningStage ls = (LearningStage) persistence.currentManager().load(LearningStage.class, learningStageId);
+            return new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the learning stage");
         }
     }
 

@@ -14,7 +14,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -151,15 +151,15 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	private Result<Void> setInstructorForStudent(TargetCredential1 targetCred, CredentialInstructor instructor,
 			long formerInstructorUserId, boolean updateAssessor, UserContextData context) {
 		Result<Void> result = new Result<>();
-		if(targetCred != null) {
+		if (targetCred != null) {
 			boolean assigned = instructor != null;
 			targetCred.setAssignedToInstructor(assigned);
 			targetCred.setInstructor(instructor);
 			
-			if(updateAssessor) {
+			if (updateAssessor) {
 				//update assessor for default assessment if exists
 				long instructorUserId = instructor != null ? instructor.getUser().getId() : 0;
-				assessmentManager.updateDefaultAssessmentAssessor(targetCred.getId(), 
+				assessmentManager.updateInstructorAssessmentAssessor(targetCred.getId(),
 						instructorUserId);
 			}
 			
@@ -516,7 +516,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToAssign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToAssign, 
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToAssign,
 						instructor.getUser().getId());
 			}
 			if (targetCredsToUnassign != null && !targetCredsToUnassign.isEmpty()) {	
@@ -539,7 +539,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToUnassign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToUnassign, 0);
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToUnassign, 0);
 			}
 			return result;	
 		} catch(Exception e) {

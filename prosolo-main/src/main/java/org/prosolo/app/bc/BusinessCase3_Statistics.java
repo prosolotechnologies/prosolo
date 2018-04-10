@@ -24,7 +24,6 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -807,24 +806,19 @@ public class BusinessCase3_Statistics extends BusinessCase {
 	}
 
 	private User createUser(long organizationId, String name, String lastname, String emailAddress, String password, String fictitiousUser,
-			String avatar, Role roleUser) {
-		try {
-			User newUser = ServiceLocator
-					.getInstance()
-					.getService(UserManager.class)
-					.createNewUser(organizationId, name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
-			
-			newUser = ServiceLocator
-					.getInstance()
-					.getService(RoleManager.class)
-					.assignRoleToUser(roleUser, newUser.getId());
-			
-			return newUser;
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e.getLocalizedMessage());
-		}
-		return null;
+		String avatar, Role roleUser) {
+		User newUser = ServiceLocator
+				.getInstance()
+				.getService(UserManager.class)
+				.createNewUser(organizationId, name, lastname, emailAddress,
+						true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
+
+		newUser = ServiceLocator
+				.getInstance()
+				.getService(RoleManager.class)
+				.assignRoleToUser(roleUser, newUser.getId());
+
+		return newUser;
 	}
 
 	private Activity1 createActivity(long orgId, User userNickPowell, String title, long compId, String... links)

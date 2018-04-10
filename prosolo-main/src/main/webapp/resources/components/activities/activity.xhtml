@@ -19,10 +19,10 @@
 	<utilcomp:messagesBundle var="msg" />
 	
 	<composite:implementation>
-	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-fix.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-and-player.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/videojs.js"></script>
 		<link rel="stylesheet" type="text/css" media="all"
-			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
+			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.css" />
 			
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
      		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
@@ -67,9 +67,14 @@
 		    <div class="container">
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
 		    		<ol class="breadcrumb">
-			            <li>
-			            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-			            </li>
+						<li>
+							<ui:fragment rendered="#{cc.attrs.role == 'USER' or loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+								<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+							</ui:fragment>
+							<ui:fragment rendered="#{cc.attrs.role != 'USER' and not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+								<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+							</ui:fragment>
+						</li>
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"

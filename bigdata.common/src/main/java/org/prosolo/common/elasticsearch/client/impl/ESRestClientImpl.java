@@ -192,6 +192,9 @@ public class ESRestClientImpl implements ESRestClient {
         } else if (indexName.startsWith(ESIndexNames.INDEX_RUBRIC_NAME)) {
             type = ESIndexTypes.RUBRIC;
             content = getMappingStringForType(type);
+        } else if (indexName.startsWith(ESIndexNames.INDEX_EVIDENCE)) {
+            type = ESIndexTypes.EVIDENCE;
+            content = getMappingStringForType(type);
         } else if (indexName.equals(ESIndexNames.INDEX_ASSOCRULES)) {
             type = ESIndexTypes.COMPETENCE_ACTIVITIES;
             content = getMappingStringForType(type);

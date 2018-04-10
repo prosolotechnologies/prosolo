@@ -2,15 +2,11 @@ package org.prosolo.web.courses.credential.announcements;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.credential.Announcement;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -31,7 +27,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +49,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     private CredentialManager credManager;
     @Inject
     private ThreadPoolTaskExecutor taskExecutor;
-    @Inject
-    private EventFactory eventFactory;
     @Inject
     private AssessmentManager assessmentManager;
 
@@ -112,18 +105,18 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     }
 
     public void publishAnnouncement() {
-        AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
-                newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
+        try {
+            UserContextData context = loggedUser.getUserContext();
+            announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+                    newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, context);
 
-        created.setCreatorAvatarUrl(loggedUser.getAvatar());
-        created.setCreatorFullName(loggedUser.getFullName());
-
-        notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()),
-                idEncoder.decodeId(credentialId));
-
-        PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
-        resetNewAnnouncementValues();
-        init();
+            PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
+            resetNewAnnouncementValues();
+            init();
+        } catch (Exception e) {
+            logger.error(e);
+            PageUtil.fireErrorMessage("Error while publishing announcement");
+        }
     }
 
     public void setPublishMode() {
@@ -135,31 +128,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
             newAnouncementPublishMode = AnnouncementPublishMode.fromString(publishModeValue);
         }
     }
-
-    private void notifyForAnnouncementAsync(long announcementId, long credentialId) {
-        UserContextData context = loggedUser.getUserContext();
-        taskExecutor.execute(() -> {
-            Announcement announcement = new Announcement();
-            announcement.setId(announcementId);
-
-            try {
-                Credential1 cred = credManager.loadResource(Credential1.class, credentialId, true);
-                Map<String, String> parameters = new HashMap<>();
-                parameters.put("credentialId", credentialId + "");
-                parameters.put("publishMode", newAnouncementPublishMode.getText());
-                try {
-                    eventFactory.generateEvent(EventType.AnnouncementPublished, context,
-                            announcement, cred, null, parameters);
-                } catch (Exception e) {
-                    logger.error("Eror sending notification for announcement", e);
-                }
-            } catch (Exception e1) {
-                logger.error(e1);
-            }
-
-        });
-    }
-
 
     public String getAssessmentIdForUser() {
         return idEncoder.encodeId(

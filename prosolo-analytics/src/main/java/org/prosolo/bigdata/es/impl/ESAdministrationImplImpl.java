@@ -82,22 +82,12 @@ public class ESAdministrationImplImpl extends AbstractESIndexerImpl implements
 	@Override
 	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
 		List<String> indexes = ESIndexNames.getAllIndexes();
-
-		for (String index : indexes) {
-			deleteIndex(index);
+		try {
+			ElasticSearchConnector.getClient().deleteIndex(indexes.toArray(new String[indexes.size()]));
+		} catch(Exception e) {
+			logger.error("Error", e);
 		}
 		return true;
-	}
-
-	@Override
-	public void deleteIndex(String indexName) throws IndexingServiceNotAvailable {
-		logger.debug("deleting index [" + indexName + "]");
-		try {
-			ElasticSearchConnector.getClient().deleteIndex(indexName);
-		} catch(Exception ex){
-			ex.printStackTrace();
-		}
-		// client.close();
 	}
 
 }

@@ -239,7 +239,7 @@ public class OAuthValidatorImpl implements OAuthValidator  {
 
     /**
      * Selected parameters from an OAuth request, in a form suitable for
-     * detecting duplicate requests. The implementation is optimized for the
+     * detecting bcc requests. The implementation is optimized for the
      * comparison operations (compareTo, equals and hashCode).
      * 
      * @author John Kristian

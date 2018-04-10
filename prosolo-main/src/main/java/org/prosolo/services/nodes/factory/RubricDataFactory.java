@@ -1,16 +1,18 @@
 package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.rubric.*;
+import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
+import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricCriterionData;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricItemData;
-import org.prosolo.services.nodes.data.rubrics.ActivityRubricLevelData;
+import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
-import org.prosolo.services.nodes.data.rubrics.RubricItemData;
+import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,6 +25,7 @@ public class RubricDataFactory {
 		}
 		RubricData rd = new RubricData();
 		rd.setId(rubric.getId());
+		rd.setRubricType(rubric.getRubricType());
 		rd.setName(rubric.getTitle());
 		rd.setOrganizationId(rubric.getOrganization().getId());
 		rd.setReadyToUse(rubric.isReadyToUse());
@@ -35,7 +38,7 @@ public class RubricDataFactory {
 
 		if (levels != null) {
 			for (Level lvl : levels) {
-				RubricItemData level = new RubricItemData(lvl.getId(), lvl.getTitle(), lvl.getPoints(), lvl.getOrder());
+				RubricLevelData level = getRubricLevelData(lvl);
 				if (trackChanges) {
 					level.startObservingChanges();
 				}
@@ -46,7 +49,7 @@ public class RubricDataFactory {
 
 		if (criteria != null) {
 			for (Criterion cat : criteria) {
-				RubricCriterionData c = new RubricCriterionData(cat.getId(), cat.getTitle(), cat.getPoints(), cat.getOrder());
+				RubricCriterionData c = getRubricCriterionData(cat);
 				if (trackChanges) {
 					c.startObservingChanges();
 				}
@@ -62,8 +65,50 @@ public class RubricDataFactory {
 		return rd;
 	}
 
+	private RubricCriterionData getRubricCriterionData(Criterion criterion) {
+		return criterion.accept(
+				/**
+				 * Visitor that sets rubric criterion data according to a criterion type
+				 */
+				new CriterionVisitor<RubricCriterionData>() {
+					@Override
+					public RubricCriterionData visit(Criterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder());
+					}
+
+					@Override
+					public RubricCriterionData visit(PointCriterion criterion) {
+						return new RubricCriterionData(criterion.getId(), criterion.getTitle(), criterion.getOrder(), criterion.getPoints());
+					}
+				});
+	}
+
+	private RubricLevelData getRubricLevelData(Level level) {
+		return level.accept(
+				/**
+				 * Visitor that sets rubric level data according to a level type
+				 */
+				new LevelVisitor<RubricLevelData>() {
+					@Override
+					public RubricLevelData visit(Level level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder());
+					}
+
+					@Override
+					public RubricLevelData visit(PointLevel level) {
+						return new RubricLevelData(level.getId(), level.getTitle(), level.getOrder(), level.getPoints());
+					}
+
+					@Override
+					public RubricLevelData visit(PointRangeLevel level) {
+						//TODO implement when we introduce point range level on user interface
+						return null;
+					}
+				});
+	}
+
 	private void addLevelsWithDescriptionToCriterion(RubricData rubric, RubricCriterionData criterion, Set<CriterionLevel> criterionLevelDescriptions) {
-		Map<RubricItemData, String> descriptions = rubric.getLevels()
+		Map<RubricLevelData, String> descriptions = rubric.getLevels()
 				.stream()
 				.collect(Collectors.toMap(
 						l -> l,
@@ -75,83 +120,87 @@ public class RubricDataFactory {
 		rubric.syncCriterionWithExistingDescriptions(criterion, descriptions);
 	}
 
-	public ActivityRubricCriterionData getActivityRubricCriterionData(Criterion crit, CriterionAssessment assessment, List<CriterionLevel> levels) {
-		ActivityRubricCriterionData criterion = new ActivityRubricCriterionData();
-		setItemData(criterion, crit.getId(), crit.getTitle(), crit.getOrder(), crit.getPoints());
-		if (assessment != null) {
-			criterion.setComment(assessment.getComment());
-			criterion.setLevelId(assessment.getLevel().getId());
+	//get rubric entities based on rubric data
+	public Level getLevel(RubricType rubricType, Rubric rubric, RubricLevelData rubricLevelData) {
+		if (rubricLevelData == null) {
+			return null;
 		}
- 		for (CriterionLevel cl : levels) {
-			ActivityRubricLevelData lvl = new ActivityRubricLevelData();
-			setItemData(lvl, cl.getLevel().getId(), cl.getLevel().getTitle(), cl.getLevel().getOrder(), cl.getLevel().getPoints());
-			lvl.setDescription(cl.getDescription());
-			criterion.addLevel(lvl);
-		}
-
-		return criterion;
+		return createLevelBasedOnType(rubricType, rubric, rubricLevelData);
 	}
 
-	private <T extends ActivityRubricItemData> void setItemData(T item, long id, String title, int order, double weight) {
-		item.setId(id);
-		item.setName(title);
-		item.setOrder(order);
-		item.setWeight(weight);
-	}
-
-	public void calculatePointsForCriteriaAndLevels(List<ActivityRubricCriterionData> criteria, int maxPoints) {
-		calculateCriteriaPointsBasedOnWeights(criteria, maxPoints);
-		for (ActivityRubricCriterionData crit : criteria) {
-			calculateLevelPointsBasedOnWeights(crit);
+	private Level createLevelBasedOnType(RubricType rubricType, Rubric rubric, RubricLevelData rubricLevelData) {
+		switch (rubricType) {
+			case DESCRIPTIVE:
+				Level descLevel = new Level();
+				populateCommonLevelData(descLevel, rubricLevelData, rubric);
+				return descLevel;
+			case POINT:
+				PointLevel pl = new PointLevel();
+				populateCommonLevelData(pl, rubricLevelData, rubric);
+				pl.setPoints(rubricLevelData.getPoints());
+				return pl;
+			default:
+				//TODO implement POINT RANGE case when needed
+				return null;
 		}
 	}
 
-	private void calculateCriteriaPointsBasedOnWeights(List<ActivityRubricCriterionData> criteria, int maxPoints) {
-		// class used for storing and sorting criteria by cut off decimal part of points when rounding
-		class CriterionByPointsRemainder implements Comparable {
-			double remainder;
-			ActivityRubricCriterionData criterion;
-
-			CriterionByPointsRemainder(double remainder, ActivityRubricCriterionData criterion) {
-				this.remainder = remainder;
-				this.criterion = criterion;
-			}
-
-			@Override
-			public int compareTo(Object o) {
-				return Double.compare(((CriterionByPointsRemainder) o).remainder, this.remainder);
-			}
-		}
-
-		List<CriterionByPointsRemainder> criteriaByPointsRemainder = new ArrayList<>();
-		int sumPoints = 0;
-		for (ActivityRubricCriterionData cat : criteria) {
-			double pointsDouble = (maxPoints * cat.getWeight() / 100);
-			int points = (int) pointsDouble;
-			sumPoints += points;
-			cat.setPoints(points);
-			criteriaByPointsRemainder.add(new CriterionByPointsRemainder(pointsDouble - points, cat));
-		}
-		/*
-		cover the case where sum of points for all items is not equal to maxPoints
-
-		in that case additional point is added to first diff items sorted by remainder (decimal
-		part that was cut off when rounding) in descending order.
-		 */
-		int diff = maxPoints - sumPoints;
-		if (diff > 0) {
-			Collections.sort(criteriaByPointsRemainder);
-			for (int i = 0; i < diff; i++) {
-				ActivityRubricCriterionData cat = criteriaByPointsRemainder.get(i).criterion;
-				cat.setPoints(cat.getPoints() + 1);
-			}
-		}
+	private void populateCommonLevelData(Level lvl, RubricLevelData lvlData, Rubric rubric) {
+		lvl.setTitle(lvlData.getName());
+		lvl.setOrder(lvlData.getOrder());
+		lvl.setRubric(rubric);
 	}
 
-	private void calculateLevelPointsBasedOnWeights(ActivityRubricCriterionData criterion) {
-		for (ActivityRubricLevelData lvl : criterion.getLevels()) {
-			lvl.setPoints((int) Math.round(lvl.getWeight() * criterion.getPoints() / 100));
+	public Criterion getCriterion(RubricType rubricType, Rubric rubric, RubricCriterionData rubricCriterionData) {
+		if (rubricCriterionData == null) {
+			return null;
 		}
+		return createCriterionBasedOnType(rubricType, rubric, rubricCriterionData);
+	}
+
+	private Criterion createCriterionBasedOnType(RubricType rubricType, Rubric rubric, RubricCriterionData rubricCriterionData) {
+		switch (rubricType) {
+			case DESCRIPTIVE:
+				Criterion descCriterion = new Criterion();
+				populateCommonCriterionData(descCriterion, rubricCriterionData, rubric);
+				return descCriterion;
+			case POINT:
+			case POINT_RANGE:
+				PointCriterion pc  = new PointCriterion();
+				populateCommonCriterionData(pc, rubricCriterionData, rubric);
+				pc.setPoints(rubricCriterionData.getPoints());
+				return pc;
+		}
+		return null;
+	}
+
+	private void populateCommonCriterionData(Criterion criterion, RubricCriterionData criterionData, Rubric rubric) {
+		criterion.setTitle(criterionData.getName());
+		criterion.setOrder(criterionData.getOrder());
+		criterion.setRubric(rubric);
+	}
+
+	public Class<? extends Criterion> getCriterionClassForRubricType(RubricType type) {
+		switch(type) {
+			case DESCRIPTIVE:
+				return Criterion.class;
+			case POINT:
+			case POINT_RANGE:
+				return PointCriterion.class;
+		}
+		return Criterion.class;
+	}
+
+	public Class<? extends Level> getLevelClassForRubricType(RubricType type) {
+		switch(type) {
+			case DESCRIPTIVE:
+				return Level.class;
+			case POINT:
+				return PointLevel.class;
+			case POINT_RANGE:
+				return PointRangeLevel.class;
+		}
+		return Level.class;
 	}
 
 }

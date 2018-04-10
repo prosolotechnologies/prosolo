@@ -26,6 +26,7 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
@@ -57,6 +58,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Inject private ESIndexer esIndexer;
 	@Inject private Competence1Manager compManager;
 	@Inject private CompetenceDataFactory compFactory;
+	@Inject private OrganizationManager orgManager;
 	
 	@Override
 	@Transactional
@@ -149,7 +151,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						/*
 						 * access rights are already checked when querying ES, so we don't need to do that again
 						 */
-						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false);
+						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false, false);
 						
 						if (res != null) {
 							response.addFoundNode(res);
@@ -336,8 +338,8 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			bQueryBuilder.filter(configureAndGetSearchFilter(
 					CompetenceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
 						userId, null));
-			
-			String[] includes = {"id", "title", "published", "archived", "datePublished"};
+
+			String[] includes = {"id", "title", "published", "archived", "datePublished", "learningStageId"};
 			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 			searchSourceBuilder
 					.query(bQueryBuilder)
@@ -378,8 +380,14 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						comp.setArchived(archived);
 						comp.setDatePublished(datePublished);
 
-						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, false);
+						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, null, false);
 						cd.setNumberOfStudents(compManager.countNumberOfStudentsLearningCompetence(id));
+						long lStageId = Long.parseLong(hit.getSourceAsMap().get("learningStageId").toString());
+						cd.setLearningStageEnabled(lStageId > 0);
+						if (lStageId > 0) {
+							cd.setLearningStage(orgManager.getLearningStageData(lStageId));
+						}
+
 						response.addFoundNode(cd);
 					}
 				}

@@ -72,6 +72,8 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 				builder.field("creatorId", competence.getCreatedBy().getId());
 				builder.field("visibleToAll", competence.isVisibleToAll());
 
+				setLearningStageInfo(builder, competence);
+
 				addBookmarks(builder, competence.getId(), session);
 				addUsersWithPrivileges(builder, competence.getId(), session);
 				addStudents(builder, competence.getId());
@@ -85,6 +87,14 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 		} catch (Exception e) {
 			logger.error("Error", e);
 		}
+	}
+
+	private void setLearningStageInfo(XContentBuilder builder, Competence1 competence) throws IOException {
+		builder.field("learningStageId", competence.getLearningStage() != null ? competence.getLearningStage().getId() : 0);
+		builder.field("firstStageCompetenceId",
+				competence.getFirstLearningStageCompetence() != null
+						? competence.getFirstLearningStageCompetence().getId()
+						: 0);
 	}
 
 	private void addUnits(XContentBuilder builder, long compId, Session session) throws IOException {
@@ -277,6 +287,22 @@ public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements Co
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateLearningStageInfo(Competence1 comp) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			setLearningStageInfo(builder, comp);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, comp.getOrganization().getId()),
+					ESIndexTypes.COMPETENCE, comp.getId() + "", builder);
+		} catch (Exception e) {
 			logger.error("Error", e);
 		}
 	}

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.io.File;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.prosolo.common.config.CommonSettings;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -43,6 +44,7 @@ public class Settings {
 		try {
 			// this.initializeLogger();
 			this.loadConfig(configFileName);
+			this.setSystemProperties();
 
 		} catch (Exception e) {
 			LOGGER.error("Could not load settings: ");
@@ -113,6 +115,7 @@ public class Settings {
 				}
 			}
 		}
+
 		// return is;
 	}
 
@@ -130,6 +133,26 @@ public class Settings {
 			LOGGER.error("Could not save the configuration file: " + fileName+" full path:"+homeConfigFile,
 					e);
 		}
+	}
+	private void setSystemProperties(){
+		System.setProperty("spark.mode",this.config.sparkConfig.mode);
+		System.setProperty("spark.namespace",CommonSettings.getInstance().config.namespace);
+		System.setProperty("spark.maxCores",String.valueOf(this.config.sparkConfig.maxCores));
+		System.setProperty("spark.master",this.config.sparkConfig.master);
+		System.setProperty("spark.executorMemory",this.config.sparkConfig.executorMemory);
+		System.setProperty("spark.applicationName",this.config.sparkConfig.appName);
+		System.setProperty("spark.oneJar",this.config.sparkConfig.oneJar);
+		System.setProperty("cassandra.dbHost",this.config.dbConfig.dbServerConfig.dbHost);
+		System.setProperty("cassandra.dbPort",String.valueOf(this.config.dbConfig.dbServerConfig.dbPort));
+		System.setProperty("elasticsearch.host",CommonSettings.getInstance().config.elasticSearch.esHostsConfig.esHosts.get(0).host);
+		System.setProperty("elasticsearch.port",String.valueOf(this.config.sparkConfig.elasticsearchConnectorPort));
+		System.setProperty("elasticsearch.jobsIndex",String.valueOf(CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex)+CommonSettings.getInstance().config.getNamespaceSufix());
+		System.setProperty("mysql.dbHost",CommonSettings.getInstance().config.mysqlConfig.host);
+		System.setProperty("mysql.dbName",CommonSettings.getInstance().config.mysqlConfig.database);
+		System.setProperty("mysql.dbPort",String.valueOf(CommonSettings.getInstance().config.mysqlConfig.port));
+		System.setProperty("mysql.dbUser",CommonSettings.getInstance().config.mysqlConfig.user);
+		System.setProperty("mysql.dbPass",CommonSettings.getInstance().config.mysqlConfig.password);
+		System.setProperty("app.domain",CommonSettings.getInstance().config.appConfig.domain);
 	}
 
 	public void initializeLogger() {

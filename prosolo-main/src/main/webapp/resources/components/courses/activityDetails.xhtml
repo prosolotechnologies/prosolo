@@ -208,14 +208,15 @@
 	            	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
 	            		<h2>Your Response</h2>
 	            		<activities:activityResult
-	            			resultData="#{cc.attrs.activity.resultData}"
-	            			resultType="#{cc.attrs.activity.resultData.resultType}"
-	            			learningContext="#{cc.attrs.learningContext}"
-	            			role="USER"
-	            			assignmentUploadModalId="newRes"
-	            			growlToUpdate=":#{cc.clientId}:growlDetails"
-	            			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
-	            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
+								activityTitle="#{cc.attrs.activity.title}"
+								resultData="#{cc.attrs.activity.resultData}"
+								resultType="#{cc.attrs.activity.resultData.resultType}"
+								learningContext="#{cc.attrs.learningContext}"
+								role="USER"
+								assignmentUploadModalId="newRes"
+								growlToUpdate=":#{cc.clientId}:growlDetails"
+								regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
+								studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
 	            		/>
 	            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
 	            			outcome="/activity-responses" 
