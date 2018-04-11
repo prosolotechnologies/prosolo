@@ -19,8 +19,10 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.ComplexSequentialObserver;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.data.CommentData;
@@ -28,6 +30,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObserver;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -749,7 +752,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSheriLaureano.getId(),  UserContextData.of(userJosephGarcia.getId(), org.getId(), null, null)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userAngelicaFallon.getId(), org.getId(), null, null)));
 
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events);
+		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
 
 		try {
 			logger.info("Reindexing all indices since we know some observers have failed");

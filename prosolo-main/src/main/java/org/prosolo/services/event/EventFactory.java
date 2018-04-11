@@ -82,8 +82,16 @@ public class EventFactory {
 	 * @return
 	 */
 	public List<Event> generateEvents(EventQueue eventQueue) {
+		return generateEvents(eventQueue, null);
+	}
+
+	public List<Event> generateEvents(EventQueue eventQueue, Class<? extends EventObserver>[] observersToExclude) {
 		List<Event> eventList = new LinkedList<>();
 		for (EventData ev : eventQueue.getEvents()) {
+			//set observers to exclude, but only if not already set
+			if (observersToExclude != null && ev.getObserversToExclude() == null) {
+				ev.setObserversToExclude(observersToExclude);
+			}
 			Event event = generateEvent(ev);
 			if (event != null) {
 				eventList.add(event);
