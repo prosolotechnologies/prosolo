@@ -19,7 +19,6 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.ComplexSequentialObserver;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
@@ -30,7 +29,6 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObserver;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -756,7 +754,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 		try {
 			logger.info("Reindexing all indices since we know some observers have failed");
-			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndInitElasticSearchIndexes();
+			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndReindexDBESIndexes();
 		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
 			logger.error(indexingServiceNotAvailable);
 		}
