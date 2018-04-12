@@ -1,10 +1,12 @@
 package org.prosolo.services.nodes.data.organization;
 
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author stefanvuckovic
@@ -21,6 +23,14 @@ public class CredentialCategoryData extends StandardObservable implements Serial
     private ObjectStatus status = ObjectStatus.UP_TO_DATE;
 
     public CredentialCategoryData(boolean listenChanges) {
+        if (listenChanges) {
+            startObservingChanges();
+        }
+    }
+
+    public CredentialCategoryData(long id, String title, boolean listenChanges) {
+        this.id = id;
+        this.title = title;
         if (listenChanges) {
             startObservingChanges();
         }
@@ -77,5 +87,22 @@ public class CredentialCategoryData extends StandardObservable implements Serial
 
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CredentialCategoryData that = (CredentialCategoryData) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -75,7 +75,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws ResourceNotFoundException
 	 * @throws DbConnectionException
 	 */
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadAssessmentConfig,
+	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCategoryData, boolean loadAssessmentConfig,
 			boolean loadCompetences, long userId, AccessMode accessMode)
 					throws ResourceNotFoundException, DbConnectionException;
 

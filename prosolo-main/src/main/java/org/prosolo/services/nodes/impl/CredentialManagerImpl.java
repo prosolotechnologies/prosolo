@@ -132,6 +132,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
 			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+			cred.setCategory(data.getCategory() != null
+					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
+					: null);
 
 			if (data.isLearningStageEnabled()) {
 				cred.setLearningStage((LearningStage) persistence.currentManager().load(LearningStage.class, data.getLearningStage().getId()));
@@ -311,7 +314,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null,
 							null, false, paramProgress.intValue(), nextCompId.longValue());
 				} else {
-					credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, null, null, false);
 				}
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -369,7 +372,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				User creator = (User) res[1];
 				Long paramBookmarkId = (Long) res[2];
 
-				credData = credentialFactory.getCredentialData(creator, cred, null, null, null, false);
+				credData = credentialFactory.getCredentialData(creator, cred, null, null, null, null, false);
 
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -393,7 +396,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true,true);
 			if (credData == null) {
-				return getCredentialData(credentialId, true, true, true, userId, AccessMode.USER);
+				return getCredentialData(credentialId, true, false, true, true, userId, AccessMode.USER);
 			}
 
 			return credData;
@@ -477,7 +480,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataForEdit(long credentialId) throws DbConnectionException {
 		try {
-			CredentialData cd = getCredentialData(credentialId, true, true, true, 0, AccessMode.MANAGER);
+			CredentialData cd = getCredentialData(credentialId, true, true, true, true, 0, AccessMode.MANAGER);
 			/*
 			if learning in stages is enabled for credential, learning stages with credential info for each stage are loaded
 			but if learning in stages is not enabled, only learning stages are retrieved.
@@ -523,12 +526,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
+															   boolean loadCategoryData,
 															   boolean loadAssessmentConfig,
 															   boolean loadCompetences, long userId,
 															   AccessMode accessMode)
 			throws ResourceNotFoundException, DbConnectionException {
 		try {
-			Credential1 cred = getCredential(credentialId, loadCreatorData);
+			Credential1 cred = getCredential(credentialId, loadCreatorData, loadCategoryData);
 
 			if (cred == null) {
 				throw new ResourceNotFoundException();
@@ -536,7 +540,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
 			Set<CredentialAssessmentConfig> assessmentConfig = loadAssessmentConfig ? cred.getAssessmentConfig() : null;
-			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, assessmentConfig, cred.getTags(),
+			CredentialCategory cc = loadCategoryData ? cred.getCategory() : null;
+			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred, cc, assessmentConfig, cred.getTags(),
 					cred.getHashtags(), true);
 
 			if (loadCompetences) {
@@ -570,7 +575,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData)
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData, boolean loadCategoryData)
 			throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -578,6 +583,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (loadCreatorData) {
 				builder.append("INNER JOIN fetch cred.createdBy user ");
+			}
+			if (loadCategoryData) {
+				builder.append("LEFT JOIN fetch cred.category ");
 			}
 			builder.append("LEFT JOIN fetch cred.tags tags ");
 			builder.append("LEFT JOIN fetch cred.hashtags hashtags ");
@@ -698,6 +706,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+		credToUpdate.setCategory(data.getCategory() != null
+				? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
+				: null);
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getTagsString())));
@@ -906,7 +917,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			User user = (User) persistence.currentManager().load(User.class, userId);
 
-			Credential1 cred = getCredential(credentialId, false);
+			Credential1 cred = getCredential(credentialId, false, false);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 
 			/*
@@ -2593,7 +2604,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, null, true));
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2648,7 +2659,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, true));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null,null, null, null, true));
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2814,7 +2825,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, false);
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, null, false);
 			cd.setDeliveries(getOngoingDeliveries(c.getId()));
 			res.add(cd);
 		}
@@ -3102,7 +3113,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, false));
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, null, false));
 			}
 
 			return deliveries;
@@ -3324,7 +3335,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, true);
+			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, null, true);
 			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
 			if (cd.isLearningStageEnabled()) {
 				cd.setDeliveries(getOngoingDeliveriesFromAllStages(c.getId()));

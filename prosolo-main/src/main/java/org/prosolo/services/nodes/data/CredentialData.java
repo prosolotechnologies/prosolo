@@ -8,6 +8,7 @@ import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -81,6 +82,9 @@ public class CredentialData extends StandardObservable implements Serializable {
 	//assessment
 	private LearningResourceAssessmentSettings assessmentSettings;
 	private List<AssessmentTypeConfig> assessmentTypes;
+
+	//category
+	private CredentialCategoryData category;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
@@ -605,5 +609,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setAssessmentTypes(List<AssessmentTypeConfig> assessmentTypes) {
 		this.assessmentTypes = assessmentTypes;
+	}
+
+	public CredentialCategoryData getCategory() {
+		return category;
+	}
+
+	public void setCategory(CredentialCategoryData category) {
+		observeAttributeChange("category", this.category, category);
+		this.category = category;
 	}
 }

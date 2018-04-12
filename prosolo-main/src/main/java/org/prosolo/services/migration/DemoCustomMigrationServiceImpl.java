@@ -255,7 +255,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
     }
 
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
-        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, false, true, 0, AccessMode.MANAGER);
+        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, false, false, true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
         Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential

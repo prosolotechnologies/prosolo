@@ -54,7 +54,7 @@ public class CredentialViewBeanManager implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					credentialData = credentialManager
-							.getCredentialData(decodedId, true, false, true, loggedUser.getUserId(), AccessMode.MANAGER);
+							.getCredentialData(decodedId, true, false, false, true, loggedUser.getUserId(), AccessMode.MANAGER);
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();

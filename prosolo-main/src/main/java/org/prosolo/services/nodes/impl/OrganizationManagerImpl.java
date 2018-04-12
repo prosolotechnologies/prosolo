@@ -231,7 +231,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
             List<LearningStageData> learningStages = getOrganizationLearningStagesData(organizationId);
-            List<CredentialCategoryData> credentialCategories = getOrganizationCredentialCategoriesData(organizationId);
+            List<CredentialCategoryData> credentialCategories = getOrganizationCredentialCategoriesData(organizationId, true, true);
             OrganizationData od = organizationDataFactory.getOrganizationData(organization, chosenAdmins, learningStages, credentialCategories);
 
             return od;
@@ -321,14 +321,19 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         return i != null;
     }
 
-    private List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long orgId) {
-        List<CredentialCategoryData> categories = new ArrayList<>();
-        List<CredentialCategory> res =  getOrganizationCredentialCategories(orgId);
-        for (CredentialCategory cat : res) {
-            categories.add(new CredentialCategoryData(
-                    cat.getId(), cat.getTitle(), isCredentialCategoryBeingUsed(cat.getId()), true));
+    private List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long orgId, boolean loadCategoryUsageInfo, boolean listenChanges) {
+        try {
+            List<CredentialCategory> categories = getOrganizationCredentialCategories(orgId);
+            return categories.stream().map(cat -> {
+                if (loadCategoryUsageInfo) {
+                    return new CredentialCategoryData(cat.getId(), cat.getTitle(), isCredentialCategoryBeingUsed(cat.getId()), listenChanges);
+                } else {
+                    return new CredentialCategoryData(cat.getId(), cat.getTitle(), listenChanges);
+                }}).collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the credential categories");
         }
-        return categories;
     }
 
     private List<CredentialCategory> getOrganizationCredentialCategories(long orgId) throws DbConnectionException {
@@ -558,6 +563,12 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the learning stage");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long organizationId) {
+        return getOrganizationCredentialCategoriesData(organizationId, false, false);
     }
 
 }
