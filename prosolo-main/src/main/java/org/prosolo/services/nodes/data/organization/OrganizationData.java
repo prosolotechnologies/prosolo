@@ -22,10 +22,14 @@ public class OrganizationData implements Serializable {
     private List<LearningStageData> learningStages;
     //storing learning stages marked for removal in a separate collection
     private List<LearningStageData> learningStagesForDeletion;
+    private List<CredentialCategoryData> credentialCategories;
+    private List<CredentialCategoryData> credentialCategoriesForDeletion;
 
     public OrganizationData(){
         learningStages = new ArrayList<>();
         learningStagesForDeletion = new ArrayList<>();
+        credentialCategories = new ArrayList<>();
+        credentialCategoriesForDeletion = new ArrayList<>();
     }
 
     public OrganizationData(Organization organization){
@@ -109,5 +113,25 @@ public class OrganizationData implements Serializable {
 
     public void setLearningInStagesEnabled(boolean learningInStagesEnabled) {
         this.learningInStagesEnabled = learningInStagesEnabled;
+    }
+
+    public List<CredentialCategoryData> getCredentialCategories() {
+        return credentialCategories;
+    }
+
+    public void addCredentialCategory(CredentialCategoryData category) {
+        credentialCategories.add(category);
+    }
+
+    public void addAllCredentialCategories(Collection<CredentialCategoryData> categories) {
+        credentialCategories.addAll(categories);
+    }
+
+    public List<CredentialCategoryData> getCredentialCategoriesForDeletion() {
+        return credentialCategoriesForDeletion;
+    }
+
+    public void addCredentialCategoryForDeletion(CredentialCategoryData category) {
+        credentialCategoriesForDeletion.add(category);
     }
 }

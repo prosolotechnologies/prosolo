@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -22,6 +23,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
@@ -86,15 +88,15 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             res.appendEvent(eventFactory.generateEventData(EventType.Create, context, organization, null, null, null));
 
             res.appendEvents(updateOrganizationLearningStages(organization.getId(), org, context));
+            updateOrganizationCredentialCategories(organization.getId(), org);
 
             res.setResult(organization);
             return res;
-        }catch (ConstraintViolationException | DataIntegrityViolationException e) {
-            logger.error(e);
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("Error", e);
             throw e;
-        }catch (Exception e) {
-            logger.error(e);
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Error", e);
             throw new DbConnectionException("Error while saving organization");
         }
     }
@@ -162,6 +164,54 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         return queue;
     }
 
+    /**
+     *
+     * @param orgId
+     * @param organization
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    private void updateOrganizationCredentialCategories(long orgId, OrganizationData organization) {
+        try {
+            Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
+
+            for (CredentialCategoryData cat : organization.getCredentialCategoriesForDeletion()) {
+                deleteById(CredentialCategory.class, cat.getId(), persistence.currentManager());
+            }
+
+            /*
+            trigger credential categories deletion at this point to avoid name conflict
+            for new categories with deleted
+             */
+            persistence.currentManager().flush();
+
+            for (CredentialCategoryData cat : organization.getCredentialCategories()) {
+                switch (cat.getStatus()) {
+                    case CREATED:
+                        CredentialCategory newCat = new CredentialCategory();
+                        newCat.setOrganization(org);
+                        newCat.setTitle(cat.getTitle());
+                        saveEntity(newCat);
+                        break;
+                    case CHANGED:
+                        CredentialCategory catToEdit = (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, cat.getId());
+                        catToEdit.setTitle(cat.getTitle());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("DB constraint violation when updating organization credential categories", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating the credential categories");
+        }
+    }
+
     @Override
     @Transactional (readOnly = true)
     public OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException {
@@ -181,7 +231,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
             List<LearningStageData> learningStages = getOrganizationLearningStagesData(organizationId);
-            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins, learningStages);
+            List<CredentialCategoryData> credentialCategories = getOrganizationCredentialCategoriesData(organizationId);
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization, chosenAdmins, learningStages, credentialCategories);
 
             return od;
         } catch (Exception e) {
@@ -270,6 +321,43 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         return i != null;
     }
 
+    private List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long orgId) {
+        List<CredentialCategoryData> categories = new ArrayList<>();
+        List<CredentialCategory> res =  getOrganizationCredentialCategories(orgId);
+        for (CredentialCategory cat : res) {
+            categories.add(new CredentialCategoryData(
+                    cat.getId(), cat.getTitle(), isCredentialCategoryBeingUsed(cat.getId()), true));
+        }
+        return categories;
+    }
+
+    private List<CredentialCategory> getOrganizationCredentialCategories(long orgId) throws DbConnectionException {
+        String query =
+                "SELECT cat " +
+                "FROM CredentialCategory cat " +
+                "WHERE cat.organization.id = :orgId ";
+
+        @SuppressWarnings("unchecked")
+        List<CredentialCategory> res = persistence.currentManager()
+                .createQuery(query)
+                .setLong("orgId", orgId)
+                .list();
+
+        return res;
+    }
+
+    private boolean isCredentialCategoryBeingUsed(long credCategoryId) {
+        String q =
+                "SELECT 1 FROM Credential1 c WHERE c.category.id = :cId";
+        Integer i = (Integer) persistence.currentManager()
+                .createQuery(q)
+                .setLong("cId", credCategoryId)
+                .setMaxResults(1)
+                .uniqueResult();
+
+        return i != null;
+    }
+
     @Override
     public Organization updateOrganization(OrganizationData organization, UserContextData context)
             throws DbConnectionException {
@@ -307,14 +395,14 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             saveEntity(organization);
 
             res.appendEvents(updateOrganizationLearningStages(org.getId(), org, context));
+            updateOrganizationCredentialCategories(org.getId(), org);
 
             return res;
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.error("Error", e);
             throw e;
         } catch (Exception e){
-            logger.error(e);
-            e.printStackTrace();
+            logger.error("Error", e);
             throw new DbConnectionException("Error updating the organization");
         }
     }

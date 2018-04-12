@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.data.organization.factory;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
@@ -20,24 +21,20 @@ import java.util.Set;
 @Component
 public class OrganizationDataFactory {
 
-    public OrganizationData getOrganizationData(Organization organization, List<User> users, List<LearningStageData> learningStages) throws NullPointerException {
-
+    public OrganizationData getOrganizationData(Organization organization, List<User> users, List<LearningStageData> learningStages, List<CredentialCategoryData> credentialCategories) throws NullPointerException {
         List<UserData> userDataList = new ArrayList<>();
-        try {
-            if (users == null) {
-                throw new NullPointerException("Users cannot be null");
-            }
-            for (User u : users) {
-                UserData ud = new UserData(u);
-                userDataList.add(ud);
-            }
-            OrganizationData organizationData = new OrganizationData(organization, userDataList);
-            organizationData.addAllLearningStages(learningStages);
-
-            return organizationData;
-        }catch (NullPointerException npe){
-            throw npe;
+        if (users == null) {
+            throw new NullPointerException("Users cannot be null");
         }
+        for (User u : users) {
+            UserData ud = new UserData(u);
+            userDataList.add(ud);
+        }
+        OrganizationData organizationData = new OrganizationData(organization, userDataList);
+        organizationData.addAllLearningStages(learningStages);
+        organizationData.addAllCredentialCategories(credentialCategories);
+
+        return organizationData;
     }
 
 }
