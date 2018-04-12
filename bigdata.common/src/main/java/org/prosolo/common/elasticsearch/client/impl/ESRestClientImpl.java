@@ -6,7 +6,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -42,7 +41,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.elasticsearch.client.Requests.clusterHealthRequest;
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 
@@ -149,7 +147,7 @@ public class ESRestClientImpl implements ESRestClient {
         if (!exists(indexName)) {
             ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
             Settings.Builder elasticsearchSettings = Settings.builder()
-                    .loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"), false)
+                    .loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/common/elasticsearch/mappings/index-analysis-settings.json"), false)
                     //.put("http.enabled", "false")
                     //.put("cluster.name", elasticSearchConfig.clusterName)
                     .put("index.number_of_replicas",
@@ -204,7 +202,7 @@ public class ESRestClientImpl implements ESRestClient {
 
     private String getMappingStringForType(String indexType) {
         //temporary solution until we completely move to organization indexes
-        String mappingPath = "/org/prosolo/services/indexing/" + indexType + "-mapping" + ".json";
+        String mappingPath = "/org/prosolo/common/elasticsearch/mappings/" + indexType + "-mapping" + ".json";
         String mapping = null;
 
         try {
