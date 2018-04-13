@@ -41,16 +41,26 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	private static Logger logger = Logger.getLogger(UserManager.class);
 
-	@Inject	private Competence1Manager competence1Manager;
-	@Inject	private Activity1Manager activity1Manager;
-	@Inject	private CredentialManager credentialManager;
-	@Inject	private UserManager self;
-	@Inject private AvatarProcessor avatarProcessor;
-	@Inject private UnitManager unitManager;
-	@Inject private UserGroupManager userGroupManager;
-	@Inject private PasswordEncoder passwordEncoder;
-	@Inject private EventFactory eventFactory;
-	@Inject private RoleManager roleManager;
+	@Inject
+	private Competence1Manager competence1Manager;
+	@Inject
+	private Activity1Manager activity1Manager;
+	@Inject
+	private CredentialManager credentialManager;
+	@Inject
+	private UserManager self;
+	@Inject
+	private AvatarProcessor avatarProcessor;
+	@Inject
+	private UnitManager unitManager;
+	@Inject
+	private UserGroupManager userGroupManager;
+	@Inject
+	private PasswordEncoder passwordEncoder;
+	@Inject
+	private EventFactory eventFactory;
+	@Inject
+	private RoleManager roleManager;
 
 	@Override
 	@Transactional (readOnly = true)

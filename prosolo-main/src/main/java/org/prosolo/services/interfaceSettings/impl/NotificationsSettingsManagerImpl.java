@@ -92,9 +92,6 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	@Transactional (readOnly = false)
 	public boolean shouldUserReceiveEmail(long userId, NotificationType type, Session session)
 		throws DbConnectionException {
-		if (userId == 0) {
-			System.out.println();
-		}
 
 		try {
 			NotificationSettings settings = getNotificationSettings(userId, type);
