@@ -30,8 +30,7 @@ public class BulkDataAdministrationBean implements Serializable {
 		new Thread(() -> {
             try {
                 logger.info("Delete and reindex elasticsearch started");
-                bulkDataAdministrationService.deleteAndInitElasticSearchIndexes();
-                bulkDataAdministrationService.indexDBData();
+                bulkDataAdministrationService.deleteAndReindexDBESIndexes();
                 logger.info("Delete and reindex elasticsearch finished");
             } catch (IndexingServiceNotAvailable e) {
                 logger.error(e);

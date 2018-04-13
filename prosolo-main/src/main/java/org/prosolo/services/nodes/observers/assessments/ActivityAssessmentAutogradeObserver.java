@@ -76,7 +76,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 		}
 
 		if (result != null) {
-			eventFactory.generateEvents(result.getEventQueue());
+			eventFactory.generateEvents(result.getEventQueue(), event.getObserversToExclude());
 		}
 	}
 
