@@ -2,6 +2,7 @@ package org.prosolo.web.profile;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.user.User;
@@ -16,10 +17,12 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -65,6 +68,7 @@ public class ProfileBean {
 	/* parameter that can be provided in the via UI*/
 	private String studentId;
 	private String message;
+	private String tab;
 	private long decodedStudentId;
 
 	private boolean personalProfile;
@@ -72,27 +76,31 @@ public class ProfileBean {
 
 	private List<TargetCompetenceData> targetCompetence1List;
 
+	private static final String COMPETENCES_TAB = "competences";
+	private static final String CREDENTIALS_IN_PROGRESS_TAB = "inprogress";
+
 	public void init() {
 		decodedStudentId = idEncoder.decodeId(studentId);
 		if (StringUtils.isNotBlank(studentId) &&
                 loggedUserBean.isInitialized() &&
                 decodedStudentId != loggedUserBean.getUserId()) {
-
 			personalProfile = false;
 			userData = userManager.getUserData(decodedStudentId);
 			User user = new User();
 			user.setId(userData.getId());
-
-			initializeSocialNetworkData(userData.getId());
-			initializeTargetCredentialData(userData);
-			initializeSocialNetworkNameMap();
         } else {
 			personalProfile = true;
 			userData = userManager.getUserData(loggedUserBean.getUserId());
-			initializeSocialNetworkData(userData.getId());
-			initializeTargetCredentialData(userData);
-			initializeSocialNetworkNameMap();
 		}
+		initializeSocialNetworkData(userData.getId());
+		if (COMPETENCES_TAB.equals(tab)) {
+			initializeTargetCompetenceData(userData);
+		} else if (CREDENTIALS_IN_PROGRESS_TAB.equals(tab)) {
+			initializeInProgressCredentials(userData);
+		} else {
+			initializeTargetCredentialData(userData);
+		}
+		initializeSocialNetworkNameMap();
 
 	}
 	
@@ -160,16 +168,18 @@ public class ProfileBean {
 	}
 
 	private void initializeTargetCredentialData(UserData student) {
+		//if student is viewing his personal profile he should see all his credentials including those that should not be publicly displayed
 		targetCredential1List = credentialManager.getAllCompletedCredentials(
 				student.getId(), 
-				true);
+				!isPersonalProfile());
 	}
 	
 	private void initializeTargetCompetenceData(UserData student) {
 		try {
+			//if student is viewing his personal profile he should see all his credentials including those that should not be publicly displayed
 			targetCompetence1List= competenceManager.getAllCompletedCompetences(
-					student.getId(), 
-					true);
+					student.getId(),
+					!isPersonalProfile());
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Competence data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e, e);
@@ -178,9 +188,10 @@ public class ProfileBean {
 	
 	private void initializeInProgressCredentials(UserData student) {
 		try {
+			//if student is viewing his personal profile he should see all his credentials including those that should not be publicly displayed
 			targetCredential1ListInProgress = credentialManager.getAllInProgressCredentials(
-					student.getId(), 
-					true);
+					student.getId(),
+					!isPersonalProfile());
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
 			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
@@ -202,6 +213,30 @@ public class ProfileBean {
 		nameMap.put(SocialNetworkName.GPLUS.toString(), "gplus");
 		nameMap.put(SocialNetworkName.LINKEDIN.toString(), "linkedIn");
 		nameMap.put(SocialNetworkName.TWITTER.toString(), "twitter");
+	}
+
+	public void updateTargetCredentialProfileVisibility(TargetCredentialData cred) {
+		String hiddenOrShown = cred.isHiddenFromProfile() ? "hidden from" : "displayed in";
+
+		try {
+			credentialManager.updateHiddenTargetCredentialFromProfile(cred.getId(), cred.isHiddenFromProfile());
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " will be " + hiddenOrShown + " your profile");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " visibility");
+			logger.error("Error while updating credential visibility in a profile!\n" + e);
+		}
+	}
+
+	public void updateTargetCompetenceProfileVisibility(TargetCompetenceData comp) {
+		String hiddenOrShown = comp.isHiddenFromProfile() ? "hidden from" : "displayed in";
+
+		try {
+			competenceManager.updateHiddenTargetCompetenceFromProfile(comp.getId(), comp.isHiddenFromProfile());
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " will be " + hiddenOrShown + " your profile");
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " visibility");
+			logger.error("Error while updating competency visibility in a profile!\n" + e);
+		}
 	}
 	
 	/*
@@ -261,5 +296,13 @@ public class ProfileBean {
 
 	public List<CategorizedCredentials> getTargetCredential1ListInProgress() {
 		return targetCredential1ListInProgress;
+	}
+
+	public String getTab() {
+		return tab;
+	}
+
+	public void setTab(String tab) {
+		this.tab = tab;
 	}
 }
