@@ -8,8 +8,10 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -163,9 +165,9 @@ public class CredentialDataFactory {
 	 * @return
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
+			CredentialCategory category, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
 			long nextCompToLearnId) {
-		CredentialData cred = getCredentialData(createdBy, credential, null,null, tags, hashtags, shouldTrackChanges);
+		CredentialData cred = getCredentialData(createdBy, credential, category,null, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
 		cred.setEnrolled(true);
@@ -204,4 +206,38 @@ public class CredentialDataFactory {
 		return name + (lastName != null ? " " + lastName : "");
 	}
 
+	/**
+	 * This method assumes that credentials are already sorted by category
+	 *
+	 * @param credentialsSortedByCategory
+	 * @return
+	 */
+	public List<CategorizedCredentials> groupCredentialsByCategory(List<TargetCredentialData> credentialsSortedByCategory) {
+		if (credentialsSortedByCategory == null) {
+			return null;
+		}
+		if (credentialsSortedByCategory.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<CategorizedCredentials> categorizedCredentials = new ArrayList<>();
+		CredentialCategoryData currentCategory = null;
+		List<TargetCredentialData> credentialsInCurrentCategory = null;
+		boolean first = true;
+		for (TargetCredentialData cd : credentialsSortedByCategory) {
+			if (!(cd.getCategory() == currentCategory || (cd.getCategory() != null && currentCategory != null && cd.getCategory().getId() == currentCategory.getId())) || first) {
+				//if category is different than current one, we should add current data to the list because data for current category is collected
+				if (!first) {
+					categorizedCredentials.add(new CategorizedCredentials(currentCategory, credentialsInCurrentCategory));
+				} else {
+					first = false;
+				}
+				currentCategory = cd.getCategory();
+				credentialsInCurrentCategory = new ArrayList<>();
+			}
+			credentialsInCurrentCategory.add(cd);
+		}
+		//add last category with credentials
+		categorizedCredentials.add(new CategorizedCredentials(currentCategory, credentialsInCurrentCategory));
+		return categorizedCredentials;
+	}
 }

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -91,6 +91,11 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 				builder.field("creatorId", cred.getCreatedBy().getId());
 				builder.field("type", cred.getType());
+				long categoryId = 0;
+				if (cred.getCategory() != null) {
+					categoryId = cred.getCategory().getId();
+				}
+				builder.field("category", categoryId);
 				builder.field("visibleToAll", cred.isVisibleToAll());
 
 				setLearningStageInfo(builder, cred);

@@ -18,8 +18,11 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.web.achievements.data.TargetCredentialData;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -225,7 +228,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<CategorizedCredentials> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
@@ -235,7 +238,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredentialData> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<CategorizedCredentials> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 
 		
 	/**
@@ -455,4 +458,6 @@ public interface CredentialManager extends AbstractManager {
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
 
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
+
+	CredentialCategory getCredentialCategory(long categoryId) throws DbConnectionException;
 }

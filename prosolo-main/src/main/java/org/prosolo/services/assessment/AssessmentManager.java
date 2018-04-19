@@ -17,7 +17,7 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;

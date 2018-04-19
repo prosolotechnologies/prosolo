@@ -5,7 +5,7 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import java.util.List;
 

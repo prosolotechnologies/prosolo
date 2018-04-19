@@ -41,13 +41,16 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.prosolo.web.achievements.data.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -286,8 +289,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId " +
+			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, cat " +
 					"FROM Credential1 cred " +
+					"LEFT JOIN cred.category cat " +
 					"INNER JOIN cred.createdBy creator " +
 					"LEFT JOIN cred.targetCredentials targetCred " +
 					"WITH targetCred.user.id = :user " +
@@ -310,11 +314,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Integer paramProgress = (Integer) res[2];
 				Long paramBookmarkId = (Long) res[3];
 				Long nextCompId = (Long) res[4];
+				CredentialCategory category = (CredentialCategory) res[5];
 				if (paramProgress != null) {
-					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null,
+					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, category, null,
 							null, false, paramProgress.intValue(), nextCompId.longValue());
 				} else {
-					credData = credentialFactory.getCredentialData(creator, cred, null, null, null, null, false);
+					credData = credentialFactory.getCredentialData(creator, cred, category, null, null, null, false);
 				}
 				if (paramBookmarkId != null) {
 					credData.setBookmarkedByCurrentUser(true);
@@ -1579,19 +1584,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetCredentialData> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.ANY);
+		return getTargetCredentials(userid, onlyPubliclyVisible, false, UserLearningProgress.ANY);
 	}
 
 	@SuppressWarnings("unchecked")
+	private List<CategorizedCredentials> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
+															  UserLearningProgress progress)
+			throws DbConnectionException {
+		List<TargetCredentialData> targetCredentials = getTargetCredentials(userId, onlyPubliclyVisible, true, progress);
+		return credentialFactory.groupCredentialsByCategory(targetCredentials);
+	}
+
 	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
-														 UserLearningProgress progress)
+														    boolean sortByCategory, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =
 					"SELECT targetCredential1 " +
 							"FROM TargetCredential1 targetCredential1 " +
-							"INNER JOIN targetCredential1.credential cred " +
-							"WHERE targetCredential1.user.id = :userid ";
+							"INNER JOIN fetch targetCredential1.credential cred ";
+
+			if (sortByCategory) {
+				query += "LEFT JOIN fetch cred.category cat ";
+			}
+
+			query += "WHERE targetCredential1.user.id = :userid ";
 
 			switch (progress) {
 				case COMPLETED:
@@ -1608,7 +1625,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				query += " AND targetCredential1.hiddenFromProfile = false ";
 			}
 
-			query += "ORDER BY cred.title";
+			query += "ORDER BY " + (sortByCategory ? "cat.title, " : "") + " cred.title";
 
 			List<TargetCredentialData> resultList = new ArrayList<>();
 
@@ -1618,29 +1635,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.list();
 
 			for(TargetCredential1 targetCredential1 : result){
-				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1);
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null);
 				resultList.add(targetCredentialData);
 			}
 
 			return resultList;
 		} catch (DbConnectionException e) {
-			logger.error(e);
-			throw new DbConnectionException();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credentials");
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
+	public List<CategorizedCredentials> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		return getCategorizedTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
+	public List<CategorizedCredentials> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+		return getCategorizedTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 
 	@Override
@@ -3308,6 +3325,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		StringBuilder query = new StringBuilder(
 				"SELECT c " +
 				"FROM Credential1 c " +
+				"LEFT JOIN fetch c.category " +
 				"INNER JOIN c.credentialUnits u " +
 						"WITH u.unit.id = :unitId " +
 				"WHERE c.type = :credType " +
@@ -3335,7 +3353,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
-			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, null, true);
+			CredentialData cd = credentialFactory.getCredentialData(null, c, c.getCategory(), null, null, null, true);
 			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
 			if (cd.isLearningStageEnabled()) {
 				cd.setDeliveries(getOngoingDeliveriesFromAllStages(c.getId()));
@@ -3741,6 +3759,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credential id");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialCategory getCredentialCategory(long categoryId) throws DbConnectionException {
+		try {
+			return (CredentialCategory) persistence.currentManager().get(CredentialCategory.class, categoryId);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential category");
 		}
 	}
 }

@@ -207,38 +207,45 @@
 	                    </ui:fragment>
 	                
 		                <ui:repeat value="#{profileBean.targetCredential1List}"
-	                    			var="targetCredential" varStatus="iterator">
-							<div class="col-md-6">
-								<article class="whiteBox summaryCard">
-									<h2>
-										<h:link outcome="credential">
-					                		<f:param name="id" value="#{util:encodeId(targetCredential.credentialId)}"/>
-					                		#{targetCredential.title}
-					                	</h:link>
-									</h2>
-									<div class="clear"></div>
-									
-									<p class="cardDescription">#{util:cleanHTMLTags(targetCredential.description)}</p>
-									
-									<div class="metaBox">
-										<div class="metaLeft">
-											<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
-												Completed
-											</h:panelGroup>
+	                    			var="targetCredential">
+							<h:panelGroup layout="block" rendered="#{not empty targetCredential.category}" styleClass="col-md-12">
+								<div class="categorySeparator">
+									#{targetCredential.category.title}
+								</div>
+							</h:panelGroup>
+							<ui:repeat value="#{targetCredential.credentials}" var="cred" varStatus="iterator">
+								<div class="col-md-6">
+									<article class="whiteBox summaryCard">
+										<h2>
+											<h:link outcome="credential">
+												<f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
+												#{cred.title}
+											</h:link>
+										</h2>
+										<div class="clear"></div>
+
+										<p class="cardDescription">#{util:cleanHTMLTags(cred.description)}</p>
+
+										<div class="metaBox">
+											<div class="metaLeft">
+												<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
+													Completed
+												</h:panelGroup>
+											</div>
+
+											<div class="metaRight">
+												<ui:fragment rendered="#{cred.durationString ne null}">
+													<div class="duration">#{cred.durationString}</div>
+												</ui:fragment>
+											</div>
 										</div>
-										
-										<div class="metaRight">
-											<ui:fragment rendered="#{targetCredential.durationString ne null}">
-												<div class="duration">#{targetCredential.durationString}</div>
-											</ui:fragment>
-										</div>
-									</div>
-		                        </article>
-		                    </div>
+									</article>
+								</div>
 		                    
-		                    <ui:fragment rendered="#{iterator.index % 2 == 1}">
-			        			<div class="clear"></div>
-			        		</ui:fragment>
+								<ui:fragment rendered="#{iterator.index % 2 == 1}">
+									<div class="clear"></div>
+								</ui:fragment>
+							</ui:repeat>
 		                </ui:repeat>
 		            </h:panelGroup>
 	                
@@ -331,51 +338,58 @@
 	                    </ui:fragment>
 	                
 	                	<ui:repeat value="#{profileBean.targetCredential1ListInProgress}"
-	                    			var="inProgressCredential" varStatus="iterator">
-							<div class="col-md-6">
-								<article class="whiteBox summaryCard">
-									<h2>
-										<h:link	outcome="credential">
-											#{inProgressCredential.title}
-					                		<f:param name="id" value="#{util:encodeId(inProgressCredential.credentialId)}"/>
-										</h:link>
-									</h2>
-		                            <div class="clear"></div>
-		                            
-		                            <p class="cardDescription">#{util:cleanHTMLTags(inProgressCredential.description)}</p>
-		                            
-		                            <div class="metaBox">
-		                                <div class="metaLeft">
-		                                    <h:link
-												value="Resume"
-												styleClass="btn btn-green btn-sm"
-												outcome="/competence">
-												<f:param name="credId" value="#{util:encodeId(inProgressCredential.credentialId)}"/>
-												<f:param name="compId" value="#{util:encodeId(inProgressCredential.nextCompetenceToLearnId)}"/>
+	                    			var="inProgressCredential">
+							<h:panelGroup layout="block" rendered="#{not empty inProgressCredential.category}" styleClass="col-md-12">
+								<div class="categorySeparator">
+									#{inProgressCredential.category.title}
+								</div>
+							</h:panelGroup>
+							<ui:repeat value="#{inProgressCredential.credentials}" var="cred" varStatus="iterator">
+								<div class="col-md-6">
+									<article class="whiteBox summaryCard">
+										<h2>
+											<h:link	outcome="credential">
+												#{cred.title}
+												<f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
 											</h:link>
-		                                    
-		                                    <div class="progressBar">
-		                                        <span>#{inProgressCredential.progress}%</span>
-		                                        <div class="progress">
-		                                            <div class="progress-bar" role="progressbar" aria-valuenow="#{inProgressCredential.progress}" 
-		                                            		aria-valuemin="0" aria-valuemax="100" style="width: #{inProgressCredential.progress}%;">
-		                                            </div>
-		                                        </div>
-		                                    </div>
-		                                </div>
-		                                
-		                                <div class="metaRight">
-											<ui:fragment rendered="#{inProgressCredential.durationString ne null}">
-												<div class="duration">#{inProgressCredential.durationString}</div>
-											</ui:fragment>
+										</h2>
+										<div class="clear"></div>
+
+										<p class="cardDescription">#{util:cleanHTMLTags(cred.description)}</p>
+
+										<div class="metaBox">
+											<div class="metaLeft">
+												<h:link
+													value="Resume"
+													styleClass="btn btn-green btn-sm"
+													outcome="/competence">
+													<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+													<f:param name="compId" value="#{util:encodeId(cred.nextCompetenceToLearnId)}"/>
+												</h:link>
+
+												<div class="progressBar">
+													<span>#{cred.progress}%</span>
+													<div class="progress">
+														<div class="progress-bar" role="progressbar" aria-valuenow="#{cred.progress}"
+																aria-valuemin="0" aria-valuemax="100" style="width: #{cred.progress}%;">
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="metaRight">
+												<ui:fragment rendered="#{cred.durationString ne null}">
+													<div class="duration">#{cred.durationString}</div>
+												</ui:fragment>
+											</div>
 										</div>
-									</div>
-								</article>
-		                    </div>
+									</article>
+								</div>
 		                    
-		                    <ui:fragment rendered="#{iterator.index % 2 == 1}">
-			        			<div class="clear"></div>
-			        		</ui:fragment>
+								<ui:fragment rendered="#{iterator.index % 2 == 1}">
+									<div class="clear"></div>
+								</ui:fragment>
+							</ui:repeat>
 	                    </ui:repeat>
 	                </h:panelGroup>
 	            </h:panelGroup>

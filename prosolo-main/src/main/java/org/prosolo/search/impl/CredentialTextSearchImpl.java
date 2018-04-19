@@ -15,6 +15,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CredentialTextSearch;
@@ -26,7 +27,8 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -215,7 +217,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			//include only credentials for which learning in stages is disabled and first stage credentials
 			bQueryBuilder.filter(termQuery("firstStageCredentialId", 0));
 
-			String[] includes = {"id", "title", "archived", "learningStageId"};
+			String[] includes = {"id", "title", "archived", "learningStageId", "category"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -246,11 +248,17 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						String title = hit.getSource().get("title").toString();
 						boolean archived = Boolean.parseBoolean(hit.getSource().get("archived").toString());
 						long lStageId = Long.parseLong(hit.getSource().get("learningStageId").toString());
+						Object categoryIdObj = hit.getSource().get("category");
+						long categoryId = categoryIdObj != null ? Long.parseLong(categoryIdObj.toString()) : 0;
 						CredentialData cd = new CredentialData(false);
 						cd.setId(id);
 						cd.setTitle(title);
 						cd.setArchived(archived);
 						cd.setLearningStageEnabled(lStageId > 0);
+						if (categoryId > 0) {
+							CredentialCategory category = credentialManager.getCredentialCategory(categoryId);
+							cd.setCategory(new CredentialCategoryData(category.getId(), category.getTitle(), false));
+						}
 						List<CredentialData> deliveries;
 						//if learning in stages is enabled, return active deliveries from all stages
 						if (lStageId > 0) {

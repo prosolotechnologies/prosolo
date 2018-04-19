@@ -1,15 +1,9 @@
 package org.prosolo.web.courses.competence;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.logging.ComponentName;
-import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -18,7 +12,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;

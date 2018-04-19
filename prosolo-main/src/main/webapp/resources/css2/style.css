@@ -578,6 +578,11 @@ input {
 .whiteBox.highlighted {
   border: 5px solid rgba(255, 236, 0, 0.1); }
 
+.credentialCard .cardCategory {
+  font-size: 12px;
+  color: #AAB1B5;
+  margin-bottom: 10px; }
+
 .credentialCard .credentialCardTop {
   display: flex;
   justify-content: space-between;
@@ -700,7 +705,10 @@ input {
   background: url("../images2/iconUniversity20.svg") no-repeat; }
 
 .numberAssessments {
-  background: url("../images2/iconAssessment20.svg") no-repeat; }
+  background: url("../images2/iconAssessment20.svg") no-repeat;
+  opacity: .5; }
+.numberAssessments:hover {
+  opacity: 1; }
 
 .duration,
 .mandatoryTag,
@@ -2934,6 +2942,10 @@ header .headerSubmenu {
   padding-right: 20px; }
 .summaryCard h2 span {
   color: #AAB1B5; }
+.summaryCard .cardCategory {
+  font-size: 12px;
+  color: #AAB1B5;
+  margin-bottom: 10px; }
 .summaryCard.summaryAssessments h2 {
   margin-bottom: 30px; }
 .summaryCard .linkApprove,

@@ -15,10 +15,10 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
-import org.prosolo.web.achievements.data.TargetCredentialData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -58,8 +58,8 @@ public class ProfileBean {
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	private UserSocialNetworksData userSocialNetworksData;
-	private List<TargetCredentialData> targetCredential1List;
-	private List<TargetCredentialData> targetCredential1ListInProgress;
+	private List<CategorizedCredentials> targetCredential1List;
+	private List<CategorizedCredentials> targetCredential1ListInProgress;
 	private Map<String, String> nameMap = new HashMap<>();
 	
 	/* parameter that can be provided in the via UI*/
@@ -255,11 +255,11 @@ public class ProfileBean {
 		this.targetCompetence1List = targetCompetence1List;
 	}
 
-	public List<TargetCredentialData> getTargetCredential1List() {
+	public List<CategorizedCredentials> getTargetCredential1List() {
 		return targetCredential1List;
 	}
 
-	public List<TargetCredentialData> getTargetCredential1ListInProgress() {
+	public List<CategorizedCredentials> getTargetCredential1ListInProgress() {
 		return targetCredential1ListInProgress;
 	}
 }
