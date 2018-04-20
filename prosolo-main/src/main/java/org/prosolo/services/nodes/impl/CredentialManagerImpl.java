@@ -711,9 +711,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
-		credToUpdate.setCategory(data.getCategory() != null
-				? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
-				: null);
+
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getTagsString())));
@@ -725,6 +723,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
+			CredentialCategory category = data.getCategory() != null
+					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
+					: null;
+			credToUpdate.setCategory(category);
+			//propagate category change to deliveries
+			res.appendEvents(setCategoryForCredentialDeliveries(data.getId(), category, context));
+
 			credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 
 			LearningStage learningStage = null;
@@ -837,6 +842,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		res.setResult(credToUpdate);
 		return res;
+	}
+
+	private EventQueue setCategoryForCredentialDeliveries(long credentialId, CredentialCategory category, UserContextData context) {
+		String q =
+				"UPDATE Credential1 del " +
+				"SET del.category = :category " +
+				"WHERE del.deliveryOf.id = :credId";
+
+		persistence.currentManager().createQuery(q)
+				.setLong("credId", credentialId)
+				.setParameter("category", category)
+				.executeUpdate();
+
+		List<Long> deliveryIds = getIdsOfAllCredentialDeliveries(credentialId, persistence.currentManager());
+		EventQueue queue = EventQueue.newEventQueue();
+		for (long id : deliveryIds) {
+			Credential1 delivery = new Credential1();
+			delivery.setId(id);
+			queue.appendEvent(eventFactory.generateEventData(EventType.CREDENTIAL_CATEGORY_UPDATE, context, delivery, null, null, null));
+		}
+
+		return queue;
 	}
 
 	private EventQueue setLearningStageForCredentialCompetences(long credentialId, LearningStage stage, UserContextData context) {
@@ -3633,6 +3660,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = new Credential1();
 			cred.setOrganization(original.getOrganization());
 			cred.setTitle(original.getTitle());
+			cred.setCategory(original.getCategory());
 			cred.setDescription(original.getDescription());
 			cred.setCreatedBy((User) persistence.currentManager().load(User.class, creatorId));
 			cred.setDateCreated(new Date());
