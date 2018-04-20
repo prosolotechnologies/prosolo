@@ -13,9 +13,11 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -48,17 +50,20 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	@Inject private LoggingService loggingService;
 	@Inject private UnitManager unitManager;
 	@Inject private RoleManager roleManager;
+	@Inject private OrganizationManager orgManager;
 
 	private List<CredentialData> credentials;
 	
 	//search
 	private String searchTerm = "";
 	private CredentialSearchFilterUser searchFilter = CredentialSearchFilterUser.ALL;
+	private CredentialCategoryData filterCategory;
 	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData = new PaginationData();
 	
 	private LearningResourceSortOption[] sortOptions;
 	private CredentialSearchFilterUser[] searchFilters;
+	private List<CredentialCategoryData> filterCategories;
 
 	private String context = "name:library";
 
@@ -73,10 +78,18 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
 			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), userRoleId);
 
+			initCategoryFilters();
 			searchCredentials(false);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Error while loading the page");
 		}
+	}
+
+	private void initCategoryFilters() {
+		filterCategories = orgManager.getOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
+		//add 'All' category and define it as default (initially selected)
+		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategories.add(0, filterCategory);
 	}
 
 	public void searchCredentials(boolean userSearch) {
@@ -109,7 +122,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
 				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(),
-				unitIds, searchFilter, sortOption);
+				unitIds, searchFilter, filterCategory.getId(), sortOption);
 				
 		paginationData.update((int) response.getHitsNumber());
 		credentials = response.getFoundNodes();
@@ -118,6 +131,12 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void applySearchFilter(CredentialSearchFilterUser filter) {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
+		searchCredentials(true);
+	}
+
+	public void applyCategoryFilter(CredentialCategoryData filter) {
+		this.filterCategory = filter;
+		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
@@ -206,5 +225,12 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void setSearchFilters(CredentialSearchFilterUser[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
-	
+
+	public CredentialCategoryData getFilterCategory() {
+		return filterCategory;
+	}
+
+	public List<CredentialCategoryData> getFilterCategories() {
+		return filterCategories;
+	}
 }

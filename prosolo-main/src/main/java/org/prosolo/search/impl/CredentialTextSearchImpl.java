@@ -68,7 +68,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
+			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -103,6 +103,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					break;
 				default:
 					break;
+			}
+
+			if (filterCategoryId > 0) {
+				bQueryBuilder.filter(termQuery("category", filterCategoryId));
 			}
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
@@ -159,31 +163,31 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
 
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.filter(configureAndGetSearchFilter(
 				CredentialSearchConfig.forOriginal(true), userId, null));
 
-		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, sortOption);
+		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
 	}
 
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForAdmin(
 			long organizationId, long unitId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//admin should see all credentials from unit with passed id
 			bQueryBuilder.filter(termQuery("units.id", unitId));
 			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name().toLowerCase()));
 
-			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, sortOption);
+			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
 	}
 
 	private PaginatedResult<CredentialData> searchCredentials(
 			BoolQueryBuilder bQueryBuilder, long organizationId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -212,6 +216,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					break;
 				default:
 					break;
+			}
+
+			if (filterCategoryId > 0) {
+				bQueryBuilder.filter(termQuery("category", filterCategoryId));
 			}
 
 			//include only credentials for which learning in stages is disabled and first stage credentials

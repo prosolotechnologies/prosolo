@@ -10,9 +10,11 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -44,6 +46,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	@Inject private UnitManager unitManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
+	@Inject private OrganizationManager orgManager;
 
 	private String unitId;
 	private long decodedUnitId;
@@ -60,11 +63,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	//search
 	private String searchTerm = "";
 	private CredentialSearchFilterManager searchFilter = CredentialSearchFilterManager.ACTIVE;
+	private CredentialCategoryData filterCategory;
 	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData;
 
 	private LearningResourceSortOption[] sortOptions;
 	private CredentialSearchFilterManager[] searchFilters;
+	private List<CredentialCategoryData> filterCategories;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
@@ -85,7 +90,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 					if (td != null) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
-
+						initCategoryFilters();
 						loadDataFromDB();
 					} else {
 						PageUtil.notFound();
@@ -102,6 +107,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		}
 	}
 
+	private void initCategoryFilters() {
+		filterCategories = orgManager.getOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
+		//add 'All' category and define it as default (initially selected)
+		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategories.add(0, filterCategory);
+	}
+
 	public void resetAndSearch() {
 		this.paginationData.setPage(1);
 		searchCredentials();
@@ -114,7 +126,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	private void searchCredentials() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForAdmin(
 				decodedOrgId, decodedUnitId, searchTerm, paginationData.getPage() - 1, paginationData.getLimit(),
-				searchFilter, sortOption);
+				searchFilter, filterCategory.getId(), sortOption);
 		extractResult(response);
 	}
 
@@ -125,6 +137,12 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 
 	public void applySearchFilter(CredentialSearchFilterManager filter) {
 		this.searchFilter = filter;
+		this.paginationData.setPage(1);
+		searchCredentials();
+	}
+
+	public void applyCategoryFilter(CredentialCategoryData filter) {
+		this.filterCategory = filter;
 		this.paginationData.setPage(1);
 		searchCredentials();
 	}
@@ -332,5 +350,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 
 	public String getOrganizationTitle() {
 		return organizationTitle;
+	}
+
+	public CredentialCategoryData getFilterCategory() {
+		return filterCategory;
+	}
+
+	public List<CredentialCategoryData> getFilterCategories() {
+		return filterCategories;
 	}
 }

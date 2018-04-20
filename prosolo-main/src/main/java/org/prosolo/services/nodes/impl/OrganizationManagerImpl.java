@@ -340,7 +340,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         String query =
                 "SELECT cat " +
                 "FROM CredentialCategory cat " +
-                "WHERE cat.organization.id = :orgId ";
+                "WHERE cat.organization.id = :orgId " +
+                "ORDER BY cat.title";
 
         @SuppressWarnings("unchecked")
         List<CredentialCategory> res = persistence.currentManager()
