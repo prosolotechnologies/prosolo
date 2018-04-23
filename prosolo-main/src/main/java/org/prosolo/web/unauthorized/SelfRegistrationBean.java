@@ -1,6 +1,7 @@
 package org.prosolo.web.unauthorized;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.user.User;
@@ -112,12 +113,11 @@ public class SelfRegistrationBean {
 					null,
 					null,
 					null,
-					null);
+					null,
+					false);
 			
 			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
-		} catch (FileNotFoundException e) {
-			logger.error(e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}
 		this.registrationSuccess = true;
@@ -125,7 +125,12 @@ public class SelfRegistrationBean {
 	
 	public User registerUserOpenId(String firstName, String lastName, String email){
 		logger.info("Registering new user via OpenId: " + email);
-		User user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
+		User user = null;
+		try {
+			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null, false);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+		}
 		return user;
 	}
 

@@ -73,9 +73,6 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexerImpl implement
 	@Override
 	public void saveFrequentCompetenceActivities(long competenceid,
 			List<Long> activities) {
-		System.out.println("SAVE FREQUENT COMPETENCE ACTIVITIES FOR:"
-				+ competenceid + " size:" + activities.size() + " activities:"
-				+ activities.toString());
 		XContentBuilder builder;
 		try {
 			builder = XContentFactory.jsonBuilder().startObject();

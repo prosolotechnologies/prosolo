@@ -141,12 +141,11 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 				addGroups(builder, user.getId(),session);
 
 				builder.endObject();
-				System.out.println("JSON: " + builder.prettyPrint().string());
 				String indexType = ESIndexTypes.ORGANIZATION_USER;
 				String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error("Error", e);
 			}
 		}
 	}

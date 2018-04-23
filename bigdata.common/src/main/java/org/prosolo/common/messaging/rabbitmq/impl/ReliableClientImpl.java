@@ -1,19 +1,19 @@
 package org.prosolo.common.messaging.rabbitmq.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
-
-import org.apache.log4j.Logger;
-//import org.prosolo.app.Settings;
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.RabbitMQConfig;
-import org.prosolo.common.messaging.rabbitmq.ReliableClient;
-
 import com.rabbitmq.client.Address;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.RabbitMQConfig;
+import org.prosolo.common.messaging.rabbitmq.ReliableClient;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
+
+//import org.prosolo.app.Settings;
 
 /**
 @author Zoran Jeremic Sep 7, 2014
@@ -98,7 +98,7 @@ public class ReliableClientImpl implements ReliableClient {
 				this.connection = null;
 			}
 		}catch(TimeoutException te){
-			te.printStackTrace();
+			logger.error("Error", te);
 		}
 
 		catch (IOException e) {
@@ -110,10 +110,10 @@ public class ReliableClientImpl implements ReliableClient {
 	public String getQueue() {
 		return this.queue;
 	}
+
 	@Override
 	public void setQueue(String queue) {
 		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
-		logger.debug("SET QUEUE:"+this.queue);
 	}
 
 }

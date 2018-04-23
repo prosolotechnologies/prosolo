@@ -53,13 +53,15 @@ public class ESAdministrationImpl implements ESAdministration {
 			ElasticSearchConnector.getClient().createIndex(index);
 		}
 
-		List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
-				.getFoundNodes();
-		for (String ind : organizationIndexes) {
-			for (OrganizationData o : organizations) {
-				ElasticSearchConnector.getClient().createIndex(ElasticsearchUtil.getOrganizationIndexName(ind, o.getId()));
-			}
-		}
+		if (!organizationIndexes.isEmpty()) {
+            List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+                    .getFoundNodes();
+            for (String ind : organizationIndexes) {
+                for (OrganizationData o : organizations) {
+                    ElasticSearchConnector.getClient().createIndex(ElasticsearchUtil.getOrganizationIndexName(ind, o.getId()));
+                }
+            }
+        }
 		return true;
 	}
 

@@ -1,13 +1,12 @@
 package org.prosolo.app;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
-import org.prosolo.common.elasticsearch.client.ESRestClient;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -95,7 +94,7 @@ public class AfterContextLoader implements ServletContextListener {
 			try {
 				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
 			} catch (IndexingServiceNotAvailable e) {
-				logger.error("Error", e);
+				logger.warn("Warning", e);
 			}
 		}
 	
@@ -158,18 +157,22 @@ public class AfterContextLoader implements ServletContextListener {
 	private void initStaticData() {
 		Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
 
-		ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
-				0,
-				Settings.getInstance().config.init.defaultUser.name,
-				Settings.getInstance().config.init.defaultUser.lastname,
-				Settings.getInstance().config.init.defaultUser.email,
-				true,
-				Settings.getInstance().config.init.defaultUser.pass,
-				null,
-				null,
-				null,
-				Arrays.asList(superAdminRoleId),
-				true);
+		try {
+			ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
+                    0,
+                    Settings.getInstance().config.init.defaultUser.name,
+                    Settings.getInstance().config.init.defaultUser.lastname,
+                    Settings.getInstance().config.init.defaultUser.email,
+                    true,
+                    Settings.getInstance().config.init.defaultUser.pass,
+                    null,
+                    null,
+                    null,
+                    Arrays.asList(superAdminRoleId),
+                    true);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+		}
 	}
 
 	/* Application Shutdown Event */

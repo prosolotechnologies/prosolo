@@ -583,7 +583,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("LEFT JOIN fetch cred.hashtags hashtags ");
 			builder.append("WHERE cred.id = :credentialId AND cred.deleted = :deleted ");
 
-			logger.info("GET CREDENTIAL DATA QUERY: " + builder.toString());
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("credentialId", credentialId)

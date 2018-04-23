@@ -64,14 +64,20 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
     private LearningEvidenceESService learningEvidenceESService;
 
     @Override
-    public void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
+    public void deleteAndInitElasticSearchDBIndexes() throws IndexingServiceNotAvailable {
         esAdministration.deleteDBIndexes();
         esAdministration.createDBIndexes();
     }
 
     @Override
+    public void deleteAndReindexDBESIndexes() throws IndexingServiceNotAvailable {
+        deleteAndInitElasticSearchDBIndexes();
+        indexDBData();
+    }
+
+    @Override
     public void deleteAndReindexLearningContent(long orgId) throws IndexingServiceNotAvailable {
-        //delete credentials and competences indexes
+        //delete credentials, competences and evidence indexes
         esAdministration.deleteIndex(
                 new String[] {
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, orgId) : ESIndexNames.INDEX_CREDENTIALS + "*",
