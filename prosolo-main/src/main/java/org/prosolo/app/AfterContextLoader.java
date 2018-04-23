@@ -5,6 +5,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -95,7 +96,7 @@ public class AfterContextLoader implements ServletContextListener {
 			try {
 				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
 			} catch (IndexingServiceNotAvailable e) {
-				logger.error("Error", e);
+				logger.warn("Warning", e);
 			}
 		}
 	
@@ -120,11 +121,11 @@ public class AfterContextLoader implements ServletContextListener {
 					logger.error(e);
 				}
 				
-				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
+				logger.debug("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
 						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
-				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
-					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
-				}
+//				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
+//					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
+//				}
 			}
 		}).start();
 		logger.debug("initialize Application services");
@@ -167,18 +168,22 @@ public class AfterContextLoader implements ServletContextListener {
 	private void initStaticData() {
 		Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
 
-		ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
-				0,
-				Settings.getInstance().config.init.defaultUser.name,
-				Settings.getInstance().config.init.defaultUser.lastname,
-				Settings.getInstance().config.init.defaultUser.email,
-				true,
-				Settings.getInstance().config.init.defaultUser.pass,
-				null,
-				null,
-				null,
-				Arrays.asList(superAdminRoleId),
-				true);
+		try {
+			ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
+                    0,
+                    Settings.getInstance().config.init.defaultUser.name,
+                    Settings.getInstance().config.init.defaultUser.lastname,
+                    Settings.getInstance().config.init.defaultUser.email,
+                    true,
+                    Settings.getInstance().config.init.defaultUser.pass,
+                    null,
+                    null,
+                    null,
+                    Arrays.asList(superAdminRoleId),
+                    true);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+		}
 	}
 
 	/* Application Shutdown Event */
