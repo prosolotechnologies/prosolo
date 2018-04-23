@@ -71,19 +71,6 @@ public class ESAdministrationImpl implements ESAdministration {
 			logger.error("Error", e);
 		}
 	}
-	
-//	private void addMapping(Client client, String indexName, String indexType) {
-//		//temporary solution until we completely move to organization indexes
-//		String mappingPath = "/org/prosolo/services/indexing/" + indexType + "-mapping" + ".json";
-//		String mapping = null;
-//
-//		try {
-//			mapping = copyToStringFromClasspath(mappingPath);
-//		} catch (IOException e1) {
-//			logger.error(e1);
-//		}
-//		client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
-//	}
 
 	@Override
 	public boolean deleteAllIndexes() {

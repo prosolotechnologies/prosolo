@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  */
 
-public class RecommendationDataIndexerImplImpl extends AbstractESIndexerImpl implements
+public class RecommendationDataIndexerImpl extends AbstractESIndexerImpl implements
 		RecommendationDataIndexer, Serializable {
 	private static Logger logger = Logger
 			.getLogger(RecommendationDataIndexer.class.getName());

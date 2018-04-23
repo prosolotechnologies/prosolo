@@ -31,7 +31,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 //import org.prosolo.bigdata.es.AssociationRulesIndexer;
 //import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 import org.prosolo.bigdata.es.RecommendationDataIndexer;
-import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImplImpl;
+import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.scala.analyzers.LearningGoalsMostActiveUsers;
 import org.prosolo.common.util.date.DateEpochUtil;
@@ -159,7 +159,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 
 		//final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
 		final long daysSinceEpoch = DateEpochUtil.getDaysSinceEpoch();
-		final RecommendationDataIndexer indexer = new RecommendationDataIndexerImplImpl();
+		final RecommendationDataIndexer indexer = new RecommendationDataIndexerImpl();
 		List<Long> daysToAnalyze = new ArrayList<Long>();
 		for (int i = 0; i < 7; i++) {
 			daysToAnalyze.add(daysSinceEpoch - i);

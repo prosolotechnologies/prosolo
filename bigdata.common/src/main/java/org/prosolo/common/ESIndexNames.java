@@ -1,17 +1,17 @@
 package org.prosolo.common;
 
+import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
-import org.prosolo.common.config.CommonSettings;
-
 public class ESIndexNames {
  
-	public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();
+	//public static final String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static final String INDEX_LOGS = CommonSettings.getInstance().config.elasticSearch.logsIndex+CommonSettings.getInstance().config.getNamespaceSufix();;
 	public static String INDEX_CREDENTIALS=CommonSettings.getInstance().config.elasticSearch.credentialsIndex + CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
 	public static String INDEX_COMPETENCES=CommonSettings.getInstance().config.elasticSearch.competencesIndex + CommonSettings.getInstance().config.getNamespaceSufix();//"nodes";
@@ -56,7 +56,7 @@ public class ESIndexNames {
 	}
 
 	public static List<String> getSystemIndexes() {
-		return Arrays.asList(INDEX_USERS, INDEX_LOGS, INDEX_ASSOCRULES, INDEX_RECOMMENDATION_DATA, INDEX_JOBS_LOGS);
+		return Arrays.asList(INDEX_USERS, INDEX_LOGS, INDEX_RECOMMENDATION_DATA, INDEX_JOBS_LOGS);
 	}
 
 	public static List<String> getOrganizationIndexes() {

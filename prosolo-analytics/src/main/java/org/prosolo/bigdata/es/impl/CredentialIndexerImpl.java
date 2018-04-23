@@ -10,38 +10,38 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.es.CompetenceIndexer;
+import org.prosolo.bigdata.es.CredentialIndexer;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
-public class CompetenceIndexerImplImpl extends AbstractESIndexerImpl implements
-		CompetenceIndexer, Serializable {
+public class CredentialIndexerImpl extends AbstractESIndexerImpl implements
+		CredentialIndexer, Serializable {
 	
 	private static final long serialVersionUID = -1740927229182115398L;
 	
 	private static Logger logger = Logger
-			.getLogger(CompetenceIndexerImplImpl.class.getName());
+			.getLogger(CredentialIndexerImpl.class.getName());
 	
-	private CompetenceIndexerImplImpl() {
+	private CredentialIndexerImpl() {
 		
 	}
 	
 	private static class SingletonHolder {
-        private static final CompetenceIndexerImplImpl INSTANCE = new CompetenceIndexerImplImpl();
+        private static final CredentialIndexerImpl INSTANCE = new CredentialIndexerImpl();
     }
     
-    public static CompetenceIndexerImplImpl getInstance(){
+    public static CredentialIndexerImpl getInstance(){
         return SingletonHolder.INSTANCE;
     }
 	
 	@Override
-	public void updateVisibility(long compId, boolean published) {
+	public void updateVisibility(long credentialId, boolean published) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_COMPETENCES, ESIndexTypes.COMPETENCE, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_CREDENTIALS, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

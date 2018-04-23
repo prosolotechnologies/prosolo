@@ -42,9 +42,6 @@ public class ElasticSearchConfig {
 
 	@Element(name = "users-index")
 	public String usersIndex;
-	
-	@Element(name = "associationrules-index")
-	public  String associationrulesIndex;
 
 	@Element(name = "recommendationdata-index")
 	public   String recommendationdataIndex;

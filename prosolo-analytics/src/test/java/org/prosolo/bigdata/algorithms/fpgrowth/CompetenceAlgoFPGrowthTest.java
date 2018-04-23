@@ -1,23 +1,23 @@
 package org.prosolo.bigdata.algorithms.fpgrowth;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AlgoAgrawalFaster94;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRules;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemset;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImplImpl;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.impl.ESAdministrationImplImpl;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Zoran Jeremic May 3, 2015
@@ -29,7 +29,7 @@ public class CompetenceAlgoFPGrowthTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testRunAlgorithm() {
-		ESAdministration admin = new ESAdministrationImplImpl();
+		ESAdministration admin = new ESAdministrationImpl();
 		AnalyzedResultsDBManager dbManager =  AnalyzedResultsDBmanagerImpl.getInstance();
 		try {
 			admin.createIndexes();
@@ -38,7 +38,7 @@ public class CompetenceAlgoFPGrowthTest {
 			e1.printStackTrace();
 		}
 		// long competenceid=4915341;
-		AssociationRulesIndexer indexer = new AssociationRulesIndexerImplImpl();
+		AssociationRulesIndexer indexer = new AssociationRulesIndexerImpl();
 		long competenceid = 24;
 		CompetenceAlgoFPGrowth fpgrowth = new CompetenceAlgoFPGrowth(
 				competenceid);

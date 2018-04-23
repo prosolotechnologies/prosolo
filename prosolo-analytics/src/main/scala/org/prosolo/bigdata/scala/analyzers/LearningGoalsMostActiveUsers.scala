@@ -8,7 +8,7 @@ import org.apache.spark.rdd.RDD
 import org.prosolo.bigdata.common.dal.pojo.{MostActiveUsersForLearningGoal, UserLearningGoalActivitiesCount}
 import org.prosolo.bigdata.common.events.pojo.{DataName, DataType}
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl
-import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImplImpl
+import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.common.util.date.DateEpochUtil
@@ -80,7 +80,7 @@ class LearningGoalsMostActiveUsers {
   def analyzeLearningGoalsMostActiveUsersForWeek(): Unit ={
     println("analyzeLearningGoalsMostActiveUsersForWeek")
     println("NOT FINISHED...")
-    val indexer = new RecommendationDataIndexerImplImpl
+    val indexer = new RecommendationDataIndexerImpl
     val daysSinceEpoch=DateEpochUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
     val sc=SparkManager.sparkContextLoader.getSC

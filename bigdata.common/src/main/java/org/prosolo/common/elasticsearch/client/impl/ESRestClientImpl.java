@@ -125,7 +125,7 @@ public class ESRestClientImpl implements ESRestClient {
     public boolean exists(String indexName) throws IOException {
         Response response = highLevelClient.getLowLevelClient().performRequest("HEAD", "/" + indexName);
         int status = response.getStatusLine().getStatusCode();
-        logger.info("INDEX EXISTS RESPONSE STATUS: " + status);
+        logger.info("INDEX EXISTS RESPONSE STATUS FOR INDEX " + indexName + ": " + status);
         return status == HttpStatus.SC_OK;
     }
 
@@ -161,9 +161,16 @@ public class ESRestClientImpl implements ESRestClient {
                 req.mapping(mapping.getFirst(), mapping.getSecond(), XContentType.JSON);
             }
             CreateIndexResponse response = highLevelClient.indices().create(req);
-            return response.isAcknowledged();
+            if (response.isAcknowledged()) {
+                logger.info("Index with name " + indexName + " has been created");
+                return true;
+            }
+            logger.info("Index (" + indexName + ") creation response not acknowledged");
+            return false;
+        } else {
+            logger.info("Index with name " + indexName + " already exists so it is not created");
+            return false;
         }
-        return false;
     }
 
     private Pair<String, String> getMappingTypeAndContent(String indexName) {
@@ -192,9 +199,6 @@ public class ESRestClientImpl implements ESRestClient {
             content = getMappingStringForType(type);
         } else if (indexName.startsWith(ESIndexNames.INDEX_EVIDENCE)) {
             type = ESIndexTypes.EVIDENCE;
-            content = getMappingStringForType(type);
-        } else if (indexName.equals(ESIndexNames.INDEX_ASSOCRULES)) {
-            type = ESIndexTypes.COMPETENCE_ACTIVITIES;
             content = getMappingStringForType(type);
         }
         return type != null && content != null ? new Pair<>(type, content) : null;

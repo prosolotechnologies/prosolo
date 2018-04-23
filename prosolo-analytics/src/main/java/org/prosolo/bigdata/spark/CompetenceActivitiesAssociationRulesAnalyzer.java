@@ -11,7 +11,7 @@ import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRules;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImplImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 
 /**
  * @author Zoran Jeremic May 10, 2015
@@ -26,7 +26,7 @@ public class CompetenceActivitiesAssociationRulesAnalyzer implements
 	private final double minMinsupp = 0.0005;
 	private final int minAssocRulesCount = 100;
 	private final double minMinconf = 0.1;
-	final AssociationRulesIndexer indexer = new AssociationRulesIndexerImplImpl();
+	final AssociationRulesIndexer indexer = new AssociationRulesIndexerImpl();
 
 	//@Deprecated
 	/*public void analyzeCompetenceActivitesAssociationRules() {

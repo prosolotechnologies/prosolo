@@ -29,7 +29,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		indexes.add(ESIndexNames.INDEX_JOBS_LOGS);
 		indexes.add(ESIndexNames.INDEX_RECOMMENDATION_DATA);
 		indexes.add(ESIndexNames.INDEX_LOGS);
-		indexes.add(ESIndexNames.INDEX_ASSOCRULES);
+		//indexes.add(ESIndexNames.INDEX_ASSOCRULES);
 
 		try {
 			for (String index : indexes) {

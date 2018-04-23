@@ -17,7 +17,7 @@ import org.prosolo.bigdata.algorithms.fpgrowth.patterns.MemoryLogger;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImplImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 
 /**
  * @author Zoran Jeremic May 3, 2015
@@ -29,7 +29,7 @@ public class CompetenceAlgoFPGrowth {
 			.getLogger(CompetenceAlgoFPGrowth.class);
 	//AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
 	//final AnalyzedResultsDBManager analyzeddbManager = new AnalyzedResultsDBmanagerImpl();
-	AssociationRulesIndexer esIndexer = new AssociationRulesIndexerImplImpl();
+	AssociationRulesIndexer esIndexer = new AssociationRulesIndexerImpl();
 	private long competenceId;
 	private long startTimestamp; // start time of the latest execution
 	private long endTime; // end time of the latest execution

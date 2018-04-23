@@ -108,30 +108,20 @@ public class AfterContextLoader implements ServletContextListener {
 		if (settings.config.init.indexTrainingSet) {
 			ServiceLocator.getInstance().getService(ESAdministration.class).indexTrainingSet();
 		}
-		
-		logger.debug("Initialize thread to start elastic search");
-		new Thread(new Runnable() {
-			@SuppressWarnings("unused")
-			@Override
-			public void run() {
-				try {
-					//TODO what is the purpose of this call - to initialize es client here instead of at the first query time?
-					ESRestClient client = ElasticSearchConnector.getClient();
-				} catch (NoNodeAvailableException e) {
-					logger.error(e);
-				}
-				
-				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
-						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
-				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
-					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
-				}
-			}
-		}).start();
+
+		//init ES client if not initialized
+		initESClient();
+
 		logger.debug("initialize Application services");
 		
 		initApplicationServices();
 		logger.debug("Services initialized");
+	}
+
+	private void initESClient() {
+		logger.debug("Initialize ES client");
+		ElasticSearchConnector.initializeESClientIfNotInitialized();
+		logger.debug("Finished ES client initialization");
 	}
 
 	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {

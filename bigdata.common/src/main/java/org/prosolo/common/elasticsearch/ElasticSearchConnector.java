@@ -47,6 +47,10 @@ public class ElasticSearchConnector {
 		return client;
 	}
 
+	public static void initializeESClientIfNotInitialized() {
+		getClient();
+	}
+
 	private static ESRestClient getESClient() {
 		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 		ESRestClient cl = null;
@@ -75,7 +79,6 @@ public class ElasticSearchConnector {
 				RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()])));
 	}
 
-	//TODO es migration test local client
 	private static ESRestClient getLocalClient() {
 //		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 //		String dataDirectory = elasticSearchConfig.homePath;
@@ -94,7 +97,7 @@ public class ElasticSearchConnector {
 		return null;
 	}
 
-	//TODO check if this is needed
+	//TODO this method should be reimplemented for version 6 when needed
 	private static ESRestClient getAWSClient(){
 //		ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 //		ESRestClient cl = null;
