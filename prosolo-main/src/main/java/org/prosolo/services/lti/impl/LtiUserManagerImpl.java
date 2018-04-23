@@ -95,8 +95,6 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 					.setString("userId", userId);
 		} catch (Exception e) {
 			return null;
-			//e.printStackTrace();
-			//throw new DbConnectionException("User cannot be retrieved");
 		}
 	}
 

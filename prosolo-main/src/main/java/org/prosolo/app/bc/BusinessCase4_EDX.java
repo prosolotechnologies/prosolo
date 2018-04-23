@@ -2,24 +2,28 @@ package org.prosolo.app.bc;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.app.RegistrationKey;
-import org.prosolo.common.domainmodel.app.RegistrationType;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.authentication.RegistrationManager;
+import org.prosolo.services.admin.BulkDataAdministrationService;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
@@ -35,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -52,23 +57,9 @@ public class BusinessCase4_EDX extends BusinessCase {
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 
 	public void initRepository() {
-		System.out.println("BusinessCaseTest - initRepository() with BC 3");
+		System.out.println("BusinessCaseTest - initRepository() with BC 4");
 
-		RegistrationKey regKey0 = new RegistrationKey();
-		regKey0.setUid("reg793442b86584b46f7bd8a0dae72f31");
-		regKey0.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey0);
-
-		RegistrationKey regKey = new RegistrationKey();
-		regKey.setUid(UUID.randomUUID().toString().replace("-", ""));
-		regKey.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey);
-
-		RegistrationKey regKey2 = new RegistrationKey();
-		regKey2.setUid(UUID.randomUUID().toString().replace("-", ""));
-		regKey2.setRegistrationType(RegistrationType.NO_APPROVAL_ACCESS);
-		ServiceLocator.getInstance().getService(RegistrationManager.class).saveEntity(regKey2);
-
+		EventQueue events = EventQueue.newEventQueue();
 
 		// get ROLES
 		Role roleUser = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(SystemRoleNames.USER);
@@ -83,73 +74,50 @@ public class BusinessCase4_EDX extends BusinessCase {
 		String genericPosition = "System analyst";
 		String genericPassword = "prosolo@2014";
 
-		User userNickPowell = createUser(0,"Nick", "Powell", "nick.powell@gmail.com", genericPassword, genericPosition, "male1.png", roleUser);
+		User userNickPowell = extractResultAndAddEvents(events, createUser(0,"Nick", "Powell", "nick.powell@gmail.com", genericPassword, genericPosition, "male1.png", roleUser));
 
 		//generate event after roles are updated
 		Map<String, String> params = null;
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
 				EventType.USER_ROLES_UPDATED, UserContextData.ofActor(userNickPowell.getId()),
-				userNickPowell, null, null, params);
+				userNickPowell, null, null, params));
 
 		//create organization
 		OrganizationData orgData = new OrganizationData();
 		orgData.setTitle("Org 1");
 		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
-		Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.createNewOrganization(orgData, UserContextData.empty());
+		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
+				.createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			logger.error(e);
-		}
+		Unit unit = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class)
+				.createNewUnitAndGetEvents("Unit 1", org.getId(), 0, UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
 
-
-		UnitData unit = ServiceLocator.getInstance().getService(UnitManager.class)
-				.createNewUnit("Unit 1", org.getId(), 0, UserContextData.empty());
-
-		//to give time indexes to be created after the ogranisation is saved
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {
-			logger.error(e);
-		}
+		User userRichardAnderson = extractResultAndAddEvents(events, createUser(org.getId(), "Richard", "Anderson", "richard.anderson@gmail.com", genericPassword, genericPosition, "male2.png", roleUser));
+		User userKevinMitchell = extractResultAndAddEvents(events, createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", genericPassword, genericPosition, "male3.png", roleUser));
+		User userPaulEdwards = extractResultAndAddEvents(events, createUser(org.getId(), "Paul", "Edwards", "paul.edwards@gmail.com", genericPassword, genericPosition, "male4.png", roleUser));
+		User userStevenTurner = extractResultAndAddEvents(events, createUser(org.getId(), "Steven", "Turner", "steven.turner@gmail.com", genericPassword, genericPosition, "male5.png", roleUser));
+		User userGeorgeYoung = extractResultAndAddEvents(events, createUser(org.getId(), "George", "Young", "george.young@gmail.com", genericPassword, genericPosition, "male6.png", roleUser));
+		User userPhillAmstrong = extractResultAndAddEvents(events, createUser(org.getId(), "Phill", "Amstrong", "phill.amstrong@gmail.com", genericPassword, genericPosition, "male7.png", roleUser));
+		User userJosephGarcia = extractResultAndAddEvents(events, createUser(org.getId(), "Joseph", "Garcia", "joseph.garcia@gmail.com", genericPassword, genericPosition, "male8.png", roleUser));
+		User userTimothyRivera = extractResultAndAddEvents(events, createUser(org.getId(), "Timothy", "Rivera", "timothy.rivera@gmail.com", genericPassword, genericPosition, "male9.png", roleUser));
+		User userKevinHall = extractResultAndAddEvents(events, createUser(org.getId(), "Kevin", "Hall", "kevin.hall@gmail.com", genericPassword, genericPosition, "male10.png", roleUser));
+		User userKennethCarter = extractResultAndAddEvents(events, createUser(org.getId(), "Kenneth", "Carter", "kenneth.carter@gmail.com", genericPassword, genericPosition, "male11.png", roleUser));
+		User userAnthonyMoore = extractResultAndAddEvents(events, createUser(org.getId(), "Anthony", "Moore", "anthony.moore@gmail.com", genericPassword, genericPosition, "male12.png", roleUser));
 
 
-
-		User userRichardAnderson = createUser(org.getId(), "Richard", "Anderson", "richard.anderson@gmail.com", genericPassword, genericPosition, "male2.png", roleUser);
-		User userKevinMitchell = createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", genericPassword, genericPosition, "male3.png", roleUser);
-		User userPaulEdwards = createUser(org.getId(), "Paul", "Edwards", "paul.edwards@gmail.com", genericPassword, genericPosition, "male4.png", roleUser);
-		User userStevenTurner = createUser(org.getId(), "Steven", "Turner", "steven.turner@gmail.com", genericPassword, genericPosition, "male5.png", roleUser);
-		User userGeorgeYoung = createUser(org.getId(), "George", "Young", "george.young@gmail.com", genericPassword, genericPosition, "male6.png", roleUser);
-		User userPhillAmstrong = createUser(org.getId(), "Phill", "Amstrong", "phill.amstrong@gmail.com", genericPassword, genericPosition, "male7.png", roleUser);
-		User userJosephGarcia = createUser(org.getId(), "Joseph", "Garcia", "joseph.garcia@gmail.com", genericPassword, genericPosition, "male8.png", roleUser);
-		User userTimothyRivera = createUser(org.getId(), "Timothy", "Rivera", "timothy.rivera@gmail.com", genericPassword, genericPosition, "male9.png", roleUser);
-		User userKevinHall = createUser(org.getId(), "Kevin", "Hall", "kevin.hall@gmail.com", genericPassword, genericPosition, "male10.png", roleUser);
-		User userKennethCarter = createUser(org.getId(), "Kenneth", "Carter", "kenneth.carter@gmail.com", genericPassword, genericPosition, "male11.png", roleUser);
-		User userAnthonyMoore = createUser(org.getId(), "Anthony", "Moore", "anthony.moore@gmail.com", genericPassword, genericPosition, "male12.png", roleUser);
-
-
-		User userTaniaCortese = createUser(org.getId(), "Tania", "Cortese", "tania.cortese@gmail.com", genericPassword, genericPosition, "female1.png", roleUser);
-		User userSonyaElston = createUser(org.getId(), "Sonya", "Elston", "sonya.elston@gmail.com", genericPassword, genericPosition, "female2.png", roleUser);
-		User userLoriAbner = createUser(org.getId(), "Lori", "Abner", "lori.abner@gmail.com", genericPassword, genericPosition, "female3.png", roleUser);
-		User userSamanthaDell = createUser(org.getId(), "Samantha", "Dell", "samantha.dell@gmail.com", genericPassword, genericPosition, "female4.png", roleUser);
-		User userAkikoKido = createUser(org.getId(), "Akiko", "Kido", "akiko.kido@gmail.com", genericPassword, genericPosition, "female7.png", roleUser);
-		User userKarenWhite = createUser(org.getId(), "Karen", "White", "karen.white@gmail.com", genericPassword, genericPosition, "female10.png", roleUser);
-		User userAnnaHallowell = createUser(org.getId(), "Anna", "Hallowell", "anna.hallowell@gmail.com", genericPassword, genericPosition, "female11.png", roleUser);
-		User userErikaAmes = createUser(org.getId(), "Erika", "Ames", "erika.ames@gmail.com", genericPassword, genericPosition, "female12.png", roleUser);
-		User userHelenCampbell = createUser(org.getId(), "Helen", "Campbell", "helen.campbell@gmail.com", genericPassword, genericPosition, "female13.png", roleUser);
-		User userSheriLaureano = createUser(org.getId(), "Sheri", "Laureano", "sheri.laureano@gmail.com", genericPassword, genericPosition, "female14.png", roleUser);
-		User userAngelicaFallon = createUser(org.getId(), "Angelica", "Fallon", "angelica.fallon@gmail.com", genericPassword, genericPosition, "female16.png", roleUser);
-		User userIdaFritz = createUser(org.getId(), "Ida", "Fritz", "ida.fritz@gmail.com", genericPassword, genericPosition, "female17.png", roleUser);
-		User userRachelWiggins = createUser(org.getId(), "Rachel", "Wiggins", "rachel.wiggins@gmail.com", genericPassword, genericPosition, "female20.png", roleUser);
-
-		// allow users to be added to indexes
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			logger.error(e);
-		}
+		User userTaniaCortese = extractResultAndAddEvents(events, createUser(org.getId(), "Tania", "Cortese", "tania.cortese@gmail.com", genericPassword, genericPosition, "female1.png", roleUser));
+		User userSonyaElston = extractResultAndAddEvents(events, createUser(org.getId(), "Sonya", "Elston", "sonya.elston@gmail.com", genericPassword, genericPosition, "female2.png", roleUser));
+		User userLoriAbner = extractResultAndAddEvents(events, createUser(org.getId(), "Lori", "Abner", "lori.abner@gmail.com", genericPassword, genericPosition, "female3.png", roleUser));
+		User userSamanthaDell = extractResultAndAddEvents(events, createUser(org.getId(), "Samantha", "Dell", "samantha.dell@gmail.com", genericPassword, genericPosition, "female4.png", roleUser));
+		User userAkikoKido = extractResultAndAddEvents(events, createUser(org.getId(), "Akiko", "Kido", "akiko.kido@gmail.com", genericPassword, genericPosition, "female7.png", roleUser));
+		User userKarenWhite = extractResultAndAddEvents(events, createUser(org.getId(), "Karen", "White", "karen.white@gmail.com", genericPassword, genericPosition, "female10.png", roleUser));
+		User userAnnaHallowell = extractResultAndAddEvents(events, createUser(org.getId(), "Anna", "Hallowell", "anna.hallowell@gmail.com", genericPassword, genericPosition, "female11.png", roleUser));
+		User userErikaAmes = extractResultAndAddEvents(events, createUser(org.getId(), "Erika", "Ames", "erika.ames@gmail.com", genericPassword, genericPosition, "female12.png", roleUser));
+		User userHelenCampbell = extractResultAndAddEvents(events, createUser(org.getId(), "Helen", "Campbell", "helen.campbell@gmail.com", genericPassword, genericPosition, "female13.png", roleUser));
+		User userSheriLaureano = extractResultAndAddEvents(events, createUser(org.getId(), "Sheri", "Laureano", "sheri.laureano@gmail.com", genericPassword, genericPosition, "female14.png", roleUser));
+		User userAngelicaFallon = extractResultAndAddEvents(events, createUser(org.getId(), "Angelica", "Fallon", "angelica.fallon@gmail.com", genericPassword, genericPosition, "female16.png", roleUser));
+		User userIdaFritz = extractResultAndAddEvents(events, createUser(org.getId(), "Ida", "Fritz", "ida.fritz@gmail.com", genericPassword, genericPosition, "female17.png", roleUser));
+		User userRachelWiggins = extractResultAndAddEvents(events, createUser(org.getId(), "Rachel", "Wiggins", "rachel.wiggins@gmail.com", genericPassword, genericPosition, "female20.png", roleUser));
 
 		// Adding roles to the users
 		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell.getId());
@@ -157,52 +125,52 @@ public class BusinessCase4_EDX extends BusinessCase {
 		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleSuperAdmin, userNickPowell.getId());
 
 		userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong.getId());
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-				EventType.Edit_Profile, UserContextData.of(userPhillAmstrong.getId(), userPhillAmstrong.getOrganization().getId(), null, null), userPhillAmstrong, null, null, null);
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
+				EventType.Edit_Profile, UserContextData.of(userPhillAmstrong.getId(), userPhillAmstrong.getOrganization().getId(), null, null), userPhillAmstrong, null, null, null));
 
 		userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell.getId());
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-				EventType.Edit_Profile, UserContextData.of(userAnnaHallowell.getId(), userAnnaHallowell.getOrganization().getId(), null, null), userAnnaHallowell, null, null, null);
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
+				EventType.Edit_Profile, UserContextData.of(userAnnaHallowell.getId(), userAnnaHallowell.getOrganization().getId(), null, null), userAnnaHallowell, null, null, null));
 
 		userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera.getId());
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-				EventType.Edit_Profile, UserContextData.of(userTimothyRivera.getId(), userTimothyRivera.getOrganization().getId(), null, null), userTimothyRivera, null, null, null);
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
+				EventType.Edit_Profile, UserContextData.of(userTimothyRivera.getId(), userTimothyRivera.getOrganization().getId(), null, null), userTimothyRivera, null, null, null));
 
 		userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes.getId());
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-				EventType.Edit_Profile, UserContextData.of(userErikaAmes.getId(), userErikaAmes.getOrganization().getId(), null, null), userErikaAmes, null, null, null);
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
+				EventType.Edit_Profile, UserContextData.of(userErikaAmes.getId(), userErikaAmes.getOrganization().getId(), null, null), userErikaAmes, null, null, null));
 
 		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite.getId());
 		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userKarenWhite.getId());
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
-				EventType.Edit_Profile, UserContextData.of(userKarenWhite.getId(), userKarenWhite.getOrganization().getId(), null, null), userKarenWhite, null, null, null);
+		events.appendEvent(ServiceLocator.getInstance().getService(EventFactory.class).generateEventData(
+				EventType.Edit_Profile, UserContextData.of(userKarenWhite.getId(), userKarenWhite.getOrganization().getId(), null, null), userKarenWhite, null, null, null));
 
 
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userNickPowell.getId(), unit.getId(), roleManager.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRichardAnderson.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinMitchell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPaulEdwards.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userStevenTurner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userGeorgeYoung.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userPhillAmstrong.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userJosephGarcia.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTimothyRivera.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKevinHall.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKennethCarter.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnthonyMoore.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userTaniaCortese.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSonyaElston.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userLoriAbner.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSamanthaDell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAkikoKido.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userKarenWhite.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAnnaHallowell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userErikaAmes.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userHelenCampbell.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userSheriLaureano.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userAngelicaFallon.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userIdaFritz.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
-		ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRole(userRachelWiggins.getId(), unit.getId(), roleUser.getId(), UserContextData.empty());
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userNickPowell.getId(), unit.getId(), roleManager.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userRichardAnderson.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKevinMitchell.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userPaulEdwards.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userStevenTurner.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userGeorgeYoung.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userPhillAmstrong.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userJosephGarcia.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userTimothyRivera.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKevinHall.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKennethCarter.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAnthonyMoore.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userTaniaCortese.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userSonyaElston.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userLoriAbner.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userSamanthaDell.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAkikoKido.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKarenWhite.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAnnaHallowell.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userErikaAmes.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userHelenCampbell.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userSheriLaureano.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAngelicaFallon.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userIdaFritz.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userRachelWiggins.getId(), unit.getId(), roleUser.getId(), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
 
 		/*
 		 * END CRETAING USERS
@@ -211,7 +179,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		// ////////////////////////////
 		// Credential for Nick Powell
 		// ///////////////////////////////
-		Credential1 cred1 = createCredential(org.getId(),
+		Credential1 cred1 = createCredential(events, org.getId(),
 				"Basics of Social Network Analysis",
 				"This credential defines social network analysis and its main analysis methods and "
 						+ "introduces how to peform social network analysis and visualize analysis results in Gephi",
@@ -225,14 +193,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 		Activity1 act2comp1cred1 = null;
 		Activity1 act4comp1cred1 = null;
 		try {
-			comp1cred1 = createCompetence(org.getId(),
+			comp1cred1 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis",
 					"Define social network analysis and its main analysis methods.",
 					cred1.getId(),
 					"centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis");
 
-			act1comp1cred1 = createActivity(org.getId(),
+			act1comp1cred1 = createActivity(events, org.getId(),
 					userNickPowell,
 					"Introduction to Social Network Analysis",
 					"Introduction into social network analysis for week 3 of DALMOOC by Dragan Gasevic.",
@@ -245,7 +213,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					"Slides",
 					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 
-			act2comp1cred1 = createActivity(org.getId(),
+			act2comp1cred1 = createActivity(events, org.getId(),
 					userNickPowell,
 					"Example dataset",
 					null,
@@ -258,7 +226,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					"Example datasets used in the videos",
 					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"CCK11 dataset",
 					"",
@@ -271,7 +239,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					"CCK11 dataset for social network analysis",
 					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 
-			act4comp1cred1 = createActivity(org.getId(),
+			act4comp1cred1 = createActivity(events, org.getId(),
 					userNickPowell,
 					"Network measures",
 					"Dragan Gasevic discusses network measures (degree centrality, betweenness centrality, closeness centrality, degree, diameter)  for week 3 of DALMOOC.",
@@ -284,7 +252,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Network Modularity and Community Identification",
 					"Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC.",
@@ -297,7 +265,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Assignment: Reflection and discussion on social network analysis",
 					"",
@@ -327,23 +295,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 					1,
 					0,
 					ActivityResultType.TEXT);
-
-
-			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
 		Competence1 comp2cred1 = null;
 		try {
-			comp2cred1 = createCompetence(org.getId(),
+			comp2cred1 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Using Gephi for Social Network Analysis",
 					"Perform social network analysis and visualize analysis results in Gephi",
 					cred1.getId(),
 					"community identification, gephi, network centrality, network density, network diameter, network visualization, social network analysis");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi Community Introduction",
 					"A YouTube video introducing the Gephi tool",
@@ -354,7 +319,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					4,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Download and install Gephi",
 					"",
@@ -379,7 +344,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					15,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi - An Introduction tour",
 					"Dragan Gasevic gives an introductory tour of Gephi for week 3 of DALMOOC.",
@@ -390,7 +355,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					17,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi - Modularity Analysis",
 					"Dragan Gasevic discusses modularity analysis in Gephi for week 3 of DALMOOC.",
@@ -401,7 +366,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					11,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi - Modularity tutorial",
 					"A quick tutorial by Jennifer Golbeck  on how to use gephi's modularity feature to detect communities and color code them in graphs.",
@@ -412,7 +377,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					9,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi Tutorial Quick start",
 					"Explore slide presentation: Gephi Tutorial Quick start",
@@ -423,7 +388,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					10,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Gephi Tutorial Visualization",
 					"Explore slide presentation: Gephi Tutorial Visualization",
@@ -434,7 +399,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					15,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Hands-on - Import the example dataset and perform the SNA analysis methods",
 					"",
@@ -456,7 +421,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Hands-on -  Visualization of the results of social network analysis in Gephi",
 					"",
@@ -477,29 +442,26 @@ public class BusinessCase4_EDX extends BusinessCase {
 					1,
 					0,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred1, cred1.getCreatedBy());
-
-			Thread.sleep(1000);
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
 		try {
-			Credential1 cred1Delivery = ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDelivery(cred1.getId(), new Date().getTime(), LocalDateTime.now(Clock.systemUTC()).plusDays(20).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli(), UserContextData.ofActor(userNickPowell.getId()));
+			long date20DaysFromNow = LocalDateTime.now(Clock.systemUTC()).plusDays(20).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
+			Credential1 cred1Delivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(cred1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date20DaysFromNow), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
 
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userRichardAnderson.getId()));
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userGeorgeYoung.getId()));
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userIdaFritz.getId()));
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userLoriAbner.getId()));
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userErikaAmes.getId()));
-			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1Delivery.getId(), UserContextData.ofActor(userTaniaCortese.getId()));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userRichardAnderson.getId(), 0, UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null)));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userGeorgeYoung.getId(), 0, UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null)));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userIdaFritz.getId(), 0, UserContextData.of(userIdaFritz.getId(), org.getId(), null, null)));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userLoriAbner.getId(), 0, UserContextData.of(userLoriAbner.getId(), org.getId(), null, null)));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userErikaAmes.getId(), 0, UserContextData.of(userErikaAmes.getId(), org.getId(), null, null)));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userTaniaCortese.getId(), 0, UserContextData.of(userTaniaCortese.getId(), org.getId(), null, null)));
 		} catch (IllegalDataStateException e) {
 			e.printStackTrace();
 		}
 
 
-		Credential1 cred2 = createCredential(org.getId(),
+		Credential1 cred2 = createCredential(events, org.getId(),
 				"Sensemaking of Social Network Analysis for Learning",
 				"This credential defines describes and critically reflects on possible approaches to the use of social network analysis for the study of learning. The credential also describes and interprets the results of social network analysis for the study of learning",
 				userNickPowell,
@@ -509,14 +471,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 		Competence1 comp1cred2 = null;
 		try {
-			comp1cred2 = createCompetence(org.getId(),
+			comp1cred2 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Reflecting on approaches to the use of SNA for the study of learning",
 					"Describe and critically reflect on possible approaches to the use of social network analysis for the study of learning",
 					cred2.getId(),
 					"academic performance, creative potential, learning analytics, learning design, MOOCs, sense of community, sensemaking, social network analysis");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Introduction",
 					"Introduction into sensemaking of social network analysis for the study of learning. Dragan Gasevic introduces us to week 4 of DALMOOC.",
@@ -527,7 +489,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					4,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis and Learning Design",
 					"Dragan Gasevic discusses social network analysis and learning design for week 4 of DALMOOC.",
@@ -538,7 +500,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					6,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis and Sense of Community",
 					"Dragan Gasevic discusses social network analysis and sense of community for week 4 of DALMOOC.",
@@ -549,7 +511,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					5,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis and Creative Potential",
 					"Dragan Gasevic discusses social network analysis and creative potential for week 4 of DALMOOC.",
@@ -560,7 +522,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					4,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis and Academic Peformance",
 					"Dragan Gasevic discusses social network analysis and academic performance for week 4 of DALMOOC.",
@@ -571,7 +533,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					6,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Social Network Analysis and Social Presence",
 					"Dragan Gasevic discusses social network analysis and social presence for week 4 of DALMOOC.",
@@ -582,7 +544,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					6,
 					ActivityResultType.TEXT);
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Hands-on activity: Integration of social network analysis in Gephi and Tableau analysis",
 					"Dragan Gasevic discusses social network analysis and social presence for week 4 of DALMOOC.",
@@ -592,22 +554,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					40,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
 		Competence1 comp2cred2 = null;
 		try {
-			comp2cred2 = createCompetence(org.getId(),
+			comp2cred2 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Interpreting the results of SNA",
 					"Describe and interpret the results of social network analysis for the study of learning",
 					cred2.getId(),
 					"analytics interpretation, gephi, learning analytics, sensemaking, social network analysis, tableau");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Bazaar assignment: Collaborative reflection on the interpretation of the results of social network analysis",
 					"",
@@ -617,14 +577,12 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					20,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
 
-		Credential1 cred3 = createCredential(org.getId(),
+		Credential1 cred3 = createCredential(events, org.getId(),
 				"Introduction to Learning Analytics",
 				"The proliferation of data in digital environments has to date been largely unexplored in education. A new academic field - learning analytics - has developed to gain insight into learner generated data and how this can be used to improve learning and teaching practices",
 				userNickPowell,
@@ -633,14 +591,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 		Competence1 comp1cred3 = null;
 		try {
-			comp1cred3 = createCompetence(org.getId(),
+			comp1cred3 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Tools for Learning Analytics",
 					"Identify proprietary and open source tools commonly used in learning analytics",
 					cred3.getId(),
 					"academic performance, creative potential, social network analysis");
 
-			Activity1 act1comp1cred3 = createActivity(org.getId(),
+			Activity1 act1comp1cred3 = createActivity(events, org.getId(),
 					userNickPowell,
 					"Getting Started With Data Analytics Tools",
 					"A basic overview of the Data Anlytics tools by George Siemens",
@@ -650,14 +608,12 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					30,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred3, cred2.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
 
-		Credential1 cred4 = createCredential(org.getId(),
+		Credential1 cred4 = createCredential(events, org.getId(),
 				"Text mining nuts and bolts",
 				"This credential introduces how to i) prepare data for use in LightSIDE and use LightSIDE to extract a wide range of feature types; ii) build and evaluate models using alternative feature spaces; iii) compare the performance of different models; iv) inspect models and interpret the weights assigned to different features as well as to reason about what these weights signify and whether they make sense; v) examine texts from different categories and notice characteristics they might want to include in feature space for models and then use this reasoning to start to make tentative decisions about what kinds of features to include in their models",
 				userNickPowell,
@@ -666,14 +622,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 		Competence1 comp1cred4 = null;
 		try {
-			comp1cred4 = createCompetence(org.getId(),
+			comp1cred4 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Basic use of LightSIDE",
 					"Prepare data for use in LightSIDE and use LightSIDE to extract a wide range of feature types",
 					cred4.getId(),
 					"academic performance, creative potential, social network analysis");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Data Preparation",
 					"Data Preparation in LightSIDE",
@@ -683,13 +639,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					45,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
 
-		Credential1 cred5 = createCredential(org.getId(),
+		Credential1 cred5 = createCredential(events, org.getId(),
 				"Prediction modeling",
 				"The credential introduces how to conduct prediction modeling effectively and appropriately and describe core uses of prediction modeling in education.",
 				userNickPowell,
@@ -698,14 +652,14 @@ public class BusinessCase4_EDX extends BusinessCase {
 
 		Competence1 comp1cred5 = null;
 		try {
-			comp1cred5 = createCompetence(org.getId(),
+			comp1cred5 = createCompetence(events, org.getId(),
 					userNickPowell,
 					"Basic of Prediction Modeling",
 					"Conduct prediction modeling effectively and appropriately",
 					cred5.getId(),
 					"academic performance, creative potential, social network analysis");
 
-			createActivity(org.getId(),
+			createActivity(events, org.getId(),
 					userNickPowell,
 					"Introduction in prediction modeling and regressors",
 					"Ryan Baker introduces prediction modeling and discusses regressors for week 5 of DALMOOC.",
@@ -715,8 +669,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 					0,
 					37,
 					ActivityResultType.TEXT);
-
-			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -724,82 +676,98 @@ public class BusinessCase4_EDX extends BusinessCase {
 		/*
 		 * Commenting on activities/ competences
 		 */
-		CommentData comment1 = commentOnActivity(userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.");
-		CommentData comment2 = commentOnActivity(userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
-		CommentData comment3 = commentOnActivity(userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
-		CommentData comment4 = commentOnActivity(userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge");
+		CommentData comment1 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.");
+		CommentData comment2 = commentOnActivity(events, userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
+		CommentData comment3 = commentOnActivity(events, userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+		CommentData comment4 = commentOnActivity(events, userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge");
 
 
-		CommentData comment5 = commentOnActivity(userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks");
-		CommentData comment6 = commentOnActivity(userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)");
-		CommentData comment7 = commentOnActivity(userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.");
-		CommentData comment8 = commentOnActivity(userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks");
-		CommentData comment9 = commentOnActivity(userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks");
-		CommentData comment10 = commentOnActivity(userPhillAmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.");
-		CommentData comment11 = commentOnActivity(userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+		CommentData comment5 = commentOnActivity(events, userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks");
+		CommentData comment6 = commentOnActivity(events, userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)");
+		CommentData comment7 = commentOnActivity(events, userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.");
+		CommentData comment8 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks");
+		CommentData comment9 = commentOnActivity(events, userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks");
+		CommentData comment10 = commentOnActivity(events, userPhillAmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.");
+		CommentData comment11 = commentOnActivity(events, userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
 
-		CommentData comment12 = commentOnActivity(userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!");
-		CommentData comment13 = commentOnActivity(userPhillAmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.");
-		CommentData comment14 = commentOnActivity(userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ");
-		CommentData comment15 = commentOnActivity(userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ");
-		CommentData comment16 = commentOnActivity(userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.");
+		CommentData comment12 = commentOnActivity(events, userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!");
+		CommentData comment13 = commentOnActivity(events, userPhillAmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.");
+		CommentData comment14 = commentOnActivity(events, userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ");
+		CommentData comment15 = commentOnActivity(events, userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ");
+		CommentData comment16 = commentOnActivity(events, userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.");
 
 		/*
 		 * Liking comments
 		 */
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userAkikoKido.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment5.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userKevinHall.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment6.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment9.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment9.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment12.getCommentId(), UserContextData.ofActor(userPhillAmstrong.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment12.getCommentId(), UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment13.getCommentId(), UserContextData.ofActor(userIdaFritz.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment13.getCommentId(), UserContextData.ofActor(userRichardAnderson.getId()));
-		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(comment14.getCommentId(), UserContextData.ofActor(userGeorgeYoung.getId()));
+		String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
+
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhillAmstrong.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()), null))));
 
 		/*
 		 * Sending private messages
 		 */
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Hi Richard");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Can you help me with a task");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userRichardAnderson.getId(), userKevinHall.getId(), "Sure. What's the problem?");
-
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Hi Anna");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Do you have time to help me with something?");
-
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi George");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi Ida");
-
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userAnnaHallowell.getId(), userPhillAmstrong.getId(), "Hello Phill");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Hi");
-		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Hi Richard");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Can you help me with a task");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userRichardAnderson.getId(), userKevinHall.getId(), "Sure. What's the problem?");
+//
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Hi Anna");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Do you have time to help me with something?");
+//
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi George");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi Ida");
+//
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userAnnaHallowell.getId(), userPhillAmstrong.getId(), "Hello Phill");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Hi");
+//		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
 
 		/*
 		 * User following
 		 */
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(), UserContextData.ofActor(userKevinHall.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(),  UserContextData.ofActor(userKevinHall.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userGeorgeYoung.getId(),  UserContextData.ofActor(userKevinHall.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userKevinHall.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userIdaFritz.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userAnnaHallowell.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userSheriLaureano.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userPhillAmstrong.getId(),  UserContextData.ofActor(userLoriAbner.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userLoriAbner.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(),  UserContextData.ofActor(userTaniaCortese.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userSheriLaureano.getId(),  UserContextData.ofActor(userJosephGarcia.getId()));
-		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(),  UserContextData.ofActor(userAngelicaFallon.getId()));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPhillAmstrong.getId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userAnnaHallowell.getId(),  UserContextData.of(userKevinHall.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userGeorgeYoung.getId(),  UserContextData.of(userKevinHall.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userIdaFritz.getId(),  UserContextData.of(userKevinHall.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userIdaFritz.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPhillAmstrong.getId(),  UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userIdaFritz.getId(),  UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPhillAmstrong.getId(),  UserContextData.of(userSheriLaureano.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPhillAmstrong.getId(),  UserContextData.of(userLoriAbner.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userLoriAbner.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userIdaFritz.getId(),  UserContextData.of(userTaniaCortese.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSheriLaureano.getId(),  UserContextData.of(userJosephGarcia.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  UserContextData.of(userAngelicaFallon.getId(), org.getId(), null, null)));
+
+		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+
+		try {
+			logger.info("Reindexing all indices since we know some observers have failed");
+			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndReindexDBESIndexes();
+		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
+			logger.error(indexingServiceNotAvailable);
+		}
 	}
 
-	private CommentData commentOnActivity(User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
+	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {
+		events.appendEvents(result.getEventQueue());
+		return result.getResult();
+	}
+
+	private CommentData commentOnActivity(EventQueue events, User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
 		CommentData newComment = new CommentData();
 		newComment.setCommentedResourceId(act1comp1cred1.getId());
 		try {
@@ -811,58 +779,33 @@ public class BusinessCase4_EDX extends BusinessCase {
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
 
-		PageContextData context = new PageContextData("/activity.xhtml", null, null);
+		String learningContext= MessageFormat.format("name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1//", act1comp1cred1.getId());
 
-		Comment1 comment = ServiceLocator.getInstance().getService(CommentManager.class).saveNewComment(newComment,
-				CommentedResourceType.Activity, UserContextData.of(userKevinHall.getId(), userKevinHall.getOrganization().getId(), null, context));
+		PageContextData context = new PageContextData("/activity.xhtml", learningContext, null );
+
+		Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
+				CommentedResourceType.Activity, UserContextData.of(userKevinHall.getId(), userKevinHall.getOrganization().getId(), null, context)));
 
 		newComment.setCommentId(comment.getId());
 
 		return newComment;
 	}
 
-	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
-//		CredentialManager credentialManager = ServiceLocator
-//				.getInstance()
-//				.getService(CredentialManager.class);
-//
-//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false,
-//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
-//		CredentialData credentialData = res.getResource();
-//
-//		if (credentialData == null) {
-//			RestrictedAccessResult<CredentialData> res1 = credentialManager.getCredentialData(cred.getId(), false,
-//					true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
-//			CredentialData credentialData1 = res.getResource();
-//			System.out.println(credentialData1);
-//		}
-//
-//		if (credentialData != null) {
-//			//credentialData.setPublished(true);
-//
-//			credentialManager.updateCredential(credentialData, creator.getId(), null);
-//
-//			try {
-//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
-//			} catch (EventException e) {
-//				e.printStackTrace();
-//			}
-//		} else {
-//			logger.error("Could not load credential " + cred.getId());
-//		}
+	private Result<User> createUser(long orgId, String name, String lastname, String emailAddress, String password, String fictitiousUser,
+									String avatar, Role roleUser) {
+		try {
+			return ServiceLocator
+					.getInstance()
+					.getService(UserManager.class)
+					.createNewUserAndGetEvents(orgId, name, lastname, emailAddress,
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, Arrays.asList(roleUser.getId()),false);
+		} catch (IllegalDataStateException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	private User createUser(long orgId, String name, String lastname, String emailAddress, String password, String fictitiousUser,
-							String avatar, Role roleUser) {
-		User newUser = ServiceLocator
-				.getInstance()
-				.getService(UserManager.class)
-				.createNewUser(orgId, name, lastname, emailAddress,
-						true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, Arrays.asList(roleUser.getId()));
-		return newUser;
-	}
-
-	private Activity1 createActivity(long orgId, User userNickPowell, String title, String description, String url, ActivityType type,
+	private Activity1 createActivity(EventQueue events, long orgId, User userNickPowell, String title, String description, String url, ActivityType type,
 									 long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink)
 			throws DbConnectionException, IllegalDataStateException {
 		ActivityData actData = new ActivityData(false);
@@ -906,41 +849,40 @@ public class BusinessCase4_EDX extends BusinessCase {
 			actData.setLinks(activityLinks);
 		}
 
-		Activity1 act = ServiceLocator
+		Activity1 act = extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()
 				.getService(Activity1Manager.class)
-				.saveNewActivity(
-						actData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
+				.createActivity(
+						actData, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 		return act;
 	}
 
-	private Credential1 createCredential(long orgId, String title, String description, User userNickPowell, String tags, long unitId) {
+	private Credential1 createCredential(EventQueue events, long orgId, String title, String description, User userNickPowell, String tags, long unitId) {
 		CredentialData credentialData = new CredentialData(false);
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
-		Credential1 credNP1 = ServiceLocator
+		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
+		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
+		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
+		credentialData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+
+		Credential1 credNP1 = extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
+				.saveNewCredentialAndGetEvents(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		ServiceLocator
-				.getInstance()
-				.getService(UnitManager.class)
-				.addCredentialToUnit(credentialData.getId(), unitId, UserContextData.empty());
+//		extractResultAndAddEvents(events, ServiceLocator
+//				.getInstance()
+//				.getService(UnitManager.class)
+//				.addCredentialToUnitAndGetEvents(credNP1.getId(), unitId, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 
 		return credNP1;
 	}
 
-	public Competence1 createCompetence(long orgId, User user, String title, String description, long credentialId, String tags) {
+	public Competence1 createCompetence(EventQueue events, long orgId, User user, String title, String description, long credentialId, String tags) {
 
 		CompetenceData1 compData = new CompetenceData1(false);
 		compData.setTitle(title);
@@ -950,14 +892,18 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		compData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);
 
+		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
+		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
+		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
+		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
 
 		Competence1 comp;
 		try {
-			comp = ServiceLocator
+			comp = extractResultAndAddEvents(events, ServiceLocator
 					.getInstance()
 					.getService(Competence1Manager.class)
-					.saveNewCompetence(
-							compData, credentialId, UserContextData.of(user.getId(), orgId, null, null));
+					.saveNewCompetenceAndGetEvents(
+							compData, credentialId, UserContextData.of(user.getId(), orgId, null, null)));
 			return comp;
 		} catch (DbConnectionException e) {
 			// TODO Auto-generated catch block
