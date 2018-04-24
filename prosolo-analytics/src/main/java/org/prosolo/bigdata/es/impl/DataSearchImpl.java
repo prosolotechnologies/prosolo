@@ -13,10 +13,12 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.es.DataSearch;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
+import org.prosolo.common.util.ElasticsearchUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,6 @@ public class DataSearchImpl  extends AbstractESIndexerImpl implements DataSearch
     private static Logger logger = Logger
             .getLogger(DataSearch.class.getName());
     @Override
-    //TODO es migration - test this query
     public List<Long> findCredentialMembers(long credId,int page, int limit) {
             List<Long> members=new ArrayList<Long>();
             try {
@@ -65,7 +66,9 @@ public class DataSearchImpl  extends AbstractESIndexerImpl implements DataSearch
 
 
                 //   System.out.println(searchRequestBuilder.toString());
-                SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+                long orgId = new CourseDAOImpl(false).getOrganizationIdForCredential(credId);
+                String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+                SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
                 if (sResponse != null) {
                     for (SearchHit hit : sResponse.getHits()) {
                         members.add(Long.valueOf(hit.getSourceAsMap().get("id").toString()));

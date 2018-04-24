@@ -245,4 +245,31 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 			throw new DbConnectionException("Error while retrieving user credentials ids");
 		}
 	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public long getOrganizationIdForCredential(long credentialId) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction t = null;
+		String query =
+				"SELECT cred.organization.id " +
+				"FROM Credential1 cred " +
+				"WHERE cred.id = :credentialId";
+		try {
+			t = session.beginTransaction();
+			Long id = (Long) session.createQuery(query)
+					.setLong("credentialId", credentialId)
+					.uniqueResult();
+			t.commit();
+			return id != null ? id.longValue() : 0;
+		} catch(Exception ex) {
+			logger.error("Error", ex);
+			if (t != null) {
+				t.rollback();
+			}
+		} finally {
+			session.close();
+		}
+		return 0;
+	}
 }
