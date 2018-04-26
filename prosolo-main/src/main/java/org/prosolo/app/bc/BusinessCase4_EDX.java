@@ -1,5 +1,6 @@
 package org.prosolo.app.bc;
 
+import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -49,13 +50,15 @@ import java.util.*;
  * @author Zoran Jeremic Oct 11, 2014
  *
  */
-@Service("org.prosolo.app.bc.BusinessCase4_EDX")
-public class BusinessCase4_EDX extends BusinessCase {
+@Service
+public class BusinessCase4_EDX {
+
+    private static Logger logger = Logger.getLogger(BusinessCase4_EDX.class.getName());
 
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 
 	public void initRepository() {
-		System.out.println("BusinessCaseTest - initRepository() with BC 4");
+        logger.info("BusinessCaseTest - initRepository() with BC 4");
 
 		EventQueue events = EventQueue.newEventQueue();
 
@@ -871,11 +874,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class)
 				.saveNewCredentialAndGetEvents(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
-
-//		extractResultAndAddEvents(events, ServiceLocator
-//				.getInstance()
-//				.getService(UnitManager.class)
-//				.addCredentialToUnitAndGetEvents(credNP1.getId(), unitId, UserContextData.of(userNickPowell.getId(), orgId, null, null)));
 
 		return credNP1;
 	}
