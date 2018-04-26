@@ -468,13 +468,41 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 }
             }
 
-            //check if evidence view is enabled by student on at least one credential with competence for which this evidence is added
-            //TODO
+            if (accessRequirements.getAccessMode() == AccessMode.USER) {
+                boolean canAccess = hasUserAllowedHisEvidenceToBeSeenByOtherStudents(le);
+                return new ResourceAccessData(canAccess, canAccess, false, false, false);
+            }
             return new ResourceAccessData(false, false, false, false, false);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error determining learning evidence access rights");
         }
+    }
+
+    /**
+     * Returns true if evidence display is enabled by user on at least one credential with competence for which this evidence is attached
+     * @param le
+     * @return
+     */
+    private boolean hasUserAllowedHisEvidenceToBeSeenByOtherStudents(LearningEvidence le) {
+        String q =
+                "SELECT tCred.id FROM CompetenceEvidence ce " +
+                "INNER JOIN ce.competence tc " +
+                "INNER JOIN tc.competence comp " +
+                "INNER JOIN comp.credentialCompetences cc " +
+                "INNER JOIN cc.credential cred " +
+                "INNER JOIN cred.targetCredentials tCred " +
+                    "WITH tCred.user.id = :userId " +
+                    "AND tCred.evidenceDisplayed IS TRUE " +
+                "WHERE ce.evidence.id = :evidenceId";
+
+        Long res = (Long) persistence.currentManager().createQuery(q)
+                .setLong("userId", le.getUser().getId())
+                .setLong("evidenceId", le.getId())
+                .setMaxResults(1)
+                .uniqueResult();
+
+        return res != null;
     }
 
 }

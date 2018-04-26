@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div class="container">
+        <h:panelGroup layout="block" rendered="#{learningEvidenceBean.currentUserEvidenceOwner}" styleClass="container">
             <ol class="breadcrumb">
                 <li>
                     <h:link outcome="/evidences">
@@ -50,7 +50,7 @@
                 </li>
                 <li class="active">#{learningEvidenceBean.evidence.title}</li>
             </ol>
-        </div>
+        </h:panelGroup>
 
         <div class="container">
             <div class="row">
@@ -63,6 +63,7 @@
                         canEdit="#{learningEvidenceBean.access.canEdit}"
                         deleteModalId="deleteEvidence"
                         role="USER"
+                        showCompetences="#{learningEvidenceBean.currentUserEvidenceOwner}"
                     />
                 </div>
 
