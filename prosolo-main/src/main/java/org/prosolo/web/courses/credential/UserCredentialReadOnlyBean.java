@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -79,13 +80,61 @@ public class UserCredentialReadOnlyBean implements Serializable {
 				.getTargetCredentialDataWithEvidencesAndAssessmentCount(decodedCredId, decodedStudentId);
 	}
 
+	private void retrieveUserCredentialDataWithExceptionHandling() {
+		try {
+			retrieveUserCredentialData();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the data");
+		}
+	}
+
 	public boolean isCurrentUserCredentialStudent() {
 		return credentialData != null && credentialData.getStudent().getId() == loggedUser.getUserId();
 	}
 
 
-	public boolean hasMoreCompetences(int index) {
-		return credentialData.getCompetences().size() != index + 1;
+	/*
+	ACTIONS
+	 */
+
+	public void updateCredentialAssessmentsVisibility() {
+		try {
+			credentialManager.updateCredentialAssessmentsVisibility(credentialData.getTargetCredId(), credentialData.isCredentialAssessmentsDisplayed());
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " assessments visibility updated");
+			//reload data
+			retrieveUserCredentialDataWithExceptionHandling();
+		} catch (DbConnectionException e) {
+			credentialData.setCredentialAssessmentsDisplayed(!credentialData.isCredentialAssessmentsDisplayed());
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " assessments visibility");
+			logger.error("Error", e);
+		}
+	}
+
+	public void updateCompetenceAssessmentsVisibility() {
+		try {
+			credentialManager.updateCompetenceAssessmentsVisibility(credentialData.getTargetCredId(), credentialData.isCompetenceAssessmentsDisplayed());
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " assessments visibility updated");
+			//reload data
+			retrieveUserCredentialDataWithExceptionHandling();
+		} catch (DbConnectionException e) {
+			credentialData.setCompetenceAssessmentsDisplayed(!credentialData.isCompetenceAssessmentsDisplayed());
+			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " assessments visibility");
+			logger.error("Error", e);
+		}
+	}
+
+	public void updateEvidenceVisibility() {
+		try {
+			credentialManager.updateEvidenceVisibility(credentialData.getTargetCredId(), credentialData.isEvidenceDisplayed());
+			PageUtil.fireSuccessfulInfoMessage("Evidence visibility updated");
+			//reload data
+			retrieveUserCredentialDataWithExceptionHandling();
+		} catch (DbConnectionException e) {
+			credentialData.setEvidenceDisplayed(!credentialData.isEvidenceDisplayed());
+			PageUtil.fireErrorMessage("Error updating evidence visibility");
+			logger.error("Error", e);
+		}
 	}
 
 	/*

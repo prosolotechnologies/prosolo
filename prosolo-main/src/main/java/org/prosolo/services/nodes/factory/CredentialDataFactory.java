@@ -150,6 +150,10 @@ public class CredentialDataFactory {
 			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
 
+		cred.setCredentialAssessmentsDisplayed(credential.isCredentialAssessmentsDisplayed());
+		cred.setCompetenceAssessmentsDisplayed(credential.isCompetenceAssessmentsDisplayed());
+		cred.setEvidenceDisplayed(credential.isEvidenceDisplayed());
+
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}

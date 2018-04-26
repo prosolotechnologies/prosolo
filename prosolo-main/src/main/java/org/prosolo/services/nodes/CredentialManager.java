@@ -469,4 +469,10 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId);
+
+	void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
+
+	void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
+
+	void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence);
 }

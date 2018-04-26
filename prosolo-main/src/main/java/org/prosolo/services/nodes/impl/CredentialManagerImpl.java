@@ -60,6 +60,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.lang.annotation.Target;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
@@ -3795,8 +3796,56 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional
 	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
+		TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId);
 		return getTargetCredentialData(credentialId, studentId,
-				CredentialLoadConfig.of(false, true, true, true,false, true, true, false,
-						CompetenceLoadConfig.of(false, false, false, true, true)));
+				CredentialLoadConfig.of(false, true, true, true,false, true, tc.isCredentialAssessmentsDisplayed(), false,
+						CompetenceLoadConfig.of(false, false, false, tc.isEvidenceDisplayed(), tc.isCompetenceAssessmentsDisplayed())));
+	}
+
+	private TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
+		String q =
+				"SELECT tc FROM TargetCredential1 tc " +
+				"WHERE tc.credential.id = :credId " +
+				"AND tc.user.id = :studentId";
+		return (TargetCredential1) persistence.currentManager().createQuery(q)
+				.setLong("credId", credentialId)
+				.setLong("studentId", studentId)
+				.uniqueResult();
+	}
+
+	@Override
+	@Transactional
+	public void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
+		try {
+			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
+			tc.setCredentialAssessmentsDisplayed(displayAssessments);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error updating credentialAssessmentsDisplayed field of a target credential " + targetCredentialId);
+		}
+	}
+
+	@Override
+	@Transactional
+	public void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
+		try {
+			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
+			tc.setCompetenceAssessmentsDisplayed(displayAssessments);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error updating competenceAssessmentsDisplayed field of a target credential " + targetCredentialId);
+		}
+	}
+
+	@Override
+	@Transactional
+	public void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence) {
+		try {
+			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
+			tc.setEvidenceDisplayed(displayEvidence);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error updating evidenceDisplayed field of a target credential " + targetCredentialId);
+		}
 	}
 }

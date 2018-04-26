@@ -93,6 +93,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialCategoryData category;
 
 	private int numberOfAssessments;
+
+	//profile visibility settings
+	private boolean credentialAssessmentsDisplayed;
+	private boolean competenceAssessmentsDisplayed;
+	private boolean evidenceDisplayed;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
@@ -642,5 +647,29 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setStudent(UserData student) {
 		this.student = student;
+	}
+
+	public boolean isCredentialAssessmentsDisplayed() {
+		return credentialAssessmentsDisplayed;
+	}
+
+	public void setCredentialAssessmentsDisplayed(boolean credentialAssessmentsDisplayed) {
+		this.credentialAssessmentsDisplayed = credentialAssessmentsDisplayed;
+	}
+
+	public boolean isCompetenceAssessmentsDisplayed() {
+		return competenceAssessmentsDisplayed;
+	}
+
+	public void setCompetenceAssessmentsDisplayed(boolean competenceAssessmentsDisplayed) {
+		this.competenceAssessmentsDisplayed = competenceAssessmentsDisplayed;
+	}
+
+	public boolean isEvidenceDisplayed() {
+		return evidenceDisplayed;
+	}
+
+	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
+		this.evidenceDisplayed = evidenceDisplayed;
 	}
 }
