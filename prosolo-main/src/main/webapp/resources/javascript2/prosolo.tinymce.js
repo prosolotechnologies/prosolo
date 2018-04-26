@@ -8,7 +8,7 @@ function initTinyMCE(textArea) {
 			selector: textArea,
             convert_urls : 0,
             font_formats: '14px/22px "prosolo_regular", "Helvetica Neue", Helvetica, Arial, sans-serif',
-			plugins: 'link media code image fullscreen paste',
+			plugins: 'link media code image fullscreen paste lists',
 			paste_as_text: true,
 			menubar: false,
 			statusbar: false,
