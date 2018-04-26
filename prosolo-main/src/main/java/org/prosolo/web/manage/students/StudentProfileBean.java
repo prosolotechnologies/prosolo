@@ -9,6 +9,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.AnalyticalServerConfig;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -158,9 +159,7 @@ public class StudentProfileBean implements Serializable {
 					.getCompetencesForCredential(
 							credProgressData.getCredentialId(),
 							decodedId,
-							false,
-							false,
-							false);
+							CompetenceLoadConfig.of(false, false, false, false, false));
 
 			boolean first = true;
 			

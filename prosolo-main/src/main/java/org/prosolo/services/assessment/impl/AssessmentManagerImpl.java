@@ -26,6 +26,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -155,7 +156,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-					targetCredential.getCredential().getId(), studentId, false, false, true);
+					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.of(false, false, true, false, false));
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
 						comp, studentId, assessorId, null, type,false, context);
@@ -384,7 +385,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
-				assessment.getTargetCredential().getUser().getId(), false, false, true);
+				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.of(false, false, true, true, false));
 		int currentGrade = assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC
 				? getAutomaticCredentialAssessmentScore(id) : assessment.getPoints();
 		Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(id);
@@ -959,7 +960,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Result<Void> result = new Result<>();
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
-					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), false, false, false);
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), CompetenceLoadConfig.of(false, false, false, false, false));
 
 			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
 
@@ -3593,5 +3594,39 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	//get competence peer assessments end
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfAssessmentsForUserCredential(long targetCredentialId) {
+		try {
+			String query =
+					"SELECT COUNT(ca.id) from CredentialAssessment ca " +
+							"WHERE ca.targetCredential.id = :tcId";
+			return ((Long) persistence.currentManager().createQuery(query)
+					.setLong("tcId", targetCredentialId)
+					.uniqueResult()).intValue();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading number of credential assessments");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId) {
+		try {
+			String query =
+					"SELECT COUNT(ca.id) from CompetenceAssessment ca " +
+					"WHERE ca.competence.id = :compId " +
+					"AND ca.student.id = :studentId";
+			return ((Long) persistence.currentManager().createQuery(query)
+					.setLong("compId", competenceId)
+					.setLong("studentId", studentId)
+					.uniqueResult()).intValue();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the number of competence assessments");
+		}
+	}
 
 }

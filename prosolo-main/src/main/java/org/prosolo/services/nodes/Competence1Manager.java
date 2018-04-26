@@ -17,6 +17,7 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
@@ -77,8 +78,7 @@ public interface Competence1Manager {
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
 	
-	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadLearningPathData) throws DbConnectionException;
+	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
 	
 	
 	/**

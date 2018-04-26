@@ -147,6 +147,6 @@ public class CredentialDataFactoryTest {
         c1.setTitle("Credential" + id);
         TargetCredential1 tc1 = new TargetCredential1();
         tc1.setCredential(c1);
-        return new TargetCredentialData(tc1, credentialCategory);
+        return new TargetCredentialData(tc1, credentialCategory, 0);
     }
 }

@@ -432,39 +432,44 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         try {
             LearningEvidence le = (LearningEvidence) persistence.currentManager()
                 .load(LearningEvidence.class, evidenceId);
-            //if user is evidence owner resource access data with full privileges is returned
-            if (accessRequirements.getAccessMode() == AccessMode.USER && le.getUser().getId() == userId) {
-                return new ResourceAccessData(true, true, true, false, false);
+            if (userId > 0) {
+                //if user is evidence owner resource access data with full privileges is returned
+                if (accessRequirements.getAccessMode() == AccessMode.USER && le.getUser().getId() == userId) {
+                    return new ResourceAccessData(true, true, true, false, false);
+                }
+
+                //check if user is assessor on at least one competence where this evidence is added
+                String query =
+                        "SELECT ca.id FROM CompetenceAssessment ca " +
+                                "INNER JOIN ca.competence comp " +
+                                "INNER JOIN comp.targetCompetences tc " +
+                                "WITH tc.user.id = :studentId " +
+                                "INNER JOIN tc.evidences ce " +
+                                "WHERE ce.evidence.id = :evId " +
+                                "AND ce.deleted IS FALSE " +
+                                "AND ca.assessor.id = :userId " +
+                                "AND ca.type = :type";
+
+                AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
+                        ? AssessmentType.PEER_ASSESSMENT
+                        : AssessmentType.INSTRUCTOR_ASSESSMENT;
+
+                Long id = (Long) persistence.currentManager()
+                        .createQuery(query)
+                        .setLong("studentId", le.getUser().getId())
+                        .setLong("evId", evidenceId)
+                        .setLong("userId", userId)
+                        .setString("type", aType.name())
+                        .setMaxResults(1)
+                        .uniqueResult();
+
+                if (id != null) {
+                    return new ResourceAccessData(true, true, false, false, false);
+                }
             }
 
-            String query =
-                    "SELECT ca.id FROM CompetenceAssessment ca " +
-                    "INNER JOIN ca.competence comp " +
-                    "INNER JOIN comp.targetCompetences tc " +
-                            "WITH tc.user.id = :studentId " +
-                    "INNER JOIN tc.evidences ce " +
-                    "WHERE ce.evidence.id = :evId " +
-                    "AND ce.deleted IS FALSE " +
-                    "AND ca.assessor.id = :userId " +
-                    "AND ca.type = :type";
-
-            AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
-                    ? AssessmentType.PEER_ASSESSMENT
-                    : AssessmentType.INSTRUCTOR_ASSESSMENT;
-
-            Long id = (Long) persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("studentId", le.getUser().getId())
-                    .setLong("evId", evidenceId)
-                    .setLong("userId", userId)
-                    .setString("type", aType.name())
-                    .setMaxResults(1)
-                    .uniqueResult();
-
-            if (id != null) {
-                return new ResourceAccessData(true, true, false, false, false);
-            }
-
+            //check if evidence view is enabled by student on at least one credential with competence for which this evidence is added
+            //TODO
             return new ResourceAccessData(false, false, false, false, false);
         } catch (Exception e) {
             logger.error("Error", e);

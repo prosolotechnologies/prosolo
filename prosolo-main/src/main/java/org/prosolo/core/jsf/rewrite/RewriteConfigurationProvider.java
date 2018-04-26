@@ -48,6 +48,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/profile").to("/profile.xhtml"))
 				//.addRule(Join.path("/credentials/{id}").to("/course.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
+				.addRule(Join.path("/credentials/{credId}/{studentId}/public").to("/public-credential.xhtml"))
 				.addRule(Join.path("/credentials/{id}/announcements/{announcementId}").to("/announcement.xhtml"))
 				.addRule(Join.path("/credentials/{id}/announcements").to("/announcements.xhtml"))
 				//TODO validate these competence patterns 

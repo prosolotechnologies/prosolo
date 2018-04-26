@@ -8,6 +8,7 @@ import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -43,6 +44,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long duration;
 	private String durationString;
 	private ResourceCreator creator;
+	private UserData student;
 	private List<CompetenceData1> competences;
 	private boolean automaticallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
@@ -89,6 +91,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	//category
 	private CredentialCategoryData category;
+
+	private int numberOfAssessments;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
@@ -622,5 +626,21 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setCategory(CredentialCategoryData category) {
 		observeAttributeChange("category", this.category, category);
 		this.category = category;
+	}
+
+	public int getNumberOfAssessments() {
+		return numberOfAssessments;
+	}
+
+	public void setNumberOfAssessments(int numberOfAssessments) {
+		this.numberOfAssessments = numberOfAssessments;
+	}
+
+	public UserData getStudent() {
+		return student;
+	}
+
+	public void setStudent(UserData student) {
+		this.student = student;
 	}
 }

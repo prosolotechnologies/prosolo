@@ -28,6 +28,7 @@ public class TargetCredentialData implements Serializable {
 	//category
 	private CredentialCategoryData category;
 	private CredentialData credential;
+	private int numberOfAssessments;
 	
 	private long nextCompetenceToLearnId;
 
@@ -35,7 +36,7 @@ public class TargetCredentialData implements Serializable {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
-	public TargetCredentialData(TargetCredential1 targetCredential1, CredentialCategory category) {
+	public TargetCredentialData(TargetCredential1 targetCredential1, CredentialCategory category, int numberOfAssessments) {
 		this.id = targetCredential1.getId();
 		this.title = targetCredential1.getCredential().getTitle();
 		this.description = targetCredential1.getCredential().getDescription();
@@ -44,6 +45,7 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = targetCredential1.getCredential().getId();
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
+		this.numberOfAssessments = numberOfAssessments;
 		if (category != null) {
 			this.category = new CredentialCategoryData(category.getId(), category.getTitle(), false);
 		}
@@ -132,5 +134,9 @@ public class TargetCredentialData implements Serializable {
 
 	public CredentialCategoryData getCategory() {
 		return category;
+	}
+
+	public int getNumberOfAssessments() {
+		return numberOfAssessments;
 	}
 }

@@ -17,6 +17,7 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
@@ -249,8 +250,7 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
 	
-	TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException;
+	TargetCredential1 getTargetCredential(long credentialId, long userId, CredentialLoadConfig credentialLoadConfig) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
 	
@@ -353,7 +353,7 @@ public interface CredentialManager extends AbstractManager {
 
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 
-	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadAssessmentConfig, boolean loadCompetences)
+	CredentialData getTargetCredentialData(long credentialId, long userId, CredentialLoadConfig credentialLoadConfig)
 			throws DbConnectionException;
 	
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
@@ -460,4 +460,13 @@ public interface CredentialManager extends AbstractManager {
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 
 	CredentialCategory getCredentialCategory(long categoryId) throws DbConnectionException;
+
+	/**
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId);
 }

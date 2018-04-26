@@ -335,4 +335,21 @@ public interface AssessmentManager {
 	 * @return
 	 */
 	Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
+
+    /**
+     *
+     * @param targetCredentialId
+     * @return
+     * @throws DbConnectionException
+     */
+	int getNumberOfAssessmentsForUserCredential(long targetCredentialId);
+
+    /**
+     *
+     * @param competenceId
+     * @param studentId
+     * @return
+     * @throws DbConnectionException
+     */
+    int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId);
 }

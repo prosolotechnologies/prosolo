@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -116,8 +117,8 @@ public class CredentialDataFactory {
 		return types;
 	}
 	
-	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
-			Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
+	public CredentialData getCredentialData(TargetCredential1 credential, User createdBy, User student,
+											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null || credential.getCredential() == null) {
 			return null;
 		}
@@ -130,6 +131,9 @@ public class CredentialDataFactory {
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
 		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+		if (student != null) {
+			cred.setStudent(new UserData(student));
+		}
 		
 		if (credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
 			cred.setInstructorPresent(true);

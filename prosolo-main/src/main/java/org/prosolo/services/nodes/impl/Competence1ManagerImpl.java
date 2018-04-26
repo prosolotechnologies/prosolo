@@ -35,6 +35,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -235,8 +236,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator,
-		 boolean loadTags, boolean loadLearningPathData)
+	public List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -248,11 +248,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				       	   "LEFT JOIN comp.targetCompetences tComp " +
 				       			"WITH tComp.user.id = :userId ");
 
-			if (loadCreator) {
+			if (compLoadConfig.isLoadCreator()) {
 				builder.append("INNER JOIN fetch comp.createdBy user ");
 			}
 
-			if (loadTags) {
+			if (compLoadConfig.isLoadTags()) {
 				builder.append("LEFT JOIN fetch comp.tags tags ");
 			}
 			builder.append("WHERE cred.id = :credId " +
@@ -274,27 +274,31 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						uniqueComps.add(cc.getId());
 						
 						Competence1 comp = cc.getCompetence();
-						Set<Tag> tags = loadTags ? comp.getTags() : null;
-						User createdBy = loadCreator ? comp.getCreatedBy() : null;
+						Set<Tag> tags = compLoadConfig.isLoadTags() ? comp.getTags() : null;
+						User createdBy = compLoadConfig.isLoadCreator() ? comp.getCreatedBy() : null;
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
 						CompetenceData1 compData;
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), null, tags, null,
 									false);
-							if (compData != null && loadLearningPathData) {
-								if (compData.getLearningPathType() == LearningPathType.ACTIVITY) {
+							if (compData != null) {
+								if (compData.getLearningPathType() == LearningPathType.ACTIVITY && compLoadConfig.isLoadActivities()) {
 									List<ActivityData> activities = activityManager
 											.getTargetActivitiesData(compData.getTargetCompId());
 									compData.setActivities(activities);
-								} else {
+								} else if (compData.getLearningPathType() == LearningPathType.EVIDENCE && compLoadConfig.isLoadEvidence()) {
 									//load user evidences
 									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
 									compData.setEvidences(compEvidences);
 								}
+								//load number of competence assessments if needed
+								if (compLoadConfig.isLoadAssessmentCount()) {
+									compData.setNumberOfAssessments(assessmentManager.getNumberOfAssessmentsForUserCompetence(compData.getCompetenceId(), userId));
+								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
-							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && loadLearningPathData) {
+							if (compData.getLearningPathType() == LearningPathType.ACTIVITY && compLoadConfig.isLoadActivities()) {
 								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
 										compData.getCompetenceId());
 								compData.setActivities(activities);
@@ -2547,19 +2551,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional (readOnly = true)
 	public List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
+		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.COMPLETED);
 	}
 
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	@Transactional (readOnly = true)
 	public List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
+		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.IN_PROGRESS);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible,
-														 UserLearningProgress progress)
+	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible, boolean loadNumberOfAssessments,
+															UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =
@@ -2592,8 +2596,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setLong("userId", userId)
 					.list();
 
-			for(TargetCompetence1 targetCompetence1 : res){
-				resultList.add(new TargetCompetenceData(targetCompetence1));
+			for(TargetCompetence1 targetCompetence1 : res) {
+				int numberOfAssessments = 0;
+				if (loadNumberOfAssessments) {
+					numberOfAssessments = assessmentManager.getNumberOfAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
+				}
+				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments));
 			}
 			return resultList;
 
