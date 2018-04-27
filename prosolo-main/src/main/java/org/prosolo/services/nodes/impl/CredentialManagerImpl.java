@@ -54,7 +54,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.lang.annotation.Target;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
@@ -422,6 +421,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					List<CompetenceData1> targetCompData = compManager
 							.getCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
+					if (loadAssessmentConfig) {
+						for (AssessmentTypeConfig conf : credData.getAssessmentTypes()) {
+							if (conf.isEnabled()) {
+								conf.setGradeSummary(assessmentManager.getCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
+							}
+						}
+					}
 				}
 				return credData;
 			}
@@ -577,7 +583,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("LEFT JOIN fetch cred.hashtags hashtags ");
 			builder.append("WHERE cred.id = :credentialId AND cred.deleted = :deleted ");
 
-			logger.info("GET CREDENTIAL DATA QUERY: " + builder.toString());
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("credentialId", credentialId)
@@ -2301,7 +2306,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
-		String query = "SELECT DISTINCT comp " +
+		String query =
+				"SELECT DISTINCT comp " +
 				"FROM Competence1 comp " +
 				"LEFT JOIN FETCH comp.tags tag " +
 				"INNER JOIN comp.credentialCompetences cComp " +
@@ -2328,13 +2334,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT DISTINCT cAct " +
-							"FROM CompetenceActivity1 cAct " +
-							"INNER JOIN fetch cAct.activity act " +
-							"LEFT JOIN FETCH act.tags tag " +
-							"INNER JOIN cAct.competence comp " +
-							"INNER JOIN comp.credentialCompetences cComp " +
-							"WITH cComp.credential.id = :credId " +
-							"ORDER BY act.title";
+					"FROM CompetenceActivity1 cAct " +
+					"INNER JOIN fetch cAct.activity act " +
+					"LEFT JOIN FETCH act.tags tag " +
+					"INNER JOIN cAct.competence comp " +
+					"INNER JOIN comp.credentialCompetences cComp " +
+					"WITH cComp.credential.id = :credId " +
+					"ORDER BY act.title";
 
 			@SuppressWarnings("unchecked")
 			List<CompetenceActivity1> activities = (List<CompetenceActivity1>) persistence.currentManager()

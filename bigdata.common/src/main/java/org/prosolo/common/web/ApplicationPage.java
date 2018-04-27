@@ -31,7 +31,6 @@ public enum ApplicationPage {
 	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
 	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
 	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
-	ADMIN_USER_EDIT("/admin/adminUserEdit.xhtml"),
 	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
 	ADMIN_MESSAGES("/admin/messages.xhtml"),
 	ADMIN_OTHER("/admin/other.xhtml"),
@@ -107,7 +106,9 @@ public enum ApplicationPage {
 	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
 	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
-	ADMIN_ACTIVITY("/admin/activity.xhtml");
+	ADMIN_ACTIVITY("/admin/activity.xhtml"),
+	ADMIN_MIGRATIONS("/admin/migrations.xhtml"),
+	;
 
     private String uri; 
     

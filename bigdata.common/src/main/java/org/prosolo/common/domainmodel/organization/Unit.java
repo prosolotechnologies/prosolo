@@ -28,6 +28,7 @@ public class Unit extends BaseEntity {
 	private List<CompetenceUnit> competenceUnits;
 	private List<RubricUnit> rubricUnits;
 	private Unit parentUnit;
+	private String welcomeMessage;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
@@ -86,5 +87,14 @@ public class Unit extends BaseEntity {
 
 	public void setRubricUnits(List<RubricUnit> rubricUnits){
 		this.rubricUnits = rubricUnits;
+	}
+
+	@Column(length = 21844, columnDefinition="Text")
+	public String getWelcomeMessage() {
+		return welcomeMessage;
+	}
+
+	public void setWelcomeMessage(String welcomeMessage) {
+		this.welcomeMessage = welcomeMessage;
 	}
 }

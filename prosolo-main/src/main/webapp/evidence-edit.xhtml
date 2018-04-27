@@ -26,6 +26,8 @@
     </ui:define>
 
     <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+        <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 
         <ui:param name="learningContext" value="#{learningEvidenceEditBean.createUseCase ? 'name:new_evidence' : 'name:evidence|id:'.concat(learningEvidenceEditBean.evidence.id)}"></ui:param>
 

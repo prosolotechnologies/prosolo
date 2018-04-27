@@ -45,14 +45,19 @@ public interface UnitManager extends AbstractManager{
     Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context)
             throws DbConnectionException;
 
+    void removeUserFromAllUnitsWithRole(long userId, long roleId, UserContextData context) throws DbConnectionException;
+
+    Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
+            throws DbConnectionException;
+
     List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException;
 
     UnitData getUnitData(long unitId) throws DbConnectionException;
 
-    Unit updateUnit(long unitId,String title, UserContextData context) throws
+    Unit updateUnit(UnitData unit, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Unit> updateUnitAndGetEvents(long unitId,String title, UserContextData context) throws
+    Result<Unit> updateUnitAndGetEvents(UnitData unit, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     String getUnitTitle(long organizationId, long unitId) throws DbConnectionException;

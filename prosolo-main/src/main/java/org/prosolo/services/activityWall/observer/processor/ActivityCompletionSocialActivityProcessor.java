@@ -19,10 +19,10 @@ public class ActivityCompletionSocialActivityProcessor extends SocialActivityPro
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
+	public void createOrDeleteSocialActivity() {
 		BaseEntity object = event.getObject();
 		if (object == null || !(object instanceof TargetActivity1)) {
-			return null;
+			return;
 		}
 		TargetActivity1 activityObject = (TargetActivity1) object;
 		
@@ -33,7 +33,7 @@ public class ActivityCompletionSocialActivityProcessor extends SocialActivityPro
 		act.setActor(new User(event.getActorId()));
 		act.setTargetActivityObject(activityObject);
 		
-		return socialActivityManager.saveNewSocialActivity(act, session);
+		socialActivityManager.saveNewSocialActivity(act, session);
 	}
 
 }

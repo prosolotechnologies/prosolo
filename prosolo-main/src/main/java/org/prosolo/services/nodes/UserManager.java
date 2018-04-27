@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
@@ -37,11 +38,11 @@ public interface UserManager extends AbstractManager {
 	
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles);
-	
-	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-			String password, String position, InputStream avatarStream, 
-			String avatarFilename, List<Long> roles, boolean isSystem);
+			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
+
+	Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+										   String password, String position, InputStream avatarStream,
+										   String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
@@ -62,6 +63,10 @@ public interface UserManager extends AbstractManager {
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException;
+
+	Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+					boolean emailVerified, boolean changePassword, String password,
+					String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 

@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 public class EmailValidatorUtil {
 
     public static boolean isValid(String email) throws ValidatorException {
-        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-]+(\\."
-                + "[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*"
+        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-']+(\\."
+                + "[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*"
                 + "(\\.[A-Za-z]{2,})$");
         Matcher matcher = pattern.matcher(email);
 

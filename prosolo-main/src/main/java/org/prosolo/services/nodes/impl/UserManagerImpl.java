@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -23,8 +24,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,15 +49,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private CredentialManager credentialManager;
 	@Inject
 	private UserManager self;
-	@Inject private AvatarProcessor avatarProcessor;
-	@Inject private UnitManager unitManager;
-	@Inject private UserGroupManager userGroupManager;
-
-	@Inject private PasswordEncoder passwordEncoder;
-	@Inject private EventFactory eventFactory;
-	@Inject private ResourceFactory resourceFactory;
-
-	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+	@Inject
+	private AvatarProcessor avatarProcessor;
+	@Inject
+	private UnitManager unitManager;
+	@Inject
+	private UserGroupManager userGroupManager;
+	@Inject
+	private PasswordEncoder passwordEncoder;
+	@Inject
+	private EventFactory eventFactory;
+	@Inject
+	private RoleManager roleManager;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -210,19 +213,43 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	//nt
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles) {
-		return createNewUser(organizationId, name, lastname, emailAddress, emailVerified, password, position,
-				avatarStream, avatarFilename, roles, false);
+							  String password, String position, InputStream avatarStream,
+							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+		try {
+			Result<User> res = self.createNewUserAndGetEvents(
+					organizationId,
+					name,
+					lastname,
+					emailAddress,
+					emailVerified,
+					password,
+					position,
+					avatarStream,
+					avatarFilename,
+					roles,
+					isSystem);
+
+			eventFactory.generateEvents(res.getEventQueue());
+
+			return res.getResult();
+		} catch (IllegalDataStateException idse) {
+			throw idse;
+		} catch (DbConnectionException dbe) {
+			logger.error(dbe);
+			dbe.printStackTrace();
+			throw dbe;
+		}
 	}
 
 	@Override
 	@Transactional (readOnly = false)
-	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+	public Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles, boolean isSystem) {
+			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+
+		Result<User> result = new Result<>();
 
 		if (checkIfUserExists(emailAddress)) {
 			User user = getUser(emailAddress);
@@ -232,27 +259,58 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				user.setDeleted(false);
 				saveEntity(user);
 			}
+			result.setResult(user);
 
-			return user;
+			return result;
 		}
-		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(
-				organizationId,
-				name,
-				lastname,
-				emailAddress,
-				emailVerified,
-				password,
-				position,
-				isSystem,
-				avatarStream,
-				avatarFilename,
-				roles);
 
-		eventFactory.generateEvent(
-				EventType.Registered, UserContextData.ofActor(newUser.getId()),null, null, null, null);
+		emailAddress = emailAddress.toLowerCase();
 
-		return newUser;
+		User user = new User();
+		user.setName(name);
+		user.setLastname(lastname);
+
+		user.setEmail(emailAddress);
+		user.setVerified(emailVerified);
+		user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+		if (organizationId > 0) {
+			user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+		}
+
+		if (password != null) {
+			user.setPassword(passwordEncoder.encode(password));
+			user.setPasswordLength(password.length());
+		}
+
+		user.setSystem(isSystem);
+		user.setPosition(position);
+
+		user.setUserType(UserType.REGULAR_USER);
+		if(roles == null) {
+			user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
+		} else {
+			for(Long id : roles) {
+				Role role = (Role) persistence.currentManager().load(Role.class, id);
+				user.addRole(role);
+			}
+		}
+		user = saveEntity(user);
+
+		try {
+			if (avatarStream != null) {
+				user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
+				user = saveEntity(user);
+			}
+		} catch (IOException e) {
+			logger.error(e);
+		}
+
+		result.appendEvent(eventFactory.generateEventData(
+				EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null));
+
+		result.setResult(user);
+		return result;
 	}
 
 	@Transactional (readOnly = false)
@@ -372,16 +430,69 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+						   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
 			throws DbConnectionException {
-		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, roles, rolesToUpdate);
+		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
+				changePassword, password, position, newRoleList, allRoles, context);
 
-		eventFactory.generateEvent(EventType.Edit_Profile, context, user, null, null, null);
-		return user;
+		eventFactory.generateEvents(result.getEventQueue());
+
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
+											   boolean emailVerified, boolean changePassword, String password,
+											   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context) throws DbConnectionException {
+		Result<User> result = new Result<>();
+		try {
+			User user = loadResource(User.class, userId);
+			user.setName(name);
+			user.setLastname(lastName);
+			user.setPosition(position);
+			user.setEmail(email);
+			user.setVerified(true);
+
+			if (changePassword) {
+				user.setPassword(passwordEncoder.encode(password));
+				user.setPasswordLength(password.length());
+			}
+
+			// remove the following roles (if user has them)
+			Set<Long> removedRoles = new HashSet<>(allRoles);
+			removedRoles.removeAll(newRoleList);
+
+			for (Long roleId : removedRoles) {
+				boolean removed = user.removeRoleById(roleId);
+
+				if (removed) {
+					// delete all unit memberships in roles that are removed
+					result.appendEvents(unitManager.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context).getEventQueue());
+				}
+			}
+
+			// add roles that user did not have previously
+			for (Long roleId : newRoleList) {
+				if (!user.hasRole(roleId)) {
+					Role role = (Role) persistence.currentManager().load(Role.class, roleId);
+					user.addRole(role);
+				}
+			}
+
+			result.setResult(user);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, context, user, null, null, null));
+
+			return result;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user data");
+		}
 	}
 
 	@Override

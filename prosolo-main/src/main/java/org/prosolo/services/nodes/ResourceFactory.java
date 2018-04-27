@@ -34,9 +34,6 @@ public interface ResourceFactory extends AbstractManager {
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
-    User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
-            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles);
-
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
@@ -50,9 +47,6 @@ public interface ResourceFactory extends AbstractManager {
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
-			throws DbConnectionException;
-
 	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
 	
 	PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 
@@ -62,10 +56,6 @@ public interface ResourceFactory extends AbstractManager {
 	
 	PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
    			throws DbConnectionException;
-	
-	User updateUser(long userId, String name, String lastName, String email,
-			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException;
 	
 	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
 

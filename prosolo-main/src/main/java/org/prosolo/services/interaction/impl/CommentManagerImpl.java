@@ -10,8 +10,10 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -22,10 +24,8 @@ import org.prosolo.services.interaction.data.CommentSortField;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserLearningProgress;
 import org.prosolo.services.util.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +51,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Inject
 	private Annotation1Manager annotationManager;
 	@Inject
-	private ResourceFactory resourceFactory;
+	private CommentManager self;
 	@Inject
 	private CredentialManager credManager;
 	@Inject
@@ -347,17 +347,35 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		return annotationManager.hasUserAnnotatedResource(userId, resourceId, AnnotationType.Like, 
 				AnnotatedResource.Comment);
 	}
-	
+
 	@Override
-	@Transactional (readOnly = false)
+	//nt
 	public void likeComment(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
+			Result<Void> res = self.likeCommentAndGetEvents(commentId, context);
+
+			eventFactory.generateEvents(res.getEventQueue());
+		} catch (DbConnectionException dbe) {
+			logger.error(dbe);
+			dbe.printStackTrace();
+			throw dbe;
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public Result<Void> likeCommentAndGetEvents(long commentId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			Result<Void> result = new Result<>();
 			annotationManager.createAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
 					AnnotationType.Like);
+
 			String query = "UPDATE Comment1 comment " +
 						   "SET comment.likeCount = comment.likeCount + 1 " +
 						   "WHERE comment.id = :commentId";
+
 			persistence.currentManager()
 				.createQuery(query)
 				.setLong("commentId", commentId)
@@ -365,8 +383,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
-			
-			eventFactory.generateEvent(EventType.Like, context, comment, null, null, null);
+
+			result.appendEvent(eventFactory.generateEventData(EventType.Like, context, comment, null, null, null));
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -414,11 +433,45 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //	}
 
 	@Override
-	@Transactional(readOnly = false)
+	//nt
 	public Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
 			UserContextData context) throws DbConnectionException {
 		try {
-			Comment1 comment = resourceFactory.saveNewComment(data, context.getActorId(), resource);
+			Result<Comment1> res = self.saveNewCommentAndGetEvents(data, resource, context);
+
+			eventFactory.generateEvents(res.getEventQueue());
+
+			return res.getResult();
+		} catch (DbConnectionException dbe) {
+			logger.error(dbe);
+			dbe.printStackTrace();
+			throw dbe;
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Comment1> saveNewCommentAndGetEvents(CommentData data, CommentedResourceType resource,
+													   UserContextData context) throws DbConnectionException {
+		Result<Comment1> result = new Result<>();
+		try {
+			Comment1 comment = new Comment1();
+			comment.setDescription(data.getComment());
+			comment.setCommentedResourceId(data.getCommentedResourceId());
+			comment.setResourceType(resource);
+			comment.setInstructor(data.isInstructor());
+			comment.setManagerComment(data.isManagerComment());
+			//comment.setDateCreated(data.getDateCreated());
+			comment.setPostDate(data.getDateCreated());
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
+			comment.setUser(user);
+			if(data.getParent() != null) {
+				Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class,
+						data.getParent().getCommentId());
+				comment.setParentComment(parent);
+			}
+
+			saveEntity(comment);
 
 			BaseEntity target = null;
 			switch(resource) {
@@ -436,17 +489,19 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					break;
 			}
 			target.setId(data.getCommentedResourceId());
-			
+
 			EventType eventType = data.getParent() != null ? EventType.Comment_Reply : EventType.Comment;
-			eventFactory.generateEvent(eventType, context, comment, target, null, null);
-			
-			return comment;
+			result.appendEvent(eventFactory.generateEventData(eventType, context, comment, target, null, null));
+
+			result.setResult(comment);
+			return result;
+		} catch(DbConnectionException dce) {
+			throw dce;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment");
+			throw new DbConnectionException("Error while saving activity");
 		}
-		
 	}
 	
 	@Override

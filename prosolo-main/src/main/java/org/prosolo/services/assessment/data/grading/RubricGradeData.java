@@ -2,6 +2,7 @@ package org.prosolo.services.assessment.data.grading;
 
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.rubric.RubricType;
+import org.prosolo.common.util.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public abstract class RubricGradeData<T extends RubricCriteriaGradeData<? extend
 
     private T rubricCriteria;
     private ActivityRubricVisibility rubricVisibilityForStudent;
+    private Pair<Integer, Integer> assessmentStarData;
 
     protected RubricGradeData() {}
 
@@ -68,5 +70,14 @@ public abstract class RubricGradeData<T extends RubricCriteriaGradeData<? extend
 
     public void setRubricCriteria(T rubricCriteria) {
         this.rubricCriteria = rubricCriteria;
+    }
+
+    public void setAssessmentStarData(Pair<Integer, Integer> assessmentStarData) {
+        this.assessmentStarData = assessmentStarData;
+    }
+
+    @Override
+    public Pair<Integer, Integer> getAssessmentStarData() {
+        return assessmentStarData;
     }
 }

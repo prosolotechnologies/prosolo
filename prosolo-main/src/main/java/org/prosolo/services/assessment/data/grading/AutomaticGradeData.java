@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data.grading;
 
+import org.prosolo.common.util.Pair;
+
 /**
  * @author stefanvuckovic
  * @date 2018-01-11
@@ -8,6 +10,7 @@ package org.prosolo.services.assessment.data.grading;
 public class AutomaticGradeData implements GradeData {
 
     private PointGradeValues gradeInfo;
+    private Pair<Integer, Integer> assessmentStarData;
 
     public AutomaticGradeData() {}
 
@@ -58,4 +61,12 @@ public class AutomaticGradeData implements GradeData {
         this.gradeInfo = new PointGradeValues(0, maxPoints, currentGrade);
     }
 
+    public void calculateAssessmentStarData() {
+        assessmentStarData = GradeDataUtil.getPointBasedAssessmentStarData(gradeInfo);
+    }
+
+    @Override
+    public Pair<Integer, Integer> getAssessmentStarData() {
+        return assessmentStarData;
+    }
 }

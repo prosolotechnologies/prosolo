@@ -32,6 +32,9 @@
     </ui:define>
 
     <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+        <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
+
         <div class="whiteBar"></div>
 
         <div class="container">
@@ -88,11 +91,22 @@
                                     </div>
                                 </div>
                                 <div class="formLine">
+                                    <label>Welcome Message</label>
+                                    <div class="formLineRight">
+                                        <p class="top10 bottom10">Specify a welcome message that will be presented to user on the homepage upon registering:</p>
+                                        <h:inputTextarea id="inputTextareaWelcomeMsg" value="#{unitEditBean.unit.welcomeMessage}"/>
+                                        <script>
+                                            initTinyMCE('#formMainEditUnit\\:inputTextareaWelcomeMsg');
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="formLine">
                                     <label>&#160;</label>
                                     <div class="formLineRight">
                                         <p:commandLink id="saveBtn"
                                                        styleClass="btn btn-green"
                                                        value="Save Changes"
+                                                       onclick="copyTextFromTinyMCEToTextarea('#formMainEditUnit\\:inputTextareaWelcomeMsg');"
                                                        action="#{unitEditBean.updateUnit()}" update=":formMainEditUnit">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                             <f:param name="learningContext" value="name:update_unit" />

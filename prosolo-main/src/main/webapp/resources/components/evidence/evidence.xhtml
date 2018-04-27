@@ -16,6 +16,7 @@
 		<composite:attribute name="canEdit" required="true" type="java.lang.Boolean" />
         <composite:attribute name="deleteModalId" default="" />
         <composite:attribute name="role" default="USER" />
+		<composite:attribute name="titleIsClickable" default="true"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -24,10 +25,14 @@
 				<div class="evidenceTopLeft">
 					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : cc.attrs.evidence.type eq 'TEXT' ? 'text' : 'doc'}"></div>
 					<h3>
-						<h:link outcome="/evidence">
-							#{cc.attrs.evidence.title}
-							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}"/>
-						</h:link>
+						<ui:fragment rendered="#{cc.attrs.titleIsClickable}">
+							<h:link outcome="#{cc.attrs.role == 'USER' ? '/evidence' : '/manage/evidence'}">
+								#{cc.attrs.evidence.title}
+								<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}"/>
+							</h:link>
+						</ui:fragment>
+
+						<h:outputText rendered="#{not cc.attrs.titleIsClickable}" value="#{cc.attrs.evidence.title}" />
 					</h3>
 				</div>
 				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">

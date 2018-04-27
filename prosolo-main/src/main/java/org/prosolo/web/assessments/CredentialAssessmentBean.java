@@ -11,6 +11,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.*;
+import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
@@ -613,6 +614,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if (fullAssessmentData.getGradeData().getGradingMode() == GradingMode.AUTOMATIC) {
 			fullAssessmentData.getGradeData().updateCurrentGrade(assessmentManager.getAutomaticCredentialAssessmentScore(
 					fullAssessmentData.getCredAssessmentId()));
+			((AutomaticGradeData) fullAssessmentData.getGradeData()).calculateAssessmentStarData();
 		}
 	}
 
