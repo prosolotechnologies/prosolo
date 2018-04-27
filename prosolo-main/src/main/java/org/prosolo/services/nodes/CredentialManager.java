@@ -19,7 +19,7 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
@@ -228,7 +228,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<CategorizedCredentials> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
@@ -238,7 +238,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<CategorizedCredentials> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<CategorizedCredentialsData> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
 
 		
 	/**

@@ -42,7 +42,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -1614,8 +1614,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<CategorizedCredentials> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
-															  UserLearningProgress progress)
+	private List<CategorizedCredentialsData> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
+                                                                             UserLearningProgress progress)
 			throws DbConnectionException {
 		List<TargetCredentialData> targetCredentials = getTargetCredentials(userId, onlyPubliclyVisible, true, progress);
 		return credentialFactory.groupCredentialsByCategory(targetCredentials);
@@ -1675,14 +1675,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<CategorizedCredentials> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getCategorizedTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<CategorizedCredentials> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<CategorizedCredentialsData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getCategorizedTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 

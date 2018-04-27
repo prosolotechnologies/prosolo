@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
@@ -212,14 +212,14 @@ public class CredentialDataFactory {
 	 * @param credentialsSortedByCategory
 	 * @return
 	 */
-	public List<CategorizedCredentials> groupCredentialsByCategory(List<TargetCredentialData> credentialsSortedByCategory) {
+	public List<CategorizedCredentialsData> groupCredentialsByCategory(List<TargetCredentialData> credentialsSortedByCategory) {
 		if (credentialsSortedByCategory == null) {
 			return null;
 		}
 		if (credentialsSortedByCategory.isEmpty()) {
 			return new ArrayList<>();
 		}
-		List<CategorizedCredentials> categorizedCredentials = new ArrayList<>();
+		List<CategorizedCredentialsData> categorizedCredentials = new ArrayList<>();
 		CredentialCategoryData currentCategory = null;
 		List<TargetCredentialData> credentialsInCurrentCategory = null;
 		boolean first = true;
@@ -227,7 +227,7 @@ public class CredentialDataFactory {
 			if (!(cd.getCategory() == currentCategory || (cd.getCategory() != null && currentCategory != null && cd.getCategory().getId() == currentCategory.getId())) || first) {
 				//if category is different than current one, we should add current data to the list because data for current category is collected
 				if (!first) {
-					categorizedCredentials.add(new CategorizedCredentials(currentCategory, credentialsInCurrentCategory));
+					categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
 				} else {
 					first = false;
 				}
@@ -237,7 +237,7 @@ public class CredentialDataFactory {
 			credentialsInCurrentCategory.add(cd);
 		}
 		//add last category with credentials
-		categorizedCredentials.add(new CategorizedCredentials(currentCategory, credentialsInCurrentCategory));
+		categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
 		return categorizedCredentials;
 	}
 }

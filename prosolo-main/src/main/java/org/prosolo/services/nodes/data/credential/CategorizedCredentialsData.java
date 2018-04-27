@@ -10,12 +10,12 @@ import java.util.List;
  * @date 2018-04-13
  * @since 1.2.0
  */
-public class CategorizedCredentials implements Serializable {
+public class CategorizedCredentialsData implements Serializable {
 
     private CredentialCategoryData category;
     private List<TargetCredentialData> credentials;
 
-    public CategorizedCredentials(CredentialCategoryData category, List<TargetCredentialData> credentials) {
+    public CategorizedCredentialsData(CredentialCategoryData category, List<TargetCredentialData> credentials) {
         this.category = category;
         this.credentials = credentials;
     }
