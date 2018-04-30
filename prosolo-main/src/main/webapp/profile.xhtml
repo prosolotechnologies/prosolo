@@ -185,7 +185,7 @@
 	            
 	            <h:panelGroup id="tabPanel" styleClass="tab-content" layout="block">
 	            <!-- CREDENTIALS -->
-	              <h:panelGroup id="credentials" a:role="tabPanel" styleClass="tab-pane fade #{param.tab eq 'credentials' ? 'active in' : ''}" layout="block">
+	              <h:panelGroup id="credentials" a:role="tabPanel" styleClass="tab-pane fade #{param.tab ne 'competences' and param.tab ne 'inprogress' ? 'active in' : ''}" layout="block">
 	                	<ui:fragment rendered="#{empty profileBean.targetCredential1List}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">

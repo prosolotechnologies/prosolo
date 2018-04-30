@@ -340,7 +340,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         String query =
                 "SELECT cat " +
                 "FROM CredentialCategory cat " +
-                "WHERE cat.organization.id = :orgId ";
+                "WHERE cat.organization.id = :orgId " +
+                "ORDER BY cat.title";
 
         @SuppressWarnings("unchecked")
         List<CredentialCategory> res = persistence.currentManager()
@@ -569,6 +570,14 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional(readOnly = true)
     public List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long organizationId) {
         return getOrganizationCredentialCategoriesData(organizationId, false, false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CredentialCategoryData> getUsedOrganizationCredentialCategoriesData(long organizationId) {
+        List<CredentialCategoryData> allCategories = getOrganizationCredentialCategoriesData(organizationId, true, false);
+        //filter categories to return only those that are being used in at least one credential
+        return allCategories.stream().filter(category -> category.isUsed()).collect(Collectors.toList());
     }
 
 }
