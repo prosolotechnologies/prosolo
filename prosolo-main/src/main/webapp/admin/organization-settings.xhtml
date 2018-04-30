@@ -177,7 +177,7 @@
                                         <p class="bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()} stage should have specific requirements and learners complete a specific stage at a time.</p>
                                         <h:panelGroup id="panelLearningStages">
                                             <ui:fragment rendered="#{empty organizationEditBean.organization.learningStages}">
-                                                <p class="bottom30 italic">No Stages added yet.</p>
+                                                <p class="bottom30 italic">No stages added.</p>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{not empty organizationEditBean.organization.learningStages}">
                                                 <table class="tableSymptoms">
@@ -240,7 +240,7 @@
 
                                     <h:panelGroup id="panelCredentialCategories">
                                         <ui:fragment rendered="#{empty organizationEditBean.organization.credentialCategories}">
-                                            <p class="bottom30 italic">No Categories added yet.</p>
+                                            <p class="bottom30 italic">No categories added.</p>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{not empty organizationEditBean.organization.credentialCategories}">
                                             <table class="tableSymptoms">
