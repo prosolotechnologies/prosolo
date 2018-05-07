@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 
 import java.util.ArrayList;
@@ -29,14 +29,14 @@ public class CredentialDataFactoryTest {
     @Test
     public void groupCredentialsByCategory_NullList_shouldReturnNull() {
         CredentialDataFactory credentialDataFactory = new CredentialDataFactory();
-        List<CategorizedCredentials> result = credentialDataFactory.groupCredentialsByCategory(null);
+        List<CategorizedCredentialsData> result = credentialDataFactory.groupCredentialsByCategory(null);
         assertThat(result, is(nullValue()));
     }
 
     @Test
     public void groupCredentialsByCategory_EmptyList_shouldReturnEmptyList() {
         CredentialDataFactory credentialDataFactory = new CredentialDataFactory();
-        List<CategorizedCredentials> result = credentialDataFactory.groupCredentialsByCategory(new ArrayList<>());
+        List<CategorizedCredentialsData> result = credentialDataFactory.groupCredentialsByCategory(new ArrayList<>());
         assertThat(result.isEmpty(), is(true));
     }
 
@@ -46,11 +46,11 @@ public class CredentialDataFactoryTest {
 
         TargetCredentialData tc1 = getTargetCredentialTestData(1, null);
         List<TargetCredentialData> oneCredentialListWithNullCategory = Arrays.asList(tc1);
-        List<CategorizedCredentials> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
+        List<CategorizedCredentialsData> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
         assertThat(result1.size(), is(1));
 
         List<TargetCredentialData> inputTestData = getTargetCredentialsTestData();
-        List<CategorizedCredentials> result2 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
+        List<CategorizedCredentialsData> result2 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
         assertThat(result2.size(), is(3));
     }
 
@@ -60,17 +60,17 @@ public class CredentialDataFactoryTest {
 
         TargetCredentialData tc1 = getTargetCredentialTestData(1, null);
         List<TargetCredentialData> oneCredentialListWithNullCategory = Arrays.asList(tc1);
-        List<CategorizedCredentials> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
+        List<CategorizedCredentialsData> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
         assertThat(result1.get(0).getCredentials().size(), is(1));
 
         TargetCredentialData tc2 = getTargetCredentialTestData(1, null);
         TargetCredentialData tc3 = getTargetCredentialTestData(2, null);
         List<TargetCredentialData> oneCategoryWithTwoCredentialsList = Arrays.asList(tc2, tc3);
-        List<CategorizedCredentials> result2 = credentialDataFactory.groupCredentialsByCategory(oneCategoryWithTwoCredentialsList);
+        List<CategorizedCredentialsData> result2 = credentialDataFactory.groupCredentialsByCategory(oneCategoryWithTwoCredentialsList);
         assertThat(result2.get(0).getCredentials().size(), is(2));
 
         List<TargetCredentialData> inputTestData = getTargetCredentialsTestData();
-        List<CategorizedCredentials> result3 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
+        List<CategorizedCredentialsData> result3 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
         assertThat(result3.get(0).getCredentials().size(), is(2));
         assertThat(result3.get(1).getCredentials().size(), is(1));
         assertThat(result3.get(2).getCredentials().size(), is(2));
@@ -82,7 +82,7 @@ public class CredentialDataFactoryTest {
 
         TargetCredentialData tc1 = getTargetCredentialTestData(1, null);
         List<TargetCredentialData> oneCredentialListWithNullCategory = Arrays.asList(tc1);
-        List<CategorizedCredentials> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
+        List<CategorizedCredentialsData> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
         assertThat(result1.get(0).getCategory(), is(nullValue()));
 
         CredentialCategory cc1 = new CredentialCategory();
@@ -90,11 +90,11 @@ public class CredentialDataFactoryTest {
         cc1.setTitle("Category1");
         TargetCredentialData tc2 = getTargetCredentialTestData(1, cc1);
         List<TargetCredentialData> oneCredentialListWithNotNullCategory = Arrays.asList(tc2);
-        List<CategorizedCredentials> result2 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNotNullCategory);
+        List<CategorizedCredentialsData> result2 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNotNullCategory);
         assertThat(result2.get(0).getCategory().getId(), is(1L));
 
         List<TargetCredentialData> inputTestData = getTargetCredentialsTestData();
-        List<CategorizedCredentials> result3 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
+        List<CategorizedCredentialsData> result3 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
         assertThat(result3.get(0).getCategory(), is(nullValue()));
         assertThat(result3.get(1).getCategory().getId(), is(1L));
         assertThat(result3.get(2).getCategory().getId(), is(2L));
@@ -106,11 +106,11 @@ public class CredentialDataFactoryTest {
 
         TargetCredentialData tc1 = getTargetCredentialTestData(1, null);
         List<TargetCredentialData> oneCredentialListWithNullCategory = Arrays.asList(tc1);
-        List<CategorizedCredentials> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
+        List<CategorizedCredentialsData> result1 = credentialDataFactory.groupCredentialsByCategory(oneCredentialListWithNullCategory);
         assertThat(result1.get(0).getCredentials().get(0).getCredentialId(), is(1L));
 
         List<TargetCredentialData> inputTestData = getTargetCredentialsTestData();
-        List<CategorizedCredentials> result2 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
+        List<CategorizedCredentialsData> result2 = credentialDataFactory.groupCredentialsByCategory(inputTestData);
 
         List<TargetCredentialData> firstCategoryCredentials = result2.get(0).getCredentials();
         assertThat(firstCategoryCredentials.get(0).getCredentialId(), is(1L));

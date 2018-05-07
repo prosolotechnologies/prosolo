@@ -62,5 +62,14 @@ public interface OrganizationManager extends AbstractManager {
      * @throws DbConnectionException
      */
     List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long organizationId);
+
+    /**
+     * Returns all organization credential categories that are being used in at least one credential
+     *
+     * @param organizationId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<CredentialCategoryData> getUsedOrganizationCredentialCategoriesData(long organizationId);
 }
 

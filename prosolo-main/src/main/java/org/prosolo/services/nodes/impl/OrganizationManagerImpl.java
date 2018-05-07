@@ -572,4 +572,12 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         return getOrganizationCredentialCategoriesData(organizationId, false, false);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<CredentialCategoryData> getUsedOrganizationCredentialCategoriesData(long organizationId) {
+        List<CredentialCategoryData> allCategories = getOrganizationCredentialCategoriesData(organizationId, true, false);
+        //filter categories to return only those that are being used in at least one credential
+        return allCategories.stream().filter(category -> category.isUsed()).collect(Collectors.toList());
+    }
+
 }

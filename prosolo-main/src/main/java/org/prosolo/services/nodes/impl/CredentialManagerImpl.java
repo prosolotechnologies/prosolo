@@ -45,7 +45,7 @@ import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -612,7 +612,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("LEFT JOIN fetch cred.hashtags hashtags ");
 			builder.append("WHERE cred.id = :credentialId AND cred.deleted = :deleted ");
 
-			logger.info("GET CREDENTIAL DATA QUERY: " + builder.toString());
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("credentialId", credentialId)
@@ -727,9 +726,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
-		credToUpdate.setCategory(data.getCategory() != null
-				? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
-				: null);
+
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
 					data.getTagsString())));
@@ -741,6 +738,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
+			CredentialCategory category = data.getCategory() != null
+					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
+					: null;
+			credToUpdate.setCategory(category);
+			//propagate category change to deliveries
+			res.appendEvents(setCategoryForCredentialDeliveries(data.getId(), category, context));
+
 			credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
 
 			LearningStage learningStage = null;
@@ -853,6 +857,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		res.setResult(credToUpdate);
 		return res;
+	}
+
+	private EventQueue setCategoryForCredentialDeliveries(long credentialId, CredentialCategory category, UserContextData context) {
+		String q =
+				"UPDATE Credential1 del " +
+				"SET del.category = :category " +
+				"WHERE del.deliveryOf.id = :credId";
+
+		persistence.currentManager().createQuery(q)
+				.setLong("credId", credentialId)
+				.setParameter("category", category)
+				.executeUpdate();
+
+		List<Long> deliveryIds = getIdsOfAllCredentialDeliveries(credentialId, persistence.currentManager());
+		EventQueue queue = EventQueue.newEventQueue();
+		for (long id : deliveryIds) {
+			Credential1 delivery = new Credential1();
+			delivery.setId(id);
+			queue.appendEvent(eventFactory.generateEventData(EventType.CREDENTIAL_CATEGORY_UPDATE, context, delivery, null, null, null));
+		}
+
+		return queue;
 	}
 
 	private EventQueue setLearningStageForCredentialCompetences(long credentialId, LearningStage stage, UserContextData context) {
@@ -1604,8 +1630,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<CategorizedCredentials> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
-															  UserLearningProgress progress)
+	private List<CategorizedCredentialsData> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
+                                                                             UserLearningProgress progress)
 			throws DbConnectionException {
 		List<TargetCredentialData> targetCredentials = getTargetCredentials(userId, onlyPubliclyVisible, true, true, progress);
 		return credentialFactory.groupCredentialsByCategory(targetCredentials);
@@ -1669,14 +1695,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<CategorizedCredentials> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getCategorizedTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<CategorizedCredentials> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+	public List<CategorizedCredentialsData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
 		return getCategorizedTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 
@@ -3653,6 +3679,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = new Credential1();
 			cred.setOrganization(original.getOrganization());
 			cred.setTitle(original.getTitle());
+			cred.setCategory(original.getCategory());
 			cred.setDescription(original.getDescription());
 			cred.setCreatedBy((User) persistence.currentManager().load(User.class, creatorId));
 			cred.setDateCreated(new Date());

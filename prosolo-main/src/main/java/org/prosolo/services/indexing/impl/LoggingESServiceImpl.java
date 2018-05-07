@@ -21,7 +21,7 @@ public class LoggingESServiceImpl implements LoggingESService {
 
     @Override
     public void storeEventObservedLog(JSONObject logObject){
-        logger.debug("storing event observed log");
+//        logger.debug("storing event observed log");
         try{
             String indexName = ESIndexNames.INDEX_LOGS;
             String indexType = ESIndexTypes.LOG;
@@ -33,6 +33,6 @@ public class LoggingESServiceImpl implements LoggingESService {
             logger.error(ex);
         }
 
-        logger.debug("stored event observed log");
+//        logger.debug("stored event observed log");
     }
 }
