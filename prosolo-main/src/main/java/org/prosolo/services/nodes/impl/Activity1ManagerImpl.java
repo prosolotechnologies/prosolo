@@ -35,6 +35,7 @@ import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.assessment.data.GradeDataFactory;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;

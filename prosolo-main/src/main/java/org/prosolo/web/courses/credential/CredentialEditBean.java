@@ -19,6 +19,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -74,6 +77,8 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 
 	private List<Long> unitIds;
 
+	private List<CredentialCategoryData> categories;
+
 	private String context;
 
 	private LearningStageData nextStageToBeCreated;
@@ -83,32 +88,33 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	public void init() {
 		initializeValues();
 
-		if (id == null) {
-			credentialData = new CredentialData(false);
-			//if it is new resource, it can only be original credential, delivery can never be created from this page
-			credentialData.setType(CredentialType.Original);
-			try {
+		try {
+			if (id == null) {
+				credentialData = new CredentialData(false);
+				//if it is new resource, it can only be original credential, delivery can never be created from this page
+				credentialData.setType(CredentialType.Original);
 				credentialData.addLearningStages(organizationManager.getOrganizationLearningStagesForLearningResource(
 						loggedUser.getOrganizationId()));
-			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error loading the page");
-			}
-			credentialData.setAssessmentTypes(getAssessmentTypes());
-		} else {
-			try {
+				credentialData.setAssessmentTypes(getAssessmentTypes());
+			} else {
 				decodedId = idEncoder.decodeId(id);
 				setContext();
 				logger.info("Editing credential with id " + decodedId);
 
 				loadCredentialData(decodedId);
-			} catch(Exception e) {
-				logger.error("Error", e);
-				credentialData = new CredentialData(false);
-				PageUtil.fireErrorMessage("Error loading the page");
 			}
-		}
 
-		loadAssessmentData();
+			loadAssessmentData();
+			loadCredentialCategories();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			credentialData = new CredentialData(false);
+			PageUtil.fireErrorMessage("Error loading the page");
+		}
+	}
+
+	private void loadCredentialCategories() {
+		categories = organizationManager.getOrganizationCredentialCategoriesData(loggedUser.getOrganizationId());
 	}
 
 	@Override
@@ -695,5 +701,9 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 
 	public void setDecodedId(long decodedId) {
 		this.decodedId = decodedId;
+	}
+
+	public List<CredentialCategoryData> getCategories() {
+		return categories;
 	}
 }

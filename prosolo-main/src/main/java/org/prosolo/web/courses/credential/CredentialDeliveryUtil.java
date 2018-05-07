@@ -1,6 +1,6 @@
 package org.prosolo.web.courses.credential;
 
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import java.util.List;
 

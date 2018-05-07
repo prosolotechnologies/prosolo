@@ -27,7 +27,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;

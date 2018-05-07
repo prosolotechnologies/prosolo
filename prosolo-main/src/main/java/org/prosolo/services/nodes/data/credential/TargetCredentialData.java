@@ -1,7 +1,9 @@
-package org.prosolo.web.achievements.data;
+package org.prosolo.services.nodes.data.credential;
 
+import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 import java.io.Serializable;
@@ -23,6 +25,8 @@ public class TargetCredentialData implements Serializable {
 	private String durationString;
 	private long credentialId;
 	private int progress;
+	//category
+	private CredentialCategoryData category;
 	private CredentialData credential;
 	
 	private long nextCompetenceToLearnId;
@@ -31,7 +35,7 @@ public class TargetCredentialData implements Serializable {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
-	public TargetCredentialData(TargetCredential1 targetCredential1) {
+	public TargetCredentialData(TargetCredential1 targetCredential1, CredentialCategory category) {
 		this.id = targetCredential1.getId();
 		this.title = targetCredential1.getCredential().getTitle();
 		this.description = targetCredential1.getCredential().getDescription();
@@ -40,6 +44,9 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = targetCredential1.getCredential().getId();
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
+		if (category != null) {
+			this.category = new CredentialCategoryData(category.getId(), category.getTitle(), false);
+		}
 		calculateDurationString();
 	}
 
@@ -123,5 +130,7 @@ public class TargetCredentialData implements Serializable {
 		this.durationString = durationString;
 	}
 
-
+	public CredentialCategoryData getCategory() {
+		return category;
+	}
 }

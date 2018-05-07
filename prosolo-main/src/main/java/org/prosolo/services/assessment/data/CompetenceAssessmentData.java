@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;

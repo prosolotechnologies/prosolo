@@ -18,8 +18,9 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
-			UserContextData context) throws DbConnectionException, IllegalDataStateException;
+								  UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
 													  UserContextData context) throws DbConnectionException,

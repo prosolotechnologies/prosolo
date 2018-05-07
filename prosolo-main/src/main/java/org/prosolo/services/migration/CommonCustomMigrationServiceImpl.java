@@ -18,7 +18,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

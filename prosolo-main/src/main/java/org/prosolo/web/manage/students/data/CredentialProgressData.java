@@ -3,8 +3,7 @@ package org.prosolo.web.manage.students.data;
 import java.io.Serializable;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.web.achievements.data.TargetCredentialData;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 
 public class CredentialProgressData implements Serializable {
 

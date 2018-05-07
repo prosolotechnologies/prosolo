@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 @ManagedBean(name = "activityViewBeanManager")
 @Component("activityViewBeanManager")

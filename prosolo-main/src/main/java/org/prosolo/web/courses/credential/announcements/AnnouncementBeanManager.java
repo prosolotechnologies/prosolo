@@ -9,7 +9,7 @@ import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;

@@ -1,4 +1,4 @@
-package org.prosolo.web.achievements.data;
+package org.prosolo.services.nodes.data.competence;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
