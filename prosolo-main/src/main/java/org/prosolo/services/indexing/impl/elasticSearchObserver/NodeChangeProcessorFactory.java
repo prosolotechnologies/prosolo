@@ -197,6 +197,9 @@ public class NodeChangeProcessorFactory {
                             credManager, NodeOperation.Update, session);
                 }
                 break;
+            case CREDENTIAL_CATEGORY_UPDATE:
+                return new CredentialNodeChangeProcessor(event, credentialESService,
+                        credManager, NodeOperation.Update, session);
             default:
                 return null;
         }
