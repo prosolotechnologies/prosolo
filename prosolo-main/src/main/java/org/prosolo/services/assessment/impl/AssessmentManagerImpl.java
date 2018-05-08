@@ -3597,11 +3597,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public int getNumberOfAssessmentsForUserCredential(long targetCredentialId) {
+	public int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId) {
 		try {
 			String query =
 					"SELECT COUNT(ca.id) from CredentialAssessment ca " +
-							"WHERE ca.targetCredential.id = :tcId";
+					"WHERE ca.targetCredential.id = :tcId " +
+					"AND ca.approved IS TRUE";
 			return ((Long) persistence.currentManager().createQuery(query)
 					.setLong("tcId", targetCredentialId)
 					.uniqueResult()).intValue();
@@ -3613,12 +3614,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId) {
+	public int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId) {
 		try {
 			String query =
 					"SELECT COUNT(ca.id) from CompetenceAssessment ca " +
 					"WHERE ca.competence.id = :compId " +
-					"AND ca.student.id = :studentId";
+					"AND ca.student.id = :studentId " +
+					"AND ca.approved IS TRUE";
 			return ((Long) persistence.currentManager().createQuery(query)
 					.setLong("compId", competenceId)
 					.setLong("studentId", studentId)

@@ -342,7 +342,7 @@ public interface AssessmentManager {
      * @return
      * @throws DbConnectionException
      */
-	int getNumberOfAssessmentsForUserCredential(long targetCredentialId);
+	int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId);
 
     /**
      *
@@ -351,5 +351,5 @@ public interface AssessmentManager {
      * @return
      * @throws DbConnectionException
      */
-    int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId);
+    int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 }

@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.mortbay.jetty.security.Credential;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -60,7 +59,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.lang.annotation.Target;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
@@ -435,7 +433,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credData = credentialFactory.getCredentialData(
 						res, creator, student, aConfig, tags, hashtags, false);
 				if (credentialLoadConfig.isLoadAssessmentCount()) {
-					credData.setNumberOfAssessments(assessmentManager.getNumberOfAssessmentsForUserCredential(res.getId()));
+					credData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(res.getId()));
 				}
 				if (credData != null && credentialLoadConfig.isLoadCompetences()) {
 					List<CompetenceData1> targetCompData = compManager
@@ -1679,7 +1677,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			for(TargetCredential1 targetCredential1 : result) {
 				int numberOfAssessments = 0;
 				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfAssessmentsForUserCredential(targetCredential1.getId());
+					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
 				}
 				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
 				resultList.add(targetCredentialData);

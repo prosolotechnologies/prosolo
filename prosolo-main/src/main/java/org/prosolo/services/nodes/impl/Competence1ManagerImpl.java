@@ -293,7 +293,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 								}
 								//load number of competence assessments if needed
 								if (compLoadConfig.isLoadAssessmentCount()) {
-									compData.setNumberOfAssessments(assessmentManager.getNumberOfAssessmentsForUserCompetence(compData.getCompetenceId(), userId));
+									compData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(compData.getCompetenceId(), userId));
 								}
 							}
 						} else {
@@ -2599,7 +2599,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			for(TargetCompetence1 targetCompetence1 : res) {
 				int numberOfAssessments = 0;
 				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
+					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
 				}
 				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments));
 			}
