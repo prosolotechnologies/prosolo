@@ -13,6 +13,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.data.Result;
@@ -39,9 +40,9 @@ public interface AssessmentManager {
 
 	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
 
-	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 

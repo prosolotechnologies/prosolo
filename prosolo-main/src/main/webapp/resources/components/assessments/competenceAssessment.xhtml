@@ -11,6 +11,7 @@
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="competenceAssessment" type="org.prosolo.services.assessment.data.CompetenceAssessmentData" required="true" />
 		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
@@ -31,7 +32,7 @@
 		<ui:fragment rendered="#{not cc.attrs.competenceAssessment.readOnly}">
 			<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
 				<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
-					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.competenceAssessment.assessorNotified}">
+					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.fullDisplayMode and cc.attrs.competenceAssessment.assessorNotified}">
 						<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 							<h:commandButton id="btn"
 											 rendered="#{not cc.attrs.currentUserAssessedStudent}"
@@ -51,7 +52,7 @@
 					<h2 class="bottom0">#{cc.attrs.competenceAssessment.title}</h2>
 					<div class="clear1px"></div>
 				</h:panelGroup>
-				<div class="summaryAssessmentsHead #{(!cc.attrs.competenceAssessment.participantInDiscussion or cc.attrs.competenceAssessment.allRead or cc.attrs.competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+				<div class="summaryAssessmentsHead #{cc.attrs.fullDisplayMode and (!cc.attrs.competenceAssessment.participantInDiscussion or cc.attrs.competenceAssessment.allRead or cc.attrs.competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 					<ui:fragment rendered="#{cc.attrs.displayStudentNameInHeader}">
 						<div class="user32">
 							<utilcomp:userAvatar
@@ -63,12 +64,15 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
 						<h2>
-							<h:link outcome="competence" rendered="#{not cc.attrs.showLinkForIndividualAssessmentPage}">
+							<h:link outcome="competence" rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 										 disable="#{empty cc.attrs.credentialId}" />
 							</h:link>
+							<ui:fragment rendered="#{not cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
+								<a href="javascript:void(0);">#{cc.attrs.competenceAssessment.title}</a>
+							</ui:fragment>
 							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 								<f:param value="#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}" name="assessmentId" disable="#{cc.attrs.competenceAssessment.type eq 'SELF_ASSESSMENT'}"/>
@@ -89,11 +93,11 @@
 									   process="@this"
 									   actionListener="#{cc.attrs.bean.approveCompetence(cc.attrs.competenceAssessment.competenceAssessmentId)}"
 									   update="panelCompAssessmentOptions #{cc.attrs.growlToUpdate} @(.panelAssessorNotificationSelector)"
-									   rendered="#{not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
+									   rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
 							Approve<span></span>
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 						</p:commandLink>
-						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -117,11 +121,12 @@
 								growlToUpdate="#{cc.attrs.growlToUpdate}"
 								role="#{cc.attrs.role}"
 								learningContext="#{compAssessmentLearningContext}"
+								fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 						/>
 					</h:panelGroup>
 				</div>
 
-				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.activityAssessmentData}">
+				<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not empty cc.attrs.competenceAssessment.activityAssessmentData}">
 					<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{cc.attrs.competenceAssessment.competenceAssessmentId}"
 								  id="activityAssessmentWrapper#{compAssIndex.index}">
 						<ul>
@@ -198,7 +203,8 @@
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.evidences}">
 					<assessment:evidenceItems
 							evidences="#{cc.attrs.competenceAssessment.evidences}"
-							canViewEvidence="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
+							canViewEvidence="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
+							showMessageWhyUserCantViewEvidence="#{cc.attrs.fullDisplayMode}"
 					/>
 				</ui:fragment>
 			</article>

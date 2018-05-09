@@ -19,6 +19,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.*;
@@ -371,18 +372,31 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat) {
-		return getFullAssessmentDataForAssessmentType(id, userId, null, dateFormat);
+	public AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat, AssessmentLoadConfig loadConfig) {
+		return getFullAssessmentDataForAssessmentType(id, userId, null, dateFormat, loadConfig);
 	}
 
 	@Override
 	@Transactional
-	public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat) {
+	public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat, AssessmentLoadConfig loadConfig) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
 		if (type != null && assessment.getType() != type) {
 			return null;
 		}
+		/*
+		if data should not be loaded when assessment display is disabled or assessment is not approved
+		these cases should be covered and data should not be populated, empty data with basic info should be
+		returned instead
+		 */
+		if (!shouldAssessmentDataBeLoaded(assessment, loadConfig)) {
+			AssessmentDataFull data = new AssessmentDataFull();
+			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
+			data.setApproved(assessment.isApproved());
+			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
+			return data;
+		}
+
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
 				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.of(false, false, true, true, false));
@@ -397,7 +411,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						.flatMap(aa -> aa.stream())
 						.map(aa -> aa.getId())
 						.collect(Collectors.toList()));
-		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat);
+		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
+	}
+
+	private boolean shouldAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
+		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved())
+				&& (loadConfig.isLoadDataIfStudentDisabledAssessmentDisplay() || assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 	}
 
 	/**
@@ -3400,7 +3419,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 		Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
 		Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, dateFormat);
+		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, dateFormat, true);
 	}
 
 	//COMPETENCE ASSESSMENT END
@@ -3452,7 +3471,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
 			Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat);
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, true);
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");

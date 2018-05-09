@@ -237,7 +237,11 @@
 														<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
 													</ui:fragment>
 													<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
-														<h:link outcome="standard-profile-assessment.html" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">assessments</h:link>
+														<h:link outcome="/credential-instructor-assessment-public" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
+															assessments
+															<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+															<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+														</h:link>
 													</ui:fragment>
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>

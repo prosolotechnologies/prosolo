@@ -10,6 +10,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
@@ -23,6 +24,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -76,6 +78,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
+	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
+
 	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId) {
 		setIds(encodedCredId, encodedAssessmentId);
 		initSelfAssessment();
@@ -86,8 +90,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		initPeerAssessment();
 	}
 
-	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId) {
+	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
 		setIds(encodedCredId, encodedAssessmentId);
+		this.displayMode = displayMode;
 		initInstructorAssessment();
 	}
 
@@ -113,7 +118,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					PageUtil.accessDenied();
 				} else {
 					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId,
-							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
+							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
 					if (fullAssessmentData == null) {
 						PageUtil.notFound();
 					} else {
@@ -148,22 +153,22 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 		try {
 			fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
-					loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"));
+					loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
 			if (fullAssessmentData == null) {
 				PageUtil.notFound();
 			} else {
 				/*
 				if user is not student or assessor, he is not allowed to access this page
 				 */
-				if (!isUserAssessedStudentInCurrentContext() && !isUserAssessorInCurrentContext()) {
+				if (!isUserAllowedToAccessPage()) {
 					PageUtil.accessDenied();
 				} else {
 					credentialTitle = fullAssessmentData.getTitle();
 					/*
-					if user is assessed student load assessment types config for credential
+					if user is assessed student or it is public display mode load assessment types config for credential
 					so it can be determined which tabs should be displayed
 					 */
-					if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId()) {
+					if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId() || displayMode == AssessmentDisplayMode.PUBLIC) {
 						assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
 					}
 				}
@@ -172,6 +177,27 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			logger.error("Error while loading assessment data", e);
 			PageUtil.fireErrorMessage("Error loading assessment data");
 		}
+	}
+
+	private boolean isUserAllowedToAccessPage() {
+		/*
+		if full display mode user can access page if user is student or assessor in current context
+		and if public display mode user can access page if assessment display is enabled by student
+		 */
+		return displayMode == AssessmentDisplayMode.FULL
+				? isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext()
+				: fullAssessmentData.isAssessmentDisplayEnabled();
+	}
+
+	private AssessmentLoadConfig getLoadConfig() {
+		//assessment data should be loaded only if full display mode
+		//also assessment discussion should be loaded only if full display mode
+		boolean fullDisplay = displayMode == AssessmentDisplayMode.FULL;
+		return AssessmentLoadConfig.of(fullDisplay, fullDisplay, fullDisplay);
+	}
+
+	public boolean isFullDisplayMode() {
+		return displayMode == AssessmentDisplayMode.FULL;
 	}
 
 	public boolean isPeerAssessmentEnabled() {
