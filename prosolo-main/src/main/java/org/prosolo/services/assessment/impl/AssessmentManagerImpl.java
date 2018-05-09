@@ -189,12 +189,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while creating assessment for a credential");
+			throw new DbConnectionException("Error while creating assessment of a credential");
 		}
 	}
 
 	/**
-	 * Returns credential assessment for given target credential, student and assessor if it exists and it's type is
+	 * Returns credential assessment of given target credential, student and assessor if it exists and it's type is
 	 * not instructor assessment
 	 *
 	 * @param targetCredentialId
@@ -323,7 +323,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				compAssessment.setPoints(-1);
 			}
 
-			//only for peer assessment and when explicit assessment for competence is requested, assessment requested event is fired
+			//only for peer assessment and when explicit assessment of competence is requested, assessment requested event is fired
 			if (type == AssessmentType.PEER_ASSESSMENT && isExplicitRequest) {
 				CompetenceAssessment assessment1 = new CompetenceAssessment();
 				assessment1.setId(compAssessment.getId());
@@ -343,7 +343,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	/**
-	 * Returns competence assessment for given competence, student and assessor if it exists and it's type is
+	 * Returns competence assessment of given competence, student and assessor if it exists and it's type is
 	 * not instructor assessment
 	 *
 	 * @param competenceId
@@ -3026,7 +3026,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	/**
-	 * Returns unique competence assessment for given competence, assessor, student and assessment type.
+	 * Returns unique competence assessment of given competence, assessor, student and assessment type.
 	 * Since this is not enough to guarantee uniqueness for instructor assessment, instructor assessment type
 	 * is not valid parameter value.
 	 *
@@ -3616,11 +3616,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public int getNumberOfAssessmentsForUserCredential(long targetCredentialId) {
+	public int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId) {
 		try {
 			String query =
 					"SELECT COUNT(ca.id) from CredentialAssessment ca " +
-							"WHERE ca.targetCredential.id = :tcId";
+					"WHERE ca.targetCredential.id = :tcId " +
+					"AND ca.approved IS TRUE";
 			return ((Long) persistence.currentManager().createQuery(query)
 					.setLong("tcId", targetCredentialId)
 					.uniqueResult()).intValue();
@@ -3632,12 +3633,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId) {
+	public int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId) {
 		try {
 			String query =
 					"SELECT COUNT(ca.id) from CompetenceAssessment ca " +
 					"WHERE ca.competence.id = :compId " +
-					"AND ca.student.id = :studentId";
+					"AND ca.student.id = :studentId " +
+					"AND ca.approved IS TRUE";
 			return ((Long) persistence.currentManager().createQuery(query)
 					.setLong("compId", competenceId)
 					.setLong("studentId", studentId)

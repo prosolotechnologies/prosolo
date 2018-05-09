@@ -1,20 +1,10 @@
 package org.prosolo.bigdata.es.impl;
 
-import static org.elasticsearch.client.Requests.clusterHealthRequest;
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
-//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
-import org.elasticsearch.common.settings.Settings;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
-
+import org.elasticsearch.common.settings.Settings;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-//import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.ESAdministration;
@@ -23,20 +13,24 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.elasticsearch.client.Requests.*;
+
 /**
  * @author Zoran Jeremic May 9, 2015
- *
  */
 
-public class ESAdministrationImpl extends AbstractESIndexer implements
-		ESAdministration {
+public class ESAdministrationImpl extends AbstractESIndexer implements ESAdministration {
+
 	private static final long serialVersionUID = 830150223713546004L;
 	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
 
 	@Override
 	public boolean createIndexes() throws IndexingServiceNotAvailable {
 		//List<String> indexes = ESIndexNames.getAllIndexes();
-		List<String> indexes=new ArrayList<String>();
+		List<String> indexes=new ArrayList<>();
 		indexes.add(ESIndexNames.INDEX_JOBS_LOGS);
 		indexes.add(ESIndexNames.INDEX_RECOMMENDATION_DATA);
 		indexes.add(ESIndexNames.INDEX_LOGS);

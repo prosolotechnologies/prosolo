@@ -16,7 +16,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentials;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -61,8 +61,8 @@ public class ProfileBean {
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	private UserSocialNetworksData userSocialNetworksData;
-	private List<CategorizedCredentials> targetCredential1List;
-	private List<CategorizedCredentials> targetCredential1ListInProgress;
+	private List<CategorizedCredentialsData> targetCredential1List;
+	private List<CategorizedCredentialsData> targetCredential1ListInProgress;
 	private Map<String, String> nameMap = new HashMap<>();
 	
 	/* parameter that can be provided in the via UI*/
@@ -288,11 +288,11 @@ public class ProfileBean {
 		this.targetCompetence1List = targetCompetence1List;
 	}
 
-	public List<CategorizedCredentials> getTargetCredential1List() {
+	public List<CategorizedCredentialsData> getTargetCredential1List() {
 		return targetCredential1List;
 	}
 
-	public List<CategorizedCredentials> getTargetCredential1ListInProgress() {
+	public List<CategorizedCredentialsData> getTargetCredential1ListInProgress() {
 		return targetCredential1ListInProgress;
 	}
 

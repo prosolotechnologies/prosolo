@@ -3,6 +3,7 @@ package org.prosolo.web.administration;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.email.EmailSenderManager;
@@ -65,19 +66,22 @@ public class UsersImportingBean implements Serializable {
 					String lastName = userRow[2];
 //					String affiliation = userRow[3];
 					String emailAddress = userRow[4];
-//					String fakeEmail="prosolo.2013@gmail.com"; 
 					String rolePosition = userRow[5];
-//					String levelOfEducation = userRow[6];
-					
+
 					if (!timestamp.equals("Timestamp")) {
-						User user = ServiceLocator
-								.getInstance()
-								.getService(UserManager.class)
-								.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null);
+						User user = null;
+						try {
+							user = ServiceLocator
+									.getInstance()
+									.getService(UserManager.class)
+									.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null, false);
 
-						emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
+							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
 
-						noUsersCreated++;
+							noUsersCreated++;
+						} catch (IllegalDataStateException e) {
+							logger.error(e);
+						}
 					}
 				}
 			} catch (IOException e) {

@@ -230,7 +230,7 @@ public interface AssessmentManager {
 	 * @param studentId
 	 * @param assessorId
 	 * @param type
-	 * @param isExplicitRequest specifies if assessment for competence is requested explicitly or as a part of credential assessment request
+	 * @param isExplicitRequest specifies if assessment of competence is requested explicitly or as a part of credential assessment request
 	 * @param context
 	 * @return
 	 * @throws IllegalDataStateException
@@ -280,7 +280,7 @@ public interface AssessmentManager {
 
 	/**
 	 * Returns list of ids of all assessors that this particular user has asked
-	 * for assessment for the credential with the given id
+	 * for assessment of the credential with the given id
 	 *
 	 * @param credentialId credential id
 	 * @param userId user id
@@ -343,7 +343,7 @@ public interface AssessmentManager {
      * @return
      * @throws DbConnectionException
      */
-	int getNumberOfAssessmentsForUserCredential(long targetCredentialId);
+	int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId);
 
     /**
      *
@@ -352,5 +352,5 @@ public interface AssessmentManager {
      * @return
      * @throws DbConnectionException
      */
-    int getNumberOfAssessmentsForUserCompetence(long competenceId, long studentId);
+    int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 }

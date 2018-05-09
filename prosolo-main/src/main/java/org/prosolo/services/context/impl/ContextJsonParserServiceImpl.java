@@ -1,28 +1,17 @@
 package org.prosolo.services.context.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.events.serialization.ContextDeserializer;
-import org.prosolo.bigdata.common.events.serialization.LearningContextDeserializer;
-import org.prosolo.bigdata.common.events.serialization.ServiceDeserializer;
-import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.context.util.CustomContextNameDeserializer;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.LearningContextInfo;
-import org.prosolo.common.event.context.Service;
-import org.prosolo.common.web.ApplicationPage;
-import org.prosolo.web.ApplicationPagesBean;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.log4j.Logger;
+import org.prosolo.common.event.context.*;
+import org.prosolo.common.web.ApplicationPage;
+import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.context.util.CustomContextNameDeserializer;
+import org.prosolo.web.ApplicationPagesBean;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 @org.springframework.stereotype.Service("org.prosolo.services.context.ContextJsonParserService")
 public class ContextJsonParserServiceImpl implements ContextJsonParserService {
@@ -36,7 +25,6 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	@Override
 	public LearningContext parseCustomContextString(String page, String context, String service) {
 		try {
-			System.out.println("parseCustomeContextString:"+context);
 			LearningContext lContext = new LearningContext();
 			
 			ApplicationPage appPage = page != null ? applicationPagesBean.getPageForURI(page) : null;
@@ -84,7 +72,6 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			Map<String, Object> ctx = parseString(context, "context");
 			
 			String jsonContext = gson.toJson(ctx);
-			System.out.println("JSON context:"+jsonContext);
 			c = gson.fromJson(jsonContext, Context.class);
 			addObjectTypeInfoForContext(c);
 		}

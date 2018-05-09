@@ -7,7 +7,7 @@
                 xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
                 xmlns:h="http://java.sun.com/jsf/html">
 
-    <utilcomp:messagesBundle var="msg" />
+    <utilcomp:messagesBundle var="msg"/>
 
     <ui:define name="windowTitle">
         #{learningEvidenceBean.evidence.title} - Evidence - ProSolo
@@ -16,7 +16,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="id" value="#{learningEvidenceBean.evidenceId}" default="null"/>
-            <f:viewAction action="#{learningEvidenceBean.initManager()}" />
+            <f:viewAction action="#{learningEvidenceBean.initManager()}"/>
         </f:metadata>
     </ui:define>
 
@@ -44,12 +44,13 @@
 
                 <div class="col-md-12">
                     <evidence:evidence
-                        evidence="#{learningEvidenceBean.evidence}"
-                        showEvidenceManagementOptions="true"
-                        showDetails="true"
-                        canEdit="#{learningEvidenceBean.access.canEdit}"
-                        deleteModalId="deleteEvidence"
-                        role="MANAGER"
+                            evidence="#{learningEvidenceBean.evidence}"
+                            showEvidenceManagementOptions="true"
+                            showDetails="true"
+                            canEdit="#{learningEvidenceBean.access.canEdit}"
+                            deleteModalId="deleteEvidence"
+                            role="MANAGER"
+                            titleIsClickable="false"
                     />
                 </div>
 

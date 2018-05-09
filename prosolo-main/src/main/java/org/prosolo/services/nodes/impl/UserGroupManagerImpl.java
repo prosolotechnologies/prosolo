@@ -1724,7 +1724,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-    public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
+    public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId,
     		UserContextData context, Session session) throws DbConnectionException {
 		Result<Void> res = new Result<>();
 		res.appendEvents(propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(
@@ -1857,30 +1857,40 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
     private Result<Void> propagateUserGroupPrivilegeFromCredentialToDelivery(CredentialUserGroup credUserGroup,
     		long deliveryId, UserContextData context, Session session) throws DbConnectionException {
-    	try {
-    		CredentialUserGroup cug = new CredentialUserGroup();
-    		Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
-    		cug.setCredential(del);
-    		cug.setUserGroup(credUserGroup.getUserGroup());
-    		cug.setPrivilege(credUserGroup.getPrivilege());
-    		saveEntity(cug, session);
-    		
-    		/*
-    		 * we generate only resource visibility change event and not user group added to resource event because 
-    		 * it is inherited group and for now we don't need to generate this event.
-    		 */
-    		Credential1 delivery =  new Credential1();
-    		delivery.setId(deliveryId);
-    		Result<Void> res = new Result<>();
-    		res.appendEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, context, delivery, null, null, null));
-    		return res;
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
-    	}
-    }
+		Result<Void> res = new Result<>();
+		try {
+			CredentialUserGroup cug = new CredentialUserGroup();
+			Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
+			cug.setCredential(del);
+			cug.setUserGroup(credUserGroup.getUserGroup());
+			cug.setPrivilege(credUserGroup.getPrivilege());
+			saveEntity(cug, session);
+
+			/*
+			 * we generate only resource visibility change event and not user group added to resource event because
+			 * it is inherited group and for now we don't need to generate this event.
+			 */
+			Credential1 delivery = new Credential1();
+			delivery.setId(deliveryId);
+			res.appendEvent(eventFactory.generateEventData(
+					EventType.RESOURCE_VISIBILITY_CHANGE, context, delivery, null, null, null));
+
+			session.flush();
+		} catch (ConstraintViolationException e) {
+			/**
+			 * Constraint violation related to unique credId-userGroup-privilege can occur if delivery is created
+			 * immediately after the credential has been created. In this case, there is a race condition for
+			 * USER_GROUP_ADDED_TO_RESOURCE event (fired when a credential is created) that is trying to propagate
+			 * Edit privilege to user, and this privilege has already been added when the delivery is created.
+			 */
+			logger.info("User group " + credUserGroup.getUserGroup().getId() + " already has " + credUserGroup.getPrivilege() + " privilege in delivery " + deliveryId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user privileges");
+		}
+		return res;
+	}
 	
 	@Override
 	@Transactional(readOnly = true)

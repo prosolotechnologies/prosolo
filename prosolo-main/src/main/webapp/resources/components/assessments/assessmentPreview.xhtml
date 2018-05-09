@@ -271,7 +271,7 @@
 					</c:if>
 					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
 						<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
-							<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student #{cc.attrs.bean.fullAssessmentData.studentFullName}.
+							<p>This is the ${msg['label.credential'].toLowerCase()} assessment of student #{cc.attrs.bean.fullAssessmentData.studentFullName}.
 								All comments between the student and the assessor are private.</p>
 						</ui:fragment>
 
