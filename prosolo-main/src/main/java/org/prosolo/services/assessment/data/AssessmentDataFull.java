@@ -29,7 +29,7 @@ public class AssessmentDataFull {
 	private String assessorFullName;
 	private String assessorAvatarUrl;
 	private long assessorId;
-	private long assessedStrudentId;
+	private long assessedStudentId;
 	private String dateValue;
 	private String title;
 	private boolean approved;
@@ -60,7 +60,7 @@ public class AssessmentDataFull {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setMessage(assessment.getMessage());
-		data.setAssessedStrudentId(assessment.getStudent().getId());
+		data.setAssessedStudentId(assessment.getStudent().getId());
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
 		data.setReview(assessment.getReview());
@@ -270,12 +270,12 @@ public class AssessmentDataFull {
 		this.assessorId = assessorId;
 	}
 
-	public long getAssessedStrudentId() {
-		return assessedStrudentId;
+	public long getAssessedStudentId() {
+		return assessedStudentId;
 	}
 
-	public void setAssessedStrudentId(long assessedStrudentId) {
-		this.assessedStrudentId = assessedStrudentId;
+	public void setAssessedStudentId(long assessedStudentId) {
+		this.assessedStudentId = assessedStudentId;
 	}
 
 	public long getCredentialId() {

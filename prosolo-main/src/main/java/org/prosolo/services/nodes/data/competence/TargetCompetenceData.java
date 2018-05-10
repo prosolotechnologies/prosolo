@@ -25,12 +25,13 @@ public class TargetCompetenceData implements Serializable {
     private LearningResourceType learningResourceType;
     private long competenceId;
     private int numberOfAssessments;
+    private boolean assessmentDisplayEnabled;
 
     public void calculateDurationString() {
         durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
     }
 
-    public TargetCompetenceData(TargetCompetence1 targetCompetence1, int numberOfAssessments){
+    public TargetCompetenceData(TargetCompetence1 targetCompetence1, int numberOfAssessments, boolean assessmentDisplayEnabled) {
         this.id = targetCompetence1.getId();
         this.description = targetCompetence1.getCompetence().getDescription();
         this.title = targetCompetence1.getCompetence().getTitle();
@@ -40,6 +41,7 @@ public class TargetCompetenceData implements Serializable {
         this.competenceId = targetCompetence1.getCompetence().getId();
         calculateDurationString();
         this.numberOfAssessments = numberOfAssessments;
+        this.assessmentDisplayEnabled = assessmentDisplayEnabled;
     }
 
     public Long getId() {
@@ -112,5 +114,9 @@ public class TargetCompetenceData implements Serializable {
 
     public int getNumberOfAssessments() {
         return numberOfAssessments;
+    }
+
+    public boolean isAssessmentDisplayEnabled() {
+        return assessmentDisplayEnabled;
     }
 }

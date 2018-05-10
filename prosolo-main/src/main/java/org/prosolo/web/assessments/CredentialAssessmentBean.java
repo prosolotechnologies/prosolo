@@ -124,7 +124,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					} else {
 						credentialTitle = fullAssessmentData.getTitle();
 
-						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStudentId(), fullAssessmentData.getCredentialId());
 					}
 				}
 			} catch (Exception e) {
@@ -168,7 +168,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					if user is assessed student or it is public display mode load assessment types config for credential
 					so it can be determined which tabs should be displayed
 					 */
-					if (fullAssessmentData.getAssessedStrudentId() == loggedUserBean.getUserId() || displayMode == AssessmentDisplayMode.PUBLIC) {
+					if (fullAssessmentData.getAssessedStudentId() == loggedUserBean.getUserId() || displayMode == AssessmentDisplayMode.PUBLIC) {
 						assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
 					}
 				}
@@ -481,7 +481,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private boolean isCurrentUserAssessedStudent() {
-		return fullAssessmentData != null && loggedUserBean.getUserId() == fullAssessmentData.getAssessedStrudentId();
+		return fullAssessmentData != null && loggedUserBean.getUserId() == fullAssessmentData.getAssessedStudentId();
 	}
 
 	public boolean isUserAssessedStudentInCurrentContext() {

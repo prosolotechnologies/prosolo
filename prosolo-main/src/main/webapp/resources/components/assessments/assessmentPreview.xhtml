@@ -180,25 +180,45 @@
 				</ui:fragment>
 
 				<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-					<li>
-						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-					</li>
-					<li>
-						<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
-							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
-						</h:link>
-					</li>
+					<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode}">
+						<li>
+							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+						</li>
+						<li>
+							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
+							</h:link>
+						</li>
 
-					<li>
-						<h:link rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/assessments">
-							<f:param name="id" value="#{param.id}" />
-						</h:link>
-						<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment">
-							<f:param name="id" value="#{param.id}" />
-						</h:link>
-					</li>
-					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
-						<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+						<li>
+							<h:link rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/assessments">
+								<f:param name="id" value="#{param.id}" />
+							</h:link>
+							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment">
+								<f:param name="id" value="#{param.id}" />
+							</h:link>
+						</li>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+							<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+						</ui:fragment>
+					</ui:fragment>
+					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
+						<li>
+							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
+								<f:param name="credId" value="#{cc.attrs.bean.id}"/>
+								<f:param name="studentId" value="#{param.studentId}"/>
+							</h:link>
+						</li>
+
+						<li>
+							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment-public">
+								<f:param name="credId" value="#{cc.attrs.bean.id}" />
+								<f:param name="studentId" value="#{param.studentId}"/>
+							</h:link>
+						</li>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+							<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+						</ui:fragment>
 					</ui:fragment>
 				</ui:fragment>
 			</ol>
@@ -224,6 +244,7 @@
 					<div class="col-md-12">
 						<assessment:credentialAssessmentStudentTabsPublic
 								encodedCredId="#{cc.attrs.bean.id}"
+								encodedStudentId="#{param.studentId}"
 								peerAssessmentEnabled="#{cc.attrs.bean.peerAssessmentEnabled}"
 								selfAssessmentEnabled="#{cc.attrs.bean.selfAssessmentEnabled}"
 						/>
@@ -235,7 +256,9 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
-					<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
+					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
+						<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
+					</c:if>
 
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">

@@ -138,11 +138,11 @@ public interface AssessmentManager {
 	/**
 	 * Load all credential assessments for the given user, but excluding the specific assessment id
 	 *
-	 * @param assessedStrudentId
+	 * @param assessedStudentId
 	 * @param credentialId
 	 * @return list of assessment data instances
 	 */
-	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
+	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId);
 
 	/**
 	 * Returns true if the given user is an assessor of at least one credential containing activity given by

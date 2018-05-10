@@ -2315,13 +2315,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.type, assessment.approved " +
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
-					"WHERE assessment.student.id = :assessedStrudentId " +
+					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId";
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
-					.setLong("assessedStrudentId", assessedStudentId)
+					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
 					.list();
 			
