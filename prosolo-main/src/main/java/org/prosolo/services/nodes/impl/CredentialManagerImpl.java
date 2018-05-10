@@ -3873,4 +3873,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error updating evidenceDisplayed field of a target credential " + targetCredentialId);
 		}
 	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId) {
+		try {
+			String q =
+					"SELECT coalesce(tc.credentialAssessmentsDisplayed, 0) FROM TargetCredential1 tc " +
+					"WHERE tc.credential.id = :credId AND tc.user.id = :studentId";
+
+			return (boolean) persistence.currentManager().createQuery(q)
+					.setLong("credId", credId)
+					.setLong("studentId", studentId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if credential assessment display is enabled");
+		}
+	}
 }

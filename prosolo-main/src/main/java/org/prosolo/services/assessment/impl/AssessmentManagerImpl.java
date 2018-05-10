@@ -3495,12 +3495,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
-			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) throws DbConnectionException {
 		try {
 			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
-			res.setHitsNumber(countCredentialPeerAssessmentsForStudent(studentId, credId));
+			res.setHitsNumber(countCredentialPeerAssessmentsForStudent(studentId, credId, loadOnlyApproved));
 			if (res.getHitsNumber() > 0) {
-				res.setFoundNodes(getCredentialPeerAssessmentsForStudent(credId, studentId, dateFormat, offset, limit));
+				res.setFoundNodes(getCredentialPeerAssessmentsForStudent(credId, studentId, dateFormat, loadOnlyApproved, offset, limit));
 			}
 			return res;
 		} catch (Exception e) {
@@ -3510,14 +3510,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private List<AssessmentData> getCredentialPeerAssessmentsForStudent(
-			long credId, long studentId, DateFormat dateFormat, int offset, int limit) {
+			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) {
 		String q =
 				"SELECT ca FROM CredentialAssessment ca " +
 				"INNER JOIN fetch ca.assessor " +
 				"WHERE ca.targetCredential.credential.id = :credentialId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type " +
-				"ORDER BY ca.dateCreated";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+		    q += "AND ca.approved IS TRUE ";
+        }
+        q += "ORDER BY ca.dateCreated";
 
 		List<CredentialAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("credentialId", credId)
@@ -3536,12 +3539,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return res;
 	}
 
-	private long countCredentialPeerAssessmentsForStudent(long studentId, long credentialId) {
+	private long countCredentialPeerAssessmentsForStudent(long studentId, long credentialId, boolean loadOnlyApproved) {
 		String q =
 				"SELECT COUNT(ca.id) FROM CredentialAssessment ca " +
 				"WHERE ca.targetCredential.credential.id = :credentialId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+		    q += "AND ca.approved IS TRUE";
+        }
 		Query query = persistence.currentManager().createQuery(q)
 				.setLong("credentialId", credentialId)
 				.setLong("assessedStudentId", studentId)
