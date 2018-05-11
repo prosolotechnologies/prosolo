@@ -300,11 +300,7 @@
 								var="targetCompetence" varStatus="iterator">
 								<div class="col-md-6">
 									<article class="whiteBox summaryCard">
-										<h2>
-											<a href="javascript:void(0);">
-												#{targetCompetence.title}
-											</a>
-										</h2>
+										<h2>#{targetCompetence.title}</h2>
 										<div class="clear"></div>
 
 										<p class="cardDescription">#{util:cleanHTMLTags(targetCompetence.description)}</p>

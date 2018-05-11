@@ -71,7 +71,7 @@
 										 disable="#{empty cc.attrs.credentialId}" />
 							</h:link>
 							<ui:fragment rendered="#{not cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
-								<a href="javascript:void(0);">#{cc.attrs.competenceAssessment.title}</a>
+								#{cc.attrs.competenceAssessment.title}
 							</ui:fragment>
 							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}

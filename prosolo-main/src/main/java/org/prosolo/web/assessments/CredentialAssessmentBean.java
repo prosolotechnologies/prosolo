@@ -80,8 +80,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
 
-	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId) {
+	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
 		setIds(encodedCredId, encodedAssessmentId);
+		this.displayMode = displayMode;
 		initSelfAssessment();
 	}
 
