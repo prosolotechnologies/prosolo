@@ -3879,13 +3879,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId) {
 		try {
 			String q =
-					"SELECT coalesce(tc.credentialAssessmentsDisplayed, 0) FROM TargetCredential1 tc " +
+					"SELECT tc.credentialAssessmentsDisplayed FROM TargetCredential1 tc " +
 					"WHERE tc.credential.id = :credId AND tc.user.id = :studentId";
 
-			return (boolean) persistence.currentManager().createQuery(q)
+			Boolean res = (Boolean) persistence.currentManager().createQuery(q)
 					.setLong("credId", credId)
 					.setLong("studentId", studentId)
 					.uniqueResult();
+			return res != null && res.booleanValue();
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error checking if credential assessment display is enabled");

@@ -2620,7 +2620,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				"INNER JOIN cc.credential cred " +
 				"INNER JOIN cred.targetCredentials tCred " +
 				"WITH tCred.user.id = :studentId " +
-				"AND tCred.evidenceDisplayed IS TRUE " +
+				"AND tCred.competenceAssessmentsDisplayed IS TRUE " +
 				"WHERE comp.id = :compId";
 
 		Long res = (Long) persistence.currentManager().createQuery(q)
@@ -2630,7 +2630,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.uniqueResult();
 
 		return res != null;
-
 	}
 
 	@Override

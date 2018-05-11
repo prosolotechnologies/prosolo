@@ -85,10 +85,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		initSelfAssessment();
 	}
 
-	public void initPeerAssessment(String encodedCredId, String encodedAssessmentId) {
-		setIds(encodedCredId, encodedAssessmentId);
-		initPeerAssessment();
-	}
+//	public void initPeerAssessment(String encodedCredId, String encodedAssessmentId) {
+//		setIds(encodedCredId, encodedAssessmentId);
+//		initPeerAssessment();
+//	}
 
 	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
 		setIds(encodedCredId, encodedAssessmentId);
@@ -102,9 +102,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public void initAssessmentManager() {
-		decodedId = idEncoder.decodeId(id);
-		decodedAssessmentId = idEncoder.decodeId(assessmentId);
-
+		decodeCredentialAndAssessmentIds();
 		if (decodedId > 0 && decodedAssessmentId > 0) {
 			try {
 				// for managers, load all other assessments
@@ -140,28 +138,30 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT);
 	}
 
-	public void initPeerAssessment() {
-		initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
+	public boolean initPeerAssessment() {
+		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
 	}
 
 	public void initInstructorAssessment() {
 		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT);
 	}
 
-	public void initAssessmentStudent(AssessmentType type) {
-		decodedId = idEncoder.decodeId(id);
-		decodedAssessmentId = idEncoder.decodeId(assessmentId);
+	public boolean initAssessmentStudent(AssessmentType type) {
+		decodeCredentialAndAssessmentIds();
+		boolean success = true;
 		try {
 			fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
 					loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
 			if (fullAssessmentData == null) {
 				PageUtil.notFound();
+				success = false;
 			} else {
 				/*
 				if user is not student or assessor, he is not allowed to access this page
 				 */
 				if (!isUserAllowedToAccessPage()) {
 					PageUtil.accessDenied();
+					success = false;
 				} else {
 					credentialTitle = fullAssessmentData.getTitle();
 					/*
@@ -176,7 +176,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
 			PageUtil.fireErrorMessage("Error loading assessment data");
+			success = false;
 		}
+		return success;
+	}
+
+	private void decodeCredentialAndAssessmentIds() {
+		decodedId = idEncoder.decodeId(id);
+		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 	}
 
 	private boolean isUserAllowedToAccessPage() {
@@ -468,7 +475,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	//LearningResourceAssessmentBean impl end
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
-		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
+		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
 	}
 
 	public boolean allCompetencesStarted() {
@@ -755,5 +762,17 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	public LearningResourceType getCurrentResType() {
 		return currentResType;
+	}
+
+	public long getDecodedAssessmentId() {
+		return decodedAssessmentId;
+	}
+
+	public UrlIdEncoder getIdEncoder() {
+		return idEncoder;
+	}
+
+	protected void setDisplayMode(AssessmentDisplayMode displayMode) {
+		this.displayMode = displayMode;
 	}
 }

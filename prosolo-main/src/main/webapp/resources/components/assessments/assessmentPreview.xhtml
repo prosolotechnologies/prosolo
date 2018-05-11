@@ -211,7 +211,7 @@
 						</li>
 
 						<li>
-							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment-public">
+							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment-profile">
 								<f:param name="credId" value="#{cc.attrs.bean.id}" />
 								<f:param name="studentId" value="#{param.studentId}"/>
 							</h:link>

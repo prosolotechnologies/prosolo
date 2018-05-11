@@ -233,16 +233,19 @@
 												</div>
 
 												<div class="metaRight">
-													<ui:fragment rendered="#{cred.numberOfAssessments eq 0 or not cred.assessmentDisplayEnabled}">
-														<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
+														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
+															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+														</ui:fragment>
+														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
+															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
+																assessments
+																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+															</h:link>
+														</ui:fragment>
 													</ui:fragment>
-													<ui:fragment rendered="#{cred.numberOfAssessments gt 0 and cred.assessmentDisplayEnabled}">
-														<h:link outcome="/credential-instructor-assessment-public" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
-															assessments
-															<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-															<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-														</h:link>
-													</ui:fragment>
+
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
 													</ui:fragment>
@@ -313,11 +316,13 @@
 											</h:panelGroup>
 
 											<div class="metaRight">
-												<ui:fragment rendered="#{targetCompetence.numberOfAssessments eq 0}">
-													<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
-												</ui:fragment>
-												<ui:fragment rendered="#{targetCompetence.numberOfAssessments gt 0}">
-													<h:link outcome="standard-profile-assessment.html" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{targetCompetence.numberOfAssessments} Assessment#{targetCompetence.numberOfAssessments eq 1 ? '' : 's'}">assessments</h:link>
+												<ui:fragment rendered="#{targetCompetence.assessmentDisplayEnabled}">
+													<ui:fragment rendered="#{targetCompetence.numberOfAssessments eq 0}">
+														<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+													</ui:fragment>
+													<ui:fragment rendered="#{targetCompetence.numberOfAssessments gt 0}">
+														<h:link outcome="standard-profile-assessment.html" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{targetCompetence.numberOfAssessments} Assessment#{targetCompetence.numberOfAssessments eq 1 ? '' : 's'}">assessments</h:link>
+													</ui:fragment>
 												</ui:fragment>
 												<ui:fragment rendered="#{targetCompetence.durationString ne null}">
 													<div class="duration">#{targetCompetence.durationString}</div>
@@ -432,15 +437,17 @@
 												</div>
 
 												<div class="metaRight">
-													<ui:fragment rendered="#{cred.numberOfAssessments eq 0 or not cred.assessmentDisplayEnabled}">
-														<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
-													</ui:fragment>
-													<ui:fragment rendered="#{cred.numberOfAssessments gt 0 and cred.assessmentDisplayEnabled}">
-														<h:link outcome="/credential-instructor-assessment-public" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
-															assessments
-															<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-															<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-														</h:link>
+													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
+														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
+															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+														</ui:fragment>
+														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
+															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
+																assessments
+																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+															</h:link>
+														</ui:fragment>
 													</ui:fragment>
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
