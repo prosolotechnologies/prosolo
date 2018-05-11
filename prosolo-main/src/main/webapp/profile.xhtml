@@ -301,10 +301,9 @@
 								<div class="col-md-6">
 									<article class="whiteBox summaryCard">
 										<h2>
-											<h:link	outcome="competence">
+											<a href="javascript:void(0);">
 												#{targetCompetence.title}
-												<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
-											</h:link>
+											</a>
 										</h2>
 										<div class="clear"></div>
 
@@ -418,6 +417,7 @@
 
 											<div class="metaBox">
 												<div class="metaLeft">
+													<ui:remove>
 													<h:link
 														value="Resume"
 														styleClass="btn btn-green btn-sm"
@@ -425,6 +425,7 @@
 														<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
 														<f:param name="compId" value="#{util:encodeId(cred.nextCompetenceToLearnId)}"/>
 													</h:link>
+													</ui:remove>
 
 													<div class="progressBar">
 														<span>#{cred.progress}%</span>

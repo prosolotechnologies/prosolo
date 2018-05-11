@@ -160,4 +160,12 @@ public class UserCredentialReadOnlyBean implements Serializable {
 	public CredentialData getCredentialData() {
 		return credentialData;
 	}
+
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
+
+	public long getDecodedStudentId() {
+		return decodedStudentId;
+	}
 }
