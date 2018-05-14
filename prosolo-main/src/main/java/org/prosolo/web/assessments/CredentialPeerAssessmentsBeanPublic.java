@@ -2,6 +2,8 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -19,8 +21,12 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 
 	private static Logger logger = Logger.getLogger(CredentialPeerAssessmentsBeanPublic.class);
 
+	@Inject private UserManager userManager;
+
 	private String studentId;
 	private long decodedStudentId;
+
+	private UserData student;
 
 	public void init() {
 		try {
@@ -33,6 +39,7 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 				if (!displayEnabled) {
 					PageUtil.accessDenied();
 				} else {
+					student = userManager.getUserData(decodedStudentId);
 					loadInitialAssessmentData();
 				}
 			} else {
@@ -59,5 +66,9 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 	@Override
 	protected AssessmentDisplayMode getAssessmentDisplayMode() {
 		return AssessmentDisplayMode.PUBLIC;
+	}
+
+	public UserData getStudent() {
+		return student;
 	}
 }

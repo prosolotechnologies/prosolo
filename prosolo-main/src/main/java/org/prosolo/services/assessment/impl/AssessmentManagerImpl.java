@@ -394,6 +394,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 			data.setApproved(assessment.isApproved());
 			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
+			data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
+			data.setAssessedStudentId(assessment.getStudent().getId());
+
 			return data;
 		}
 

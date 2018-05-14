@@ -204,6 +204,11 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
 						<li>
+							<h:link value="#{cc.attrs.bean.fullAssessmentData.studentFullName}" outcome="profile">
+								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
+							</h:link>
+						</li>
+						<li>
 							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
 								<f:param name="credId" value="#{cc.attrs.bean.id}"/>
 								<f:param name="studentId" value="#{param.studentId}"/>
