@@ -48,7 +48,7 @@ public class ActivityAssessmentData {
 	private CompetenceAssessmentData compAssessment;
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
-											  CredentialAssessment credAssessment, Pair<Integer, Integer> rubricGradeSummary,
+											  CredentialAssessment credAssessment, AssessmentGradeSummary rubricGradeSummary,
 											  UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);

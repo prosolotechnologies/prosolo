@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
@@ -29,10 +28,10 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -405,9 +404,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.of(false, false, true, true, false));
 		int currentGrade = assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC
 				? getAutomaticCredentialAssessmentScore(id) : assessment.getPoints();
-		Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(id);
-		Map<Long, Pair<Integer, Integer>> compAssessmentsGradeSummary = getCompetenceAssessmentsRubricGradeSummary(assessment.getCompetenceAssessments().stream().map(a -> a.getCompetenceAssessment().getId()).collect(Collectors.toList()));
-		Map<Long, Pair<Integer, Integer>> actAssessmentsGradeSummary = getActivityAssessmentsRubricGradeSummary(
+		RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessment);
+		Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary = getCompetenceAssessmentsRubricGradeSummary(assessment.getCompetenceAssessments().stream().map(a -> a.getCompetenceAssessment().getId()).collect(Collectors.toList()));
+		Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary = getActivityAssessmentsRubricGradeSummary(
 				assessment.getCompetenceAssessments()
 						.stream()
 						.map(ca -> ca.getCompetenceAssessment().getActivityDiscussions())
@@ -423,13 +422,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	/**
-	 * Returns pair of numbers for credential assessment where first number represents average level
-	 * in a rubric and second number represents number of levels in each rubric criterion.
 	 *
-	 * @param credAssessmentId
+	 * @param credentialAssessment
 	 * @return
 	 */
-	private Pair<Integer, Integer> getCredentialAssessmentRubricGradeSummary(long credAssessmentId) {
+	private RubricAssessmentGradeSummary getCredentialAssessmentRubricGradeSummary(CredentialAssessment credentialAssessment) {
 		String q =
 				"SELECT CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl) " +
 						"FROM CredentialCriterionAssessment cca " +
@@ -442,19 +439,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		Object[] res = (Object[]) persistence.currentManager()
 				.createQuery(q)
-				.setLong("credAssessmentId", credAssessmentId)
+				.setLong("credAssessmentId", credentialAssessment.getId())
 				.uniqueResult();
 		if (res != null) {
 			int avgLvl = res[0] != null ? (int) res[0] : 0;
 			int numberOfLevels = res[1] != null ? (int) res[1] : 0;
-			return new Pair<>(avgLvl, numberOfLevels);
+			return new RubricAssessmentGradeSummary(avgLvl, numberOfLevels, getLevelTitleForCredentialRubric(credentialAssessment.getTargetCredential().getCredential().getId(), avgLvl));
 		}
-		return new Pair<>(0, 0);
+		return RubricAssessmentGradeSummary.empty();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Pair<Integer, Integer> getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	public AssessmentGradeSummary getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
 			switch (cred.getGradingMode()) {
@@ -476,7 +473,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 
-	private Pair<Integer, Integer> getCredentialAssessmentsAutomaticGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsAutomaticGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(SUM(CASE WHEN compAssessment.points > 0 THEN compAssessment.points ELSE 0 END), 0), COALESCE(SUM(CASE WHEN compAssessment.points >= 0 THEN 1 ELSE 0 END), 0) > 0, COALESCE(COUNT(DISTINCT ca.id), 0) " +
 				"FROM CredentialCompetenceAssessment cca " +
@@ -538,7 +535,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return nonAutomaticCompPoint + automaticCompPoints;
 	}
 
-	private Pair<Integer, Integer> getCredentialAssessmentsManualGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsManualGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(CAST(ROUND(AVG(CASE WHEN ca.points > 0 THEN ca.points ELSE 0 END)) as int), 0), COALESCE(SUM(CASE WHEN ca.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 				"FROM CredentialAssessment ca " +
@@ -565,7 +562,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
 	}
 
-	private Pair<Integer, Integer> getCredentialAssessmentsRubricGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsRubricGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q1 =
 				"SELECT CAST(COUNT(lvl.id) as int) " +
 				"FROM Credential1 c " +
@@ -577,7 +574,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setLong("credId", credentialId)
 				.uniqueResult();
 		if (lvlCount == 0) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 		String q =
 				"SELECT COALESCE(CAST(AVG(l.order) as int), 0) " +
@@ -600,7 +597,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.list();
 
 		if (res.isEmpty()) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 
 		double avgGrade = res.stream().mapToInt(grade -> grade).average().getAsDouble();
@@ -609,7 +606,25 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		and we should return 1 as a grade because 0 means there are no graded assessments
 		 */
 		avgGrade = avgGrade < 1 && avgGrade > 0 ? 1 : avgGrade;
-		return new Pair<>((int) Math.round(avgGrade), lvlCount);
+		int roundedAvgGrade = (int) Math.round(avgGrade);
+
+		return new RubricAssessmentGradeSummary(roundedAvgGrade, lvlCount, getLevelTitleForCredentialRubric(credentialId, roundedAvgGrade));
+	}
+
+	private String getLevelTitleForCredentialRubric(long credId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+				"FROM Credential1 c " +
+				"INNER JOIN c.rubric r " +
+				"INNER JOIN r.levels lvl " +
+						"WITH lvl.order = :order " +
+				"WHERE c.id = :credId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("credId", credId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	/*
@@ -618,7 +633,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	public AssessmentGradeSummary getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			switch (comp.getGradingMode()) {
@@ -640,7 +655,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsAutomaticGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsAutomaticGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(SUM(CASE WHEN aa.points > 0 THEN aa.points ELSE 0 END), 0), COALESCE(SUM(CASE WHEN aa.points >= 0 THEN 1 ELSE 0 END), 0) > 0, COALESCE(COUNT(DISTINCT ca.id), 0) " +
 						"FROM CompetenceAssessment ca " +
@@ -682,7 +697,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.uniqueResult();
 	}
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsManualGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsManualGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(CAST(ROUND(AVG(CASE WHEN ca.points > 0 THEN ca.points ELSE 0 END)) as int), 0), COALESCE(SUM(CASE WHEN ca.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 						"FROM CompetenceAssessment ca " +
@@ -708,7 +723,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
 	}
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsRubricGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsRubricGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q1 =
 				"SELECT COALESCE(CAST(COUNT(lvl.id) as int), 0) " +
 						"FROM Competence1 c " +
@@ -720,7 +735,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setLong("compId", competenceId)
 				.uniqueResult();
 		if (lvlCount == 0) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 		String q =
 				"SELECT COALESCE(CAST(AVG(l.order) as int), 0) " +
@@ -742,7 +757,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.list();
 
 		if (res.isEmpty()) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 
 		double avgGrade = res.stream().mapToInt(grade -> grade).average().getAsDouble();
@@ -751,7 +766,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		and we should return 1 as a grade because 0 means there are no graded assessments
 		 */
 		avgGrade = avgGrade < 1 && avgGrade > 0 ? 1 : avgGrade;
-		return new Pair<>((int) Math.round(avgGrade), lvlCount);
+		int roundedAvgGrade = (int) Math.round(avgGrade);
+		return new RubricAssessmentGradeSummary(roundedAvgGrade, lvlCount, getLevelTitleForCompetenceRubric(competenceId, roundedAvgGrade));
+	}
+
+	private String getLevelTitleForCompetenceRubric(long compId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+						"FROM Competence1 c " +
+						"INNER JOIN c.rubric r " +
+						"INNER JOIN r.levels lvl " +
+						"WITH lvl.order = :order " +
+						"WHERE c.id = :compId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("compId", compId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	 /*
@@ -770,35 +802,52 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	 */
 	@Override
 	@Transactional
-	public Map<Long, Pair<Integer, Integer>> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds) {
+	public Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds) {
 		if (activityAssessmentIds == null || activityAssessmentIds.isEmpty()) {
 			return new HashMap<>();
 		}
 		try {
 			String q =
-					"SELECT aa.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM a.rubric r LEFT JOIN r.levels lvl) " +
+					"SELECT aa.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM a.rubric r LEFT JOIN r.levels lvl), aa.activity.id " +
 							"FROM ActivityCriterionAssessment aca " +
 							"INNER JOIN aca.assessment aa " +
 							"INNER JOIN aa.activity a " +
 							"INNER JOIN aca.level l " +
 							"WHERE aa.id IN (:actAssessmentIds) " +
 							"AND a.rubric IS NOT NULL " +
-							"GROUP BY aa.id";
+							"GROUP BY aa.id, aa.activity.id";
 
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(q)
 					.setParameterList("actAssessmentIds", activityAssessmentIds)
 					.list();
 
-			Map<Long, Pair<Integer, Integer>> summary = new HashMap<>();
+			Map<Long, RubricAssessmentGradeSummary> summary = new HashMap<>();
 			for (Object[] row : res) {
-				summary.put((long) row[0], new Pair<>((int) row[1], (int) row[2]));
+				int avgLevel = (int) row[1];
+				summary.put((long) row[0], new RubricAssessmentGradeSummary(avgLevel, (int) row[2], getLevelTitleForActivityRubric((long) row[3], avgLevel)));
 			}
 			return summary;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading rubric grade summary");
 		}
+	}
+
+	private String getLevelTitleForActivityRubric(long activityId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+				"FROM Activity1 a " +
+				"INNER JOIN a.rubric r " +
+				"INNER JOIN r.levels lvl " +
+				"WITH lvl.order = :order " +
+				"WHERE a.id = :actId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("actId", activityId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	/**
@@ -810,28 +859,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	 * @param compAssessmentIds
 	 * @return
 	 */
-	private Map<Long, Pair<Integer, Integer>> getCompetenceAssessmentsRubricGradeSummary(List<Long> compAssessmentIds) {
+	private Map<Long, RubricAssessmentGradeSummary> getCompetenceAssessmentsRubricGradeSummary(List<Long> compAssessmentIds) {
 		if (compAssessmentIds == null || compAssessmentIds.isEmpty()) {
 			return new HashMap<>();
 		}
 		String q =
-				"SELECT ca.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl) " +
+				"SELECT ca.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl), ca.competence.id " +
 				"FROM CompetenceCriterionAssessment cca " +
 				"INNER JOIN cca.assessment ca " +
 				"INNER JOIN ca.competence c " +
 				"INNER JOIN cca.level l " +
 				"WHERE ca.id IN (:compAssessmentIds) " +
 				"AND c.rubric IS NOT NULL " +
-				"GROUP BY ca.id";
+				"GROUP BY ca.id, ca.competence.id";
 
 		List<Object[]> res = persistence.currentManager()
 				.createQuery(q)
 				.setParameterList("compAssessmentIds", compAssessmentIds)
 				.list();
 
-		Map<Long, Pair<Integer, Integer>> summary = new HashMap<>();
+		Map<Long, RubricAssessmentGradeSummary> summary = new HashMap<>();
 		for (Object[] row : res) {
-			summary.put((long) row[0], new Pair<>((int) row[1], (int) row[2]));
+			int avgLevel = (int) row[1];
+			summary.put((long) row[0], new RubricAssessmentGradeSummary(avgLevel, (int) row[2], getLevelTitleForCompetenceRubric((long) row[3], avgLevel)));
 		}
 		return summary;
 	}
@@ -1947,7 +1997,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 
 				//update assessment star data
-				Map<Long, Pair<Integer, Integer>> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
+				Map<Long, RubricAssessmentGradeSummary> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
 						Arrays.asList(activityAssessmentId));
 				GradeDataFactory.updateAssessmentStarData(grade, actAssessmentGradeSummary.get(activityAssessmentId));
 
@@ -2010,7 +2060,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(ca);
 
 				//update assessment star data
-				Map<Long, Pair<Integer, Integer>> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
+				Map<Long, RubricAssessmentGradeSummary> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
 				GradeDataFactory.updateAssessmentStarData(grade, compAssessmentGradeSummary.get(assessmentId));
 
 				CompetenceAssessment compA = new CompetenceAssessment();
@@ -2077,7 +2127,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(ca);
 
 				//update assessment star data
-				Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessmentId);
+				RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(ca);
 				GradeDataFactory.updateAssessmentStarData(grade, credGradeSummary);
 
 				CredentialAssessment credA = new CredentialAssessment();
@@ -3420,8 +3470,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} else {
 			cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
 		}
-		Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
-		Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
+		Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
+		Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
 		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, dateFormat, true);
 	}
 
@@ -3472,8 +3522,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 				credAssessment = getCredentialAssessmentForCompetenceInstructorAssessment(ca.getId());
 			}
-			Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
-			Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
+			Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
+			Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
 			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, true);
 		} catch(Exception e) {
 			logger.error("Error", e);

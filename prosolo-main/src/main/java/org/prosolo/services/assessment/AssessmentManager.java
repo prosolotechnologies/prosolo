@@ -15,7 +15,9 @@ import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -313,29 +315,25 @@ public interface AssessmentManager {
 	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
 			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 
-	Map<Long, Pair<Integer, Integer>> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
+	Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
 
 	/**
-	 * Returns pair of numbers for students credential assessments of given type where first number represents
-	 * average grade for that student and second number is a maximum grade that can be given
 	 *
 	 * @param credentialId
 	 * @param studentId
 	 * @param type
 	 * @return
 	 */
-	Pair<Integer, Integer> getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type);
+	AssessmentGradeSummary getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type);
 
 	/**
-	 * Returns pair of numbers for students' competence assessments of given type where first number represents
-	 * average grade for that student and second number is a maximum grade that can be given
 	 *
 	 * @param competenceId
 	 * @param studentId
 	 * @param type
 	 * @return
 	 */
-	Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
+	AssessmentGradeSummary getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
 
     /**
      *

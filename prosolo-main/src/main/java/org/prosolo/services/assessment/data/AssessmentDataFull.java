@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -55,8 +56,8 @@ public class AssessmentDataFull {
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
-													Pair<Integer, Integer> credAssessmentGradeSummary, Map<Long, Pair<Integer, Integer>> compAssessmentsGradeSummary,
-													Map<Long, Pair<Integer, Integer>> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
+													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
+													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setMessage(assessment.getMessage());

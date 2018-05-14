@@ -2,7 +2,8 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:p="http://primefaces.org/ui"
-		xmlns:c="http://java.sun.com/jsp/jstl/core">
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
 		<composite:attribute name="assessmentBean" required="true" />
@@ -27,6 +28,9 @@
 						   styleClass="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 						   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
 						   update="#{cc.attrs.toUpdateRubricPanelForStudent} #{cc.attrs.growlToUpdate}"
+						   pt:data-html="true"
+						   pt:data-toggle="tooltip"
+						   pt:title="#{styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData)}"
 						   oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
 				<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 					#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
@@ -38,8 +42,9 @@
 			</p:commandLink>
 			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and not cc.attrs.userAllowedToSeeRubric}">
 				<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
-				   data-toggle="#{cc.attrs.fullDisplayMode ? 'tooltip' : ''}"
-				   title="#{cc.attrs.fullDisplayMode ? 'You are not allowed to see the rubric' : ''}">
+				   data-html="true"
+				   data-toggle="tooltip"
+				   title="#{styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData)}">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
@@ -70,6 +75,9 @@
 							   styleClass="grade gradeModalLink_#{cc.attrs.gradeLinkSelectorId} #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 							   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
 							   update="#{cc.attrs.toUpdateGradePanel}"
+							   pt:data-html="true"
+							   pt:data-toggle="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' ? 'tooltip' : ''}"
+							   pt:title="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' ? styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData) : ''}"
 							   oncomplete="showPopupSidebar('##{cc.attrs.gradePanelSidebarId}');">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /

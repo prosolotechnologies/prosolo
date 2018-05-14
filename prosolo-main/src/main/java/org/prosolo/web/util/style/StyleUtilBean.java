@@ -3,6 +3,8 @@ package org.prosolo.web.util.style;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
@@ -123,19 +125,27 @@ public class StyleUtilBean implements Serializable {
 		}
 	}
 
-	public String getGradeStarClass(Pair<Integer, Integer> starData, String nongradedClass, boolean returnGradeClass) {
-		if (starData == null || starData.getFirst() == 0) {
+	public String getGradeStarClass(AssessmentGradeSummary gradeSummary, String nongradedClass, boolean returnGradeClass) {
+		if (gradeSummary == null || gradeSummary.getGrade() == 0) {
 			return nongradedClass;
 		}
-		return returnGradeClass ? "rubricStars has" + starData.getSecond() + "Stars rubricStar0" + starData.getFirst() : "";
+		return returnGradeClass ? "rubricStars has" + gradeSummary.getOutOf() + "Stars rubricStar0" + gradeSummary.getGrade() : "";
 	}
 
-	public String getGradeStarClass(Pair<Integer, Integer> starData) {
-		return getGradeStarClass(starData, "", true);
+	public String getGradeStarClass(AssessmentGradeSummary gradeSummary) {
+		return getGradeStarClass(gradeSummary, "", true);
 	}
 
-	public String getEmptyStarClass(Pair<Integer, Integer> starData) {
-		return getGradeStarClass(starData, "starEmpty",false);
+	public String getEmptyStarClass(AssessmentGradeSummary gradeSummary) {
+		return getGradeStarClass(gradeSummary, "starEmpty",false);
+	}
+
+	public String getRubricAssessmentStarLabel(RubricAssessmentGradeSummary gradeSummary) {
+		return gradeSummary != null
+				? gradeSummary.getGrade() > 0
+						? gradeSummary.getGradeLevelTitle() + "<br>(level " + gradeSummary.getGrade() + "/" + gradeSummary.getOutOf() + ")"
+						: ""
+				: "";
 	}
 
 }

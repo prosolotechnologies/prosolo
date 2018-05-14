@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -79,15 +80,15 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				Pair<Integer, Integer> rubricGradeSummary, Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary,
+				RubricAssessmentGradeSummary rubricGradeSummary, Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary,
 				UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
 		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat, loadDiscussion);
 	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
-												CredentialAssessment credAssessment, Pair<Integer, Integer> rubricGradeSummary,
-												Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary, UrlIdEncoder encoder,
+												CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
+												Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
 												long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
