@@ -126,22 +126,25 @@
 					</h:panelGroup>
 				</div>
 
-				<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not empty cc.attrs.competenceAssessment.activityAssessmentData}">
+				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.activityAssessmentData}">
 					<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{cc.attrs.competenceAssessment.competenceAssessmentId}"
 								  id="activityAssessmentWrapper#{compAssIndex.index}">
 						<ul>
 							<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{cc.attrs.competenceAssessment.activityAssessmentData}">
 								<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 									<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
-									<h:link outcome="activity">
+									<h:link outcome="activity" rendered="#{cc.attrs.fullDisplayMode}">
 										#{activityAssessment.title}
 										<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 										<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 										<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 												 disable="#{empty cc.attrs.credentialId}" />
 									</h:link>
+									<ui:fragment rendered="#{not cc.attrs.fullDisplayMode}">
+										<a href="javascript:void(0);">#{activityAssessment.title}</a>
+									</ui:fragment>
 									<div class="activityOptions">
-										<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+										<ui:fragment rendered="#{cc.attrs.fullDisplayMode and (activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
 											<h:link outcome="activity-response"
 													styleClass="viewResult"
 													rendered="#{cc.attrs.role eq 'USER'}"
@@ -162,7 +165,7 @@
 												<f:param name="user" value="#{util:encodeId(cc.attrs.competenceAssessment.studentId)}" />
 											</h:link>
 										</ui:fragment>
-										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
 													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 													   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -184,6 +187,7 @@
 											growlToUpdate="#{cc.attrs.growlToUpdate}"
 											role="#{cc.attrs.role}"
 											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
+											fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 										/>
 									</div>
 								</li>
