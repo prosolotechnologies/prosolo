@@ -20,7 +20,7 @@ public class CredentialLoadConfig {
     private final CompetenceLoadConfig competenceLoadConfig;
 
     private CredentialLoadConfig(boolean loadAssessmentConfig, boolean loadCompetences, boolean loadCreator, boolean loadStudent, boolean loadCategory,
-                                boolean loadTags, boolean loadInstructor, boolean loadAssessmentCount, CompetenceLoadConfig competenceLoadConfig) {
+                         boolean loadTags, boolean loadInstructor, boolean loadAssessmentCount, CompetenceLoadConfig competenceLoadConfig) {
         this.loadAssessmentConfig = loadAssessmentConfig;
         this.loadCompetences = loadCompetences;
         this.loadCreator = loadCreator;
@@ -32,9 +32,8 @@ public class CredentialLoadConfig {
         this.competenceLoadConfig = competenceLoadConfig;
     }
 
-    public static CredentialLoadConfig of(boolean loadAssessmentConfig, boolean loadCompetences, boolean loadCreator, boolean loadStudent, boolean loadCategory,
-                                          boolean loadTags, boolean loadAssessmentCount, boolean loadInstructor, CompetenceLoadConfig competenceLoadConfig) {
-        return new CredentialLoadConfig(loadAssessmentConfig, loadCompetences, loadCreator, loadStudent, loadCategory, loadTags, loadInstructor, loadAssessmentCount, competenceLoadConfig);
+    public static CredentialLoadConfigBuilder builder() {
+        return new CredentialLoadConfigBuilder();
     }
 
     public boolean isLoadAssessmentConfig() {
@@ -71,5 +70,66 @@ public class CredentialLoadConfig {
 
     public boolean isLoadStudent() {
         return loadStudent;
+    }
+
+    public static class CredentialLoadConfigBuilder {
+        private boolean loadAssessmentConfig;
+        private boolean loadCompetences;
+        private boolean loadCreator;
+        private boolean loadStudent;
+        private boolean loadCategory;
+        private boolean loadTags;
+        private boolean loadInstructor;
+        private boolean loadAssessmentCount;
+        private CompetenceLoadConfig competenceLoadConfig;
+
+        public CredentialLoadConfigBuilder setLoadAssessmentConfig(boolean loadAssessmentConfig) {
+            this.loadAssessmentConfig = loadAssessmentConfig;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadCompetences(boolean loadCompetences) {
+            this.loadCompetences = loadCompetences;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadCreator(boolean loadCreator) {
+            this.loadCreator = loadCreator;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadStudent(boolean loadStudent) {
+            this.loadStudent = loadStudent;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadCategory(boolean loadCategory) {
+            this.loadCategory = loadCategory;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadTags(boolean loadTags) {
+            this.loadTags = loadTags;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadInstructor(boolean loadInstructor) {
+            this.loadInstructor = loadInstructor;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setLoadAssessmentCount(boolean loadAssessmentCount) {
+            this.loadAssessmentCount = loadAssessmentCount;
+            return this;
+        }
+
+        public CredentialLoadConfigBuilder setCompetenceLoadConfig(CompetenceLoadConfig competenceLoadConfig) {
+            this.competenceLoadConfig = competenceLoadConfig;
+            return this;
+        }
+
+        public CredentialLoadConfig create() {
+            return new CredentialLoadConfig(loadAssessmentConfig, loadCompetences, loadCreator, loadStudent, loadCategory, loadTags, loadInstructor, loadAssessmentCount, competenceLoadConfig);
+        }
     }
 }

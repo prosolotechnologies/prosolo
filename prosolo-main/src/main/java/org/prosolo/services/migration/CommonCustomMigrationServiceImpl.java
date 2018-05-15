@@ -67,7 +67,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
 
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.of(false, false, true, true, false));
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
 
                 for (CompetenceData1 cd : comps) {
                     // if competence assessment has not been created, create it

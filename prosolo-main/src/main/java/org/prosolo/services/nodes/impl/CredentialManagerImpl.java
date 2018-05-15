@@ -402,8 +402,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData;
 		try {
 			credData = getTargetCredentialData(credentialId, userId,
-					CredentialLoadConfig.of(true, true, true, false,false, true, false, true,
-							CompetenceLoadConfig.of(true, true, false, false, false)));
+					CredentialLoadConfig.builder().setLoadAssessmentConfig(true).setLoadCompetences(true)
+						.setLoadCreator(true).setLoadTags(true).setLoadInstructor(true)
+						.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadCreator(true).setLoadTags(true).create()).create());
 			if (credData == null) {
 				return getCredentialData(credentialId, true, false, true, true, userId, AccessMode.USER);
 			}
@@ -566,7 +567,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if (loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (accessMode == AccessMode.USER) {
-					credData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, CompetenceLoadConfig.of(true, false, false, false, false)));
+					credData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, CompetenceLoadConfig.builder().setLoadCreator(true).create()));
 				} else {
 					/*
 					 * always include not published competences
@@ -1575,9 +1576,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
-		CredentialData credentialData = getTargetCredentialData(credentialId, userId, CredentialLoadConfig.of(false, false, true, false, false, true, false, true, null));
+		CredentialData credentialData = getTargetCredentialData(credentialId, userId, CredentialLoadConfig.builder().setLoadCreator(true).setLoadTags(true).setLoadInstructor(true).create());
 		if (credentialData != null && credentialData.isEnrolled()) {
-			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, CompetenceLoadConfig.of(false, false, true, true, false)));
+			credentialData.setCompetences(compManager.getCompetencesForCredential(credentialId, userId, CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create()));
 			return credentialData;
 		}
 		return null;
@@ -3823,8 +3824,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
 		TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId);
 		return getTargetCredentialData(credentialId, studentId,
-				CredentialLoadConfig.of(false, true, true, true,false, true, tc.isCredentialAssessmentsDisplayed(), false,
-						CompetenceLoadConfig.of(false, false, false, tc.isEvidenceDisplayed(), tc.isCompetenceAssessmentsDisplayed())));
+				CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
+					.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
 	}
 
 	private TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
