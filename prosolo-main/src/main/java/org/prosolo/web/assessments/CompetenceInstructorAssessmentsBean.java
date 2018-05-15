@@ -11,6 +11,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -29,22 +30,15 @@ import java.util.Optional;
  * @author stefanvuckovic
  *
  */
+public abstract class CompetenceInstructorAssessmentsBean implements Serializable {
 
-@ManagedBean(name = "competenceInstructorAssessmentsBean")
-@Component("competenceInstructorAssessmentsBean")
-@Scope("view")
-public class CompetenceInstructorAssessmentsBean implements Serializable {
-
-	private static final long serialVersionUID = -8693906801755334848L;
+	private static final long serialVersionUID = -3753292998812033954L;
 
 	private static Logger logger = Logger.getLogger(CompetenceInstructorAssessmentsBean.class);
 
 	@Inject private AssessmentManager assessmentManager;
-	@Inject private RubricManager rubricManager;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private ActivityAssessmentBean activityAssessmentBean;
 	@Inject private Competence1Manager compManager;
-	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credManager;
 
 	private String competenceId;
@@ -58,32 +52,24 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
-	public void init() {
+	public void loadInitialAssessmentData() {
+		assessments = assessmentManager.getInstructorCompetenceAssessmentsForStudent(
+				decodedCompId, getStudentId(), getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC, new SimpleDateFormat("MMMM dd, yyyy"));
+		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+		if (decodedCredId > 0) {
+			credentialTitle = credManager.getCredentialTitle(decodedCredId);
+		}
+
+		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+	}
+
+	void decodeCredentialAndCompetenceIds() {
 		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCredId = idEncoder.decodeId(credentialId);
-
-		if (decodedCompId > 0) {
-			boolean userEnrolled = compManager.isUserEnrolled(decodedCompId, loggedUserBean.getUserId());
-
-			if (!userEnrolled) {
-				PageUtil.accessDenied();
-			} else {
-				try {
-					assessments = assessmentManager.getInstructorCompetenceAssessmentsForStudent(
-							decodedCompId, loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
-					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
-					if (decodedCredId > 0) {
-						credentialTitle = credManager.getCredentialTitle(decodedCredId);
-					}
-
-					assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
-				} catch (Exception e) {
-					logger.error("Error loading assessment data", e);
-					PageUtil.fireErrorMessage("Error loading assessment data");
-				}
-			}
-		}
 	}
+
+	abstract long getStudentId();
+	abstract AssessmentDisplayMode getAssessmentDisplayMode();
 
 	public boolean isPeerAssessmentEnabled() {
 		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
@@ -92,56 +78,6 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 	public boolean isSelfAssessmentEnabled() {
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
-
-	public void markActivityAssessmentDiscussionRead() {
-		String encodedActivityDiscussionId = getEncodedAssessmentIdFromRequest();
-
-		if (!StringUtils.isBlank(encodedActivityDiscussionId)) {
-			assessmentManager.markActivityAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
-					idEncoder.decodeId(encodedActivityDiscussionId));
-			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
-					encodedActivityDiscussionId);
-			seenActivityAssessment.ifPresent(data -> data.setAllRead(true));
-		}
-	}
-
-	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		for (CompetenceAssessmentData comp : assessments) {
-			for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-				if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-					return Optional.of(act);
-				}
-			}
-		}
-		return Optional.empty();
-	}
-
-	public void markCompetenceAssessmentDiscussionRead() {
-		String encodedAssessmentId = getEncodedAssessmentIdFromRequest();
-
-		if (!StringUtils.isBlank(encodedAssessmentId)) {
-			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
-			assessmentManager.markCompetenceAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
-					assessmentId);
-			Optional<CompetenceAssessmentData> compAssessment = getCompetenceAssessmentById(assessmentId);
-			compAssessment.ifPresent(data -> data.setAllRead(true));
-		}
-	}
-
-	private Optional<CompetenceAssessmentData> getCompetenceAssessmentById(long assessmentId) {
-		for (CompetenceAssessmentData ca : assessments) {
-			if (assessmentId == ca.getCompetenceAssessmentId()) {
-				return Optional.of(ca);
-			}
-		}
-		return Optional.empty();
-	}
-
-	private String getEncodedAssessmentIdFromRequest() {
-		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		return params.get("assessmentEncId");
-	}
-	//MARK DISCUSSION READ END
 
 	/*
 	 * GETTERS / SETTERS
@@ -173,5 +109,21 @@ public class CompetenceInstructorAssessmentsBean implements Serializable {
 
 	public List<CompetenceAssessmentData> getAssessments() {
 		return assessments;
+	}
+
+	protected long getDecodedCompId() {
+		return decodedCompId;
+	}
+
+	public AssessmentManager getAssessmentManager() {
+		return assessmentManager;
+	}
+
+	public UrlIdEncoder getIdEncoder() {
+		return idEncoder;
+	}
+
+	public Competence1Manager getCompManager() {
+		return compManager;
 	}
 }

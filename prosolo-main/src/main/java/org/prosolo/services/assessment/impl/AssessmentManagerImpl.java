@@ -3415,7 +3415,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException {
+	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat) throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
@@ -3428,11 +3428,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"ON cca.competence_assessment = ca.id " +
 					"INNER JOIN credential_assessment credAssessment " +
 					"ON credAssessment.id = cca.credential_assessment) " +
-					"ON comp.id = ca.competence " +
-					// following condition ensures that assessment for the right student is joined
-					"AND ca.student = tc.user " +
-					"AND ca.type = :instructorAssessment " +
-					"WHERE tc.user = :userId");
+					"ON comp.id = ca.competence ");
+				 	if (loadOnlyApproved) {
+						query.append("AND ca.approved IS TRUE ");
+					}
+					query.append(
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment " +
+						"WHERE tc.user = :userId");
 
 			Query q = persistence.currentManager()
 					.createSQLQuery(query.toString())
