@@ -313,7 +313,7 @@ public interface AssessmentManager {
 			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 
 	Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
 

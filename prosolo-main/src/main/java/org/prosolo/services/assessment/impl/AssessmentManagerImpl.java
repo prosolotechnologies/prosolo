@@ -3636,12 +3636,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
 		try {
 			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
-			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId));
+			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId, loadOnlyApproved));
 			if (res.getHitsNumber() > 0) {
-				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, dateFormat, offset, limit));
+				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, loadOnlyApproved, dateFormat, offset, limit));
 			}
 			return res;
 		} catch (Exception e) {
@@ -3651,14 +3651,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private List<AssessmentData> getCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) {
 		String q =
 				"SELECT ca FROM CompetenceAssessment ca " +
 				"INNER JOIN fetch ca.assessor " +
 				"WHERE ca.competence.id = :compId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type " +
-				"ORDER BY ca.dateCreated";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+			q += "AND ca.approved IS TRUE ";
+		}
+		q += "ORDER BY ca.dateCreated";
 
 		List<CompetenceAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
@@ -3677,12 +3680,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return res;
 	}
 
-	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId) {
+	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId, boolean countOnlyApproved) {
 		String q =
 				"SELECT COUNT(ca.id) FROM CompetenceAssessment ca " +
 						"WHERE ca.competence.id = :compId " +
 						"AND ca.student.id = :assessedStudentId " +
-						"AND ca.type = :type";
+						"AND ca.type = :type ";
+		if (countOnlyApproved) {
+			q += "AND ca.approved IS TRUE";
+		}
 		Query query = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
 				.setLong("assessedStudentId", studentId)
