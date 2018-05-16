@@ -58,7 +58,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private ActivityAssessmentBean activityAssessmentBean;
-	@Inject private CompetenceAssessmentBean compAssessmentBean;
+	@Inject private StudentCompetenceAssessmentBean compAssessmentBean;
 	@Inject private RubricManager rubricManager;
 	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
 

@@ -388,7 +388,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		these cases should be covered and data should not be populated, empty data with basic info should be
 		returned instead
 		 */
-		if (!shouldAssessmentDataBeLoaded(assessment, loadConfig)) {
+		if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
 			AssessmentDataFull data = new AssessmentDataFull();
 			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 			data.setApproved(assessment.isApproved());
@@ -416,7 +416,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 	}
 
-	private boolean shouldAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
+	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
 		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved())
 				&& (loadConfig.isLoadDataIfStudentDisabledAssessmentDisplay() || assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 	}
@@ -3509,13 +3509,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
 			if (ca == null || (assessmentType != null && ca.getType() != assessmentType)) {
 				return null;
 			}
+
+			/*
+			if data should not be loaded when assessment is not approved and assessment is not approved
+			full data should not be populated, data with basic info should be
+			returned instead
+			 */
+			if (!loadConfig.isLoadDataIfAssessmentNotApproved() && !ca.isApproved()) {
+				CompetenceAssessmentData data = new CompetenceAssessmentData();
+				data.setApproved(ca.isApproved());
+				data.setTitle(ca.getCompetence().getTitle());
+				data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
+				data.setStudentId(ca.getStudent().getId());
+
+				return data;
+			}
+
 			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
 					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
 			/*

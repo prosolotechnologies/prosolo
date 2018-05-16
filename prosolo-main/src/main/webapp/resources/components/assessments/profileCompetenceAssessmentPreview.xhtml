@@ -1,0 +1,117 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:util="http://www.prosolo.com/util"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+			  xmlns:c="http://java.sun.com/jsp/jstl/core"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
+
+	<composite:interface>
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"/>
+
+		<div class="whiteBar">
+
+		</div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<li>
+					<h:link value="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}" outcome="profile">
+						<f:param name="id" value="#{util:encodeId(profileCompetenceAssessmentBean.competenceAssessmentData.studentId)}"/>
+					</h:link>
+				</li>
+				<li class="active">
+					Assessments
+				</li>
+			</ol>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<assessment:competenceAssessmentStudentTabsProfile
+						selfAssessmentEnabled="#{profileCompetenceAssessmentBean.selfAssessmentEnabled}"
+						peerAssessmentEnabled="#{profileCompetenceAssessmentBean.peerAssessmentEnabled}"
+					/>
+
+					<div class="row">
+						<div class="col-md-#{profileCompetenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
+							<h2 class="bottom10">Competence Assessment</h2>
+							<ui:fragment rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
+								<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student #{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}.
+									All comments between the student and the assessor are private.</p>
+							</ui:fragment>
+
+							<h:form>
+								<assessment:competenceAssessment
+										competenceAssessment="#{profileCompetenceAssessmentBean.competenceAssessmentData}"
+										fullDisplayMode="#{false}"
+										bean="#{profileCompetenceAssessmentBean}"
+										credentialId="#{cc.attrs.credentialId}"
+										role="USER"
+										learningContext="#{cc.attrs.learningContext}"
+										growlToUpdate=":#{cc.clientId}:growlMain"
+										currentUserAssessor="#{profileCompetenceAssessmentBean.isUserAssessorInCurrentContext()}"
+										currentUserAssessedStudent="#{profileCompetenceAssessmentBean.isUserAssessedStudentInCurrentContext()}"
+								/>
+							</h:form>
+						</div>
+
+						<h:panelGroup layout="block" rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}" styleClass="col-md-3">
+							<div class="sidebarBlock">
+								<h2>Student</h2>
+								<div class="user32">
+									<a href="javascript:void(0);"> <utilcomp:userAvatar
+											avatar="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
+											fullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}" />
+									</a>
+									<h3>
+										<a href="javascript:void(0);">#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}</a>
+									</h3>
+								</div>
+							</div>
+
+							<div class="sidebarBlock">
+								<ui:fragment
+										rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorId > 0}">
+									<h2>Assessor</h2>
+									<div class="user32">
+										<a href="javascript:void(0);"> <utilcomp:userAvatar
+												avatar="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
+												fullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}" />
+										</a>
+										<h3>
+											<a href="javascript:void(0);">#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}</a>
+										</h3>
+									</div>
+								</ui:fragment>
+
+								<ui:fragment
+										rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorId eq 0}">
+									<div class="user32">
+										<h3>Currently, there is no assessor assigned.</h3>
+									</div>
+								</ui:fragment>
+							</div>
+
+							<div class="sidebarBlock">
+								<h2>Requested</h2>
+								<p>#{profileCompetenceAssessmentBean.competenceAssessmentData.dateValue}</p>
+							</div>
+						</h:panelGroup>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</composite:implementation>
+</ui:component>

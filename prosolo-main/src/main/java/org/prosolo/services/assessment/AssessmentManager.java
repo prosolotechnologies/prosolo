@@ -306,7 +306,7 @@ public interface AssessmentManager {
 
 	Optional<Long> getSelfCompetenceAssessmentId(long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
