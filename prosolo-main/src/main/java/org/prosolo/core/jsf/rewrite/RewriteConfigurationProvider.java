@@ -77,6 +77,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
                 .addRule(Join.path("/competences/{compId}/assessments/peer").to("/competence-peer-assessments.xhtml"))
 				.addRule(Join.path("/profile/{studentId}/competences/{compId}/assessments/peer").to("/competence-peer-assessments-profile.xhtml"))
 				.addRule(Join.path("/competences/{compId}/assessments/peer/{assessmentId}").to("/competence-peer-assessment.xhtml"))
+				.addRule(Join.path("/profile/{studentId}/competences/{compId}/assessments/peer/{assessmentId}").to("/competence-peer-assessment-profile.xhtml"))
 				.addRule(Join.path("/competences/{compId}/newActivity").to("/create-activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}/responses").to("/activity-responses.xhtml"))
