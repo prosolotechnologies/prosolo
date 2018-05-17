@@ -1,7 +1,6 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
@@ -23,7 +22,7 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 
 	@Inject private UserManager userManager;
 
-	private String studentId;
+	private String studId;
 	private long decodedStudentId;
 
 	private UserData student;
@@ -31,7 +30,7 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 	public void init() {
 		try {
 			decodeCredentialId();
-			decodedStudentId = getIdEncoder().decodeId(studentId);
+			decodedStudentId = getIdEncoder().decodeId(studId);
 
 			if (getDecodedId() > 0 && decodedStudentId > 0) {
 				boolean displayEnabled = getCredentialManager().isCredentialAssessmentDisplayEnabled(getDecodedId(), decodedStudentId);
@@ -51,12 +50,17 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 		}
 	}
 
-	public String getStudentId() {
-		return studentId;
+	@Override
+	public long getStudentId() {
+		return decodedStudentId;
 	}
 
-	public void setStudentId(String studentId) {
-		this.studentId = studentId;
+	public String getStudId() {
+		return studId;
+	}
+
+	public void setStudId(String studId) {
+		this.studId = studId;
 	}
 
 	public long getDecodedStudentId() {
@@ -67,6 +71,7 @@ public class CredentialPeerAssessmentsBeanPublic extends CredentialPeerAssessmen
 	protected AssessmentDisplayMode getAssessmentDisplayMode() {
 		return AssessmentDisplayMode.PUBLIC;
 	}
+
 
 	public UserData getStudent() {
 		return student;

@@ -1,23 +1,18 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentData;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -33,8 +28,6 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Inject
-	private LoggedUserBean loggedUserBean;
 	@Inject
 	private CredentialManager credentialManager;
 
@@ -66,7 +59,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 
 	private void getAssessmentsFromDB() {
 		PaginatedResult<AssessmentData> res = assessmentManager.getPaginatedCredentialPeerAssessmentsForStudent(
-				decodedId, loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"),
+				decodedId, getStudentId(), new SimpleDateFormat("MMMM dd, yyyy"),
 				getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC, (paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
 		paginationData.update((int) res.getHitsNumber());
 		assessments = res.getFoundNodes();
@@ -102,6 +95,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 	}
 
 	protected abstract AssessmentDisplayMode getAssessmentDisplayMode();
+	protected abstract long getStudentId();
 
 	public String getCredentialTitle() {
 		return credentialTitle;
@@ -133,10 +127,6 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 
 	public CredentialManager getCredentialManager() {
 		return credentialManager;
-	}
-
-	public LoggedUserBean getLoggedUserBean() {
-		return loggedUserBean;
 	}
 
 	public UrlIdEncoder getIdEncoder() {

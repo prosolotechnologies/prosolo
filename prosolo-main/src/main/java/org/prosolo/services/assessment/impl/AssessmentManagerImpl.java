@@ -3528,6 +3528,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				data.setTitle(ca.getCompetence().getTitle());
 				data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
 				data.setStudentId(ca.getStudent().getId());
+				data.setType(ca.getType());
 
 				return data;
 			}
@@ -3544,7 +3545,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
 			Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, true);
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");

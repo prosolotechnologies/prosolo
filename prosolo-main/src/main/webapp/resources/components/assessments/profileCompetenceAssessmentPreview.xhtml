@@ -48,7 +48,7 @@
 							<c:if test="#{not profileCompetenceAssessmentBean.competenceAssessmentData.approved}">
 								<div class="noContentMessage">
 									<p>
-										No #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']} available for preview.
+										No #{msg['label.assessment.type.'.concat(profileCompetenceAssessmentBean.competenceAssessmentData.type)]} available for preview.
 									</p>
 								</div>
 							</c:if>

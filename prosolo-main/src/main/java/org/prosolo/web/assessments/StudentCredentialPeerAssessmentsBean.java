@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -20,6 +21,7 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 	private static Logger logger = Logger.getLogger(StudentCredentialPeerAssessmentsBean.class);
 
 	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject private LoggedUserBean loggedUserBean;
 
 	//needed when new assessment request is sent
 	private long targetCredId;
@@ -29,7 +31,7 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 			decodeCredentialId();
 
 			if (getDecodedId() > 0) {
-				targetCredId = getCredentialManager().getTargetCredentialId(getDecodedId(), getLoggedUserBean().getUserId());
+				targetCredId = getCredentialManager().getTargetCredentialId(getDecodedId(), loggedUserBean.getUserId());
 
 				//if user is not enrolled he is not allowed to access this page
 				if (targetCredId <= 0) {
@@ -66,5 +68,10 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 	@Override
 	protected AssessmentDisplayMode getAssessmentDisplayMode() {
 		return AssessmentDisplayMode.FULL;
+	}
+
+	@Override
+	protected long getStudentId() {
+		return loggedUserBean.getUserId();
 	}
 }

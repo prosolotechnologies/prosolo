@@ -306,9 +306,11 @@
 										<p class="cardDescription">#{util:cleanHTMLTags(targetCompetence.description)}</p>
 
 										<div class="metaBox">
-											<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
-												Completed
-											</h:panelGroup>
+											<div class="metaLeft">
+												<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
+													Completed
+												</h:panelGroup>
+											</div>
 
 											<div class="metaRight">
 												<ui:fragment rendered="#{targetCompetence.assessmentDisplayEnabled}">
