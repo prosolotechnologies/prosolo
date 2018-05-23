@@ -98,7 +98,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
 			long formerInstructorUserId, UserContextData context) throws DbConnectionException {
 		try {
-			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, CredentialLoadConfig.of(false, false, false, false, false, false, false, false, null));
+			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, CredentialLoadConfig.builder().create());
 			return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, true, context);
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -382,7 +382,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     public Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, UserContextData context)
     		throws DbConnectionException {
     	try {
-    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, CredentialLoadConfig.of(false, false, false, false, false, false, false, true, null));
+    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, CredentialLoadConfig.builder().setLoadInstructor(true).create());
     		return setInstructorForStudent(targetCred, null, targetCred.getInstructor().getUser().getId(), true, context);
 		} catch(Exception e) {
 			logger.error(e);

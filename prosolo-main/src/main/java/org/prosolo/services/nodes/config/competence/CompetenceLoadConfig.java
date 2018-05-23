@@ -21,8 +21,8 @@ public class CompetenceLoadConfig {
         this.loadAssessmentCount = loadAssessmentCount;
     }
 
-    public static CompetenceLoadConfig of(boolean loadCreator, boolean loadTags, boolean loadActivities, boolean loadEvidence, boolean loadAssessmentCount) {
-        return new CompetenceLoadConfig(loadCreator, loadTags, loadActivities, loadEvidence, loadAssessmentCount);
+    public static CompetenceLoadConfigBuilder builder() {
+        return new CompetenceLoadConfigBuilder();
     }
 
     public boolean isLoadCreator() {
@@ -43,5 +43,42 @@ public class CompetenceLoadConfig {
 
     public boolean isLoadAssessmentCount() {
         return loadAssessmentCount;
+    }
+
+    public static class CompetenceLoadConfigBuilder {
+        private boolean loadCreator;
+        private boolean loadTags;
+        private boolean loadActivities;
+        private boolean loadEvidence;
+        private boolean loadAssessmentCount;
+
+        public CompetenceLoadConfigBuilder setLoadCreator(boolean loadCreator) {
+            this.loadCreator = loadCreator;
+            return this;
+        }
+
+        public CompetenceLoadConfigBuilder setLoadTags(boolean loadTags) {
+            this.loadTags = loadTags;
+            return this;
+        }
+
+        public CompetenceLoadConfigBuilder setLoadActivities(boolean loadActivities) {
+            this.loadActivities = loadActivities;
+            return this;
+        }
+
+        public CompetenceLoadConfigBuilder setLoadEvidence(boolean loadEvidence) {
+            this.loadEvidence = loadEvidence;
+            return this;
+        }
+
+        public CompetenceLoadConfigBuilder setLoadAssessmentCount(boolean loadAssessmentCount) {
+            this.loadAssessmentCount = loadAssessmentCount;
+            return this;
+        }
+
+        public CompetenceLoadConfig create() {
+            return new CompetenceLoadConfig(loadCreator, loadTags, loadActivities, loadEvidence, loadAssessmentCount);
+        }
     }
 }

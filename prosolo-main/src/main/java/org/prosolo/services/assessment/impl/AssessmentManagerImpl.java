@@ -156,7 +156,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.of(false, false, true, false, false));
+					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.builder().setLoadActivities(true).create());
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
 						comp, studentId, assessorId, null, type,false, context);
@@ -401,7 +401,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
-				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.of(false, false, true, true, false));
+				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
 		int currentGrade = assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC
 				? getAutomaticCredentialAssessmentScore(id) : assessment.getPoints();
 		RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessment);
@@ -1032,7 +1032,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Result<Void> result = new Result<>();
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
-					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), CompetenceLoadConfig.of(false, false, false, false, false));
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), CompetenceLoadConfig.builder().create());
 
 			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
 

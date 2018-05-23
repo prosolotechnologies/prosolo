@@ -159,7 +159,7 @@ public class StudentProfileBean implements Serializable {
 					.getCompetencesForCredential(
 							credProgressData.getCredentialId(),
 							decodedId,
-							CompetenceLoadConfig.of(false, false, false, false, false));
+							CompetenceLoadConfig.builder().create());
 
 			boolean first = true;
 			
