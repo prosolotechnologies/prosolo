@@ -55,7 +55,7 @@ public class CredentialKeywordsBean {
 			if (!userEnrolled) {
 				PageUtil.accessDenied();
 			} else {
-				credentialData = credentialManager.getTargetCredentialData(decodedId, loggedUser.getUserId(), CredentialLoadConfig.of(false, false, true, false,false, true, false, true, null));
+				credentialData = credentialManager.getTargetCredentialData(decodedId, loggedUser.getUserId(), CredentialLoadConfig.builder().setLoadCreator(true).setLoadTags(true).setLoadInstructor(true).create());
 				selectedKeywords = new HashSet<>();
 				tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
 				allCompetences = credentialManager.getCompetencesForKeywordSearch(decodedId);
