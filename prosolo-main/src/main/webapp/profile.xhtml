@@ -249,6 +249,10 @@
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
 													</ui:fragment>
+
+													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
+														&#160;
+													</ui:fragment>
 												</div>
 											</div>
 
@@ -321,6 +325,9 @@
 												</ui:fragment>
 												<ui:fragment rendered="#{targetCompetence.durationString ne null}">
 													<div class="duration">#{targetCompetence.durationString}</div>
+												</ui:fragment>
+												<ui:fragment rendered="#{not targetCompetence.assessmentDisplayEnabled and empty targetCompetence.duration}">
+													&#160;
 												</ui:fragment>
 											</div>
 										</div>
@@ -448,6 +455,9 @@
 													</ui:fragment>
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
+													</ui:fragment>
+													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
+														&#160;
 													</ui:fragment>
 												</div>
 											</div>

@@ -4,10 +4,14 @@ import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
+import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -146,6 +150,25 @@ public class StyleUtilBean implements Serializable {
 						? gradeSummary.getGradeLevelTitle() + "<br>(level " + gradeSummary.getGrade() + "/" + gradeSummary.getOutOf() + ")"
 						: ""
 				: "";
+	}
+
+	public String getAssessmentStarTooltip(GradeData gradeData, String resType) {
+		if (!gradeData.isAssessed()) {
+			return "No grade";
+		}
+
+		if (gradeData.getGradingMode() == GradingMode.AUTOMATIC && ("CREDENTIAL".equals(resType) || "COMPETENCE".equals(resType))) {
+			return "Sum of " +
+					("CREDENTIAL".equals(resType)
+							? ResourceBundleUtil.getLabel("competence").toLowerCase()
+							: "activity") + " points";
+		}
+
+		if (gradeData.getGradingMode() == GradingMode.MANUAL_RUBRIC) {
+			return getRubricAssessmentStarLabel((RubricAssessmentGradeSummary) gradeData.getAssessmentStarData());
+		}
+
+		return "";
 	}
 
 }

@@ -122,6 +122,7 @@
 								role="#{cc.attrs.role}"
 								learningContext="#{compAssessmentLearningContext}"
 								fullDisplayMode="#{cc.attrs.fullDisplayMode}"
+								learningResource="COMPETENCE"
 						/>
 					</h:panelGroup>
 				</div>
@@ -188,6 +189,7 @@
 											role="#{cc.attrs.role}"
 											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
 											fullDisplayMode="#{cc.attrs.fullDisplayMode}"
+											learningResource="ACTIVITY"
 										/>
 									</div>
 								</li>

@@ -20,6 +20,7 @@
 		<composite:attribute name="toUpdateRubricPanelForStudent" />
 		<composite:attribute name="role" default="USER" />
 		<composite:attribute name="learningContext" required="true" />
+		<composite:attribute name="learningResource" required="true" type="java.lang.String"/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -30,7 +31,7 @@
 						   update="#{cc.attrs.toUpdateRubricPanelForStudent} #{cc.attrs.growlToUpdate}"
 						   pt:data-html="true"
 						   pt:data-toggle="tooltip"
-						   pt:title="#{styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData)}"
+						   pt:title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}"
 						   oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
 				<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 					#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
@@ -40,16 +41,16 @@
 					Rubric
 				</ui:fragment>
 			</p:commandLink>
-			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and not cc.attrs.userAllowedToSeeRubric}">
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and (cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC' or not cc.attrs.userAllowedToSeeRubric)}">
 				<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 				   data-html="true"
 				   data-toggle="tooltip"
-				   title="#{styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData)}">
+				   title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 						#{cc.attrs.gradeData.maxGrade}
 					</ui:fragment>
-					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+					<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and !cc.attrs.gradeData.pointBasedGrading}">
 						Rubric
 					</ui:fragment>
 				</a>
@@ -60,14 +61,6 @@
 				   title="Nongraded resource">
 				</a>
 			</ui:fragment>
-			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC'}">
-				<span class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}">
-					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
-						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
-						#{cc.attrs.gradeData.maxGrade}
-					</ui:fragment>
-				</span>
-			</ui:fragment>
 		</c:if>
 		<c:if test="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessor or not cc.attrs.currentUserAssessedStudent)}">
 			<ui:fragment rendered="#{cc.attrs.currentUserAssessor}">
@@ -77,7 +70,7 @@
 							   update="#{cc.attrs.toUpdateGradePanel}"
 							   pt:data-html="true"
 							   pt:data-toggle="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' ? 'tooltip' : ''}"
-							   pt:title="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' ? styleUtilBean.getRubricAssessmentStarLabel(cc.attrs.gradeData.assessmentStarData) : ''}"
+							   pt:title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}"
 							   oncomplete="showPopupSidebar('##{cc.attrs.gradePanelSidebarId}');">
 					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
@@ -111,5 +104,8 @@
 				</a>
 			</ui:fragment>
 		</c:if>
+		<script>
+            $('.grade[data-toggle="tooltip"]').tooltip();
+		</script>
 	</composite:implementation>
 </ui:component>

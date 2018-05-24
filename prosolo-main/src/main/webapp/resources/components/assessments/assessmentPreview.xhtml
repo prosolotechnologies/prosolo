@@ -143,6 +143,7 @@
 										growlToUpdate=":#{cc.clientId}:growlMain"
 										role="#{cc.attrs.role}"
 										learningContext="#{learningContext}"
+										learningResource="CREDENTIAL"
 								/>
 							</h:form>
 						</div>
@@ -260,7 +261,7 @@
 
 		<div class="container">
 			<div class="row">
-				<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
+				<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' or (not cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved) ? '12' : '9'} mandatoryFlow">
 					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
 						<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
 					</c:if>
@@ -293,7 +294,7 @@
 					<c:if test="#{not cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved}">
 						<div class="noContentMessage">
 							<p>
-								No #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']} available for preview.
+								No assessments.
 							</p>
 						</div>
 					</c:if>
@@ -396,6 +397,7 @@
 														role="#{cc.attrs.role}"
 														learningContext="#{learningContext}"
 														fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
+														learningResource="CREDENTIAL"
 												/>
 										</div>
 									</div>
