@@ -44,11 +44,11 @@
 					/>
 
 					<div class="row">
-						<div class="col-md-#{profileCompetenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
+						<div class="col-md-#{profileCompetenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' or not profileCompetenceAssessmentBean.competenceAssessmentData.approved ? '12' : '9'} mandatoryFlow">
 							<c:if test="#{not profileCompetenceAssessmentBean.competenceAssessmentData.approved}">
 								<div class="noContentMessage">
 									<p>
-										No #{msg['label.assessment.type.'.concat(profileCompetenceAssessmentBean.competenceAssessmentData.type)]} available for preview.
+										No assessments.
 									</p>
 								</div>
 							</c:if>
