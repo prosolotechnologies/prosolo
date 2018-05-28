@@ -10,7 +10,7 @@ import org.prosolo.common.util.Pair;
 public class AutomaticGradeData implements GradeData {
 
     private PointGradeValues gradeInfo;
-    private Pair<Integer, Integer> assessmentStarData;
+    private AssessmentGradeSummary assessmentStarData;
 
     public AutomaticGradeData() {}
 
@@ -66,7 +66,7 @@ public class AutomaticGradeData implements GradeData {
     }
 
     @Override
-    public Pair<Integer, Integer> getAssessmentStarData() {
+    public AssessmentGradeSummary getAssessmentStarData() {
         return assessmentStarData;
     }
 }

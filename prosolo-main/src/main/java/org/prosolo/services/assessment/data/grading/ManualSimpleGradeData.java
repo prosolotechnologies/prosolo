@@ -11,7 +11,7 @@ public class ManualSimpleGradeData implements GradeData {
 
     private PointGradeValues gradeInfo;
     private int newGrade;
-    private Pair<Integer, Integer> assessmentStarData;
+    private AssessmentGradeSummary assessmentStarData;
 
     public ManualSimpleGradeData() {}
 
@@ -77,7 +77,7 @@ public class ManualSimpleGradeData implements GradeData {
     }
 
     @Override
-    public Pair<Integer, Integer> getAssessmentStarData() {
+    public AssessmentGradeSummary getAssessmentStarData() {
         return assessmentStarData;
     }
 }

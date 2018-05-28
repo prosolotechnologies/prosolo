@@ -475,4 +475,13 @@ public interface CredentialManager extends AbstractManager {
 	void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
 
 	void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence);
+
+	/**
+	 *
+	 * @param credId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
 }

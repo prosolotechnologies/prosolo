@@ -52,6 +52,7 @@ public class UserCredentialReadOnlyBean implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private Activity1Manager activityManager;
 
 	private String credId;
 	private long decodedCredId;
@@ -86,6 +87,21 @@ public class UserCredentialReadOnlyBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
+		}
+	}
+
+	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
+		if (!cd.isActivitiesInitialized()) {
+			List<ActivityData> activities;
+
+			if (cd.isEnrolled()) {
+				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
+			} else {
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+			}
+
+			cd.setActivities(activities);
+			cd.setActivitiesInitialized(true);
 		}
 	}
 
@@ -159,5 +175,13 @@ public class UserCredentialReadOnlyBean implements Serializable {
 
 	public CredentialData getCredentialData() {
 		return credentialData;
+	}
+
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
+
+	public long getDecodedStudentId() {
+		return decodedStudentId;
 	}
 }

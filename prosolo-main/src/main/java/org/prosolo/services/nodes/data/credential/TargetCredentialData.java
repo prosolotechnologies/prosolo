@@ -25,6 +25,7 @@ public class TargetCredentialData implements Serializable {
 	private String durationString;
 	private long credentialId;
 	private int progress;
+	private boolean assessmentDisplayEnabled;
 	//category
 	private CredentialCategoryData category;
 	private CredentialData credential;
@@ -46,6 +47,7 @@ public class TargetCredentialData implements Serializable {
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
 		this.numberOfAssessments = numberOfAssessments;
+		this.assessmentDisplayEnabled = targetCredential1.isCredentialAssessmentsDisplayed();
 		if (category != null) {
 			this.category = new CredentialCategoryData(category.getId(), category.getTitle(), false);
 		}
@@ -138,5 +140,9 @@ public class TargetCredentialData implements Serializable {
 
 	public int getNumberOfAssessments() {
 		return numberOfAssessments;
+	}
+
+	public boolean isAssessmentDisplayEnabled() {
+		return assessmentDisplayEnabled;
 	}
 }

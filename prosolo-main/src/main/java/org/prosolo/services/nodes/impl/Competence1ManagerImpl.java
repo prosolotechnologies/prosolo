@@ -2598,16 +2598,44 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			for(TargetCompetence1 targetCompetence1 : res) {
 				int numberOfAssessments = 0;
+				boolean assessmentDisplayEnabled = false;
 				if (loadNumberOfAssessments) {
 					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
+					assessmentDisplayEnabled = isCompetenceAssessmentDisplayEnabled(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
 				}
-				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments));
+				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments, assessmentDisplayEnabled));
 			}
 			return resultList;
 
 		} catch (Exception e) {
 			logger.error(e);
 			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId) {
+		try {
+			String q =
+					"SELECT comp.id FROM Competence1 comp " +
+							"INNER JOIN comp.credentialCompetences cc " +
+							"INNER JOIN cc.credential cred " +
+							"INNER JOIN cred.targetCredentials tCred " +
+							"WITH tCred.user.id = :studentId " +
+							"AND tCred.competenceAssessmentsDisplayed IS TRUE " +
+							"WHERE comp.id = :compId";
+
+			Long res = (Long) persistence.currentManager().createQuery(q)
+					.setLong("studentId", studentId)
+					.setLong("compId", competenceId)
+					.setMaxResults(1)
+					.uniqueResult();
+
+			return res != null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if competence assessment display is enabled");
 		}
 	}
 
