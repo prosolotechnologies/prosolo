@@ -30,7 +30,7 @@ public interface GradeData {
 	GradingMode getGradingMode();
 	boolean isPointBasedGrading();
 
-	default Pair<Integer, Integer> getAssessmentStarData() {
+	default AssessmentGradeSummary getAssessmentStarData() {
 		return null;
 	}
 }

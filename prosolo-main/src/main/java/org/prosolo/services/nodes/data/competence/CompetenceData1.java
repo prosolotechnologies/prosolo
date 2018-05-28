@@ -9,6 +9,7 @@ import org.prosolo.common.util.Pair;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.credential.CredentialData;
@@ -88,6 +89,8 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private LearningResourceAssessmentSettings assessmentSettings;
 	private List<AssessmentTypeConfig> assessmentTypes;
 
+	private int numberOfAssessments;
+
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
@@ -156,7 +159,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		return isAssessmentTypeEnabled(AssessmentType.SELF_ASSESSMENT);
 	}
 
-	public Pair<Integer, Integer> getGradeSummary(AssessmentType type) {
+	public AssessmentGradeSummary getGradeSummary(AssessmentType type) {
 		AssessmentTypeConfig aType = getAssessmentTypeConfig(type);
 		return aType == null ? null : aType.getGradeSummary();
 	}
@@ -601,5 +604,13 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setAssessmentTypes(List<AssessmentTypeConfig> assessmentTypes) {
 		this.assessmentTypes = assessmentTypes;
+	}
+
+	public int getNumberOfAssessments() {
+		return numberOfAssessments;
+	}
+
+	public void setNumberOfAssessments(int numberOfAssessments) {
+		this.numberOfAssessments = numberOfAssessments;
 	}
 }

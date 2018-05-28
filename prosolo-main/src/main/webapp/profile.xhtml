@@ -6,7 +6,8 @@
 				template="templates/masterLayout2.xhtml"
 				xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 	
 	<ui:define name="windowTitle">
 		#{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
@@ -214,9 +215,10 @@
 									<div class="col-md-6">
 										<article class="whiteBox summaryCard">
 											<h2>
-												<h:link outcome="credential">
-													<f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
+												<h:link	outcome="/public-credential">
 													#{cred.title}
+													<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+													<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
 												</h:link>
 											</h2>
 											<div class="clear"></div>
@@ -231,8 +233,25 @@
 												</div>
 
 												<div class="metaRight">
+													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
+														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
+															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+														</ui:fragment>
+														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
+															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
+																assessments
+																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+															</h:link>
+														</ui:fragment>
+													</ui:fragment>
+
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
+													</ui:fragment>
+
+													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
+														&#160;
 													</ui:fragment>
 												</div>
 											</div>
@@ -285,24 +304,36 @@
 								var="targetCompetence" varStatus="iterator">
 								<div class="col-md-6">
 									<article class="whiteBox summaryCard">
-										<h2>
-											<h:link	outcome="competence">
-												#{targetCompetence.title}
-												<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
-											</h:link>
-										</h2>
+										<h2>#{targetCompetence.title}</h2>
 										<div class="clear"></div>
 
 										<p class="cardDescription">#{util:cleanHTMLTags(targetCompetence.description)}</p>
 
 										<div class="metaBox">
-											<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
-												Completed
-											</h:panelGroup>
+											<div class="metaLeft">
+												<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
+													Completed
+												</h:panelGroup>
+											</div>
 
 											<div class="metaRight">
+												<ui:fragment rendered="#{targetCompetence.assessmentDisplayEnabled}">
+													<ui:fragment rendered="#{targetCompetence.numberOfAssessments eq 0}">
+														<a class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+													</ui:fragment>
+													<ui:fragment rendered="#{targetCompetence.numberOfAssessments gt 0}">
+														<h:link outcome="/competence-instructor-assessments-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{targetCompetence.numberOfAssessments} Assessment#{targetCompetence.numberOfAssessments eq 1 ? '' : 's'}">
+															assessments
+															<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
+															<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+														</h:link>
+													</ui:fragment>
+												</ui:fragment>
 												<ui:fragment rendered="#{targetCompetence.durationString ne null}">
 													<div class="duration">#{targetCompetence.durationString}</div>
+												</ui:fragment>
+												<ui:fragment rendered="#{not targetCompetence.assessmentDisplayEnabled and empty targetCompetence.duration}">
+													&#160;
 												</ui:fragment>
 											</div>
 										</div>
@@ -383,9 +414,10 @@
 									<div class="col-md-6">
 										<article class="whiteBox summaryCard">
 											<h2>
-												<h:link	outcome="credential">
+												<h:link	outcome="/public-credential">
 													#{cred.title}
-													<f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
+													<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+													<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
 												</h:link>
 											</h2>
 											<div class="clear"></div>
@@ -394,6 +426,7 @@
 
 											<div class="metaBox">
 												<div class="metaLeft">
+													<ui:remove>
 													<h:link
 														value="Resume"
 														styleClass="btn btn-green btn-sm"
@@ -401,6 +434,7 @@
 														<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
 														<f:param name="compId" value="#{util:encodeId(cred.nextCompetenceToLearnId)}"/>
 													</h:link>
+													</ui:remove>
 
 													<div class="progressBar">
 														<span>#{cred.progress}%</span>
@@ -413,8 +447,23 @@
 												</div>
 
 												<div class="metaRight">
+													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
+														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
+															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
+														</ui:fragment>
+														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
+															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
+																assessments
+																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
+																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+															</h:link>
+														</ui:fragment>
+													</ui:fragment>
 													<ui:fragment rendered="#{cred.durationString ne null}">
 														<div class="duration">#{cred.durationString}</div>
+													</ui:fragment>
+													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
+														&#160;
 													</ui:fragment>
 												</div>
 											</div>

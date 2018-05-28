@@ -86,8 +86,6 @@ public class ProfileBean {
                 decodedStudentId != loggedUserBean.getUserId()) {
 			personalProfile = false;
 			userData = userManager.getUserData(decodedStudentId);
-			User user = new User();
-			user.setId(userData.getId());
         } else {
 			personalProfile = true;
 			userData = userManager.getUserData(loggedUserBean.getUserId());

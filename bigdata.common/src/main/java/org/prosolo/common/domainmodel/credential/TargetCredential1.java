@@ -34,6 +34,9 @@ public class TargetCredential1 extends BaseEntity {
 	private int progress;
 	
 	private boolean hiddenFromProfile;
+	private boolean credentialAssessmentsDisplayed = true;
+	private boolean competenceAssessmentsDisplayed = true;
+	private boolean evidenceDisplayed = true;
 	
 	private long nextCompetenceToLearnId;
 	
@@ -156,9 +159,35 @@ public class TargetCredential1 extends BaseEntity {
 	public void setLastAction(Date lastAction) {
 		this.lastAction = lastAction;
 	}
-	
-	
-/*
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isCredentialAssessmentsDisplayed() {
+		return credentialAssessmentsDisplayed;
+	}
+
+	public void setCredentialAssessmentsDisplayed(boolean credentialAssessmentsDisplayed) {
+		this.credentialAssessmentsDisplayed = credentialAssessmentsDisplayed;
+	}
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isCompetenceAssessmentsDisplayed() {
+		return competenceAssessmentsDisplayed;
+	}
+
+	public void setCompetenceAssessmentsDisplayed(boolean competenceAssessmentsDisplayed) {
+		this.competenceAssessmentsDisplayed = competenceAssessmentsDisplayed;
+	}
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isEvidenceDisplayed() {
+		return evidenceDisplayed;
+	}
+
+	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
+		this.evidenceDisplayed = evidenceDisplayed;
+	}
+
+	/*
 	public String getDescription() {
 		return description;
 	}
