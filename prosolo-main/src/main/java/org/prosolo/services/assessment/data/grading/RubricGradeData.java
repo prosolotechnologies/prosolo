@@ -16,7 +16,7 @@ public abstract class RubricGradeData<T extends RubricCriteriaGradeData<? extend
 
     private T rubricCriteria;
     private ActivityRubricVisibility rubricVisibilityForStudent;
-    private Pair<Integer, Integer> assessmentStarData;
+    private AssessmentGradeSummary assessmentStarData;
 
     protected RubricGradeData() {}
 
@@ -72,12 +72,12 @@ public abstract class RubricGradeData<T extends RubricCriteriaGradeData<? extend
         this.rubricCriteria = rubricCriteria;
     }
 
-    public void setAssessmentStarData(Pair<Integer, Integer> assessmentStarData) {
+    public void setAssessmentStarData(AssessmentGradeSummary assessmentStarData) {
         this.assessmentStarData = assessmentStarData;
     }
 
     @Override
-    public Pair<Integer, Integer> getAssessmentStarData() {
+    public AssessmentGradeSummary getAssessmentStarData() {
         return assessmentStarData;
     }
 }

@@ -29,7 +29,7 @@ public class GradeDataFactory {
                                          RubricType rubricType,
                                          ActivityRubricVisibility rubricVisibilityForStudent,
                                          boolean acceptGrades,
-                                         Pair<Integer, Integer> rubricGradeSummary) {
+                                         AssessmentGradeSummary rubricGradeSummary) {
         GradeData gd = getGradeDataObject(LearningResourceType.ACTIVITY, gradingMode, rubricId, rubricType, acceptGrades);
         return getGradeData(LearningResourceType.ACTIVITY, gd, maxPoints, currentGrade, rubricVisibilityForStudent, rubricGradeSummary);
     }
@@ -40,7 +40,7 @@ public class GradeDataFactory {
             int currentGrade,
             long rubricId,
             RubricType rubricType,
-            Pair<Integer, Integer> rubricGradeSummary) {
+            RubricAssessmentGradeSummary rubricGradeSummary) {
         GradeData gd = getGradeDataObject(LearningResourceType.OTHER, gradingMode, rubricId, rubricType, false);
         return getGradeData(LearningResourceType.OTHER, gd, maxPoints, currentGrade, null, rubricGradeSummary);
     }
@@ -75,7 +75,7 @@ public class GradeDataFactory {
         }
     }
 
-    private static GradeData getGradeData(LearningResourceType resourceType, GradeData gd, int maxPoints, int currentGrade, ActivityRubricVisibility rubricVisibilityForStudent, Pair<Integer, Integer> rubricGradeSummary) {
+    private static GradeData getGradeData(LearningResourceType resourceType, GradeData gd, int maxPoints, int currentGrade, ActivityRubricVisibility rubricVisibilityForStudent, AssessmentGradeSummary rubricGradeSummary) {
         gd.accept(new GradeDataVisitor<Void>() {
             @Override
             public Void visit(ManualSimpleGradeData gradeData) {
@@ -131,7 +131,7 @@ public class GradeDataFactory {
         return gd;
     }
 
-    public static void updateAssessmentStarData(GradeData gd, Pair<Integer, Integer> rubricGradeSummary) {
+    public static void updateAssessmentStarData(GradeData gd, AssessmentGradeSummary rubricGradeSummary) {
         gd.accept(new GradeDataVisitor<Void>() {
             @Override
             public Void visit(ManualSimpleGradeData gradeData) {

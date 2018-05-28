@@ -3,6 +3,7 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
@@ -54,7 +55,7 @@ public class CredentialKeywordsBean {
 			if (!userEnrolled) {
 				PageUtil.accessDenied();
 			} else {
-				credentialData = credentialManager.getTargetCredentialData(decodedId, loggedUser.getUserId(), false,false);
+				credentialData = credentialManager.getTargetCredentialData(decodedId, loggedUser.getUserId(), CredentialLoadConfig.builder().setLoadCreator(true).setLoadTags(true).setLoadInstructor(true).create());
 				selectedKeywords = new HashSet<>();
 				tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
 				allCompetences = credentialManager.getCompetencesForKeywordSearch(decodedId);

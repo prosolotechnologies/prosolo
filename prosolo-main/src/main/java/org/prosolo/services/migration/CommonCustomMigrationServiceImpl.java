@@ -17,6 +17,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
@@ -66,7 +67,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
 
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), false, false, true);
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
 
                 for (CompetenceData1 cd : comps) {
                     // if competence assessment has not been created, create it

@@ -18,6 +18,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -97,7 +98,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
 			long formerInstructorUserId, UserContextData context) throws DbConnectionException {
 		try {
-			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, false, false, false);
+			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, CredentialLoadConfig.builder().create());
 			return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, true, context);
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -381,7 +382,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     public Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, UserContextData context)
     		throws DbConnectionException {
     	try {
-    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, false, false, true);
+    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, CredentialLoadConfig.builder().setLoadInstructor(true).create());
     		return setInstructorForStudent(targetCred, null, targetCred.getInstructor().getUser().getId(), true, context);
 		} catch(Exception e) {
 			logger.error(e);
@@ -428,7 +429,6 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				instructorId, credId, reassignAutomatically, context);
 		eventFactory.generateEvents(res.getEventQueue());
 	}
-	
 	
 	@Override
 	@Transactional(readOnly = false)

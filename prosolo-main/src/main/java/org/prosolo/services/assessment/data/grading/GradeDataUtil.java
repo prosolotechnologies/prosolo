@@ -9,11 +9,11 @@ import org.prosolo.common.util.Pair;
  */
 public class GradeDataUtil {
 
-    public static Pair<Integer, Integer> getPointBasedAssessmentStarData(PointGradeValues gradeInfo) {
+    public static AssessmentGradeSummary getPointBasedAssessmentStarData(PointGradeValues gradeInfo) {
         int STAR_LEVEL_COUNT = 3;
         // if student is not assessed
         if (gradeInfo.getCurrentGrade() == -1) {
-            return new Pair<>(0, STAR_LEVEL_COUNT);
+            return new AssessmentGradeSummary(0, STAR_LEVEL_COUNT);
         } else {
             double scaledScore = STAR_LEVEL_COUNT * (double) (gradeInfo.getCurrentGrade() - gradeInfo.getMinGrade()) /
                     (gradeInfo.getMaxGrade() - gradeInfo.getMinGrade());
@@ -23,7 +23,7 @@ public class GradeDataUtil {
 
            Special case is when scaled score is 0 and in this case, 1 should be returned as a star level
             */
-           return new Pair<>(scaledScore == 0 ? 1 : (int) Math.ceil(scaledScore), STAR_LEVEL_COUNT);
+           return new AssessmentGradeSummary(scaledScore == 0 ? 1 : (int) Math.ceil(scaledScore), STAR_LEVEL_COUNT);
         }
     }
 }
