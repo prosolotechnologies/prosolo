@@ -388,7 +388,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		these cases should be covered and data should not be populated, empty data with basic info should be
 		returned instead
 		 */
-		if (!shouldAssessmentDataBeLoaded(assessment, loadConfig)) {
+		if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
 			AssessmentDataFull data = new AssessmentDataFull();
 			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 			data.setApproved(assessment.isApproved());
@@ -416,7 +416,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 	}
 
-	private boolean shouldAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
+	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
 		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved())
 				&& (loadConfig.isLoadDataIfStudentDisabledAssessmentDisplay() || assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 	}
@@ -3415,7 +3415,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException {
+	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat) throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
@@ -3428,11 +3428,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"ON cca.competence_assessment = ca.id " +
 					"INNER JOIN credential_assessment credAssessment " +
 					"ON credAssessment.id = cca.credential_assessment) " +
-					"ON comp.id = ca.competence " +
-					// following condition ensures that assessment for the right student is joined
-					"AND ca.student = tc.user " +
-					"AND ca.type = :instructorAssessment " +
-					"WHERE tc.user = :userId");
+					"ON comp.id = ca.competence ");
+				 	if (loadOnlyApproved) {
+						query.append("AND ca.approved IS TRUE ");
+					}
+					query.append(
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment " +
+						"WHERE tc.user = :userId");
 
 			Query q = persistence.currentManager()
 					.createSQLQuery(query.toString())
@@ -3505,13 +3509,30 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
 			if (ca == null || (assessmentType != null && ca.getType() != assessmentType)) {
 				return null;
 			}
+
+			/*
+			if data should not be loaded when assessment is not approved and assessment is not approved
+			full data should not be populated, data with basic info should be
+			returned instead
+			 */
+			if (!loadConfig.isLoadDataIfAssessmentNotApproved() && !ca.isApproved()) {
+				CompetenceAssessmentData data = new CompetenceAssessmentData();
+				data.setApproved(ca.isApproved());
+				data.setTitle(ca.getCompetence().getTitle());
+				data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
+				data.setStudentId(ca.getStudent().getId());
+				data.setType(ca.getType());
+
+				return data;
+			}
+
 			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
 					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
 			/*
@@ -3524,7 +3545,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
 			Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, true);
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");
@@ -3616,12 +3637,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
 		try {
 			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
-			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId));
+			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId, loadOnlyApproved));
 			if (res.getHitsNumber() > 0) {
-				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, dateFormat, offset, limit));
+				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, loadOnlyApproved, dateFormat, offset, limit));
 			}
 			return res;
 		} catch (Exception e) {
@@ -3631,14 +3652,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private List<AssessmentData> getCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) {
 		String q =
 				"SELECT ca FROM CompetenceAssessment ca " +
 				"INNER JOIN fetch ca.assessor " +
 				"WHERE ca.competence.id = :compId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type " +
-				"ORDER BY ca.dateCreated";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+			q += "AND ca.approved IS TRUE ";
+		}
+		q += "ORDER BY ca.dateCreated";
 
 		List<CompetenceAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
@@ -3657,12 +3681,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return res;
 	}
 
-	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId) {
+	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId, boolean countOnlyApproved) {
 		String q =
 				"SELECT COUNT(ca.id) FROM CompetenceAssessment ca " +
 						"WHERE ca.competence.id = :compId " +
 						"AND ca.student.id = :assessedStudentId " +
-						"AND ca.type = :type";
+						"AND ca.type = :type ";
+		if (countOnlyApproved) {
+			q += "AND ca.approved IS TRUE";
+		}
 		Query query = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
 				.setLong("assessedStudentId", studentId)

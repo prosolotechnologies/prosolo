@@ -216,14 +216,19 @@
 							</h:link>
 						</li>
 
-						<li>
-							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment-profile">
-								<f:param name="credId" value="#{cc.attrs.bean.id}" />
-								<f:param name="studentId" value="#{param.studentId}"/>
-							</h:link>
-						</li>
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+						<ui:fragment rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+							<li>
+								<h:link value="Assessments" outcome="/credential-instructor-assessment-profile">
+									<f:param name="credId" value="#{cc.attrs.bean.id}" />
+									<f:param name="studentId" value="#{param.studentId}"/>
+								</h:link>
+							</li>
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId > 0}">
 							<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT'}">
+							<li class="active">Assessment</li>
 						</ui:fragment>
 					</ui:fragment>
 				</ui:fragment>

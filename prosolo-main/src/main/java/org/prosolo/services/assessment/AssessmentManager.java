@@ -302,18 +302,18 @@ public interface AssessmentManager {
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException;
+	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat) throws DbConnectionException;
 
 	Optional<Long> getSelfCompetenceAssessmentId(long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
 			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 
 	Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
 

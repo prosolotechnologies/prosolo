@@ -73,12 +73,13 @@
 							<ui:fragment rendered="#{not cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 							</ui:fragment>
-							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
+							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment#{cc.attrs.fullDisplayMode ? '' : '-profile'}" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 								<f:param value="#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}" name="assessmentId" disable="#{cc.attrs.competenceAssessment.type eq 'SELF_ASSESSMENT'}"/>
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
-										 disable="#{empty cc.attrs.credentialId}" />
+										 disable="#{not cc.attrs.fullDisplayMode or empty cc.attrs.credentialId}" />
+								<f:param name="studentId" value="#{util:encodeId(cc.attrs.competenceAssessment.studentId)}" disable="#{cc.attrs.fullDisplayMode}"/>
 							</h:link>
 						</h2>
 					</ui:fragment>
