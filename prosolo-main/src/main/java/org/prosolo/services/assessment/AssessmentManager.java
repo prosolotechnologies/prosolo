@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -19,6 +20,7 @@ import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.UserData;
@@ -129,9 +131,9 @@ public interface AssessmentManager {
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	int updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException;
+	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException;
 
-	int updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
+	void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
 	Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
                                                                           Session session, UserContextData context)
@@ -351,4 +353,6 @@ public interface AssessmentManager {
      * @throws DbConnectionException
      */
     int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
+
+	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
 }

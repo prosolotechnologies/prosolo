@@ -290,7 +290,7 @@ public interface CredentialManager extends AbstractManager {
 	List<StudentData> getCredentialStudentsData(long credId, int limit) 
 			throws DbConnectionException;
 	
-	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
 			throws DbConnectionException;
 	
 	List<Credential1> getAllCredentials(long orgId, Session session) throws DbConnectionException;

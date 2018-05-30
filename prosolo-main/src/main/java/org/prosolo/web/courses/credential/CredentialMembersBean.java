@@ -12,7 +12,6 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -85,14 +84,14 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
-		CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
+		CredentialMembersSearchFilter.SearchFilter[] values = CredentialMembersSearchFilter.SearchFilter.values();
 		int size = values.length;
 		searchFilters = new CredentialMembersSearchFilter[size];
 		for(int i = 0; i < size; i++) {
 			CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
 			searchFilters[i] = filter;
 		}
-		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
+		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilter.SearchFilter.All, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
@@ -149,17 +148,17 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialMembers() {
-		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchResponse = 
+		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchResponse =
 				userTextSearch.searchCredentialMembers(
 					loggedUserBean.getOrganizationId(),
-					searchTerm, 
-					searchFilter.getFilter(), 
-					this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
+					searchTerm,
+					searchFilter.getFilter(),
+					this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 					decodedId, personalizedForUserId, sortOption);
 
 		this.paginationData.update((int) searchResponse.getHitsNumber());
 		members = searchResponse.getFoundNodes();
-		
+
 		for(CredentialMembersSearchFilter filter : searchFilters) {
 			filter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(filter.getFilter()));
 		}
@@ -174,7 +173,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
 		for (CredentialMembersSearchFilter f : searchFilters) {
-			if (f.getFilter() == CredentialMembersSearchFilterValue.All) {
+			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
 				searchFilter = f;
 				this.paginationData.update((int) f.getNumberOfResults());
 				break;

@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.management.Query;
 import java.util.*;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -360,10 +361,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
-			long organizationId, String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId,
+	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchCredentialMembers (
+			long organizationId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, int page, int limit, long credId,
 			long instructorId, CredentialMembersSortOption sortOption) {
-		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> response = 
+		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> response =
 				new TextSearchFilteredResponse<>();
 		try {
 			int start = 0;
@@ -406,45 +407,53 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(AggregationBuilders.filter("filtered")
 										.filter(QueryBuilders.termQuery("credentials.id", credId))
-								.subAggregation(
-										AggregationBuilders.terms("unassigned")
-										.field("credentials.instructorId")
-										.include(new long[] {0}))
-								.subAggregation(AggregationBuilders.filter("completed")
-										.filter(QueryBuilders.termQuery("credentials.progress", 100)))))
+									.subAggregation(
+										AggregationBuilders.filter("unassigned")
+										.filter(QueryBuilders.termQuery("credentials.instructorId", 0)))
+									.subAggregation(AggregationBuilders.filter("completed")
+										.filter(QueryBuilders.termQuery("credentials.progress", 100)))
+									.subAggregation(AggregationBuilders.filter("assessorNotified")
+										.filter(QueryBuilders.termQuery("credentials.assessorNotified", true)))
+									.subAggregation(AggregationBuilders.filter("assessed")
+												.filter(QueryBuilders.termQuery("credentials.assessed", true)))))
 								
 						.setFetchSource(includes, null);
-				
+
 				/*
-				 * set instructor assign filter as a post filter so it does not influence
-				 * aggregation results
+				 * set filter as a post filter so it does not influence aggregation results
 				 */
-				if(filter == CredentialMembersSearchFilterValue.Unassigned) {
-					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
-					assignFilter.must(QueryBuilders.termQuery("credentials.instructorId", 0));
-					/*
-					 * need to add this condition again or post filter will be applied on other 
-					 * credentials for users matched by query
-					 */
-					assignFilter.must(QueryBuilders.termQuery("credentials.id", credId));
-					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							assignFilter).innerHit(new QueryInnerHitBuilder());
-					searchRequestBuilder.setPostFilter(nestedFilter);
-//					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
-//					nestedBQBuilder.must(qBuilder);
-				} else if(filter == CredentialMembersSearchFilterValue.Completed) {
-					BoolQueryBuilder completedF = QueryBuilders.boolQuery();
-					completedF.must(QueryBuilders.termQuery("credentials.progress", 100));
-					/*
-					 * need to add this condition again or post filter will be applied on other 
-					 * credentials for users matched by query
-					 */
-					completedF.must(QueryBuilders.termQuery("credentials.id", credId));
-					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
-							completedF).innerHit(new QueryInnerHitBuilder());
-					searchRequestBuilder.setPostFilter(nestedFilter);
-			    } else {
+				if (filter == CredentialMembersSearchFilter.SearchFilter.All) {
 					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+				} else {
+					BoolQueryBuilder postFilter = QueryBuilders.boolQuery();
+					switch (filter) {
+						case Assigned:
+							postFilter.mustNot(QueryBuilders.termQuery("credentials.instructorId", 0));
+							break;
+						case Unassigned:
+							postFilter.filter(QueryBuilders.termQuery("credentials.instructorId", 0));
+							break;
+						case AssessorNotified:
+							postFilter.filter(QueryBuilders.termQuery("credentials.assessorNotified", true));
+							break;
+						case Nongraded:
+							postFilter.filter(QueryBuilders.termQuery("credentials.assessed", false));
+							break;
+						case Graded:
+							postFilter.filter(QueryBuilders.termQuery("credentials.assessed", true));
+							break;
+						case Completed:
+							postFilter.filter(QueryBuilders.termQuery("credentials.progress", 100));
+							break;
+					}
+					/*
+					 * need to add this condition again or post filter will be applied on other
+					 * credentials for users matched by query
+					 */
+					postFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
+							postFilter).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
 				}
 				
 				searchRequestBuilder.setFrom(start).setSize(limit);	
@@ -514,6 +523,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									if (credAssessmentId.isPresent()) {
 										student.setAssessmentId(credAssessmentId.get());
 									}
+									student.setSentAssessmentNotification(Boolean.parseBoolean(credential.get("assessorNotified").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {
@@ -528,21 +538,26 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						//get number of unassigned students
 						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
 						Filter filtered = nestedAgg.getAggregations().get("filtered");
-						Terms terms = filtered.getAggregations().get("unassigned");
+						Filter unassigned = filtered.getAggregations().get("unassigned");
 						Filter completed = filtered.getAggregations().get("completed");
+						Filter assessorNotified = filtered.getAggregations().get("assessorNotified");
+						Filter assessed = filtered.getAggregations().get("assessed");
 						//Terms terms = nestedAgg.getAggregations().get("unassigned");
-						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
-						long unassignedNo = 0;
-						if(it.hasNext()) {
-							unassignedNo = it.next().getDocCount();
-						}
+//						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+//						long unassignedNo = 0;
+//						if(it.hasNext()) {
+//							unassignedNo = it.next().getDocCount();
+//						}
 						
 						long allStudentsNumber = filtered.getDocCount();
 						
-						response.putFilter(CredentialMembersSearchFilterValue.All, allStudentsNumber);
-						response.putFilter(CredentialMembersSearchFilterValue.Unassigned, unassignedNo);
-						response.putFilter(CredentialMembersSearchFilterValue.Assigned, allStudentsNumber - unassignedNo);
-						response.putFilter(CredentialMembersSearchFilterValue.Completed, completed.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.All, allStudentsNumber);
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Unassigned, unassigned.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Assigned, allStudentsNumber - unassigned.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.AssessorNotified, assessorNotified.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Nongraded, allStudentsNumber - assessed.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Graded, assessed.getDocCount());
+						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Completed, completed.getDocCount());
 
 						return response;
 					}
@@ -737,7 +752,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			long orgId, String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
+			long orgId, String searchTerm, long credId, long instructorId, StudentAssignSearchFilter.SearchFilter filter,
 			int page, int limit) {
 		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
@@ -881,15 +896,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						unassignedNo = it.next().getDocCount();
 					}
 					long allNo = filtered.getDocCount();
-					CredentialMembersSearchFilter[] filters = new CredentialMembersSearchFilter[3];
-					filters[0] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 
+					StudentAssignSearchFilter[] filters = new StudentAssignSearchFilter[3];
+					filters[0] = new StudentAssignSearchFilter(StudentAssignSearchFilter.SearchFilter.All,
 							allNo);
-					filters[1] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Assigned, 
+					filters[1] = new StudentAssignSearchFilter(StudentAssignSearchFilter.SearchFilter.Assigned,
 							allNo - unassignedNo);
-					filters[2] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Unassigned, 
+					filters[2] = new StudentAssignSearchFilter(StudentAssignSearchFilter.SearchFilter.Unassigned,
 							unassignedNo);
-					CredentialMembersSearchFilter selectedFilter = null;
-					for(CredentialMembersSearchFilter f : filters) {
+					StudentAssignSearchFilter selectedFilter = null;
+					for(StudentAssignSearchFilter f : filters) {
 						if(f.getFilter() == filter) {
 							selectedFilter = f;
 							break;
