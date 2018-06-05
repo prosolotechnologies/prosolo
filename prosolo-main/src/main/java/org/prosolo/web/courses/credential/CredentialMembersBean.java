@@ -216,11 +216,12 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						loggedUserBean.getUserContext(ctx));
 				if(studentToAssignInstructor.getInstructor() == null) {
 					action = "assigned";
+					//update filters if student was unassigned
+					updateFiltersStudentAssigned();
 				} else {
 					action = "reassigned";
 				}
 				studentToAssignInstructor.setInstructor(instructor);
-				updateFiltersStudentAssigned();
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
 						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserContext(ctx));
