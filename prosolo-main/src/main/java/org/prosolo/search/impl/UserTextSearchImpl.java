@@ -31,6 +31,8 @@ import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.search.util.users.UserScopeFilter;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
@@ -1173,8 +1175,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public PaginatedResult<UserData> searchPeopleUserFollows(
-			long orgId, String term, int page, int limit, long userId) {
+	public PaginatedResult<UserData> searchUsersWithFollowInfo(
+			long orgId, String term, int page, int limit, long userId, UserSearchConfig searchConfig) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
@@ -1193,8 +1195,45 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.filter(qb);
-			bQueryBuilder.filter(termQuery("followers.id", userId));
-			
+			switch (searchConfig.getScope()) {
+				case FOLLOWING:
+					/*
+					if given scope is 'users which given user is following' we search users
+					that have our user in followers collection
+					 */
+					bQueryBuilder.filter(termQuery("followers.id", userId));
+					break;
+				case FOLLOWERS:
+					/*
+					if given scope is 'users that follow given user' we search users
+					that have our user in following collection
+					 */
+					bQueryBuilder.filter(termQuery("following.id", userId));
+					break;
+				case ORGANIZATION:
+					//don't return user for whom we are issuing query
+					bQueryBuilder.mustNot(termQuery("id", userId));
+					break;
+			}
+
+
+			if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+				//if empty unit ids collection empty result set is returned
+				if (searchConfig.getUnitIds().isEmpty()) {
+					return new PaginatedResult<>();
+				}
+				BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+				unitRoleFilter.filter(termQuery("roles.id", searchConfig.getRoleId()));
+				BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+				for (long unitId : searchConfig.getUnitIds()) {
+					unitFilter.should(termQuery("roles.units.id", unitId));
+				}
+				unitRoleFilter.filter(unitFilter);
+
+				NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+				bQueryBuilder.filter(nestedFilter);
+			}
+
 			SearchResponse sResponse = null;
 			
 			String[] includes = {"id", "name", "lastname", "avatar"};
@@ -1213,20 +1252,27 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				
 				for(SearchHit sh : sResponse.getHits()) {
-					Map<String, Object> fields = sh.getSource();
-					User user = new User();
-					user.setId(Long.parseLong(fields.get("id") + ""));
-					user.setName((String) fields.get("name"));
-					user.setLastname((String) fields.get("lastname"));
-					user.setAvatarUrl((String) fields.get("avatar"));
-					UserData userData = new UserData(user);
+//					Map<String, Object> fields = sh.getSource();
+//					User user = new User();
+//					user.setId(Long.parseLong(fields.get("id") + ""));
+//					user.setName((String) fields.get("name"));
+//					user.setLastname((String) fields.get("lastname"));
+//					user.setAvatarUrl((String) fields.get("avatar"));
+//					UserData userData = new UserData(user);
+					UserData userData = getUserDataFromSearchHit(sh);
+					/*
+					if search scope is following users, there is no need to issue a query to check
+					whether given user is following user from result set
+					 */
+					userData.setFollowedByCurrentUser(
+							searchConfig.getScope() == UserSearchConfig.UserScope.FOLLOWING
+							|| followResourceManager.isUserFollowingUser(userId, userData.getId()));
 					
 					response.addFoundNode(userData);			
 				}
 			}
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
 		return response;
 	}

@@ -124,6 +124,14 @@
 					}
 				}
 			},
+			"following": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
 
 			"groups": {
 				"properties": {
