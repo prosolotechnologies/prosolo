@@ -563,12 +563,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					}
 				}
 			} catch (SearchPhaseExecutionException spee) {
-				spee.printStackTrace();
-				logger.error(spee);
+				logger.error("Error", spee);
 			}
 	
 		} catch (Exception e1) {
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
 		return null;
 	}

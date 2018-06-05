@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 @ManagedBean(name = "credentialMembersBean")
@@ -219,11 +220,13 @@ public class CredentialMembersBean implements Serializable, Paginable {
 					action = "reassigned";
 				}
 				studentToAssignInstructor.setInstructor(instructor);
+				updateFiltersStudentAssigned();
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
 						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserContext(ctx));
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
+				updateFiltersStudentUnassigned();
 			}
 
 			studentToAssignInstructor = null;
@@ -232,6 +235,24 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+	}
+
+	private void updateFiltersStudentAssigned() {
+		updateFilters(1, -1);
+	}
+
+	private void updateFiltersStudentUnassigned() {
+		updateFilters(-1, 1);
+	}
+
+	private void updateFilters(int numberOfAssignedToAdd, int numberOfUnassignedToAdd) {
+		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Assigned, numberOfAssignedToAdd);
+		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Unassigned, numberOfUnassignedToAdd);
+	}
+
+	private void updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter filter, int numberToAdd) {
+		CredentialMembersSearchFilter searchFilter = Arrays.stream(searchFilters).filter(f -> f.getFilter() == filter).findFirst().get();
+		searchFilter.setNumberOfResults(searchFilter.getNumberOfResults() + numberToAdd);
 	}
 
 	public boolean isInstructorCurrentlyAssignedToStudent(InstructorData id) {

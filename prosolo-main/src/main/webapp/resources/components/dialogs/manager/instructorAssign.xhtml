@@ -29,7 +29,7 @@
 								action="#{cc.attrs.bean.loadCredentialInstructors()}" />							
 							<h:inputText id="inputInstructorSearch"
 								type="search"
-								placeholder="Search instructors"
+								placeholder="Search #{msg['label.instructor.plural'].toLowerCase()}"
 								value="#{cc.attrs.bean.instructorSearchTerm}"
 								onclick="$(this).select();"
 								onkeyup="searchListener(execSearchInstructors);">
