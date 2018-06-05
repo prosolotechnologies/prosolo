@@ -1236,7 +1236,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			SearchResponse sResponse = null;
 			
-			String[] includes = {"id", "name", "lastname", "avatar"};
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
 			SearchRequestBuilder srb = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.ORGANIZATION_USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
