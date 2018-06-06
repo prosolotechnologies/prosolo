@@ -441,6 +441,8 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
 
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId);
+
 	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 
 	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
