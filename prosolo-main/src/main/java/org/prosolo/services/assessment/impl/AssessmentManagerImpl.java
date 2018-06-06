@@ -2883,24 +2883,34 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException {
+	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId) throws DbConnectionException {
 		try {
 			String usersAssessedQ =
 					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
 							"INNER JOIN aa.assessment compAssessment " +
 							"INNER JOIN compAssessment.credentialAssessments cca " +
 							"INNER JOIN cca.credentialAssessment credAssessment " +
-							"WITH credAssessment.type = :instructorAssessment " +
+							"WITH credAssessment.type = :instructorAssessment ";
+
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				usersAssessedQ += "AND credAssessment.assessor.id = :assessorId ";
+			}
+
+			usersAssessedQ +=
 							"INNER JOIN credAssessment.targetCredential tc " +
 							"WITH tc.credential.id = :credId " +
 							"WHERE aa.activity.id = :actId AND aa.points >= 0";
 
-			return (Long) persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(usersAssessedQ)
 					.setLong("credId", deliveryId)
 					.setLong("actId", activityId)
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-					.uniqueResult();
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				q.setLong("assessorId", userId);
+			}
+
+			return (Long) q.uniqueResult();
 		} catch (Exception e) {
 			throw new DbConnectionException("Error retrieving assessment info");
 		}

@@ -13,10 +13,14 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.Pair;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
+import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -28,15 +32,14 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.AssessmentBasicData;
-import org.prosolo.services.assessment.data.GradeDataFactory;
-import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -1289,8 +1292,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityResultData> getStudentsActivityAssessmentsData(long credId, long actId,
-													   long targetActivityId, boolean isInstructor, boolean paginate,
-													   int page, int limit) throws DbConnectionException, ResourceNotFoundException {
+																	   long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId,
+																	   boolean paginate, int page, int limit) throws DbConnectionException, ResourceNotFoundException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
@@ -1301,7 +1304,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"INNER JOIN target_competence1 targetComp " +
 						"ON (targetAct.target_competence = targetComp.id) " +
 						"INNER JOIN target_credential1 cred " +
-						"ON cred.user = targetComp.user AND cred.credential = :credId " +
+						"ON cred.user = targetComp.user AND cred.credential = :credId ");
+
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				query.append("INNER JOIN credential_instructor ci " +
+							 "ON cred.instructor = ci.id AND ci.user = :instructorUserId ");
+			}
+
+			query.append(
 						"INNER JOIN activity1 act " +
 						"ON (targetAct.activity = act.id " +
 						"AND act.id = :actId) " +
@@ -1360,6 +1370,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				q.setLong("tActId", targetActivityId);
 			}
 
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				q.setLong("instructorUserId", userId);
+			}
+
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = q.list();
 
@@ -1375,12 +1389,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
 					String result = (String) row[2];
 					Date date = (Date) row[3];
-					long userId = ((BigInteger) row[4]).longValue();
+					long studentId = ((BigInteger) row[4]).longValue();
 					String firstName = (String) row[5];
 					String lastName = (String) row[6];
 					String avatar = (String) row[7];
 					User user = new User();
-					user.setId(userId);
+					user.setId(studentId);
 					user.setName(firstName);
 					user.setLastname(lastName);
 					user.setAvatarUrl(avatar);
@@ -1390,7 +1404,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							date, user, commentsNo, isInstructor, true);
 
 					if (type != org.prosolo.common.domainmodel.credential.ActivityResultType.NONE) {
-						ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId, actId));
+						ard.setOtherResultsComments(getCommentsOnOtherResults(studentId, tActId, actId));
 					}
 
 					results.add(ard);
@@ -1400,7 +1414,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ActivityAssessmentData ad = ard.getAssessment();
 					ad.setTargetActivityId(tActId);
 					ad.setCompleted((Boolean) row[19]);
-					ad.setUserId(userId);
+					ad.setUserId(studentId);
 					ad.setActivityId(actId);
 					ad.setCompetenceId(compId);
 					ad.setCredentialId(credId);
@@ -1483,7 +1497,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
+	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {
 			//check if activity is part of a credential
@@ -1493,7 +1507,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, 0L, 0L);
 
-			summary.getStudentResults().addAll(getStudentsActivityAssessmentsData(credId, actId, targetActivityId, isInstructor,
+			summary.getStudentResults().addAll(getStudentsActivityAssessmentsData(credId, actId, targetActivityId, isInstructor, loadDataOnlyForStudentsWhereGivenUserIsInstructor, userId,
 					false, 0, 0));
 
 			return summary;
@@ -1507,8 +1521,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForInstructorCredentialAssessment(long credId, long actId, boolean isInstructor,
-																									  boolean paginate, int page, int limit)
+	public ActivityAssessmentsSummaryData getActivityAssessmentsDataForInstructorCredentialAssessment(long credId, long actId, ResourceAccessData accessData,
+																									  long userId, boolean paginate, int page, int limit)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {
 			//check if activity is part of a credential
@@ -1516,13 +1530,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 
-			long numberOfStudentsCompletedActivity = countStudentsLearningCredentialThatCompletedActivity(credId, actId);
+			//load only data for instructors students if user does not have Edit privilege
+			boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor = !accessData.isCanEdit();
+
+			long numberOfStudentsCompletedActivity = countStudentsLearningCredentialThatCompletedActivity(credId, actId, loadDataOnlyForStudentsWhereGivenUserIsInstructor, userId);
 			long numberOfStudentsAssessed = 0;
 			List<ActivityResultData> results = new ArrayList<>();
 			if (numberOfStudentsCompletedActivity > 0) {
-				results.addAll(getStudentsActivityAssessmentsData(credId, actId, 0, isInstructor,
-						paginate, page, limit));
-				numberOfStudentsAssessed = assessmentManager.getNumberOfAssessedStudentsForActivity(credId, actId);
+				results.addAll(getStudentsActivityAssessmentsData(credId, actId, 0, accessData.isCanInstruct(),
+						loadDataOnlyForStudentsWhereGivenUserIsInstructor, userId, paginate, page, limit));
+				numberOfStudentsAssessed = assessmentManager.getNumberOfAssessedStudentsForActivity(credId, actId, loadDataOnlyForStudentsWhereGivenUserIsInstructor, userId);
 			}
 			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, numberOfStudentsCompletedActivity, numberOfStudentsAssessed);
 			summary.setStudentResults(results);
@@ -1538,21 +1555,32 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId) throws DbConnectionException {
+	public Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId) throws DbConnectionException {
 		String usersCompletedActivityQ =
 				"SELECT COUNT(ta.id) " +
 				"FROM target_activity1 ta " +
 				"INNER JOIN target_competence1 targetComp " +
 				"ON ta.target_competence = targetComp.id " +
 				"INNER JOIN target_credential1 cred " +
-				"ON cred.user = targetComp.user AND cred.credential = :credId " +
+				"ON cred.user = targetComp.user AND cred.credential = :credId ";
+		if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+			usersCompletedActivityQ +=
+				"INNER JOIN credential_instructor ci " +
+				"ON cred.instructor = ci.id AND ci.user = :instructorUserId ";
+		}
+
+		usersCompletedActivityQ +=
 				"WHERE ta.activity = :actId AND ta.completed IS TRUE";
 
-		return ((BigInteger) persistence.currentManager()
+		Query q = persistence.currentManager()
 				.createSQLQuery(usersCompletedActivityQ)
 				.setLong("credId", credId)
-				.setLong("actId", actId)
-				.uniqueResult()).longValue();
+				.setLong("actId", actId);
+		if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+			q.setLong("instructorUserId", userId);
+		}
+
+		return ((BigInteger) q.uniqueResult()).longValue();
 	}
 
 	@Override
