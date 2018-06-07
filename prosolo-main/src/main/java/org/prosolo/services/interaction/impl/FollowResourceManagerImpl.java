@@ -19,6 +19,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -228,8 +229,10 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		StringBuilder query = new StringBuilder(
 			"SELECT DISTINCT fUser " +
 			"FROM FollowedEntity fEnt " +
-			"LEFT JOIN fEnt.user user "+
+			"INNER JOIN fEnt.user user "+
 			"JOIN fEnt.followedUser fUser " +
+			"INNER JOIN fUser.roles role " +
+			"WITH role.id = :roleId " +
 			"WHERE user.id = :userId ");
 
 		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
@@ -243,12 +246,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		query.append("ORDER BY fUser.lastname, fUser.name");
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
 
 		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", searchConfig.getRoleId())
-					.setParameterList("unitIds", searchConfig.getUnitIds());
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
 		}
 
 		if (limit != 0) {
@@ -275,6 +277,8 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 						"FROM FollowedEntity fEnt " +
 						"LEFT JOIN fEnt.user user "+
 						"JOIN fEnt.followedUser fUser " +
+						"INNER JOIN fUser.roles role " +
+						"WITH role.id = :roleId " +
 						"WHERE user.id = :userId ");
 
 		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
@@ -286,12 +290,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		}
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
 
 		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", userSearchConfig.getRoleId())
-					.setParameterList("unitIds", userSearchConfig.getUnitIds());
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
 
 		}
 
@@ -316,6 +319,8 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		StringBuilder query = new StringBuilder(
 				"SELECT user " +
 				   "FROM User user " +
+				   "INNER JOIN user.roles role " +
+				   "WITH role.id = :roleId " +
 				   "WHERE user.id != :userId " +
 				   "AND user.organization.id = (SELECT u.organization.id FROM User u WHERE u.id = :userId) ");
 
@@ -330,12 +335,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		query.append("ORDER BY user.lastname, user.name");
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
 
 		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", searchConfig.getRoleId())
-					.setParameterList("unitIds", searchConfig.getUnitIds());
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
 		}
 
 		if (limit != 0) {
@@ -359,6 +363,8 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		StringBuilder query = new StringBuilder(
 				"SELECT cast( COUNT(user) as int) " +
 						"FROM User user " +
+						"INNER JOIN user.roles role " +
+						"WITH role.id = :roleId " +
 						"WHERE user.id != :userId " +
 						"AND user.organization.id = (SELECT u.organization.id FROM User u WHERE u.id = :userId) ");
 
@@ -371,12 +377,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		}
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
 
 		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", userSearchConfig.getRoleId())
-					.setParameterList("unitIds", userSearchConfig.getUnitIds());
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
 
 		}
 
@@ -401,7 +406,9 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		StringBuilder query = new StringBuilder(
 			 "SELECT user " +
 				"FROM FollowedEntity fEnt " +
-				"INNER JOIN fEnt.user user "+
+				"INNER JOIN fEnt.user user " +
+			    "INNER JOIN user.roles role " +
+			    "WITH role.id = :roleId " +
 				"INNER JOIN fEnt.followedUser fUser " +
 				"WHERE fUser.id = :userId ");
 
@@ -416,12 +423,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		query.append("ORDER BY user.lastname, user.name");
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
 
 		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", searchConfig.getRoleId())
-					.setParameterList("unitIds", searchConfig.getUnitIds());
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
 		}
 
 		if (limit != 0) {
@@ -446,7 +452,9 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		StringBuilder query = new StringBuilder(
 				"SELECT cast( COUNT(user) as int) " +
 						"FROM FollowedEntity fEnt " +
-						"INNER JOIN fEnt.user user "+
+						"INNER JOIN fEnt.user user " +
+						"INNER JOIN user.roles role " +
+						"WITH role.id = :roleId " +
 						"INNER JOIN fEnt.followedUser fUser " +
 						"WHERE fUser.id = :userId ");
 
@@ -459,12 +467,11 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		}
 
 		Query q = persistence.currentManager().createQuery(query.toString())
-				.setLong("userId", userId);
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
 
 		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
-			q
-					.setLong("roleId", userSearchConfig.getRoleId())
-					.setParameterList("unitIds", userSearchConfig.getUnitIds());
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
 
 		}
 

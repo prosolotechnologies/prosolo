@@ -1216,22 +1216,21 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					break;
 			}
 
-
+			BoolQueryBuilder roleFilter = QueryBuilders.boolQuery();
+			roleFilter.filter(termQuery("roles.id", searchConfig.getRoleId()));
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", roleFilter);
+			bQueryBuilder.filter(nestedFilter);
 			if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
 				//if empty unit ids collection empty result set is returned
 				if (searchConfig.getUnitIds().isEmpty()) {
 					return new PaginatedResult<>();
 				}
-				BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
-				unitRoleFilter.filter(termQuery("roles.id", searchConfig.getRoleId()));
+
 				BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
 				for (long unitId : searchConfig.getUnitIds()) {
 					unitFilter.should(termQuery("roles.units.id", unitId));
 				}
-				unitRoleFilter.filter(unitFilter);
-
-				NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
-				bQueryBuilder.filter(nestedFilter);
+				roleFilter.filter(unitFilter);
 			}
 
 			SearchResponse sResponse = null;
