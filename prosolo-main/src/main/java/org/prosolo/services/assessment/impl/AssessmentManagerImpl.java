@@ -23,7 +23,9 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -157,6 +159,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
 					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.builder().setLoadActivities(true).create());
+			boolean atLeastOneCompGraded = false;
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
 						comp, studentId, assessorId, null, type,false, context);
@@ -165,7 +168,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				cca.setCompetenceAssessment(res.getResult());
 				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
+
+				/*
+				determine if credential assessment is assessed when automatic grading
+				assessed flag should be true when at least one competence is graded
+				 */
+				if (targetCredential.getCredential().getGradingMode() == GradingMode.AUTOMATIC
+						&& res.getResult().getPoints() >= 0) {
+					atLeastOneCompGraded = true;
+				}
 			}
+
+			assessment.setAssessed(targetCredential.getCredential().getGradingMode() == GradingMode.AUTOMATIC && atLeastOneCompGraded);
 
 			//generate event only for peer assessment
 			if (type == AssessmentType.PEER_ASSESSMENT) {
@@ -1991,10 +2005,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ad);
 
-				if (gradeValue > 0) {
-					//recalculate competence assessment score
-					updateScoreForCompetenceAssessmentIfNeeded(ad.getAssessment().getId());
-				}
+				//recalculate competence assessment score
+				EventQueue updateCompScoreEvents = updateScoreForCompetenceAssessmentIfNeeded(ad.getAssessment().getId(), context);
 
 				//update assessment star data
 				Map<Long, RubricAssessmentGradeSummary> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
@@ -2012,6 +2024,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, aa, null,null, params));
+				result.appendEvents(updateCompScoreEvents);
 				result.setResult(grade);
 			}
 			return result;
@@ -2059,6 +2072,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ca);
 
+				//recalculate assessment score for all credential assessments with this competence assessment
+				result.appendEvents(updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context));
+
 				//update assessment star data
 				Map<Long, RubricAssessmentGradeSummary> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
 				GradeDataFactory.updateAssessmentStarData(grade, compAssessmentGradeSummary.get(assessmentId));
@@ -2082,6 +2098,54 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			e.printStackTrace();
 			throw new DbConnectionException("Error updating the grade");
 		}
+	}
+
+	private EventQueue updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
+		EventQueue events = EventQueue.newEventQueue();
+		List<Long> automaticGradingCredAssessments = getIdsOfNotAssessedAutoGradingCredentialAssessmentsWithCompetenceAssessment(compAssessmentId);
+		if (!automaticGradingCredAssessments.isEmpty()) {
+			setCredentialsAssessmentsAssessedFlag(automaticGradingCredAssessments, true);
+			for (long id : automaticGradingCredAssessments) {
+				CredentialAssessment ca = new CredentialAssessment();
+				ca.setId(id);
+				events.appendEvent(eventFactory.generateEventData(EventType.ASSESSED_BY_AUTO_GRADING, context, ca, null, null, null));
+			}
+		}
+		return events;
+	}
+
+	private void setCredentialsAssessmentsAssessedFlag(List<Long> credAssessmentIds, boolean assessed) {
+		if (credAssessmentIds.isEmpty()) {
+			return;
+		}
+		String q =
+				"UPDATE CredentialAssessment ca SET ca.assessed = :assessed " +
+				"WHERE ca.id IN (:ids)";
+
+		int affected = persistence.currentManager().createQuery(q)
+				.setBoolean("assessed", assessed)
+				.setParameterList("ids", credAssessmentIds)
+				.executeUpdate();
+
+		logger.info("Number of credential assessments with updated assessed flag: " + affected);
+	}
+
+	private List<Long> getIdsOfNotAssessedAutoGradingCredentialAssessmentsWithCompetenceAssessment(long compAssessmentId) {
+		String q =
+				"SELECT ca.id FROM CredentialCompetenceAssessment cca " +
+				"INNER JOIN cca.credentialAssessment ca " +
+				"WITH ca.assessed IS FALSE " +
+				"INNER JOIN ca.targetCredential tc " +
+				"INNER JOIN tc.credential cred " +
+				"WITH cred.gradingMode = :autoGradingMode " +
+				"WHERE cca.competenceAssessment.id = :compAssessmentId";
+
+		@SuppressWarnings("unchecked")
+		List<Long> ids = persistence.currentManager().createQuery(q)
+				.setString("autoGradingMode", GradingMode.AUTOMATIC.name())
+				.setLong("compAssessmentId", compAssessmentId)
+				.list();
+		return ids;
 	}
 
 	//GRADE COMPETENCE ASSESSMENT END
@@ -2115,6 +2179,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						CredentialAssessment.class, assessmentId);
 //
 				ca.setPoints(gradeValue);
+				ca.setAssessed(true);
 
 				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.CREDENTIAL);
 				/*
@@ -2210,7 +2275,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public int updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session)
+	public void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session)
 			throws DbConnectionException {
 		try {
 			int points = calculateCompetenceAssessmentScoreAsSumOfActivityPoints(compAssessmentId, session);
@@ -2223,8 +2288,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("compAssessmentId", compAssessmentId)
 					.setInteger("points", points)
 					.executeUpdate();
-
-			return points;
 		} catch (DbConnectionException e) {
 			throw e;
 		} catch (Exception e) {
@@ -2264,16 +2327,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error while retrieving competence assessment score");
 		}
 	}
-	
+
 	@Override
 	@Transactional
-	public int updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException {
+	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
-		//if automatic grading mode calculate comp points as a sum of activitiy points
+		//if automatic grading mode calculate comp points as a sum of activity points
 		if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
-			return updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
+			updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
+			//recalculate assessment score for all credential assessments with this competence assessment if needed
+			return updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context);
 		}
-		return -1;
+		return EventQueue.newEventQueue();
 	}
 
 	//This method would not work because we can have several instructor activity assessments for one target activity
@@ -3735,5 +3800,30 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error loading the number of competence assessments");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialAssessment getInstructorCredentialAssessment(long credId, long userId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ca " +
+					"FROM CredentialAssessment ca " +
+					"INNER JOIN ca.targetCredential tc " +
+					"WHERE tc.credential.id = :credId " +
+					"AND tc.user.id = :userId " +
+					"AND ca.type = :instructorAssessment";
+
+			return (CredentialAssessment) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setLong("userId", userId)
+					.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving the credential assessment");
+		}
+	}
+
 
 }

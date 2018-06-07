@@ -222,7 +222,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             List<CompetenceAssessment> competenceAssessments = getAllCompetenceAssessments();
             for (CompetenceAssessment ca : competenceAssessments) {
                 if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
-                    assessmentManager.updateScoreForCompetenceAssessmentIfNeeded(ca.getId());
+                    assessmentManager.updateScoreForCompetenceAssessmentIfNeeded(ca.getId(), UserContextData.empty());
                 }
             }
         } catch (Exception e) {
@@ -293,6 +293,24 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void migrateCredentialAssessmentsAssessedFlag() throws DbConnectionException {
+        try {
+            List<CredentialAssessment> assessments = getAllCredentialAssessments();
+            for (CredentialAssessment ca : assessments) {
+                if (ca.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
+                    ca.setAssessed(assessmentManager.getAutomaticCredentialAssessmentScore(ca.getId()) >= 0);
+                } else if(ca.getPoints() >= 0) {
+                    ca.setAssessed(true);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error migrating the data");
         }
     }
 

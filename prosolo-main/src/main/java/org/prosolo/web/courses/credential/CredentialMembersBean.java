@@ -12,7 +12,6 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 @ManagedBean(name = "credentialMembersBean")
@@ -85,14 +85,14 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
-		CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
+		CredentialMembersSearchFilter.SearchFilter[] values = CredentialMembersSearchFilter.SearchFilter.values();
 		int size = values.length;
 		searchFilters = new CredentialMembersSearchFilter[size];
 		for(int i = 0; i < size; i++) {
 			CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
 			searchFilters[i] = filter;
 		}
-		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
+		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilter.SearchFilter.All, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
@@ -149,17 +149,17 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialMembers() {
-		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchResponse = 
+		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchResponse =
 				userTextSearch.searchCredentialMembers(
 					loggedUserBean.getOrganizationId(),
-					searchTerm, 
-					searchFilter.getFilter(), 
-					this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
+					searchTerm,
+					searchFilter.getFilter(),
+					this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 					decodedId, personalizedForUserId, sortOption);
 
 		this.paginationData.update((int) searchResponse.getHitsNumber());
 		members = searchResponse.getFoundNodes();
-		
+
 		for(CredentialMembersSearchFilter filter : searchFilters) {
 			filter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(filter.getFilter()));
 		}
@@ -174,7 +174,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
 		for (CredentialMembersSearchFilter f : searchFilters) {
-			if (f.getFilter() == CredentialMembersSearchFilterValue.All) {
+			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
 				searchFilter = f;
 				this.paginationData.update((int) f.getNumberOfResults());
 				break;
@@ -216,6 +216,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						loggedUserBean.getUserContext(ctx));
 				if(studentToAssignInstructor.getInstructor() == null) {
 					action = "assigned";
+					//update filters if student was unassigned
+					updateFiltersStudentAssigned();
 				} else {
 					action = "reassigned";
 				}
@@ -225,6 +227,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserContext(ctx));
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
+				updateFiltersStudentUnassigned();
 			}
 
 			studentToAssignInstructor = null;
@@ -233,6 +236,24 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+	}
+
+	private void updateFiltersStudentAssigned() {
+		updateFilters(1, -1);
+	}
+
+	private void updateFiltersStudentUnassigned() {
+		updateFilters(-1, 1);
+	}
+
+	private void updateFilters(int numberOfAssignedToAdd, int numberOfUnassignedToAdd) {
+		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Assigned, numberOfAssignedToAdd);
+		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Unassigned, numberOfUnassignedToAdd);
+	}
+
+	private void updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter filter, int numberToAdd) {
+		CredentialMembersSearchFilter searchFilter = Arrays.stream(searchFilters).filter(f -> f.getFilter() == filter).findFirst().get();
+		searchFilter.setNumberOfResults(searchFilter.getNumberOfResults() + numberToAdd);
 	}
 
 	public boolean isInstructorCurrentlyAssignedToStudent(InstructorData id) {

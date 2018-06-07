@@ -45,7 +45,7 @@ public class ProfileCredentialPeerAssessmentBean extends CredentialAssessmentBea
 		decodedStudentId = getIdEncoder().decodeId(studentId);
 		if (decodedStudentId > 0) {
 			setDisplayMode(AssessmentDisplayMode.PUBLIC);
-			boolean success = initPeerAssessment();
+			boolean success = initPeerAssessmentAndReturnSuccessMessage();
 			if (success) {
 				//if passed student id is different than actual student id from assessment redirect to not found page
 				if (decodedStudentId != getFullAssessmentData().getAssessedStudentId()) {

@@ -1,17 +1,11 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -43,6 +37,8 @@ public class TargetCredential1 extends BaseEntity {
 	private String finalReview;
 	
 	private Date lastAction;
+
+	private List<CredentialAssessment> assessments;
 	
 	public TargetCredential1() {
 		
@@ -185,6 +181,15 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
 		this.evidenceDisplayed = evidenceDisplayed;
+	}
+
+	@OneToMany(mappedBy = "targetCredential")
+	public List<CredentialAssessment> getAssessments() {
+		return assessments;
+	}
+
+	public void setAssessments(List<CredentialAssessment> assessments) {
+		this.assessments = assessments;
 	}
 
 	/*
