@@ -23,6 +23,7 @@ public class CredentialAssessment extends BaseEntity {
 	private boolean approved;
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
+	private boolean assessed;
 	private int points;
 	private String review;
 	private Date lastAskedForAssessment;
@@ -74,7 +75,7 @@ public class CredentialAssessment extends BaseEntity {
 		this.student = student;
 	}
 
-	@OneToOne (fetch=FetchType.LAZY)
+	@ManyToOne (fetch=FetchType.LAZY)
 	public TargetCredential1 getTargetCredential() {
 		return targetCredential;
 	}
@@ -178,5 +179,13 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public boolean isAssessed() {
+		return assessed;
+	}
+
+	public void setAssessed(boolean assessed) {
+		this.assessed = assessed;
 	}
 }

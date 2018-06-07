@@ -2,6 +2,7 @@ package org.prosolo.services.indexing.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -76,7 +77,10 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.Account_Activated,
 			EventType.UPDATE_DELIVERY_TIMES,
 			EventType.LEARNING_STAGE_UPDATE,
-			EventType.CREDENTIAL_CATEGORY_UPDATE
+			EventType.CREDENTIAL_CATEGORY_UPDATE,
+			EventType.AssessmentRequested,
+			EventType.ASSESSED_BY_AUTO_GRADING,
+			EventType.GRADE_ADDED
 		};
 	}
 
@@ -93,7 +97,8 @@ public class NodeChangeObserver extends EventObserver {
 			UserGroup.class,
 			Organization.class,
 			Rubric.class,
-			LearningEvidence.class
+			LearningEvidence.class,
+			CredentialAssessment.class
 		};
 	}
 

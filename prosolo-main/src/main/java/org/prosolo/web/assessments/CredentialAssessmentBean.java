@@ -139,7 +139,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT);
 	}
 
-	public boolean initPeerAssessment() {
+	public void initPeerAssessment() {
+		 initPeerAssessmentAndReturnSuccessMessage();
+	}
+
+	public boolean initPeerAssessmentAndReturnSuccessMessage() {
 		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
 	}
 

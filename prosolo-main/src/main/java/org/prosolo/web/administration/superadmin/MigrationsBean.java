@@ -65,4 +65,14 @@ public class MigrationsBean implements Serializable {
 		}
 	}
 
+	public void migrateCredentialAssessmentsAssessedFlag() {
+		try {
+			commonCustomMigrationService.migrateCredentialAssessmentsAssessedFlag();
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessments migrated");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error migrating assessments");
+		}
+	}
+
 }

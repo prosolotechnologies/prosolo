@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
@@ -10,6 +11,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
@@ -47,6 +49,8 @@ public class NodeChangeProcessorFactory {
     private RubricsESService rubricsESService;
     @Inject
     private LearningEvidenceESService learningEvidenceESService;
+    @Inject
+    private AssessmentManager assessmentManager;
 
     public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
         EventType type = event.getAction();
@@ -61,7 +65,7 @@ public class NodeChangeProcessorFactory {
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
                 return new UserNodeChangeProcessor(event, session, userEntityESService,
-                        credentialESService, competenceESService, credManager, EventUserRole.Subject);
+                        credentialESService, competenceESService, credManager, assessmentManager, EventUserRole.Subject);
             case Create:
             case Create_Draft:
             case Edit:
@@ -82,7 +86,7 @@ public class NodeChangeProcessorFactory {
             case REMOVE_USER_FROM_UNIT:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, credManager, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, assessmentManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     NodeOperation operation = null;
                     if (type == EventType.Create || type == EventType.Create_Draft) {
@@ -117,7 +121,7 @@ public class NodeChangeProcessorFactory {
             case Delete_Draft:
                 if (node instanceof User) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
-                            credentialESService, competenceESService, credManager, EventUserRole.Object);
+                            credentialESService, competenceESService, credManager, assessmentManager, EventUserRole.Object);
                 } else if (node instanceof Credential1) {
                     return new CredentialNodeChangeProcessor(event, credentialESService,
                             credManager, NodeOperation.Delete, session);
@@ -200,6 +204,14 @@ public class NodeChangeProcessorFactory {
             case CREDENTIAL_CATEGORY_UPDATE:
                 return new CredentialNodeChangeProcessor(event, credentialESService,
                         credManager, NodeOperation.Update, session);
+            case AssessmentRequested:
+            case ASSESSED_BY_AUTO_GRADING:
+            case GRADE_ADDED:
+                if (node instanceof CredentialAssessment) {
+                    return new UserNodeChangeProcessor(event, session, userEntityESService,
+                            credentialESService, competenceESService, credManager, assessmentManager, EventUserRole.Subject);
+                }
+                return null;
             default:
                 return null;
         }
