@@ -112,7 +112,7 @@ public class CredentialDataFactory {
 	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CredentialAssessmentConfig> assessmentConfig) {
 		List<AssessmentTypeConfig> types = new ArrayList<>();
 		for (CredentialAssessmentConfig cac : assessmentConfig) {
-			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT, cac.getBlindAssessmentMode()));
 		}
 		return types;
 	}

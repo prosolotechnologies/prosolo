@@ -152,6 +152,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cac.setCredential(cred);
 					cac.setAssessmentType(atc.getType());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
 				}
 			}
@@ -732,6 +733,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					data.getHashtagsString())));
 		}
 
+		if (data.getAssessmentTypes() != null) {
+			for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
+					//enabled flag should be set only if it is original credential
+					if (data.getType() == CredentialType.Original) {
+						cac.setEnabled(atc.isEnabled());
+					}
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
+				}
+			}
+		}
+
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
 			CredentialCategory category = data.getCategory() != null
@@ -764,14 +778,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 
-			if (data.getAssessmentTypes() != null) {
-				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
-					if (atc.hasObjectChanged()) {
-						CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
-						cac.setEnabled(atc.isEnabled());
-					}
-				}
-			}
 			setAssessmentRelatedData(credToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 
 			List<CompetenceData1> comps = data.getCompetences();
