@@ -199,6 +199,32 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		return null;
 	}
 
+	public long getCurrentStudentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getUserId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getStudentId();
+		}
+		return 0;
+	}
+
+	public long getCurrentAssessorId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getAssessorId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getAssessorId();
+		}
+		return 0;
+	}
+
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;

@@ -175,7 +175,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return aType != null && aType.isEnabled();
 	}
 
-	private AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
+	public AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
 		if (assessmentTypes == null) {
 			return null;
 		}

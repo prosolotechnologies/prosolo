@@ -113,6 +113,12 @@
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String capitalizeWord(java.lang.String)</function-signature>
 	</function>
+
+	<function>
+		<function-name>encodeUserId</function-name>
+		<function-class>org.prosolo.web.util.UserIdEncoder</function-class>
+		<function-signature>java.lang.String encodeId(long)</function-signature>
+	</function>
 	
 	<!-- Components -->
 	

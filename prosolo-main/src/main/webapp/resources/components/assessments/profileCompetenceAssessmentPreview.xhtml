@@ -24,11 +24,13 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li>
-					<h:link value="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}" outcome="profile">
-						<f:param name="id" value="#{util:encodeId(profileCompetenceAssessmentBean.competenceAssessmentData.studentId)}"/>
-					</h:link>
-				</li>
+				<ui:fragment rendered="#{profileCompetenceAssessmentBean.blindAssessmentMode eq 'OFF'}">
+					<li>
+						<h:link value="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}" outcome="profile">
+							<f:param name="id" value="#{util:encodeId(profileCompetenceAssessmentBean.competenceAssessmentData.studentId)}"/>
+						</h:link>
+					</li>
+				</ui:fragment>
 				<li class="active">
 					Assessments
 				</li>
@@ -62,6 +64,7 @@
 								<h:form>
 									<assessment:competenceAssessment
 											competenceAssessment="#{profileCompetenceAssessmentBean.competenceAssessmentData}"
+											blindAssessmentMode="#{profileCompetenceAssessmentBean.blindAssessmentMode}"
 											fullDisplayMode="#{false}"
 											bean="#{profileCompetenceAssessmentBean}"
 											credentialId="#{cc.attrs.credentialId}"
@@ -80,12 +83,24 @@
 								<div class="sidebarBlock">
 									<h2>Student</h2>
 									<div class="user32">
-										<a href="javascript:void(0);"> <utilcomp:userAvatar
-												avatar="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
-												fullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}" />
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorAvatar
+													actorId="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentId}"
+													avatarUrl="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
+													actorFullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}"
+													blindAssessmentMode="#{profileCompetenceAssessmentBean.blindAssessmentMode}"
+													actorType="STUDENT"
+											/>
 										</a>
 										<h3>
-											<a href="javascript:void(0);">#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}</a>
+											<a href="javascript:void(0);">
+												<assessment:assessmentActorName
+														actorId="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentId}"
+														actorFullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}"
+														blindAssessmentMode="#{profileCompetenceAssessmentBean.blindAssessmentMode}"
+														actorType="STUDENT"
+												/>
+											</a>
 										</h3>
 									</div>
 								</div>
@@ -95,12 +110,24 @@
 											rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorId > 0}">
 										<h2>Assessor</h2>
 										<div class="user32">
-											<a href="javascript:void(0);"> <utilcomp:userAvatar
-													avatar="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
-													fullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}" />
+											<a href="javascript:void(0);">
+												<assessment:assessmentActorAvatar
+														actorId="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorId}"
+														avatarUrl="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
+														actorFullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+														blindAssessmentMode="#{profileCompetenceAssessmentBean.blindAssessmentMode}"
+														actorType="ASSESSOR"
+												/>
 											</a>
 											<h3>
-												<a href="javascript:void(0);">#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}</a>
+												<a href="javascript:void(0);">
+													<assessment:assessmentActorName
+															actorId="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorId}"
+															actorFullName="#{profileCompetenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+															blindAssessmentMode="#{profileCompetenceAssessmentBean.blindAssessmentMode}"
+															actorType="ASSESSOR"
+													/>
+												</a>
 											</h3>
 										</div>
 									</ui:fragment>

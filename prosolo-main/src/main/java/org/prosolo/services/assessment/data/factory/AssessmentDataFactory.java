@@ -96,10 +96,12 @@ public class AssessmentDataFactory implements Serializable {
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
+            data.setStudentId(student.getId());
         }
         if (assessor != null) {
             data.setAssessorFullName(assessor.getName()+ " " + assessor.getLastname());
             data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
+            data.setAssessorId(assessor.getId());
         }
 
         return data;

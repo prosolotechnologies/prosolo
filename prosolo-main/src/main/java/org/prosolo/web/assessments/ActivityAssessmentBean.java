@@ -165,7 +165,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 
 	@Override
 	public AssessmentType getType() {
-		return null;
+		return activityAssessmentData.getType();
 	}
 
 	/*

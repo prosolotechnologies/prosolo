@@ -3801,6 +3801,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
+	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
+		try {
+			String q =
+					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
+					"WHERE conf.credential.id = :credId " +
+					"AND conf.assessmentType = :assessmentType";
+
+			return (BlindAssessmentMode) persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credId)
+					.setString("assessmentType", assessmentType.name())
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the blind assessment mode for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public long getTargetCredentialId(long credId, long studentId) throws DbConnectionException {
 		try {
 			String query =

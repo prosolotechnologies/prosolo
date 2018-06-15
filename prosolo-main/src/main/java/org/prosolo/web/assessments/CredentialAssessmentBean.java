@@ -518,10 +518,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			}
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
+					"You have approved the credential");
 		} catch (Exception e) {
 			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the credential");
 		}
 	}
 
@@ -705,7 +705,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor);
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor, fullAssessmentData.getBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

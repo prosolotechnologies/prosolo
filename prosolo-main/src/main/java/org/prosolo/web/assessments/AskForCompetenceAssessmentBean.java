@@ -3,6 +3,7 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -36,14 +37,14 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
 
     private long credentialId;
 
-    public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType) {
+    public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType);
+        init(competenceId, targetCompId, assessmentType, blindAssessmentMode);
     }
 
-    public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor) {
+    public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
         this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType, assessor);
+        init(competenceId, targetCompId, assessmentType, assessor, blindAssessmentMode);
     }
 
     @Override

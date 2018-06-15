@@ -18,7 +18,7 @@ public class AssessmentTypeConfig extends StandardObservable {
     private boolean enabled;
     private boolean mandatory;
     private AssessmentGradeSummary gradeSummary;
-    private BlindAssessmentMode blindAssessmentMode;
+    private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 
     public AssessmentTypeConfig(long id, AssessmentType type, boolean enabled, boolean mandatory) {
         this.id = id;
