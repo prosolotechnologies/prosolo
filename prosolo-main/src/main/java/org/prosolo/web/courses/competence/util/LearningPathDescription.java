@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.credential.LearningPathType;
 public enum LearningPathDescription {
 
     ACTIVITY(LearningPathType.ACTIVITY, "By completing activities"),
-    EVIDENCE(LearningPathType.EVIDENCE, "By providing evidences");
+    EVIDENCE(LearningPathType.EVIDENCE, "By providing pieces of evidence");
 
     private LearningPathType learningPathType;
     private String description;
