@@ -1,34 +1,36 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-public class AssessmentApprovedEventProcessor extends NotificationEventProcessor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AssessmentApprovedEventProcessor extends AssessmentNotificationEventProcessor {
 
 	private static Logger logger = Logger.getLogger(AssessmentApprovedEventProcessor.class);
+
+	private CredentialManager credentialManager;
 
 	private CredentialAssessment credentialAssessment;
 
 	public AssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService ctxJsonParser) {
+											NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, CredentialManager credentialManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+		this.credentialManager = credentialManager;
 		credentialAssessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 	}
 
@@ -51,8 +53,20 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 	}
 
 	@Override
-	long getSenderId() {
-		return event.getActorId();
+	protected long getAssessorId() {
+		return credentialAssessment.getAssessor() != null
+				? credentialAssessment.getAssessor().getId()
+				: 0;
+	}
+
+	@Override
+	protected long getStudentId() {
+		return credentialAssessment.getStudent().getId();
+	}
+
+	@Override
+	protected BlindAssessmentMode getBlindAssessmentMode() {
+		return credentialManager.getCredentialBlindAssessmentModeForAssessmentType(getObjectId(), credentialAssessment.getType());
 	}
 
 	@Override

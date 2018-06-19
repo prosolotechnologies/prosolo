@@ -3927,4 +3927,5 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error checking if credential assessment display is enabled");
 		}
 	}
+
 }

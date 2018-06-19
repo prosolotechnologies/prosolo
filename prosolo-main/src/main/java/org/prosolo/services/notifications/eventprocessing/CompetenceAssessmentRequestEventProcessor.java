@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
@@ -12,6 +13,8 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
@@ -21,22 +24,31 @@ import org.prosolo.web.util.page.PageSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompetenceAssessmentRequestEventProcessor extends NotificationEventProcessor {
+public class CompetenceAssessmentRequestEventProcessor extends AssessmentNotificationEventProcessor {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestEventProcessor.class);
 
 	private ContextJsonParserService ctxJsonParserService;
 	private AssessmentManager assessmentManager;
+	private CredentialManager credentialManager;
+	private Competence1Manager competenceManager;
 	private CompetenceAssessment assessment;
+	private long credentialId;
+	private Context context;
 
 	public CompetenceAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													 ContextJsonParserService ctxJsonParserService, AssessmentManager assessmentManager) {
+													 ContextJsonParserService ctxJsonParserService, AssessmentManager assessmentManager,
+													 CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.ctxJsonParserService = ctxJsonParserService;
 		this.assessmentManager = assessmentManager;
+		this.credentialManager = credentialManager;
+		this.competenceManager = competenceManager;
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
+		context = ctxJsonParserService.parseContext(event.getContext());
+		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 	}
 
 	@Override
@@ -54,8 +66,27 @@ public class CompetenceAssessmentRequestEventProcessor extends NotificationEvent
 	}
 
 	@Override
-	long getSenderId() {
-		return event.getActorId();
+	protected long getAssessorId() {
+		return assessment.getAssessor() != null
+			? assessment.getAssessor().getId()
+			: 0;
+	}
+
+	@Override
+	protected long getStudentId() {
+		return assessment.getStudent().getId();
+	}
+
+	@Override
+	protected BlindAssessmentMode getBlindAssessmentMode() {
+		/*
+		if credential id is available blind assessment mode for credential is retrieved because
+		notification is generated for credential assessment page, otherwise competence blind assessment mode
+		is retrieved
+		 */
+		return credentialId > 0
+				? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, assessment.getType())
+				: competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(assessment.getCompetence().getId(), assessment.getType());
 	}
 
 	@Override
@@ -74,10 +105,8 @@ public class CompetenceAssessmentRequestEventProcessor extends NotificationEvent
 	}
 
 	private String getNotificationLink(PageSection section) {
-		Context context = ctxJsonParserService.parseContext(event.getContext());
-		long credId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				context, credId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), assessmentManager, idEncoder, session, section);
+				context, credentialId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), assessmentManager, idEncoder, session, section);
 	}
 
 }

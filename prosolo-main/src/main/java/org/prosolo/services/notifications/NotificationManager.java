@@ -7,10 +7,7 @@ import java.util.Locale;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification1;
-import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.domainmodel.user.notifications.*;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.util.page.PageSection;
@@ -23,7 +20,7 @@ public interface NotificationManager extends AbstractManager {
 	boolean sendNotificationByEmail(String email, String receiverName, String actor, 
 			String notificationType, String notificationShortType, String resourceTitle, String message, String date, boolean notifyByUI);
 	
-	Notification1 createNotification(long actorId,
+	Notification1 createNotification(long actorId, NotificationActorRole actorRole, boolean anonymizedActor,
 									 long receiverId, NotificationType type, Date date,
 									 long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
 									 boolean notifyByEmail, boolean isObjectOwner, Session session, PageSection section) throws DbConnectionException;

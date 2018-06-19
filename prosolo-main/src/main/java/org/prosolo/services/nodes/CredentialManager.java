@@ -458,6 +458,13 @@ public interface CredentialManager extends AbstractManager {
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
 
+	/**
+	 *
+	 * @param credId
+	 * @param assessmentType
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType);
 
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
@@ -487,4 +494,5 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
+
 }
