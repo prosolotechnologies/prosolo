@@ -137,9 +137,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		Client client = ElasticSearchFactory.getClient();
 		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
-		
+
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+				.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
