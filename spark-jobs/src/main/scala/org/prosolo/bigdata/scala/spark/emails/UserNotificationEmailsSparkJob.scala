@@ -24,7 +24,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
    import sparkSession.sqlContext.implicits._
 
 
-  def runSparkJob(date:Long):Array[Array[NotificationReceiverSummary]]={
+  def runSparkJob(date:Long, role: String):Array[Array[NotificationReceiverSummary]]={
     import sparkSession.implicits._
    //val connector=CassandraConnector.apply(sparkSession.sparkContext.getConf)
 
@@ -35,7 +35,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     notificationsDF.show
     notificationsDF.createOrReplaceTempView("notificationsView")
 
-    val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date)
+    val dayNotificationsDF:DataFrame=sparkSession.sql("select * from notificationsView where date="+date+" and section='" + role+"'")
 
 
 
