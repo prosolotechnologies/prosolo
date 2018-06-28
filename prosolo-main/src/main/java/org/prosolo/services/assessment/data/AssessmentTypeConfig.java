@@ -2,6 +2,7 @@ package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.observable.StandardObservable;
 
 /**
@@ -15,7 +16,7 @@ public class AssessmentTypeConfig extends StandardObservable {
     private AssessmentType type;
     private boolean enabled;
     private boolean mandatory;
-    private Pair<Integer, Integer> gradeSummary;
+    private AssessmentGradeSummary gradeSummary;
 
     public AssessmentTypeConfig(long id, AssessmentType type, boolean enabled, boolean mandatory) {
         this.id = id;
@@ -57,11 +58,11 @@ public class AssessmentTypeConfig extends StandardObservable {
         this.mandatory = mandatory;
     }
 
-    public Pair<Integer, Integer> getGradeSummary() {
+    public AssessmentGradeSummary getGradeSummary() {
         return gradeSummary;
     }
 
-    public void setGradeSummary(Pair<Integer, Integer> gradeSummary) {
+    public void setGradeSummary(AssessmentGradeSummary gradeSummary) {
         this.gradeSummary = gradeSummary;
     }
 }

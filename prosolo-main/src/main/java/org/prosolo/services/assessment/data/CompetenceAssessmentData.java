@@ -6,8 +6,9 @@ import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;
@@ -79,16 +80,16 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				Pair<Integer, Integer> rubricGradeSummary, Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+				RubricAssessmentGradeSummary rubricGradeSummary, Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary,
+				UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat);
+		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat, loadDiscussion);
 	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
-												CredentialAssessment credAssessment, Pair<Integer, Integer> rubricGradeSummary,
-												Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary, UrlIdEncoder encoder,
-												long userId, DateFormat dateFormat) {
+												CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
+												Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
+												long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
@@ -122,7 +123,7 @@ public class CompetenceAssessmentData {
 			for (ActivityData ad : cd.getActivities()) {
 				ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
 				ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-						credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId);
+						credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion);
 				if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
 					maxPoints += assessmentData.getGrade().getMaxGrade();
 				}
@@ -152,15 +153,17 @@ public class CompetenceAssessmentData {
 				rubricGradeSummary
 		));
 
-		data.setNumberOfMessages(compAssessment.getMessages().size());
-		CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
-		if (currentParticipant != null) {
-			data.setParticipantInDiscussion(true);
-			data.setAllRead(currentParticipant.isRead());
-		} else {
-			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-			data.setAllRead(false);
-			data.setParticipantInDiscussion(false);
+		if (loadDiscussion) {
+			data.setNumberOfMessages(compAssessment.getMessages().size());
+			CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
+			if (currentParticipant != null) {
+				data.setParticipantInDiscussion(true);
+				data.setAllRead(currentParticipant.isRead());
+			} else {
+				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+				data.setAllRead(false);
+				data.setParticipantInDiscussion(false);
+			}
 		}
 		data.setStudentId(compAssessment.getStudent().getId());
 		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());

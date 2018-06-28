@@ -79,6 +79,10 @@ public class LearningEvidenceBean implements Serializable {
         evidence = learningEvidenceManager.getLearningEvidence(evidenceId, true, true);
     }
 
+    public boolean isCurrentUserEvidenceOwner() {
+        return evidence != null && evidence.getUserId() == loggedUserBean.getUserId();
+    }
+
     /*
     ACTIONS
      */

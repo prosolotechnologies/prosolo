@@ -59,6 +59,9 @@ public class Credential1 extends BaseEntity {
 	//learning in stages
 	private LearningStage learningStage;
 	private Credential1 firstLearningStageCredential;
+
+	//category
+	private CredentialCategory category;
 	
 	private boolean archived;
 	
@@ -398,5 +401,14 @@ public class Credential1 extends BaseEntity {
 
 	public void setMaxPoints(int maxPoints) {
 		this.maxPoints = maxPoints;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public CredentialCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(CredentialCategory category) {
+		this.category = category;
 	}
 }

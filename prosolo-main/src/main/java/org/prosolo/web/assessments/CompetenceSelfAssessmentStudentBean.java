@@ -15,48 +15,21 @@ import java.util.Optional;
 @ManagedBean(name = "competenceSelfAssessmentStudentBean")
 @Component("competenceSelfAssessmentStudentBean")
 @Scope("view")
-public class CompetenceSelfAssessmentStudentBean implements Serializable {
+public class CompetenceSelfAssessmentStudentBean extends CompetenceSelfAssessmentBean {
 
 	private static final long serialVersionUID = -7222449338832725797L;
 
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private UrlIdEncoder idEncoder;
-	@Inject private AssessmentManager assessmentManager;
-	@Inject private CompetenceAssessmentBean competenceAssessmentBean;
+	@Inject private StudentCompetenceAssessmentBean competenceAssessmentBean;
 
-	// PARAMETERS
-	private String id;
-	private long decodedId;
-	private String credId;
-
-	public void initSelfAssessment() {
-		decodedId = idEncoder.decodeId(id);
-
-		if (decodedId > 0) {
-			Optional<Long> optAssessmentId = assessmentManager.getSelfCompetenceAssessmentId(decodedId, loggedUserBean.getUserId());
-			if (optAssessmentId.isPresent()) {
-				competenceAssessmentBean.initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), credId);
-			} else {
-				PageUtil.notFound();
-			}
-		} else {
-			PageUtil.notFound();
-		}
+	@Override
+	protected long getStudentId() {
+		return loggedUserBean.getUserId();
 	}
 
-	public String getId() {
-		return id;
+	@Override
+	protected CompetenceAssessmentBean getCompetenceAssessmentBean() {
+		return competenceAssessmentBean;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
 }

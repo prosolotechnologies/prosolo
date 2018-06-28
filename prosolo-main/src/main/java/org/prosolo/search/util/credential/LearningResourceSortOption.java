@@ -4,7 +4,7 @@ import org.prosolo.services.util.SortingOption;
 
 public enum LearningResourceSortOption {
 
-	NEWEST_FIRST("Newest first", "dateCreated", "dateCreated", SortingOption.DESC),
+	NEWEST_FIRST("Newest", "dateCreated", "dateCreated", SortingOption.DESC),
 	//add when implemented
 	//RELEVANCE("Relevance", "", SortingOption.ASC),
 	ALPHABETICALLY("Alphabetically", "title.sort", "title", SortingOption.ASC);

@@ -843,7 +843,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return new UserData(user);
 		} catch(Exception e) {
 			logger.error("Error", e);
-			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user data");
 		}
 	}

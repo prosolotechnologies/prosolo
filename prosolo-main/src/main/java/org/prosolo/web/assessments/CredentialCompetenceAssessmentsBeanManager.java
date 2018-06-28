@@ -52,7 +52,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ActivityAssessmentBean activityAssessmentBean;
-	@Inject private CompetenceAssessmentBean competenceAssessmentBean;
+	@Inject private StudentCompetenceAssessmentBean competenceAssessmentBean;
 	@Inject private CredentialManager credManager;
 
 	private String compId;

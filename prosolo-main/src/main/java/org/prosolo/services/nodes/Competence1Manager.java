@@ -17,9 +17,11 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -38,7 +40,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
-			UserContextData context) throws DbConnectionException, IllegalDataStateException;
+								  UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
 													  UserContextData context) throws DbConnectionException,
@@ -76,8 +78,7 @@ public interface Competence1Manager {
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
 	
-	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadLearningPathData) throws DbConnectionException;
+	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
 	
 	
 	/**
@@ -461,4 +462,13 @@ public interface Competence1Manager {
 	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
+
+	/**
+	 *
+	 * @param competenceId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
 }
