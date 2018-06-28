@@ -134,7 +134,8 @@ public class HibernateUtil {
 		p.setDefaultTransactionIsolation(config.hibernateConfig.connection.isolation);
 		p.setJdbcInterceptors(
 	            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
-	            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;");
+	            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;"
+				+ "org.prosolo.bigdata.dal.persistence.ConnectionLoggerJDBCInterceptor;");
 	            //+ "org.apache.tomcat.jdbc.pool.interceptor.ResetAbandonedTimer");
 			 org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
 			 ds.setPoolProperties(p);
