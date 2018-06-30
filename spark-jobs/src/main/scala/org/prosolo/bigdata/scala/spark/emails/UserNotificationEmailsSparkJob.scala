@@ -21,9 +21,7 @@ object UserNotificationEmailsSparkJob {
 }
 
 class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serializable {
-  override def keyspaceName: String = kName;
-
-  import sparkSession.sqlContext.implicits._
+  override def keyspaceName: String = kName
 
 
   def runSparkJob(date: Long, role: String): Array[Array[NotificationReceiverSummary]] = {
@@ -44,7 +42,7 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
 
 
     //Create notification instances and group it by receiver id
-    val domain = System.getProperty("app.domain");
+    val domain = System.getProperty("app.domain")
     val receiversDF = dayNotificationsDF.map {
       case Row(
           date: Long,
@@ -64,7 +62,7 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
           section: String,
           targetid: Long,
           targettitle: String
-      ) => {
+      ) =>
         val url = if (domain.endsWith("/") && link.startsWith("/")) domain + link.substring(1) else domain + link
         (receiverId, Notification(
                           date,
@@ -77,7 +75,6 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
                           objectTitle,
                           objectType,
                           receiverFullName, receiverId, objectid, targetid, targettitle, section, relationtotarget, predicate))
-      }
     }.rdd.groupByKey
     //create RDD of receivers containing id, fullname and email
     val receiversNames = dayNotificationsDF.select("receiverid", "receiverfullname", "email").distinct().map {
@@ -87,7 +84,7 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
     receiversNames.show()
     //create NotificationSummary and group by receiver id
     val res: RDD[(Long, NotificationsSummary)] = receiversDF.map {
-      case (receiver: Long, notifications: Iterable[Notification]) => {
+      case (receiver: Long, notifications: Iterable[Notification]) =>
         val total = notifications.size
         var notCounter = new HashMap[String, Int]()
         var notificationsByType = new HashMap[String, Array[Notification]]
@@ -97,20 +94,16 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
           val tempNot = notCounter.getOrElse(n.notificationType, 0)
           notCounter += (n.notificationType -> (tempNot + 1))
           //we are retrieving only 3 notifications to be displayed in email
-          // val x= (Array(Notification(1,"",12,21,"a","","","","",21)))
-          //var newArray=new Array[String](NOTIFICATION_TYPE_SIZE);
-          val notificationByType = notificationsByType.getOrElse(n.notificationType, Array())
-
+           val notificationByType = notificationsByType.getOrElse(n.notificationType, Array())
 
           if (notificationByType.length < UserNotificationEmailsSparkJob.NOTIFICATION_TYPE_SIZE) {
             notificationsByType -= n.notificationType
             val modifiedNotificationByType = notificationByType ++ Array(n)
-            notificationsByType += (n.notificationType -> (modifiedNotificationByType))
+            notificationsByType += (n.notificationType -> modifiedNotificationByType)
           }
         }
 
         (receiver, NotificationsSummary(receiver, total, notCounter, notificationsByType))
-      }
     }
 
     res.collect().foreach(n => println(n))
@@ -125,7 +118,6 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
 
     val emailBatches: Array[Array[NotificationReceiverSummary]] = notificationsReceiversSummary.collect().grouped(UserNotificationEmailsSparkJob.BATCH_SIZE).toArray
 
-    //notificationsDF.groupBy("receiver").agg()
     println("FINISHED RUN SPARK JOB")
     emailBatches
   }
@@ -141,17 +133,16 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
 
   def addSuccessEmails(success: mutable.Map[String, EmailSuccess]): Unit = {
     println("ADD SUCCESS EMAILS:" + success.size)
-    success.foreach {
-      case (email, emailSuccess) => {
+    success foreach {
+      case (_, emailSuccess) =>
         val gson = new Gson
         submitTaskPoint(gson.toJson(emailSuccess), 0, emailSuccess.template)
-      }
     }
   }
 
   def addFailedEmails(failure: mutable.Map[String, EmailSuccess]): Unit = {
     failure.foreach {
-      case (email, emailSuccess) => {
+      case (_: String, emailSuccess) => {
         val gson = new Gson
         submitFailedTask(gson.toJson(emailSuccess), 0, emailSuccess.template)
       }

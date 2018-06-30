@@ -19,7 +19,6 @@ object NotificationsEmailManager {
     val emailService = new NotificationsEmailServiceImpl
 
     val roles = Array(NotificationSection.STUDENT, NotificationSection.MANAGE)
-    //val roles = Array(NotificationSection.MANAGE)
     for (role <- roles) {
       val emailBatches: Array[Array[NotificationReceiverSummary]] = sparkJob.runSparkJob(date, role.toString)
       emailBatches.foreach {
