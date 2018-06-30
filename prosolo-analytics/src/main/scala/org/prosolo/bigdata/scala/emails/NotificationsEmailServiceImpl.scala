@@ -13,7 +13,7 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
     val nSummary=notificationReceiverSummary.summary
     val nReceiver=notificationReceiverSummary.receiver
     val notificationEmailGenerator=
-      new NotificationsDigestEmailGenerator(nReceiver.fullname,nSummary.total,nSummary.notificationTypesCounts,nSummary.notificationsByType)
+      new NotificationsDigestEmailGenerator(nReceiver.fullname,nSummary.total,nSummary.notificationTypesCounts,nSummary.notificationsByType, notificationReceiverSummary.role)
 
     notificationEmailGenerator
   }

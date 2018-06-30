@@ -1,10 +1,13 @@
 package org.prosolo.bigdata.scala.emails
 
 import java.util
+import java.util.Date
 
 import org.prosolo.bigdata.scala.spark.emails.Notification
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.prosolo.common.email.generators.EmailContentGenerator
+import org.prosolo.common.util.date.DateUtil
+
 import scala.collection.JavaConversions._
 import scala.collection.immutable.HashMap
 
@@ -14,13 +17,20 @@ case class FollowerNotificationItemData(actor:String) extends NotificationItemDa
 
 
 
-class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, val notificationTypesCounts:HashMap[String,Int], val notificationsByType:HashMap[String,Array[Notification]]) extends EmailContentGenerator{
+class NotificationsDigestEmailGenerator(
+                                         val name:String,
+                                         val total_number:Int,
+                                         val notificationTypesCounts:HashMap[String,Int],
+                                         val notificationsByType:HashMap[String,Array[Notification]],
+                                         val role: String) extends EmailContentGenerator{
   val DISPLAY_NUMBER=3
   override def getTemplateName: String = {"notifications/notification-digest"}
+  val prettyDate = DateUtil.getPrettyDateEn(DateUtil.getPreviousDay(new Date()))
 
-  override def getSubject: String = {"Your Prosolo Daily Notifications"}
+  override def getSubject: String = {s"Prosolo Notifications for $prettyDate"}
   val domain=System.getProperty("app.domain")
-val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domain+"/notifications"
+  val roleLink = if(role.equalsIgnoreCase("manage")) "manage/notifications" else "notifications"
+val notificationsLink=if(domain.endsWith("/")) domain+roleLink else domain+"/"+roleLink
 
   def hasMore(f:()=>Int):Boolean=f() > DISPLAY_NUMBER
 

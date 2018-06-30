@@ -29,7 +29,7 @@ class NotificationsTests extends FunSuite with BeforeAndAfter{
     // notificationsSummary=NotificationsSummary(receiverId:Long, total:Int, notificationTypesCounts:HashMap[String,Int],notificationsMap)
 
     val receiver=Receiver(2,"Zoran Jeremic","zoran.jeremic@gmail.com")
-    notificationReceiverSummary=NotificationReceiverSummary(receiver,notificationsSummary)
+    notificationReceiverSummary=NotificationReceiverSummary(receiver,notificationsSummary,"Student")
 
   }
   test("Sending email digest notification for one user"){

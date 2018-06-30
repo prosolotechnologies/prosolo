@@ -11,20 +11,22 @@ import org.prosolo.common.util.Pair
 object NotificationsEmailManager {
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
   val clusteringDAOManager = new ClusteringDAOImpl
-  def runAnalyser(date:Long) = {
+
+  def runAnalyser(date: Long) = {
     println("RUN ANALYZER")
-    //val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
-    val sparkJob=new UserNotificationEmailsSparkJob(dbName)
-    val emailService=new NotificationsEmailServiceImpl
+
+    val sparkJob = new UserNotificationEmailsSparkJob(dbName)
+    val emailService = new NotificationsEmailServiceImpl
 
     val roles = Array(NotificationSection.STUDENT, NotificationSection.MANAGE)
-    for(role <- roles){
-      val emailBatches:Array[Array[NotificationReceiverSummary]]=sparkJob.runSparkJob(date,role.toString)
+    //val roles = Array(NotificationSection.MANAGE)
+    for (role <- roles) {
+      val emailBatches: Array[Array[NotificationReceiverSummary]] = sparkJob.runSparkJob(date, role.toString)
       emailBatches.foreach {
         emailBatch =>
-          val emailResults=emailService.sendEmailBatches(emailBatch)
-          val success=emailResults._1
-          val failure=emailResults._2
+          val emailResults = emailService.sendEmailBatches(emailBatch)
+          val success = emailResults._1
+          val failure = emailResults._2
           sparkJob.addSuccessEmails(emailResults._1)
           sparkJob.addFailedEmails(emailResults._2)
 
