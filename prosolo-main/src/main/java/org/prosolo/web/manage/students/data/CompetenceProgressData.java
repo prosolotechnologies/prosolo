@@ -3,7 +3,7 @@ package org.prosolo.web.manage.students.data;
 import java.io.Serializable;
 import java.util.List;
 
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 
 public class CompetenceProgressData implements Serializable{
 

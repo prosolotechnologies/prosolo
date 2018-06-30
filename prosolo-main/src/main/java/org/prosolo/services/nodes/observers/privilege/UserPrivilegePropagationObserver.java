@@ -134,7 +134,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 			HibernateUtil.close(session);
 		}
 		if(success == true && res != null) {
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateEvents(res.getEventQueue(), event.getObserversToExclude());
 		}
 		logger.info("UserPrivilegePropagationObserver finished");
 	}

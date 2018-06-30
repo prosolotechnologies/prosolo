@@ -38,4 +38,6 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 
 	void updateLearningStageInfo(Credential1 cred);
 
+	void updateCredentialCategory(Credential1 cred);
+
 }

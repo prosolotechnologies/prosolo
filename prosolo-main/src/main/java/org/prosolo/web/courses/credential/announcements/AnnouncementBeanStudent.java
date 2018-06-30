@@ -5,7 +5,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;

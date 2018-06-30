@@ -10,6 +10,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
@@ -150,6 +151,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 				activityAssessmentData.getCompAssessment().getGradeData().updateCurrentGrade(
 						assessmentManager.getCompetenceAssessmentScore(
 								activityAssessmentData.getCompAssessmentId()));
+				((AutomaticGradeData) activityAssessmentData.getCompAssessment().getGradeData()).calculateAssessmentStarData();
 			}
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");

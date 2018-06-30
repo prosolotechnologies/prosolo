@@ -1,10 +1,10 @@
-Current date:2018/03/21-21:41:07
+Current date:2018/04/26-19:21:34
 Source branch:1.2.0
 Project version:1
 Git version:
-commit 16c838d6faf19842b1260e77a9223ae736c8f306
-Merge: 2b6ee1046 34ecccfc6
+commit 8e3e75934d613c0808d6c9895e30cb34212dacba
+Merge: 7ea6e9f84 97b4c20ed
 Author: jeremycod <zoran.jeremic@gmail.com>
-Date:   Wed Mar 21 21:33:56 2018 -0700
+Date:   Thu Apr 26 19:21:08 2018 -0700
 
-    Merge branch 'PRS-2945-digest-for-notifications' into release/1.2.0
+    Merge branch 'release/1.2.0' of bitbucket.org:zjeremic/prosolo-multimodule into release/1.2.0

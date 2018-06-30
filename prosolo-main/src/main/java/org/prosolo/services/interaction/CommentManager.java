@@ -4,6 +4,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentSortData;
@@ -54,12 +55,18 @@ public interface CommentManager {
 	
 	void likeComment(long commentId, UserContextData context)
 			throws DbConnectionException;
+
+	Result<Void> likeCommentAndGetEvents(long commentId, UserContextData context)
+			throws DbConnectionException;
 	
 	void unlikeComment(long commentId, UserContextData context)
 			throws DbConnectionException;
 	
 	Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
 			UserContextData context) throws DbConnectionException;
+
+	Result<Comment1> saveNewCommentAndGetEvents(CommentData data, CommentedResourceType resource,
+												UserContextData context) throws DbConnectionException;
 	
 	void updateComment(CommentData data, UserContextData context)
 			throws DbConnectionException;

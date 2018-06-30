@@ -3,6 +3,7 @@ package org.prosolo.services.assessment.data;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
@@ -47,7 +48,8 @@ public class ActivityAssessmentData {
 	private CompetenceAssessmentData compAssessment;
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
-											  CredentialAssessment credAssessment, UrlIdEncoder encoder, long userId) {
+											  CredentialAssessment credAssessment, AssessmentGradeSummary rubricGradeSummary,
+											  UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
@@ -76,28 +78,30 @@ public class ActivityAssessmentData {
 		data.setActivityAssessmentId(activityDiscussion.getId());
 		data.setEncodedActivityAssessmentId(encoder.encodeId(activityDiscussion.getId()));
 
-		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+		if (loadDiscussion) {
+			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
-		if (currentParticipant != null) {
-			data.setParticipantInDiscussion(true);
-			data.setAllRead(currentParticipant.isRead());
-		} else {
-			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-			data.setAllRead(false);
-			data.setParticipantInDiscussion(false);
-		}
-
-		List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
-
-		if (CollectionUtils.isNotEmpty(messages)) {
-			data.setNumberOfMessages(activityDiscussion.getMessages().size());
-			for (ActivityDiscussionMessage activityMessage : messages) {
-				AssessmentDiscussionMessageData messageData = AssessmentDiscussionMessageData.from(activityMessage,
-						compAssessment.getAssessor(), encoder);
-				data.addDiscussionMessageSorted(messageData);
+			if (currentParticipant != null) {
+				data.setParticipantInDiscussion(true);
+				data.setAllRead(currentParticipant.isRead());
+			} else {
+				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+				data.setAllRead(false);
+				data.setParticipantInDiscussion(false);
 			}
+
+			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+
+			if (CollectionUtils.isNotEmpty(messages)) {
+				data.setNumberOfMessages(activityDiscussion.getMessages().size());
+				for (ActivityDiscussionMessage activityMessage : messages) {
+					AssessmentDiscussionMessageData messageData = AssessmentDiscussionMessageData.from(activityMessage,
+							compAssessment.getAssessor(), encoder);
+					data.addDiscussionMessageSorted(messageData);
+				}
+			}
+			data.setMessagesInitialized(true);
 		}
-		data.setMessagesInitialized(true);
 
 		data.setGrade(
 				GradeDataFactory.getGradeDataForActivity(
@@ -107,7 +111,8 @@ public class ActivityAssessmentData {
 						actData.getAssessmentSettings().getRubricId(),
 						actData.getAssessmentSettings().getRubricType(),
 						actData.getRubricVisibility(),
-						actData.isAcceptGrades()));
+						actData.isAcceptGrades(),
+						rubricGradeSummary));
 
 		return data;
 	}

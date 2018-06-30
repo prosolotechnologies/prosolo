@@ -82,6 +82,15 @@
 									or util:getPagePath(view.viewId)  == 'activity-responses'
 									or util:getPagePath(view.viewId)  == 'assessments'
 									or util:getPagePath(view.viewId)  == 'announcement'
+									or util:getPagePath(view.viewId)  == 'credential-instructor-assessment'
+									or util:getPagePath(view.viewId)  == 'credential-self-assessment'
+									or util:getPagePath(view.viewId)  == 'credential-peer-assessments'
+									or util:getPagePath(view.viewId)  == 'credential-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-instructor-assessments'
+									or util:getPagePath(view.viewId)  == 'competence-instructor-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-self-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-peer-assessments'
+									or util:getPagePath(view.viewId)  == 'competence-peer-assessment'
 									? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
@@ -197,11 +206,6 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li>
-									<h:link value="Achievements" 
-										onclick="sendLogPageNavigation('achievements','mainmenu');"
-										outcome="/achievements/credentials" />
-								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"

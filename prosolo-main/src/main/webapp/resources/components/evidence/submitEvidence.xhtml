@@ -23,6 +23,8 @@
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 
 		<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
 			<div class="whiteBox">
@@ -102,6 +104,10 @@
 										 required="true"
 										 requiredMessage="Description is required" />
 
+						<script>
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');
+						</script>
+
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:panelGroup id="panelUploadEvidence">
@@ -162,6 +168,7 @@
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
 										   action="#{cc.attrs.bean.postFileEvidence()}"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formFileEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
@@ -193,6 +200,9 @@
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
 										 requiredMessage="Description is required" />
+						<script>
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');
+						</script>
 
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
@@ -223,6 +233,7 @@
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
 										   action="#{cc.attrs.bean.postUrlEvidence()}"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formUrlEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
@@ -254,6 +265,9 @@
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
 										 requiredMessage="Description is required" />
+						<script>
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');
+						</script>
 
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
@@ -274,6 +288,7 @@
 						<div class="lastRow">
 							<p:commandLink styleClass="btn btn-green"
 										   action="#{cc.attrs.bean.postTextEvidence()}"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formTextEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
@@ -315,7 +330,7 @@
 						<h:panelGroup id="panelEvidenceSearchResults">
 							<ul class="list">
 								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-									<li class="noPeople">No evidence</li>
+									<li class="noPeople">No pieces of evidence.</li>
 								</ui:fragment>
 								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
 									<li>

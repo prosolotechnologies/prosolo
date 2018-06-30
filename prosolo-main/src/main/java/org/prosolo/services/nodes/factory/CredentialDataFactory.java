@@ -2,17 +2,18 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
@@ -29,7 +30,7 @@ public class CredentialDataFactory {
 
 	@Inject private CredentialDeliveryStatusFactory deliveryStatusFactory;
 	
-	public CredentialData getCredentialData(User createdBy, Credential1 credential,
+	public CredentialData getCredentialData(User createdBy, Credential1 credential, CredentialCategory category,
 											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags,
 											Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null) {
@@ -43,6 +44,9 @@ public class CredentialDataFactory {
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
+		if (category != null) {
+			cred.setCategory(new CredentialCategoryData(category.getId(), category.getTitle(), false));
+		}
 		if (assessmentConfig != null) {
 			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
@@ -113,20 +117,23 @@ public class CredentialDataFactory {
 		return types;
 	}
 	
-	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
-			Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
+	public CredentialData getCredentialData(TargetCredential1 credential, User createdBy, User student,
+											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null || credential.getCredential() == null) {
 			return null;
 		}
 		Credential1 c = credential.getCredential();
 		//get credential specific data
-		CredentialData cred = getCredentialData(createdBy, c, null, tags, hashtags, false);
+		CredentialData cred = getCredentialData(createdBy, c, null, null, tags, hashtags, false);
 		
 		//set target credential specific data
 		cred.setEnrolled(true);
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
 		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+		if (student != null) {
+			cred.setStudent(new UserData(student));
+		}
 		
 		if (credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
 			cred.setInstructorPresent(true);
@@ -142,6 +149,10 @@ public class CredentialDataFactory {
 		if (assessmentConfig != null) {
 			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
+
+		cred.setCredentialAssessmentsDisplayed(credential.isCredentialAssessmentsDisplayed());
+		cred.setCompetenceAssessmentsDisplayed(credential.isCompetenceAssessmentsDisplayed());
+		cred.setEvidenceDisplayed(credential.isEvidenceDisplayed());
 
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();
@@ -162,9 +173,9 @@ public class CredentialDataFactory {
 	 * @return
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
+			CredentialCategory category, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
 			long nextCompToLearnId) {
-		CredentialData cred = getCredentialData(createdBy, credential, null, tags, hashtags, shouldTrackChanges);
+		CredentialData cred = getCredentialData(createdBy, credential, category,null, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
 		cred.setEnrolled(true);
@@ -203,4 +214,38 @@ public class CredentialDataFactory {
 		return name + (lastName != null ? " " + lastName : "");
 	}
 
+	/**
+	 * This method assumes that credentials are already sorted by category
+	 *
+	 * @param credentialsSortedByCategory
+	 * @return
+	 */
+	public List<CategorizedCredentialsData> groupCredentialsByCategory(List<TargetCredentialData> credentialsSortedByCategory) {
+		if (credentialsSortedByCategory == null) {
+			return null;
+		}
+		if (credentialsSortedByCategory.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<CategorizedCredentialsData> categorizedCredentials = new ArrayList<>();
+		CredentialCategoryData currentCategory = null;
+		List<TargetCredentialData> credentialsInCurrentCategory = null;
+		boolean first = true;
+		for (TargetCredentialData cd : credentialsSortedByCategory) {
+			if (!(cd.getCategory() == currentCategory || (cd.getCategory() != null && currentCategory != null && cd.getCategory().getId() == currentCategory.getId())) || first) {
+				//if category is different than current one, we should add current data to the list because data for current category is collected
+				if (!first) {
+					categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
+				} else {
+					first = false;
+				}
+				currentCategory = cd.getCategory();
+				credentialsInCurrentCategory = new ArrayList<>();
+			}
+			credentialsInCurrentCategory.add(cd);
+		}
+		//add last category with credentials
+		categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
+		return categorizedCredentials;
+	}
 }

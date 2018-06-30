@@ -54,4 +54,8 @@ public interface SocialActivityManager {
 	
 	Set<Long> getUsersInMyNetwork(long userId);
 
+	void saveUnitWelcomePostSocialActivityIfNotExists(long unitId, Session session) throws DbConnectionException;
+
+	void deleteUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException;
+
 }

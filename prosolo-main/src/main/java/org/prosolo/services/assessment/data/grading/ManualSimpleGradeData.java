@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data.grading;
 
+import org.prosolo.common.util.Pair;
+
 /**
  * @author stefanvuckovic
  * @date 2018-01-11
@@ -9,6 +11,7 @@ public class ManualSimpleGradeData implements GradeData {
 
     private PointGradeValues gradeInfo;
     private int newGrade;
+    private AssessmentGradeSummary assessmentStarData;
 
     public ManualSimpleGradeData() {}
 
@@ -57,6 +60,10 @@ public class ManualSimpleGradeData implements GradeData {
         this.gradeInfo = new PointGradeValues(0, maxPoints, currentGrade);
     }
 
+    public void calculateAssessmentStarData() {
+        assessmentStarData = GradeDataUtil.getPointBasedAssessmentStarData(gradeInfo);
+    }
+
     public int getNewGrade() {
         return newGrade;
     }
@@ -67,5 +74,10 @@ public class ManualSimpleGradeData implements GradeData {
 
     public int getMinGrade() {
         return gradeInfo.getMinGrade();
+    }
+
+    @Override
+    public AssessmentGradeSummary getAssessmentStarData() {
+        return assessmentStarData;
     }
 }

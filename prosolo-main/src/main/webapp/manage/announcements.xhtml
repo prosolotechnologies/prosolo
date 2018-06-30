@@ -106,7 +106,7 @@
 								   disabled="true"
 								   class="btn btn-green"
 								   data-toggle="tooltip"
-								   title="You are not allowed to publish announcements for this credential">
+								   title="You are not allowed to publish announcements for this #{msg['label.credential'].toLowerCase()}">
 									New Announcement
 								</a>
 							</ui:fragment>
@@ -207,7 +207,7 @@
 								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="newAnnouncementText" id="errorAnnouncementText"/></small>
 
 								<script>
-									tinymce.remove('#newAnnouncementForm\\:newAnnouncementText');
+									tinymce.remove();
 									tinymce.init({
 										theme: "modern",
 										skin: 'light',

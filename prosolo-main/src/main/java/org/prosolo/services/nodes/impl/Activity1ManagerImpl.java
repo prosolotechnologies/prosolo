@@ -13,9 +13,11 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -34,6 +36,7 @@ import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.assessment.data.GradeDataFactory;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -1412,6 +1415,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
 					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
+					//TODO stef star
+					Map<Long, RubricAssessmentGradeSummary> rubricGradeSummary = assessmentManager.getActivityAssessmentsRubricGradeSummary(Arrays.asList(ad.getActivityAssessmentId()));
 					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
 							GradingMode.valueOf((String) row[14]),
 							(int) row[12],
@@ -1419,7 +1424,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							rubricId,
 							rubricType,
 							null,
-							((Character) row[16]).charValue() == 'T'));
+							((Character) row[16]).charValue() == 'T',
+							rubricGradeSummary.get(ad.getActivityAssessmentId())));
 
 					//load additional assessment data
 					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
@@ -1480,7 +1486,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {
-			//check if activity is part of a crecential
+			//check if activity is part of a credential
 			checkIfActivityIsPartOfACredential(credId, actId);
 
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);

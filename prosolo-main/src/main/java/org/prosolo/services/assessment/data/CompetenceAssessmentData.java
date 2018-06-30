@@ -1,15 +1,14 @@
 package org.prosolo.services.assessment.data;
 
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessmentDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;
@@ -20,6 +19,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class CompetenceAssessmentData {
 	
@@ -80,14 +80,16 @@ public class CompetenceAssessmentData {
 //	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+				RubricAssessmentGradeSummary rubricGradeSummary, Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary,
+				UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-		return from(cd, compAssessment, credAssessment, encoder, userId, dateFormat);
+		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat, loadDiscussion);
 	}
 
 	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
-												CredentialAssessment credAssessment, UrlIdEncoder encoder,
-												long userId, DateFormat dateFormat) {
+												CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
+												Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
+												long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
@@ -119,8 +121,9 @@ public class CompetenceAssessmentData {
 		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
 			List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
 			for (ActivityData ad : cd.getActivities()) {
+				ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
 				ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-						credAssessment, encoder, userId);
+						credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion);
 				if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
 					maxPoints += assessmentData.getGrade().getMaxGrade();
 				}
@@ -146,18 +149,21 @@ public class CompetenceAssessmentData {
 				maxPoints,
 				compAssessment.getPoints(),
 				rubricId,
-				rubricType
+				rubricType,
+				rubricGradeSummary
 		));
 
-		data.setNumberOfMessages(compAssessment.getMessages().size());
-		CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
-		if (currentParticipant != null) {
-			data.setParticipantInDiscussion(true);
-			data.setAllRead(currentParticipant.isRead());
-		} else {
-			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-			data.setAllRead(false);
-			data.setParticipantInDiscussion(false);
+		if (loadDiscussion) {
+			data.setNumberOfMessages(compAssessment.getMessages().size());
+			CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
+			if (currentParticipant != null) {
+				data.setParticipantInDiscussion(true);
+				data.setAllRead(currentParticipant.isRead());
+			} else {
+				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+				data.setAllRead(false);
+				data.setParticipantInDiscussion(false);
+			}
 		}
 		data.setStudentId(compAssessment.getStudent().getId());
 		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());

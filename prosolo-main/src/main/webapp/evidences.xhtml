@@ -120,7 +120,7 @@
                     <ui:fragment rendered="#{empty learningEvidencesBean.evidences}">
                         <div class="noContentMessage">
                             <p>
-                                No evidence.
+                                No pieces of evidence.
                             </p>
                         </div>
                     </ui:fragment>
@@ -132,6 +132,7 @@
                             showEvidenceManagementOptions="false"
                             canEdit="true"
                             role="USER"
+                            titleIsClickable="true"
                         />
                     </ui:repeat>
 

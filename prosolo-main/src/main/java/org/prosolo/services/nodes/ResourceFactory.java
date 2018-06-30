@@ -22,8 +22,8 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import java.io.InputStream;
 import java.util.List;
@@ -33,9 +33,6 @@ public interface ResourceFactory extends AbstractManager {
     Role createNewRole(String name, String description, boolean systemDefined);
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
-
-    User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
-            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles);
 
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
@@ -50,9 +47,6 @@ public interface ResourceFactory extends AbstractManager {
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
-			throws DbConnectionException;
-
 	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
 	
 	PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 

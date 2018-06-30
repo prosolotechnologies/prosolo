@@ -1,13 +1,16 @@
 package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -16,6 +19,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class AssessmentDataFull {
 
@@ -26,7 +30,7 @@ public class AssessmentDataFull {
 	private String assessorFullName;
 	private String assessorAvatarUrl;
 	private long assessorId;
-	private long assessedStrudentId;
+	private long assessedStudentId;
 	private String dateValue;
 	private String title;
 	private boolean approved;
@@ -47,14 +51,17 @@ public class AssessmentDataFull {
 	private String review;
 	private boolean assessorNotified;
 
+	private boolean assessmentDisplayEnabled;
+
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
+													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setMessage(assessment.getMessage());
-		data.setAssessedStrudentId(assessment.getStudent().getId());
+		data.setAssessedStudentId(assessment.getStudent().getId());
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
 		data.setReview(assessment.getReview());
@@ -74,11 +81,14 @@ public class AssessmentDataFull {
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
+		data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceData1 compData : userComps) {
-			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, null);
+			CompetenceAssessment ca = assessment.getCompetenceAssessmentByCompetenceId(compData.getCompetenceId());
+			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, ca, assessment,
+					compAssessmentsGradeSummary.get(ca.getId()), actAssessmentsGradeSummary, encoder, userId, null, loadDiscussion);
 			//only for automatic grading max points is sum of competences max points
 			if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
 				maxPoints += cas.getGradeData().getMaxGrade();
@@ -101,20 +111,23 @@ public class AssessmentDataFull {
 				maxPoints,
 				credAssessmentPoints,
 				rubricId,
-				rubricType
+				rubricType,
+				credAssessmentGradeSummary
 		));
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 
-		data.setNumberOfMessages(assessment.getMessages().size());
-		CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
-		if (currentParticipant != null) {
-			data.setParticipantInDiscussion(true);
-			data.setAllRead(currentParticipant.isRead());
-		} else {
-			// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-			data.setAllRead(false);
-			data.setParticipantInDiscussion(false);
+		if (loadDiscussion) {
+			data.setNumberOfMessages(assessment.getMessages().size());
+			CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
+			if (currentParticipant != null) {
+				data.setParticipantInDiscussion(true);
+				data.setAllRead(currentParticipant.isRead());
+			} else {
+				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+				data.setAllRead(false);
+				data.setParticipantInDiscussion(false);
+			}
 		}
 
 		return data;
@@ -258,12 +271,12 @@ public class AssessmentDataFull {
 		this.assessorId = assessorId;
 	}
 
-	public long getAssessedStrudentId() {
-		return assessedStrudentId;
+	public long getAssessedStudentId() {
+		return assessedStudentId;
 	}
 
-	public void setAssessedStrudentId(long assessedStrudentId) {
-		this.assessedStrudentId = assessedStrudentId;
+	public void setAssessedStudentId(long assessedStudentId) {
+		this.assessedStudentId = assessedStudentId;
 	}
 
 	public long getCredentialId() {
@@ -370,5 +383,13 @@ public class AssessmentDataFull {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public void setAssessmentDisplayEnabled(boolean assessmentDisplayEnabled) {
+		this.assessmentDisplayEnabled = assessmentDisplayEnabled;
+	}
+
+	public boolean isAssessmentDisplayEnabled() {
+		return assessmentDisplayEnabled;
 	}
 }

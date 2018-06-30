@@ -27,218 +27,251 @@
 	
 	<composite:implementation>
 		<article class="whiteBox wallPost">
-           <div class="wallPostHead">
-               <div class="user32">
-                   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
-	                   <h:link outcome="/profile">
-	                   		<utilcomp:userAvatar
-								avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
-								fullName="#{cc.attrs.socialActivity.actor.fullName}"	
-								width="32"
-								height="32"
-						    />    
-						    <f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
-	                   </h:link>
-                   </ui:fragment>
-                   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
-                   		<a href="#{cc.attrs.socialActivity.attachmentPreview.profileUrl}">
-	                   		<utilcomp:userAvatar
-								avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
-								fullName="#{cc.attrs.socialActivity.actor.fullName}"	
-								width="32"
-								height="32"
-						    />    
-	                    </a>
-                   </ui:fragment>
-                   <h3>
-                   		<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
-	                   		<h:link outcome="/profile">
-	                   			#{cc.attrs.socialActivity.actor.fullName}
-	                   			<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
-	                   		</h:link>
-	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
-	                   		<a href="#{cc.attrs.socialActivity.attachmentPreview.profileUrl}">
-		                   		#{cc.attrs.socialActivity.actor.fullName}  
-		                    </a>
-	                    </ui:fragment>
-                   		<span>
-                   			#{cc.attrs.socialActivity.predicate}
-                   			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object}">
-                   				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
-                   					<h:link outcome="/profile">
-				                   		#{cc.attrs.socialActivity.object.creator.fullName}'s
-									    <f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.object.creator.id)}"></f:param>
-				                   </h:link>
-                   				</ui:fragment>
-                   				#{cc.attrs.socialActivity.object.shortType}
-                   				#{cc.attrs.socialActivity.object.title}
-                   			</ui:fragment>
-                   			#{cc.attrs.socialActivity.relationToTarget}
-                   			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target}">
-                   				#{cc.attrs.socialActivity.target.shortType}
-                   				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target.creator.fullName}">
-                   					#{cc.attrs.socialActivity.target.creator.fullName}'s
-                   				</ui:fragment>
-                   				#{cc.attrs.socialActivity.target.title}
-                   			</ui:fragment>
-                   		</span>
-                   </h3>
-               </div>
-               <div class="wallPostHeadRight">
-                   <h:link outcome="wall-post-view" styleClass="timestamp">
-                   		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>
-						<utilcomp:convertTimeOutput
-								millis="#{cc.attrs.socialActivity.postDateTime}"
-					   			format="rel"
-						/>
-                   </h:link>
+           <ui:fragment rendered="#{cc.attrs.socialActivity.type ne 'Unit_Welcome_Post'}">
+				<div class="wallPostHead">
+				   <div class="user32">
+					   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
+						   <h:link outcome="/profile">
+								<utilcomp:userAvatar
+									avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
+									fullName="#{cc.attrs.socialActivity.actor.fullName}"
+									width="32"
+									height="32"
+								/>
+								<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+						   </h:link>
+					   </ui:fragment>
+					   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
+							<a href="#{cc.attrs.socialActivity.attachmentPreview.profileUrl}">
+								<utilcomp:userAvatar
+									avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
+									fullName="#{cc.attrs.socialActivity.actor.fullName}"
+									width="32"
+									height="32"
+								/>
+							</a>
+					   </ui:fragment>
+					   <h3>
+							<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
+								<h:link outcome="/profile">
+									#{cc.attrs.socialActivity.actor.fullName}
+									<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+								</h:link>
+							</ui:fragment>
+							<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
+								<a href="#{cc.attrs.socialActivity.attachmentPreview.profileUrl}">
+									#{cc.attrs.socialActivity.actor.fullName}
+								</a>
+							</ui:fragment>
+							<span>
+								#{cc.attrs.socialActivity.predicate}
+								<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object}">
+									<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
+										<h:link outcome="/profile">
+											#{cc.attrs.socialActivity.object.creator.fullName}'s
+											<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.object.creator.id)}"></f:param>
+									   </h:link>
+									</ui:fragment>
+									#{cc.attrs.socialActivity.object.shortType}
+									#{cc.attrs.socialActivity.object.title}
+								</ui:fragment>
+								#{cc.attrs.socialActivity.relationToTarget}
+								<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target}">
+									#{cc.attrs.socialActivity.target.shortType}
+									<ui:fragment rendered="#{not empty cc.attrs.socialActivity.target.creator.fullName}">
+										#{cc.attrs.socialActivity.target.creator.fullName}'s
+									</ui:fragment>
+									#{cc.attrs.socialActivity.target.title}
+								</ui:fragment>
+							</span>
+					   </h3>
+				   </div>
+				   <div class="wallPostHeadRight">
+					   <h:link outcome="wall-post-view" styleClass="timestamp">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>
+							<utilcomp:convertTimeOutput
+									millis="#{cc.attrs.socialActivity.postDateTime}"
+									format="rel"
+							/>
+					   </h:link>
 
-                   <h:panelGroup id="panelSocialActivityOptions" styleClass="dropdown optDrop">
-                       <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                           <span class="arrowDown">arrowDown</span>
-                       </a>
-                       <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                           <ui:fragment rendered="#{cc.attrs.enableHidePost}">
-	                           <li>
-	                           		<p:commandLink
-	                           			value="Hide post"
-	                           			action="#{wallactions.hideActivity(cc.attrs.socialActivity)}"
-	                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
-	                           		</p:commandLink>
-	                           </li>
-	                       </ui:fragment>
-                           <ui:fragment rendered="#{cc.attrs.bean.isCurrentUserCreator(cc.attrs.socialActivity)}">
-	                           <li>
-	                           	    <p:commandLink
-	                           			value="Delete post"
-	                           			action="#{wallactions.deleteActivity(cc.attrs.socialActivity)}"
-	                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
-	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
-	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-	                           		</p:commandLink>
-	                           </li>
-	                           <li>
-	                           		<p:commandLink rendered="#{!cc.attrs.socialActivity.commentsDisabled}"
-	                           			value="Disable comments"
-	                           			action="#{wallactions.disableComments(cc.attrs.socialActivity)}"
-	                           			update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
-	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
-	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-	                           		</p:commandLink>
-	                           		<p:commandLink rendered="#{cc.attrs.socialActivity.commentsDisabled}"
-	                           			value="Enable comments"
-	                           			action="#{wallactions.enableComments(cc.attrs.socialActivity)}"
-	                           			update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
-	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
-	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-	                           		</p:commandLink>
-	                           </li>
-	                       </ui:fragment>
-                       </ul>
-                   </h:panelGroup>
-               </div>
-           </div>
-           <div class="wallPostBody">
-			   <ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
-				   <p id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
-					   <h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
-				   </p>
+					   <h:panelGroup id="panelSocialActivityOptions" styleClass="dropdown optDrop">
+						   <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							   <span class="arrowDown">arrowDown</span>
+						   </a>
+						   <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+							   <ui:fragment rendered="#{cc.attrs.enableHidePost}">
+								   <li>
+										<p:commandLink
+											value="Hide post"
+											action="#{wallactions.hideActivity(cc.attrs.socialActivity)}"
+											update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
+										</p:commandLink>
+								   </li>
+							   </ui:fragment>
+							   <ui:fragment rendered="#{cc.attrs.bean.isCurrentUserCreator(cc.attrs.socialActivity)}">
+								   <li>
+										<p:commandLink
+											value="Delete post"
+											action="#{wallactions.deleteActivity(cc.attrs.socialActivity)}"
+											update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
+											<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+										</p:commandLink>
+								   </li>
+								   <li>
+										<p:commandLink rendered="#{!cc.attrs.socialActivity.commentsDisabled}"
+											value="Disable comments"
+											action="#{wallactions.disableComments(cc.attrs.socialActivity)}"
+											update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
+											<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+										</p:commandLink>
+										<p:commandLink rendered="#{cc.attrs.socialActivity.commentsDisabled}"
+											value="Enable comments"
+											action="#{wallactions.enableComments(cc.attrs.socialActivity)}"
+											update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
+											<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+										</p:commandLink>
+								   </li>
+							   </ui:fragment>
+						   </ul>
+					   </h:panelGroup>
+				   </div>
+			   </div>
+			   <div class="wallPostBody">
+				   <ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
+					   <p id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
+						   <h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+					   </p>
+				   </ui:fragment>
+				   <post:attachmentPreview id="link"
+						uniqueId="#{cc.attrs.socialActivity.id}"
+						attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"
+						viewUseCase="true"
+						learningContext="#{cc.attrs.learningContext}"
+				   />
+			   </div>
+			   <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post_Reshare'}">
+				   <post:sharedPostPreview
+						socialActivity="#{cc.attrs.socialActivity.originalSocialActivity}"
+						sharedSocialActivityId="#{cc.attrs.socialActivity.id}"
+				   />
 			   </ui:fragment>
-               <post:attachmentPreview id="link"
-               		uniqueId="#{cc.attrs.socialActivity.id}"
-					attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"
-					viewUseCase="true"
-					learningContext="#{cc.attrs.learningContext}"
+			   <div class="wallPostFooter">
+				   <p:commandLink
+						styleClass="like #{cc.attrs.socialActivity.liked ? 'liked' : ''}"
+						action="#{cc.attrs.bean.likeAction(cc.attrs.socialActivity)}"
+						update="@this">
+						<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
+							<g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
+								<polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
+							</g>
+						</svg>
+						#{cc.attrs.socialActivity.likeCount == 0 ? 'Like' : cc.attrs.socialActivity.likeCount}
+						<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+						<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+				   </p:commandLink>
+
+				   <h:panelGroup id="panelToggleComments">
+					<ui:fragment rendered="#{cc.attrs.areCommentsCollapsible}">
+					   <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}"
+							styleClass="commentsNumber"
+							pt:role="button"
+							pt:data-toggle="collapse"
+							href="#commentsContainerDiv#{cc.attrs.socialActivity.id}"
+							pt:aria-expanded="false"
+							pt:aria-controls="#commentsContainerDiv#{cc.attrs.socialActivity.id}"
+							action="#{cc.attrs.bean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
+							update="comments panelToggleComments"
+							oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
+							<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+						</p:commandLink>
+						<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}">
+							<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}">
+									<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
+										<span class="icon"></span>
+											#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+									</a>
+							</h:panelGroup>
+						</ui:fragment>
+					 </ui:fragment>
+					 <ui:fragment rendered="#{not cc.attrs.areCommentsCollapsible}">
+						<a class="commentsNumber">
+							<span class="icon"></span>
+							#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+						</a>
+					 </ui:fragment>
+					</h:panelGroup>
+					<ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post'}">
+						<ui:fragment rendered="#{cc.attrs.prepareShare}">
+							<p:commandLink
+								styleClass="sharePost"
+								pt:data-toggle="modal"
+								data-target="#sharePostModal"
+								action="#{cc.attrs.bean.setSocialActivityForShare(cc.attrs.socialActivity)}"
+								update="#{cc.attrs.toUpdateShareModal}"
+								oncomplete="$('##{cc.attrs.shareModalId}').modal('show'); #{cc.attrs.jsFunctionToPrepareShareModal}();">
+								<span class="icon"></span>Share
+							</p:commandLink>
+						</ui:fragment>
+						<ui:fragment rendered="#{not cc.attrs.prepareShare}">
+							<a href="#"
+								class="sharePost"
+								data-toggle="modal"
+								data-target="##{cc.attrs.shareModalId}"
+								onclick="#{cc.attrs.jsFunctionToPrepareShareModal}();">
+								<span class="icon"></span>Share
+							</a>
+						</ui:fragment>
+					</ui:fragment>
+			   </div>
+
+			   <post:comments
+					id="comments"
+					comments="#{cc.attrs.socialActivity.comments}"
+					uniqueId="#{cc.attrs.socialActivity.id}"
+					commentsContainerDivId="commentsContainerDiv#{cc.attrs.socialActivity.id}"
+					showSortOptions="false"
+					isCollapsible="#{cc.attrs.areCommentsCollapsible}"
+					growlToUpdate="#{cc.attrs.growlToUpdate}"
+					learningContext="#{learningContext}"
+					toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.socialActivity.id})"
+					toUpdateOnCommentSave=""
 			   />
-           </div>
-           <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post_Reshare'}">
-           	   <post:sharedPostPreview
-               		socialActivity="#{cc.attrs.socialActivity.originalSocialActivity}"
-               		sharedSocialActivityId="#{cc.attrs.socialActivity.id}"
-               />
-           </ui:fragment>
-           <div class="wallPostFooter">
-           	   <p:commandLink
-					styleClass="like #{cc.attrs.socialActivity.liked ? 'liked' : ''}"
-					action="#{cc.attrs.bean.likeAction(cc.attrs.socialActivity)}"
-					update="@this">
-					<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
-						<g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
-							<polygon id="Triangle-5" points="6 1 12 11 0 11 "></polygon>
-						</g>
-					</svg>
-					#{cc.attrs.socialActivity.likeCount == 0 ? 'Like' : cc.attrs.socialActivity.likeCount}
-					<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-					<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-			   </p:commandLink>
-           
-               <h:panelGroup id="panelToggleComments">
-               	<ui:fragment rendered="#{cc.attrs.areCommentsCollapsible}">
-	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}"
-	               		styleClass="commentsNumber" 
-	               		pt:role="button" 
-	               		pt:data-toggle="collapse" 
-	               		href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" 
-	               		pt:aria-expanded="false" 
-	               		pt:aria-controls="#commentsContainerDiv#{cc.attrs.socialActivity.id}"
-	               		action="#{cc.attrs.bean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
-	               		update="comments panelToggleComments"
-	               		oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
-	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
-	               	</p:commandLink>
-	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}">
-	               		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}">
-		               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
-		               				<span class="icon"></span>
-		               					#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
-		               		    </a>		               		
-	               		</h:panelGroup>  
-	           		</ui:fragment>
-	           	 </ui:fragment>
-	           	 <ui:fragment rendered="#{not cc.attrs.areCommentsCollapsible}">
-	           	 	<a class="commentsNumber">
-           		    	<span class="icon"></span>
-           		    	#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
-           		    </a>
-	           	 </ui:fragment>
-	            </h:panelGroup>
-	            <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post'}">
-					<ui:fragment rendered="#{cc.attrs.prepareShare}">           
-			            <p:commandLink 
-			            	styleClass="sharePost" 
-			            	pt:data-toggle="modal" 
-			            	data-target="#sharePostModal"
-			            	action="#{cc.attrs.bean.setSocialActivityForShare(cc.attrs.socialActivity)}"
-			            	update="#{cc.attrs.toUpdateShareModal}"
-			            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show'); #{cc.attrs.jsFunctionToPrepareShareModal}();">
-			            	<span class="icon"></span>Share
-			            </p:commandLink>
-		            </ui:fragment>
-		            <ui:fragment rendered="#{not cc.attrs.prepareShare}">
-		            	<a href="#" 
-		            		class="sharePost" 
-		            		data-toggle="modal" 
-		            		data-target="##{cc.attrs.shareModalId}"
-		            		onclick="#{cc.attrs.jsFunctionToPrepareShareModal}();">
-		            		<span class="icon"></span>Share
-		            	</a>
-		            </ui:fragment>
-		        </ui:fragment>
-           </div>
-           
-           <post:comments
-           		id="comments"
-           		comments="#{cc.attrs.socialActivity.comments}"
-           		uniqueId="#{cc.attrs.socialActivity.id}"
-           		commentsContainerDivId="commentsContainerDiv#{cc.attrs.socialActivity.id}"
-           		showSortOptions="false"
-           		isCollapsible="#{cc.attrs.areCommentsCollapsible}"
-           		growlToUpdate="#{cc.attrs.growlToUpdate}"
-           		learningContext="#{learningContext}"
-           		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.socialActivity.id})"
-           		toUpdateOnCommentSave=""
-           />
+		   </ui:fragment>
+
+			<ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Unit_Welcome_Post'}">
+				<div class="wallPostHead">
+					<div class="user32">
+						<utilcomp:userAvatar
+								avatar="#{request.contextPath}/resources/images2/logo-simple.svg"
+								fullName="ProSolo"
+								width="32"
+								height="32"
+						/>
+
+						<h3>
+							ProSolo
+						</h3>
+					</div>
+				</div>
+				<div class="wallPostBody">
+					<ui:fragment rendered="#{not empty cc.attrs.socialActivity.text}">
+						<div class="wallPostContent">
+							<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+						</div>
+						<div class="previewLink previewLinkBig">
+							<a href="#" class="previewLinkImage">
+								<img src="#{request.contextPath}/resources/images2/welcome-img.jpg"
+												alt="Welcome post" />
+							</a>
+						</div>
+					</ui:fragment>
+				</div>
+				<div class="wallPostFooter"></div>
+			</ui:fragment>
        </article>
        <script>
 	  		$(function(){

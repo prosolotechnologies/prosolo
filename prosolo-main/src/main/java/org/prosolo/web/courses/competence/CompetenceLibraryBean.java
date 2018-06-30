@@ -17,7 +17,7 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;

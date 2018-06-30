@@ -83,7 +83,7 @@
 														   jsf:checked="#{c.levelId eq l.id ? true : false}"
 														   onchange="sumAndDisplayPoints()"
 													/>
-													<h:outputLabel for="lvlRadioPoint">#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
+													<h:outputLabel for="lvlRadioPoint"><span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
 												</ui:fragment>
 												<ui:fragment rendered="#{cc.attrs.gradeData.rubricType eq 'DESCRIPTIVE'}">
 													<input type="radio" jsf:id="lvlRadioDesc"
