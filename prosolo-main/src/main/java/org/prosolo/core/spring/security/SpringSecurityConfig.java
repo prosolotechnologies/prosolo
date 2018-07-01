@@ -654,8 +654,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
     	List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
       //  providers.add(ssoCircleExtendedMetadataProvider());
-		providers.add(ssoUtaTestExtendedMetadataProvider());
-		providers.add(ssoUtaProdExtendedMetadataProvider());
+		//providers.add(ssoUtaTestExtendedMetadataProvider());
+		//providers.add(ssoUtaProdExtendedMetadataProvider());
         //providers.add(simpleSamlProvider());
         //providers.add(simpleSamlShibProvider());
         //our metadata

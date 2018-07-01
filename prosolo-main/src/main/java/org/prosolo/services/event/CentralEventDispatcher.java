@@ -12,6 +12,7 @@ import org.prosolo.services.nodes.observers.assessments.ActivityAssessmentAutogr
 import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObserver;
 import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
 import org.prosolo.services.notifications.NotificationObserver;
+import org.prosolo.services.reporting.SocialInteractionStatisticsObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class CentralEventDispatcher {
 	@Inject private CredentialLastActionObserver credentialLastActionObserver;
 	@Inject private ActivityAssessmentAutogradeObserver autogradeObserver;
 	@Inject private IndexingComplexSequentialObserver indexingComplexObserver;
+	@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -54,6 +56,7 @@ public class CentralEventDispatcher {
 			observers.add(credentialLastActionObserver);
 			observers.add(autogradeObserver);
 			observers.add(indexingComplexObserver);
+			observers.add(socialInteractionStatisticsObserver);
 		}
 		return observers;
 	}
