@@ -70,7 +70,6 @@ object TwitterStatusBuffer {
     }
     filteredStatusesRDD.foreachPartition { statuses => {
       statuses.foreach { status: Status => {
-        //logger.debug("status:"+status.getText)
         processStatus(status)
 
       }
@@ -87,7 +86,6 @@ object TwitterStatusBuffer {
   }
 
   def processStatus(status: Status) {
-    //}status:Status, twitterStreamingDao:TwitterStreamingDAO,session:Session ){
     logger.debug("process status")
 
     val twitterUser = status.getUser
@@ -96,7 +94,6 @@ object TwitterStatusBuffer {
     val (twitterId, cName, screenName, profileImage) = (twitterUser.getId, twitterUser.getName, twitterUser.getScreenName, twitterUser.getProfileImageURL)
     val creatorName = cName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     val profileUrl = "https://twitter.com/" + screenName
-
 
 
     val twitterStreamingDao: TwitterStreamingDAO = new TwitterStreamingDAOImpl
@@ -112,7 +109,7 @@ object TwitterStatusBuffer {
     val statusText = text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     printTweet("current", creatorName, profileUrl, screenName, profileImage, statusText)
     logger.debug("is retweet:" + status.isRetweet + " is retweeted:" + status.isRetweeted)
-    logger.debug("retweeted status " + (if(status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
+    logger.debug("retweeted status " + (if (status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
     val twitterPostSocialActivity = if (status.isRetweet) {
       logger.debug("this is retweet")
 
@@ -124,24 +121,18 @@ object TwitterStatusBuffer {
       val reCreatorName = reCName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
       val reProfileUrl = "https://twitter.com/" + reScreenName
       printTweet("RE-TWEET:", reCreatorName, reProfileUrl, reScreenName, reProfileImage, reStatusText)
-       twitterStreamingDao.createTwitterPostSocialActivity(
-        poster, reCreated, rePostLink, twitterId, true,reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
-         reStatusText, twitterHashtags, session);
-    }else{
+      twitterStreamingDao.createTwitterPostSocialActivity(
+        poster, reCreated, rePostLink, twitterId, true, reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
+        reStatusText, twitterHashtags, session);
+    } else {
       logger.debug("create twitter post")
-        twitterStreamingDao.createTwitterPostSocialActivity(
+      twitterStreamingDao.createTwitterPostSocialActivity(
         poster, created, postLink, twitterId, false, "", creatorName, screenName, profileUrl, profileImage,
         statusText, twitterHashtags, session);
     }
-    //val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
-
-    //val twitterPostSocialActivity = twitterStreamingDao.createTwitterPostSocialActivity(
-    //  poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage,
-    //  statusText, twitterHashtags, session);
     session.getTransaction().commit()
     session.close();
     val day = DateEpochUtil.getDaysSinceEpoch;
-    //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
     twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
     if (twitterPostSocialActivity != null) {
       logger.debug("broadcasting tweet")

@@ -24,7 +24,7 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
         logger.debug("BATCH:"+emailSummary)
         (createEmailGenerator(emailSummary),emailSummary.receiver.email)
       }
-    }.toMap//.asInstanceOf[java.util.Map[EmailContentGenerator,String]]
+    }.toMap
     val emailSender=new EmailSender
        val success= emailSender.sendBatchEmails(emailsToSend.asJava)
 

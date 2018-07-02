@@ -1,13 +1,12 @@
 package org.prosolo.bigdata.spark.scala.clustering
 
-import java.util
+
 import java.util.List
 
 import com.datastax.driver.core.Row
 import org.prosolo.bigdata.dal.cassandra.impl.SNAClustersDAO
 import org.prosolo.bigdata.scala.clustering.sna.{DirectedNetwork, UserLink, UserNode}
 import org.prosolo.bigdata.scala.spark.SparkJob
-import org.slf4j.LoggerFactory
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
@@ -21,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
   * zoran 18/03/17
   */
 class SNAClusteringSparkJob(kName:String) extends SparkJob with Serializable{
-   val keyspaceName=kName
+   val keyspaceName: String =kName
 
   val edgesToRemove=2
 

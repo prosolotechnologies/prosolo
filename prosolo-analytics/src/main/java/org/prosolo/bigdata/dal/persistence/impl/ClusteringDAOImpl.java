@@ -28,13 +28,7 @@ public class ClusteringDAOImpl implements
             .getLogger(ClusteringDAO.class);
 
     public ClusteringDAOImpl(){
-     /*   try{
-            setSession(HibernateUtil.getSessionFactory().openSession());
-        }catch(HibernateException ex){
-            logger.error(ex);
-        }finally{
-            session.close();
-        }*/
+
 
     }
 
@@ -47,21 +41,13 @@ public class ClusteringDAOImpl implements
                     "SELECT del.id " +
                             "FROM Credential1 del " +
                             "WHERE del.type = :type ");// +
-                            //"AND del.deliveryOf.id = :credId ");
 
-          //  if (onlyActive) {
                 query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
                         "AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now))");
-            //}
-
-            Query q = session
+             Query q = session
                     .createQuery(query.toString())
-                   // .setLong("credId", credId)
                     .setParameter("type", CredentialType.Delivery);
-
-        //    if (onlyActive) {
-                q.setTimestamp("now", new Date());
-          //  }
+        q.setTimestamp("now", new Date());
 
             @SuppressWarnings("unchecked")
             List<Long> result = q.list();

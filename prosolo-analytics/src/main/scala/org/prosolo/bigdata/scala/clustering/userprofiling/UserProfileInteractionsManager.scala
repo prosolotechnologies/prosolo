@@ -4,7 +4,6 @@ package org.prosolo.bigdata.scala.clustering.userprofiling
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.{SocialInteractionStatisticsDBManagerImpl, SocialInteractionsStatements, TablesNames}
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
-import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.prosolo.common.config.CommonSettings
 import org.prosolo.bigdata.spark.scala.clustering.UserProfileInteractionsSparkJob
 import org.slf4j.LoggerFactory
@@ -15,8 +14,7 @@ import org.slf4j.LoggerFactory
 object UserProfileInteractionsManager{
   val logger = LoggerFactory.getLogger(getClass)
   val dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance()
-  //val sc = SparkContextLoader.getSC
-  val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
+    val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
 
   def runAnalyser() = {
     logger.debug("RUN ANALYZER")
