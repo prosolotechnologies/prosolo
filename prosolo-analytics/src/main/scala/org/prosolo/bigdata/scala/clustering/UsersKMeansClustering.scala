@@ -19,6 +19,7 @@ import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
 import org.prosolo.common.util.date.DateEpochUtil
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.{ArrayBuffer, Buffer, HashMap, ListBuffer, Map}
 import scala.collection.JavaConverters._
@@ -28,6 +29,7 @@ import scala.collection.JavaConverters._
  */
 @deprecated
 object UsersKMeansClustering {
+  val logger = LoggerFactory.getLogger(getClass)
   val clustersDir = "clustersdir"
   val vectorsDir = clustersDir + "/users"
   val outputDir: String = clustersDir + "/output"
@@ -81,10 +83,10 @@ object UsersKMeansClustering {
     val key = new Text()
     val value = new VectorWritable()
     while (reader.next(key, value)) {
-      //  println("INPUT:" + s"$key--- ${value.get().asFormatString()}")
+      //  logger.debug("INPUT:" + s"$key--- ${value.get().asFormatString()}")
     }
     reader.close()
-    println("Finished data initialization")
+    logger.debug("Finished data initialization")
   }
   def runClustering(date: Long) = {
     val output = new Path(outputDir)
@@ -105,16 +107,16 @@ object UsersKMeansClustering {
     val key = new org.apache.hadoop.io.IntWritable()
     val value = new WeightedPropertyVectorWritable()
 
-    //if(reader==null){println("reader is null")}
+    //if(reader==null){logger.debug("reader is null")}
     val finalClusters = new ListBuffer[String]
     while (reader.next(key, value)) {
-       println("KEY:"+value)
-       println(s"$value belongs to cluster $key")
+       logger.debug("KEY:"+value)
+       logger.debug(s"$value belongs to cluster $key")
       if (!finalClusters.contains(key.toString))
         finalClusters += key.toString()
     }
     reader.close()
-    println("CLUSTERS:" + finalClusters)
+    logger.debug("CLUSTERS:" + finalClusters)
 
   }
   /**
@@ -126,27 +128,27 @@ object UsersKMeansClustering {
     }
   }
   def extractClusterResultFeatureQuartileForCluster(cluster: Cluster, date: Long): ClusterResults = {
-    println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
+    logger.debug(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
     val cid = cluster.getId
     val clusterResult = new ClusterResults(cid)
     for (i <- 0 to numFeatures - 1) {
       val featureVal = cluster.getCenter.get(i)
       val (featureQuartileMean: Array[Double], featureQuartile) = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).checkQuartileForFeatureValue(featureVal)
-      println("Result for cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
+      logger.debug("Result for cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
       clusterResult.addFeatureValue(i, (featureVal, featureQuartile))
     }
     clusterResult
   }
   def findClusterResultsMatching(clusterResult: ClusterResults): ClusterResults = {
-    println("Trying to find cluster results matching")
+    logger.debug("Trying to find cluster results matching")
     clusterResult.getFeatureValues().foreach {
       value: (Int, (Double, Int)) =>
-        println("feature:" + value._1, "Quadrile:" + value._2._2)
+        logger.debug("feature:" + value._1, "Quadrile:" + value._2._2)
     }
     clusterResult
   }
   def evaluateClustersFeaturesQuartiles(clusters: java.util.List[java.util.List[Cluster]], date: Long): Buffer[ClusterResults] = {
-    println("EVALUATING DAY::::::" + date);
+    logger.debug("EVALUATING DAY::::::" + date);
     val clusterResults: Buffer[ClusterResults] = clusters.get(clusters.size - 1).asScala
       .map { cluster =>
         extractClusterResultFeatureQuartileForCluster(cluster, date)
@@ -155,7 +157,7 @@ object UsersKMeansClustering {
         findClusterResultsMatching(clusterResults)
       }
 
-    println("EVALUATED DAY::::::" + date)
+    logger.debug("EVALUATED DAY::::::" + date)
     clusterResults
   }
   def evaluateClustersResultsForProfiles(clusterResults: Buffer[ClusterResults]) {
@@ -165,50 +167,49 @@ object UsersKMeansClustering {
     }
   }
   def findClustersAffiliation(clusterResults: Buffer[ClusterResults]) {
-    println("FIND CLUSTERS AFFILIATION")
+    logger.debug("FIND CLUSTERS AFFILIATION")
     val matchedElements: Map[ClusterName.Value, ClusterResults] = new HashMap[ClusterName.Value, ClusterResults]()
     val matchedIds:ArrayBuffer[Int]=new ArrayBuffer[Int]()
     for (index <- 0 to numClusters-1) {
       val elementsToCheck: Map[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]] = new HashMap[ClusterName.Value, ArrayBuffer[(ClusterResults,Double)]]()
       clusterResults.foreach { clusterResult =>
         val matchElem = clusterResult.sortedMatchingList(index)
-        println(index+".MATCH ELEM FOR :"+clusterResult.id+":"+matchElem)
+        logger.debug(index+".MATCH ELEM FOR :"+clusterResult.id+":"+matchElem)
         //checking if cluster was not already resolved
          if(!matchedElements.contains(matchElem._1)){
               val tempList = elementsToCheck.getOrElse(matchElem._1,new ArrayBuffer[(ClusterResults,Double)]())
-      //  val elem=(clusterResult,matchElem._2)
-         tempList +=new Tuple2(clusterResult,matchElem._2)
+        tempList +=new Tuple2(clusterResult,matchElem._2)
         elementsToCheck.put(matchElem._1, tempList)
          }
     
       }
-      println("ELEMENTS TO CHECK:"+elementsToCheck.map(el=>(el._1,el._2.map(cr=>(cr._1.id,cr._2)))))
+      logger.debug("ELEMENTS TO CHECK:"+elementsToCheck.map(el=>(el._1,el._2.map(cr=>(cr._1.id,cr._2)))))
       elementsToCheck.foreach{
        
         case (clusterName:ClusterName.Value, matchingResults:ArrayBuffer[(ClusterResults,Double)])=> 
-          println("************MATCHING CLUSTER:"+clusterName)
-           println("MATCHED IDS:"+matchedIds.toString()+" mathing results:"+matchingResults.map(p=>p._1.id))
+          logger.debug("************MATCHING CLUSTER:"+clusterName)
+           logger.debug("MATCHED IDS:"+matchedIds.toString()+" mathing results:"+matchingResults.map(p=>p._1.id))
         if(!matchedElements.contains(clusterName)){
           if(matchingResults.size==1 && !matchedIds.contains(matchingResults(0)._1.id)){
-          println("FOUND SINGLE RESULT FOR:"+clusterName+" id:"+matchingResults(0)._1.id)          
+          logger.debug("FOUND SINGLE RESULT FOR:"+clusterName+" id:"+matchingResults(0)._1.id)
              matchedElements.put(clusterName, matchingResults(0)._1)
              matchedIds+=matchingResults(0)._1.id
        
         }else{
-          println("CONFLICT:"+clusterName+" has:"+matchingResults.size+" Searching for best match")
+          logger.debug("CONFLICT:"+clusterName+" has:"+matchingResults.size+" Searching for best match")
          val sorted:ArrayBuffer[(ClusterResults,Double)]= matchingResults.sortBy(_._2).reverse 
          
-         println("SORTED MATCHES:"+sorted.map(v=>(v._2,v._1.id)))
+         logger.debug("SORTED MATCHES:"+sorted.map(v=>(v._2,v._1.id)))
           val notAssignedSorted=sorted.filterNot{p:(ClusterResults,Double) => matchedIds.contains(p._1.id)}
-           println("NOT ASSIGNED AND SORTED MATCHES:"+notAssignedSorted.map(v=>v._2))
+           logger.debug("NOT ASSIGNED AND SORTED MATCHES:"+notAssignedSorted.map(v=>v._2))
           val highest=notAssignedSorted.head._2
           val filtered=notAssignedSorted.filter{_._2==highest}
           if(filtered.size==1){
-            println("ONLY ONE MATCH:"+filtered(0)._1.id)
+            logger.debug("ONLY ONE MATCH:"+filtered(0)._1.id)
              matchedElements.put(clusterName, filtered(0)._1)
              matchedIds+=filtered(0)._1.id
           }else{
-            println("SELECTING FIRST MATCH:"+filtered(0)._1.id)
+            logger.debug("SELECTING FIRST MATCH:"+filtered(0)._1.id)
             matchedElements.put(clusterName, filtered(0)._1)
              matchedIds+=filtered(0)._1.id
           }
@@ -227,7 +228,7 @@ object UsersKMeansClustering {
     }
     outputResults("")
     //outputResults(printoutput)
-    //println("******MATCHED ELEMENTS:"+matchedElements.map{case (el:ClusterName.Value,el2:ClusterResults)=>(el,el2.featureValues)})
+    //logger.debug("******MATCHED ELEMENTS:"+matchedElements.map{case (el:ClusterName.Value,el2:ClusterResults)=>(el,el2.featureValues)})
   }
     def outputResults(line:Any){
       println(line)
@@ -246,7 +247,7 @@ object UsersKMeansClustering {
 
     val csvfilewriter = new PrintWriter(new BufferedWriter(new FileWriter("my_test_file3.csv", true)))
     clusters.get(clusters.size - 1).asScala.foreach { cluster =>
-      println(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
+      logger.debug(s"Cluster id:${cluster.getId} center:${cluster.getCenter.asFormatString()}")
       val cid = cluster.getId
       csvfilewriter.append(s"$cid,")
       csvfilewriter.append(s"$date,")
@@ -261,7 +262,7 @@ object UsersKMeansClustering {
         }
         csvfilewriter.append(s"$featureVal,")
         csvfilewriter.append(s"$featureQuartile,")
-        println("cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
+        logger.debug("cluster:" + cid + " feature:" + i + " has value:" + featureVal + " Q:" + featureQuartile)
 
       }
       csvfilewriter.append("\r\n")
@@ -274,7 +275,7 @@ object UsersKMeansClustering {
   def calculateUsersClasteringForPeriod(startDate: Date, endDate: Date) = {
 
     val startDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(startDate)
-    println("DAYS SINCE EPOCH FOR:" + startDate + " is:" + startDateSinceEpoch)
+    logger.debug("DAYS SINCE EPOCH FOR:" + startDate + " is:" + startDateSinceEpoch)
     val endDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(endDate)
     for (date <- startDateSinceEpoch to endDateSinceEpoch) {
       calculateUsersClasteringForDate(date)
@@ -282,7 +283,7 @@ object UsersKMeansClustering {
 
   }
   def calculateUsersClasteringForDate(date: Long) = {
-    println("CLUSTERING FOR:" + date)
+    logger.debug("CLUSTERING FOR:" + date)
     initData(date)
     runClustering(date)
   }

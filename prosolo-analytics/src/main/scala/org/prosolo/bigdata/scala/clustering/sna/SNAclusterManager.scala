@@ -34,7 +34,7 @@ object SNAclusterManager{
 
 
   def runClustering()={
-    println("INITIALIZE USER PROFILE CLUSTERING ")
+    logger.debug("INITIALIZE USER PROFILE CLUSTERING ")
     val timestamp=System.currentTimeMillis()
     val clusteringDAO=new ClusteringDAOImpl();
     val deliveriesIds=clusteringDAO.getAllActiveDeliveriesIds

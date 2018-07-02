@@ -11,7 +11,7 @@ object StatusListener {
   val logger = LoggerFactory.getLogger(getClass)
   def listener=new StatusListener(){
     def onStatus(status: Status) {
-      // println("ON STATUS:"+status.getText)
+      // logger.debug("ON STATUS:"+status.getText)
       logger.debug("Twitter status:"+status.getText)
         TwitterStatusBuffer.addStatus(status)
       }

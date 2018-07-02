@@ -6,9 +6,11 @@ import java.util
 
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer
 import edu.uci.ics.jung.graph.util.EdgeType
-import edu.uci.ics.jung.graph.{SparseMultigraph, DirectedSparseGraph}
+import edu.uci.ics.jung.graph.{DirectedSparseGraph, SparseMultigraph}
 import org.junit.Test
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.scalatest.FunSuite
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
@@ -22,10 +24,11 @@ import scala.util.Random
   * zoran 21/12/15
   */
 class DirectedNetworkTest {
+  val logger = LoggerFactory.getLogger(getClass)
 
   @Test def testCalculateEdgeBetweennessClustering(){
-    println("testCalculateEdgeBetweennessClustering")
-      println("TEST CALCULATE")
+    logger.debug("testCalculateEdgeBetweennessClustering")
+      logger.debug("TEST CALCULATE")
     val edgesToRemove=5
     val addednodes=new HashMap[Int,UserNode]()
 
@@ -72,18 +75,18 @@ class DirectedNetworkTest {
 
        // directednetwork.addLink(link, sourcenode, targetnode)
     }
-    println("vertex count:"+network.getVertexCount)
-    println("edge count:"+network.getEdgeCount())
+    logger.debug("vertex count:"+network.getVertexCount)
+    logger.debug("edge count:"+network.getEdgeCount())
     val clusteredUsers:java.util.Set[java.util.Set[UserNode]] = clusterer.transform(network);
     val clustUsers=clusteredUsers.asScala
-    println("HAS CLUSTERS:"+clusteredUsers.size()+" ..."+clustUsers.size)
+    logger.debug("HAS CLUSTERS:"+clusteredUsers.size()+" ..."+clustUsers.size)
      clustUsers.foreach{
       userNodes=>{
-        println("CLUSTER**********")
+        logger.debug("CLUSTER**********")
         val uNodes=userNodes.asScala
         uNodes.foreach{
           userNode=>
-         println("USER NODE:"+userNode.id+" cluster:"+userNode.cluster)
+         logger.debug("USER NODE:"+userNode.id+" cluster:"+userNode.cluster)
         }
       }
 
@@ -104,7 +107,7 @@ class DirectedNetworkTest {
         })) !=null ) {
           if (!first) {
             val parts: Array[String] = line.split("\\s*,\\s*")
-           // System.out.println("SOURCE:" + parts(0) + " TARGET:" + parts(1) + " COUNT:" + parts(2))
+           // System.out.logger.debug("SOURCE:" + parts(0) + " TARGET:" + parts(1) + " COUNT:" + parts(2))
             val row=new Tuple3(parts(0),parts(1),parts(2))
             testData += Tuple3(parts(0).toInt,parts(1).toInt,parts(2).toInt)
           }
@@ -156,11 +159,11 @@ class DirectedNetworkTest {
    j+=1
    graph.addEdge(j,4,8);
 
-   println("vertex count:"+graph.getVertexCount)
-   println("edge count:"+graph.getEdgeCount())
+   logger.debug("vertex count:"+graph.getVertexCount)
+   logger.debug("edge count:"+graph.getEdgeCount())
    val clusterer:EdgeBetweennessClusterer[Int,Int]=new EdgeBetweennessClusterer[Int,Int](3)
    val clusteredUsers:java.util.Set[java.util.Set[Int]] = clusterer.transform(graph);
-   println("NUMBER OF CLUSTERS:"+clusteredUsers.size())
+   logger.debug("NUMBER OF CLUSTERS:"+clusteredUsers.size())
 
   }
 

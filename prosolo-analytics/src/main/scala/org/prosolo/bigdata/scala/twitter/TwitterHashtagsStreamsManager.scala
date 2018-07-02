@@ -3,20 +3,21 @@ package org.prosolo.bigdata.scala.twitter
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.bigdata.twitter.StreamListData
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
-import twitter4j.{TwitterStream,FilterQuery}
+import twitter4j.{FilterQuery, TwitterStream}
 import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Buffer
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 
 /**
  * @author zoran
  */
 object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
 
- 
   val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each hashtag and which users or learning goals are interested in it. Once nobody is interested in hashtag it can be removed   */
   val hashtagsAndReferences:collection.mutable.Map[String,StreamListData]=new collection.mutable.HashMap[String,StreamListData]
@@ -24,7 +25,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
    val twitterStreamsAndHashtags:collection.mutable.Map[Int,(TwitterStream,ListBuffer[String])]=new collection.mutable.HashMap[Int,(TwitterStream,ListBuffer[String])]
  
   def getHashTags():java.util.Set[String]= {
-    println("getHashTags")
+    logger.debug("getHashTags")
     val result:java.util.Set[String]=new java.util.HashSet[String]
     val session:Session= HibernateUtil.getSessionFactory().openSession()
     val twitterDAO = new TwitterStreamingDAOImpl()
@@ -36,7 +37,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
        result.add(hashtag);
     }
     for((hashtag, _) <- hashtagsAndRefs){
-      println("hashtag:"+hashtag)
+      logger.debug("hashtag:"+hashtag)
       logger.debug("hashtag hashtag:"+hashtag)
        result.add(hashtag);
     }
@@ -86,7 +87,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
         }
         streamListData.setStreamId(streamsCounter)
       }else{
-        println("NOT FOLLOWING THIS BECAUSE DISABLED:"+tag)
+        logger.debug("NOT FOLLOWING THIS BECAUSE DISABLED:"+tag)
       }
 
     }
@@ -139,7 +140,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
    changed
   }
   def enableHashtagByListData(listData:StreamListData): Unit ={
-    println("Enable hashtag by list data:"+listData.getHashtag)
+    logger.debug("Enable hashtag by list data:"+listData.getHashtag)
     val currentFilterList:ListBuffer[String]=getLatestStreamList
     if(currentFilterList.size>STREAMLIMIT ){
       initializeNewCurrentListAndStream(currentFilterList)
@@ -175,7 +176,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     changedIds
   }
   def removeHashTagByStreamListData(hashtag:String,listData:StreamListData)={
-    println("REMOVE HASH TAG:"+hashtag)
+    logger.debug("REMOVE HASH TAG:"+hashtag)
     val changedId=listData.getStreamId
     // hashtagsAndReferences.remove(hashtag)
     val streamHashtagsTuple:(TwitterStream,ListBuffer[String])=twitterStreamsAndHashtags.get(changedId).get
@@ -187,14 +188,14 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
    */
  def updateHashTagsFromBufferAndRestartStream(eventsTuples:ListBuffer[Tuple4[ListBuffer[String],ListBuffer[String],Int,Int]]){
    var currentStreamChanged=false
-   println("updateHashTagsFromBufferAndRestartStream called. Current streamsCounter:"+streamsCounter+" streams size:"+twitterStreamsAndHashtags.size)
+   logger.debug("updateHashTagsFromBufferAndRestartStream called. Current streamsCounter:"+streamsCounter+" streams size:"+twitterStreamsAndHashtags.size)
   val changedIds:ListBuffer[Int]=new ListBuffer[Int]()
    for(eventTuple <- eventsTuples){
      val addedHashtags:ListBuffer[String]= eventTuple._1
      val removedHashtags:ListBuffer[String]=eventTuple._2
       val userid:Int=eventTuple._3
       val goalid:Int=eventTuple._4
-      println("ADDED :"+addedHashtags+" removed:"+removedHashtags)+"..."
+      logger.debug("ADDED :"+addedHashtags+" removed:"+removedHashtags)+"..."
       if(addedHashtags.nonEmpty){
         if(addNewHashTags(addedHashtags,userid, goalid)){
           currentStreamChanged=true
@@ -221,7 +222,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
  }
   }
   def restartStreamById(streamid:Integer): Unit ={
-    println("RESTART STREAM BY ID:"+streamid)
+    logger.debug("RESTART STREAM BY ID:"+streamid)
     val streamTagsTuple=twitterStreamsAndHashtags.get(streamid).get
     if(streamTagsTuple._2.size>0){
       restartStream(streamTagsTuple._1,streamTagsTuple._2)
@@ -240,14 +241,14 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
  
   def restartStream(twitterStream:TwitterStream, filters: ListBuffer[String]){//twitterStream:TwitterStream, streamId:Int){
       super.restartStream(twitterStream, new FilterQuery().track(filters:_*))
-      println("STREAM FILTER:"+filters.mkString(" "))
+      logger.debug("STREAM FILTER:"+filters.mkString(" "))
    }
   def terminateStream(twitterStream:TwitterStream){
      twitterStream.shutdown()
 
   }
   def adminDisableHashtag(hashtag:String): Unit ={
-    println("Admin disable hashtag:"+hashtag)
+    logger.debug("Admin disable hashtag:"+hashtag)
     if(hashtagsAndReferences.contains("#"+hashtag)){
       val streamListData=hashtagsAndReferences.get("#"+hashtag).get
       streamListData.setDissabled(true)
@@ -256,9 +257,9 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     }
   }
   def adminEnableHashtag(hashtag:String):Unit={
-    println("Admin enable hashtag:"+hashtag)
+    logger.debug("Admin enable hashtag:"+hashtag)
     if(hashtagsAndReferences.contains("#"+hashtag)){
-      println("contains it")
+      logger.debug("contains it")
       val streamListData=hashtagsAndReferences.get("#"+hashtag).get
       streamListData.setDissabled(false)
       enableHashtagByListData(streamListData)

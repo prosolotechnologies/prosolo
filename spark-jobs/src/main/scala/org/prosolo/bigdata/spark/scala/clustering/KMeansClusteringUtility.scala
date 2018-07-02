@@ -10,6 +10,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
 import org.prosolo.bigdata.scala.clustering.userprofiling.{AlgorithmType, ClusteringUtils}
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.collection.mutable.{HashMap, ListBuffer}
@@ -21,6 +22,7 @@ import scala.collection.mutable.{HashMap, ListBuffer}
   * @since 1.0.0
   */
 object KMeansClusteringUtility extends Serializable {
+  val logger = LoggerFactory.getLogger(getClass)
   var featuresQuartiles: scala.collection.mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
 
   def performKMeansClusteringForPeriod( days:IndexedSeq[DateTime], courseId: Long,keyspaceName:String,numFeatures: Int, numClusters: Int):mutable.Iterable[Tuple5[Long,String,Long,Long,String]] = {
@@ -28,7 +30,7 @@ object KMeansClusteringUtility extends Serializable {
     featuresQuartiles = new HashMap[Int, FeatureQuartiles]()
 
     val profilesDAO = new ProfilesDAO(keyspaceName)
-    println("perform kmeans clustering for:" + courseId)
+    logger.debug("perform kmeans clustering for:" + courseId)
     val clustersDir = "clustersdir/" + courseId
     val vectorsDir = clustersDir + "/users"
     val outputDir: String = clustersDir + "/output"
@@ -42,7 +44,7 @@ object KMeansClusteringUtility extends Serializable {
         DateUtil.getDaysSinceEpoch(day)
     }
 
-    //println("COMMENTED HERE.1")
+    //logger.debug("COMMENTED HERE.1")
     val usersFeatures: Predef.Map[Long, Array[Double]] = daysSinceEpoch
       .flatMap { date => mapUserObservationsForDateToRows(date, courseId, profilesDAO) }
       .groupBy { row: Row => row.getLong(1) }
@@ -76,7 +78,7 @@ object KMeansClusteringUtility extends Serializable {
     * @return
     */
   def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[Row], numFeatures: Int) = {
-    println("TRANSFORM USER FEATURES:" + userid)
+    logger.debug("TRANSFORM USER FEATURES:" + userid)
     val featuresArray: Array[Double] = new Array[Double](numFeatures)
     for (userRow <- userRows) {
       for (i <- 0 to numFeatures - 1) {
@@ -94,7 +96,7 @@ object KMeansClusteringUtility extends Serializable {
     * @param usersFeatures
     */
   def extractFeatureQuartilesValues(usersFeatures: collection.Map[Long, Array[Double]]): Unit = {
-    println("EXTRACT FEATURE:" + usersFeatures.size)
+    logger.debug("EXTRACT FEATURE:" + usersFeatures.size)
     usersFeatures.foreach {
       case (userid: Long, userFeatures: Array[Double]) =>
         for (i <- 0 to (userFeatures.length - 1)) {
@@ -136,7 +138,7 @@ object KMeansClusteringUtility extends Serializable {
     val vectors = new ListBuffer[NamedVector]
     usersFeatures.foreach {
       case (userid: Long, featuresArray: Array[Double]) =>
-        println("ADDING VECTOR FOR USER:"+userid+" features:"+featuresArray.mkString(","))
+        logger.debug("ADDING VECTOR FOR USER:"+userid+" features:"+featuresArray.mkString(","))
         val dv = new DenseVector(featuresArray)
         vectors += (new NamedVector(dv, userid.toString()))
     }

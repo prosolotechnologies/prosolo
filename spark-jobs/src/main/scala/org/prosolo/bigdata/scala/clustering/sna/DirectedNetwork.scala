@@ -5,6 +5,7 @@ import scala.collection.mutable.{ArrayBuffer, HashMap}
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer
 import edu.uci.ics.jung.graph.DirectedSparseGraph
 import edu.uci.ics.jung.graph.util.EdgeType
+import org.slf4j.LoggerFactory
 
 /**
   * Created by zoran on 20/12/15.
@@ -13,6 +14,7 @@ import edu.uci.ics.jung.graph.util.EdgeType
   * zoran 20/12/15
   */
 class DirectedNetwork{
+  val logger = LoggerFactory.getLogger(getClass)
   val network:DirectedSparseGraph[UserNode,UserLink]=new DirectedSparseGraph[UserNode,UserLink]
   val addednodes=new HashMap[Long,UserNode]()
   def addLink (link:UserLink, source:UserNode, target: UserNode){
@@ -50,7 +52,7 @@ class DirectedNetwork{
     */
   def calculateEdgeBetweennessClustering(edgesToRemove:Int):ArrayBuffer[UserNode] ={
       val clusterer:EdgeBetweennessClusterer[UserNode, UserLink]=new EdgeBetweennessClusterer[UserNode, UserLink](edgesToRemove)
-  println("NUMBER OF EDGES:"+network.getEdges.size()+" edgesToRemove:"+edgesToRemove)
+  logger.debug("NUMBER OF EDGES:"+network.getEdges.size()+" edgesToRemove:"+edgesToRemove)
       val clusteredUsers:java.util.Set[java.util.Set[UserNode]] = clusterer.transform(network);
     val clustUsers=clusteredUsers.asScala
     var clusterNo=0
@@ -58,19 +60,19 @@ class DirectedNetwork{
     clustUsers.foreach{
       userNodes=> {
 
-        println("CLUSTER**********"+clusterNo)
+        logger.debug("CLUSTER**********"+clusterNo)
         val uNodes = userNodes.asScala
         uNodes.foreach {
           userNode =>
             userNode.cluster=clusterNo
             finalUserNodes+=userNode
-            println("USER NODE:" + userNode.id + " cluster:" + userNode.cluster)
+            logger.debug("USER NODE:" + userNode.id + " cluster:" + userNode.cluster)
         }
 
         clusterNo+=1
       }
       }
-    println("FINISHED")
+    logger.debug("FINISHED")
      finalUserNodes
   }
 }

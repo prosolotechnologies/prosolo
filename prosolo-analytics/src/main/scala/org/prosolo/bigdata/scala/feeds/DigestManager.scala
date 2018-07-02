@@ -10,11 +10,11 @@ object DigestManager {
   val logger = LoggerFactory.getLogger(getClass)
 
   def createFeedDiggestsAndSendEmails(){
-//    println("Create feed diggest and send emails called")
+//    logger.debug("Create feed diggest and send emails called")
 //    val cal:Calendar=Calendar.getInstance
 //    cal.add(Calendar.DATE,0)
 //     val yesterday:Date=cal.getTime
-//    println("THIS IS TODAY. CHANGE TO YESTERDAY...")
+//    logger.debug("THIS IS TODAY. CHANGE TO YESTERDAY...")
 //    val diggestGeneratorDAO=new DiggestGeneratorDAOImpl
 //    val sc=SparkContextLoader.getSC
 //

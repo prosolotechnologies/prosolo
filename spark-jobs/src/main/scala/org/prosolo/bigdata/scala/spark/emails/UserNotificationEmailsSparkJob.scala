@@ -8,7 +8,7 @@ import org.prosolo.bigdata.scala.spark.SparkJob
 import org.apache.spark.sql._
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
 import com.google.gson.Gson
-
+import org.slf4j.LoggerFactory
 
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
@@ -26,7 +26,6 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
   def runSparkJob(date:Long):Array[Array[NotificationReceiverSummary]]={
     import sparkSession.implicits._
-   //val connector=CassandraConnector.apply(sparkSession.sparkContext.getConf)
 
     //Retrieving all notifications from cassandra for specific date
     val notificationsDF:DataFrame=sparkSession.read.format("org.apache.spark.sql.cassandra")
@@ -83,11 +82,11 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
           (receiver,NotificationsSummary(receiver,total,notCounter,notificationsByType))
       }}
 
-    res.collect().foreach(n=>println(n))
+    //res.collect().foreach(n=>println(n))
     //joining NotificationSummary with Receiver
     val notificationsReceivers=res.join(receiversNames.rdd)
-    println("NOTIFICATIONS RECEIVERS:"+notificationsReceivers.count())
-    notificationsReceivers.collect().foreach(n=>println(n))
+    logger.debug("NOTIFICATIONS RECEIVERS:"+notificationsReceivers.count())
+    //notificationsReceivers.collect().foreach(n=>logger.debug(n))
     val notificationsReceiversSummary=notificationsReceivers.map{
       case (receiverid:Long, (notificationSummary:NotificationsSummary, receiver:Receiver))=>
         NotificationReceiverSummary(receiver,notificationSummary)
@@ -96,7 +95,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
     val emailBatches:Array[Array[NotificationReceiverSummary]]=notificationsReceiversSummary.collect().grouped(UserNotificationEmailsSparkJob.BATCH_SIZE).toArray
 
     //notificationsDF.groupBy("receiver").agg()
-    println("FINISHED RUN SPARK JOB")
+    logger.debug("FINISHED RUN SPARK JOB")
     emailBatches
   }
   def getPreviousDateString(date:Date,before:Int): String ={
@@ -108,7 +107,7 @@ class UserNotificationEmailsSparkJob(kName:String)extends SparkJob with Serializ
 
   }
   def addSuccessEmails(success:mutable.Map[String,EmailSuccess]): Unit ={
-    println("ADD SUCCESS EMAILS:"+success.size)
+    logger.debug("ADD SUCCESS EMAILS:"+success.size)
     success.foreach{
       case(email, emailSuccess)=>
       {

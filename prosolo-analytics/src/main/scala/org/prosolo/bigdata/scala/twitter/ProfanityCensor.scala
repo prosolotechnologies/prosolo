@@ -4,6 +4,8 @@ package org.prosolo.bigdata.scala.twitter
 import java.io.InputStream
 
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -13,6 +15,7 @@ import scala.collection.JavaConverters._
  * @author zoran Jul 28, 2015
  */
 trait ProfanityCensor {
+  val logger = LoggerFactory.getLogger(getClass)
    val badWordFile = "files/badwords.sav"
    val instagramForbiddenHashtagsFile="files/instagrambannedtags.sav"
   val customForbiddenHashtagsFile="files/customforbiddentags.sav"
@@ -28,7 +31,7 @@ trait ProfanityCensor {
 
    val badWords=readBadWordsFromFile(badWordFile)
    val forbiddenHashtags=readBadWordsFromFile(instagramForbiddenHashtagsFile)++readBadWordsFromFile(customForbiddenHashtagsFile)++readDisabledHashtags()
-  println("FORBIDDEN HASHTAGS:"+forbiddenHashtags.mkString(" "))
+  logger.debug("FORBIDDEN HASHTAGS:"+forbiddenHashtags.mkString(" "))
 }
    class BadWordsCensor extends ProfanityCensor{
      def isPolite(text:String):Boolean={
@@ -41,10 +44,10 @@ trait ProfanityCensor {
          }
           if(badWords.contains(anyword)){
             polite=false
-           // println("FORBIDDEN:"+text+" BECAUSE WORD:"+checkword)
+           // logger.debug("FORBIDDEN:"+text+" BECAUSE WORD:"+checkword)
           } else if(forbiddenHashtags.contains(word)){
             polite=false
-           // println("FORBIDDEN:"+text+" BECAUSE HASHTAG:"+checkword)
+           // logger.debug("FORBIDDEN:"+text+" BECAUSE HASHTAG:"+checkword)
           }
        }  
           
@@ -53,10 +56,10 @@ trait ProfanityCensor {
      }
      def addDisabledHashtag(hashtag:String): Unit ={
        forbiddenHashtags+="#"+hashtag
-       println("Adding disabled hashtag:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
+       logger.debug("Adding disabled hashtag:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
      }
      def enableDisabledHashtag(hashtag:String): Unit ={
        forbiddenHashtags-="#"+hashtag
-      println("REMOVING HASHTAG:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
+      logger.debug("REMOVING HASHTAG:"+hashtag+" RESULTING:"+forbiddenHashtags.mkString(" "))
      }
    }

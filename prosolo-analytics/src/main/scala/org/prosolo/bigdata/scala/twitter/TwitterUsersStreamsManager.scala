@@ -1,16 +1,21 @@
 package org.prosolo.bigdata.scala.twitter
 import com.google.gson.JsonObject
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
+
 import scala.collection.mutable.ListBuffer
-import twitter4j.{HashtagEntity, Status,TwitterStream,TwitterStreamFactory,FilterQuery}
+import twitter4j.{FilterQuery, HashtagEntity, Status, TwitterStream, TwitterStreamFactory}
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
+
 import scala.collection.mutable.Buffer
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
+import org.slf4j.LoggerFactory
 /**
  * @author zoran Aug 6, 2015
  */
 object TwitterUsersStreamsManager extends TwitterStreamsManager {
+  val logger = LoggerFactory.getLogger(getClass)
   /** Keeps information about each twitter user and which stream his account is followed in   */
   val usersAndStreamsIds: collection.mutable.Map[Long, Int] = new collection.mutable.HashMap[Long, Int]
   val twitterStreamsAndUsers: collection.mutable.Map[Int, (TwitterStream, ListBuffer[Long])] = new collection.mutable.HashMap[Int, (TwitterStream, ListBuffer[Long])]
@@ -32,7 +37,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
      
     val currentFilterList:ListBuffer[Long]= new ListBuffer[Long]
     for(twitterId<-map){
-      println("adding twitter id:"+twitterId)
+      logger.debug("adding twitter id:"+twitterId)
       currentFilterList+=twitterId
       currentFilterList.size match {
         case x if x > STREAMLIMIT => initializeNewCurrentListAndStream(currentFilterList)
@@ -68,7 +73,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
    */
   def updateTwitterUserFromAnalyticsEvent(event: AnalyticsEvent){
     val data:JsonObject=event.getData()
-    println("")
+    logger.debug("")
     val userid:Long=data.get("twitterId").getAsLong
     val shouldAdd:Boolean=data.get("add").getAsBoolean
     if(shouldAdd)addNewTwitterUser(userid) else removeTwitterUser(userid)
@@ -84,7 +89,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
       }else{
         restartStream(getLatestStreamAndList._1,getLatestStreamAndList._2)
       }
-      println("stream ID:"+(streamsCounter-1))
+      logger.debug("stream ID:"+(streamsCounter-1))
       usersAndStreamsIds.put(userid,streamsCounter-1)
     }
   }

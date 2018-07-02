@@ -3,8 +3,11 @@ package org.prosolo.bigdata.scala.emails
 import java.util
 
 import org.prosolo.bigdata.scala.spark.emails.Notification
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.prosolo.common.email.generators.EmailContentGenerator
+import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConversions._
 import scala.collection.immutable.HashMap
 
@@ -14,7 +17,7 @@ case class FollowerNotificationItemData(actor:String) extends NotificationItemDa
 
 
 class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, val notificationTypesCounts:HashMap[String,Int], val notificationsByType:HashMap[String,Array[Notification]]) extends EmailContentGenerator{
-
+  val logger = LoggerFactory.getLogger(getClass)
   override def getTemplateName: String = {"notifications/notification-digest"}
 
   override def getSubject: String = {"Your Daily Notifications Diggest"}
@@ -56,7 +59,7 @@ val notificationsLink=if(domain.endsWith("/")) domain+"notifications" else domai
   def hasNotificationType(notificationType:NotificationType):Boolean={ notificationTypesCounts.getOrElse(notificationType.toString,0)>0 }
   def getNotificationTypeCount(notificationType:NotificationType):Int={  notificationTypesCounts.getOrElse(notificationType.toString,0) }
   def getNotificationsByType(notificationType:NotificationType):java.util.List[Notification]={
-    println("NAME:"+name+" NOTIFICATION TYPE:"+notificationType.name+"----"+notificationsByType.get(notificationType.name).get.mkString(","));
+    logger.debug("NAME:"+name+" NOTIFICATION TYPE:"+notificationType.name+"----"+notificationsByType.get(notificationType.name).get.mkString(","));
     notificationsByType.get(notificationType.name).get.toList
 
   }

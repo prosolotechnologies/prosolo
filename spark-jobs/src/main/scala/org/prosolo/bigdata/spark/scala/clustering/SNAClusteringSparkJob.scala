@@ -21,9 +21,8 @@ import scala.collection.mutable.ArrayBuffer
   * zoran 18/03/17
   */
 class SNAClusteringSparkJob(kName:String) extends SparkJob with Serializable{
-  val logger = LoggerFactory.getLogger(getClass)
-  val keyspaceName=kName
-//  val sc = SparkContextLoader.getSC
+   val keyspaceName=kName
+
   val edgesToRemove=2
 
   def runSparkJob(deliveriesIds: java.util.List[java.lang.Long], dbName: String, timestamp: Long): Unit = {

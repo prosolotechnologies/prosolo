@@ -19,7 +19,7 @@ object TestSparkJob extends App {
   SNAclusterManager.runClustering()
   //val emailManager = NotificationsEmailManager$.MODULE$
 // val date: Long = DateEpochUtil.getDaysSinceEpoch
-//  println("CURRENT DATE:"+date)
+//  logger.debug("CURRENT DATE:"+date)
  //val testDate=17589
  //  NotificationsEmailManager.runAnalyser(testDate)
 

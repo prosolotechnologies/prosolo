@@ -2,16 +2,19 @@ package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
-import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary,  UserNotificationEmailsSparkJob}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, UserNotificationEmailsSparkJob}
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.prosolo.common.util.date.DateEpochUtil
 import org.prosolo.common.config.CommonSettings
 import org.prosolo.common.util.Pair
+import org.slf4j.LoggerFactory
 
 object NotificationsEmailManager {
+  val logger = LoggerFactory.getLogger(getClass)
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
   val clusteringDAOManager = new ClusteringDAOImpl
   def runAnalyser(date:Long) = {
-    println("RUN ANALYZER")
+    logger.debug("RUN ANALYZER")
     //val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
     val sparkJob=new UserNotificationEmailsSparkJob(dbName)
     val emailService=new NotificationsEmailServiceImpl
@@ -29,6 +32,6 @@ object NotificationsEmailManager {
     }
 
     sparkJob.finishJob()
-    println("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
+    logger.debug("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
   }
 }

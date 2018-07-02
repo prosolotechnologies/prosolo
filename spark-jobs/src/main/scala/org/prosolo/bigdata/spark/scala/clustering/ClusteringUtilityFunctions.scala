@@ -15,6 +15,7 @@ import org.apache.mahout.common.distance.{CosineDistanceMeasure, EuclideanDistan
 import org.apache.mahout.math.NamedVector
 import org.prosolo.bigdata.scala.clustering.userprofiling._
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -27,6 +28,7 @@ import scala.collection.mutable.{ArrayBuffer, Buffer, HashMap, Iterable, Map}
   * @since 1.0.0
   */
 object ClusteringUtilityFunctions extends Serializable{
+  val logger = LoggerFactory.getLogger(getClass)
   var featuresQuartiles: scala.collection.mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   var matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
   /**
@@ -42,7 +44,7 @@ object ClusteringUtilityFunctions extends Serializable{
     val clustersIn = new Path(courseClusterConfiguration.output, "random-seeds")
 
     RandomSeedGenerator.buildRandom(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, numClusters, measure)
-    println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
+    logger.debug("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
     ////end
     val convergenceDelta = 0.01
     val maxIterations = 50
@@ -53,7 +55,7 @@ object ClusteringUtilityFunctions extends Serializable{
         KMeansDriver.run(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, courseClusterConfiguration.output, convergenceDelta, maxIterations, true, clusterClassificationThreshold, true)
       }catch{
         case ise: IllegalStateException=>
-          println("ERROR in KMeansDriver.run:"+ise.getMessage)
+          logger.debug("ERROR in KMeansDriver.run:"+ise.getMessage)
           //sparkJob.submitTaskProblem(ise.getMessage,courseClusterConfiguration.courseId,"KMeansClustering",ProblemSeverity.MAJOR)
           success=false;
       }
@@ -78,17 +80,17 @@ object ClusteringUtilityFunctions extends Serializable{
     csvfilewriter.append("\r\n")
     clusterResults.foreach(results=>
     {
-      println(" ")
-      println("CLUSTER:"+results.id)
-      println("FEATURES:"+results.featureValues)
+      logger.debug(" ")
+      logger.debug("CLUSTER:"+results.id)
+      logger.debug("FEATURES:"+results.featureValues)
 
       val line="FEATURE QUARTILES:"+ results.featureValues.map {
         case (fid, triple) => {
           (fid, triple._2)
         }
       }
-      println(line)
-      println("MATCHING LIST:"+results.sortedMatchingList)
+      logger.debug(line)
+      logger.debug("MATCHING LIST:"+results.sortedMatchingList)
       csvfilewriter.append(results.id+",")
       results.featureValues.foreach{
         case(featureKey:Int, featureValue:Tuple2[Double,Int])=>
@@ -152,13 +154,13 @@ object ClusteringUtilityFunctions extends Serializable{
           }
       }
     }
-    println("***********************************************************************")
-    println("CLUSTERS ASSOCIATIONS")
+    logger.debug("***********************************************************************")
+    logger.debug("CLUSTERS ASSOCIATIONS")
     matchedElements.foreach{
       case(a,b)=>{
         val line:String="cluster:" +b.id+" matches: "+a+" cluster matching:"+b.sortedMatchingList
         matchedClusterProfiles.put(b.id,a)
-        println(line)
+        logger.debug(line)
       }
     }
   }
@@ -203,7 +205,7 @@ object ClusteringUtilityFunctions extends Serializable{
         val sequence = userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(",")
-        println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
+        logger.debug("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(","))
         (courseId, clusterProfile, endDateSinceEpoch, userid, sequence)

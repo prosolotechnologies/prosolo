@@ -8,6 +8,8 @@ import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import com.datastax.spark.connector._*/
 import org.prosolo.bigdata.common.enums.ESIndexTypes
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
+import org.slf4j.LoggerFactory
 //import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.es.impl.DataSearchImpl
 //import org.prosolo.bigdata.jobs.{GenerateUserProfileClusters, SimilarUsersBasedOnPreferencesJob}
@@ -24,7 +26,8 @@ import scala.collection.JavaConverters._
   */
 
 object SimilarUsersBasedOnPreferences {
-println("FIND SIMILAR USERS BASED ON PREFERENCES")
+  val logger = LoggerFactory.getLogger(getClass)
+logger.debug("FIND SIMILAR USERS BASED ON PREFERENCES")
  /* val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
   val clusterAproxSize=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
   val maxIt1=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration1").toInt;
@@ -38,12 +41,12 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
   def runJob() ={
     import sqlContext.implicits._
     val totalNumberOfUsers=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
-    println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers)
+    logger.debug("TOTAL NUMBER OF USERS:"+totalNumberOfUsers)
 
     if (totalNumberOfUsers>clusterAproxSize*1.5) runKmeans(totalNumberOfUsers) else createOneCluster()
 
     runALSUserRecommender()
-    println("SIMILAR USERS BASED ON PREFERENCES runJob finished")
+    logger.debug("SIMILAR USERS BASED ON PREFERENCES runJob finished")
   }*/
  //runJob()
 
@@ -51,9 +54,9 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     * Stores all users in one cluster without clustering if number of users is small
     */
   /*def createOneCluster()= {
-    println("CREATE ONE CLUSTER ONLY")
-    println("KEYSPACE:"+keyspaceName+" ")
-    if(sqlContext==null)println("SQL CONTEXT IS NULL")
+    logger.debug("CREATE ONE CLUSTER ONLY")
+    logger.debug("KEYSPACE:"+keyspaceName+" ")
+    if(sqlContext==null)logger.debug("SQL CONTEXT IS NULL")
     import sqlContext.implicits._
     val usersInTheSystemDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
@@ -75,7 +78,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     val maxNumber:Int= (totalNumberOfUsers/clusterAproxSize).toInt
     val multiplicator:Int=if(maxNumber>20) maxNumber/10 else 1
     val minNumber:Int=if(maxNumber>5) maxNumber-5*multiplicator else 1
-    println("MIN:"+minNumber+" MAX:"+maxNumber+" multiplicator:"+multiplicator)
+    logger.debug("MIN:"+minNumber+" MAX:"+maxNumber+" multiplicator:"+multiplicator)
     Seq(minNumber, maxNumber)
   }*/
 
@@ -102,7 +105,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
       row: Row =>
         ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize)
     }
-    println("runALSUserRecommender finished")
+    logger.debug("runALSUserRecommender finished")
   }*/
 
   def recommendBasedOnCredentialsForColdStart(userid:Long, credentials:java.util.Set[java.lang.Long]):Unit={
@@ -114,7 +117,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     }.map{member=>
       (member.toInt,0.0)
     }.toArray
-    println("STORE RECOMMENDATIONS FOR:"+userid+" REC:"+recommendations.mkString(","))
+    logger.debug("STORE RECOMMENDATIONS FOR:"+userid+" REC:"+recommendations.mkString(","))
     RecommendationsESIndexer.storeRecommendedUsersForUser(userid, recommendations,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
 
 

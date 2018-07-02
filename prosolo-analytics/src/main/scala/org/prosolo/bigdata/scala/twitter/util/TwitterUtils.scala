@@ -3,10 +3,13 @@ package org.prosolo.bigdata.scala.twitter.util
 import scala.collection.mutable.ListBuffer
 import com.google.gson.JsonObject
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
+import org.slf4j.LoggerFactory
 /**
  * @author zoran Jul 18, 2015
  */
 object TwitterUtils {
+  val logger = LoggerFactory.getLogger(getClass)
   def extractHashTagsFromEvents(events: ListBuffer[AnalyticsEvent]):ListBuffer[Tuple4[ListBuffer[String],ListBuffer[String],Int,Int]]={
     var eventsTuples=new ListBuffer[Tuple4[ListBuffer[String],ListBuffer[String],Int,Int]]()
     for(event <- events){
@@ -26,7 +29,7 @@ object TwitterUtils {
          }
        for(oTag <- oldhashtags){if(!newhashtags.contains(oTag) ) removedHashtags.+=(oTag)}
        eventsTuples.+=((addedHashtags,removedHashtags, userid, goalid));
-       println("ADDED HASHTAGS TO PROCESS:"+addedHashtags.size+" REMOVED HASHTAGS:"+removedHashtags.size+" USER ID:"+userid+" GOAL ID:"+goalid)
+       logger.debug("ADDED HASHTAGS TO PROCESS:"+addedHashtags.size+" REMOVED HASHTAGS:"+removedHashtags.size+" USER ID:"+userid+" GOAL ID:"+goalid)
     }
     eventsTuples
   }
