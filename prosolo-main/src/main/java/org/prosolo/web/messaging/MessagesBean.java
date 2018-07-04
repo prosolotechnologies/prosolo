@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.Pair;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -199,11 +200,10 @@ public class MessagesBean implements Serializable {
 
             // if there is no thread with this user
             if (this.threadData == null) {
-                Object[] result = messagingManager.sendMessageAndReturnMessageAndThread(0, loggedUser.getUserId(), receiverId,
+                Pair<MessageData, MessagesThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(0, loggedUser.getUserId(), receiverId,
                         this.messageText, userContext);
 
-//                newMessageData = (MessageData) result[0];
-                this.threadData = (MessagesThreadData) result[1];
+                this.threadData = result.getSecond();
                 this.messageThreads.add(0, this.threadData);
                 this.messages = this.threadData.getMessages();
             } else {

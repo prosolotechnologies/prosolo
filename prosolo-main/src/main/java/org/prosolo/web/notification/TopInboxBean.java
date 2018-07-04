@@ -31,7 +31,7 @@ public class TopInboxBean implements Serializable {
 
 	@PostConstruct
 	public void checkUnreadMessages() {
-		this.hasUnreadMessages = messagingManager.userHasUnreadMessages(loggedUser.getUserId());
+		this.hasUnreadMessages = messagingManager.hasUserUnreadMessages(loggedUser.getUserId());
 	}
 
 	public void markMessageRead() {
