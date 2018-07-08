@@ -18,7 +18,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component(value = "pageLoadEventFilter")
@@ -27,6 +29,8 @@ public class PageLoadEventFilter implements Filter {
 	private static Logger logger = Logger.getLogger(Competence1ManagerImpl.class);
 	
 	@Inject private EventFactory eventFactory;
+
+	private static List<String> skipPages = Arrays.asList("/login.xhtml", "/root.xhtml", "/favicon.ico", "/api/");
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -38,9 +42,10 @@ public class PageLoadEventFilter implements Filter {
 		boolean resourceRequest = requestURI.startsWith(contextPath + ResourceHandler.RESOURCE_IDENTIFIER + "/")
 				|| requestURI.startsWith(contextPath + "/resources/");
 		boolean ajaxRequest = "partial/ajax".equals(request.getHeader("Faces-Request"));
-		//boolean ajaxRequest2 = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
-		//logger.info("IS AJAX REQUEST: " + ajaxRequest + ", " + ajaxRequest2);
-		if(!resourceRequest && !ajaxRequest) {
+
+		boolean toSkip = skipPages.stream().anyMatch(page -> requestURI.startsWith(page));
+
+		if(!resourceRequest && !ajaxRequest && !toSkip) {
 			String uri = requestURI;
 			if(requestURI.startsWith(contextPath)) {
 				uri = uri.substring(uri.indexOf(contextPath) + contextPath.length());

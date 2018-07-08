@@ -120,6 +120,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/recovery/**").permitAll()
 				.antMatchers("/javax.faces.resource/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
+				.antMatchers("/api/health").permitAll()
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
