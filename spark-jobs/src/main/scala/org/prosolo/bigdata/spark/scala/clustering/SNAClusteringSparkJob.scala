@@ -54,37 +54,37 @@ class SNAClusteringSparkJob(kName:String) extends SparkJob with Serializable{
       }
 
     }
-    def readCourseData(courseId:Long,dbManager:SNAClustersDAO):Array[Tuple3[Long,Long,Long]] ={
+    def readCourseData(courseId:Long,dbManager:SNAClustersDAO):Array[(Long, Long, Long)] ={
       logger.debug("READ COURSE DATA FOR:"+courseId+" keyspace:"+keyspaceName)
       val rows:List[Row] =dbManager.getSocialInteractions(courseId)
       logger.debug("GOT COURSE DATA FOR:"+courseId+" rows:"+rows.size())
-     val courseData:Array[Tuple3[Long,Long,Long]]=rows.asScala.toArray.map{row:Row=>new Tuple3(row.getLong("source"),row.getLong("target"),row.getLong("count"))}
+     val courseData:Array[(Long, Long, Long)]=rows.asScala.toArray.map{ row:Row=>new Tuple3(row.getLong("source"),row.getLong("target"),row.getLong("count"))}
       courseData
 
     }
     def storeUserNodesClustersForCourse(timestamp:Long, courseId:Long,userNodes:ArrayBuffer[UserNode],userLinks:Iterable[UserLink],dbManager:SNAClustersDAO): Unit ={
 
       logger.debug("STORE USER NODES FOR COURSE:"+courseId)
-      var sourceInteractions:Map[Tuple3[Long,Int,Long],ArrayBuffer[Tuple2[Long, Int]]]=new HashMap[Tuple3[Long,Int,Long],ArrayBuffer[Tuple2[Long, Int]]]()
-      var targetInteractions:Map[Tuple4[Long,Int,Long,String],ArrayBuffer[Tuple3[Long, Int, Int]]]=new HashMap[Tuple4[Long,Int,Long,String],ArrayBuffer[Tuple3[Long, Int,Int]]]()
+      var sourceInteractions:Map[(Long, Int, Long),ArrayBuffer[(Long, Int)]]=new HashMap[(Long, Int, Long),ArrayBuffer[(Long, Int)]]()
+      var targetInteractions:Map[(Long, Int, Long, String),ArrayBuffer[(Long, Int, Int)]]=new HashMap[(Long, Int, Long, String),ArrayBuffer[(Long, Int, Int)]]()
       userLinks.foreach{
         userLink=>
           logger.debug("USER LINK:"+userLink.weight+" source:" +userLink.source.id+" cluster:"+userLink.source.cluster+" target:"+userLink.target.id+" target cl:"+userLink.target.cluster)
           if(userLink.source.cluster==userLink.target.cluster) {
-            val sourcekey = new Tuple3(courseId, userLink.source.cluster, userLink.source.id)
+            val sourcekey = Tuple3(courseId, userLink.source.cluster, userLink.source.id)
             val inClusterUserInteractions = sourceInteractions.getOrElse(sourcekey, new ArrayBuffer[Tuple2[Long, Int]]())
-            inClusterUserInteractions += new Tuple2(userLink.target.id, userLink.weight.toInt)
+            inClusterUserInteractions += Tuple2(userLink.target.id, userLink.weight.toInt)
             sourceInteractions += sourcekey -> inClusterUserInteractions
             logger.debug("SOURCE INTERACTIONS:"+sourceInteractions.toString())
           }else{
-            val sourceOutKey=new Tuple4(courseId,userLink.source.cluster,userLink.source.id,"SOURCE")
+            val sourceOutKey=Tuple4(courseId,userLink.source.cluster,userLink.source.id,"SOURCE")
             val sourceOutClusterUserInteractions=targetInteractions.getOrElse(sourceOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
-            sourceOutClusterUserInteractions+=new Tuple3(userLink.target.id,userLink.target.cluster, userLink.weight.toInt)
+            sourceOutClusterUserInteractions+= Tuple3(userLink.target.id,userLink.target.cluster, userLink.weight.toInt)
             targetInteractions+=sourceOutKey->sourceOutClusterUserInteractions
 
-            val targetOutKey=new Tuple4(courseId,userLink.target.cluster,userLink.target.id,"TARGET")
+            val targetOutKey=Tuple4(courseId,userLink.target.cluster,userLink.target.id,"TARGET")
             val targetOutClusterUserInteractions=targetInteractions.getOrElse(targetOutKey,new ArrayBuffer[Tuple3[Long,Int,Int]]())
-            targetOutClusterUserInteractions+=new Tuple3(userLink.source.id, userLink.source.cluster, userLink.weight.toInt)
+            targetOutClusterUserInteractions+= Tuple3(userLink.source.id, userLink.source.cluster, userLink.weight.toInt)
             targetInteractions+=targetOutKey->targetOutClusterUserInteractions
              logger.debug("TARGET INTERACTIONS:"+targetInteractions.toString())
           }

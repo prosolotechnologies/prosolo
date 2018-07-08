@@ -135,8 +135,8 @@ class HmmClustering (val dbName:String) extends Serializable {
     logger.debug("FINISHED PROCESSING COURSE:"+courseId)
   }
 
-  def extractSequenceProbabilities(testSequence: java.util.List[ObservationDiscrete[QuartileName]]):Map[ClusterName.Value,Tuple2[Double,Double]]={
-    val probabilities:Map[ClusterName.Value,Tuple2[Double,Double]]=new HashMap[ClusterName.Value,Tuple2[Double,Double]]()
+  def extractSequenceProbabilities(testSequence: java.util.List[ObservationDiscrete[QuartileName]]):Map[ClusterName.Value,(Double, Double)]={
+    val probabilities:Map[ClusterName.Value,(Double, Double)]=new HashMap[ClusterName.Value,(Double, Double)]()
     learntHmmModels.foreach{
       case(clusterName,hmmModel)=>{
         val prob:Double=hmmModel.probability(testSequence)

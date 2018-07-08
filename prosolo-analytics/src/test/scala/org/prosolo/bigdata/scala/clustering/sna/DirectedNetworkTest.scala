@@ -93,8 +93,8 @@ class DirectedNetworkTest {
     }
 
   }
-  def readTestData():ArrayBuffer[Tuple3[Int,Int,Int]] ={
-    val testData:ArrayBuffer[Tuple3[Int,Int,Int]]=new ArrayBuffer[Tuple3[Int,Int,Int]]()
+  def readTestData():ArrayBuffer[(Int, Int, Int)] ={
+    val testData:ArrayBuffer[(Int, Int, Int)]=new ArrayBuffer[Tuple3[Int,Int,Int]]()
     val filePath: URL = Thread.currentThread.getContextClassLoader.getResource("files/users_interactions_test_data2.csv")
     val testFile: File = new File(filePath.getPath)
     try {
@@ -102,13 +102,13 @@ class DirectedNetworkTest {
       var line: String = null
       try {
         var first: Boolean = true
-        while ((({
-          line = br.readLine; line
-        })) !=null ) {
+        while ({ line = br.readLine; line } !=null ) {
           if (!first) {
             val parts: Array[String] = line.split("\\s*,\\s*")
            // System.out.logger.debug("SOURCE:" + parts(0) + " TARGET:" + parts(1) + " COUNT:" + parts(2))
-            val row=new Tuple3(parts(0),parts(1),parts(2))
+            val row= {
+              Tuple3(parts(0), parts(1), parts(2))
+            }
             testData += Tuple3(parts(0).toInt,parts(1).toInt,parts(2).toInt)
           }
           first = false

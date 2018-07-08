@@ -25,8 +25,13 @@ object KMeansClusteringUtility extends Serializable {
   val logger = LoggerFactory.getLogger(getClass)
   var featuresQuartiles: scala.collection.mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
 
-  def performKMeansClusteringForPeriod( days:IndexedSeq[DateTime], courseId: Long,keyspaceName:String,numFeatures: Int, numClusters: Int):mutable.Iterable[Tuple5[Long,String,Long,Long,String]] = {
-  //def performKMeansClusteringForPeriod( days: IndexedSeq[DateTime], courseId: Long, keyspaceName: String, numFeatures: Int, numClusters: Int): Unit = {
+  def performKMeansClusteringForPeriod(
+                                        days: IndexedSeq[DateTime],
+                                        courseId: Long,
+                                        keyspaceName: String,
+                                        numFeatures: Int,
+                                        numClusters: Int): mutable.Iterable[(Long, String, Long, Long, String)] = {
+    //def performKMeansClusteringForPeriod( days: IndexedSeq[DateTime], courseId: Long, keyspaceName: String, numFeatures: Int, numClusters: Int): Unit = {
     featuresQuartiles = new HashMap[Int, FeatureQuartiles]()
 
     val profilesDAO = new ProfilesDAO(keyspaceName)
@@ -44,24 +49,23 @@ object KMeansClusteringUtility extends Serializable {
         DateUtil.getDaysSinceEpoch(day)
     }
 
-    //logger.debug("COMMENTED HERE.1")
     val usersFeatures: Predef.Map[Long, Array[Double]] = daysSinceEpoch
       .flatMap { date => mapUserObservationsForDateToRows(date, courseId, profilesDAO) }
       .groupBy { row: Row => row.getLong(1) }
       .transform((userid, userRows) => transformUserFeaturesForPeriod(userid, userRows, numFeatures))
     extractFeatureQuartilesValues(usersFeatures)
-       evaluateFeaturesQuartiles(numFeatures)
-           val usersQuartilesFeatures: Predef.Map[Long, Array[Double]] =  usersFeatures.transform((userid, userFeatures)=>transformUserFeaturesToFeatureQuartiles(userid, userFeatures,numFeatures))
-        prepareSequenceFile(usersQuartilesFeatures, datapath)
-        if(ClusteringUtilityFunctions.runClustering( courseClusterConfiguration,numClusters)){
+    evaluateFeaturesQuartiles(numFeatures)
+    val usersQuartilesFeatures: Predef.Map[Long, Array[Double]] = usersFeatures.transform((userid, userFeatures) => transformUserFeaturesToFeatureQuartiles(userid, userFeatures, numFeatures))
+    prepareSequenceFile(usersQuartilesFeatures, datapath)
+    if (ClusteringUtilityFunctions.runClustering(courseClusterConfiguration, numClusters)) {
 
-         val usercourseprofiles:mutable.Iterable[Tuple5[Long,String,Long,Long,String]] =ClusteringUtilityFunctions.readAndProcessClusters(usersQuartilesFeatures, daysSinceEpoch,  courseId,output, outputDir,numFeatures,numClusters)
-         usercourseprofiles
-       }else {
-         val usercourseprofiles:mutable.Iterable[Tuple5[Long,String,Long,Long,String]] =new  scala.collection.mutable.ListBuffer[Tuple5[Long,String,Long,Long,String]]()
-         usercourseprofiles
+      val usercourseprofiles: mutable.Iterable[(Long, String, Long, Long, String)] = ClusteringUtilityFunctions.readAndProcessClusters(usersQuartilesFeatures, daysSinceEpoch, courseId, output, outputDir, numFeatures, numClusters)
+      usercourseprofiles
+    } else {
+      val usercourseprofiles: mutable.Iterable[(Long, String, Long, Long, String)] = new scala.collection.mutable.ListBuffer[(Long, String, Long, Long, String)]()
+      usercourseprofiles
 
-       }
+    }
     // ""
   }
 
@@ -106,14 +110,16 @@ object KMeansClusteringUtility extends Serializable {
     }
 
   }
+
   /**
     * For each feature finds quartiles based on the maximum identified value
     */
-  def evaluateFeaturesQuartiles(numFeatures:Int) {
+  def evaluateFeaturesQuartiles(numFeatures: Int) {
     for (i <- 0 to numFeatures - 1) {
       featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles()).findQuartiles()
     }
   }
+
   /**
     * For each user feature value finds appropriate quartile
     *
@@ -121,30 +127,31 @@ object KMeansClusteringUtility extends Serializable {
     * @param userFeatures
     * @return
     */
-  def transformUserFeaturesToFeatureQuartiles(userid:Long, userFeatures: Array[Double],numFeatures:Int): Array[Double]={
+  def transformUserFeaturesToFeatureQuartiles(userid: Long, userFeatures: Array[Double], numFeatures: Int): Array[Double] = {
     val quartilesFeaturesArray: Array[Double] = new Array[Double](numFeatures)
-    for(i<-0 to numFeatures - 1){
-      val quartile:FeatureQuartiles=featuresQuartiles.getOrElseUpdate(i,new FeatureQuartiles())
-      quartilesFeaturesArray(i)=quartile.getQuartileForFeatureValue(userFeatures(i))
+    for (i <- 0 to numFeatures - 1) {
+      val quartile: FeatureQuartiles = featuresQuartiles.getOrElseUpdate(i, new FeatureQuartiles())
+      quartilesFeaturesArray(i) = quartile.getQuartileForFeatureValue(userFeatures(i))
     }
     quartilesFeaturesArray
   }
+
   /**
     * We are writing user features vectors to the Sequence files
     *
     * @param usersFeatures
     */
-  def prepareSequenceFile(usersFeatures: collection.Map[Long, Array[Double]], datapath:Path): Unit = {
+  def prepareSequenceFile(usersFeatures: collection.Map[Long, Array[Double]], datapath: Path): Unit = {
     val vectors = new ListBuffer[NamedVector]
     usersFeatures.foreach {
       case (userid: Long, featuresArray: Array[Double]) =>
-        logger.debug("ADDING VECTOR FOR USER:"+userid+" features:"+featuresArray.mkString(","))
+        logger.debug("ADDING VECTOR FOR USER:" + userid + " features:" + featuresArray.mkString(","))
         val dv = new DenseVector(featuresArray)
         vectors += (new NamedVector(dv, userid.toString()))
     }
-    val valClass=if(ClusteringUtils.algorithmType==AlgorithmType.Canopy) classOf[ClusterWritable] else classOf[VectorWritable]
-    val writer = new SequenceFile.Writer(ClusteringUtils.fs, ClusteringUtils.conf, datapath, classOf[Text],valClass)
-    val vec =  new VectorWritable()
+    val valClass = if (ClusteringUtils.algorithmType == AlgorithmType.Canopy) classOf[ClusterWritable] else classOf[VectorWritable]
+    val writer = new SequenceFile.Writer(ClusteringUtils.fs, ClusteringUtils.conf, datapath, classOf[Text], valClass)
+    val vec = new VectorWritable()
     vectors.foreach { vector =>
       vec.set(vector)
       writer.append(new Text(vector.getName), vec)

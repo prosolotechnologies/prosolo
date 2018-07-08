@@ -50,7 +50,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
   def initialize() {
     logger.info("INITIALIZE TWITTER STREAMING")
     val twitterDAO = new TwitterStreamingDAOImpl()
-    val session: Session = HibernateUtil.getSessionFactory().openSession()
+    val session: Session = HibernateUtil.getSessionFactory.openSession()
     val hashtagsAndRefs: collection.mutable.Map[String, StreamListData] = twitterDAO.readAllHashtagsAndCredentialIds(session).asScala
     hashtagsAndReferences ++= hashtagsAndRefs;
     val hashTagsUserIds: collection.mutable.Map[String, java.util.List[java.lang.Long]] = twitterDAO.readAllUserPreferedHashtagsAndUserIds(session).asScala
@@ -93,7 +93,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
     initializeNewCurrentListAndStream(currentFilterList)
   }
 
-  def getLatestStreamAndList(): Tuple2[TwitterStream, ListBuffer[String]] = {
+  def getLatestStreamAndList(): (TwitterStream, ListBuffer[String]) = {
     twitterStreamsAndHashtags.get(streamsCounter - 1) match {
       case None => null
       case x: Option[(TwitterStream, ListBuffer[String])] => x.get
@@ -111,7 +111,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
 
   def initializeNewCurrentListAndStream(newCurrentFilterList: ListBuffer[String]) {
     if (newCurrentFilterList.size > 0) {
-      val (stream, streamId): Tuple2[TwitterStream, Int] = initializeNewStream(newCurrentFilterList)
+      val (stream, streamId): (TwitterStream, Int) = initializeNewStream(newCurrentFilterList)
       twitterStreamsAndHashtags.put(streamId, (stream, newCurrentFilterList))
     }
 
@@ -119,7 +119,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
 
   def addNewHashTags(hashtags: ListBuffer[String], userId: Int, goalId: Int): Boolean = {
     var changed = false
-    val currentFilterList: ListBuffer[String] = getLatestStreamList
+    val currentFilterList: ListBuffer[String] = getLatestStreamList()
     for (hashtag <- hashtags) {
       if (currentFilterList.size > STREAMLIMIT) {
         restartStream(getLatestStreamAndList._1, getLatestStreamAndList._2)
@@ -191,7 +191,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
   /**
     * Receives an array of events from buffer and add it to stream, followed by stream restart
     */
-  def updateHashTagsFromBufferAndRestartStream(eventsTuples: ListBuffer[Tuple4[ListBuffer[String], ListBuffer[String], Int, Int]]) {
+  def updateHashTagsFromBufferAndRestartStream(eventsTuples: ListBuffer[(ListBuffer[String], ListBuffer[String], Int, Int)]) {
     var currentStreamChanged = false
     logger.debug("updateHashTagsFromBufferAndRestartStream called. Current streamsCounter:" + streamsCounter + " streams size:" + twitterStreamsAndHashtags.size)
     val changedIds: ListBuffer[Int] = new ListBuffer[Int]()
@@ -240,7 +240,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
   /**
     * Initialize new stream for an array of hashtags
     */
-  def initializeNewStream(filters: Buffer[String]): Tuple2[TwitterStream, Int] = {
+  def initializeNewStream(filters: Buffer[String]): (TwitterStream, Int) = {
     super.initializeNewStream(new FilterQuery().track(filters: _*))
   }
 

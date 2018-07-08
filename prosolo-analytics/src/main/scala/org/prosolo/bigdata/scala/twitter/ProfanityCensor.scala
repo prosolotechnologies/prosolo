@@ -4,7 +4,6 @@ package org.prosolo.bigdata.scala.twitter
 import java.io.InputStream
 
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
-import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
@@ -40,7 +39,7 @@ class BadWordsCensor extends ProfanityCensor {
   def isPolite(text: String): Boolean = {
     var polite = true
     val wordsList: List[String] = text.split(" ").toList
-    wordsList.map { word => {
+    wordsList.foreach { word => {
       var anyword = word
       if (anyword.startsWith("#")) {
         anyword = word.replace("#", "")

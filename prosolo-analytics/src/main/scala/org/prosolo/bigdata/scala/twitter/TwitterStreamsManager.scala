@@ -12,7 +12,7 @@ trait TwitterStreamsManager {
 
   def initialize()
 
-  def initializeNewStream[T <: Any](filterQuery: FilterQuery): Tuple2[TwitterStream, Int] = {
+  def initializeNewStream[T <: Any](filterQuery: FilterQuery): (TwitterStream, Int) = {
     val config = TwitterPropertiesHolder.getTwitterConfigurationBuilder.build()
     val twitterStream = new TwitterStreamFactory(config).getInstance
     twitterStream.addListener(StatusListener.listener)

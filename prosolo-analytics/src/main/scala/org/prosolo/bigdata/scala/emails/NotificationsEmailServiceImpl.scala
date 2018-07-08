@@ -18,7 +18,7 @@ class NotificationsEmailServiceImpl extends EmailService[NotificationReceiverSum
     notificationEmailGenerator
   }
 
-  override def sendEmailBatches(batchEmails:Array[NotificationReceiverSummary]): Tuple2[mutable.Map[String,EmailSuccess],mutable.Map[String,EmailSuccess]] = {
+  override def sendEmailBatches(batchEmails:Array[NotificationReceiverSummary]): (mutable.Map[String, EmailSuccess], mutable.Map[String, EmailSuccess]) = {
    val emailsToSend:Map[EmailContentGenerator,String]= batchEmails.toStream.map{
       emailSummary=>{
         logger.debug("BATCH:"+emailSummary)

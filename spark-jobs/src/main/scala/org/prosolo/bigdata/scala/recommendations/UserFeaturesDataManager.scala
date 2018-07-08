@@ -65,7 +65,7 @@ object UserFeaturesDataManager {
     */
   def combineUserCredentialVectors(sqlContext: SparkSession, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
     import sqlContext.implicits._
-    implicit val myObjEncoder = org.apache.spark.sql.Encoders.kryo[Tuple2[Long,DoubleMatrix]]
+    implicit val myObjEncoder = org.apache.spark.sql.Encoders.kryo[(Long, DoubleMatrix)]
     usersWithCredentialsDF.show(100)
     resultsDF.show(100)
      //Combine One-Hot Encoded credential vectors for each item

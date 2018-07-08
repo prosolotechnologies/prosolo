@@ -9,7 +9,7 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 trait EventsChecker{
   val eventTypesFile:String;
-  val eventsType: Map[String, Tuple4[ObservationType, EventType, String, Double]] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
+  val eventsType: Map[String, (ObservationType, EventType, String, Double)] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
   val eventTypes: ListBuffer[EventType]=new ListBuffer[EventType]()
   val objectTypes: ListBuffer[String]=new ListBuffer[String]()
   def eventsTypeKey(eventType:EventType, objectType:String):String={

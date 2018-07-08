@@ -51,7 +51,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
     initializeNewCurrentListAndStream(currentFilterList)
   }
 
-  def getLatestStreamAndList(): Tuple2[TwitterStream, ListBuffer[Long]] = {
+  def getLatestStreamAndList(): (TwitterStream, ListBuffer[Long]) = {
     twitterStreamsAndUsers.get(streamsCounter - 1) match {
       case None => null
       case x: Option[(TwitterStream, ListBuffer[Long])] => x.get
@@ -68,7 +68,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
 
   def initializeNewCurrentListAndStream(newCurrentFilterList: ListBuffer[Long]) {
     if (newCurrentFilterList.size > 0) {
-      val (stream, streamId): Tuple2[TwitterStream, Int] = initializeNewStream(newCurrentFilterList)
+      val (stream, streamId): (TwitterStream, Int) = initializeNewStream(newCurrentFilterList)
       twitterStreamsAndUsers.put(streamId, (stream, newCurrentFilterList))
       newCurrentFilterList.foreach { userid => usersAndStreamsIds.put(userid, streamId) }
     }
@@ -115,7 +115,7 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
   /**
     * Initialize new stream for an array of users ids
     */
-  def initializeNewStream(filters: Buffer[Long]): Tuple2[TwitterStream, Int] = {
+  def initializeNewStream(filters: Buffer[Long]): (TwitterStream, Int) = {
     super.initializeNewStream(new FilterQuery().follow(filters: _*))
 
   }

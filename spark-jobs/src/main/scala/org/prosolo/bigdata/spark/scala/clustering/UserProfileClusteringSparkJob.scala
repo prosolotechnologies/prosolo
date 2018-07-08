@@ -47,9 +47,9 @@ class UserProfileClusteringSparkJob(kName: String, numFeatures: Int, numClusters
       credentialsIt => {
         val credentials = credentialsIt.duplicate
 
-        val userCourseKMeansProfiles: Iterator[Iterable[Tuple5[Long, String, Long, Long, String]]] = credentials._1.map { credentialId =>
+        val userCourseKMeansProfiles: Iterator[Iterable[(Long, String, Long, Long, String)]] = credentials._1.map { credentialId =>
           logger.debug("RUNNING USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialId)
-          val userCourseProfile: Iterable[Tuple5[Long, String, Long, Long, String]] = KMeansClusteringUtility.performKMeansClusteringForPeriod(days, credentialId, dbName, numFeatures, numClusters)
+          val userCourseProfile: Iterable[(Long, String, Long, Long, String)] = KMeansClusteringUtility.performKMeansClusteringForPeriod(days, credentialId, dbName, numFeatures, numClusters)
           userCourseProfile
         }
         userCourseKMeansProfiles.foreach(userProfile => {

@@ -269,13 +269,13 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
   }
 
   def storeUserQuartilesFeaturesToClusterFiles(usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])],
-                                               days:IndexedSeq[Long], courseId:Long):Iterable[Tuple5[Long,String,Long,Long,String]] ={
+                                               days:IndexedSeq[Long], courseId:Long):Iterable[(Long, String, Long, Long, String)] ={
     // val csvfilewriter = new PrintWriter(new BufferedWriter(new FileWriter("features_outputs_"+algorithmType.toString+".csv", true)))
     val clusterswriters:HashMap[Int,PrintWriter]=new HashMap[Int,PrintWriter]()
     //val dates=startDateSinceEpoch.toString+"_"+endDateSinceEpoch.toString
     val dates=days(0)+"_"+days(days.length-1)
     val endDateSinceEpoch=days(days.length-1)
-    val usercourseSequences:Iterable[Tuple5[Long,String,Long,Long,String]]=usersQuartilesFeaturesAndClusters.map{
+    val usercourseSequences:Iterable[(Long, String, Long, Long, String)]=usersQuartilesFeaturesAndClusters.map{
       case(userid, valueTuple)=> {
         val clusterId = valueTuple._1
         val clusterProfile = getMatchedClusterProfile(clusterId)
@@ -377,7 +377,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
         if(!matchedElements.contains(matchElem._1)){
           val tempList = elementsToCheck.getOrElse(matchElem._1,new ArrayBuffer[(ClusterResults,Double)]())
           //  val elem=(clusterResult,matchElem._2)
-          tempList +=new Tuple2(clusterResult,matchElem._2)
+          tempList +=Tuple2(clusterResult,matchElem._2)
           elementsToCheck.put(matchElem._1, tempList)
         }
 
@@ -427,7 +427,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     val reader = new SequenceFile.Reader(ClusteringUtils.fs, new Path(outputDir + "/" + Cluster.CLUSTERED_POINTS_DIR + "/part-m-0"), ClusteringUtils.conf)
     val key = new org.apache.hadoop.io.IntWritable()
     val value = new WeightedPropertyVectorWritable()
-    val usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])]=new HashMap[Long,Tuple2[Int,Array[Double]]]()
+    val usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])]=new HashMap[Long,(Int, Array[Double])]()
     while (reader.next(key, value)) {
       val namedVector:NamedVector=value.getVector().asInstanceOf[NamedVector]
 

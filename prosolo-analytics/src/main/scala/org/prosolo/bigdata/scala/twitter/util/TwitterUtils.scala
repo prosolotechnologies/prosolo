@@ -3,7 +3,6 @@ package org.prosolo.bigdata.scala.twitter.util
 import scala.collection.mutable.ListBuffer
 import com.google.gson.JsonObject
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
-import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.slf4j.LoggerFactory
 
 /**
@@ -12,8 +11,8 @@ import org.slf4j.LoggerFactory
 object TwitterUtils {
   val logger = LoggerFactory.getLogger(getClass)
 
-  def extractHashTagsFromEvents(events: ListBuffer[AnalyticsEvent]): ListBuffer[Tuple4[ListBuffer[String], ListBuffer[String], Int, Int]] = {
-    var eventsTuples = new ListBuffer[Tuple4[ListBuffer[String], ListBuffer[String], Int, Int]]()
+  def extractHashTagsFromEvents(events: ListBuffer[AnalyticsEvent]): ListBuffer[(ListBuffer[String], ListBuffer[String], Int, Int)] = {
+    var eventsTuples = new ListBuffer[(ListBuffer[String], ListBuffer[String], Int, Int)]()
     for (event <- events) {
       val data: JsonObject = event.getData()
       val userid: Int = data.get("userid").getAsInt

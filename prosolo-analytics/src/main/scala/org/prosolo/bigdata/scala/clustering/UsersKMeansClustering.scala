@@ -178,7 +178,7 @@ object UsersKMeansClustering {
         //checking if cluster was not already resolved
          if(!matchedElements.contains(matchElem._1)){
               val tempList = elementsToCheck.getOrElse(matchElem._1,new ArrayBuffer[(ClusterResults,Double)]())
-        tempList +=new Tuple2(clusterResult,matchElem._2)
+        tempList +=Tuple2(clusterResult, matchElem._2)
         elementsToCheck.put(matchElem._1, tempList)
          }
     
