@@ -14,9 +14,7 @@ import scala.collection.Seq
 /**
   * Created by zoran on 05/02/17.
   */
-/**
-  * zoran 05/02/17
-  */
+
 case class StudentInteractionsInCourse(course: Long, student: Long, interactions: List[String])
 
 case class SocialInteractionCount(credential: Long, source: Long, target: Long, count: Int)
