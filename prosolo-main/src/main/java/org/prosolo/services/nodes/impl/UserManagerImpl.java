@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -15,8 +16,10 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -61,6 +64,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private EventFactory eventFactory;
 	@Inject
 	private RoleManager roleManager;
+	@Inject private PasswordResetManager passwordResetManager;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -217,31 +221,84 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							  String password, String position, InputStream avatarStream,
 							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+		Result<User> res = self.createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	public User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+										  String password, String position, InputStream avatarStream,
+										  String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException {
+		Result<User> res = self.createNewUserSendEmailAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<User> createNewUserSendEmailAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+												   String password, String position, InputStream avatarStream,
+												   String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException {
+		Result<User> res = self.createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		//send email to new user for password recovery
+		sendNewPassword(res.getResult());
+		return res;
+	}
+
+	private void sendNewPassword(User user) {
 		try {
-			Result<User> res = self.createNewUserAndGetEvents(
-					organizationId,
-					name,
-					lastname,
-					emailAddress,
-					emailVerified,
-					password,
-					position,
-					avatarStream,
-					avatarFilename,
-					roles,
-					isSystem);
-
-			eventFactory.generateEvents(res.getEventQueue());
-
-			return res.getResult();
-		} catch (IllegalDataStateException idse) {
-			throw idse;
-		} catch (DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
+			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+			if (resetLinkSent) {
+				logger.info("Password instructions have been sent");
+			} else {
+				logger.error("Error sending password instruction");
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error sending the password to the new user");
 		}
 	}
+
 
 	@Override
 	@Transactional (readOnly = false)
