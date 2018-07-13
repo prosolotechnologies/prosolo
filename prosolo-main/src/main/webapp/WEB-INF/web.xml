@@ -77,11 +77,11 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <filter>
-        <filter-name>Login Partial Response Redirect</filter-name>
-        <filter-class>org.prosolo.core.jsf.LoginPartialResponseRedirectFilter</filter-class>
+        <filter-name>preventBrowserCachingRestrictedPagesFilter</filter-name>
+        <filter-class>org.prosolo.core.jsf.PreventBrowserCachingRestrictedPagesFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>Login Partial Response Redirect</filter-name>
+        <filter-name>preventBrowserCachingRestrictedPagesFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <filter>

@@ -79,6 +79,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
     private SAMLUserDetailsService samlUserDetailsService;
+
+	private static final String LOGIN_PAGE = "/login";
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -120,6 +122,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/recovery/**").permitAll()
 				.antMatchers("/javax.faces.resource/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
+				.antMatchers("/api/health").permitAll()
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
@@ -311,12 +314,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/admin/**").denyAll()
 				.antMatchers("/**").hasAnyAuthority("BASIC.USER.ACCESS")
 				.and()
-				.formLogin().loginPage("/login").loginProcessingUrl("/loginspring")
+				.formLogin().loginPage(LOGIN_PAGE).loginProcessingUrl("/loginspring")
 				.usernameParameter("username")
 				.passwordParameter("password")
 				.permitAll()
 				.successHandler(authenticationSuccessHandler)
 				.failureUrl("/login?err=1")
+				.and().exceptionHandling().authenticationEntryPoint(customAuthEntryPoint())
 				.and().csrf().disable()
 				.rememberMe()
 				.rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
@@ -350,6 +354,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		//super.configure(auth);
 		auth.authenticationProvider(daoAuthenticationProvider());
+	}
+
+	@Bean
+	public CustomLoginUrlAuthenticationEntryPoint customAuthEntryPoint() {
+		return new CustomLoginUrlAuthenticationEntryPoint(LOGIN_PAGE);
 	}
 	
 

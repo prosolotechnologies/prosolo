@@ -1,11 +1,10 @@
-Current date:2018/02/19-08:44:40
-Source branch:PRS-3054-when-grade-is-addedupdated-send
+Current date:2018/04/26-19:21:34
+Source branch:1.2.0
 Project version:1
 Git version:
-commit f40a9868e9b92471a0dedb731973f9ac38cf8425
-Author: Nikola Milikic <nikola.milikic@gmail.com>
-Date:   Mon Feb 19 07:15:07 2018 +0100
+commit 8e3e75934d613c0808d6c9895e30cb34212dacba
+Merge: 7ea6e9f84 97b4c20ed
+Author: jeremycod <zoran.jeremic@gmail.com>
+Date:   Thu Apr 26 19:21:08 2018 -0700
 
-    Updating YouTube API key since the last one has expired.
-    Updating growl messages in several places.
-    Updated a label on the competence page "Existing Document" -> "Existing Evidence"
+    Merge branch 'release/1.2.0' of bitbucket.org:zjeremic/prosolo-multimodule into release/1.2.0

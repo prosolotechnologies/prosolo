@@ -89,7 +89,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
-		System.out.println("SESSION BEAN INITIALIZED");
 		learningContext = new LearningContext();
 	}
 	

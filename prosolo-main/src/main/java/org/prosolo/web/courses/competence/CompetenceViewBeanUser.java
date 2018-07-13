@@ -169,6 +169,10 @@ public class CompetenceViewBeanUser implements Serializable {
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();
+			if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
+				//student enrolled so he can now upload/post evidence
+				submitEvidenceBean.init(new LearningEvidenceData());
+			}
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);

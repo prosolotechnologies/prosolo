@@ -51,6 +51,7 @@
 							URL
 						</p:commandLink>
 					</li>
+					<ui:remove>
 					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
 						<p:commandLink
 								pt:role="tab"
@@ -62,6 +63,7 @@
 							Text
 						</p:commandLink>
 					</li>
+					</ui:remove>
 					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 						<li role="presentation">
 							<p:commandLink
