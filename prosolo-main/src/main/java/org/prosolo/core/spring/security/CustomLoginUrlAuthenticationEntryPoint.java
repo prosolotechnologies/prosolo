@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * This class is invoked when a user has requested a resource they do not have access to. In this case, we check
+ * This class is invoked when a non-authenticated user has requested a restricted resource. In this case, we check
  * whether it is an AJAX request, in which case we pass the correct XML that the servlet container expects in order
  * to do the forwarding to the login page properly.
  *
