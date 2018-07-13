@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
@@ -84,9 +83,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.email = :email " +
-							"AND user.verified = :verifiedEmail ";
+					"FROM User user " +
+					"WHERE user.email = :email " +
+					"AND user.verified = :verifiedEmail ";
 			if (onlyNotDeleted) {
 				query += "AND user.deleted IS FALSE";
 			}
@@ -113,9 +112,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.email = :email " +
-							"AND user.verified = :verifiedEmail ";
+					"FROM User user " +
+					"WHERE user.email = :email " +
+					"AND user.verified = :verifiedEmail ";
 			if (organizationId > 0) {
 				query += "AND user.organization.id = :orgId";
 			} else {
@@ -188,8 +187,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.deleted = :deleted ";
+					"FROM User user " +
+					"WHERE user.deleted = :deleted ";
 
 			if (orgId > 0) {
 				query += "AND user.organization.id = :orgId";
@@ -559,8 +558,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		query.append(
 			"SELECT user " +
-			" FROM User user " +
-			" WHERE user.deleted = :deleted "
+			"FROM User user " +
+			"WHERE user.deleted = :deleted "
 		);
 
 		if (toExclude != null && toExclude.length > 0) {
@@ -698,9 +697,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void setUserOrganization(long userId, long organizationId) {
 		try {
 			User user = loadResource(User.class,userId);
-			if(organizationId != 0) {
+			if (organizationId != 0) {
 				user.setOrganization(loadResource(Organization.class, organizationId));
-			}else{
+			} else {
 				user.setOrganization(null);
 			}
 			saveEntity(user);
@@ -962,10 +961,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"WITH role.id = :roleId " +
 				"LEFT JOIN user.unitMemberships um " +
 				"WITH um.unit.id = :unitId " +
-				"AND um.role.id = :roleId " +
+					"AND um.role.id = :roleId " +
 				"WHERE user.organization.id = :orgId " +
-				"AND user.deleted IS FALSE " +
-				"AND um IS NULL";
+					"AND user.deleted IS FALSE " +
+					"AND um IS NULL";
 		return (long) persistence.currentManager()
 				.createQuery(query)
 				.setLong("unitId", unitId)
@@ -1231,7 +1230,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public long getUserOrganizationId(long userId) throws DbConnectionException {
 		try {
 			String q =
-					"SELECT user.organization.id FROM User user " +
+					"SELECT user.organization.id " +
+					"FROM User user " +
 					"WHERE user.id = :userId";
 
 			Long orgId = (Long) persistence.currentManager()
