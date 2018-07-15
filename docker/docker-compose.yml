@@ -31,13 +31,28 @@ services:
      networks:
          - localnet
 
+  mysql:
+     container_name: mysql
+     environment:
+             - MYSQL_ROOT_PASSWORD=prosolo
+             - MYSQL_DATABASE=prosolo
+     build: mysql
+    # volumes_from:
+     #        - mysql_data
+     volumes:
+             - "./mysql/config:/etc/mysql/conf.d"
+     expose:
+             - "3307"
+     ports:
+             - "3307:3306"
+
 volumes:
   cassandra_volume:
     external:
       name: cassandra_volume_${VCS_BRANCH}
-  #mysql_data_volume:
-   # external:
-    #  name: mysql_data_volume_${VCS_BRANCH}
+  mysql_data_volume:
+    external:
+      name: mysql_data_volume_${VCS_BRANCH}
   #elasticsearch_data_volume:
   #  external:
   #    name: elasticsearch_data_volume_${VCS_BRANCH}

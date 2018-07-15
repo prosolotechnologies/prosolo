@@ -10,7 +10,7 @@ onErrorQuit () {
 function createBranchVolumes {
     docker volume create --name=cassandra_volume_${VCS_BRANCH} && \
     docker volume create --name=elasticsearch_volume_${VCS_BRANCH} && \
-    docker volume create --name=mysql_volume_${VCS_BRANCH}
+    docker volume create --name=mysql_data_volume_${VCS_BRANCH}
 }
 function getBranch() {
         git rev-parse --abbrev-ref HEAD | sed -E 's/[\/\\]+/_/g'
@@ -143,11 +143,10 @@ function reset_database {
 
 function displayHelp() {
     echo -e "
-    Server script takes care of coordinating database layer bootstrap and update, and starting vserser.
-    This script will not return, but start vserver instead, unless 'start-database' option is passed.
-    Cassandra and PostgreSQL are both handled by this script.
+    Server script takes care of coordinating database layer bootstrap and update.
+        Cassandra, Elasticsearch, MySql and RabbitMQ are handled by this script.
 
-    Usage: $0 <parameters> [ -- <sbt parameters> ]
+    Usage: $0 <parameters> [ -- <parameters> ]
 
     Available parameters
         -h | --help    : shows this screen and exists
@@ -157,11 +156,6 @@ function displayHelp() {
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
         reset          : resets database content and repeats bootstrap process
-        start-database : only executes database layer (without starting server)
-
-    -- <sbt parameters>
-        All parameters following the first -- will be forwarded directly to the SBT script. If -- appears multiple times,
-        the first occurrence will indicate 'SBT params start here' and the subsequent ones will be sent to SBT.
 
     "
 }
