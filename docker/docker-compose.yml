@@ -1,0 +1,46 @@
+version: '2'
+services:
+  cassandra:
+     build:  ./cassandra
+     restart:  on-failure
+     expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
+     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=700M
+      - VSYSTEM_PROTOCOL=${VSYSTEM_PROTOCOL}
+     ports:
+      - "9042:9042"
+      - "9160:9160"
+    # volumes:
+      #- ./cassandra/init_scripts:/prosolo/init_scripts
+      #- ../db/cassandra/keyspaces.dev:/prosolo/init_scripts/keyspaces
+      #- ../db/dev-bootstrap:/init_script/dev_bootstrap
+      #- cassandra_volume:/var/lib/cassandra
+     ulimits:
+       nofile:
+        soft: 100000
+        hard: 100000
+       nproc:
+        soft: 32768
+        hard: 32768
+     networks:
+         - localnet
+
+volumes:
+  cassandra_volume:
+    external:
+      name: cassandra_volume_${VCS_BRANCH}
+  #mysql_data_volume:
+   # external:
+    #  name: mysql_data_volume_${VCS_BRANCH}
+  #elasticsearch_data_volume:
+  #  external:
+  #    name: elasticsearch_data_volume_${VCS_BRANCH}
+networks:
+  localnet:
+

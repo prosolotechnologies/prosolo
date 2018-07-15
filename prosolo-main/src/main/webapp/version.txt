@@ -1,10 +1,10 @@
-Current date:2018/04/26-19:21:34
+Current date:2018/07/14-16:39:00
 Source branch:1.2.0
 Project version:1
 Git version:
-commit 8e3e75934d613c0808d6c9895e30cb34212dacba
-Merge: 7ea6e9f84 97b4c20ed
-Author: jeremycod <zoran.jeremic@gmail.com>
-Date:   Thu Apr 26 19:21:08 2018 -0700
+commit a1a197f330faad132af96e727afe295e35676953
+Merge: bd2171fb1 c934c8488
+Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
+Date:   Fri Jul 13 12:19:05 2018 +0200
 
-    Merge branch 'release/1.2.0' of bitbucket.org:zjeremic/prosolo-multimodule into release/1.2.0
+    Merge branch 'PRS-3209-problem-with-reseting-password' into release/1.2.0
