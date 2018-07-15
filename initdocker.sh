@@ -9,7 +9,7 @@ onErrorQuit () {
 }
 function createBranchVolumes {
     docker volume create --name=cassandra_volume_${VCS_BRANCH} && \
-    docker volume create --name=elasticsearch_volume_${VCS_BRANCH} && \
+    docker volume create --name=elasticsearch_data_volume_${VCS_BRANCH} && \
     docker volume create --name=mysql_data_volume_${VCS_BRANCH}
 }
 function getBranch() {

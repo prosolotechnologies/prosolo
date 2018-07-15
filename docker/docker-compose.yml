@@ -45,6 +45,14 @@ services:
              - "3307"
      ports:
              - "3307:3306"
+  elasticsearch:
+     container_name: elasticsearch
+     build: elasticsearch
+     #volumes_from:
+      #           - elasticsearch_data
+     command: -Des.node.name="PLE15"
+     ports:
+         - "9200:9200"
 
 volumes:
   cassandra_volume:
@@ -53,9 +61,9 @@ volumes:
   mysql_data_volume:
     external:
       name: mysql_data_volume_${VCS_BRANCH}
-  #elasticsearch_data_volume:
-  #  external:
-  #    name: elasticsearch_data_volume_${VCS_BRANCH}
+  elasticsearch_data_volume:
+    external:
+      name: elasticsearch_data_volume_${VCS_BRANCH}
 networks:
   localnet:
 

@@ -1,3165 +1,2854 @@
-create table QRTZ_BLOB_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-BLOB_DATA blob null,
-primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-)
-;
-
-create index SCHED_NAME
-	on QRTZ_BLOB_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-create table QRTZ_CALENDARS
-(
-	SCHED_NAME varchar(120) not null,
-	CALENDAR_NAME varchar(200) not null,
-CALENDAR blob not null,
-primary key (SCHED_NAME, CALENDAR_NAME)
-)
-;
-
-create table QRTZ_CRON_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-CRON_EXPRESSION varchar(120) not null,
-TIME_ZONE_ID varchar(80) null,
-primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-)
-;
-
-create table QRTZ_FIRED_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	ENTRY_ID varchar(95) not null,
-TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-INSTANCE_NAME varchar(200) not null,
-FIRED_TIME bigint(13) not null,
-SCHED_TIME bigint(13) not null,
-PRIORITY int not null,
-STATE varchar(16) not null,
-JOB_NAME varchar(200) null,
-JOB_GROUP varchar(200) null,
-IS_NONCONCURRENT varchar(1) null,
-REQUESTS_RECOVERY varchar(1) null,
-primary key (SCHED_NAME, ENTRY_ID)
-)
-;
-
-create index IDX_QRTZ_FT_INST_JOB_REQ_RCVRY
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, INSTANCE_NAME, REQUESTS_RECOVERY)
-;
-
-create index IDX_QRTZ_FT_JG
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, JOB_GROUP)
-;
-
-create index IDX_QRTZ_FT_J_G
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, JOB_NAME, JOB_GROUP)
-;
-
-create index IDX_QRTZ_FT_TG
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, TRIGGER_GROUP)
-;
-
-create index IDX_QRTZ_FT_TRIG_INST_NAME
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, INSTANCE_NAME)
-;
-
-create index IDX_QRTZ_FT_T_G
-	on QRTZ_FIRED_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-create table QRTZ_JOB_DETAILS
-(
-	SCHED_NAME varchar(120) not null,
-	JOB_NAME varchar(200) not null,
-JOB_GROUP varchar(200) not null,
-DESCRIPTION varchar(250) null,
-JOB_CLASS_NAME varchar(250) not null,
-IS_DURABLE varchar(1) not null,
-IS_NONCONCURRENT varchar(1) not null,
-IS_UPDATE_DATA varchar(1) not null,
-REQUESTS_RECOVERY varchar(1) not null,
-JOB_DATA blob null,
-primary key (SCHED_NAME, JOB_NAME, JOB_GROUP)
-)
-;
-
-create index IDX_QRTZ_J_GRP
-	on QRTZ_JOB_DETAILS (SCHED_NAME, JOB_GROUP)
-;
-
-create index IDX_QRTZ_J_REQ_RECOVERY
-	on QRTZ_JOB_DETAILS (SCHED_NAME, REQUESTS_RECOVERY)
-;
-
-create table QRTZ_LOCKS
-(
-	SCHED_NAME varchar(120) not null,
-	LOCK_NAME varchar(40) not null,
-primary key (SCHED_NAME, LOCK_NAME)
-)
-;
-
-create table QRTZ_PAUSED_TRIGGER_GRPS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_GROUP varchar(200) not null,
-primary key (SCHED_NAME, TRIGGER_GROUP)
-)
-;
-
-create table QRTZ_SCHEDULER_STATE
-(
-	SCHED_NAME varchar(120) not null,
-	INSTANCE_NAME varchar(200) not null,
-LAST_CHECKIN_TIME bigint(13) not null,
-CHECKIN_INTERVAL bigint(13) not null,
-primary key (SCHED_NAME, INSTANCE_NAME)
-)
-;
-
-create table QRTZ_SIMPLE_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-REPEAT_COUNT bigint(7) not null,
-REPEAT_INTERVAL bigint(12) not null,
-TIMES_TRIGGERED bigint(10) not null,
-primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-)
-;
-
-create table QRTZ_SIMPROP_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-STR_PROP_1 varchar(512) null,
-STR_PROP_2 varchar(512) null,
-STR_PROP_3 varchar(512) null,
-INT_PROP_1 int null,
-INT_PROP_2 int null,
-LONG_PROP_1 bigint null,
-LONG_PROP_2 bigint null,
-DEC_PROP_1 decimal(13,4) null,
-DEC_PROP_2 decimal(13,4) null,
-BOOL_PROP_1 varchar(1) null,
-BOOL_PROP_2 varchar(1) null,
-primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-)
-;
-
-create table QRTZ_TRIGGERS
-(
-	SCHED_NAME varchar(120) not null,
-	TRIGGER_NAME varchar(200) not null,
-TRIGGER_GROUP varchar(200) not null,
-JOB_NAME varchar(200) not null,
-JOB_GROUP varchar(200) not null,
-DESCRIPTION varchar(250) null,
-NEXT_FIRE_TIME bigint(13) null,
-PREV_FIRE_TIME bigint(13) null,
-PRIORITY int null,
-TRIGGER_STATE varchar(16) not null,
-TRIGGER_TYPE varchar(8) not null,
-START_TIME bigint(13) not null,
-END_TIME bigint(13) null,
-CALENDAR_NAME varchar(200) null,
-MISFIRE_INSTR smallint(2) null,
-JOB_DATA blob null,
-primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
-constraint QRTZ_TRIGGERS_ibfk_1
-foreign key (SCHED_NAME, JOB_NAME, JOB_GROUP) references prosolo3.QRTZ_JOB_DETAILS (SCHED_NAME, JOB_NAME, JOB_GROUP)
-)
-;
-
-create index IDX_QRTZ_T_C
-	on QRTZ_TRIGGERS (SCHED_NAME, CALENDAR_NAME)
-;
-
-create index IDX_QRTZ_T_G
-	on QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_GROUP)
-;
-
-create index IDX_QRTZ_T_J
-	on QRTZ_TRIGGERS (SCHED_NAME, JOB_NAME, JOB_GROUP)
-;
-
-create index IDX_QRTZ_T_JG
-	on QRTZ_TRIGGERS (SCHED_NAME, JOB_GROUP)
-;
-
-create index IDX_QRTZ_T_NEXT_FIRE_TIME
-	on QRTZ_TRIGGERS (SCHED_NAME, NEXT_FIRE_TIME)
-;
-
-create index IDX_QRTZ_T_NFT_MISFIRE
-	on QRTZ_TRIGGERS (SCHED_NAME, MISFIRE_INSTR, NEXT_FIRE_TIME)
-;
-
-create index IDX_QRTZ_T_NFT_ST
-	on QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_STATE, NEXT_FIRE_TIME)
-;
-
-create index IDX_QRTZ_T_NFT_ST_MISFIRE
-	on QRTZ_TRIGGERS (SCHED_NAME, MISFIRE_INSTR, NEXT_FIRE_TIME, TRIGGER_STATE)
-;
-
-create index IDX_QRTZ_T_NFT_ST_MISFIRE_GRP
-	on QRTZ_TRIGGERS (SCHED_NAME, MISFIRE_INSTR, NEXT_FIRE_TIME, TRIGGER_GROUP, TRIGGER_STATE)
-;
-
-create index IDX_QRTZ_T_N_G_STATE
-	on QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_GROUP, TRIGGER_STATE)
-;
-
-create index IDX_QRTZ_T_N_STATE
-	on QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP, TRIGGER_STATE)
-;
-
-create index IDX_QRTZ_T_STATE
-	on QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_STATE)
-;
-
-alter table QRTZ_BLOB_TRIGGERS
-add constraint QRTZ_BLOB_TRIGGERS_ibfk_1
-		foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references prosolo3.QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-alter table QRTZ_CRON_TRIGGERS
-add constraint QRTZ_CRON_TRIGGERS_ibfk_1
-		foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references prosolo3.QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-alter table QRTZ_SIMPLE_TRIGGERS
-add constraint QRTZ_SIMPLE_TRIGGERS_ibfk_1
-		foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references prosolo3.QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-alter table QRTZ_SIMPROP_TRIGGERS
-add constraint QRTZ_SIMPROP_TRIGGERS_ibfk_1
-		foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references prosolo3.QRTZ_TRIGGERS (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-;
-
-create table activity1
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-difficulty int default '3' null,
-duration bigint not null,
-grading_mode varchar(255) not null,
-max_points int not null,
-result_type varchar(255) not null,
-rubric_visibility varchar(255) not null,
-student_can_edit_response char default 'F' null,
-student_can_see_other_responses char default 'F' null,
-type varchar(255) not null,
-version bigint not null,
-visible_for_unenrolled_students char default 'F' null,
-accept_grades char default 'F' null,
-consumer_key varchar(255) null,
-launch_url varchar(255) null,
-open_in_new_window char default 'F' null,
-score_calculation varchar(255) null,
-shared_secret varchar(255) null,
-text text null,
-link_name varchar(255) null,
-url varchar(255) null,
-url_type varchar(255) null,
-created_by bigint null,
-rubric bigint null
-)
-;
-
-create index FK_51vt5mwt287fcjsoap7vsm5e2
-	on activity1 (created_by)
-;
-
-create index FK_r28bfc9xvnj41036ky8xb7o98
-	on activity1 (rubric)
-;
-
-create table activity1_captions
-(
-	activity1 bigint not null,
-	captions bigint not null,
-	primary key (activity1, captions),
-constraint UK_b1n7gy4nb3oplj5v8jhali4rs
-unique (captions),
-constraint FK_8gchebrsymmudflj24yo48n79
-foreign key (activity1) references prosolo3.activity1 (id)
-)
-;
-
-create table activity1_files
-(
-	activity1 bigint not null,
-	files bigint not null,
-	primary key (activity1, files),
-constraint UK_h9l61ttwr60t42cj53buu3rm0
-unique (files),
-constraint FK_m20elbr34b3oe5p86dcd773nl
-foreign key (activity1) references prosolo3.activity1 (id)
-)
-;
-
-create table activity1_links
-(
-	activity1 bigint not null,
-	links bigint not null,
-	primary key (activity1, links),
-constraint UK_mpsbwvmwi7kc3a6sbcm8s9e5f
-unique (links),
-constraint FK_rhmeeesk0sdkg3qagjmf9lroj
-foreign key (activity1) references prosolo3.activity1 (id)
-)
-;
-
-create table activity1_tags
-(
-	activity1 bigint not null,
-	tags bigint not null,
-	primary key (activity1, tags),
-constraint FK_hynwy4o71nraccfi6lu06ggsc
-foreign key (activity1) references prosolo3.activity1 (id)
-)
-;
-
-create index FK_4lcw676ek48pd37v9kr0mymim
-	on activity1_tags (tags)
-;
-
-create table activity_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-points int not null,
-type varchar(255) not null,
-activity bigint not null,
-competence_assessment bigint not null,
-grade bigint null,
-constraint UK_ir3b4ua2jau1q2mlw3xhwr4s7
-unique (competence_assessment, activity),
-constraint FK_o3uai8md6l5ilpc98ynjnlks0
-foreign key (activity) references prosolo3.activity1 (id)
-)
-;
-
-create index FK_o3uai8md6l5ilpc98ynjnlks0
-	on activity_assessment (activity)
-;
-
-create index FK_pqe8ab74gg1e45r1muu3l2f48
-	on activity_assessment (grade)
-;
-
-create table activity_criterion_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-comment varchar(255) null,
-criterion bigint null,
-level bigint null,
-assessment bigint null,
-constraint UK_b2gf4fq74omli2r1ftnq3ggob
-unique (assessment, criterion),
-constraint FK_py8sdhd47tm0swq51k6gtm8pt
-foreign key (assessment) references prosolo3.activity_assessment (id)
-)
-;
-
-create index FK_j41uvkbj5h50bv2okbqakkolf
-	on activity_criterion_assessment (level)
-;
-
-create index FK_l9389a0coyr4791boeeb8reuj
-	on activity_criterion_assessment (criterion)
-;
-
-create table activity_discussion_message
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-content varchar(9000) null,
-updated datetime null,
-discussion bigint null,
-sender bigint null,
-constraint FK_pc9oblcdq0wtaqumrpoghmym5
-foreign key (discussion) references prosolo3.activity_assessment (id)
-)
-;
-
-create index FK_gp4rjlpt100i22gadcrqsuyea
-	on activity_discussion_message (sender)
-;
-
-create index FK_pc9oblcdq0wtaqumrpoghmym5
-	on activity_discussion_message (discussion)
-;
-
-create table activity_discussion_participant
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-is_read char default 'T' null,
-activity_discussion bigint null,
-participant bigint null,
-constraint FK_1aja12ermpd5n492qpm0wv51p
-foreign key (activity_discussion) references prosolo3.activity_assessment (id)
-)
-;
-
-create index FK_1aja12ermpd5n492qpm0wv51p
-	on activity_discussion_participant (activity_discussion)
-;
-
-create index FK_klimyuls8rsoqt7v9ce5gqts9
-	on activity_discussion_participant (participant)
-;
-
-alter table activity_discussion_message
-add constraint FK_gp4rjlpt100i22gadcrqsuyea
-		foreign key (sender) references prosolo3.activity_discussion_participant (id)
-;
-
-create table activity_grade
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-value int null
-)
-;
-
-alter table activity_assessment
-add constraint FK_pqe8ab74gg1e45r1muu3l2f48
-		foreign key (grade) references prosolo3.activity_grade (id)
-;
-
-create table activity_wall_settings
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-chosen_filter varchar(255) not null,
-course_id bigint not null
-)
-;
-
-create table annotation1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-annotated_resource varchar(255) not null,
-annotated_resource_id bigint not null,
-annotation_type varchar(255) not null,
-maker bigint null
-)
-;
-
-create index FK_qg56tf64cpvwkc5p2q9bjoape
-	on annotation1 (maker)
-;
-
-create table announcement
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-announcement_text varchar(5000) null,
-created_by bigint not null,
-credential bigint not null
-)
-;
-
-create index FK_5n0gf0pgl54yxksqbrpg49jwu
-	on announcement (credential)
-;
-
-create index FK_i5ssis4ksi4j8jsbb9xga1odi
-	on announcement (created_by)
-;
-
-create table capability
-(
-	id bigint not null
-		primary key,
-	description varchar(255) null,
-name varchar(255) null
-)
-;
-
-create table capability_role
-(
-	capabilities bigint not null,
-	roles bigint not null,
-	primary key (capabilities, roles),
-constraint FK_1j72vl0nwsv55q41b6ydg0hhd
-foreign key (capabilities) references prosolo3.capability (id)
-)
-;
-
-create index FK_bk8wqohsuock5hix7lnb84b0r
-	on capability_role (roles)
-;
-
-create table comment1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-commented_resource_id bigint null,
-instructor bit not null,
-like_count int not null,
-manager_comment char default 'F' null,
-post_date datetime null,
-resource_type varchar(255) not null,
-parent_comment bigint null,
-user bigint null,
-constraint FK_q7hjkgwtsss4hrk6dfs022823
-foreign key (parent_comment) references prosolo3.comment1 (id)
-)
-;
-
-create index FK_cnb1hy7io12vb2fbi1jdmyalw
-	on comment1 (user)
-;
-
-create index FK_q7hjkgwtsss4hrk6dfs022823
-	on comment1 (parent_comment)
-;
-
-create index index_comment1_commented_resource_id_resource_type
-	on comment1 (commented_resource_id, resource_type)
-;
-
-create table competence1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-archived char default 'F' null,
-date_published datetime null,
-duration bigint not null,
-grading_mode varchar(255) not null,
-learning_path_type varchar(255) not null,
-max_points int not null,
-published bit not null,
-student_allowed_to_add_activities bit not null,
-type varchar(255) not null,
-version bigint not null,
-visible_to_all char default 'F' null,
-created_by bigint null,
-first_learning_stage_competence bigint null,
-learning_stage bigint null,
-organization bigint not null,
-original_version bigint null,
-rubric bigint null,
-constraint UK_3oyo6ynive1sdpf54j7lx3ggb
-unique (first_learning_stage_competence, learning_stage),
-constraint FK_rovwcltntpusa8fv9fk2ox4c5
-foreign key (first_learning_stage_competence) references prosolo3.competence1 (id),
-constraint FK_btejhdyv6se49077y8v2sw5sq
-foreign key (original_version) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_11ldaw0qdiu7cbcxb74l4xxcy
-	on competence1 (rubric)
-;
-
-create index FK_91ik0ggqkcwdde3bjco1da0gf
-	on competence1 (organization)
-;
-
-create index FK_btejhdyv6se49077y8v2sw5sq
-	on competence1 (original_version)
-;
-
-create index FK_j0jn9c30xitfotmamc9181go5
-	on competence1 (created_by)
-;
-
-create index FK_lb3u5p37p6e33a9caoi64r1cj
-	on competence1 (learning_stage)
-;
-
-create table competence1_tags
-(
-	competence1 bigint not null,
-	tags bigint not null,
-	primary key (competence1, tags),
-constraint FK_njpyjqs5thuuyw5xwm1paihxf
-foreign key (competence1) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_9lsylf57uy3m2se4ve4ameihu
-	on competence1_tags (tags)
-;
-
-create table competence_activity1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-act_order int null,
-activity bigint null,
-competence bigint not null,
-constraint FK_px25x3t4d4wxgujuocgi5mc51
-foreign key (activity) references prosolo3.activity1 (id),
-constraint FK_ka2ffpd609s5ug445vou0anhi
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_ka2ffpd609s5ug445vou0anhi
-	on competence_activity1 (competence)
-;
-
-create index FK_px25x3t4d4wxgujuocgi5mc51
-	on competence_activity1 (activity)
-;
-
-create table competence_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-approved bit null,
-assessor_notified bit not null,
-last_asked_for_assessment datetime null,
-last_assessment datetime null,
-message longtext null,
-points int not null,
-type varchar(255) not null,
-assessor bigint null,
-competence bigint not null,
-student bigint not null,
-constraint FK_k9y34nq3hj6fdbdaftoligfkc
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_k9y34nq3hj6fdbdaftoligfkc
-	on competence_assessment (competence)
-;
-
-create index FK_lbo2bjanrdpkwedf9p6q6o248
-	on competence_assessment (assessor)
-;
-
-create index FK_tiy256v79b1c8vfiest7m8piw
-	on competence_assessment (student)
-;
-
-alter table activity_assessment
-add constraint FK_8h8fnyxbc74ksc3qdhy48ic3t
-		foreign key (competence_assessment) references prosolo3.competence_assessment (id)
-;
-
-create table competence_assessment_config
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-assessment_type varchar(255) not null,
-enabled char default 'F' null,
-competence bigint not null,
-constraint UK_7u112t9m0qt8cdf1pwd2t6nam
-unique (competence, assessment_type),
-constraint FK_16qjgpixu90actkwbekfav4ui
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create table competence_assessment_discussion_participant
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-is_read char default 'T' null,
-assessment bigint null,
-participant bigint null,
-constraint FK_136fh13xo3iys1yq0hti8xlnq
-foreign key (assessment) references prosolo3.competence_assessment (id)
-)
-;
-
-create index FK_136fh13xo3iys1yq0hti8xlnq
-	on competence_assessment_discussion_participant (assessment)
-;
-
-create index FK_tk9bucqcwbukxgjkkckysawf5
-	on competence_assessment_discussion_participant (participant)
-;
-
-create table competence_assessment_message
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-content varchar(9000) null,
-updated datetime null,
-assessment bigint null,
-sender bigint null,
-constraint FK_3cpxtlvcviq1sov7gb7fqgcfu
-foreign key (assessment) references prosolo3.competence_assessment (id),
-constraint FK_ioqggfbo6kiw9yr5ghv25rjgb
-foreign key (sender) references prosolo3.competence_assessment_discussion_participant (id)
-)
-;
-
-create index FK_3cpxtlvcviq1sov7gb7fqgcfu
-	on competence_assessment_message (assessment)
-;
-
-create index FK_ioqggfbo6kiw9yr5ghv25rjgb
-	on competence_assessment_message (sender)
-;
-
-create table competence_bookmark
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-competence bigint not null,
-user bigint not null,
-constraint UK_k4uyv9uljtw36cxchatxxhi7d
-unique (competence, user),
-constraint FK_pu790xeulgg9f166ehutb0p0v
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_7fwnajpqa9j4dfaciibethkll
-	on competence_bookmark (user)
-;
-
-create table competence_criterion_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-comment varchar(255) null,
-criterion bigint null,
-level bigint null,
-assessment bigint null,
-constraint UK_cfbmdanr0gb6gaciqhgiee406
-unique (assessment, criterion),
-constraint FK_cyefgjjblo1bchk4vjw8fmwxi
-foreign key (assessment) references prosolo3.competence_assessment (id)
-)
-;
-
-create index FK_lkk5e6em0p1ccndm11xybktoy
-	on competence_criterion_assessment (criterion)
-;
-
-create index FK_smjx7i6jja0xf458dwpfbuaos
-	on competence_criterion_assessment (level)
-;
-
-create table competence_evidence
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-competence bigint not null,
-evidence bigint not null
-)
-;
-
-create index FK_8ih6dh7gn5uo6jwx9r3pt82sw
-	on competence_evidence (competence)
-;
-
-create index FK_nctgqbkwam6fn84i27cyaav2p
-	on competence_evidence (evidence)
-;
-
-create table competence_unit
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-competence bigint not null,
-unit bigint not null,
-constraint UK_7mbm0rkejlh524nk5ieyh24ml
-unique (competence, unit),
-constraint FK_d9i2062693wmimcdyvdr1ynhh
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_16il9gr3688yooyw91vsiis91
-	on competence_unit (unit)
-;
-
-create table competence_user_group
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-inherited char default 'F' null,
-privilege varchar(255) not null,
-competence bigint not null,
-inherited_from bigint null,
-user_group bigint not null,
-constraint FK_60mk2r1qk5llr3p901h5705y6
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_4b5s1r5gcdytwdbp2pr4rn4v5
-	on competence_user_group (user_group)
-;
-
-create index FK_60mk2r1qk5llr3p901h5705y6
-	on competence_user_group (competence)
-;
-
-create index FK_e9iw7p463kmjjsyuj9r5wmxpe
-	on competence_user_group (inherited_from)
-;
-
-create table credential1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-archived char default 'F' null,
-competence_order_mandatory bit not null,
-default_number_of_students_per_instructor int not null,
-delivery_end datetime null,
-delivery_start datetime null,
-duration bigint not null,
-grading_mode varchar(255) not null,
-manually_assign_students bit not null,
-max_points int not null,
-type varchar(255) not null,
-version bigint not null,
-visible_to_all char default 'F' null,
-created_by bigint not null,
-delivery_of bigint null,
-first_learning_stage_credential bigint null,
-learning_stage bigint null,
-organization bigint not null,
-rubric bigint null,
-category bigint null,
-constraint UK_6vclpmt9xfxxxybg8tdc4axwt
-unique (first_learning_stage_credential, learning_stage),
-constraint FK_ox2gmlf29yl2o60nwf28avccl
-foreign key (delivery_of) references prosolo3.credential1 (id),
-constraint FK_5ve9kkyxam4skfb85dy0n55ot
-foreign key (first_learning_stage_credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_4s00xobf7567n67dwachjpsvm
-	on credential1 (rubric)
-;
-
-create index FK_6nv6h30ry8lvl7g9lxj83oo2r
-	on credential1 (category)
-;
-
-create index FK_gwgwt3bm30pwx6lxiukyx1o03
-	on credential1 (created_by)
-;
-
-create index FK_n2vyrbyyls32y7s3aq1gyyh8o
-	on credential1 (learning_stage)
-;
-
-create index FK_ox2gmlf29yl2o60nwf28avccl
-	on credential1 (delivery_of)
-;
-
-create index FK_p1g20qojr5ahymmq2c2hkdqh3
-	on credential1 (organization)
-;
-
-alter table announcement
-add constraint FK_5n0gf0pgl54yxksqbrpg49jwu
-		foreign key (credential) references prosolo3.credential1 (id)
-;
-
-alter table competence_user_group
-add constraint FK_e9iw7p463kmjjsyuj9r5wmxpe
-		foreign key (inherited_from) references prosolo3.credential1 (id)
-;
-
-create table credential1_blogs
-(
-	credential1 bigint not null,
-	blogs bigint not null,
-	constraint FK_p9mlitfs7rd27q1h6x6xqrtat
-		foreign key (credential1) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_dgns5f815wa0piods87ak1unv
-	on credential1_blogs (blogs)
-;
-
-create index FK_p9mlitfs7rd27q1h6x6xqrtat
-	on credential1_blogs (credential1)
-;
-
-create table credential1_excluded_feed_sources
-(
-	credential1 bigint not null,
-	excluded_feed_sources bigint not null,
-	constraint FK_116l6dplwn565owmmjwq9nchy
-		foreign key (credential1) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_116l6dplwn565owmmjwq9nchy
-	on credential1_excluded_feed_sources (credential1)
-;
-
-create index FK_id94tkw373r7i4wpptlstjkt2
-	on credential1_excluded_feed_sources (excluded_feed_sources)
-;
-
-create table credential1_hashtags
-(
-	credential1 bigint not null,
-	hashtags bigint not null,
-	primary key (credential1, hashtags),
-constraint FK_5k9e4ud4n7uutdcfcp7x8xn2h
-foreign key (credential1) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_2s3cange8x6y5lvxsgpulwmro
-	on credential1_hashtags (hashtags)
-;
-
-create table credential1_tags
-(
-	credential1 bigint not null,
-	tags bigint not null,
-	primary key (credential1, tags),
-constraint FK_o10dydyl21smpds2rwh7v8j4s
-foreign key (credential1) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_e8b1q4xep66kcwhcxfag5a0cl
-	on credential1_tags (tags)
-;
-
-create table credential_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-approved bit null,
-assessor_notified bit not null,
-last_asked_for_assessment datetime null,
-last_assessment datetime null,
-message longtext null,
-points int not null,
-review longtext null,
-type varchar(255) not null,
-assessor bigint null,
-student bigint null,
-target_credential bigint null,
-assessed bit not null
-)
-;
-
-create index FK_64x1nbncerttcr6ukwn1i10yy
-	on credential_assessment (assessor)
-;
-
-create index FK_gvcyenwhr1wjurx8srk0l65m
-	on credential_assessment (target_credential)
-;
-
-create index FK_o0soi8jus7un1g5yqyfrpo3rs
-	on credential_assessment (student)
-;
-
-create table credential_assessment_config
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-assessment_type varchar(255) not null,
-enabled char default 'F' null,
-credential bigint not null,
-constraint UK_e7upesftge7cjrbgqwqlbhypi
-unique (credential, assessment_type),
-constraint FK_amujhji7o6s62pk0sj65q290y
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create table credential_assessment_discussion_participant
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-is_read char default 'T' null,
-assessment bigint null,
-participant bigint null,
-constraint FK_lq0fgfb3gmn18bita5oybkxft
-foreign key (assessment) references prosolo3.credential_assessment (id)
-)
-;
-
-create index FK_lq0fgfb3gmn18bita5oybkxft
-	on credential_assessment_discussion_participant (assessment)
-;
-
-create index FK_safwo8xgq1h61ttmdd9kob4hp
-	on credential_assessment_discussion_participant (participant)
-;
-
-create table credential_assessment_message
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-content varchar(9000) null,
-updated datetime null,
-assessment bigint null,
-sender bigint null,
-constraint FK_dlo6gfx7ifgbh5dg06tvyai67
-foreign key (assessment) references prosolo3.credential_assessment (id),
-constraint FK_e1kd4wxe27u2mh91ql011uj1q
-foreign key (sender) references prosolo3.credential_assessment_discussion_participant (id)
-)
-;
-
-create index FK_dlo6gfx7ifgbh5dg06tvyai67
-	on credential_assessment_message (assessment)
-;
-
-create index FK_e1kd4wxe27u2mh91ql011uj1q
-	on credential_assessment_message (sender)
-;
-
-create table credential_bookmark
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-credential bigint not null,
-user bigint not null,
-constraint UK_huxm5oy8mxf4gcckxuy6m5n9a
-unique (credential, user),
-constraint FK_d125vpplcb2nwcw100ck2ch7e
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_n5fkjwxicertabyarbvju43c3
-	on credential_bookmark (user)
-;
-
-create table credential_category
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-organization bigint not null,
-constraint UK_6mnq89yqpnfilldvrsyblvavb
-unique (organization, title)
-)
-;
-
-alter table credential1
-add constraint FK_6nv6h30ry8lvl7g9lxj83oo2r
-		foreign key (category) references prosolo3.credential_category (id)
-;
-
-create table credential_competence1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-comp_order int null,
-competence bigint not null,
-credential bigint not null,
-constraint FK_4j36i3b2r10ewvv85c9st8c34
-foreign key (competence) references prosolo3.competence1 (id),
-constraint FK_nw0ci3p9g1hiy4yan5w664to9
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_4j36i3b2r10ewvv85c9st8c34
-	on credential_competence1 (competence)
-;
-
-create index FK_nw0ci3p9g1hiy4yan5w664to9
-	on credential_competence1 (credential)
-;
-
-create table credential_competence_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-competence_assessment bigint not null,
-credential_assessment bigint not null,
-constraint UK_cq14nxxgq3qb98h7v9dd9ubsj
-unique (credential_assessment, competence_assessment),
-constraint FK_hs8gjt68hymusnmsuuar20med
-foreign key (competence_assessment) references prosolo3.competence_assessment (id),
-constraint FK_lvmp3fd0dxsxestak8yervbrq
-foreign key (credential_assessment) references prosolo3.credential_assessment (id)
-)
-;
-
-create index FK_hs8gjt68hymusnmsuuar20med
-	on credential_competence_assessment (competence_assessment)
-;
-
-create table credential_criterion_assessment
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-comment varchar(255) null,
-criterion bigint null,
-level bigint null,
-assessment bigint null,
-constraint UK_bma5i20uxkurqqatu2k4aetlf
-unique (assessment, criterion),
-constraint FK_nn5t74iqwu7v2isk9xj3dtg7u
-foreign key (assessment) references prosolo3.credential_assessment (id)
-)
-;
-
-create index FK_cgpk6q28vp6usjal5rlce9s9i
-	on credential_criterion_assessment (criterion)
-;
-
-create index FK_p24wh1b1sc1m8m15ler4xbuvv
-	on credential_criterion_assessment (level)
-;
-
-create table credential_instructor
-(
-	id bigint not null
-		primary key,
-	date_assigned datetime null,
-	max_number_of_students int not null,
-	credential bigint not null,
-	user bigint not null,
-	constraint UK_8o1ljk3ajomrhnh8d5qfmcnls
-		unique (user, credential),
-constraint FK_4c65jghtljkorcy98mnko26lt
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_4c65jghtljkorcy98mnko26lt
-	on credential_instructor (credential)
-;
-
-create table credential_unit
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-credential bigint not null,
-unit bigint not null,
-constraint UK_piaytj54rr4klingo78qx9ylt
-unique (credential, unit),
-constraint FK_10qyaft78ol2toenfodqdwc8g
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_bcknt360dtw8rh53cphe97q45
-	on credential_unit (unit)
-;
-
-create table credential_user_group
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-privilege varchar(255) not null,
-credential bigint not null,
-user_group bigint not null,
-constraint UK_j07j1pph3s8y22el92gth2yy5
-unique (credential, user_group, privilege),
-constraint FK_30jl08j0war3rn3u23m10uyq8
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_m5cvxlf67t55is1xw2gxfar0i
-	on credential_user_group (user_group)
-;
-
-create table criterion
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-criterion_order int not null,
-points double default '0' not null,
-rubric bigint null,
-constraint UK_e1f4a4t2ns27fm40ulwry89u8
-unique (title, rubric)
-)
-;
-
-create index FK_o7ovdmcl7pmxtdnuk3iyn2sep
-	on criterion (rubric)
-;
-
-alter table activity_criterion_assessment
-add constraint FK_l9389a0coyr4791boeeb8reuj
-		foreign key (criterion) references prosolo3.criterion (id)
-;
-
-alter table competence_criterion_assessment
-add constraint FK_lkk5e6em0p1ccndm11xybktoy
-		foreign key (criterion) references prosolo3.criterion (id)
-;
-
-alter table credential_criterion_assessment
-add constraint FK_cgpk6q28vp6usjal5rlce9s9i
-		foreign key (criterion) references prosolo3.criterion (id)
-;
-
-create table criterion_level
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-criterion bigint not null,
-level bigint not null,
-constraint UK_pquo8f8sy5d20h8f5hmivseq8
-unique (criterion, level),
-constraint FK_9l1253t7v8atu5lytujimj09n
-foreign key (criterion) references prosolo3.criterion (id)
-)
-;
-
-create index FK_t0ynrcrm7kt8i1luj4onvhjv2
-	on criterion_level (level)
-;
-
-create table feed_entry
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-image varchar(255) null,
-link varchar(255) null,
-relevance double not null,
-feed_source bigint null,
-maker bigint null,
-subscribed_user bigint null
-)
-;
-
-create index FK_5mympaondc7gotjymqgd05l4i
-	on feed_entry (subscribed_user)
-;
-
-create index FK_cgxvubmhf09musstvw2u00y67
-	on feed_entry (maker)
-;
-
-create index FK_ffdgn3747cqpgdiwhxlarhp8m
-	on feed_entry (feed_source)
-;
-
-create table feed_entry_hashtags
-(
-	feed_entry bigint not null,
-	hashtags varchar(255) null,
-constraint FK_es7wwjpedyq7gxlsk0lexcj5x
-foreign key (feed_entry) references prosolo3.feed_entry (id)
-)
-;
-
-create index FK_es7wwjpedyq7gxlsk0lexcj5x
-	on feed_entry_hashtags (feed_entry)
-;
-
-create table feed_source
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-last_check datetime null,
-link varchar(500) null
-)
-;
-
-alter table credential1_blogs
-add constraint FK_dgns5f815wa0piods87ak1unv
-		foreign key (blogs) references prosolo3.feed_source (id)
-;
-
-alter table credential1_excluded_feed_sources
-add constraint FK_id94tkw373r7i4wpptlstjkt2
-		foreign key (excluded_feed_sources) references prosolo3.feed_source (id)
-;
-
-alter table feed_entry
-add constraint FK_ffdgn3747cqpgdiwhxlarhp8m
-		foreign key (feed_source) references prosolo3.feed_source (id)
-;
-
-create table feeds_digest
-(
-	dtype varchar(50) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	date_from datetime null,
-	number_of_users_that_got_email bigint not null,
-	time_frame varchar(255) not null,
-date_to datetime null,
-credential bigint null,
-feeds_subscriber bigint null,
-constraint FK_hcx2rl68idmgg2sfpnbqmv1tv
-foreign key (credential) references prosolo3.credential1 (id)
-)
-;
-
-create index FK_hcx2rl68idmgg2sfpnbqmv1tv
-	on feeds_digest (credential)
-;
-
-create index FK_j4nanu4eoo6lobqy4v64tegmf
-	on feeds_digest (feeds_subscriber)
-;
-
-create table feeds_digest_entries
-(
-	feeds_digest bigint not null,
-	entries bigint not null,
-	constraint FK_bhda4lck3rkx4tduxm7fhq8wo
-		foreign key (feeds_digest) references prosolo3.feeds_digest (id),
-constraint FK_sj34xafykjukgs471aa2w9anj
-foreign key (entries) references prosolo3.feed_entry (id)
-)
-;
-
-create index FK_bhda4lck3rkx4tduxm7fhq8wo
-	on feeds_digest_entries (feeds_digest)
-;
-
-create index FK_sj34xafykjukgs471aa2w9anj
-	on feeds_digest_entries (entries)
-;
-
-create table followed_entity
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-required_to_follow char default 'F' null,
-started_following datetime null,
-user bigint null,
-followed_user bigint null,
-constraint UK_6w0pe4f2eii8eov3epmwk849e
-unique (user, followed_user)
-)
-;
-
-create index FK_4eglof45iulhoj8j2qudvbuxm
-	on followed_entity (followed_user)
-;
-
-create table hibernate_sequences
-(
-  sequence_name varchar(255) null,
-  sequence_next_hi_value int null
-)
-;
-
-create table innodb_lock_monitor
-(
-  a int null
-)
-;
-
-create table learning_evidence
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-type varchar(255) not null,
-url varchar(255) null,
-organization bigint not null,
-user bigint not null
-)
-;
-
-create index FK_qb3lm6liqglp03b789fl0sdvb
-	on learning_evidence (organization)
-;
-
-create index FK_te80g9rqpmjnlpmff23h0we5x
-	on learning_evidence (user)
-;
-
-alter table competence_evidence
-add constraint FK_nctgqbkwam6fn84i27cyaav2p
-		foreign key (evidence) references prosolo3.learning_evidence (id)
-;
-
-create table learning_evidence_tags
-(
-	learning_evidence bigint not null,
-	tags bigint not null,
-	primary key (learning_evidence, tags),
-constraint FK_ge8rmsf18x8fwwntcnof1w2c3
-foreign key (learning_evidence) references prosolo3.learning_evidence (id)
-)
-;
-
-create index FK_2i6sole2k1kwkjbgsm2u6aoff
-	on learning_evidence_tags (tags)
-;
-
-create table learning_stage
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-learning_stage_order int null,
-organization bigint not null,
-constraint UK_atmtmfxbwira99uums40pt8q
-unique (organization, title)
-)
-;
-
-alter table competence1
-add constraint FK_lb3u5p37p6e33a9caoi64r1cj
-		foreign key (learning_stage) references prosolo3.learning_stage (id)
-;
-
-alter table credential1
-add constraint FK_n2vyrbyyls32y7s3aq1gyyh8o
-		foreign key (learning_stage) references prosolo3.learning_stage (id)
-;
-
-create table level
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-level_order int not null,
-points double default '0' not null,
-points_from double default '0' not null,
-points_to double default '0' not null,
-rubric bigint null,
-constraint UK_eo5k8jw0yq5kypsaddagxuoo8
-unique (title, rubric)
-)
-;
-
-create index FK_rtffghkdqv9g81wd3ecvjemdv
-	on level (rubric)
-;
-
-alter table activity_criterion_assessment
-add constraint FK_j41uvkbj5h50bv2okbqakkolf
-		foreign key (level) references prosolo3.level (id)
-;
-
-alter table competence_criterion_assessment
-add constraint FK_smjx7i6jja0xf458dwpfbuaos
-		foreign key (level) references prosolo3.level (id)
-;
-
-alter table credential_criterion_assessment
-add constraint FK_p24wh1b1sc1m8m15ler4xbuvv
-		foreign key (level) references prosolo3.level (id)
-;
-
-alter table criterion_level
-add constraint FK_t0ynrcrm7kt8i1luj4onvhjv2
-		foreign key (level) references prosolo3.level (id)
-;
-
-create table locale_settings
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-language varchar(255) null,
-region varchar(255) null
-)
-;
-
-create table lti_consumer
-(
-	id bigint not null
-		primary key,
-	deleted bit not null,
-	capabilities varchar(2000) null,
-key_lti_one varchar(255) not null,
-key_lti_two varchar(255) null,
-secret_lti_one varchar(255) not null,
-secret_lti_two varchar(255) null
-)
-;
-
-create table lti_service
-(
-	id bigint not null
-		primary key,
-	deleted bit not null,
-	actions varchar(255) null,
-endpoint varchar(255) null,
-formats varchar(1000) null,
-consumer bigint null,
-constraint FK_j04buydudvuvpfslrit8lht1s
-foreign key (consumer) references prosolo3.lti_consumer (id)
-)
-;
-
-create index FK_j04buydudvuvpfslrit8lht1s
-	on lti_service (consumer)
-;
-
-create table lti_tool
-(
-	id bigint not null
-		primary key,
-	deleted bit not null,
-	activity_id bigint not null,
-	code varchar(255) null,
-competence_id bigint not null,
-credential_id bigint not null,
-custom_css varchar(10000) null,
-description varchar(2000) null,
-enabled bit not null,
-launch_url varchar(255) null,
-name varchar(255) null,
-resource_name varchar(255) null,
-tool_key varchar(255) null,
-tool_type varchar(255) not null,
-created_by bigint not null,
-organization bigint not null,
-tool_set bigint not null,
-unit bigint null,
-user_group bigint null
-)
-;
-
-create index FK_64dtvy9vcghm1b7cv0ymsgg4p
-	on lti_tool (user_group)
-;
-
-create index FK_6eimoaon171t8shrxhqs0dils
-	on lti_tool (organization)
-;
-
-create index FK_75s355fn31ogkxv4fwj6ve1hm
-	on lti_tool (unit)
-;
-
-create index FK_f8glreyaxbnn1wq3ox0b76igm
-	on lti_tool (tool_set)
-;
-
-create index FK_n8iw9ueffp6ceo31pnuensikq
-	on lti_tool (created_by)
-;
-
-create table lti_tool_set
-(
-	id bigint not null
-		primary key,
-	deleted bit not null,
-	product_code varchar(255) null,
-registration_url varchar(255) null,
-consumer bigint not null,
-constraint FK_rxmmq9va47gyeome10lkj5ktw
-foreign key (consumer) references prosolo3.lti_consumer (id)
-)
-;
-
-create index FK_rxmmq9va47gyeome10lkj5ktw
-	on lti_tool_set (consumer)
-;
-
-alter table lti_tool
-add constraint FK_f8glreyaxbnn1wq3ox0b76igm
-		foreign key (tool_set) references prosolo3.lti_tool_set (id)
-;
-
-create table lti_user
-(
-	id bigint not null
-		primary key,
-	deleted bit not null,
-	email varchar(255) null,
-name varchar(255) null,
-user_id varchar(255) null,
-consumer bigint not null,
-user bigint null,
-constraint FK_406o6qhyoo4xcc0ybhrs47xge
-foreign key (consumer) references prosolo3.lti_consumer (id)
-)
-;
-
-create index FK_406o6qhyoo4xcc0ybhrs47xge
-	on lti_user (consumer)
-;
-
-create index FK_hxb07pfijibeqr1mm8qnnam0i
-	on lti_user (user)
-;
-
-create table message
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-content varchar(9000) null,
-created_timestamp datetime null,
-message_thread bigint null,
-sender bigint null
-)
-;
-
-create index FK_a3km2kv42i1xu571ta911f9dc
-	on message (sender)
-;
-
-create index FK_jgrx8hvls0cxtwdet9tu5tl3o
-	on message (message_thread)
-;
-
-create table message_participant
-(
-id bigint not null
-primary key,
-is_read char default 'F' null,
-sender char default 'F' null,
-participant bigint null
-)
-;
-
-create index FK_nt68vh666kew9wsx344d2tej8
-	on message_participant (participant)
-;
-
-create table message_thread
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-started datetime null,
-updated datetime null,
-subject varchar(255) null,
-creator bigint null
-)
-;
-
-create index FK_owblue8e7depfe80u0tut6vnp
-	on message_thread (creator)
-;
-
-alter table message
-add constraint FK_jgrx8hvls0cxtwdet9tu5tl3o
-		foreign key (message_thread) references prosolo3.message_thread (id)
-;
-
-create table notification1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-link varchar(255) null,
-notify_by_email char default 'T' null,
-object_id bigint not null,
-object_owner char default 'F' null,
-object_type varchar(255) null,
-is_read char default 'F' null,
-section varchar(255) not null,
-target_id bigint not null,
-target_type varchar(255) null,
-type varchar(255) not null,
-actor bigint null,
-receiver bigint null
-)
-;
-
-create index FK_8ffsbfqrwx0l4fcwtir4eogs8
-	on notification1 (actor)
-;
-
-create index FK_eu8xhjr832wpkchfxn2a4ne8f
-	on notification1 (receiver)
-;
-
-create table notification_settings
-(
-	id bigint not null
-		primary key,
-	subscribed_email char default 'F' null,
-	type varchar(255) not null,
-user bigint null,
-constraint UK_fhuhqotesvv46234bv4r36w19
-unique (type, user)
-)
-;
-
-create index FK_ajh6l15bdar6g8o7d01b52j3t
-	on notification_settings (user)
-;
-
-create table oauth_access_token
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-profile_link varchar(255) null,
-profile_name varchar(255) null,
-service varchar(255) not null,
-token varchar(255) null,
-token_secret varchar(255) null,
-user_id bigint null,
-user bigint null
-)
-;
-
-create index FK_qwnyxe99obn5c7jamrh80tojn
-	on oauth_access_token (user)
-;
-
-create table observation
-(
-id bigint not null
-primary key,
-creation_date datetime null,
-edited bit not null,
-message longtext null,
-note longtext null,
-created_by bigint null,
-created_for bigint null
-)
-;
-
-create index FK_f238497jjp2hx63imjj1ndnbv
-	on observation (created_by)
-;
-
-create index FK_owstmit5g7fnsggixn5tmfmd7
-	on observation (created_for)
-;
-
-create table observation_suggestion
-(
-	observation bigint not null,
-	suggestions bigint not null,
-	primary key (observation, suggestions),
-constraint FK_q5ec7t3ca2ihn36eifg4u7qw4
-foreign key (observation) references prosolo3.observation (id)
-)
-;
-
-create index FK_rxdpfym9lrnrum8yak52i6ya5
-	on observation_suggestion (suggestions)
-;
-
-create table observation_symptom
-(
-	observation bigint not null,
-	symptoms bigint not null,
-	primary key (observation, symptoms),
-constraint FK_2r1fs2ynpa1istpwqlmpc52yl
-foreign key (observation) references prosolo3.observation (id)
-)
-;
-
-create index FK_axke49cj36g768x69cpf9t57l
-	on observation_symptom (symptoms)
-;
-
-create table openidaccount
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-openidprovider varchar(255) not null,
-validated_id varchar(255) null,
-user bigint null
-)
-;
-
-create index FK_mrch25e7jcip15grmcp54039i
-	on openidaccount (user)
-;
-
-create table organization
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-learning_in_stages_enabled char default 'F' null,
-constraint UK_98elant9gwyioac8t0br67o5p
-unique (title)
-)
-;
-
-alter table competence1
-add constraint FK_91ik0ggqkcwdde3bjco1da0gf
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-alter table credential1
-add constraint FK_p1g20qojr5ahymmq2c2hkdqh3
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-alter table credential_category
-add constraint FK_r8ao03qj30gfud7h29sk1a4hr
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-alter table learning_evidence
-add constraint FK_qb3lm6liqglp03b789fl0sdvb
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-alter table learning_stage
-add constraint FK_kmqfvn3rumkbm0b8dsgfbcnm6
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-alter table lti_tool
-add constraint FK_6eimoaon171t8shrxhqs0dils
-		foreign key (organization) references prosolo3.organization (id)
-;
-
-create table outcome
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-result int null,
-activity bigint not null
-)
-;
-
-create index FK_c6sy38ram71uel2jdeotexor3
-	on outcome (activity)
-;
-
-create table registration_key
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-registration_type varchar(255) not null,
-uid varchar(255) null,
-constraint UK_ran40qjbh70o6m8q25xu4qxc9
-unique (uid)
-)
-;
-
-create table reset_key
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-invalid char not null,
-uid varchar(255) null,
-user bigint null,
-constraint UK_4os64y5nsc6cbbd73qj4lujb1
-unique (uid)
-)
-;
-
-create index FK_fxv54xs4m5y1tddmi2errcesu
-	on reset_key (user)
-;
-
-create table resource_link
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-id_parameter_name varchar(255) null,
-link_name varchar(255) null,
-url varchar(255) null
-)
-;
-
-alter table activity1_captions
-add constraint FK_b1n7gy4nb3oplj5v8jhali4rs
-		foreign key (captions) references prosolo3.resource_link (id)
-;
-
-alter table activity1_files
-add constraint FK_h9l61ttwr60t42cj53buu3rm0
-		foreign key (files) references prosolo3.resource_link (id)
-;
-
-alter table activity1_links
-add constraint FK_mpsbwvmwi7kc3a6sbcm8s9e5f
-		foreign key (links) references prosolo3.resource_link (id)
-;
-
-create table resource_settings
-(
-id bigint not null
-primary key,
-goal_acceptance_dependend_on_competence char default 'F' null,
-individual_competences_can_not_be_evaluated char default 'F' null,
-selected_users_can_do_evaluation char default 'F' null,
-user_can_create_competence char not null
-)
-;
-
-create table role
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-system char not null
-)
-;
-
-alter table capability_role
-add constraint FK_bk8wqohsuock5hix7lnb84b0r
-		foreign key (roles) references prosolo3.role (id)
-;
-
-create table rubric
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-ready_to_use char default 'F' not null,
-rubric_type varchar(255) not null,
-creator bigint null,
-organization bigint not null,
-constraint UK_4fkcsmege20c5mr184i7sw8a8
-unique (title, organization),
-constraint FK_lf8lryt4i4c66o0lot08j3cu7
-foreign key (organization) references prosolo3.organization (id)
-)
-;
-
-create index FK_6peou3uwnq3v5xoirhfg4buwh
-	on rubric (creator)
-;
-
-create index FK_lf8lryt4i4c66o0lot08j3cu7
-	on rubric (organization)
-;
-
-alter table activity1
-add constraint FK_r28bfc9xvnj41036ky8xb7o98
-		foreign key (rubric) references prosolo3.rubric (id)
-;
-
-alter table competence1
-add constraint FK_11ldaw0qdiu7cbcxb74l4xxcy
-		foreign key (rubric) references prosolo3.rubric (id)
-;
-
-alter table credential1
-add constraint FK_4s00xobf7567n67dwachjpsvm
-		foreign key (rubric) references prosolo3.rubric (id)
-;
-
-alter table criterion
-add constraint FK_o7ovdmcl7pmxtdnuk3iyn2sep
-		foreign key (rubric) references prosolo3.rubric (id)
-;
-
-alter table level
-add constraint FK_rtffghkdqv9g81wd3ecvjemdv
-		foreign key (rubric) references prosolo3.rubric (id)
-;
-
-create table rubric_unit
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-rubric bigint not null,
-unit bigint not null,
-constraint UK_9ir0vsnl7lrvdnm4nw907xc0h
-unique (rubric, unit),
-constraint FK_85vusepoi725ebye515abgc2
-foreign key (rubric) references prosolo3.rubric (id)
-)
-;
-
-create index FK_2rbgvha4m64j067s9p7f52361
-	on rubric_unit (unit)
-;
-
-create table seen_announcement
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-announcement bigint not null,
-user bigint not null,
-constraint FK_63g4k687qg4rdy0tw55bek8ph
-foreign key (announcement) references prosolo3.announcement (id)
-)
-;
-
-create index FK_63g4k687qg4rdy0tw55bek8ph
-	on seen_announcement (announcement)
-;
-
-create index FK_8xib2pv1vo1dkrj7mwkc7stt0
-	on seen_announcement (user)
-;
-
-create table social_activity1
-(
-	dtype varchar(100) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-comments_disabled char default 'F' null,
-last_action datetime null,
-like_count int not null,
-text longtext null,
-rich_content_content_type varchar(255) null,
-rich_content_description varchar(9000) null,
-rich_content_embed_id varchar(255) null,
-rich_content_image_size varchar(255) null,
-rich_content_image_url varchar(255) null,
-rich_content_last_indexing_update datetime null,
-rich_content_link varchar(255) null,
-rich_content_title varchar(255) null,
-twitter_poster_avatar_url varchar(255) null,
-twitter_comment varchar(255) null,
-twitter_poster_name varchar(255) null,
-twitter_poster_nickname varchar(255) null,
-twitter_post_url varchar(255) null,
-twitter_poster_profile_url varchar(255) null,
-retweet char default 'F' null,
-twitter_user_type int null,
-actor bigint null,
-comment_object bigint null,
-activity_target bigint null,
-target_activity_object bigint null,
-competence_target bigint null,
-target_competence_object bigint null,
-credential_object bigint null,
-post_object bigint null,
-unit bigint null,
-constraint FK_n6q7e5h3tjgxn0p2m0wtdf05y
-foreign key (comment_object) references prosolo3.comment1 (id),
-constraint FK_fg2k09y8coydd8lt8mxmsyv8d
-foreign key (activity_target) references prosolo3.activity1 (id),
-constraint FK_dvy0dowvaju4eq844k2qbfkm4
-foreign key (competence_target) references prosolo3.competence1 (id),
-constraint FK_r6x1eu9v3w7v4yrq67inwon9i
-foreign key (credential_object) references prosolo3.credential1 (id),
-constraint FK_3se0xx7kf9aw5vgmraucntlbv
-foreign key (post_object) references prosolo3.social_activity1 (id)
-)
-;
-
-create index FK_3se0xx7kf9aw5vgmraucntlbv
-	on social_activity1 (post_object)
-;
-
-create index FK_9aicxka2n6jvmd38yw2rokm0c
-	on social_activity1 (unit)
-;
-
-create index FK_cl6hufyquct3r8e3kj5foof4p
-	on social_activity1 (target_activity_object)
-;
-
-create index FK_dvy0dowvaju4eq844k2qbfkm4
-	on social_activity1 (competence_target)
-;
-
-create index FK_fg2k09y8coydd8lt8mxmsyv8d
-	on social_activity1 (activity_target)
-;
-
-create index FK_ic66jfo7hmtbua887739e9hv6
-	on social_activity1 (target_competence_object)
-;
-
-create index FK_n6q7e5h3tjgxn0p2m0wtdf05y
-	on social_activity1 (comment_object)
-;
-
-create index FK_r6x1eu9v3w7v4yrq67inwon9i
-	on social_activity1 (credential_object)
-;
-
-create index index_social_activity1_actor_last_action_id
-	on social_activity1 (actor, last_action, id)
-;
-
-create index index_social_activity1_last_action_id
-	on social_activity1 (last_action, id)
-;
-
-create table social_activity1_comments
-(
-	social_activity1 bigint not null,
-	comments bigint not null,
-	constraint UK_5lk34om0v81djsqof46lemooh
-		unique (comments),
-constraint FK_icouxfgkx9j575thujmbiifyw
-foreign key (social_activity1) references prosolo3.social_activity1 (id),
-constraint FK_5lk34om0v81djsqof46lemooh
-foreign key (comments) references prosolo3.comment1 (id)
-)
-;
-
-create index FK_icouxfgkx9j575thujmbiifyw
-	on social_activity1_comments (social_activity1)
-;
-
-create table social_activity1_hashtags
-(
-	social_activity1 bigint not null,
-	hashtags bigint not null,
-	primary key (social_activity1, hashtags),
-constraint FK_7puhxui6hgij23pw2s0jpwu8s
-foreign key (social_activity1) references prosolo3.social_activity1 (id)
-)
-;
-
-create index FK_dmmihaliyqi3d04t7vr50bept
-	on social_activity1_hashtags (hashtags)
-;
-
-create table social_activity_config
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-hidden char default 'F' null,
-social_activity bigint null,
-user bigint null,
-constraint FK_iji9gdpcntyigmeky9rc8w9e2
-foreign key (social_activity) references prosolo3.social_activity1 (id)
-)
-;
-
-create index FK_iji9gdpcntyigmeky9rc8w9e2
-	on social_activity_config (social_activity)
-;
-
-create index FK_p4ouuukgvnn6j8to9pc5xnlq4
-	on social_activity_config (user)
-;
-
-create table social_network_account
-(
-	id bigint not null
-		primary key,
-	link varchar(255) null,
-social_network varchar(255) not null
-)
-;
-
-create table suggestion
-(
-	id bigint not null
-		primary key,
-	description varchar(255) null
-)
-;
-
-alter table observation_suggestion
-add constraint FK_rxdpfym9lrnrum8yak52i6ya5
-		foreign key (suggestions) references prosolo3.suggestion (id)
-;
-
-create table symptom
-(
-	id bigint not null
-		primary key,
-	description varchar(255) null
-)
-;
-
-alter table observation_symptom
-add constraint FK_axke49cj36g768x69cpf9t57l
-		foreign key (symptoms) references prosolo3.symptom (id)
-;
-
-create table tag
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null
-)
-;
-
-alter table activity1_tags
-add constraint FK_4lcw676ek48pd37v9kr0mymim
-		foreign key (tags) references prosolo3.tag (id)
-;
-
-alter table competence1_tags
-add constraint FK_9lsylf57uy3m2se4ve4ameihu
-		foreign key (tags) references prosolo3.tag (id)
-;
-
-alter table credential1_hashtags
-add constraint FK_2s3cange8x6y5lvxsgpulwmro
-		foreign key (hashtags) references prosolo3.tag (id)
-;
-
-alter table credential1_tags
-add constraint FK_e8b1q4xep66kcwhcxfag5a0cl
-		foreign key (tags) references prosolo3.tag (id)
-;
-
-alter table learning_evidence_tags
-add constraint FK_2i6sole2k1kwkjbgsm2u6aoff
-		foreign key (tags) references prosolo3.tag (id)
-;
-
-alter table social_activity1_hashtags
-add constraint FK_dmmihaliyqi3d04t7vr50bept
-		foreign key (hashtags) references prosolo3.tag (id)
-;
-
-create table target_activity1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-added bit not null,
-common_score int not null,
-completed bit not null,
-date_completed datetime null,
-number_of_attempts int not null,
-act_order int null,
-result longtext null,
-result_post_date datetime null,
-time_spent bigint not null,
-activity bigint not null,
-target_competence bigint not null,
-constraint FK_5y8xtibcjsl3q1g2pyjp5v478
-foreign key (activity) references prosolo3.activity1 (id)
-)
-;
-
-create index FK_5y8xtibcjsl3q1g2pyjp5v478
-	on target_activity1 (activity)
-;
-
-create index FK_fn87y61fx7126byyp4gx2i38v
-	on target_activity1 (target_competence)
-;
-
-alter table outcome
-add constraint FK_c6sy38ram71uel2jdeotexor3
-		foreign key (activity) references prosolo3.target_activity1 (id)
-;
-
-alter table social_activity1
-add constraint FK_cl6hufyquct3r8e3kj5foof4p
-		foreign key (target_activity_object) references prosolo3.target_activity1 (id)
-;
-
-create table target_competence1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-date_completed datetime null,
-hidden_from_profile bit not null,
-next_activity_to_learn_id bigint not null,
-progress int not null,
-competence bigint not null,
-user bigint not null,
-constraint UK_hyygpgbqj161vj4fkdgxupoog
-unique (competence, user),
-constraint FK_2jik1pn632ups2li1pmvuahdd
-foreign key (competence) references prosolo3.competence1 (id)
-)
-;
-
-create index FK_62p0o7vw29vwnqc58g1hu2vai
-	on target_competence1 (user)
-;
-
-alter table competence_evidence
-add constraint FK_8ih6dh7gn5uo6jwx9r3pt82sw
-		foreign key (competence) references prosolo3.target_competence1 (id)
-;
-
-alter table social_activity1
-add constraint FK_ic66jfo7hmtbua887739e9hv6
-		foreign key (target_competence_object) references prosolo3.target_competence1 (id)
-;
-
-alter table target_activity1
-add constraint FK_fn87y61fx7126byyp4gx2i38v
-		foreign key (target_competence) references prosolo3.target_competence1 (id)
-;
-
-create table target_credential1
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-assigned_to_instructor bit not null,
-cluster varchar(255) null,
-cluster_name varchar(255) null,
-date_finished datetime null,
-date_started datetime null,
-final_review varchar(255) null,
-hidden_from_profile bit not null,
-last_action datetime null,
-next_competence_to_learn_id bigint not null,
-progress int not null,
-credential bigint not null,
-instructor bigint null,
-user bigint not null,
-competence_assessments_displayed bit default b'1' null,
-credential_assessments_displayed bit default b'1' null,
-evidence_displayed bit default b'1' null,
-constraint UK_hxf01pvgri60h660un28e1w2q
-unique (credential, user),
-constraint FK_s3fmqrd1ct10kj04au40cuqhr
-foreign key (credential) references prosolo3.credential1 (id),
-constraint FK_7usnugjbauedaxofmlt5mlhau
-foreign key (instructor) references prosolo3.credential_instructor (id)
-)
-;
-
-create index FK_76pg8xnfhsda0bvvq7wvwl5xp
-	on target_credential1 (user)
-;
-
-create index FK_7usnugjbauedaxofmlt5mlhau
-	on target_credential1 (instructor)
-;
-
-alter table credential_assessment
-add constraint FK_gvcyenwhr1wjurx8srk0l65m
-		foreign key (target_credential) references prosolo3.target_credential1 (id)
-;
-
-create table terms_of_use
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-accepted char not null,
-date datetime null
-)
-;
-
-create table testTable
-(
-  a char null
-)
-;
-
-create table thread_participant
-(
-	id bigint not null
-		primary key,
-	archived char default 'F' null,
-	deleted char default 'F' null,
-	is_read char default 'F' null,
-	show_messages_from datetime null,
-	last_read_message bigint null,
-	message_thread bigint null,
-	user bigint null,
-	constraint FK_2o8pq3r6bxabp5b73ok8qgrcx
-		foreign key (last_read_message) references prosolo3.message (id),
-constraint FK_ilywn1b6wdhl4ymswbb75ayal
-foreign key (message_thread) references prosolo3.message_thread (id)
-)
-;
-
-create index FK_2o8pq3r6bxabp5b73ok8qgrcx
-	on thread_participant (last_read_message)
-;
-
-create index FK_ilywn1b6wdhl4ymswbb75ayal
-	on thread_participant (message_thread)
-;
-
-create index FK_ks01qd3o7158kirgyfpkw6cbb
-	on thread_participant (user)
-;
-
-alter table message
-add constraint FK_a3km2kv42i1xu571ta911f9dc
-		foreign key (sender) references prosolo3.thread_participant (id)
-;
-
-create table unit
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-organization bigint not null,
-parent_unit bigint null,
-welcome_message text null,
-constraint UK_hotnqwr5osir4ryygavjto7ac
-unique (title, organization),
-constraint FK_oxsulo29jty26qck7xmhhf9f1
-foreign key (organization) references prosolo3.organization (id),
-constraint FK_8e9s0ln9wmq4ydgbnhhyfjgs5
-foreign key (parent_unit) references prosolo3.unit (id)
-)
-;
-
-create index FK_8e9s0ln9wmq4ydgbnhhyfjgs5
-	on unit (parent_unit)
-;
-
-create index FK_oxsulo29jty26qck7xmhhf9f1
-	on unit (organization)
-;
-
-alter table competence_unit
-add constraint FK_16il9gr3688yooyw91vsiis91
-		foreign key (unit) references prosolo3.unit (id)
-;
-
-alter table credential_unit
-add constraint FK_bcknt360dtw8rh53cphe97q45
-		foreign key (unit) references prosolo3.unit (id)
-;
-
-alter table lti_tool
-add constraint FK_75s355fn31ogkxv4fwj6ve1hm
-		foreign key (unit) references prosolo3.unit (id)
-;
-
-alter table rubric_unit
-add constraint FK_2rbgvha4m64j067s9p7f52361
-		foreign key (unit) references prosolo3.unit (id)
-;
-
-alter table social_activity1
-add constraint FK_9aicxka2n6jvmd38yw2rokm0c
-		foreign key (unit) references prosolo3.unit (id)
-;
-
-create table unit_role_membership
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-role bigint not null,
-unit bigint not null,
-user bigint not null,
-constraint UK_cvpfera4fi0vhmc4jd8c6a1j8
-unique (user, unit, role),
-constraint FK_d5bj6kukr793taljwratj3l05
-foreign key (role) references prosolo3.role (id),
-constraint FK_gn7knglhp5coc24iqd4yeevb0
-foreign key (unit) references prosolo3.unit (id)
-)
-;
-
-create index FK_d5bj6kukr793taljwratj3l05
-	on unit_role_membership (role)
-;
-
-create index FK_gn7knglhp5coc24iqd4yeevb0
-	on unit_role_membership (unit)
-;
-
-create table user
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-avatar_url varchar(255) null,
-email varchar(255) null,
-lastname varchar(255) null,
-latitude double null,
-location_name varchar(255) null,
-longitude double null,
-name varchar(255) null,
-password varchar(255) null,
-password_length int null,
-position varchar(255) null,
-profile_url varchar(255) null,
-system char default 'F' null,
-user_type varchar(255) not null,
-verification_key varchar(255) null,
-verified char not null,
-organization bigint null,
-constraint FK_a7krvkolmrchxwj22txuhlhj
-foreign key (organization) references prosolo3.organization (id)
-)
-;
-
-create index FK_a7krvkolmrchxwj22txuhlhj
-	on user (organization)
-;
-
-alter table activity1
-add constraint FK_51vt5mwt287fcjsoap7vsm5e2
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table activity_discussion_participant
-add constraint FK_klimyuls8rsoqt7v9ce5gqts9
-		foreign key (participant) references prosolo3.user (id)
-;
-
-alter table annotation1
-add constraint FK_qg56tf64cpvwkc5p2q9bjoape
-		foreign key (maker) references prosolo3.user (id)
-;
-
-alter table announcement
-add constraint FK_i5ssis4ksi4j8jsbb9xga1odi
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table comment1
-add constraint FK_cnb1hy7io12vb2fbi1jdmyalw
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table competence1
-add constraint FK_j0jn9c30xitfotmamc9181go5
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table competence_assessment
-add constraint FK_lbo2bjanrdpkwedf9p6q6o248
-		foreign key (assessor) references prosolo3.user (id)
-;
-
-alter table competence_assessment
-add constraint FK_tiy256v79b1c8vfiest7m8piw
-		foreign key (student) references prosolo3.user (id)
-;
-
-alter table competence_assessment_discussion_participant
-add constraint FK_tk9bucqcwbukxgjkkckysawf5
-		foreign key (participant) references prosolo3.user (id)
-;
-
-alter table competence_bookmark
-add constraint FK_7fwnajpqa9j4dfaciibethkll
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table credential1
-add constraint FK_gwgwt3bm30pwx6lxiukyx1o03
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table credential_assessment
-add constraint FK_64x1nbncerttcr6ukwn1i10yy
-		foreign key (assessor) references prosolo3.user (id)
-;
-
-alter table credential_assessment
-add constraint FK_o0soi8jus7un1g5yqyfrpo3rs
-		foreign key (student) references prosolo3.user (id)
-;
-
-alter table credential_assessment_discussion_participant
-add constraint FK_safwo8xgq1h61ttmdd9kob4hp
-		foreign key (participant) references prosolo3.user (id)
-;
-
-alter table credential_bookmark
-add constraint FK_n5fkjwxicertabyarbvju43c3
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table credential_instructor
-add constraint FK_5he8qwqjrj5oitt390xv1c363
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table feed_entry
-add constraint FK_cgxvubmhf09musstvw2u00y67
-		foreign key (maker) references prosolo3.user (id)
-;
-
-alter table feed_entry
-add constraint FK_5mympaondc7gotjymqgd05l4i
-		foreign key (subscribed_user) references prosolo3.user (id)
-;
-
-alter table feeds_digest
-add constraint FK_j4nanu4eoo6lobqy4v64tegmf
-		foreign key (feeds_subscriber) references prosolo3.user (id)
-;
-
-alter table followed_entity
-add constraint FK_9i2cqb9qu9aomuu5ju2yrm6f9
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table followed_entity
-add constraint FK_4eglof45iulhoj8j2qudvbuxm
-		foreign key (followed_user) references prosolo3.user (id)
-;
-
-alter table learning_evidence
-add constraint FK_te80g9rqpmjnlpmff23h0we5x
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table lti_tool
-add constraint FK_n8iw9ueffp6ceo31pnuensikq
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table lti_user
-add constraint FK_hxb07pfijibeqr1mm8qnnam0i
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table message_participant
-add constraint FK_nt68vh666kew9wsx344d2tej8
-		foreign key (participant) references prosolo3.user (id)
-;
-
-alter table message_thread
-add constraint FK_owblue8e7depfe80u0tut6vnp
-		foreign key (creator) references prosolo3.user (id)
-;
-
-alter table notification1
-add constraint FK_8ffsbfqrwx0l4fcwtir4eogs8
-		foreign key (actor) references prosolo3.user (id)
-;
-
-alter table notification1
-add constraint FK_eu8xhjr832wpkchfxn2a4ne8f
-		foreign key (receiver) references prosolo3.user (id)
-;
-
-alter table notification_settings
-add constraint FK_ajh6l15bdar6g8o7d01b52j3t
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table oauth_access_token
-add constraint FK_qwnyxe99obn5c7jamrh80tojn
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table observation
-add constraint FK_f238497jjp2hx63imjj1ndnbv
-		foreign key (created_by) references prosolo3.user (id)
-;
-
-alter table observation
-add constraint FK_owstmit5g7fnsggixn5tmfmd7
-		foreign key (created_for) references prosolo3.user (id)
-;
-
-alter table openidaccount
-add constraint FK_mrch25e7jcip15grmcp54039i
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table reset_key
-add constraint FK_fxv54xs4m5y1tddmi2errcesu
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table rubric
-add constraint FK_6peou3uwnq3v5xoirhfg4buwh
-		foreign key (creator) references prosolo3.user (id)
-;
-
-alter table seen_announcement
-add constraint FK_8xib2pv1vo1dkrj7mwkc7stt0
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table social_activity1
-add constraint FK_369a166cd064b6ju3laifxqh6
-		foreign key (actor) references prosolo3.user (id)
-;
-
-alter table social_activity_config
-add constraint FK_p4ouuukgvnn6j8to9pc5xnlq4
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table target_competence1
-add constraint FK_62p0o7vw29vwnqc58g1hu2vai
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table target_credential1
-add constraint FK_76pg8xnfhsda0bvvq7wvwl5xp
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table thread_participant
-add constraint FK_ks01qd3o7158kirgyfpkw6cbb
-		foreign key (user) references prosolo3.user (id)
-;
-
-alter table unit_role_membership
-add constraint FK_oiefemc5sijcc7vop0b97lpt6
-		foreign key (user) references prosolo3.user (id)
-;
-
-create table user_group
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-default_group char default 'F' null,
-join_url_active char default 'F' null,
-join_url_password varchar(255) null,
-name varchar(255) null,
-unit bigint null,
-constraint FK_ddfpocbhgcpv8uhvcuf52dx5a
-foreign key (unit) references prosolo3.unit (id)
-)
-;
-
-create index FK_ddfpocbhgcpv8uhvcuf52dx5a
-	on user_group (unit)
-;
-
-alter table competence_user_group
-add constraint FK_4b5s1r5gcdytwdbp2pr4rn4v5
-		foreign key (user_group) references prosolo3.user_group (id)
-;
-
-alter table credential_user_group
-add constraint FK_m5cvxlf67t55is1xw2gxfar0i
-		foreign key (user_group) references prosolo3.user_group (id)
-;
-
-alter table lti_tool
-add constraint FK_64dtvy9vcghm1b7cv0ymsgg4p
-		foreign key (user_group) references prosolo3.user_group (id)
-;
-
-create table user_group_user
-(
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-user_group bigint not null,
-user bigint not null,
-constraint UK_c63cjs9t3jl6nrf3asi7iej52
-unique (user, user_group),
-constraint FK_iifontadv5293tvuvf7r9e9u8
-foreign key (user_group) references prosolo3.user_group (id),
-constraint FK_kqb30gm40pn64yo6sgh0jgpcf
-foreign key (user) references prosolo3.user (id)
-)
-;
-
-create index FK_iifontadv5293tvuvf7r9e9u8
-	on user_group_user (user_group)
-;
-
-create table user_preference
-(
-	dtype varchar(31) not null,
-	id bigint not null
-		primary key,
-	created datetime null,
-	deleted char default 'F' null,
-	description longtext null,
-	title varchar(255) null,
-update_period varchar(255) not null,
-user bigint null,
-personal_blog_source bigint null,
-constraint FK_lubkkfg4oouxyab4bblgr0j2e
-foreign key (user) references prosolo3.user (id),
-constraint FK_oskk4hx06767511e5ar5wpdo1
-foreign key (personal_blog_source) references prosolo3.feed_source (id)
-)
-;
-
-create index FK_lubkkfg4oouxyab4bblgr0j2e
-	on user_preference (user)
-;
-
-create index FK_oskk4hx06767511e5ar5wpdo1
-	on user_preference (personal_blog_source)
-;
-
-create table user_preference_subscribed_rss_sources
-(
-	user_preference bigint not null,
-	subscribed_rss_sources bigint not null,
-	constraint UK_k33l3f2g6mo8kpnc0laxm8dxf
-		unique (subscribed_rss_sources),
-constraint FK_k1w7aarxe3y1g47f1k9qjh5qb
-foreign key (user_preference) references prosolo3.user_preference (id),
-constraint FK_k33l3f2g6mo8kpnc0laxm8dxf
-foreign key (subscribed_rss_sources) references prosolo3.feed_source (id)
-)
-;
-
-create index FK_k1w7aarxe3y1g47f1k9qjh5qb
-	on user_preference_subscribed_rss_sources (user_preference)
-;
-
-create table user_settings
-(
-	id bigint not null
-		primary key,
-	activity_wall_settings bigint null,
-	locale_settings bigint null,
-	terms_of_use bigint null,
-	constraint FK_e0ji1xk8xkrg1ee92jyuhl5s4
-		foreign key (id) references prosolo3.user (id),
-constraint FK_phjwu7o2219iuuh2v53ombw6w
-foreign key (activity_wall_settings) references prosolo3.activity_wall_settings (id),
-constraint FK_o3slgonymb8ch3md0m5anhlb8
-foreign key (locale_settings) references prosolo3.locale_settings (id),
-constraint FK_fdwr1xr3v58sye7ukapj4k3pa
-foreign key (terms_of_use) references prosolo3.terms_of_use (id)
-)
-;
-
-create index FK_fdwr1xr3v58sye7ukapj4k3pa
-	on user_settings (terms_of_use)
-;
-
-create index FK_o3slgonymb8ch3md0m5anhlb8
-	on user_settings (locale_settings)
-;
-
-create index FK_phjwu7o2219iuuh2v53ombw6w
-	on user_settings (activity_wall_settings)
-;
-
-create table user_settings_pages_tutorial_played
-(
-	user_settings bigint not null,
-	pages_tutorial_played varchar(255) null,
-constraint FK_rdbdifanhafj621wt7cd8iurc
-foreign key (user_settings) references prosolo3.user_settings (id)
-)
-;
-
-create index FK_rdbdifanhafj621wt7cd8iurc
-	on user_settings_pages_tutorial_played (user_settings)
-;
-
-create table user_social_networks
-(
-	id bigint not null
-		primary key,
-	user bigint null,
-	constraint FK_eriyguekd0ayq7n6njjy86qp
-		foreign key (user) references prosolo3.user (id)
-)
-;
-
-create index FK_eriyguekd0ayq7n6njjy86qp
-	on user_social_networks (user)
-;
-
-create table user_social_networks_social_network_accounts
-(
-	user_social_networks bigint not null,
-	social_network_accounts bigint not null,
-	primary key (user_social_networks, social_network_accounts),
-constraint UK_cm6y96m10clu35b3ow94gi5ln
-unique (social_network_accounts),
-constraint FK_8qwchc8e5iamlaaysbpg3p7su
-foreign key (user_social_networks) references prosolo3.user_social_networks (id),
-constraint FK_cm6y96m10clu35b3ow94gi5ln
-foreign key (social_network_accounts) references prosolo3.social_network_account (id)
-)
-;
-
-create table user_topic_preference_preferred_hashtags_tag
-(
-	user_preference bigint not null,
-	preferred_hashtags bigint not null,
-	primary key (user_preference, preferred_hashtags),
-constraint FK_ftoj3377h5tkd5url4ajuqdkt
-foreign key (user_preference) references prosolo3.user_preference (id),
-constraint FK_c2yhsp4xled49t7brdhsapk24
-foreign key (preferred_hashtags) references prosolo3.tag (id)
-)
-;
-
-create index FK_c2yhsp4xled49t7brdhsapk24
-	on user_topic_preference_preferred_hashtags_tag (preferred_hashtags)
-;
-
-create table user_topic_preference_preferred_keywords_tag
-(
-	user_preference bigint not null,
-	preferred_keywords bigint not null,
-	primary key (user_preference, preferred_keywords),
-constraint FK_deretkpd06iv6p27971yv48vt
-foreign key (user_preference) references prosolo3.user_preference (id),
-constraint FK_486ac11t2tsvkm3cj1qjn61pu
-foreign key (preferred_keywords) references prosolo3.tag (id)
-)
-;
-
-create index FK_486ac11t2tsvkm3cj1qjn61pu
-	on user_topic_preference_preferred_keywords_tag (preferred_keywords)
-;
-
-create table user_user_role
-(
-	user bigint not null,
-	roles bigint not null,
-	primary key (user, roles),
-constraint FK_1e97vv9xu9fx2kaeivgbh1jdx
-foreign key (user) references prosolo3.user (id),
-constraint FK_9uoa85no4a82ukddaycpt17f
-foreign key (roles) references prosolo3.role (id)
-)
-;
-
-create index FK_9uoa85no4a82ukddaycpt17f
-	on user_user_role (roles)
-;
-
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+--
+-- Host: localhost    Database: prosolo
+-- ------------------------------------------------------
+-- Server version	5.7.22-0ubuntu18.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `QRTZ_BLOB_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_BLOB_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_BLOB_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`BLOB_DATA` blob,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+KEY `SCHED_NAME` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+CONSTRAINT `QRTZ_BLOB_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_CALENDARS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_CALENDARS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_CALENDARS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`CALENDAR_NAME` varchar(200) NOT NULL,
+`CALENDAR` blob NOT NULL,
+PRIMARY KEY (`SCHED_NAME`,`CALENDAR_NAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_CRON_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_CRON_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_CRON_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`CRON_EXPRESSION` varchar(120) NOT NULL,
+`TIME_ZONE_ID` varchar(80) DEFAULT NULL,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+CONSTRAINT `QRTZ_CRON_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_FIRED_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_FIRED_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`ENTRY_ID` varchar(95) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`INSTANCE_NAME` varchar(200) NOT NULL,
+`FIRED_TIME` bigint(13) NOT NULL,
+`SCHED_TIME` bigint(13) NOT NULL,
+`PRIORITY` int(11) NOT NULL,
+`STATE` varchar(16) NOT NULL,
+`JOB_NAME` varchar(200) DEFAULT NULL,
+`JOB_GROUP` varchar(200) DEFAULT NULL,
+`IS_NONCONCURRENT` varchar(1) DEFAULT NULL,
+`REQUESTS_RECOVERY` varchar(1) DEFAULT NULL,
+PRIMARY KEY (`SCHED_NAME`,`ENTRY_ID`),
+KEY `IDX_QRTZ_FT_TRIG_INST_NAME` (`SCHED_NAME`,`INSTANCE_NAME`),
+KEY `IDX_QRTZ_FT_INST_JOB_REQ_RCVRY` (`SCHED_NAME`,`INSTANCE_NAME`,`REQUESTS_RECOVERY`),
+KEY `IDX_QRTZ_FT_J_G` (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
+KEY `IDX_QRTZ_FT_JG` (`SCHED_NAME`,`JOB_GROUP`),
+KEY `IDX_QRTZ_FT_T_G` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+KEY `IDX_QRTZ_FT_TG` (`SCHED_NAME`,`TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_JOB_DETAILS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_JOB_DETAILS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_JOB_DETAILS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`JOB_NAME` varchar(200) NOT NULL,
+`JOB_GROUP` varchar(200) NOT NULL,
+`DESCRIPTION` varchar(250) DEFAULT NULL,
+`JOB_CLASS_NAME` varchar(250) NOT NULL,
+`IS_DURABLE` varchar(1) NOT NULL,
+`IS_NONCONCURRENT` varchar(1) NOT NULL,
+`IS_UPDATE_DATA` varchar(1) NOT NULL,
+`REQUESTS_RECOVERY` varchar(1) NOT NULL,
+`JOB_DATA` blob,
+PRIMARY KEY (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
+KEY `IDX_QRTZ_J_REQ_RECOVERY` (`SCHED_NAME`,`REQUESTS_RECOVERY`),
+KEY `IDX_QRTZ_J_GRP` (`SCHED_NAME`,`JOB_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_LOCKS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_LOCKS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_LOCKS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`LOCK_NAME` varchar(40) NOT NULL,
+PRIMARY KEY (`SCHED_NAME`,`LOCK_NAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_PAUSED_TRIGGER_GRPS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_PAUSED_TRIGGER_GRPS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_SCHEDULER_STATE`
+--
+
+DROP TABLE IF EXISTS `QRTZ_SCHEDULER_STATE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_SCHEDULER_STATE` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`INSTANCE_NAME` varchar(200) NOT NULL,
+`LAST_CHECKIN_TIME` bigint(13) NOT NULL,
+`CHECKIN_INTERVAL` bigint(13) NOT NULL,
+PRIMARY KEY (`SCHED_NAME`,`INSTANCE_NAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_SIMPLE_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_SIMPLE_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_SIMPLE_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`REPEAT_COUNT` bigint(7) NOT NULL,
+`REPEAT_INTERVAL` bigint(12) NOT NULL,
+`TIMES_TRIGGERED` bigint(10) NOT NULL,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+CONSTRAINT `QRTZ_SIMPLE_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_SIMPROP_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_SIMPROP_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_SIMPROP_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`STR_PROP_1` varchar(512) DEFAULT NULL,
+`STR_PROP_2` varchar(512) DEFAULT NULL,
+`STR_PROP_3` varchar(512) DEFAULT NULL,
+`INT_PROP_1` int(11) DEFAULT NULL,
+`INT_PROP_2` int(11) DEFAULT NULL,
+`LONG_PROP_1` bigint(20) DEFAULT NULL,
+`LONG_PROP_2` bigint(20) DEFAULT NULL,
+`DEC_PROP_1` decimal(13,4) DEFAULT NULL,
+`DEC_PROP_2` decimal(13,4) DEFAULT NULL,
+`BOOL_PROP_1` varchar(1) DEFAULT NULL,
+`BOOL_PROP_2` varchar(1) DEFAULT NULL,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+CONSTRAINT `QRTZ_SIMPROP_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `QRTZ_TRIGGERS`
+--
+
+DROP TABLE IF EXISTS `QRTZ_TRIGGERS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `QRTZ_TRIGGERS` (
+`SCHED_NAME` varchar(120) NOT NULL,
+`TRIGGER_NAME` varchar(200) NOT NULL,
+`TRIGGER_GROUP` varchar(200) NOT NULL,
+`JOB_NAME` varchar(200) NOT NULL,
+`JOB_GROUP` varchar(200) NOT NULL,
+`DESCRIPTION` varchar(250) DEFAULT NULL,
+`NEXT_FIRE_TIME` bigint(13) DEFAULT NULL,
+`PREV_FIRE_TIME` bigint(13) DEFAULT NULL,
+`PRIORITY` int(11) DEFAULT NULL,
+`TRIGGER_STATE` varchar(16) NOT NULL,
+`TRIGGER_TYPE` varchar(8) NOT NULL,
+`START_TIME` bigint(13) NOT NULL,
+`END_TIME` bigint(13) DEFAULT NULL,
+`CALENDAR_NAME` varchar(200) DEFAULT NULL,
+`MISFIRE_INSTR` smallint(2) DEFAULT NULL,
+`JOB_DATA` blob,
+PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+KEY `IDX_QRTZ_T_J` (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
+KEY `IDX_QRTZ_T_JG` (`SCHED_NAME`,`JOB_GROUP`),
+KEY `IDX_QRTZ_T_C` (`SCHED_NAME`,`CALENDAR_NAME`),
+KEY `IDX_QRTZ_T_G` (`SCHED_NAME`,`TRIGGER_GROUP`),
+KEY `IDX_QRTZ_T_STATE` (`SCHED_NAME`,`TRIGGER_STATE`),
+KEY `IDX_QRTZ_T_N_STATE` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
+KEY `IDX_QRTZ_T_N_G_STATE` (`SCHED_NAME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
+KEY `IDX_QRTZ_T_NEXT_FIRE_TIME` (`SCHED_NAME`,`NEXT_FIRE_TIME`),
+KEY `IDX_QRTZ_T_NFT_ST` (`SCHED_NAME`,`TRIGGER_STATE`,`NEXT_FIRE_TIME`),
+KEY `IDX_QRTZ_T_NFT_MISFIRE` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`),
+KEY `IDX_QRTZ_T_NFT_ST_MISFIRE` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`,`TRIGGER_STATE`),
+KEY `IDX_QRTZ_T_NFT_ST_MISFIRE_GRP` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
+CONSTRAINT `QRTZ_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `QRTZ_JOB_DETAILS` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity1`
+--
+
+DROP TABLE IF EXISTS `activity1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity1` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`difficulty` int(11) DEFAULT '3',
+`duration` bigint(20) NOT NULL,
+`grading_mode` varchar(255) NOT NULL,
+`max_points` int(11) NOT NULL,
+`result_type` varchar(255) NOT NULL,
+`rubric_visibility` varchar(255) NOT NULL,
+`student_can_edit_response` char(1) DEFAULT 'F',
+`student_can_see_other_responses` char(1) DEFAULT 'F',
+`type` varchar(255) NOT NULL,
+`version` bigint(20) NOT NULL,
+`visible_for_unenrolled_students` char(1) DEFAULT 'F',
+`accept_grades` char(1) DEFAULT 'F',
+`consumer_key` varchar(255) DEFAULT NULL,
+`launch_url` varchar(255) DEFAULT NULL,
+`open_in_new_window` char(1) DEFAULT 'F',
+`score_calculation` varchar(255) DEFAULT NULL,
+`shared_secret` varchar(255) DEFAULT NULL,
+`text` text,
+`link_name` varchar(255) DEFAULT NULL,
+`url` varchar(255) DEFAULT NULL,
+`url_type` varchar(255) DEFAULT NULL,
+`created_by` bigint(20) DEFAULT NULL,
+`rubric` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_51vt5mwt287fcjsoap7vsm5e2` (`created_by`),
+KEY `FK_r28bfc9xvnj41036ky8xb7o98` (`rubric`),
+CONSTRAINT `FK_51vt5mwt287fcjsoap7vsm5e2` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_r28bfc9xvnj41036ky8xb7o98` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity1_captions`
+--
+
+DROP TABLE IF EXISTS `activity1_captions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity1_captions` (
+`activity1` bigint(20) NOT NULL,
+`captions` bigint(20) NOT NULL,
+PRIMARY KEY (`activity1`,`captions`),
+UNIQUE KEY `UK_b1n7gy4nb3oplj5v8jhali4rs` (`captions`),
+CONSTRAINT `FK_8gchebrsymmudflj24yo48n79` FOREIGN KEY (`activity1`) REFERENCES `activity1` (`id`),
+CONSTRAINT `FK_b1n7gy4nb3oplj5v8jhali4rs` FOREIGN KEY (`captions`) REFERENCES `resource_link` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity1_files`
+--
+
+DROP TABLE IF EXISTS `activity1_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity1_files` (
+`activity1` bigint(20) NOT NULL,
+`files` bigint(20) NOT NULL,
+PRIMARY KEY (`activity1`,`files`),
+UNIQUE KEY `UK_h9l61ttwr60t42cj53buu3rm0` (`files`),
+CONSTRAINT `FK_h9l61ttwr60t42cj53buu3rm0` FOREIGN KEY (`files`) REFERENCES `resource_link` (`id`),
+CONSTRAINT `FK_m20elbr34b3oe5p86dcd773nl` FOREIGN KEY (`activity1`) REFERENCES `activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity1_links`
+--
+
+DROP TABLE IF EXISTS `activity1_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity1_links` (
+`activity1` bigint(20) NOT NULL,
+`links` bigint(20) NOT NULL,
+PRIMARY KEY (`activity1`,`links`),
+UNIQUE KEY `UK_mpsbwvmwi7kc3a6sbcm8s9e5f` (`links`),
+CONSTRAINT `FK_mpsbwvmwi7kc3a6sbcm8s9e5f` FOREIGN KEY (`links`) REFERENCES `resource_link` (`id`),
+CONSTRAINT `FK_rhmeeesk0sdkg3qagjmf9lroj` FOREIGN KEY (`activity1`) REFERENCES `activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity1_tags`
+--
+
+DROP TABLE IF EXISTS `activity1_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity1_tags` (
+`activity1` bigint(20) NOT NULL,
+`tags` bigint(20) NOT NULL,
+PRIMARY KEY (`activity1`,`tags`),
+KEY `FK_4lcw676ek48pd37v9kr0mymim` (`tags`),
+CONSTRAINT `FK_4lcw676ek48pd37v9kr0mymim` FOREIGN KEY (`tags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_hynwy4o71nraccfi6lu06ggsc` FOREIGN KEY (`activity1`) REFERENCES `activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_assessment`
+--
+
+DROP TABLE IF EXISTS `activity_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`points` int(11) NOT NULL,
+`type` varchar(255) NOT NULL,
+`activity` bigint(20) NOT NULL,
+`competence_assessment` bigint(20) NOT NULL,
+`grade` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_ir3b4ua2jau1q2mlw3xhwr4s7` (`competence_assessment`,`activity`),
+KEY `FK_o3uai8md6l5ilpc98ynjnlks0` (`activity`),
+KEY `FK_pqe8ab74gg1e45r1muu3l2f48` (`grade`),
+CONSTRAINT `FK_8h8fnyxbc74ksc3qdhy48ic3t` FOREIGN KEY (`competence_assessment`) REFERENCES `competence_assessment` (`id`),
+CONSTRAINT `FK_o3uai8md6l5ilpc98ynjnlks0` FOREIGN KEY (`activity`) REFERENCES `activity1` (`id`),
+CONSTRAINT `FK_pqe8ab74gg1e45r1muu3l2f48` FOREIGN KEY (`grade`) REFERENCES `activity_grade` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_criterion_assessment`
+--
+
+DROP TABLE IF EXISTS `activity_criterion_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_criterion_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`comment` varchar(255) DEFAULT NULL,
+`criterion` bigint(20) DEFAULT NULL,
+`level` bigint(20) DEFAULT NULL,
+`assessment` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_b2gf4fq74omli2r1ftnq3ggob` (`assessment`,`criterion`),
+KEY `FK_l9389a0coyr4791boeeb8reuj` (`criterion`),
+KEY `FK_j41uvkbj5h50bv2okbqakkolf` (`level`),
+CONSTRAINT `FK_j41uvkbj5h50bv2okbqakkolf` FOREIGN KEY (`level`) REFERENCES `level` (`id`),
+CONSTRAINT `FK_l9389a0coyr4791boeeb8reuj` FOREIGN KEY (`criterion`) REFERENCES `criterion` (`id`),
+CONSTRAINT `FK_py8sdhd47tm0swq51k6gtm8pt` FOREIGN KEY (`assessment`) REFERENCES `activity_assessment` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_discussion_message`
+--
+
+DROP TABLE IF EXISTS `activity_discussion_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_discussion_message` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`content` varchar(9000) DEFAULT NULL,
+`updated` datetime DEFAULT NULL,
+`discussion` bigint(20) DEFAULT NULL,
+`sender` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_pc9oblcdq0wtaqumrpoghmym5` (`discussion`),
+KEY `FK_gp4rjlpt100i22gadcrqsuyea` (`sender`),
+CONSTRAINT `FK_gp4rjlpt100i22gadcrqsuyea` FOREIGN KEY (`sender`) REFERENCES `activity_discussion_participant` (`id`),
+CONSTRAINT `FK_pc9oblcdq0wtaqumrpoghmym5` FOREIGN KEY (`discussion`) REFERENCES `activity_assessment` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_discussion_participant`
+--
+
+DROP TABLE IF EXISTS `activity_discussion_participant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_discussion_participant` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`is_read` char(1) DEFAULT 'T',
+`activity_discussion` bigint(20) DEFAULT NULL,
+`participant` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_1aja12ermpd5n492qpm0wv51p` (`activity_discussion`),
+KEY `FK_klimyuls8rsoqt7v9ce5gqts9` (`participant`),
+CONSTRAINT `FK_1aja12ermpd5n492qpm0wv51p` FOREIGN KEY (`activity_discussion`) REFERENCES `activity_assessment` (`id`),
+CONSTRAINT `FK_klimyuls8rsoqt7v9ce5gqts9` FOREIGN KEY (`participant`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_grade`
+--
+
+DROP TABLE IF EXISTS `activity_grade`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_grade` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`value` int(11) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activity_wall_settings`
+--
+
+DROP TABLE IF EXISTS `activity_wall_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activity_wall_settings` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`chosen_filter` varchar(255) NOT NULL,
+`course_id` bigint(20) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `annotation1`
+--
+
+DROP TABLE IF EXISTS `annotation1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `annotation1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`annotated_resource` varchar(255) NOT NULL,
+`annotated_resource_id` bigint(20) NOT NULL,
+`annotation_type` varchar(255) NOT NULL,
+`maker` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_qg56tf64cpvwkc5p2q9bjoape` (`maker`),
+CONSTRAINT `FK_qg56tf64cpvwkc5p2q9bjoape` FOREIGN KEY (`maker`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `announcement`
+--
+
+DROP TABLE IF EXISTS `announcement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `announcement` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`announcement_text` varchar(5000) DEFAULT NULL,
+`created_by` bigint(20) NOT NULL,
+`credential` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_i5ssis4ksi4j8jsbb9xga1odi` (`created_by`),
+KEY `FK_5n0gf0pgl54yxksqbrpg49jwu` (`credential`),
+CONSTRAINT `FK_5n0gf0pgl54yxksqbrpg49jwu` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_i5ssis4ksi4j8jsbb9xga1odi` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `capability`
+--
+
+DROP TABLE IF EXISTS `capability`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `capability` (
+`id` bigint(20) NOT NULL,
+`description` varchar(255) DEFAULT NULL,
+`name` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `capability_role`
+--
+
+DROP TABLE IF EXISTS `capability_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `capability_role` (
+`capabilities` bigint(20) NOT NULL,
+`roles` bigint(20) NOT NULL,
+PRIMARY KEY (`capabilities`,`roles`),
+KEY `FK_bk8wqohsuock5hix7lnb84b0r` (`roles`),
+CONSTRAINT `FK_1j72vl0nwsv55q41b6ydg0hhd` FOREIGN KEY (`capabilities`) REFERENCES `capability` (`id`),
+CONSTRAINT `FK_bk8wqohsuock5hix7lnb84b0r` FOREIGN KEY (`roles`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `comment1`
+--
+
+DROP TABLE IF EXISTS `comment1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `comment1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`commented_resource_id` bigint(20) DEFAULT NULL,
+`instructor` bit(1) NOT NULL,
+`like_count` int(11) NOT NULL,
+`manager_comment` char(1) DEFAULT 'F',
+`post_date` datetime DEFAULT NULL,
+`resource_type` varchar(255) NOT NULL,
+`parent_comment` bigint(20) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `index_comment1_commented_resource_id_resource_type` (`commented_resource_id`,`resource_type`),
+KEY `FK_q7hjkgwtsss4hrk6dfs022823` (`parent_comment`),
+KEY `FK_cnb1hy7io12vb2fbi1jdmyalw` (`user`),
+CONSTRAINT `FK_cnb1hy7io12vb2fbi1jdmyalw` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_q7hjkgwtsss4hrk6dfs022823` FOREIGN KEY (`parent_comment`) REFERENCES `comment1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence1`
+--
+
+DROP TABLE IF EXISTS `competence1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`archived` char(1) DEFAULT 'F',
+`date_published` datetime DEFAULT NULL,
+`duration` bigint(20) NOT NULL,
+`grading_mode` varchar(255) NOT NULL,
+`learning_path_type` varchar(255) NOT NULL,
+`max_points` int(11) NOT NULL,
+`published` bit(1) NOT NULL,
+`student_allowed_to_add_activities` bit(1) NOT NULL,
+`type` varchar(255) NOT NULL,
+`version` bigint(20) NOT NULL,
+`visible_to_all` char(1) DEFAULT 'F',
+`created_by` bigint(20) DEFAULT NULL,
+`first_learning_stage_competence` bigint(20) DEFAULT NULL,
+`learning_stage` bigint(20) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+`original_version` bigint(20) DEFAULT NULL,
+`rubric` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_3oyo6ynive1sdpf54j7lx3ggb` (`first_learning_stage_competence`,`learning_stage`),
+KEY `FK_j0jn9c30xitfotmamc9181go5` (`created_by`),
+KEY `FK_lb3u5p37p6e33a9caoi64r1cj` (`learning_stage`),
+KEY `FK_91ik0ggqkcwdde3bjco1da0gf` (`organization`),
+KEY `FK_btejhdyv6se49077y8v2sw5sq` (`original_version`),
+KEY `FK_11ldaw0qdiu7cbcxb74l4xxcy` (`rubric`),
+CONSTRAINT `FK_11ldaw0qdiu7cbcxb74l4xxcy` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`),
+CONSTRAINT `FK_91ik0ggqkcwdde3bjco1da0gf` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`),
+CONSTRAINT `FK_btejhdyv6se49077y8v2sw5sq` FOREIGN KEY (`original_version`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_j0jn9c30xitfotmamc9181go5` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_lb3u5p37p6e33a9caoi64r1cj` FOREIGN KEY (`learning_stage`) REFERENCES `learning_stage` (`id`),
+CONSTRAINT `FK_rovwcltntpusa8fv9fk2ox4c5` FOREIGN KEY (`first_learning_stage_competence`) REFERENCES `competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence1_tags`
+--
+
+DROP TABLE IF EXISTS `competence1_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence1_tags` (
+`competence1` bigint(20) NOT NULL,
+`tags` bigint(20) NOT NULL,
+PRIMARY KEY (`competence1`,`tags`),
+KEY `FK_9lsylf57uy3m2se4ve4ameihu` (`tags`),
+CONSTRAINT `FK_9lsylf57uy3m2se4ve4ameihu` FOREIGN KEY (`tags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_njpyjqs5thuuyw5xwm1paihxf` FOREIGN KEY (`competence1`) REFERENCES `competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_activity1`
+--
+
+DROP TABLE IF EXISTS `competence_activity1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_activity1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`act_order` int(11) DEFAULT NULL,
+`activity` bigint(20) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_px25x3t4d4wxgujuocgi5mc51` (`activity`),
+KEY `FK_ka2ffpd609s5ug445vou0anhi` (`competence`),
+CONSTRAINT `FK_ka2ffpd609s5ug445vou0anhi` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_px25x3t4d4wxgujuocgi5mc51` FOREIGN KEY (`activity`) REFERENCES `activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_assessment`
+--
+
+DROP TABLE IF EXISTS `competence_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`approved` bit(1) DEFAULT NULL,
+`assessor_notified` bit(1) NOT NULL,
+`last_asked_for_assessment` datetime DEFAULT NULL,
+`last_assessment` datetime DEFAULT NULL,
+`message` longtext,
+`points` int(11) NOT NULL,
+`type` varchar(255) NOT NULL,
+`assessor` bigint(20) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+`student` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_lbo2bjanrdpkwedf9p6q6o248` (`assessor`),
+KEY `FK_k9y34nq3hj6fdbdaftoligfkc` (`competence`),
+KEY `FK_tiy256v79b1c8vfiest7m8piw` (`student`),
+CONSTRAINT `FK_k9y34nq3hj6fdbdaftoligfkc` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_lbo2bjanrdpkwedf9p6q6o248` FOREIGN KEY (`assessor`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_tiy256v79b1c8vfiest7m8piw` FOREIGN KEY (`student`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_assessment_config`
+--
+
+DROP TABLE IF EXISTS `competence_assessment_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_assessment_config` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`assessment_type` varchar(255) NOT NULL,
+`enabled` char(1) DEFAULT 'F',
+`competence` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_7u112t9m0qt8cdf1pwd2t6nam` (`competence`,`assessment_type`),
+CONSTRAINT `FK_16qjgpixu90actkwbekfav4ui` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_assessment_discussion_participant`
+--
+
+DROP TABLE IF EXISTS `competence_assessment_discussion_participant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_assessment_discussion_participant` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`is_read` char(1) DEFAULT 'T',
+`assessment` bigint(20) DEFAULT NULL,
+`participant` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_136fh13xo3iys1yq0hti8xlnq` (`assessment`),
+KEY `FK_tk9bucqcwbukxgjkkckysawf5` (`participant`),
+CONSTRAINT `FK_136fh13xo3iys1yq0hti8xlnq` FOREIGN KEY (`assessment`) REFERENCES `competence_assessment` (`id`),
+CONSTRAINT `FK_tk9bucqcwbukxgjkkckysawf5` FOREIGN KEY (`participant`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_assessment_message`
+--
+
+DROP TABLE IF EXISTS `competence_assessment_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_assessment_message` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`content` varchar(9000) DEFAULT NULL,
+`updated` datetime DEFAULT NULL,
+`assessment` bigint(20) DEFAULT NULL,
+`sender` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_3cpxtlvcviq1sov7gb7fqgcfu` (`assessment`),
+KEY `FK_ioqggfbo6kiw9yr5ghv25rjgb` (`sender`),
+CONSTRAINT `FK_3cpxtlvcviq1sov7gb7fqgcfu` FOREIGN KEY (`assessment`) REFERENCES `competence_assessment` (`id`),
+CONSTRAINT `FK_ioqggfbo6kiw9yr5ghv25rjgb` FOREIGN KEY (`sender`) REFERENCES `competence_assessment_discussion_participant` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_bookmark`
+--
+
+DROP TABLE IF EXISTS `competence_bookmark`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_bookmark` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_k4uyv9uljtw36cxchatxxhi7d` (`competence`,`user`),
+KEY `FK_7fwnajpqa9j4dfaciibethkll` (`user`),
+CONSTRAINT `FK_7fwnajpqa9j4dfaciibethkll` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_pu790xeulgg9f166ehutb0p0v` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_criterion_assessment`
+--
+
+DROP TABLE IF EXISTS `competence_criterion_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_criterion_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`comment` varchar(255) DEFAULT NULL,
+`criterion` bigint(20) DEFAULT NULL,
+`level` bigint(20) DEFAULT NULL,
+`assessment` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_cfbmdanr0gb6gaciqhgiee406` (`assessment`,`criterion`),
+KEY `FK_lkk5e6em0p1ccndm11xybktoy` (`criterion`),
+KEY `FK_smjx7i6jja0xf458dwpfbuaos` (`level`),
+CONSTRAINT `FK_cyefgjjblo1bchk4vjw8fmwxi` FOREIGN KEY (`assessment`) REFERENCES `competence_assessment` (`id`),
+CONSTRAINT `FK_lkk5e6em0p1ccndm11xybktoy` FOREIGN KEY (`criterion`) REFERENCES `criterion` (`id`),
+CONSTRAINT `FK_smjx7i6jja0xf458dwpfbuaos` FOREIGN KEY (`level`) REFERENCES `level` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_evidence`
+--
+
+DROP TABLE IF EXISTS `competence_evidence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_evidence` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+`evidence` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_8ih6dh7gn5uo6jwx9r3pt82sw` (`competence`),
+KEY `FK_nctgqbkwam6fn84i27cyaav2p` (`evidence`),
+CONSTRAINT `FK_8ih6dh7gn5uo6jwx9r3pt82sw` FOREIGN KEY (`competence`) REFERENCES `target_competence1` (`id`),
+CONSTRAINT `FK_nctgqbkwam6fn84i27cyaav2p` FOREIGN KEY (`evidence`) REFERENCES `learning_evidence` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_unit`
+--
+
+DROP TABLE IF EXISTS `competence_unit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_unit` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+`unit` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_7mbm0rkejlh524nk5ieyh24ml` (`competence`,`unit`),
+KEY `FK_16il9gr3688yooyw91vsiis91` (`unit`),
+CONSTRAINT `FK_16il9gr3688yooyw91vsiis91` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_d9i2062693wmimcdyvdr1ynhh` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `competence_user_group`
+--
+
+DROP TABLE IF EXISTS `competence_user_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `competence_user_group` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`inherited` char(1) DEFAULT 'F',
+`privilege` varchar(255) NOT NULL,
+`competence` bigint(20) NOT NULL,
+`inherited_from` bigint(20) DEFAULT NULL,
+`user_group` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_60mk2r1qk5llr3p901h5705y6` (`competence`),
+KEY `FK_e9iw7p463kmjjsyuj9r5wmxpe` (`inherited_from`),
+KEY `FK_4b5s1r5gcdytwdbp2pr4rn4v5` (`user_group`),
+CONSTRAINT `FK_4b5s1r5gcdytwdbp2pr4rn4v5` FOREIGN KEY (`user_group`) REFERENCES `user_group` (`id`),
+CONSTRAINT `FK_60mk2r1qk5llr3p901h5705y6` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_e9iw7p463kmjjsyuj9r5wmxpe` FOREIGN KEY (`inherited_from`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential1`
+--
+
+DROP TABLE IF EXISTS `credential1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`archived` char(1) DEFAULT 'F',
+`competence_order_mandatory` bit(1) NOT NULL,
+`default_number_of_students_per_instructor` int(11) NOT NULL,
+`delivery_end` datetime DEFAULT NULL,
+`delivery_start` datetime DEFAULT NULL,
+`duration` bigint(20) NOT NULL,
+`grading_mode` varchar(255) NOT NULL,
+`manually_assign_students` bit(1) NOT NULL,
+`max_points` int(11) NOT NULL,
+`type` varchar(255) NOT NULL,
+`version` bigint(20) NOT NULL,
+`visible_to_all` char(1) DEFAULT 'F',
+`created_by` bigint(20) NOT NULL,
+`delivery_of` bigint(20) DEFAULT NULL,
+`first_learning_stage_credential` bigint(20) DEFAULT NULL,
+`learning_stage` bigint(20) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+`rubric` bigint(20) DEFAULT NULL,
+`category` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_6vclpmt9xfxxxybg8tdc4axwt` (`first_learning_stage_credential`,`learning_stage`),
+KEY `FK_gwgwt3bm30pwx6lxiukyx1o03` (`created_by`),
+KEY `FK_ox2gmlf29yl2o60nwf28avccl` (`delivery_of`),
+KEY `FK_n2vyrbyyls32y7s3aq1gyyh8o` (`learning_stage`),
+KEY `FK_p1g20qojr5ahymmq2c2hkdqh3` (`organization`),
+KEY `FK_4s00xobf7567n67dwachjpsvm` (`rubric`),
+KEY `FK_6nv6h30ry8lvl7g9lxj83oo2r` (`category`),
+CONSTRAINT `FK_4s00xobf7567n67dwachjpsvm` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`),
+CONSTRAINT `FK_5ve9kkyxam4skfb85dy0n55ot` FOREIGN KEY (`first_learning_stage_credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_6nv6h30ry8lvl7g9lxj83oo2r` FOREIGN KEY (`category`) REFERENCES `credential_category` (`id`),
+CONSTRAINT `FK_gwgwt3bm30pwx6lxiukyx1o03` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_n2vyrbyyls32y7s3aq1gyyh8o` FOREIGN KEY (`learning_stage`) REFERENCES `learning_stage` (`id`),
+CONSTRAINT `FK_ox2gmlf29yl2o60nwf28avccl` FOREIGN KEY (`delivery_of`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_p1g20qojr5ahymmq2c2hkdqh3` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential1_blogs`
+--
+
+DROP TABLE IF EXISTS `credential1_blogs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential1_blogs` (
+`credential1` bigint(20) NOT NULL,
+`blogs` bigint(20) NOT NULL,
+KEY `FK_dgns5f815wa0piods87ak1unv` (`blogs`),
+KEY `FK_p9mlitfs7rd27q1h6x6xqrtat` (`credential1`),
+CONSTRAINT `FK_dgns5f815wa0piods87ak1unv` FOREIGN KEY (`blogs`) REFERENCES `feed_source` (`id`),
+CONSTRAINT `FK_p9mlitfs7rd27q1h6x6xqrtat` FOREIGN KEY (`credential1`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential1_excluded_feed_sources`
+--
+
+DROP TABLE IF EXISTS `credential1_excluded_feed_sources`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential1_excluded_feed_sources` (
+`credential1` bigint(20) NOT NULL,
+`excluded_feed_sources` bigint(20) NOT NULL,
+KEY `FK_id94tkw373r7i4wpptlstjkt2` (`excluded_feed_sources`),
+KEY `FK_116l6dplwn565owmmjwq9nchy` (`credential1`),
+CONSTRAINT `FK_116l6dplwn565owmmjwq9nchy` FOREIGN KEY (`credential1`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_id94tkw373r7i4wpptlstjkt2` FOREIGN KEY (`excluded_feed_sources`) REFERENCES `feed_source` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential1_hashtags`
+--
+
+DROP TABLE IF EXISTS `credential1_hashtags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential1_hashtags` (
+`credential1` bigint(20) NOT NULL,
+`hashtags` bigint(20) NOT NULL,
+PRIMARY KEY (`credential1`,`hashtags`),
+KEY `FK_2s3cange8x6y5lvxsgpulwmro` (`hashtags`),
+CONSTRAINT `FK_2s3cange8x6y5lvxsgpulwmro` FOREIGN KEY (`hashtags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_5k9e4ud4n7uutdcfcp7x8xn2h` FOREIGN KEY (`credential1`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential1_tags`
+--
+
+DROP TABLE IF EXISTS `credential1_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential1_tags` (
+`credential1` bigint(20) NOT NULL,
+`tags` bigint(20) NOT NULL,
+PRIMARY KEY (`credential1`,`tags`),
+KEY `FK_e8b1q4xep66kcwhcxfag5a0cl` (`tags`),
+CONSTRAINT `FK_e8b1q4xep66kcwhcxfag5a0cl` FOREIGN KEY (`tags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_o10dydyl21smpds2rwh7v8j4s` FOREIGN KEY (`credential1`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_assessment`
+--
+
+DROP TABLE IF EXISTS `credential_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`approved` bit(1) DEFAULT NULL,
+`assessor_notified` bit(1) NOT NULL,
+`last_asked_for_assessment` datetime DEFAULT NULL,
+`last_assessment` datetime DEFAULT NULL,
+`message` longtext,
+`points` int(11) NOT NULL,
+`review` longtext,
+`type` varchar(255) NOT NULL,
+`assessor` bigint(20) DEFAULT NULL,
+`student` bigint(20) DEFAULT NULL,
+`target_credential` bigint(20) DEFAULT NULL,
+`assessed` bit(1) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_64x1nbncerttcr6ukwn1i10yy` (`assessor`),
+KEY `FK_o0soi8jus7un1g5yqyfrpo3rs` (`student`),
+KEY `FK_gvcyenwhr1wjurx8srk0l65m` (`target_credential`),
+CONSTRAINT `FK_64x1nbncerttcr6ukwn1i10yy` FOREIGN KEY (`assessor`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_gvcyenwhr1wjurx8srk0l65m` FOREIGN KEY (`target_credential`) REFERENCES `target_credential1` (`id`),
+CONSTRAINT `FK_o0soi8jus7un1g5yqyfrpo3rs` FOREIGN KEY (`student`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_assessment_config`
+--
+
+DROP TABLE IF EXISTS `credential_assessment_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_assessment_config` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`assessment_type` varchar(255) NOT NULL,
+`enabled` char(1) DEFAULT 'F',
+`credential` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_e7upesftge7cjrbgqwqlbhypi` (`credential`,`assessment_type`),
+CONSTRAINT `FK_amujhji7o6s62pk0sj65q290y` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_assessment_discussion_participant`
+--
+
+DROP TABLE IF EXISTS `credential_assessment_discussion_participant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_assessment_discussion_participant` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`is_read` char(1) DEFAULT 'T',
+`assessment` bigint(20) DEFAULT NULL,
+`participant` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_lq0fgfb3gmn18bita5oybkxft` (`assessment`),
+KEY `FK_safwo8xgq1h61ttmdd9kob4hp` (`participant`),
+CONSTRAINT `FK_lq0fgfb3gmn18bita5oybkxft` FOREIGN KEY (`assessment`) REFERENCES `credential_assessment` (`id`),
+CONSTRAINT `FK_safwo8xgq1h61ttmdd9kob4hp` FOREIGN KEY (`participant`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_assessment_message`
+--
+
+DROP TABLE IF EXISTS `credential_assessment_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_assessment_message` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`content` varchar(9000) DEFAULT NULL,
+`updated` datetime DEFAULT NULL,
+`assessment` bigint(20) DEFAULT NULL,
+`sender` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_dlo6gfx7ifgbh5dg06tvyai67` (`assessment`),
+KEY `FK_e1kd4wxe27u2mh91ql011uj1q` (`sender`),
+CONSTRAINT `FK_dlo6gfx7ifgbh5dg06tvyai67` FOREIGN KEY (`assessment`) REFERENCES `credential_assessment` (`id`),
+CONSTRAINT `FK_e1kd4wxe27u2mh91ql011uj1q` FOREIGN KEY (`sender`) REFERENCES `credential_assessment_discussion_participant` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_bookmark`
+--
+
+DROP TABLE IF EXISTS `credential_bookmark`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_bookmark` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`credential` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_huxm5oy8mxf4gcckxuy6m5n9a` (`credential`,`user`),
+KEY `FK_n5fkjwxicertabyarbvju43c3` (`user`),
+CONSTRAINT `FK_d125vpplcb2nwcw100ck2ch7e` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_n5fkjwxicertabyarbvju43c3` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_category`
+--
+
+DROP TABLE IF EXISTS `credential_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_category` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_6mnq89yqpnfilldvrsyblvavb` (`organization`,`title`),
+CONSTRAINT `FK_r8ao03qj30gfud7h29sk1a4hr` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_competence1`
+--
+
+DROP TABLE IF EXISTS `credential_competence1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_competence1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`comp_order` int(11) DEFAULT NULL,
+`competence` bigint(20) NOT NULL,
+`credential` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_4j36i3b2r10ewvv85c9st8c34` (`competence`),
+KEY `FK_nw0ci3p9g1hiy4yan5w664to9` (`credential`),
+CONSTRAINT `FK_4j36i3b2r10ewvv85c9st8c34` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_nw0ci3p9g1hiy4yan5w664to9` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_competence_assessment`
+--
+
+DROP TABLE IF EXISTS `credential_competence_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_competence_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`competence_assessment` bigint(20) NOT NULL,
+`credential_assessment` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_cq14nxxgq3qb98h7v9dd9ubsj` (`credential_assessment`,`competence_assessment`),
+KEY `FK_hs8gjt68hymusnmsuuar20med` (`competence_assessment`),
+CONSTRAINT `FK_hs8gjt68hymusnmsuuar20med` FOREIGN KEY (`competence_assessment`) REFERENCES `competence_assessment` (`id`),
+CONSTRAINT `FK_lvmp3fd0dxsxestak8yervbrq` FOREIGN KEY (`credential_assessment`) REFERENCES `credential_assessment` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_criterion_assessment`
+--
+
+DROP TABLE IF EXISTS `credential_criterion_assessment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_criterion_assessment` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`comment` varchar(255) DEFAULT NULL,
+`criterion` bigint(20) DEFAULT NULL,
+`level` bigint(20) DEFAULT NULL,
+`assessment` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_bma5i20uxkurqqatu2k4aetlf` (`assessment`,`criterion`),
+KEY `FK_cgpk6q28vp6usjal5rlce9s9i` (`criterion`),
+KEY `FK_p24wh1b1sc1m8m15ler4xbuvv` (`level`),
+CONSTRAINT `FK_cgpk6q28vp6usjal5rlce9s9i` FOREIGN KEY (`criterion`) REFERENCES `criterion` (`id`),
+CONSTRAINT `FK_nn5t74iqwu7v2isk9xj3dtg7u` FOREIGN KEY (`assessment`) REFERENCES `credential_assessment` (`id`),
+CONSTRAINT `FK_p24wh1b1sc1m8m15ler4xbuvv` FOREIGN KEY (`level`) REFERENCES `level` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_instructor`
+--
+
+DROP TABLE IF EXISTS `credential_instructor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_instructor` (
+`id` bigint(20) NOT NULL,
+`date_assigned` datetime DEFAULT NULL,
+`max_number_of_students` int(11) NOT NULL,
+`credential` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_8o1ljk3ajomrhnh8d5qfmcnls` (`user`,`credential`),
+KEY `FK_4c65jghtljkorcy98mnko26lt` (`credential`),
+CONSTRAINT `FK_4c65jghtljkorcy98mnko26lt` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_5he8qwqjrj5oitt390xv1c363` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_unit`
+--
+
+DROP TABLE IF EXISTS `credential_unit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_unit` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`credential` bigint(20) NOT NULL,
+`unit` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_piaytj54rr4klingo78qx9ylt` (`credential`,`unit`),
+KEY `FK_bcknt360dtw8rh53cphe97q45` (`unit`),
+CONSTRAINT `FK_10qyaft78ol2toenfodqdwc8g` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_bcknt360dtw8rh53cphe97q45` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_user_group`
+--
+
+DROP TABLE IF EXISTS `credential_user_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_user_group` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`privilege` varchar(255) NOT NULL,
+`credential` bigint(20) NOT NULL,
+`user_group` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_j07j1pph3s8y22el92gth2yy5` (`credential`,`user_group`,`privilege`),
+KEY `FK_m5cvxlf67t55is1xw2gxfar0i` (`user_group`),
+CONSTRAINT `FK_30jl08j0war3rn3u23m10uyq8` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_m5cvxlf67t55is1xw2gxfar0i` FOREIGN KEY (`user_group`) REFERENCES `user_group` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `criterion`
+--
+
+DROP TABLE IF EXISTS `criterion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `criterion` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`criterion_order` int(11) NOT NULL,
+`points` double NOT NULL DEFAULT '0',
+`rubric` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_e1f4a4t2ns27fm40ulwry89u8` (`title`,`rubric`),
+KEY `FK_o7ovdmcl7pmxtdnuk3iyn2sep` (`rubric`),
+CONSTRAINT `FK_o7ovdmcl7pmxtdnuk3iyn2sep` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `criterion_level`
+--
+
+DROP TABLE IF EXISTS `criterion_level`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `criterion_level` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`criterion` bigint(20) NOT NULL,
+`level` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_pquo8f8sy5d20h8f5hmivseq8` (`criterion`,`level`),
+KEY `FK_t0ynrcrm7kt8i1luj4onvhjv2` (`level`),
+CONSTRAINT `FK_9l1253t7v8atu5lytujimj09n` FOREIGN KEY (`criterion`) REFERENCES `criterion` (`id`),
+CONSTRAINT `FK_t0ynrcrm7kt8i1luj4onvhjv2` FOREIGN KEY (`level`) REFERENCES `level` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `feed_entry`
+--
+
+DROP TABLE IF EXISTS `feed_entry`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feed_entry` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`image` varchar(255) DEFAULT NULL,
+`link` varchar(255) DEFAULT NULL,
+`relevance` double NOT NULL,
+`feed_source` bigint(20) DEFAULT NULL,
+`maker` bigint(20) DEFAULT NULL,
+`subscribed_user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_ffdgn3747cqpgdiwhxlarhp8m` (`feed_source`),
+KEY `FK_cgxvubmhf09musstvw2u00y67` (`maker`),
+KEY `FK_5mympaondc7gotjymqgd05l4i` (`subscribed_user`),
+CONSTRAINT `FK_5mympaondc7gotjymqgd05l4i` FOREIGN KEY (`subscribed_user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_cgxvubmhf09musstvw2u00y67` FOREIGN KEY (`maker`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_ffdgn3747cqpgdiwhxlarhp8m` FOREIGN KEY (`feed_source`) REFERENCES `feed_source` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `feed_entry_hashtags`
+--
+
+DROP TABLE IF EXISTS `feed_entry_hashtags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feed_entry_hashtags` (
+`feed_entry` bigint(20) NOT NULL,
+`hashtags` varchar(255) DEFAULT NULL,
+KEY `FK_es7wwjpedyq7gxlsk0lexcj5x` (`feed_entry`),
+CONSTRAINT `FK_es7wwjpedyq7gxlsk0lexcj5x` FOREIGN KEY (`feed_entry`) REFERENCES `feed_entry` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `feed_source`
+--
+
+DROP TABLE IF EXISTS `feed_source`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feed_source` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`last_check` datetime DEFAULT NULL,
+`link` varchar(500) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `feeds_digest`
+--
+
+DROP TABLE IF EXISTS `feeds_digest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feeds_digest` (
+`dtype` varchar(50) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`date_from` datetime DEFAULT NULL,
+`number_of_users_that_got_email` bigint(20) NOT NULL,
+`time_frame` varchar(255) NOT NULL,
+`date_to` datetime DEFAULT NULL,
+`credential` bigint(20) DEFAULT NULL,
+`feeds_subscriber` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_hcx2rl68idmgg2sfpnbqmv1tv` (`credential`),
+KEY `FK_j4nanu4eoo6lobqy4v64tegmf` (`feeds_subscriber`),
+CONSTRAINT `FK_hcx2rl68idmgg2sfpnbqmv1tv` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`),
+CONSTRAINT `FK_j4nanu4eoo6lobqy4v64tegmf` FOREIGN KEY (`feeds_subscriber`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `feeds_digest_entries`
+--
+
+DROP TABLE IF EXISTS `feeds_digest_entries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feeds_digest_entries` (
+`feeds_digest` bigint(20) NOT NULL,
+`entries` bigint(20) NOT NULL,
+KEY `FK_sj34xafykjukgs471aa2w9anj` (`entries`),
+KEY `FK_bhda4lck3rkx4tduxm7fhq8wo` (`feeds_digest`),
+CONSTRAINT `FK_bhda4lck3rkx4tduxm7fhq8wo` FOREIGN KEY (`feeds_digest`) REFERENCES `feeds_digest` (`id`),
+CONSTRAINT `FK_sj34xafykjukgs471aa2w9anj` FOREIGN KEY (`entries`) REFERENCES `feed_entry` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `followed_entity`
+--
+
+DROP TABLE IF EXISTS `followed_entity`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `followed_entity` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`required_to_follow` char(1) DEFAULT 'F',
+`started_following` datetime DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+`followed_user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_6w0pe4f2eii8eov3epmwk849e` (`user`,`followed_user`),
+KEY `FK_4eglof45iulhoj8j2qudvbuxm` (`followed_user`),
+CONSTRAINT `FK_4eglof45iulhoj8j2qudvbuxm` FOREIGN KEY (`followed_user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_9i2cqb9qu9aomuu5ju2yrm6f9` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `hibernate_sequences`
+--
+
+DROP TABLE IF EXISTS `hibernate_sequences`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hibernate_sequences` (
+`sequence_name` varchar(255) DEFAULT NULL,
+`sequence_next_hi_value` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `innodb_lock_monitor`
+--
+
+DROP TABLE IF EXISTS `innodb_lock_monitor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `innodb_lock_monitor` (
+`a` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `learning_evidence`
+--
+
+DROP TABLE IF EXISTS `learning_evidence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `learning_evidence` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`type` varchar(255) NOT NULL,
+`url` varchar(255) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_qb3lm6liqglp03b789fl0sdvb` (`organization`),
+KEY `FK_te80g9rqpmjnlpmff23h0we5x` (`user`),
+CONSTRAINT `FK_qb3lm6liqglp03b789fl0sdvb` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`),
+CONSTRAINT `FK_te80g9rqpmjnlpmff23h0we5x` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `learning_evidence_tags`
+--
+
+DROP TABLE IF EXISTS `learning_evidence_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `learning_evidence_tags` (
+`learning_evidence` bigint(20) NOT NULL,
+`tags` bigint(20) NOT NULL,
+PRIMARY KEY (`learning_evidence`,`tags`),
+KEY `FK_2i6sole2k1kwkjbgsm2u6aoff` (`tags`),
+CONSTRAINT `FK_2i6sole2k1kwkjbgsm2u6aoff` FOREIGN KEY (`tags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_ge8rmsf18x8fwwntcnof1w2c3` FOREIGN KEY (`learning_evidence`) REFERENCES `learning_evidence` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `learning_stage`
+--
+
+DROP TABLE IF EXISTS `learning_stage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `learning_stage` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`learning_stage_order` int(11) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_atmtmfxbwira99uums40pt8q` (`organization`,`title`),
+CONSTRAINT `FK_kmqfvn3rumkbm0b8dsgfbcnm6` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `level`
+--
+
+DROP TABLE IF EXISTS `level`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `level` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`level_order` int(11) NOT NULL,
+`points` double NOT NULL DEFAULT '0',
+`points_from` double NOT NULL DEFAULT '0',
+`points_to` double NOT NULL DEFAULT '0',
+`rubric` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_eo5k8jw0yq5kypsaddagxuoo8` (`title`,`rubric`),
+KEY `FK_rtffghkdqv9g81wd3ecvjemdv` (`rubric`),
+CONSTRAINT `FK_rtffghkdqv9g81wd3ecvjemdv` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `locale_settings`
+--
+
+DROP TABLE IF EXISTS `locale_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `locale_settings` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`language` varchar(255) DEFAULT NULL,
+`region` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lti_consumer`
+--
+
+DROP TABLE IF EXISTS `lti_consumer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lti_consumer` (
+`id` bigint(20) NOT NULL,
+`deleted` bit(1) NOT NULL,
+`capabilities` varchar(2000) DEFAULT NULL,
+`key_lti_one` varchar(255) NOT NULL,
+`key_lti_two` varchar(255) DEFAULT NULL,
+`secret_lti_one` varchar(255) NOT NULL,
+`secret_lti_two` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lti_service`
+--
+
+DROP TABLE IF EXISTS `lti_service`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lti_service` (
+`id` bigint(20) NOT NULL,
+`deleted` bit(1) NOT NULL,
+`actions` varchar(255) DEFAULT NULL,
+`endpoint` varchar(255) DEFAULT NULL,
+`formats` varchar(1000) DEFAULT NULL,
+`consumer` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_j04buydudvuvpfslrit8lht1s` (`consumer`),
+CONSTRAINT `FK_j04buydudvuvpfslrit8lht1s` FOREIGN KEY (`consumer`) REFERENCES `lti_consumer` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lti_tool`
+--
+
+DROP TABLE IF EXISTS `lti_tool`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lti_tool` (
+`id` bigint(20) NOT NULL,
+`deleted` bit(1) NOT NULL,
+`activity_id` bigint(20) NOT NULL,
+`code` varchar(255) DEFAULT NULL,
+`competence_id` bigint(20) NOT NULL,
+`credential_id` bigint(20) NOT NULL,
+`custom_css` varchar(10000) DEFAULT NULL,
+`description` varchar(2000) DEFAULT NULL,
+`enabled` bit(1) NOT NULL,
+`launch_url` varchar(255) DEFAULT NULL,
+`name` varchar(255) DEFAULT NULL,
+`resource_name` varchar(255) DEFAULT NULL,
+`tool_key` varchar(255) DEFAULT NULL,
+`tool_type` varchar(255) NOT NULL,
+`created_by` bigint(20) NOT NULL,
+`organization` bigint(20) NOT NULL,
+`tool_set` bigint(20) NOT NULL,
+`unit` bigint(20) DEFAULT NULL,
+`user_group` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_n8iw9ueffp6ceo31pnuensikq` (`created_by`),
+KEY `FK_6eimoaon171t8shrxhqs0dils` (`organization`),
+KEY `FK_f8glreyaxbnn1wq3ox0b76igm` (`tool_set`),
+KEY `FK_75s355fn31ogkxv4fwj6ve1hm` (`unit`),
+KEY `FK_64dtvy9vcghm1b7cv0ymsgg4p` (`user_group`),
+CONSTRAINT `FK_64dtvy9vcghm1b7cv0ymsgg4p` FOREIGN KEY (`user_group`) REFERENCES `user_group` (`id`),
+CONSTRAINT `FK_6eimoaon171t8shrxhqs0dils` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`),
+CONSTRAINT `FK_75s355fn31ogkxv4fwj6ve1hm` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_f8glreyaxbnn1wq3ox0b76igm` FOREIGN KEY (`tool_set`) REFERENCES `lti_tool_set` (`id`),
+CONSTRAINT `FK_n8iw9ueffp6ceo31pnuensikq` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lti_tool_set`
+--
+
+DROP TABLE IF EXISTS `lti_tool_set`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lti_tool_set` (
+`id` bigint(20) NOT NULL,
+`deleted` bit(1) NOT NULL,
+`product_code` varchar(255) DEFAULT NULL,
+`registration_url` varchar(255) DEFAULT NULL,
+`consumer` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_rxmmq9va47gyeome10lkj5ktw` (`consumer`),
+CONSTRAINT `FK_rxmmq9va47gyeome10lkj5ktw` FOREIGN KEY (`consumer`) REFERENCES `lti_consumer` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `lti_user`
+--
+
+DROP TABLE IF EXISTS `lti_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lti_user` (
+`id` bigint(20) NOT NULL,
+`deleted` bit(1) NOT NULL,
+`email` varchar(255) DEFAULT NULL,
+`name` varchar(255) DEFAULT NULL,
+`user_id` varchar(255) DEFAULT NULL,
+`consumer` bigint(20) NOT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_406o6qhyoo4xcc0ybhrs47xge` (`consumer`),
+KEY `FK_hxb07pfijibeqr1mm8qnnam0i` (`user`),
+CONSTRAINT `FK_406o6qhyoo4xcc0ybhrs47xge` FOREIGN KEY (`consumer`) REFERENCES `lti_consumer` (`id`),
+CONSTRAINT `FK_hxb07pfijibeqr1mm8qnnam0i` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`content` varchar(9000) DEFAULT NULL,
+`created_timestamp` datetime DEFAULT NULL,
+`message_thread` bigint(20) DEFAULT NULL,
+`sender` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_jgrx8hvls0cxtwdet9tu5tl3o` (`message_thread`),
+KEY `FK_a3km2kv42i1xu571ta911f9dc` (`sender`),
+CONSTRAINT `FK_a3km2kv42i1xu571ta911f9dc` FOREIGN KEY (`sender`) REFERENCES `thread_participant` (`id`),
+CONSTRAINT `FK_jgrx8hvls0cxtwdet9tu5tl3o` FOREIGN KEY (`message_thread`) REFERENCES `message_thread` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `message_participant`
+--
+
+DROP TABLE IF EXISTS `message_participant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message_participant` (
+`id` bigint(20) NOT NULL,
+`is_read` char(1) DEFAULT 'F',
+`sender` char(1) DEFAULT 'F',
+`participant` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_nt68vh666kew9wsx344d2tej8` (`participant`),
+CONSTRAINT `FK_nt68vh666kew9wsx344d2tej8` FOREIGN KEY (`participant`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `message_thread`
+--
+
+DROP TABLE IF EXISTS `message_thread`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message_thread` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`started` datetime DEFAULT NULL,
+`updated` datetime DEFAULT NULL,
+`subject` varchar(255) DEFAULT NULL,
+`creator` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_owblue8e7depfe80u0tut6vnp` (`creator`),
+CONSTRAINT `FK_owblue8e7depfe80u0tut6vnp` FOREIGN KEY (`creator`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `notification1`
+--
+
+DROP TABLE IF EXISTS `notification1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notification1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`link` varchar(255) DEFAULT NULL,
+`notify_by_email` char(1) DEFAULT 'T',
+`object_id` bigint(20) NOT NULL,
+`object_owner` char(1) DEFAULT 'F',
+`object_type` varchar(255) DEFAULT NULL,
+`is_read` char(1) DEFAULT 'F',
+`section` varchar(255) NOT NULL,
+`target_id` bigint(20) NOT NULL,
+`target_type` varchar(255) DEFAULT NULL,
+`type` varchar(255) NOT NULL,
+`actor` bigint(20) DEFAULT NULL,
+`receiver` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_8ffsbfqrwx0l4fcwtir4eogs8` (`actor`),
+KEY `FK_eu8xhjr832wpkchfxn2a4ne8f` (`receiver`),
+CONSTRAINT `FK_8ffsbfqrwx0l4fcwtir4eogs8` FOREIGN KEY (`actor`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_eu8xhjr832wpkchfxn2a4ne8f` FOREIGN KEY (`receiver`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `notification_settings`
+--
+
+DROP TABLE IF EXISTS `notification_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notification_settings` (
+`id` bigint(20) NOT NULL,
+`subscribed_email` char(1) DEFAULT 'F',
+`type` varchar(255) NOT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_fhuhqotesvv46234bv4r36w19` (`type`,`user`),
+KEY `FK_ajh6l15bdar6g8o7d01b52j3t` (`user`),
+CONSTRAINT `FK_ajh6l15bdar6g8o7d01b52j3t` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `oauth_access_token`
+--
+
+DROP TABLE IF EXISTS `oauth_access_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `oauth_access_token` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`profile_link` varchar(255) DEFAULT NULL,
+`profile_name` varchar(255) DEFAULT NULL,
+`service` varchar(255) NOT NULL,
+`token` varchar(255) DEFAULT NULL,
+`token_secret` varchar(255) DEFAULT NULL,
+`user_id` bigint(20) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_qwnyxe99obn5c7jamrh80tojn` (`user`),
+CONSTRAINT `FK_qwnyxe99obn5c7jamrh80tojn` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `observation`
+--
+
+DROP TABLE IF EXISTS `observation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `observation` (
+`id` bigint(20) NOT NULL,
+`creation_date` datetime DEFAULT NULL,
+`edited` bit(1) NOT NULL,
+`message` longtext,
+`note` longtext,
+`created_by` bigint(20) DEFAULT NULL,
+`created_for` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_f238497jjp2hx63imjj1ndnbv` (`created_by`),
+KEY `FK_owstmit5g7fnsggixn5tmfmd7` (`created_for`),
+CONSTRAINT `FK_f238497jjp2hx63imjj1ndnbv` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_owstmit5g7fnsggixn5tmfmd7` FOREIGN KEY (`created_for`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `observation_suggestion`
+--
+
+DROP TABLE IF EXISTS `observation_suggestion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `observation_suggestion` (
+`observation` bigint(20) NOT NULL,
+`suggestions` bigint(20) NOT NULL,
+PRIMARY KEY (`observation`,`suggestions`),
+KEY `FK_rxdpfym9lrnrum8yak52i6ya5` (`suggestions`),
+CONSTRAINT `FK_q5ec7t3ca2ihn36eifg4u7qw4` FOREIGN KEY (`observation`) REFERENCES `observation` (`id`),
+CONSTRAINT `FK_rxdpfym9lrnrum8yak52i6ya5` FOREIGN KEY (`suggestions`) REFERENCES `suggestion` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `observation_symptom`
+--
+
+DROP TABLE IF EXISTS `observation_symptom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `observation_symptom` (
+`observation` bigint(20) NOT NULL,
+`symptoms` bigint(20) NOT NULL,
+PRIMARY KEY (`observation`,`symptoms`),
+KEY `FK_axke49cj36g768x69cpf9t57l` (`symptoms`),
+CONSTRAINT `FK_2r1fs2ynpa1istpwqlmpc52yl` FOREIGN KEY (`observation`) REFERENCES `observation` (`id`),
+CONSTRAINT `FK_axke49cj36g768x69cpf9t57l` FOREIGN KEY (`symptoms`) REFERENCES `symptom` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `openidaccount`
+--
+
+DROP TABLE IF EXISTS `openidaccount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `openidaccount` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`openidprovider` varchar(255) NOT NULL,
+`validated_id` varchar(255) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_mrch25e7jcip15grmcp54039i` (`user`),
+CONSTRAINT `FK_mrch25e7jcip15grmcp54039i` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `organization`
+--
+
+DROP TABLE IF EXISTS `organization`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `organization` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`learning_in_stages_enabled` char(1) DEFAULT 'F',
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_98elant9gwyioac8t0br67o5p` (`title`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `outcome`
+--
+
+DROP TABLE IF EXISTS `outcome`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `outcome` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`result` int(11) DEFAULT NULL,
+`activity` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_c6sy38ram71uel2jdeotexor3` (`activity`),
+CONSTRAINT `FK_c6sy38ram71uel2jdeotexor3` FOREIGN KEY (`activity`) REFERENCES `target_activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `registration_key`
+--
+
+DROP TABLE IF EXISTS `registration_key`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `registration_key` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`registration_type` varchar(255) NOT NULL,
+`uid` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_ran40qjbh70o6m8q25xu4qxc9` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `reset_key`
+--
+
+DROP TABLE IF EXISTS `reset_key`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reset_key` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`invalid` char(1) NOT NULL,
+`uid` varchar(255) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_4os64y5nsc6cbbd73qj4lujb1` (`uid`),
+KEY `FK_fxv54xs4m5y1tddmi2errcesu` (`user`),
+CONSTRAINT `FK_fxv54xs4m5y1tddmi2errcesu` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `resource_link`
+--
+
+DROP TABLE IF EXISTS `resource_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource_link` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`id_parameter_name` varchar(255) DEFAULT NULL,
+`link_name` varchar(255) DEFAULT NULL,
+`url` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `resource_settings`
+--
+
+DROP TABLE IF EXISTS `resource_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource_settings` (
+`id` bigint(20) NOT NULL,
+`goal_acceptance_dependend_on_competence` char(1) DEFAULT 'F',
+`individual_competences_can_not_be_evaluated` char(1) DEFAULT 'F',
+`selected_users_can_do_evaluation` char(1) DEFAULT 'F',
+`user_can_create_competence` char(1) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `role`
+--
+
+DROP TABLE IF EXISTS `role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`system` char(1) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rubric`
+--
+
+DROP TABLE IF EXISTS `rubric`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rubric` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`ready_to_use` char(1) NOT NULL DEFAULT 'F',
+`rubric_type` varchar(255) NOT NULL,
+`creator` bigint(20) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_4fkcsmege20c5mr184i7sw8a8` (`title`,`organization`),
+KEY `FK_6peou3uwnq3v5xoirhfg4buwh` (`creator`),
+KEY `FK_lf8lryt4i4c66o0lot08j3cu7` (`organization`),
+CONSTRAINT `FK_6peou3uwnq3v5xoirhfg4buwh` FOREIGN KEY (`creator`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_lf8lryt4i4c66o0lot08j3cu7` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rubric_unit`
+--
+
+DROP TABLE IF EXISTS `rubric_unit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rubric_unit` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`rubric` bigint(20) NOT NULL,
+`unit` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_9ir0vsnl7lrvdnm4nw907xc0h` (`rubric`,`unit`),
+KEY `FK_2rbgvha4m64j067s9p7f52361` (`unit`),
+CONSTRAINT `FK_2rbgvha4m64j067s9p7f52361` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_85vusepoi725ebye515abgc2` FOREIGN KEY (`rubric`) REFERENCES `rubric` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `seen_announcement`
+--
+
+DROP TABLE IF EXISTS `seen_announcement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `seen_announcement` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`announcement` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_63g4k687qg4rdy0tw55bek8ph` (`announcement`),
+KEY `FK_8xib2pv1vo1dkrj7mwkc7stt0` (`user`),
+CONSTRAINT `FK_63g4k687qg4rdy0tw55bek8ph` FOREIGN KEY (`announcement`) REFERENCES `announcement` (`id`),
+CONSTRAINT `FK_8xib2pv1vo1dkrj7mwkc7stt0` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `social_activity1`
+--
+
+DROP TABLE IF EXISTS `social_activity1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `social_activity1` (
+`dtype` varchar(100) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`comments_disabled` char(1) DEFAULT 'F',
+`last_action` datetime DEFAULT NULL,
+`like_count` int(11) NOT NULL,
+`text` longtext,
+`rich_content_content_type` varchar(255) DEFAULT NULL,
+`rich_content_description` varchar(9000) DEFAULT NULL,
+`rich_content_embed_id` varchar(255) DEFAULT NULL,
+`rich_content_image_size` varchar(255) DEFAULT NULL,
+`rich_content_image_url` varchar(255) DEFAULT NULL,
+`rich_content_last_indexing_update` datetime DEFAULT NULL,
+`rich_content_link` varchar(255) DEFAULT NULL,
+`rich_content_title` varchar(255) DEFAULT NULL,
+`twitter_poster_avatar_url` varchar(255) DEFAULT NULL,
+`twitter_comment` varchar(255) DEFAULT NULL,
+`twitter_poster_name` varchar(255) DEFAULT NULL,
+`twitter_poster_nickname` varchar(255) DEFAULT NULL,
+`twitter_post_url` varchar(255) DEFAULT NULL,
+`twitter_poster_profile_url` varchar(255) DEFAULT NULL,
+`retweet` char(1) DEFAULT 'F',
+`twitter_user_type` int(11) DEFAULT NULL,
+`actor` bigint(20) DEFAULT NULL,
+`comment_object` bigint(20) DEFAULT NULL,
+`activity_target` bigint(20) DEFAULT NULL,
+`target_activity_object` bigint(20) DEFAULT NULL,
+`competence_target` bigint(20) DEFAULT NULL,
+`target_competence_object` bigint(20) DEFAULT NULL,
+`credential_object` bigint(20) DEFAULT NULL,
+`post_object` bigint(20) DEFAULT NULL,
+`unit` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `index_social_activity1_last_action_id` (`last_action`,`id`),
+KEY `index_social_activity1_actor_last_action_id` (`actor`,`last_action`,`id`),
+KEY `FK_n6q7e5h3tjgxn0p2m0wtdf05y` (`comment_object`),
+KEY `FK_fg2k09y8coydd8lt8mxmsyv8d` (`activity_target`),
+KEY `FK_cl6hufyquct3r8e3kj5foof4p` (`target_activity_object`),
+KEY `FK_dvy0dowvaju4eq844k2qbfkm4` (`competence_target`),
+KEY `FK_ic66jfo7hmtbua887739e9hv6` (`target_competence_object`),
+KEY `FK_r6x1eu9v3w7v4yrq67inwon9i` (`credential_object`),
+KEY `FK_3se0xx7kf9aw5vgmraucntlbv` (`post_object`),
+KEY `FK_9aicxka2n6jvmd38yw2rokm0c` (`unit`),
+CONSTRAINT `FK_369a166cd064b6ju3laifxqh6` FOREIGN KEY (`actor`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_3se0xx7kf9aw5vgmraucntlbv` FOREIGN KEY (`post_object`) REFERENCES `social_activity1` (`id`),
+CONSTRAINT `FK_9aicxka2n6jvmd38yw2rokm0c` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_cl6hufyquct3r8e3kj5foof4p` FOREIGN KEY (`target_activity_object`) REFERENCES `target_activity1` (`id`),
+CONSTRAINT `FK_dvy0dowvaju4eq844k2qbfkm4` FOREIGN KEY (`competence_target`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_fg2k09y8coydd8lt8mxmsyv8d` FOREIGN KEY (`activity_target`) REFERENCES `activity1` (`id`),
+CONSTRAINT `FK_ic66jfo7hmtbua887739e9hv6` FOREIGN KEY (`target_competence_object`) REFERENCES `target_competence1` (`id`),
+CONSTRAINT `FK_n6q7e5h3tjgxn0p2m0wtdf05y` FOREIGN KEY (`comment_object`) REFERENCES `comment1` (`id`),
+CONSTRAINT `FK_r6x1eu9v3w7v4yrq67inwon9i` FOREIGN KEY (`credential_object`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `social_activity1_comments`
+--
+
+DROP TABLE IF EXISTS `social_activity1_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `social_activity1_comments` (
+`social_activity1` bigint(20) NOT NULL,
+`comments` bigint(20) NOT NULL,
+UNIQUE KEY `UK_5lk34om0v81djsqof46lemooh` (`comments`),
+KEY `FK_icouxfgkx9j575thujmbiifyw` (`social_activity1`),
+CONSTRAINT `FK_5lk34om0v81djsqof46lemooh` FOREIGN KEY (`comments`) REFERENCES `comment1` (`id`),
+CONSTRAINT `FK_icouxfgkx9j575thujmbiifyw` FOREIGN KEY (`social_activity1`) REFERENCES `social_activity1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `social_activity1_hashtags`
+--
+
+DROP TABLE IF EXISTS `social_activity1_hashtags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `social_activity1_hashtags` (
+`social_activity1` bigint(20) NOT NULL,
+`hashtags` bigint(20) NOT NULL,
+PRIMARY KEY (`social_activity1`,`hashtags`),
+KEY `FK_dmmihaliyqi3d04t7vr50bept` (`hashtags`),
+CONSTRAINT `FK_7puhxui6hgij23pw2s0jpwu8s` FOREIGN KEY (`social_activity1`) REFERENCES `social_activity1` (`id`),
+CONSTRAINT `FK_dmmihaliyqi3d04t7vr50bept` FOREIGN KEY (`hashtags`) REFERENCES `tag` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `social_activity_config`
+--
+
+DROP TABLE IF EXISTS `social_activity_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `social_activity_config` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`hidden` char(1) DEFAULT 'F',
+`social_activity` bigint(20) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_iji9gdpcntyigmeky9rc8w9e2` (`social_activity`),
+KEY `FK_p4ouuukgvnn6j8to9pc5xnlq4` (`user`),
+CONSTRAINT `FK_iji9gdpcntyigmeky9rc8w9e2` FOREIGN KEY (`social_activity`) REFERENCES `social_activity1` (`id`),
+CONSTRAINT `FK_p4ouuukgvnn6j8to9pc5xnlq4` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `social_network_account`
+--
+
+DROP TABLE IF EXISTS `social_network_account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `social_network_account` (
+`id` bigint(20) NOT NULL,
+`link` varchar(255) DEFAULT NULL,
+`social_network` varchar(255) NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `suggestion`
+--
+
+DROP TABLE IF EXISTS `suggestion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `suggestion` (
+`id` bigint(20) NOT NULL,
+`description` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `symptom`
+--
+
+DROP TABLE IF EXISTS `symptom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `symptom` (
+`id` bigint(20) NOT NULL,
+`description` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tag`
+--
+
+DROP TABLE IF EXISTS `tag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tag` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `target_activity1`
+--
+
+DROP TABLE IF EXISTS `target_activity1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `target_activity1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`added` bit(1) NOT NULL,
+`common_score` int(11) NOT NULL,
+`completed` bit(1) NOT NULL,
+`date_completed` datetime DEFAULT NULL,
+`number_of_attempts` int(11) NOT NULL,
+`act_order` int(11) DEFAULT NULL,
+`result` longtext,
+`result_post_date` datetime DEFAULT NULL,
+`time_spent` bigint(20) NOT NULL,
+`activity` bigint(20) NOT NULL,
+`target_competence` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_5y8xtibcjsl3q1g2pyjp5v478` (`activity`),
+KEY `FK_fn87y61fx7126byyp4gx2i38v` (`target_competence`),
+CONSTRAINT `FK_5y8xtibcjsl3q1g2pyjp5v478` FOREIGN KEY (`activity`) REFERENCES `activity1` (`id`),
+CONSTRAINT `FK_fn87y61fx7126byyp4gx2i38v` FOREIGN KEY (`target_competence`) REFERENCES `target_competence1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `target_competence1`
+--
+
+DROP TABLE IF EXISTS `target_competence1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `target_competence1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`date_completed` datetime DEFAULT NULL,
+`hidden_from_profile` bit(1) NOT NULL,
+`next_activity_to_learn_id` bigint(20) NOT NULL,
+`progress` int(11) NOT NULL,
+`competence` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_hyygpgbqj161vj4fkdgxupoog` (`competence`,`user`),
+KEY `FK_62p0o7vw29vwnqc58g1hu2vai` (`user`),
+CONSTRAINT `FK_2jik1pn632ups2li1pmvuahdd` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
+CONSTRAINT `FK_62p0o7vw29vwnqc58g1hu2vai` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `target_credential1`
+--
+
+DROP TABLE IF EXISTS `target_credential1`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `target_credential1` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`assigned_to_instructor` bit(1) NOT NULL,
+`cluster` varchar(255) DEFAULT NULL,
+`cluster_name` varchar(255) DEFAULT NULL,
+`date_finished` datetime DEFAULT NULL,
+`date_started` datetime DEFAULT NULL,
+`final_review` varchar(255) DEFAULT NULL,
+`hidden_from_profile` bit(1) NOT NULL,
+`last_action` datetime DEFAULT NULL,
+`next_competence_to_learn_id` bigint(20) NOT NULL,
+`progress` int(11) NOT NULL,
+`credential` bigint(20) NOT NULL,
+`instructor` bigint(20) DEFAULT NULL,
+`user` bigint(20) NOT NULL,
+`competence_assessments_displayed` bit(1) DEFAULT b'1',
+`credential_assessments_displayed` bit(1) DEFAULT b'1',
+`evidence_displayed` bit(1) DEFAULT b'1',
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_hxf01pvgri60h660un28e1w2q` (`credential`,`user`),
+KEY `FK_7usnugjbauedaxofmlt5mlhau` (`instructor`),
+KEY `FK_76pg8xnfhsda0bvvq7wvwl5xp` (`user`),
+CONSTRAINT `FK_76pg8xnfhsda0bvvq7wvwl5xp` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_7usnugjbauedaxofmlt5mlhau` FOREIGN KEY (`instructor`) REFERENCES `credential_instructor` (`id`),
+CONSTRAINT `FK_s3fmqrd1ct10kj04au40cuqhr` FOREIGN KEY (`credential`) REFERENCES `credential1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `terms_of_use`
+--
+
+DROP TABLE IF EXISTS `terms_of_use`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `terms_of_use` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`accepted` char(1) NOT NULL,
+`date` datetime DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `testTable`
+--
+
+DROP TABLE IF EXISTS `testTable`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `testTable` (
+`a` char(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `thread_participant`
+--
+
+DROP TABLE IF EXISTS `thread_participant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `thread_participant` (
+`id` bigint(20) NOT NULL,
+`archived` char(1) DEFAULT 'F',
+`deleted` char(1) DEFAULT 'F',
+`is_read` char(1) DEFAULT 'F',
+`show_messages_from` datetime DEFAULT NULL,
+`last_read_message` bigint(20) DEFAULT NULL,
+`message_thread` bigint(20) DEFAULT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_2o8pq3r6bxabp5b73ok8qgrcx` (`last_read_message`),
+KEY `FK_ilywn1b6wdhl4ymswbb75ayal` (`message_thread`),
+KEY `FK_ks01qd3o7158kirgyfpkw6cbb` (`user`),
+CONSTRAINT `FK_2o8pq3r6bxabp5b73ok8qgrcx` FOREIGN KEY (`last_read_message`) REFERENCES `message` (`id`),
+CONSTRAINT `FK_ilywn1b6wdhl4ymswbb75ayal` FOREIGN KEY (`message_thread`) REFERENCES `message_thread` (`id`),
+CONSTRAINT `FK_ks01qd3o7158kirgyfpkw6cbb` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `unit`
+--
+
+DROP TABLE IF EXISTS `unit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `unit` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`organization` bigint(20) NOT NULL,
+`parent_unit` bigint(20) DEFAULT NULL,
+`welcome_message` text,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_hotnqwr5osir4ryygavjto7ac` (`title`,`organization`),
+KEY `FK_oxsulo29jty26qck7xmhhf9f1` (`organization`),
+KEY `FK_8e9s0ln9wmq4ydgbnhhyfjgs5` (`parent_unit`),
+CONSTRAINT `FK_8e9s0ln9wmq4ydgbnhhyfjgs5` FOREIGN KEY (`parent_unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_oxsulo29jty26qck7xmhhf9f1` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `unit_role_membership`
+--
+
+DROP TABLE IF EXISTS `unit_role_membership`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `unit_role_membership` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`role` bigint(20) NOT NULL,
+`unit` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_cvpfera4fi0vhmc4jd8c6a1j8` (`user`,`unit`,`role`),
+KEY `FK_d5bj6kukr793taljwratj3l05` (`role`),
+KEY `FK_gn7knglhp5coc24iqd4yeevb0` (`unit`),
+CONSTRAINT `FK_d5bj6kukr793taljwratj3l05` FOREIGN KEY (`role`) REFERENCES `role` (`id`),
+CONSTRAINT `FK_gn7knglhp5coc24iqd4yeevb0` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`),
+CONSTRAINT `FK_oiefemc5sijcc7vop0b97lpt6` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`avatar_url` varchar(255) DEFAULT NULL,
+`email` varchar(255) DEFAULT NULL,
+`lastname` varchar(255) DEFAULT NULL,
+`latitude` double DEFAULT NULL,
+`location_name` varchar(255) DEFAULT NULL,
+`longitude` double DEFAULT NULL,
+`name` varchar(255) DEFAULT NULL,
+`password` varchar(255) DEFAULT NULL,
+`password_length` int(11) DEFAULT NULL,
+`position` varchar(255) DEFAULT NULL,
+`profile_url` varchar(255) DEFAULT NULL,
+`system` char(1) DEFAULT 'F',
+`user_type` varchar(255) NOT NULL,
+`verification_key` varchar(255) DEFAULT NULL,
+`verified` char(1) NOT NULL,
+`organization` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_a7krvkolmrchxwj22txuhlhj` (`organization`),
+CONSTRAINT `FK_a7krvkolmrchxwj22txuhlhj` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_group`
+--
+
+DROP TABLE IF EXISTS `user_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_group` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`default_group` char(1) DEFAULT 'F',
+`join_url_active` char(1) DEFAULT 'F',
+`join_url_password` varchar(255) DEFAULT NULL,
+`name` varchar(255) DEFAULT NULL,
+`unit` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_ddfpocbhgcpv8uhvcuf52dx5a` (`unit`),
+CONSTRAINT `FK_ddfpocbhgcpv8uhvcuf52dx5a` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_group_user`
+--
+
+DROP TABLE IF EXISTS `user_group_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_group_user` (
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`user_group` bigint(20) NOT NULL,
+`user` bigint(20) NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `UK_c63cjs9t3jl6nrf3asi7iej52` (`user`,`user_group`),
+KEY `FK_iifontadv5293tvuvf7r9e9u8` (`user_group`),
+CONSTRAINT `FK_iifontadv5293tvuvf7r9e9u8` FOREIGN KEY (`user_group`) REFERENCES `user_group` (`id`),
+CONSTRAINT `FK_kqb30gm40pn64yo6sgh0jgpcf` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_preference`
+--
+
+DROP TABLE IF EXISTS `user_preference`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_preference` (
+`dtype` varchar(31) NOT NULL,
+`id` bigint(20) NOT NULL,
+`created` datetime DEFAULT NULL,
+`deleted` char(1) DEFAULT 'F',
+`description` longtext,
+`title` varchar(255) DEFAULT NULL,
+`update_period` varchar(255) NOT NULL,
+`user` bigint(20) DEFAULT NULL,
+`personal_blog_source` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_lubkkfg4oouxyab4bblgr0j2e` (`user`),
+KEY `FK_oskk4hx06767511e5ar5wpdo1` (`personal_blog_source`),
+CONSTRAINT `FK_lubkkfg4oouxyab4bblgr0j2e` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_oskk4hx06767511e5ar5wpdo1` FOREIGN KEY (`personal_blog_source`) REFERENCES `feed_source` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_preference_subscribed_rss_sources`
+--
+
+DROP TABLE IF EXISTS `user_preference_subscribed_rss_sources`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_preference_subscribed_rss_sources` (
+`user_preference` bigint(20) NOT NULL,
+`subscribed_rss_sources` bigint(20) NOT NULL,
+UNIQUE KEY `UK_k33l3f2g6mo8kpnc0laxm8dxf` (`subscribed_rss_sources`),
+KEY `FK_k1w7aarxe3y1g47f1k9qjh5qb` (`user_preference`),
+CONSTRAINT `FK_k1w7aarxe3y1g47f1k9qjh5qb` FOREIGN KEY (`user_preference`) REFERENCES `user_preference` (`id`),
+CONSTRAINT `FK_k33l3f2g6mo8kpnc0laxm8dxf` FOREIGN KEY (`subscribed_rss_sources`) REFERENCES `feed_source` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_settings`
+--
+
+DROP TABLE IF EXISTS `user_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_settings` (
+`id` bigint(20) NOT NULL,
+`activity_wall_settings` bigint(20) DEFAULT NULL,
+`locale_settings` bigint(20) DEFAULT NULL,
+`terms_of_use` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_phjwu7o2219iuuh2v53ombw6w` (`activity_wall_settings`),
+KEY `FK_o3slgonymb8ch3md0m5anhlb8` (`locale_settings`),
+KEY `FK_fdwr1xr3v58sye7ukapj4k3pa` (`terms_of_use`),
+CONSTRAINT `FK_e0ji1xk8xkrg1ee92jyuhl5s4` FOREIGN KEY (`id`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_fdwr1xr3v58sye7ukapj4k3pa` FOREIGN KEY (`terms_of_use`) REFERENCES `terms_of_use` (`id`),
+CONSTRAINT `FK_o3slgonymb8ch3md0m5anhlb8` FOREIGN KEY (`locale_settings`) REFERENCES `locale_settings` (`id`),
+CONSTRAINT `FK_phjwu7o2219iuuh2v53ombw6w` FOREIGN KEY (`activity_wall_settings`) REFERENCES `activity_wall_settings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_settings_pages_tutorial_played`
+--
+
+DROP TABLE IF EXISTS `user_settings_pages_tutorial_played`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_settings_pages_tutorial_played` (
+`user_settings` bigint(20) NOT NULL,
+`pages_tutorial_played` varchar(255) DEFAULT NULL,
+KEY `FK_rdbdifanhafj621wt7cd8iurc` (`user_settings`),
+CONSTRAINT `FK_rdbdifanhafj621wt7cd8iurc` FOREIGN KEY (`user_settings`) REFERENCES `user_settings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_social_networks`
+--
+
+DROP TABLE IF EXISTS `user_social_networks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_social_networks` (
+`id` bigint(20) NOT NULL,
+`user` bigint(20) DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `FK_eriyguekd0ayq7n6njjy86qp` (`user`),
+CONSTRAINT `FK_eriyguekd0ayq7n6njjy86qp` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_social_networks_social_network_accounts`
+--
+
+DROP TABLE IF EXISTS `user_social_networks_social_network_accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_social_networks_social_network_accounts` (
+`user_social_networks` bigint(20) NOT NULL,
+`social_network_accounts` bigint(20) NOT NULL,
+PRIMARY KEY (`user_social_networks`,`social_network_accounts`),
+UNIQUE KEY `UK_cm6y96m10clu35b3ow94gi5ln` (`social_network_accounts`),
+CONSTRAINT `FK_8qwchc8e5iamlaaysbpg3p7su` FOREIGN KEY (`user_social_networks`) REFERENCES `user_social_networks` (`id`),
+CONSTRAINT `FK_cm6y96m10clu35b3ow94gi5ln` FOREIGN KEY (`social_network_accounts`) REFERENCES `social_network_account` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_topic_preference_preferred_hashtags_tag`
+--
+
+DROP TABLE IF EXISTS `user_topic_preference_preferred_hashtags_tag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_topic_preference_preferred_hashtags_tag` (
+`user_preference` bigint(20) NOT NULL,
+`preferred_hashtags` bigint(20) NOT NULL,
+PRIMARY KEY (`user_preference`,`preferred_hashtags`),
+KEY `FK_c2yhsp4xled49t7brdhsapk24` (`preferred_hashtags`),
+CONSTRAINT `FK_c2yhsp4xled49t7brdhsapk24` FOREIGN KEY (`preferred_hashtags`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_ftoj3377h5tkd5url4ajuqdkt` FOREIGN KEY (`user_preference`) REFERENCES `user_preference` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_topic_preference_preferred_keywords_tag`
+--
+
+DROP TABLE IF EXISTS `user_topic_preference_preferred_keywords_tag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_topic_preference_preferred_keywords_tag` (
+`user_preference` bigint(20) NOT NULL,
+`preferred_keywords` bigint(20) NOT NULL,
+PRIMARY KEY (`user_preference`,`preferred_keywords`),
+KEY `FK_486ac11t2tsvkm3cj1qjn61pu` (`preferred_keywords`),
+CONSTRAINT `FK_486ac11t2tsvkm3cj1qjn61pu` FOREIGN KEY (`preferred_keywords`) REFERENCES `tag` (`id`),
+CONSTRAINT `FK_deretkpd06iv6p27971yv48vt` FOREIGN KEY (`user_preference`) REFERENCES `user_preference` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_user_role`
+--
+
+DROP TABLE IF EXISTS `user_user_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_user_role` (
+`user` bigint(20) NOT NULL,
+`roles` bigint(20) NOT NULL,
+PRIMARY KEY (`user`,`roles`),
+KEY `FK_9uoa85no4a82ukddaycpt17f` (`roles`),
+CONSTRAINT `FK_1e97vv9xu9fx2kaeivgbh1jdx` FOREIGN KEY (`user`) REFERENCES `user` (`id`),
+CONSTRAINT `FK_9uoa85no4a82ukddaycpt17f` FOREIGN KEY (`roles`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-07-15 16:26:01
