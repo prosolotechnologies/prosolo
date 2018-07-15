@@ -341,9 +341,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			Authentication auth = getAuthenticationObject();
 			if(auth != null) {
 				if(auth.getCredentials() instanceof SAMLCredential) {
-					PageUtil.redirect(contextP + "/saml/logout");
+					PageUtil.redirect("/saml/logout");
 				} else {
-					PageUtil.redirect(contextP + "/logout");
+					PageUtil.redirect("/logout");
 				}
 			}
 		} catch (Exception e) {
