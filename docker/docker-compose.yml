@@ -50,9 +50,26 @@ services:
      build: elasticsearch
      #volumes_from:
       #           - elasticsearch_data
-     command: -Des.node.name="PLE15"
+     command: -Des.node.name="Prosolo-elasticsearch"
      ports:
          - "9200:9200"
+         - "9300:9300"
+
+  rabbitmq:
+     container_name: "rabbitmq-prosolo"
+     build: rabbitmq
+     environment:
+          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+          RABBITMQ_DEFAULT_USER: "prosolo"
+          RABBITMQ_DEFAULT_PASS: "prosolo@2014"
+          RABBITMQ_DEFAULT_VHOST: "/prosolo"
+     ports:
+          - "15672:15672"
+          - "5672:5672"
+     labels:
+          NAME: "rabbitmq"
+     #volumes:
+      #    - "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
 
 volumes:
   cassandra_volume:
