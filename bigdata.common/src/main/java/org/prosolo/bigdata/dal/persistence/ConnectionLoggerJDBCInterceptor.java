@@ -8,6 +8,10 @@ import org.apache.tomcat.jdbc.pool.PooledConnection;
 import java.lang.reflect.Method;
 
 /**
+ * This class intercepts calls to the {@link java.sql.Connection} class: when an operation on Connection is invoked,
+ * when a connection is taken out (“borrowed”) from the pool, and when the close() is called on the underlying
+ * connection; these calls are logged in the separate log file logs/prosoloTransactions.log.
+ *
  * @author stefanvuckovic
  * @date 2018-06-28
  * @since 1.2.0
