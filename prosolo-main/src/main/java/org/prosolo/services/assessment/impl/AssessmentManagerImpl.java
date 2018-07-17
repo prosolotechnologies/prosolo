@@ -3825,5 +3825,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	@Override
+	public CredentialAssessment getCredentialAssessment(long id, Session session) {
+		return (CredentialAssessment) session
+				.load(CredentialAssessment.class, id);
+	}
+
+	@Override
+	public CompetenceAssessment getCompetenceAssessment(long id, Session session) {
+		return (CompetenceAssessment) session
+				.load(CompetenceAssessment.class, id);
+	}
+
+	@Override
+	@Transactional
+	public ActivityAssessment getActivityAssessment(long id, Session session) {
+		return (ActivityAssessment) session
+				.load(ActivityAssessment.class, id);
+	}
+
 
 }

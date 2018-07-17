@@ -355,4 +355,10 @@ public interface AssessmentManager {
     int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 
 	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
+
+	CredentialAssessment getCredentialAssessment(long id, Session session);
+
+	CompetenceAssessment getCompetenceAssessment(long id, Session session);
+
+	ActivityAssessment getActivityAssessment(long id, Session session);
 }

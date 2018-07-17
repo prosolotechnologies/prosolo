@@ -3,6 +3,7 @@ package org.prosolo.services.logging;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.joda.time.Days;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDate;
@@ -10,6 +11,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.app.Settings;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.Context;
@@ -18,12 +22,15 @@ import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.LoggingESService;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
+import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +63,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private AssessmentManager assessmentManager;
+	@Inject private DefaultManager defaultManager;
 
 
     @Inject
@@ -78,7 +87,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
 			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
 			Like,Dislike, SEND_MESSAGE, PostShare,
-			Comment_Reply, RemoveLike};
+			Comment_Reply, RemoveLike, AssessmentRequested, AssessmentComment};
 	
 	@Override
 	public void logServiceUse(UserContextData context, String componentName,
@@ -176,21 +185,36 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		String targetType=   (String) logObject.get("targetType");
 		long targetId= (long) logObject.get("targetId");
 		Long targetUserId=(long)0;
-		if(objectType.equals(Comment1.class.getSimpleName())){
+		if (objectType.equals(Comment1.class.getSimpleName())) {
 			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
 			}else if(eventType.equals(EventType.Comment)){
 				targetUserId=logsDataManager.getUserOfTargetActivity(targetId);
 			} else targetUserId=logsDataManager.getParentCommentMaker(objectId);
-		}
-
-
-		else {
-			if(eventType.equals(EventType.SEND_MESSAGE)){
+		} else if (eventType.equals(EventType.SEND_MESSAGE)) {
 				JSONObject parameters=(JSONObject) logObject.get("parameters");
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
+		} else if (eventType == EventType.AssessmentRequested) {
+			//this event is taken into account only if peer assessment
+			targetUserId = targetId;
+		} else if (eventType == EventType.AssessmentComment) {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+			try {
+				if (CredentialAssessment.class.getSimpleName().equals(targetType)) {
+					CredentialAssessment ca = assessmentManager.getCredentialAssessment(targetId, session);
+					targetUserId = ca.getStudent().getId();
+				} else if (CompetenceAssessment.class.getSimpleName().equals(targetType)) {
+					CompetenceAssessment ca = assessmentManager.getCompetenceAssessment(targetId, session);
+					targetUserId = ca.getStudent().getId();
+				} else {
+					ActivityAssessment aa = assessmentManager.getActivityAssessment(targetId, session);
+					targetUserId = aa.getAssessment().getStudent().getId();
+				}
+			} finally {
+				HibernateUtil.close(session);
 			}
+		}
 //			else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
 //				if(objectType.equals(PostSocialActivity.class.getSimpleName())||objectType.equals(SocialActivityComment.class.getSimpleName())||
 //						objectType.equals(TwitterPostSocialActivity.class.getSimpleName())||objectType.equals(UserSocialActivity.class.getSimpleName())||
@@ -214,7 +238,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 //					targetUserId=logsDataManager.getPostMaker(actorId,objectId);
 //				}
 //			}
-		}
 		System.out.println("TARGET USER ID:"+targetUserId);
 		//TODO this method should be changed because domain model changed
 		return targetUserId != null ? targetUserId : 0;
