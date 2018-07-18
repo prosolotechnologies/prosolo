@@ -165,7 +165,7 @@ public class NotificationObserver extends EventObserver {
 					}
 				}
 			} else {
-				logger.error("This notification is not supported by any notification processor." + event);
+				logger.debug("This notification is not supported by any notification processor." + event);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

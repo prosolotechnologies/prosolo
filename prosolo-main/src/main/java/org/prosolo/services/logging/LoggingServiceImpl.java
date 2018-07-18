@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
@@ -23,7 +24,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.LoggingESService;
@@ -63,9 +63,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private AssessmentManager assessmentManager;
 	@Inject private DefaultManager defaultManager;
-
 
     @Inject
     private AnalyticalServiceCollector analyticalServiceCollector;
@@ -87,7 +85,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
 			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
 			Like,Dislike, SEND_MESSAGE, PostShare,
-			Comment_Reply, RemoveLike, AssessmentRequested, AssessmentComment};
+			Comment_Reply, RemoveLike, AssessmentRequested, AssessmentComment,
+			AssessmentApproved, GRADE_ADDED};
 	
 	@Override
 	public void logServiceUse(UserContextData context, String componentName,
@@ -178,38 +177,68 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		});
 	}
 
+	/*
+	TODO discuss with Nikola and Zoran whether this is the best place for this logic.
+	I think better place would be some kind of observer in analytics app which reacts on events of interest,
+	retrieves target user id depending on event type (maybe even encapsulate logic for retrieving target user id in different classes with
+	one class per event type) and saves interaction in db (cassandra)
+	 */
 	private Long extractSocialInteractionTargetUser(JSONObject logObject, EventType eventType){
-		long actorId=(long) logObject.get("actorId");
+//		long actorId=(long) logObject.get("actorId");
 		String objectType=(String) logObject.get("objectType");
 		long objectId= (long) logObject.get("objectId");
 		String targetType=   (String) logObject.get("targetType");
 		long targetId= (long) logObject.get("targetId");
 		Long targetUserId=(long)0;
 		if (objectType.equals(Comment1.class.getSimpleName())) {
-			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
+			if (eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
-			}else if(eventType.equals(EventType.Comment)){
+			} else if(eventType.equals(EventType.Comment)){
 				targetUserId=logsDataManager.getUserOfTargetActivity(targetId);
 			} else targetUserId=logsDataManager.getParentCommentMaker(objectId);
 		} else if (eventType.equals(EventType.SEND_MESSAGE)) {
 				JSONObject parameters=(JSONObject) logObject.get("parameters");
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
-		} else if (eventType == EventType.AssessmentRequested) {
-			//this event is taken into account only if peer assessment
+		} else if (eventType == EventType.AssessmentRequested || eventType == EventType.AssessmentApproved) {
 			targetUserId = targetId;
 		} else if (eventType == EventType.AssessmentComment) {
 			Session session = (Session) defaultManager.getPersistence().openSession();
 			try {
 				if (CredentialAssessment.class.getSimpleName().equals(targetType)) {
-					CredentialAssessment ca = assessmentManager.getCredentialAssessment(targetId, session);
+					CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class,  targetId);
 					targetUserId = ca.getStudent().getId();
 				} else if (CompetenceAssessment.class.getSimpleName().equals(targetType)) {
-					CompetenceAssessment ca = assessmentManager.getCompetenceAssessment(targetId, session);
+					CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, targetId);
 					targetUserId = ca.getStudent().getId();
 				} else {
-					ActivityAssessment aa = assessmentManager.getActivityAssessment(targetId, session);
+					ActivityAssessment aa = (ActivityAssessment) session.load(ActivityAssessment.class, targetId);
 					targetUserId = aa.getAssessment().getStudent().getId();
+				}
+			} finally {
+				HibernateUtil.close(session);
+			}
+		} else if (eventType == EventType.GRADE_ADDED) {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+			try {
+				if (CredentialAssessment.class.getSimpleName().equals(objectType)) {
+					CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class,  objectId);
+					if (ca.getTargetCredential().getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = ca.getStudent().getId();
+					}
+				} else if (CompetenceAssessment.class.getSimpleName().equals(objectType)) {
+					CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, objectId);
+					if (ca.getCompetence().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = ca.getStudent().getId();
+					}
+				} else {
+					ActivityAssessment aa = (ActivityAssessment) session.load(ActivityAssessment.class, objectId);
+					if (aa.getActivity().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = aa.getAssessment().getStudent().getId();
+					}
 				}
 			} finally {
 				HibernateUtil.close(session);

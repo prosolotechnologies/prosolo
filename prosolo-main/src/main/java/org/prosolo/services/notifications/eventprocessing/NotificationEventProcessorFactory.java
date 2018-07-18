@@ -46,66 +46,74 @@ public class NotificationEventProcessorFactory {
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
-		/*
-		 * A new comment was posted. If comment is posted on competence/activity
-		 * page notify user that created competence/activity and all users that
-		 * commented on that competence/activity.
-		 */
-		case Comment:
-		case Comment_Reply:
-			return new CommentPostEventProcessor(event, session, notificationManager,
-					notificationsSettingsManager, activityManager, idEncoder, commentManager,
-					contextJsonParserService);
-		/*
-		 * Someone liked or disliked a resource. We need to determine whether it
-		 * was generated on the Status Wall (liked/disliked a SocialActivity
-		 * instance). Or the comment was created on the Activity Wall
-		 * (liked/disliked a TargetActivity instance)
-		 */
-		case Like:
-		case Dislike:
-			if (event.getObject() instanceof Comment1) {
-				return new CommentLikeEventProcessor(event, session, notificationManager, 
-						notificationsSettingsManager, activityManager, idEncoder,
+			/*
+			 * A new comment was posted. If comment is posted on competence/activity
+			 * page notify user that created competence/activity and all users that
+			 * commented on that competence/activity.
+			 */
+			case Comment:
+			case Comment_Reply:
+				return new CommentPostEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, activityManager, idEncoder, commentManager,
 						contextJsonParserService);
-			} else if (event.getObject() instanceof SocialActivity1) {
-				return new SocialActivityLikeEventProcessor(event, session, notificationManager, 
-						notificationsSettingsManager, activityManager, idEncoder);
-			}
-		case Follow:
-			return new FollowUserEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, followResourceManager);
-		case AssessmentComment:
-			BaseEntity target = event.getTarget();
-			if (target instanceof ActivityAssessment) {
-				return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
-			} else if (target instanceof CompetenceAssessment) {
-				return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
-			} else if (target instanceof CredentialAssessment) {
-				return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, assessmentManager);
-			}
-		case AssessmentApproved:
-			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, contextJsonParserService);
-		case AssessmentRequested:
-			if (event.getObject() instanceof CredentialAssessment) {
-				return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder);
-			} else if (event.getObject() instanceof CompetenceAssessment) {
-				return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
+			/*
+			 * Someone liked or disliked a resource. We need to determine whether it
+			 * was generated on the Status Wall (liked/disliked a SocialActivity
+			 * instance). Or the comment was created on the Activity Wall
+			 * (liked/disliked a TargetActivity instance)
+			 */
+			case Like:
+			case Dislike:
+				if (event.getObject() instanceof Comment1) {
+					return new CommentLikeEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, activityManager, idEncoder,
+							contextJsonParserService);
+				} else if (event.getObject() instanceof SocialActivity1) {
+					return new SocialActivityLikeEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, activityManager, idEncoder);
+				}
+				break;
+			case Follow:
+				return new FollowUserEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, followResourceManager);
+			case AssessmentComment:
+				BaseEntity target = event.getTarget();
+				if (target instanceof ActivityAssessment) {
+					return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
+				} else if (target instanceof CompetenceAssessment) {
+					return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
+				} else if (target instanceof CredentialAssessment) {
+					return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder, assessmentManager);
+				}
+				break;
+			case AssessmentApproved:
+				//notification should be generated only when credential is approved
+				if (event.getObject() instanceof CredentialAssessment) {
+					return new AssessmentApprovedEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder, contextJsonParserService);
+				}
+				break;
+			case AssessmentRequested:
+				if (event.getObject() instanceof CredentialAssessment) {
+					return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder);
+				} else if (event.getObject() instanceof CompetenceAssessment) {
+					return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
+							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
+				}
+				break;
+			case AnnouncementPublished:
+				return new AnnouncementPublishedEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, credentialManager);
+			case GRADE_ADDED:
+				return new GradeAddedEventProcessor(event, session, notificationManager,
 						notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
-			}
-		case AnnouncementPublished:
-			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, credentialManager);
-		case GRADE_ADDED:
-			return new GradeAddedEventProcessor(event, session, notificationManager,
-					notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
-		default:
-			return null;
+			default:
+				return null;
 		}
+		return null;
 	}
 }
