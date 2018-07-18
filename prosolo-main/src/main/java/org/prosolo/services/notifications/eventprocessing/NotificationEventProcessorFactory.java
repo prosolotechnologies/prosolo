@@ -55,7 +55,7 @@ public class NotificationEventProcessorFactory {
 		case Comment_Reply:
 			return new CommentPostEventProcessor(event, session, notificationManager,
 					notificationsSettingsManager, activityManager, idEncoder, commentManager,
-					contextJsonParserService);
+					credentialManager, contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
 		 * was generated on the Status Wall (liked/disliked a SocialActivity
