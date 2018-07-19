@@ -9,7 +9,6 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -60,7 +59,6 @@ public class EventFactory {
 				event.getObserversToExclude(), event.getParameters());
 	}
 
-	@Transactional
 	public Event generateEvent(EventType eventType, UserContextData context, BaseEntity object,
 							   BaseEntity target, Class<? extends EventObserver>[] observersToExclude,
 							   Map<String, String> parameters) {
