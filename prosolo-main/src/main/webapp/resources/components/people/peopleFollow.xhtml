@@ -1,0 +1,128 @@
+<ui:component
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:people="http://java.sun.com/jsf/composite/components/people">
+
+	<composite:interface>
+		<composite:attribute name="noUsersMsg" default="No users"/>
+		<composite:attribute name="bean" required="true" type="org.prosolo.web.people.PeopleBean"/>
+		<composite:attribute name="learningContext" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+		<div class="whiteBar">
+			<h:form id="formSearch">
+				<div class="container">
+					<div class="whiteBarContent">
+						<div class="whiteBarLeft">
+							<div class="searchBox">
+								<p:remoteCommand
+										name="execSearchStudents"
+										process="inputStudentSearch"
+										update=":#{cc.clientId}:panelFollowingUsers"
+										action="#{cc.attrs.bean.resetAndSearch()}" />
+
+								<h:inputText id="inputStudentSearch"
+											 type="search"
+											 styleClass="studentSearchField"
+											 placeholder="Search people"
+											 value="#{cc.attrs.bean.searchTerm}"
+											 onclick="$(this).select();"
+											 onkeyup="searchListener(execSearchStudents);"/>
+							</div>
+						</div>
+						<div class="whiteBarRight">
+							<div class="dropdown showDrop item">
+								<span>Filter from:</span>
+								<h:link
+										id="linkSearchFilter"
+										pt:data-toggle="dropdown"
+										pt:aria-haspopup="true"
+										pt:aria-expanded="true">
+									#{msg['label.filter.UserScopeFilter.'.concat(cc.attrs.bean.searchFilter.name())]}
+									<span class="arrowDown">arrowDown</span>
+								</h:link>
+								<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+									<ui:repeat var="searchFilter" value="#{cc.attrs.bean.filters}">
+										<li>
+											<p:commandLink
+													process="@this"
+													value="#{msg['label.filter.UserScopeFilter.'.concat(searchFilter.name())]}"
+													action="#{cc.attrs.bean.applySearchFilter(searchFilter)}"
+													update=":#{cc.clientId}:pagination :#{cc.clientId}:formSearch:linkSearchFilter :#{cc.clientId}:panelFollowingUsers">
+											</p:commandLink>
+										</li>
+									</ui:repeat>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<p:growl id="growlMain" showDetail="true" globalOnly="true" />
+
+				<h:panelGroup layout="block" styleClass="col-md-12" id="panelFollowingUsers">
+					<ul class="whiteBox peopleList peopleListDefaut">
+						<ui:fragment rendered="#{empty cc.attrs.bean.users}">
+							<li class="noPeople">#{cc.attrs.noUsersMsg}</li>
+						</ui:fragment>
+
+						<ui:repeat var="user" value="#{cc.attrs.bean.users}">
+							<li>
+								<div class="peopleListLeft">
+									<h:link outcome="/profile">
+										<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+															 fullName="#{user.commaSeparatedFullName}" width="64" height="64" />
+										<f:param name="id" value="#{util:encodeId(user.id)}" />
+									</h:link>
+									<div>
+										<h2>
+											<h:link outcome="/profile">
+												#{user.commaSeparatedFullName}
+												<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+											</h:link>
+										</h2>
+										<span>#{user.position}</span>
+									</div>
+								</div>
+								<div class="peopleListRight">
+									<p:commandLink styleClass="btn btn-green"
+										rendered="#{not user.followedByCurrentUser}"
+										process="@this"
+										action="#{cc.attrs.bean.followUser(user)}"
+										update=":#{cc.clientId}:formSearch :#{cc.clientId}:pagination :#{cc.clientId}:growlMain :#{cc.clientId}:panelFollowingUsers">
+										Follow
+									</p:commandLink>
+									<p:commandLink styleClass="btn btn-green-stroke"
+									    rendered="#{user.followedByCurrentUser}"
+									    process="@this"
+									    action="#{cc.attrs.bean.unfollowUser(user)}"
+									    update=":#{cc.clientId}:formSearch :#{cc.clientId}:pagination :#{cc.clientId}:growlMain :#{cc.clientId}:panelFollowingUsers">
+										Unfollow
+									</p:commandLink>
+								</div>
+							</li>
+						</ui:repeat>
+					</ul>
+
+					<utilcomp:pagination id="pagination"
+										 bean="#{cc.attrs.bean}"
+										 updateUrl="true"
+										 toUpdate=":#{cc.clientId}:panelFollowingUsers" />
+				</h:panelGroup>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

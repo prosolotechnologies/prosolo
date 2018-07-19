@@ -11,8 +11,8 @@
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="p" value="#{allPeopleBean.page}" default="1" />
-            <f:viewAction action="#{allPeopleBean.init()}" />
+            <f:viewParam name="p" value="#{peopleFollowersBean.page}" default="1" />
+            <f:viewAction action="#{peopleFollowersBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -25,8 +25,8 @@
 
     <ui:define name="content">
         <people:peopleFollow
-            noUsersMsg="No users."
-            bean="#{allPeopleBean}"
+                noUsersMsg="No one is following you at the moment."
+                bean="#{peopleFollowersBean}"
         />
     </ui:define>
 </ui:composition>

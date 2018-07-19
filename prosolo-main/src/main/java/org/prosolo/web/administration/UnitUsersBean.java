@@ -180,7 +180,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserContext(decodedOrgId));
 			resetSearchData();
 			loadUsersFromDB();
-			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);
+			PageUtil.fireSuccessfulInfoMessage("The user " + data.getFullName() + " has been removed from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " " + unitTitle);
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing " + data.getFullName() + " from the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + unitTitle);

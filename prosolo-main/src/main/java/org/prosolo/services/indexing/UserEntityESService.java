@@ -29,6 +29,8 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void updateFollowers(long orgId, long userId);
 
+	void updateFollowingUsers(long orgId, long userId);
+
 	void updateCompetences(long orgId, long userId, Session session);
 
 	void updateCompetenceProgress(long orgId, long userId, TargetCompetence1 tComp);
