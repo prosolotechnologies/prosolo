@@ -1,11 +1,5 @@
 package org.prosolo.web.unauthorized;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-
 import org.apache.log4j.Logger;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
@@ -16,6 +10,10 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.IOException;
+import java.net.URLEncoder;
 
 @ManagedBean(name = "passwordRecoveryBean")
 @Component("passwordRecoveryBean")
@@ -53,7 +51,7 @@ public class PasswordRecoveryBean {
 		
 			passwordResetManager.invalidateResetKey(key);
 
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?success=" + URLEncoder.encode("Your password has been changed.", "utf-8"));
+			PageUtil.redirect("/login?success=" + URLEncoder.encode("Your password has been changed.", "utf-8"));
 		} catch (IOException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("There was an error reseting your password");
