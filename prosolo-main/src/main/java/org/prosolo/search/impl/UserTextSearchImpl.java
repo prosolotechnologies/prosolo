@@ -43,10 +43,8 @@ import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.management.Query;
 import java.util.*;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -77,7 +75,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserGroupManager userGroupManager;
 
 	@Override
-	@Transactional
 	public TextSearchResponse searchUsers (
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
@@ -150,7 +147,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	@Override
-	@Transactional
 	public PaginatedResult<UserData> getUsersWithRoles(
 			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId) {
