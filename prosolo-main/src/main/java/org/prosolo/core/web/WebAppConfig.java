@@ -1,5 +1,6 @@
 package org.prosolo.core.web;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.CommonSettings;
 
@@ -22,9 +23,11 @@ import java.util.stream.Stream;
 //@WebListener
 public class WebAppConfig implements ServletContextListener {
 
+    private static Logger logger = Logger.getLogger(WebAppConfig.class);
+
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        System.out.println("The application started");
+        logger.info("The application context initialized");
         ServletContext servletContext = event.getServletContext();
 
         // iterate through all maps' entries and add them to the servlet context
