@@ -140,6 +140,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				addCredentials(builder, user.getId(), session);
 				addCredentialsWithInstructorRole(builder, user.getId());
 				addFollowers(builder, user.getId());
+				addFollowees(builder, user.getId());
 				addCompetences(builder, user.getId(), session);
 				addGroups(builder, user.getId(),session);
 
@@ -275,6 +276,17 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.endArray();
 	}
 
+	private void addFollowees(XContentBuilder builder, long userId) throws IOException {
+		builder.startArray("following");
+		List<User> followees = followResourceManager.getFollowingUsers(userId);
+		for (User followee : followees) {
+			builder.startObject();
+			builder.field("id", followee.getId());
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
 	private void addRoles(XContentBuilder builder, User user, Session session) throws IOException {
 		builder.startArray("roles");
 		for (Role role : user.getRoles()) {
@@ -372,6 +384,21 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
 			addFollowers(builder, userId);
+			builder.endObject();
+
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
+					userId + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateFollowingUsers(long orgId, long userId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addFollowees(builder, userId);
 			builder.endObject();
 
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
