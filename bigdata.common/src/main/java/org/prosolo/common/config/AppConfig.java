@@ -11,9 +11,9 @@ public class AppConfig {
 	@Element(name = "app-name", required = true)
 	public String appName;
 
-	@Element(name = "development-mode")
-	public boolean developmentMode = false;
-	
+	@Element(name = "project-mode")
+	public ProjectMode projectMode;
+
 	@Element(name = "developer-email")
 	public String developerEmail;
 	
@@ -36,5 +36,19 @@ public class AppConfig {
 	public String getDomain() {
 		return domain;
 	}
-	
+
+	public enum ProjectMode {
+		DEV("Development"),
+		PROD("Production");
+
+		String mode;
+
+		ProjectMode(String mode) {
+			this.mode = mode;
+		}
+
+        public String getMode() {
+            return mode;
+        }
+    }
 }

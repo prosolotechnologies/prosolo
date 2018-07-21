@@ -115,6 +115,7 @@
 										<small class="redText"><h:message for="hiddenInput" /></small>
 									</div>
 								</div>
+
 								<ui:fragment rendered="#{empty userEditBean.id}">
 									<div class="formLine">
 										<label>&#160;</label>
@@ -123,12 +124,17 @@
 										</div>
 									</div>
 								</ui:fragment>
+
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink id="saveBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
-                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
-										</p:commandLink>
+										<p:commandLink id="saveBtn"
+													   styleClass="btn btn-green"
+													   value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
+													   onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+                                                       action="#{userEditBean.saveUser()}"
+													   update=":#{cc.clientId}:formMain" />
+
 										<p:defaultCommand target="saveBtn" />
 
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"

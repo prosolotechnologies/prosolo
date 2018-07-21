@@ -96,7 +96,7 @@
 											   process="@this"
 											   styleClass="btn btn-green btn-sm">
 									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profileBean.studentId}" />
+									<f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
 									Follow
 								</p:commandLink>
 								<p:commandLink id="unfollowButton"
@@ -106,7 +106,7 @@
 											   process="@form"
 											   styleClass="btn btn-green-stroke btn-sm">
 									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profileBean.studentId}" />
+									<f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
 									Following
 								</p:commandLink>
 								

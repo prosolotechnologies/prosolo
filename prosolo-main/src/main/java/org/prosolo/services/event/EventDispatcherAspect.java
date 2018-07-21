@@ -25,7 +25,6 @@ public class EventDispatcherAspect {
 			if (result instanceof Event) {
 				Event event = (Event) result;
 
-				logger.debug("Dispatching to the CentralEventDispatcher event: " + result);
 				centralEventDispatcher.dispatchEvent(event);
 			} else if (result instanceof List) {
 				centralEventDispatcher.dispatchEvents((List<Event>) result);

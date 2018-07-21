@@ -1,0 +1,24 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+>
+
+	<composite:interface></composite:interface>
+	
+	<composite:implementation>
+		<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+		<ul class="nav nav-tabs headerSubmenu">
+			<li role="presentation" class="#{page eq 'people' ? 'active' : ''}">
+				<h:link outcome="/people">Organization</h:link>
+			</li>
+			<li role="presentation" class="#{page eq 'people-following' ? 'active' : ''}">
+				<h:link outcome="/people-following">Following</h:link>
+			</li>
+			<li role="presentation" class="#{page eq 'people-followers' ? 'active' : ''}">
+				<h:link outcome="/people-followers">Followers</h:link>
+			</li>
+		</ul>
+	</composite:implementation>
+</ui:component>

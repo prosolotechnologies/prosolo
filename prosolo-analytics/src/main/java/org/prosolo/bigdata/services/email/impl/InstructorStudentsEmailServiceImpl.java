@@ -1,14 +1,5 @@
 package org.prosolo.bigdata.services.email.impl;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.UserDAO;
@@ -18,9 +9,18 @@ import org.prosolo.bigdata.email.EmailSender;
 import org.prosolo.bigdata.scala.spark.emails.CourseInstructorEmail;
 import org.prosolo.bigdata.services.email.InstructorStudentsEmailService;
 import org.prosolo.bigdata.services.email.instructorEmail.emailGenerator.InstructorEmailGenerator;
+import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.util.Pair;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEmailService {
@@ -71,8 +71,7 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 
 
 
-			if (CommonSettings.getInstance().config.appConfig.developmentMode) {
-
+			if (CommonSettings.getInstance().config.appConfig.projectMode.equals(AppConfig.ProjectMode.DEV)) {
 				email = CommonSettings.getInstance().config.appConfig.developerEmail;
 			}
 			return new Pair<String,InstructorEmailGenerator>(email,generator);
