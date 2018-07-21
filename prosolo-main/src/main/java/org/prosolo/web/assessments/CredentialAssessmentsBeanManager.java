@@ -63,7 +63,7 @@ public class CredentialAssessmentsBeanManager implements Serializable {
 				PageUtil.accessDenied();
 			} else {
 				try {
-					credentialAssessmentsSummary = assessmentManager.getAssessmentsSummaryData(decodedId);
+					credentialAssessmentsSummary = assessmentManager.getAssessmentsSummaryData(decodedId, access, loggedUserBean.getUserId());
 
 					if (credentialAssessmentsSummary == null) {
 						PageUtil.notFound();

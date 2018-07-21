@@ -51,6 +51,7 @@
 							URL
 						</p:commandLink>
 					</li>
+					<ui:remove>
 					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
 						<p:commandLink
 								pt:role="tab"
@@ -62,6 +63,7 @@
 							Text
 						</p:commandLink>
 					</li>
+					</ui:remove>
 					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 						<li role="presentation">
 							<p:commandLink
@@ -88,6 +90,8 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
 				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
+						<p:growl />
+
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
@@ -108,7 +112,7 @@
                             initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');
 						</script>
 
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:panelGroup id="panelUploadEvidence">
 							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
@@ -185,6 +189,8 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'LINK' ? 'in active' : ''}" id="url">
 					<h:form id="formUrlEvidence">
+						<p:growl />
+
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
@@ -204,7 +210,7 @@
                             initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');
 						</script>
 
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText id="inputUrl"
 									 styleClass="urlInput"
@@ -250,6 +256,8 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'TEXT' ? 'in active' : ''}" id="text">
 					<h:form id="formTextEvidence">
+						<p:growl />
+
 						<h:inputText
 								id="inputTitle"
 								value="#{submitEvidenceBean.evidence.title}"
@@ -269,7 +277,7 @@
                             initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');
 						</script>
 
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
 
 						<h:inputText styleClass="tagsInputEvidence"
 									 id="inputKeywords"

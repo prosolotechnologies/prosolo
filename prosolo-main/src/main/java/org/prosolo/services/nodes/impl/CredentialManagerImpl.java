@@ -3611,6 +3611,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId) {
+		try {
+			String q =
+					"SELECT targetCred.user.id FROM TargetCredential1 targetCred " +
+					"WHERE targetCred.credential.id = :credId " +
+					"AND targetCred.instructor.user.id = :instructorUserId";
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", deliveryId)
+					.setLong("instructorUserId", instructorUserId)
+					.list();
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the students data");
+		}
+	}
+
+	@Override
 	//nt
 	public long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException {
 		Result<Credential1> res = self.createCredentialInLearningStageAndGetEvents(basedOnCredentialId, learningStageId, copyCompetences, context);

@@ -1,13 +1,5 @@
 package org.prosolo.web.unauthorized;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URLEncoder;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
@@ -16,6 +8,11 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.net.URLEncoder;
 
 @ManagedBean(name="passwordreset")
 @Component("passwordreset")
@@ -40,8 +37,8 @@ public class PasswordReset implements Serializable {
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have been sent to "+email);
 				try {
-					FacesContext.getCurrentInstance().getExternalContext().redirect("reset/successful/" + URLEncoder.encode(email, "utf-8"));
-				} catch (IOException e) {
+					PageUtil.redirect("/reset/successful/" + URLEncoder.encode(email, "utf-8"));
+				} catch (Exception e) {
 					logger.error(e);
 				}
 			} else {

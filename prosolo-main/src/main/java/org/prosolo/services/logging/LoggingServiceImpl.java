@@ -233,7 +233,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					System.out.println("ExtractedCourse id:"+courseId);
 			}
 		}*/
-		System.out.println("EXTRACTED COURSE ID:"+courseId);
 		return courseId;
 	}
 
@@ -493,7 +492,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				try {
 					JSONObject lContext = (JSONObject) new JSONParser().parse(learningContextJson);
 					logObject.put("learningContext", lContext);
-					System.out.println("HAS LEARNING CONTEXT...:" + lContext.toString());
 				}catch(ParseException e){
 					logger.error(e);
 				}
