@@ -24,7 +24,7 @@ class UserNotificationEmailsSparkJob(kName: String) extends SparkJob with Serial
   override def keyspaceName: String = kName
 
 
-  def runSparkJob(date: Long, role: String): Array[Array[NotificationReceiverSummary]] = {
+  def runSparkJob(date: Long, role: NotificationSections.NotificationSection): Array[Array[NotificationReceiverSummary]] = {
     import sparkSession.implicits._
     //val connector=CassandraConnector.apply(sparkSession.sparkContext.getConf)
 

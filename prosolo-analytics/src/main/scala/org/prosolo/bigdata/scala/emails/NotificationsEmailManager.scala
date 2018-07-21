@@ -2,11 +2,9 @@ package org.prosolo.bigdata.scala.emails
 
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
-import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, UserNotificationEmailsSparkJob}
-import org.prosolo.common.util.date.DateEpochUtil
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, NotificationSections, UserNotificationEmailsSparkJob}
 import org.prosolo.common.config.CommonSettings
-import org.prosolo.common.domainmodel.user.notifications.NotificationSection
-import org.prosolo.common.util.Pair
+
 
 object NotificationsEmailManager {
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
@@ -18,9 +16,9 @@ object NotificationsEmailManager {
     val sparkJob = new UserNotificationEmailsSparkJob(dbName)
     val emailService = new NotificationsEmailServiceImpl
 
-    val roles = Array(NotificationSection.STUDENT, NotificationSection.MANAGE)
+    val roles = Array(NotificationSections.STUDENT, NotificationSections.MANAGE)
     for (role <- roles) {
-      val emailBatches: Array[Array[NotificationReceiverSummary]] = sparkJob.runSparkJob(date, role.toString)
+      val emailBatches: Array[Array[NotificationReceiverSummary]] = sparkJob.runSparkJob(date, role)
       emailBatches.foreach {
         emailBatch =>
           val emailResults = emailService.sendEmailBatches(emailBatch)

@@ -2,7 +2,7 @@ package org.prosolo.bigdata.scala.notifications
 
 import org.prosolo.bigdata.email.EmailSender
 import org.prosolo.bigdata.scala.emails.NotificationsEmailServiceImpl
-import org.prosolo.bigdata.scala.spark.emails.{ NotificationReceiverSummary, NotificationsSummary, Receiver}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, NotificationSections, NotificationsSummary, Receiver}
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -28,15 +28,15 @@ class NotificationsTests extends FunSuite with BeforeAndAfter{
 
     // notificationsSummary=NotificationsSummary(receiverId:Long, total:Int, notificationTypesCounts:HashMap[String,Int],notificationsMap)
 
-    val receiver=Receiver(2,"Zoran Jeremic","zoran.jeremic@gmail.com")
-    notificationReceiverSummary=NotificationReceiverSummary(receiver,notificationsSummary,"Student")
+    val receiver=Receiver(2,"test prosolo","test@prosolo.ca")
+    notificationReceiverSummary=NotificationReceiverSummary(receiver,notificationsSummary, NotificationSections.STUDENT)
 
   }
   test("Sending email digest notification for one user"){
     val emailService=new NotificationsEmailServiceImpl
 
     val emailSender=new EmailSender
-    emailSender.sendEmail(emailService.createEmailGenerator(notificationReceiverSummary),"zoran.jeremic@gmail.com")
+    emailSender.sendEmail(emailService.createEmailGenerator(notificationReceiverSummary),"test@prosolo.ca")
 
   }
 

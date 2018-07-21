@@ -12,6 +12,11 @@ package emails {
                           section: String, relationToTarget: String, predicate:String) extends Serializable
   case class NotificationsSummary(receiver:Long, total:Int, notificationTypesCounts:HashMap[String,Int], notificationsByType:HashMap[String,Array[Notification]]) extends EmailSummary with Serializable
   case class Receiver(receiver:Long, fullname:String, email:String)
-  case class NotificationReceiverSummary(receiver:Receiver, summary:NotificationsSummary, role: String)extends EmailSummary with Serializable
+  case class NotificationReceiverSummary(receiver:Receiver, summary:NotificationsSummary, role: NotificationSections.NotificationSection)extends EmailSummary with Serializable
   case class EmailSuccess(email:String, template:String, subject:String, success:Boolean)
+  object NotificationSections {
+    sealed abstract class NotificationSection (val name: String)
+    case object STUDENT extends NotificationSection ("Student")
+    case object MANAGE extends NotificationSection ("Manage")
+  }
 }

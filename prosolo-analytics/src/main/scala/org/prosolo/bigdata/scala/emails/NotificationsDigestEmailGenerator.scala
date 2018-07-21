@@ -4,7 +4,7 @@ package org.prosolo.bigdata.scala.emails
 import java.util
 import java.util.Date
 
-import org.prosolo.bigdata.scala.spark.emails.Notification
+import org.prosolo.bigdata.scala.spark.emails.{Notification, NotificationSections}
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.prosolo.common.email.generators.EmailContentGenerator
 import org.prosolo.common.util.date.DateUtil
@@ -23,14 +23,14 @@ class NotificationsDigestEmailGenerator(
                                          val total_number:Int,
                                          val notificationTypesCounts:HashMap[String,Int],
                                          val notificationsByType:HashMap[String,Array[Notification]],
-                                         val role: String) extends EmailContentGenerator{
+                                         val role: NotificationSections.NotificationSection) extends EmailContentGenerator{
   val DISPLAY_NUMBER=3
   override def getTemplateName: String = {"notifications/notification-digest"}
   val prettyDate: String = DateUtil.getPrettyDateEn(DateUtil.getPreviousDay(new Date()))
 
   override def getSubject: String = {s"Prosolo Notifications for $prettyDate"}
   val domain: String =System.getProperty("app.domain")
-  val roleLink: String = if(role.equalsIgnoreCase("manage")) "manage/notifications" else "notifications"
+  val roleLink: String = if(role.equals(NotificationSections.MANAGE)) "manage/notifications" else "notifications"
   val notificationsLink: String =if(domain.endsWith("/")) domain+roleLink else domain+"/"+roleLink
 
   def hasMore(f:()=>Int):Boolean=f() > DISPLAY_NUMBER
