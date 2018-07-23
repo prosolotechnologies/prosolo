@@ -24,7 +24,7 @@
 		<div class="whiteBox evidenceBox">
 			<div class="evidenceTop">
 				<div class="evidenceTopLeft">
-					<div class="icon #{cc.attrs.evidence.type eq 'LINK' ? 'link' : cc.attrs.evidence.type eq 'TEXT' ? 'text' : 'doc'}"></div>
+					<div class="icon #{cc.attrs.evidence.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(cc.attrs.evidence.url)}"></div>
 					<h3>
 						<ui:fragment rendered="#{cc.attrs.titleIsClickable}">
 							<h:link outcome="#{cc.attrs.role == 'USER' ? '/evidence' : '/manage/evidence'}">

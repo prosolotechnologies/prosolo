@@ -73,7 +73,7 @@
 								<div class="whiteBox evidenceBox">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft">
-											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
+											<div class="icon #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}"></div>
 											<h3>
 												<h:link outcome="/evidence">
 													#{ev.title}
