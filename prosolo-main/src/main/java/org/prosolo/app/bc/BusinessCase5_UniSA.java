@@ -581,7 +581,7 @@ public class BusinessCase5_UniSA {
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
 		credentialData.getAssessmentSettings().setRubricId(rubricId);
 		credentialData.setLearningStage(learningStage);
-		credentialData.setAutomaticallyAssingStudents(true);
+		credentialData.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.AUTOMATIC);
 
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
 		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);

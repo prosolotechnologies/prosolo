@@ -12,6 +12,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -133,7 +134,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDuration(data.getDuration());
 			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
-			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+			cred.setAsessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
 			cred.setCategory(data.getCategory() != null
 					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
 					: null);
@@ -678,14 +679,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	private void fireEditEvent(CredentialData data, Credential1 cred,
 							   UserContextData context) {
-	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
-	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
-	    		data.isMandatoryFlowChanged());
-	    Gson gson = new GsonBuilder().create();
-	    String jsonChangeTracker = gson.toJson(changeTracker);
-	    params.put("changes", jsonChangeTracker);
+	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(),
+	    		data.isMandatoryFlowChanged(), data.isAssessorAssignmentChanged());
+
+		String jsonChangeTracker = new GsonBuilder().create().toJson(changeTracker);
+
+		Map<String, String> params = new HashMap<>();
+		params.put("changes", jsonChangeTracker);
 	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
 	}
 
@@ -721,7 +723,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setTitle(data.getTitle());
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
-		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+
+		if (data.isAssessorAssignmentChanged()) {
+			credToUpdate.setAsessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
+		}
 
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
@@ -974,7 +979,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			long instructorId = 0;
 
-			if (!cred.isManuallyAssignStudents()) {
+			if (cred.getAsessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
 				List<TargetCredential1> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
@@ -3715,7 +3720,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setHashtags(new HashSet<>(original.getHashtags()));
 			cred.setCompetenceOrderMandatory(original.isCompetenceOrderMandatory());
 			//cred.setDuration(original.getDuration());
-			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
+			cred.setAsessorAssignmentMethod(original.getAsessorAssignmentMethod());
 			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
 			cred.setType(type);
 			cred.setDeliveryOf(deliveryOf);
