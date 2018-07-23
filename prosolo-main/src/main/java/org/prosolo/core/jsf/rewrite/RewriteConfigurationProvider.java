@@ -135,8 +135,8 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/tools/{credId}/{compId}/{actId}/create").to("/manage/externalTools/toolDetails.xhtml"))
 				.addRule(Join.path("/manage/tools/{id}").to("/manage/externalTools/toolDetails.xhtml"))
 				//manage credential
-				.addRule(Join.path("/manage/credentials/{id}/edit").to("/manage/create-credential.xhtml"))
-				.addRule(Join.path("/manage/credentials/new").to("/manage/create-credential.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/edit").to("/manage/credential-create.xhtml"))
+				.addRule(Join.path("/manage/credentials/new").to("/manage/credential-create.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}").to("/manage/credential.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/students").to("/manage/credential-students.xhtml"))
 				.addRule(Join.path("/manage/students/{id}").to("/manage/studentProfile.xhtml"))

@@ -247,7 +247,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			StringBuilder builder = new StringBuilder();
 			/*
 			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * example: /credentials/credential-create will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
 			builder.append(PageUtil.getSectionForView().getPrefix()
@@ -268,7 +268,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * example: /credentials/credential-create will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
 				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
