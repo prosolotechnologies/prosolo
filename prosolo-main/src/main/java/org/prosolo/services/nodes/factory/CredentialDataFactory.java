@@ -69,7 +69,8 @@ public class CredentialDataFactory {
 					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
-		cred.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.getAssessorAssignmentMethod(credential.getAsessorAssignmentMethod()));
+
+		cred.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.getAssessorAssignmentMethod(credential.getAssessorAssignmentMethod()));
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
 		boolean learningStagesEnabled = false;

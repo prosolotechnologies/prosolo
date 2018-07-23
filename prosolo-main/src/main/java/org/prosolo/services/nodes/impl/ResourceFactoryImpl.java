@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Nikola Milikic
@@ -124,7 +123,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             cred.setDuration(duration);
             cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
             cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-            cred.setAsessorAssignmentMethod(assessorAssignment.getAssessorAssignmentMethod());
+            cred.setAssessorAssignmentMethod(assessorAssignment.getAssessorAssignmentMethod());
 
             saveEntity(cred);
 

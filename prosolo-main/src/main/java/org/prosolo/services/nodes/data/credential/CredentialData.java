@@ -49,7 +49,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private ResourceCreator creator;
 	private UserData student;
 	private List<CompetenceData1> competences;
-	private AssessorAssignmentMethodData assessorAssignment;
+	private AssessorAssignmentMethodData assessorAssignment = AssessorAssignmentMethodData.AUTOMATIC;
 	private int defaultNumberOfStudentsPerInstructor;
 	
 	//target credential data
@@ -631,6 +631,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.assessmentTypes = assessmentTypes;
 	}
 
+	public AssessmentTypeConfig getAssessmentType(AssessmentType assessmentType) {
+		return assessmentTypes.stream().filter(at -> at.getType().equals(assessmentType)).findAny().get();
+	}
+
 	public CredentialCategoryData getCategory() {
 		return category;
 	}
@@ -682,7 +686,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 
 	public enum AssessorAssignmentMethodData {
-		AUTOMATIC  (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students automatically"),
+		AUTOMATIC (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students automatically"),
 		MANUAL (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students manually"),
 		BY_STUDENTS ("Students can chose their " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),;
 
@@ -691,7 +695,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		AssessorAssignmentMethodData(String label) {
 			this.label = label;
 		}
-
 
 		public String getLabel() {
 			return this.label;

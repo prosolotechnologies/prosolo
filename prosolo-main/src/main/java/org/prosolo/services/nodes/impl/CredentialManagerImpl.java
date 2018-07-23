@@ -1,7 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -134,7 +133,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDuration(data.getDuration());
 			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
-			cred.setAsessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
+			cred.setAssessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
 			cred.setCategory(data.getCategory() != null
 					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
 					: null);
@@ -725,7 +724,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
 
 		if (data.isAssessorAssignmentChanged()) {
-			credToUpdate.setAsessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
+			credToUpdate.setAssessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
 		}
 
 		if (data.isTagsStringChanged()) {
@@ -979,7 +978,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			long instructorId = 0;
 
-			if (cred.getAsessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
+			if (cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
 				List<TargetCredential1> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
@@ -3720,7 +3719,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setHashtags(new HashSet<>(original.getHashtags()));
 			cred.setCompetenceOrderMandatory(original.isCompetenceOrderMandatory());
 			//cred.setDuration(original.getDuration());
-			cred.setAsessorAssignmentMethod(original.getAsessorAssignmentMethod());
+			cred.setAssessorAssignmentMethod(original.getAssessorAssignmentMethod());
 			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
 			cred.setType(type);
 			cred.setDeliveryOf(deliveryOf);

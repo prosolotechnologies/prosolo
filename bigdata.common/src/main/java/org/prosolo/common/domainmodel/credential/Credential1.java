@@ -36,7 +36,7 @@ public class Credential1 extends BaseEntity {
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
 	private long duration;
-	private AssessorAssignmentMethod asessorAssignmentMethod;
+	private AssessorAssignmentMethod assessorAssignmentMethod;
 	private int defaultNumberOfStudentsPerInstructor;
 	private List<TargetCredential1> targetCredentials;
 	private List<CredentialInstructor> credInstructors;
@@ -141,12 +141,12 @@ public class Credential1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
-	public AssessorAssignmentMethod getAsessorAssignmentMethod() {
-		return asessorAssignmentMethod;
+	public AssessorAssignmentMethod getAssessorAssignmentMethod() {
+		return assessorAssignmentMethod;
 	}
 
-	public void setAsessorAssignmentMethod(AssessorAssignmentMethod asessorAssignmentMethod) {
-		this.asessorAssignmentMethod = asessorAssignmentMethod;
+	public void setAssessorAssignmentMethod(AssessorAssignmentMethod assessorAssignmentMethod) {
+		this.assessorAssignmentMethod = assessorAssignmentMethod;
 	}
 
 	public int getDefaultNumberOfStudentsPerInstructor() {
