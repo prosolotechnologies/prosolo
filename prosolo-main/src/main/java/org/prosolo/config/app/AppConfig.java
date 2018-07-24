@@ -4,9 +4,6 @@ import org.simpleframework.xml.Element;
 
 public class AppConfig {
 
-	@Element(name = "development-mode")
-	public boolean developmentMode = false;
-
 	@Element(name = "messages-inbox-refresh-rate")
 	public int messagesInboxRefreshRate;
 
@@ -27,10 +24,6 @@ public class AppConfig {
 
 	@Element(name = "plugin-config")
 	public PluginConfig pluginConfig;
-
-	public boolean getDevelopmentMode() {
-		return developmentMode;
-	}
 
 	public RegistrationConfig getRegistration() {
 		return registration;
