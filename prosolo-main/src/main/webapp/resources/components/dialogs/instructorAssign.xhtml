@@ -8,8 +8,10 @@
 	<composite:interface>
 		<composite:attribute name="title" required="true" />
 		<composite:attribute name="credentialId" required="true" />
+		<composite:attribute name="learningContext" />
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="updateAfterInstructorIsAssigned"
+							 required="true"
 							 method-signature="void updateAfterInstructorIsAssigned()" />
 	</composite:interface>
 
@@ -26,7 +28,7 @@
 							<p:remoteCommand name="execSearchInstructors"
 											 process="inputInstructorSearch"
 											 update=":#{cc.clientId}:formAssignInstructor:searchResults"
-											 action="#{assignStudentToInstructorDialogBean.loadCredentialInstructors(cc.attrs.credentialId)}"/>
+											 action="#{assignStudentToInstructorDialogBean.loadCredentialInstructors(cc.attrs.credentialId)}" />
 							<h:inputText id="inputInstructorSearch"
 										 type="search"
 										 placeholder="Search #{msg['label.instructor.plural'].toLowerCase()}"

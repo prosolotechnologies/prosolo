@@ -12,6 +12,8 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -28,6 +30,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @ManagedBean(name = "credentialMembersBean")
 @Component("credentialMembersBean")
@@ -38,17 +41,20 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	private static Logger logger = Logger.getLogger(CredentialMembersBean.class);
 
-	private List<StudentData> members;
-
 	@Inject
 	private UrlIdEncoder idEncoder;
-	@Inject private UserTextSearch userTextSearch;
+	@Inject
+	private UserTextSearch userTextSearch;
 	@Inject
 	private CredentialManager credManager;
-	@Inject 
+	@Inject
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private StudentEnrollBean studentEnrollBean;
+	@Inject
+	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
+
+	private List<StudentData> members;
 
 	// PARAMETERS
 	private String id;
@@ -176,6 +182,32 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	private void updateFiltersStudentUnassigned() {
 		updateFilters(-1, 1);
+	}
+
+	/**
+	 * This method is called after student has chosen an instructor from the modal (it this option is enabled for
+	 * the delivery)
+	 */
+	public void updateAfterInstructorIsAssigned() {
+		InstructorData instructor = assignStudentToInstructorDialogBean.getInstructor();
+		UserData student = assignStudentToInstructorDialogBean.getStudentToAssignInstructor();
+
+		Optional<StudentData> updatedStudent = members.stream().filter(s -> s.getUser().getId() == student.getId())
+				.findAny();
+
+		if (updatedStudent.isPresent()) {
+			updatedStudent.get().setInstructor(instructor);
+		}
+
+		// update filters
+		switch (assignStudentToInstructorDialogBean.getLastAction()) {
+			case ASSIGNED:
+				updateFiltersStudentAssigned();
+				break;
+			case UNASSIGNED:
+				updateFiltersStudentUnassigned();
+				break;
+		}
 	}
 
 	private void updateFilters(int numberOfAssignedToAdd, int numberOfUnassignedToAdd) {

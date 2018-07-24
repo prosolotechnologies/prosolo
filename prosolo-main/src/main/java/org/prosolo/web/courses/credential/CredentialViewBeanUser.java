@@ -17,6 +17,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -58,9 +59,14 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Inject private Competence1Manager compManager;
-	@Inject private AnnouncementManager announcementManager;
-	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject
+	private Competence1Manager compManager;
+	@Inject
+	private AnnouncementManager announcementManager;
+	@Inject
+	private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject
+	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
 
 	private String id;
 	private long decodedId;
@@ -216,6 +222,24 @@ public class CredentialViewBeanUser implements Serializable {
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(
 				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
+	}
+
+	/**
+	 * This method is called after student has chosen an instructor from the modal (it this option is enabled for
+	 * the delivery)
+	 */
+	public void updateAfterInstructorIsAssigned() {
+		InstructorData instructor = assignStudentToInstructorDialogBean.getInstructor();
+
+		if (instructor != null) {
+			credentialData.setInstructorId(instructor.getInstructorId());
+			credentialData.setInstructorAvatarUrl(instructor.getUser().getAvatarUrl());
+			credentialData.setInstructorFullName(instructor.getUser().getFullName());
+		} else {
+			credentialData.setInstructorId(-1);
+			credentialData.setInstructorAvatarUrl(null);
+			credentialData.setInstructorFullName(null);
+		}
 	}
 
 	/*

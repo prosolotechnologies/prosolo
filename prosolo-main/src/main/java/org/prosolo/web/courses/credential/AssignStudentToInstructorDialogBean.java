@@ -8,6 +8,7 @@ import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -40,10 +41,13 @@ public class AssignStudentToInstructorDialogBean {
     @Inject
     private LoggedUserBean loggedUserBean;
 
-    private StudentData studentToAssignInstructor;
+    private UserData studentToAssignInstructor;
+    private InstructorData instructor;
+
     private String instructorSearchTerm = "";
     private List<InstructorData> credentialInstructors;
 
+    private LastAction lastAction;
     private String context;
 
     public void loadCredentialInstructors(long credentialId, long studentId) {
@@ -52,9 +56,10 @@ public class AssignStudentToInstructorDialogBean {
     }
 
     public void loadCredentialInstructors(long credentialId, StudentData student) {
-        studentToAssignInstructor = student;
+        studentToAssignInstructor = student.getUser();
+        instructor = student.getInstructor();
         setInstructorSearchTerm("");
-        context += "|context:/name:USER|id:" + student.getUser().getId() + "/";
+        context = PageUtil.getPostParameter("context");
         loadCredentialInstructors(credentialId);
     }
 
@@ -68,52 +73,50 @@ public class AssignStudentToInstructorDialogBean {
     }
 
     //assign student to an instructor
-    public void selectInstructor(long credentialId, InstructorData instructor) {
+    public void selectInstructor(long credentialId, InstructorData ins) {
         try {
-            String page = PageUtil.getPostParameter("page");
+            String page = PageUtil.getPage();
             String service = PageUtil.getPostParameter("service");
             PageContextData ctx = new PageContextData(page, context, service);
-            String action = null;
 
-            if (studentToAssignInstructor.getInstructor() == null
-                    || studentToAssignInstructor.getInstructor().getInstructorId() != instructor.getInstructorId()) {
-                long formerInstructoruserId = studentToAssignInstructor.getInstructor() != null
-                        ? studentToAssignInstructor.getInstructor().getUser().getId()
+            if (instructor == null
+                    || instructor.getInstructorId() != ins.getInstructorId()) {
+                long formerInstructoruserId = instructor != null
+                        ? instructor.getUser().getId()
                         : 0;
-                credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getUser().getId(),
-                        instructor.getInstructorId(), credentialId, formerInstructoruserId,
+                credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getId(),
+                        ins.getInstructorId(), credentialId, formerInstructoruserId,
                         loggedUserBean.getUserContext(ctx));
-                if (studentToAssignInstructor.getInstructor() == null) {
-                    action = "assigned";
+                if (instructor == null) {
+                    lastAction = LastAction.ASSIGNED;
                     //update filters if student was unassigned
                     //updateFiltersStudentAssigned();
                 } else {
-                    action = "reassigned";
+                    lastAction = LastAction.REASSIGNED;
                 }
-                studentToAssignInstructor.setInstructor(instructor);
+                instructor = ins;
             } else {
                 credInstructorManager.unassignStudentFromInstructor(
-                        studentToAssignInstructor.getUser().getId(), credentialId, loggedUserBean.getUserContext(ctx));
-                studentToAssignInstructor.setInstructor(null);
-                action = "unassigned";
+                        studentToAssignInstructor.getId(), credentialId, loggedUserBean.getUserContext(ctx));
+                instructor = null;
+                lastAction = LastAction.UNASSIGNED;
                 //updateFiltersStudentUnassigned();
             }
 
-            studentToAssignInstructor = null;
             credentialInstructors = null;
-            PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been " + action);
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("instructor") + " has been updated");
         } catch (DbConnectionException e) {
             PageUtil.fireErrorMessage(e.getMessage());
         }
     }
 
-    public boolean isInstructorCurrentlyAssignedToStudent(InstructorData id) {
-        InstructorData inst = studentToAssignInstructor.getInstructor();
-        return inst != null && inst.getInstructorId() == id.getInstructorId();
+    public boolean isInstructorCurrentlyAssignedToStudent(InstructorData ins) {
+        InstructorData inst = instructor;
+        return inst != null && inst.getInstructorId() == ins.getInstructorId();
     }
 
     public boolean areInstructorAndStudentSameUser(InstructorData id) {
-        return id.getUser().getId() == studentToAssignInstructor.getUser().getId();
+        return id.getUser().getId() == studentToAssignInstructor.getId();
     }
 
 
@@ -121,12 +124,8 @@ public class AssignStudentToInstructorDialogBean {
      * GETTERS & SETTERS
      */
 
-    public StudentData getStudentToAssignInstructor() {
+    public UserData getStudentToAssignInstructor() {
         return studentToAssignInstructor;
-    }
-
-    public void setStudentToAssignInstructor(StudentData studentToAssignInstructor) {
-        this.studentToAssignInstructor = studentToAssignInstructor;
     }
 
     public void setInstructorSearchTerm(String instructorSearchTerm) {
@@ -143,5 +142,19 @@ public class AssignStudentToInstructorDialogBean {
 
     public void setCredentialInstructors(List<InstructorData> credentialInstructors) {
         this.credentialInstructors = credentialInstructors;
+    }
+
+    public InstructorData getInstructor() {
+        return instructor;
+    }
+
+    public LastAction getLastAction() {
+        return lastAction;
+    }
+
+    public enum LastAction {
+        ASSIGNED,
+        REASSIGNED,
+        UNASSIGNED;
     }
 }
