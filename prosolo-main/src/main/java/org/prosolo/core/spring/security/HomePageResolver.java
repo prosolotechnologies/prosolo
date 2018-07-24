@@ -1,16 +1,16 @@
 package org.prosolo.core.spring.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class HomePageResolver {
 
@@ -105,6 +105,6 @@ public class HomePageResolver {
         Authentication authentication = context.getAuthentication();
 
         List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) authentication.getAuthorities();
-        return grantedAuthorities == null ? new ArrayList<GrantedAuthority>() : grantedAuthorities;
+        return grantedAuthorities == null ? new ArrayList<>() : grantedAuthorities;
     }
 }

@@ -11,7 +11,7 @@
 	xmlns:people="http://java.sun.com/jsf/composite/components/people" >
 
 	<ui:define name="windowTitle">
-		ProSolo Home
+		Home - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -95,7 +95,9 @@
 						<div class="inProgressHead">
 							<h2>In Progress</h2>
 							<ui:fragment rendered="#{not empty credentialsInProgressBean.credentials and credentialsInProgressBean.moreToView}">
-								<h:link value="View All" outcome="/achievements/inprogress" />
+								<h:link value="View All" outcome="/profile">
+									<f:param name="tab" value="inprogress"/>
+								</h:link>
 							</ui:fragment>
 						</div>
 

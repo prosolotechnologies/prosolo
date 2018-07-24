@@ -1,7 +1,9 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.dal.persistence.CompetenceDAO;
@@ -20,7 +22,13 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			.getLogger(CompetenceDAOImpl.class);
 	
 	public CompetenceDAOImpl() {
+	/*	try{
 		setSession(HibernateUtil.getSessionFactory().openSession());
+	}catch(HibernateException ex){
+		logger.error(ex);
+	}finally{
+		session.close();
+	}*/
 	}
 	
 	@Override
@@ -43,6 +51,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 	
 	@Override
 	public Date getScheduledVisibilityUpdateDate(long compId) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
 		String query = 
 			"SELECT comp.scheduledPublicDate " +
 			"FROM Competence1 comp " +
@@ -54,6 +63,8 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 		} catch(Exception ex) {
 			logger.error(ex);
 			ex.printStackTrace();
+		}finally{
+			session.close();
 		}
 		return null;
 	}

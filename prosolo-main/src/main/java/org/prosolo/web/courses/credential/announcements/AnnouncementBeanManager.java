@@ -6,10 +6,10 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -107,11 +107,8 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     public void publishAnnouncement() {
         try {
             UserContextData context = loggedUser.getUserContext();
-            AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
+            announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
                     newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, context);
-
-            created.setCreatorAvatarUrl(loggedUser.getAvatar());
-            created.setCreatorFullName(loggedUser.getFullName());
 
             PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
             resetNewAnnouncementValues();

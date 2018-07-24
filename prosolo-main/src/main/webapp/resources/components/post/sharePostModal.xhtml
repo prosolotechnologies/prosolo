@@ -115,7 +115,8 @@
 					userSearchInputSelector: '.postShareUserSuggestInputSelector',
 					userSearchAction: searchUsersMentionedInPostShare,
 					allowUrlPreview : false,
-					showHidePostOptions : false
+					showHidePostOptions : false,
+					context: '#{request.contextPath}'
 				});
 				newPostShare = $('#sharePostModal').data('newpost');
 			}

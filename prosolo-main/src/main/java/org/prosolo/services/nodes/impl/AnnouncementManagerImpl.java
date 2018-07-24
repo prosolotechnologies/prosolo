@@ -1,9 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.util.*;
-
-import javax.inject.Inject;
-
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Announcement;
@@ -16,7 +12,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
@@ -26,6 +21,9 @@ import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.AnnouncementManager")
 public class AnnouncementManagerImpl extends AbstractManagerImpl implements AnnouncementManager {
@@ -69,7 +67,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	public Result<AnnouncementData> createAnnouncementAndGetEvents(Long credentialId, String title, String text, Long creatorId,
 																   AnnouncementPublishMode publishMode,
 																   UserContextData context)
-			throws ResourceCouldNotBeLoadedException, DbConnectionException {
+			throws DbConnectionException {
 
 		Announcement announcement = new Announcement();
 		announcement.setTitle(title);

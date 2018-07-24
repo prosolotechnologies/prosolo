@@ -1,27 +1,40 @@
 package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.AskForCompetenceAssessmentBean;
+import org.prosolo.web.learningevidence.SubmitEvidenceBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.stream.Collectors;
 
 @ManagedBean(name = "competenceViewBean")
 @Component("competenceViewBean")
@@ -37,6 +50,11 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
 	@Inject private CredentialManager credManager;
+	@Inject private UploadManager uploadManager;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
+	@Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
+	@Inject private SubmitEvidenceBean submitEvidenceBean;
+	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
 
 	private String credId;
 	private long decodedCredId;
@@ -48,6 +66,8 @@ public class CompetenceViewBeanUser implements Serializable {
 	private CompetenceData1 competenceData;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
+
+	private LearningEvidenceData evidenceToRemove;
 
 	private long nextCompToLearn;
 	private boolean mandatoryOrder;
@@ -71,7 +91,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
-				
+
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
 						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
@@ -90,6 +110,9 @@ public class CompetenceViewBeanUser implements Serializable {
 //						credTitle = credManager.getCredentialTitle(decodedCredId);
 //					}
 				}
+				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE && competenceData.isEnrolled()) {
+					submitEvidenceBean.init(new LearningEvidenceData());
+				}
 				if (justEnrolled) {
 					PageUtil.fireSuccessfulInfoMessage(
 							"You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " " + competenceData.getTitle());
@@ -105,6 +128,10 @@ public class CompetenceViewBeanUser implements Serializable {
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType);
 	}
 	
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
@@ -142,12 +169,105 @@ public class CompetenceViewBeanUser implements Serializable {
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();
+			if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
+				//student enrolled so he can now upload/post evidence
+				submitEvidenceBean.init(new LearningEvidenceData());
+			}
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
+
+	public void setEvidenceToRemove(LearningEvidenceData evidenceToRemove) {
+		this.evidenceToRemove = evidenceToRemove;
+	}
+
+	public void prepareExistingEvidenceSearch() {
+		if (!learningEvidenceSearchBean.isInitialized()) {
+			learningEvidenceSearchBean.init(competenceData.getEvidences().stream().map(LearningEvidenceData::getId).collect(Collectors.toList()));
+		}
+		submitEvidenceBean.resetEvidence();
+	}
+
+	public void postFileEvidence() {
+		submitEvidenceBean.preparePostFileEvidence();
+		postEvidence();
+	}
+
+	public void postUrlEvidence() {
+
+		submitEvidenceBean.preparePostUrlEvidence();
+		postEvidence();
+
+	}
+
+	public void postTextEvidence() {
+		submitEvidenceBean.preparePostTextEvidence();
+		postEvidence();
+	}
+
+	public void postEvidence() {
+		try {
+			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
+					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());
+			competenceData.getEvidences().add(newEvidence);
+			if (learningEvidenceSearchBean.isInitialized()) {
+				//if evidence search bean is initialized exclude just added evidence from search and reset search
+				learningEvidenceSearchBean.excludeEvidenceFromFutureSearches(newEvidence.getId());
+				learningEvidenceSearchBean.resetAndSearch();
+			}
+			submitEvidenceBean.resetEvidence();
+			PageUtil.fireSuccessfulInfoMessage("Evidence successfully added");
+		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
+			logger.error("Error", e);
+			FacesContext context = FacesContext.getCurrentInstance();
+			String inputTitleId = PageUtil.getPostParameter("evidenceTitleInputId");
+			UIInput input = (UIInput) context.getViewRoot().findComponent(inputTitleId);
+			input.setValid(false);
+			context.addMessage(inputTitleId, new FacesMessage("Evidence with this name already exists"));
+			context.validationFailed();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error posting the evidence");
+		}
+	}
+
+	public void removeEvidenceFromCompetence() {
+		try {
+			learningEvidenceManager.removeEvidenceFromCompetence(evidenceToRemove.getCompetenceEvidenceId());
+			competenceData.getEvidences().remove(evidenceToRemove);
+			if (learningEvidenceSearchBean.isInitialized()) {
+				//if evidence search bean is initialized include removed evidence in search and reset search
+				learningEvidenceSearchBean.includeEvidenceInFutureSearches(evidenceToRemove.getId());
+				learningEvidenceSearchBean.resetAndSearch();
+			}
+			evidenceToRemove = null;
+			PageUtil.fireSuccessfulInfoMessage("Evidence successfully removed");
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error removing the evidence");
+		}
+	}
+
+	public void completeCompetence() {
+		try {
+			competenceManager.completeCompetence(
+					competenceData.getTargetCompId(),
+					loggedUser.getUserContext());
+			competenceData.setProgress(100);
+
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " has been completed");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error marking the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " as completed");
+		}
+	}
+
+	/*
+	VALIDATORS
+	 */
 	
 	/*
 	 * GETTERS / SETTERS
@@ -232,4 +352,5 @@ public class CompetenceViewBeanUser implements Serializable {
 	public String getCredentialTitle() {
 		return credentialTitle;
 	}
+
 }

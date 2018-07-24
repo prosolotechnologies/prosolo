@@ -6,13 +6,12 @@ import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 
 import java.io.Serializable;
 
-public class RubricItemData extends StandardObservable implements Serializable {
+public abstract class RubricItemData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = 1685589109425362221L;
 
 	private long id;
 	private String name;
-	private double points;
 	private int order;
 
 	private ObjectStatus status = ObjectStatus.UP_TO_DATE;
@@ -23,10 +22,9 @@ public class RubricItemData extends StandardObservable implements Serializable {
 		this.status = status;
 	}
 
-	public RubricItemData(long id, String name, double points, int order) {
+	public RubricItemData(long id, String name, int order) {
 		this.id = id;
 		this.name = name;
-		this.points = points;
 		this.order = order;
 	}
 
@@ -47,22 +45,6 @@ public class RubricItemData extends StandardObservable implements Serializable {
 		this.name = name.trim();
 		if (listenChanges) {
 			if (isNameChanged()) {
-				setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
-			} else if (!hasObjectChanged()) {
-				setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));
-			}
-		}
-	}
-
-	public double getPoints() {
-		return points;
-	}
-
-	public void setPoints(double points) {
-		observeAttributeChange("points", this.points, points);
-		this.points = points;
-		if (listenChanges) {
-			if (arePointsChanged()) {
 				setStatus(ObjectStatusTransitions.changeTransition(getStatus()));
 			} else if (!hasObjectChanged()) {
 				setStatus(ObjectStatusTransitions.upToDateTransition(getStatus()));

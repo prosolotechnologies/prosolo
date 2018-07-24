@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,9 +48,9 @@ public interface UserGroupManager extends AbstractManager {
 
 	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException;
 
-	void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
+	Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 
-	void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException;
+	Result<Void> removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException;
 
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom,
 										 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException;
@@ -247,6 +248,9 @@ public interface UserGroupManager extends AbstractManager {
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
 
-	List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
-			throws DbConnectionException;
+
+
+
+    List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
+            throws DbConnectionException;
 }

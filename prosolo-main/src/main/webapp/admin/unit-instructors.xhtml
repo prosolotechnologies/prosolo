@@ -6,7 +6,7 @@
 >
 
     <ui:define name="windowTitle" >
-        #{unitUsersBean.unitTitle} - Instructors
+        #{msg['label.instructor.plural']} - #{unitUsersBean.unitTitle} - #{unitUsersBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -27,6 +27,6 @@
     </ui:define>
 
     <ui:define name="content">
-        <org:unitUsers resource="instructor" resourcePlural="instructors" />
+        <org:unitUsers resource="#{msg['label.instructor'].toLowerCase()}" resourcePlural="#{msg['label.instructor.plural'].toLowerCase()}" />
     </ui:define>
 </ui:composition>

@@ -1,11 +1,5 @@
 package org.prosolo.bigdata.es.impl;
 
-import java.io.IOException;
-import java.io.Serializable;
-//import java.util.Set;
-
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
@@ -17,13 +11,19 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
-//import org.prosolo.bigdata.config.Settings;
-//import org.prosolo.services.indexing.ESIndexNames;
-//import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
 import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+
+//import java.util.Set;
+//import org.prosolo.bigdata.config.Settings;
+//import org.prosolo.services.indexing.ESIndexNames;
+//import org.prosolo.services.indexing.ElasticSearchFactory;
 
 /**
  * @author Zoran Jeremic May 9, 2015
@@ -79,9 +79,6 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 	@Override
 	public void saveFrequentCompetenceActivities(long competenceid,
 			List<Long> activities) {
-		System.out.println("SAVE FREQUENT COMPETENCE ACTIVITIES FOR:"
-				+ competenceid + " size:" + activities.size() + " activities:"
-				+ activities.toString());
 		XContentBuilder builder;
 		try {
 			builder = XContentFactory.jsonBuilder().startObject();
@@ -118,8 +115,8 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 		//}
 		String indexName = ESIndexNames.INDEX_ASSOCRULES;
 		String indexType = ESIndexTypes.COMPETENCE_ACTIVITIES;
-		System.out.println("THIS IS REMOVED FOR TRANSFER TO 2.3");
 
+		// THIS IS REMOVED FOR TRANSFER TO 2.3");
 		//client.prepareDeleteByQuery(indexName).setQuery(boolQuery)
 		//		.setTypes(indexType).execute().actionGet();
 		DeleteByQueryRequestBuilder requestBuilder=new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE);

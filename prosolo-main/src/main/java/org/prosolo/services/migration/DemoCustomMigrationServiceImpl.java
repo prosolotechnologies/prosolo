@@ -18,7 +18,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
@@ -255,7 +255,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
     }
 
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
-        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, true, 0, AccessMode.MANAGER);
+        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, false, false, true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
         Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential

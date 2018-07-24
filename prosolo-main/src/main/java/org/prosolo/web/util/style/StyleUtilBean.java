@@ -1,16 +1,22 @@
 package org.prosolo.web.util.style;
 
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.util.Pair;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
+import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.GradingMode;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
+import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
 
 @ManagedBean(name = "styleUtilBean")
 @Component("styleUtilBean")
@@ -20,6 +26,9 @@ public class StyleUtilBean implements Serializable {
 	private static final long serialVersionUID = 3275340449093388469L;
 
 	public String getStyleClassBasedOnActivityType(ActivityType type) {
+		if (type == null) {
+			return "";
+		}
 		switch(type) {
 			case TEXT:
 				return "activityText";
@@ -35,6 +44,9 @@ public class StyleUtilBean implements Serializable {
 	}
 	
 	public String getStyleClassBasedOnNotificationType(NotificationType type) {
+		if (type == null) {
+			return "";
+		}
 		switch(type) {
 			case Follow_User:
 				return "notifFollowed";
@@ -47,6 +59,7 @@ public class StyleUtilBean implements Serializable {
 			case Assessment_Approved:
 			case Assessment_Comment:
 			case Assessment_Requested:
+			case GradeAdded:
 				return "notifAssessment";
 			case Mention:
 				return "notifMention";
@@ -114,6 +127,48 @@ public class StyleUtilBean implements Serializable {
 			default:
 				return "";	
 		}
+	}
+
+	public String getGradeStarClass(AssessmentGradeSummary gradeSummary, String nongradedClass, boolean returnGradeClass) {
+		if (gradeSummary == null || gradeSummary.getGrade() == 0) {
+			return nongradedClass;
+		}
+		return returnGradeClass ? "rubricStars has" + gradeSummary.getOutOf() + "Stars rubricStar0" + gradeSummary.getGrade() : "";
+	}
+
+	public String getGradeStarClass(AssessmentGradeSummary gradeSummary) {
+		return getGradeStarClass(gradeSummary, "", true);
+	}
+
+	public String getEmptyStarClass(AssessmentGradeSummary gradeSummary) {
+		return getGradeStarClass(gradeSummary, "starEmpty",false);
+	}
+
+	public String getRubricAssessmentStarLabel(RubricAssessmentGradeSummary gradeSummary) {
+		return gradeSummary != null
+				? gradeSummary.getGrade() > 0
+						? gradeSummary.getGradeLevelTitle() + "<br>(level " + gradeSummary.getGrade() + "/" + gradeSummary.getOutOf() + ")"
+						: ""
+				: "";
+	}
+
+	public String getAssessmentStarTooltip(GradeData gradeData, String resType) {
+		if (!gradeData.isAssessed()) {
+			return "No grade";
+		}
+
+		if (gradeData.getGradingMode() == GradingMode.AUTOMATIC && ("CREDENTIAL".equals(resType) || "COMPETENCE".equals(resType))) {
+			return "Sum of " +
+					("CREDENTIAL".equals(resType)
+							? ResourceBundleUtil.getLabel("competence").toLowerCase()
+							: "activity") + " points";
+		}
+
+		if (gradeData.getGradingMode() == GradingMode.MANUAL_RUBRIC) {
+			return getRubricAssessmentStarLabel((RubricAssessmentGradeSummary) gradeData.getAssessmentStarData());
+		}
+
+		return "";
 	}
 
 }

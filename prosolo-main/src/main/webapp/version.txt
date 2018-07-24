@@ -1,13 +1,10 @@
-Current date:2017/11/05-17:51:29
-Source branch:develop
+Current date:2018/04/26-19:21:34
+Source branch:1.2.0
+Project version:1
 Git version:
-commit 19462bdba2c760534435d27afe9386fcd6492d4f
-Merge: 4723a2ed 7f678b3f
-Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
-Date:   Sun Nov 5 16:45:34 2017 +0000
+commit 8e3e75934d613c0808d6c9895e30cb34212dacba
+Merge: 7ea6e9f84 97b4c20ed
+Author: jeremycod <zoran.jeremic@gmail.com>
+Date:   Thu Apr 26 19:21:08 2018 -0700
 
-    Merged in PRS-2892-manager-gets-access-denied-when (pull request #227)
-    
-    Implement redirection logic for application root based on capabilities
-    
-    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
+    Merge branch 'release/1.2.0' of bitbucket.org:zjeremic/prosolo-multimodule into release/1.2.0

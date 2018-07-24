@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.CompetenceUnit;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 
 /**
@@ -64,10 +65,17 @@ public class Competence1 extends BaseEntity {
 
 	//learning path type
 	private LearningPathType learningPathType = LearningPathType.ACTIVITY;
+
+	//assessment
+	private GradingMode gradingMode = GradingMode.MANUAL;
+	private Rubric rubric;
+	private int maxPoints;
+	private Set<CompetenceAssessmentConfig> assessmentConfig;
 	
 	public Competence1() {
 		tags = new HashSet<>();
 		activities = new ArrayList<>();
+		assessmentConfig = new HashSet<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -83,6 +91,7 @@ public class Competence1 extends BaseEntity {
 
 	@OneToMany(mappedBy = "competence", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
+	@OrderBy("order ASC")
 	public List<CompetenceActivity1> getActivities() {
 		return activities;
 	}
@@ -253,5 +262,41 @@ public class Competence1 extends BaseEntity {
 
 	public void setLearningPathType(LearningPathType learningPathType) {
 		this.learningPathType = learningPathType;
+	}
+
+	@OneToMany(mappedBy = "competence")
+	public Set<CompetenceAssessmentConfig> getAssessmentConfig() {
+		return assessmentConfig;
+	}
+
+	public void setAssessmentConfig(Set<CompetenceAssessmentConfig> assessmentConfig) {
+		this.assessmentConfig = assessmentConfig;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Rubric getRubric() {
+		return rubric;
+	}
+
+	public void setRubric(Rubric rubric) {
+		this.rubric = rubric;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public GradingMode getGradingMode() {
+		return gradingMode;
+	}
+
+	public void setGradingMode(GradingMode gradingMode) {
+		this.gradingMode = gradingMode;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
 	}
 }

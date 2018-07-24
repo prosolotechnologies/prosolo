@@ -7,5 +7,6 @@ public enum SocialActivityType {
 	Post,
 	Post_Reshare,
 	Twitter_Post,
-	Comment;
+	Comment,
+	Unit_Welcome_Post;
 }

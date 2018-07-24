@@ -14,11 +14,12 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -97,7 +98,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
 			long formerInstructorUserId, UserContextData context) throws DbConnectionException {
 		try {
-			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, false, false, false);
+			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, CredentialLoadConfig.builder().create());
 			return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, true, context);
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -151,15 +152,15 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	private Result<Void> setInstructorForStudent(TargetCredential1 targetCred, CredentialInstructor instructor,
 			long formerInstructorUserId, boolean updateAssessor, UserContextData context) {
 		Result<Void> result = new Result<>();
-		if(targetCred != null) {
+		if (targetCred != null) {
 			boolean assigned = instructor != null;
 			targetCred.setAssignedToInstructor(assigned);
 			targetCred.setInstructor(instructor);
 			
-			if(updateAssessor) {
+			if (updateAssessor) {
 				//update assessor for default assessment if exists
 				long instructorUserId = instructor != null ? instructor.getUser().getId() : 0;
-				assessmentManager.updateDefaultAssessmentAssessor(targetCred.getId(), 
+				assessmentManager.updateInstructorAssessmentAssessor(targetCred.getId(),
 						instructorUserId);
 			}
 			
@@ -381,7 +382,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     public Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, UserContextData context)
     		throws DbConnectionException {
     	try {
-    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, false, false, true);
+    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, CredentialLoadConfig.builder().setLoadInstructor(true).create());
     		return setInstructorForStudent(targetCred, null, targetCred.getInstructor().getUser().getId(), true, context);
 		} catch(Exception e) {
 			logger.error(e);
@@ -428,7 +429,6 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				instructorId, credId, reassignAutomatically, context);
 		eventFactory.generateEvents(res.getEventQueue());
 	}
-	
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -516,7 +516,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToAssign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToAssign, 
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToAssign,
 						instructor.getUser().getId());
 			}
 			if (targetCredsToUnassign != null && !targetCredsToUnassign.isEmpty()) {	
@@ -539,7 +539,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 								.setParameterList("ids", targetCredIdsToUnassign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToUnassign, 0);
+				assessmentManager.updateInstructorAssessmentsAssessor(targetCredIdsToUnassign, 0);
 			}
 			return result;	
 		} catch(Exception e) {

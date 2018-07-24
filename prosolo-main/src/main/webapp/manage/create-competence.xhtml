@@ -12,7 +12,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{msg['label.competence']} - #{competenceEditBean.pageHeaderTitle}
+		#{competenceEditBean.pageHeaderTitle} - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -35,9 +35,9 @@
     
     <ui:define name="navLinks">
 		<mngComp:competenceHeaderNavLinks
-				id="headerNavLinks"
-				compId="#{competenceEditBean.competenceData.competenceId}"
-				credId="#{competenceEditBean.credId}"
+                id="headerNavLinks"
+                compId="#{competenceEditBean.competenceData.competenceId}"
+                encodedCredId="#{competenceEditBean.credId}"
 		/>
 	</ui:define>
     

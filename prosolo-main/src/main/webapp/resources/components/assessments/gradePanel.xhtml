@@ -1,0 +1,130 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<composite:interface>
+		<composite:attribute name="gradeActionMethodName" required="true"/>
+		<composite:attribute name="gradeAction" required="true" method-signature="void #{cc.attrs.gradeActionMethodName}()"/>
+		<composite:attribute name="assessmentId" required="true" />
+		<composite:attribute name="gradeData" required="true" type="org.prosolo.services.assessment.data.grading.GradeData"/>
+		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="completed" required="true" />
+		<composite:attribute name="resource" required="true" type="org.prosolo.services.nodes.data.LearningResourceType" />
+		<composite:attribute name="resourceTitle" required="true" />
+		<composite:attribute name="gradePanelSidebarId" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/activityAssessment.js"></script>
+		<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right rubricsSidebar" id="#{cc.attrs.gradePanelSidebarId}">
+			<h:panelGroup id="gradePanel">
+				<c:if test="#{not empty cc.attrs.gradeData}">
+					<a href="javascript:void(0);" onclick="hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}')" class="removeX">Close</a>
+					<h2>Assess #{cc.attrs.resource eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]}</h2>
+					<h3 class="bottom30">#{cc.attrs.resourceTitle}</h3>
+					<ui:fragment rendered="#{not cc.attrs.completed}">
+						<p>Uncompleted #{cc.attrs.resource eq 'ACTIVITY' ? 'activity' : msg['label.'.concat(cc.attrs.resource.name().toLowerCase())].toLowerCase()} can not be graded</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.resource eq 'ACTIVITY' and cc.attrs.completed and cc.attrs.gradeData.gradingMode eq 'AUTOMATIC_BY_COMPLETION'}">
+						<p>Student automatically gets the maximum points on activity completion.</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.resource eq 'ACTIVITY' and cc.attrs.completed and cc.attrs.gradeData.gradingMode eq 'AUTOMATIC_BY_EXTERNAL_TOOL'}">
+						<p>Student automatically gets points from the external activity</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.resource ne 'ACTIVITY' and cc.attrs.completed and cc.attrs.gradeData.gradingMode eq 'AUTOMATIC'}">
+						<p>#{msg['label.'.concat(cc.attrs.resource.name().toLowerCase())]} points are a sum of #{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.competence'].toLowerCase() : 'activity'} points</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.completed and (cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE' or cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC')}">
+						<h:form id="formGradeModal">
+							<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE'}">
+								<!-- manual grading - NO rubrics start -->
+								<div class="sliderBox">
+									<div class="sliderWrapper">
+										<input type="text" id="gradeSlider" class="gradeSlider" />
+									</div>
+									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue" class="sliderValueInput" />
+									<script>
+                                        var gradeSlider = $("#gradeSlider").bootstrapSlider({
+                                            id: 'gradeSlider',
+                                            min: #{cc.attrs.gradeData.minGrade > 0 ? cc.attrs.gradeData.minGrade : 0},
+                                            max: #{cc.attrs.gradeData.maxGrade},
+                                            value: #{cc.attrs.gradeData.newGrade > 0 ? cc.attrs.gradeData.newGrade : 0},
+                                            tooltip: 'hide'
+                                        });
+                                        gradeSlider.bootstrapSlider('on', 'change', function(){
+                                            $('.sliderValueInput').val(gradeSlider.bootstrapSlider('getValue'));
+                                        });
+                                        $('.sliderValueInput').bind('propertychange change click keyup input paste', function() {
+                                            gradeSlider.bootstrapSlider('setValue', parseInt($(this).val()));
+                                        });
+									</script>
+								</div>
+								<!-- manual grading - NO rubrics end -->
+							</ui:fragment>
+							<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC'}">
+								<!-- manual grading - WITH rubrics start -->
+								<ui:repeat value="#{cc.attrs.gradeData.rubricCriteria.criteria}" var="c">
+									<h3>#{c.name}</h3>
+									<div class="radioGroup rubricColors has#{c.levels.size()}Colors">
+										<ui:repeat value="#{c.levels}" var="l" varStatus="status">
+											<div class="radio rubricItem0#{status.index+1}">
+												<ui:fragment rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}">
+													<input type="radio" jsf:id="lvlRadioPoint" data-points="#{l.points}"
+														   name="#{hiddenLvlRadio.clientId}"
+														   value="#{l.id}"
+														   jsf:checked="#{c.levelId eq l.id ? true : false}"
+														   onchange="sumAndDisplayPoints()"
+													/>
+													<h:outputLabel for="lvlRadioPoint"><span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
+												</ui:fragment>
+												<ui:fragment rendered="#{cc.attrs.gradeData.rubricType eq 'DESCRIPTIVE'}">
+													<input type="radio" jsf:id="lvlRadioDesc"
+														   name="#{hiddenLvlRadio.clientId}"
+														   value="#{l.id}"
+														   jsf:checked="#{c.levelId eq l.id ? true : false}"
+													/>
+													<h:outputLabel for="lvlRadioDesc"><span class="rubricColor"></span>#{l.name} <h:panelGroup rendered="#{cc.attrs.gradeData.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup> <h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup></h:outputLabel>
+												</ui:fragment>
+											</div>
+										</ui:repeat>
+										<h:inputHidden id="categoryLevelSelection" binding="#{hiddenLvlRadio}" value="#{c.levelId}" validator="greaterThanZeroValidator">
+											<f:attribute name="msg" value="Criterion must be graded" />
+										</h:inputHidden>
+										<small class="redText">
+											<h:panelGroup id="panelValidationMsg" styleClass="validationMsgSelector">
+												<h:message id="msgCategoryLevel" for="categoryLevelSelection"/>
+											</h:panelGroup>
+										</small>
+									</div>
+									<h:inputTextarea placeholder="Type comments here (optional)..." value="#{c.comment}"/>
+								</ui:repeat>
+								<c:if test="#{cc.attrs.gradeData.pointBasedGrading == true}">
+									<p class="totalPoints"><strong>Total Points: <span id="spanTotalPoints">#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}</span></strong></p>
+								</c:if>
+								<!-- manual grading - WITH rubrics end -->
+							</ui:fragment>
+							<p:commandLink
+									styleClass="btn btn-green"
+									action="#{cc.attrs.gradeAction}"
+									update="#{cc.attrs.toUpdate} @(.validationMsgSelector)"
+									oncomplete="if (args &amp;&amp; !args.validationFailed) { hidePopupSidebar('##{cc.attrs.gradePanelSidebarId}') }">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+								<f:param name="service" value="name:activity_grade_dialog"></f:param>
+								Save Changes
+							</p:commandLink>
+						</h:form>
+					</ui:fragment>
+				</c:if>
+			</h:panelGroup>
+		</div>
+	</composite:implementation>
+</ui:component>

@@ -1,9 +1,6 @@
 function loadSocialInteractionGraph() {
 
-    var root = document.getElementById("social-interaction");
-
-    var graphWidth = 600;
-    var graphHeight = 500;
+    var root = document.getElementById("socialInteractionData");
 
     socialInteractionGraph.load({
         host: root.dataset.api,
@@ -11,9 +8,7 @@ function loadSocialInteractionGraph() {
         studentId: root.dataset.studentId,
         studentName: root.dataset.studentName,
         studentAvatar: root.dataset.studentAvatar,
-        width: graphWidth,
-        height: graphHeight,
-        selector: "#social-interaction #graph",
+        graphContainerId: "graph",
         charge: -60,
         distance: 260,
         clusterMain: "main",
@@ -21,9 +16,9 @@ function loadSocialInteractionGraph() {
         focusMain: {x: $("#social .col-md-9").width() / 2, y: 320},
         focusPoints: [
             {x: 0, y: 0},
-            {x: graphWidth, y: 0},
-            {x: 0, y: graphHeight},
-            {x: graphWidth, y: graphHeight}
+            {x: root.offsetWidth, y: 0},
+            {x: 0, y: root.offsetHeight},
+            {x: root.offsetWidth, y: root.offsetHeight}
         ],
         relations: [
             {lower: 0, upper: 33, type: "twofive"},
@@ -31,8 +26,7 @@ function loadSocialInteractionGraph() {
             {lower: 66, upper: 85, type: "sevenfive"},
             {lower: 85, upper: 100, type: "onezerozero"}
         ],
-        noResultsMessage: "No results found for given parameters.",
-        systemNotAvailableMessage: "System is not available."
+        systemNotAvailableMessage: "No data to render the graph."
     });
 
 }

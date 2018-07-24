@@ -25,7 +25,7 @@ public class CollaboratorsRecommendationImplTest extends TestContext {
 //	public void testGetMostActiveRecommendedUsers() {
 //		collaboratorsRecommendation.getMostActiveRecommendedUsers(1, 10);
 //	}
-	 @Ignore
+	// @Ignore
 	@Test
 	public void generateRandomLogs(){
 		System.out.println("generate randome logs started");

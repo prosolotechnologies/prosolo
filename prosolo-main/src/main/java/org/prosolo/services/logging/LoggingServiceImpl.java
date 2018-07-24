@@ -221,24 +221,15 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
  	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId=extractCourseIdFromContext(learningContext.getContext());
+		Long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
 		/*if(learningContext != null && learningContext.getContext() != null) {
 			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
 					courseId=learningContext.getContext().getContext().getId();
 					System.out.println("ExtractedCourse id:"+courseId);
 			}
 		}*/
-		System.out.println("EXTRACTED COURSE ID:"+courseId);
 		return courseId;
 	}
-	private Long extractCourseIdFromContext(Context context){
-		if(context==null){
-			return 0l;
-		}else	if(ContextName.CREDENTIAL.equals(context.getName())){
-			return context.getId();
-		}else return extractCourseIdFromContext(context.getContext());
-	}
-
 
 	@Override
 	public void recordUserActivity(long userid, long time) throws LoggingException {
@@ -496,7 +487,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				try {
 					JSONObject lContext = (JSONObject) new JSONParser().parse(learningContextJson);
 					logObject.put("learningContext", lContext);
-					System.out.println("HAS LEARNING CONTEXT...:" + lContext.toString());
 				}catch(ParseException e){
 					logger.error(e);
 				}
@@ -521,10 +511,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			if(Arrays.asList(interactions).contains(eventType)){
 				System.out.println("TARGET USER SHOULD BE EXTRACTED FOR THIS EVENT:"+logObject.toString());
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
-
-			}else{
-				System.out.println("We are not interested in this interaction for target user id:"+eventType.name());
 			}
+
 			logObject.put("targetUserId", targetUserId);
 
 			Object timestamp = logObject.get("timestamp");
@@ -533,7 +521,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
 
-			logger.debug("LOG:"+logObject.toJSONString());
+//			logger.debug("LOG:"+logObject.toJSONString());
 			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") +
@@ -552,7 +540,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String targetTypeString = logObject.get("targetType") != null ? (String) logObject.get("targetType") : "";
 			
 			// timestamp,eventType,objectType,targetType,link,context,action
-			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
+//			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
 			loggingESService.storeEventObservedLog(logObject);
 			logsMessageDistributer.distributeMessage(logObject);
         if(courseId>0 && actorId>0){

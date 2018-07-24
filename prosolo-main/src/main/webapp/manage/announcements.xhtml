@@ -10,16 +10,16 @@
 
 	<utilcomp:messagesBundle var="msg" />
 
+	<ui:define name="windowTitle">
+		Announcements - #{msg['label.delivery']}: #{announcementBeanManager.credentialData.title} - ProSolo
+	</ui:define>
+
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
 			<f:viewParam name="p" value="#{announcementBeanManager.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{announcementBeanManager.init()}" />
 		</f:metadata>
-	</ui:define>
-
-	<ui:define name="windowTitle">
-		#{msg['label.delivery']} - #{announcementBeanManager.credentialData.title} - Announcements
 	</ui:define>
 
 	<ui:define name="resourceTitle">
@@ -67,9 +67,16 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
+				<li>
+					<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+					</ui:fragment>
+					<ui:fragment rendered="#{not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+					</ui:fragment>
+				</li>
 				<li><h:link value="#{announcementBeanManager.credentialData.title}"
-							outcome="/manage/create-credential">
+							outcome="/manage/credential">
 					<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 				</h:link></li>
 				<li class="active">Announcements</li>
@@ -99,7 +106,7 @@
 								   disabled="true"
 								   class="btn btn-green"
 								   data-toggle="tooltip"
-								   title="You are not allowed to publish announcements for this credential">
+								   title="You are not allowed to publish announcements for this #{msg['label.credential'].toLowerCase()}">
 									New Announcement
 								</a>
 							</ui:fragment>
@@ -200,7 +207,7 @@
 								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="newAnnouncementText" id="errorAnnouncementText"/></small>
 
 								<script>
-									tinymce.remove('#newAnnouncementForm\\:newAnnouncementText');
+									tinymce.remove();
 									tinymce.init({
 										theme: "modern",
 										skin: 'light',

@@ -7,14 +7,14 @@
 				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+				xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 				xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
 				xmlns:mng="http://java.sun.com/jsf/composite/components/manage">
 
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		 #{msg['label.competence']} Library
+		 #{msg['label.competence']} Library - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -141,6 +141,9 @@
 			                            	</h:link>
 			                            </h2>
 			                            <div class="competenceInfo">
+											<h:panelGroup layout="block" styleClass="deliveryStage" rendered="#{comp.learningStageEnabled}">
+												<div class="stage">Stage: <span>#{comp.learningStage.title}</span></div>
+											</h:panelGroup>
 			                                <div class="status">
 			                                    Published#{comp.scheduledPublish ? ' Scheduled for' : ''}:
 												<span>
@@ -225,17 +228,17 @@
 	
 	    </div>
 	    
-	    <dialogs:archiveResource
+	    <dlg:archiveResource
 	    		id="archiveDialog"
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="#{msg['label.competence']}"
-				resourceType="#{msg['label.competence'].toLowerCase()}"
-				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
+				resourceType="#{msg['label.competence']}"
+				resourceTypePlural="#{msg['label.competence.plural']}"
+				pageWithArchivedResources="#{msg['label.competence']} Library"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
-		<dialogs:restoreResource
+		<dlg:restoreResource
 	    		id="restoreDialog"
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceLibraryBeanManager.restore}"

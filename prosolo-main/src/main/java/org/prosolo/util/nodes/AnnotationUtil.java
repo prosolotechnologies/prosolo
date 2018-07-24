@@ -1,12 +1,8 @@
 package org.prosolo.util.nodes;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.prosolo.common.domainmodel.annotation.Tag;
+
+import java.util.*;
 
 public class AnnotationUtil {
 
@@ -22,7 +18,7 @@ public class AnnotationUtil {
 
 	public static String getAnnotationsAsSortedCSVForTagTitles(Collection<String> tags) {
 		if (tags != null && !tags.isEmpty()) {
-			List<String> sortedAnnotationsForTagData = new ArrayList<String>(tags);
+			List<String> sortedAnnotationsForTagData = new ArrayList<>(tags);
 			Collections.sort(sortedAnnotationsForTagData);
 			return getCSVString(sortedAnnotationsForTagData);
 		}

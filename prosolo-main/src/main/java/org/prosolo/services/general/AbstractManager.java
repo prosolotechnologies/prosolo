@@ -10,48 +10,48 @@ import java.util.List;
 
 public interface AbstractManager extends Serializable {
 
-    @SuppressWarnings("rawtypes")
-    PersistenceManager getPersistence();
+	@SuppressWarnings("rawtypes")
+	PersistenceManager getPersistence();
 
-    <T> T saveEntity(T entity);
+	<T> T saveEntity(T entity);
+	
+	<T> T saveEntity(T entity, boolean inNewSession);
 
-    <T> T saveEntity(T entity, boolean inNewSession);
+	<T> T saveEntity(T entity, Session persistence);
+	
+	void flush();
+	
+	void clear();
+	
+	<T extends BaseEntity> T merge(T entity);
 
-    <T> T saveEntity(T entity, Session persistence);
+	<T extends BaseEntity> T merge(T entity, Session session);
+	
+	<T extends BaseEntity> T refresh(T entity);
+	
+	<T extends BaseEntity> void delete(T entity);
+	
+	<T extends BaseEntity> T markAsDeleted(T entity);
+	
+	<T extends BaseEntity> T markAsDeleted(T entity, Session session);
+	
+	<T> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
+	
+	<T> T loadResource(Class<T> clazz, long id, Session session) throws ResourceCouldNotBeLoadedException;
+	
+	<T extends BaseEntity> T loadResource(Class<T> clazz, long id, boolean unproxy, Session session)
+			throws ResourceCouldNotBeLoadedException;
+	
+	 <T extends BaseEntity> T loadResource(Class<T> clazz, long id, boolean unproxy)
+	 		throws ResourceCouldNotBeLoadedException;
+	
+	<T extends BaseEntity> List<T> getAllResources(Class<T> clazz);
+	
+	void fullCacheClear();
 
-    void flush();
+	 <T extends BaseEntity> boolean deleteById(Class<T> clazz, long id, Session session)
+			throws ResourceCouldNotBeLoadedException;
 
-    void clear();
-
-    <T extends BaseEntity> T merge(T entity);
-
-    <T extends BaseEntity> T merge(T entity, Session session);
-
-    <T extends BaseEntity> T refresh(T entity);
-
-    <T extends BaseEntity> void delete(T entity);
-
-    <T extends BaseEntity> T markAsDeleted(T entity);
-
-    <T extends BaseEntity> T markAsDeleted(T entity, Session session);
-
-    <T> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
-
-    <T> T loadResource(Class<T> clazz, long id, Session session) throws ResourceCouldNotBeLoadedException;
-
-    <T extends BaseEntity> T loadResource(Class<T> clazz, long id, boolean unproxy, Session session)
-            throws ResourceCouldNotBeLoadedException;
-
-    <T extends BaseEntity> T loadResource(Class<T> clazz, long id, boolean unproxy)
-            throws ResourceCouldNotBeLoadedException;
-
-    <T extends BaseEntity> List<T> getAllResources(Class<T> clazz);
-
-    void fullCacheClear();
-
-    <T extends BaseEntity> boolean deleteById(Class<T> clazz, long id, Session session)
-            throws ResourceCouldNotBeLoadedException;
-
-    <T extends BaseEntity> T get(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
+	 <T extends BaseEntity> T get(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
 
 }

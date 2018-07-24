@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{SequenceFile, Text}
 import org.joda.time.DateTime
 import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
-import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.{ SparkJob}
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 

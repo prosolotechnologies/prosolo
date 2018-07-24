@@ -8,9 +8,10 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
-	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:learningResource="http://java.sun.com/jsf/composite/components/learningResource">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -209,6 +210,34 @@
 											</ui:remove>
 			                            </div>
 			                        </div>
+
+									<!-- assessment -->
+									<div class="whiteBox">
+										<div class="formWrapper">
+											<h2>Assessment</h2>
+											<div class="formLine">
+												<label>Assessment Type</label>
+												<div class="formLineRight">
+													<ui:repeat value="#{competenceEditBean.competenceData.assessmentTypes}" var="at">
+														<div class="checkbox checkLine">
+															<h:selectBooleanCheckbox value="#{at.enabled}" id="checkAssessmentType" disabled="#{at.mandatory or competenceEditBean.limitedEdit}"/>
+															<h:outputLabel for="checkAssessmentType">#{msg['label.assessment.type.'.concat(at.type)]} #{at.mandatory ? '(mandatory)' : ''}</h:outputLabel>
+														</div>
+													</ui:repeat>
+												</div>
+											</div>
+
+											<learningResource:assessmentSettings
+													id="assessmentSettings"
+													bean="#{competenceEditBean}"
+													resource="COMPETENCE"
+													showAcceptGrades="false"
+											/>
+
+										</div>
+										<!--<script>determineVisibilityBasedOnGradingMode();</script>-->
+									</div>
+									<!-- assessment end -->
 			                    </div>
 			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'paths' ? 'active in' : ''}" id="paths">
 									<div class="whiteBox pathOptions">
@@ -305,7 +334,8 @@
 									styleClass="btn btn-green"
 									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
 									action="#{competenceEditBean.save}"
-									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog">
+									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+								    oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode('COMPETENCE');}">
 										Save changes
 								</p:commandLink>
 								#{cc.attrs.activities}
@@ -416,17 +446,17 @@
 		        </div>
 		    </h:form>
 
-			<dialogs:archiveResource
+			<dlg:archiveResource
 	    		id="archiveDialog"
 				archiveActionMethodName="archive"
 				archiveAction="#{competenceEditBean.archive}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-				title="#{msg['label.competence']}"
-				resourceType="#{msg['label.competence'].toLowerCase()}"
-				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
+				resourceType="#{msg['label.competence']}"
+				resourceTypePlural="#{msg['label.competence.plural']}"
+				pageWithArchivedResources="#{msg['label.competence']} Library"
 				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 
-			<dialogs:restoreResource
+			<dlg:restoreResource
 	    		id="restoreDialog"
 				restoreActionMethodName="restore"
 				restoreAction="#{competenceEditBean.restore}"

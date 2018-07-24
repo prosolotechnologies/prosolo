@@ -1,19 +1,21 @@
 package org.prosolo.search.util.credential;
 
+import org.prosolo.web.util.ResourceBundleUtil;
+
 public class CredentialMembersSearchFilter {
 
-	private CredentialMembersSearchFilterValue filter;
+	private SearchFilter filter;
 	private long numberOfResults;
-	
-	public CredentialMembersSearchFilter(CredentialMembersSearchFilterValue filter, long numberOfResults) {
+
+	public CredentialMembersSearchFilter(SearchFilter filter, long numberOfResults) {
 		this.filter = filter;
 		this.numberOfResults = numberOfResults;
 	}
 	
-	public CredentialMembersSearchFilterValue getFilter() {
+	public SearchFilter getFilter() {
 		return filter;
 	}
-	public void setFilter(CredentialMembersSearchFilterValue filter) {
+	public void setFilter(SearchFilter filter) {
 		this.filter = filter;
 	}
 	public long getNumberOfResults() {
@@ -22,6 +24,24 @@ public class CredentialMembersSearchFilter {
 	public void setNumberOfResults(long numberOfResults) {
 		this.numberOfResults = numberOfResults;
 	}
-	
-	
+
+	public enum SearchFilter {
+		All("All"),
+		Unassigned("Without " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
+		Assigned("With " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
+		AssessorNotified("Asked to be assessed"),
+		Nongraded("Nongraded"),
+		Graded("Graded"),
+		Completed("Completed");
+
+		private String label;
+
+		SearchFilter(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
 }

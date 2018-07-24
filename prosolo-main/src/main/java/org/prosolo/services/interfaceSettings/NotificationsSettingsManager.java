@@ -6,10 +6,11 @@ package org.prosolo.services.interfaceSettings;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.web.settings.data.UserNotificationSettingsData;
+import org.prosolo.web.settings.data.NotificationSettingsData;
+
+import java.util.List;
 
 /**
  * @author "Nikola Milikic"
@@ -17,18 +18,17 @@ import org.prosolo.web.settings.data.UserNotificationSettingsData;
  */
 public interface NotificationsSettingsManager extends AbstractManager {
 
-	UserNotificationsSettings getNotificationsSettings(long userId, Session session);
+	List<NotificationSettings> getAllUserNotificationsSettings(long userId, Session session);
 
-	NotificationSettings getEmailNotificationsSettings(long userId, NotificationType type);
+	NotificationSettings getNotificationSettings(long userId, NotificationType type);
 
-	NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session)
+	boolean shouldUserReceiveEmail(long userId, NotificationType type, Session session)
 			throws DbConnectionException;
 
-	UserNotificationsSettings getOrCreateNotificationsSettings(long userId);
-	
-	UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session);
+	List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId);
 
-	UserNotificationsSettings updateNotificationSettings(UserNotificationsSettings notificationsSettings, 
-			UserNotificationSettingsData notificationsSettingsData);
+	List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId, Session session);
+
+	void updateNotificationSettings(long userId, List<NotificationSettingsData> updatedNotificationSettings);
 
 }

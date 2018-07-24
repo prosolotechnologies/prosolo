@@ -23,7 +23,9 @@ public interface CronScheduler {
 	// <T extends Job> void startAssociationRulesForCompetenceDiscovery(Class<T>
 	// clazz);
 
-	<T extends Job> void startJobForSpecificJobClass(Class<T> clazz);
+    Boolean isSchedulerActivated();
+
+    <T extends Job> void startJobForSpecificJobClass(Class<T> clazz);
 	
 	public boolean isJobAlreadyRunning(String jobId, String groupId) throws SchedulerException;
 

@@ -9,7 +9,7 @@
 	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Activity Response
+		Response - #{activityResultsBeanUser.competenceData.activityToShowWithDetails.title} - #{activityResultsBeanUser.competenceData.title} - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -168,14 +168,15 @@
             	<h:panelGroup id="panelUploadAssignment">
 	                <h2>Activity Response</h2>
 	                <activities:activityResult
-	           			resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
-	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
-	           			learningContext="#{learningContext}"
-	           			role="USER"
-	           			assignmentUploadModalId="newRes"
-	           			growlToUpdate=":growlMain"
-	           			regionToUpdate=":panelUploadAssignment"
-	           			studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
+							activityTitle="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
+							resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
+							resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
+							learningContext="#{learningContext}"
+							role="USER"
+							assignmentUploadModalId="newRes"
+							growlToUpdate=":growlMain"
+							regionToUpdate=":panelUploadAssignment"
+							studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
 	           		/>
 	           	</h:panelGroup>
             </div>

@@ -6,7 +6,6 @@ import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -26,6 +25,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
+import org.prosolo.web.settings.data.NotificationSettingsData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -89,7 +89,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
-		System.out.println("SESSION BEAN INITIALIZED");
 		learningContext = new LearningContext();
 	}
 	
@@ -128,7 +127,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setEmail((String) userData.get("email"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setNotificationsSettings((List<NotificationSettingsData>) userData.get("notificationsSettings"));
 			sessionData.setPassword((String) userData.get("password"));
 			sessionData.setSessionId((String) userData.get("sessionId"));
 			initialized = true;
@@ -138,11 +137,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void reinitializeSessionData(UserData user, long organizationId) {
 		if (user != null) {
 			sessionData.setUserId(user.getId());
-			long orgId = 0;
-			if (organizationId > 0) {
-				orgId = organizationId;
-			}
-			sessionData.setOrganizationId(orgId);
+			sessionData.setOrganizationId(organizationId);
 			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastName());
@@ -223,25 +218,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
-				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
-						.getExternalContext().getRequest();
-				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
+				PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
 				return;
 			}
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
 			logger.error(e.getMessage());
-		} catch (IOException e) {
-			logger.error(e.getMessage());
 		}
 
 		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?faces-redirect=true");
-			return;
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
+		PageUtil.redirect("/login?faces-redirect=true");
+		return;
 	}
 	
 	@Override
@@ -355,12 +341,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			Authentication auth = getAuthenticationObject();
 			if(auth != null) {
 				if(auth.getCredentials() instanceof SAMLCredential) {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+					PageUtil.redirect("/saml/logout");
 				} else {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+					PageUtil.redirect("/logout");
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
@@ -489,30 +475,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
-//	public String switchRole(String rolename){
-//		getSessionData().setSelectedRole(rolename);
-//		String navigateTo="/index";
-//		if(rolename.equalsIgnoreCase("manager")){
-//			navigateTo= "/manage/credentialLibrary";
-//		}else if (rolename.equalsIgnoreCase("admin")){
-//			navigateTo= "/admin/users";
-//		}
-//		return navigateTo;
-// 	}
 
-//	public LearningGoalFilter getSelectedLearningGoalFilter() {
-//		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
-//	}
-//
-//	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-//		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
-//	}
-
-	public UserNotificationsSettings getNotificationsSettings() {
+	public List<NotificationSettingsData> getNotificationsSettings() {
 		return getSessionData() == null ? null : getSessionData().getNotificationsSettings();
 	}
 
-	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
+	public void setNotificationsSettings(List<NotificationSettingsData> notificationsSettings) {
 		getSessionData().setNotificationsSettings(notificationsSettings);
 	}
 	public String getIpAddress() {

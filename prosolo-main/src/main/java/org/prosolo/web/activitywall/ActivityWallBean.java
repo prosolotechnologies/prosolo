@@ -3,7 +3,6 @@ package org.prosolo.web.activitywall;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
@@ -414,11 +413,6 @@ public class ActivityWallBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
-	public int getRefreshRate() {
-		return Settings.getInstance().config.application.defaultRefreshRate;
-	}
-
 	public synchronized List<SocialActivityData1> getSocialActivities() {
 		return socialActivities;
 	}

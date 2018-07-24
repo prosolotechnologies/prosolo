@@ -175,49 +175,64 @@
 			
 									<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
+
 											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-												<h:link outcome="activity">
-													<span class="iconType"></span>
-													#{act.title}
-													<ui:fragment rendered="#{act.completed}">
-														<span class="check"></span>
-													</ui:fragment>
-													<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
-													<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
-													<f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
-													<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-													<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-												</h:link>
+												<ui:fragment rendered="#{cc.attrs.startedLearning or act.canAccess}">
+													<h:link outcome="activity">
+														<span class="iconType"></span>
+														#{act.title}
+														<ui:fragment rendered="#{act.completed}">
+															<span class="check"></span>
+														</ui:fragment>
+														<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
+														<f:param name="unitId" value="#{param.unitId}" disable="#{cc.attrs.role ne 'ADMIN'}"></f:param>
+														<f:param name="actId" value="#{util:encodeId(act.activityId)}"/>
+														<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+														<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+													</h:link>
+												</ui:fragment>
+
+												<ui:fragment rendered="#{!cc.attrs.startedLearning and !act.canAccess	}">
+													<a>
+														<span class="iconType"></span>
+														#{act.title}
+														<ui:fragment rendered="#{act.completed}">
+															<span class="check"></span>
+														</ui:fragment>
+													</a>
+												</ui:fragment>
 											</li>
-										</ui:repeat>   
+										</ui:repeat>
 									</ui:fragment>                 
 								</ul>
 							</h:panelGroup>
 						</div>
-						
-						<h:panelGroup id="panelExpandActivityList">
-							<h:panelGroup rendered="#{comp.activitiesInitialized}">
-								<a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+
+						<ui:fragment rendered="#{comp.learningPathType eq 'ACTIVITY'}">
+							<h:panelGroup id="panelExpandActivityList">
+								<h:panelGroup rendered="#{comp.activitiesInitialized}">
+									<a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+										<span class="textShow">Show Activities</span>
+										<span class="arrowDown">down</span>
+										<span class="textHide">Hide Activities</span>
+										<span class="arrowUp">up</span>
+									</a>
+								</h:panelGroup>
+
+								<p:commandLink
+									rendered="#{!comp.activitiesInitialized}"
+									styleClass="collapseButton collapsed"
+									process="@this"
+									action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
+									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+									oncomplete="$('#comp#{comp.competenceId}').collapse();">
 									<span class="textShow">Show Activities</span>
 									<span class="arrowDown">down</span>
 									<span class="textHide">Hide Activities</span>
 									<span class="arrowUp">up</span>
-								</a>
+								</p:commandLink>
 							</h:panelGroup>
-							
-							<p:commandLink  
-								rendered="#{!comp.activitiesInitialized}"
-								styleClass="collapseButton collapsed"
-								process="@this"
-								action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
-								update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
-								oncomplete="$('#comp#{comp.competenceId}').collapse();">
-								<span class="textShow">Show Activities</span>
-								<span class="arrowDown">down</span>
-								<span class="textHide">Hide Activities</span>
-								<span class="arrowUp">up</span>
-							</p:commandLink>
-						</h:panelGroup>
+						</ui:fragment>
 					</div>
 				</article>
 

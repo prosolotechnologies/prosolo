@@ -7,16 +7,21 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.web.achievements.data.TargetCompetenceData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -35,13 +40,11 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
-			UserContextData context) throws DbConnectionException, IllegalDataStateException;
+								  UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
 													  UserContextData context) throws DbConnectionException,
 			IllegalDataStateException;
-
-	EventQueue addCompetenceToDefaultUnits(long compId, UserContextData context);
 
 	/**
 	 * Updates competence.
@@ -75,8 +78,7 @@ public interface Competence1Manager {
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
 	
-	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
-		  boolean loadActivities) throws DbConnectionException;
+	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
 	
 	
 	/**
@@ -96,7 +98,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
@@ -113,7 +115,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -411,7 +413,62 @@ public interface Competence1Manager {
 
 	void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException, EventException;
 
-	void disableLearningStagesForOrganizationCompetences(long orgId) throws DbConnectionException;
+	EventQueue disableLearningStagesForOrganizationCompetences(long orgId, UserContextData context) throws DbConnectionException;
 
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
+
+	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
+
+	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Returns full target competence data when id of a target competence is not
+	 * known.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param loadLearningPathContent
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	 CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
+												   boolean loadAssessmentConfig, boolean loadLearningPathContent)
+			 throws DbConnectionException;
+
+	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException;
+
+	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
+
+	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
+
+	/**
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
+	 * and if not throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;
+
+	boolean isUserEnrolled(long compId, long userId) throws DbConnectionException;
+
+	CompetenceData1 getTargetCompetenceOrCompetenceData(
+			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
+
+	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
+
+	/**
+	 *
+	 * @param competenceId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
 }

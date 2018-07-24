@@ -3,13 +3,14 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	template="templates/masterLayout2.xhtml"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:communications="http://java.sun.com/jsf/composite/components/communications">
 
 	<ui:define name="windowTitle">
-		Student - #{studentProfileBean.student.name}
+		#{studentProfileBean.student.name} - Students - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -79,20 +80,33 @@
         <div class="container">
             <div class="whiteBarContent">
                 <div class="whiteBarLeft">
-                  <h:link outcome="/manage/credential-students" styleClass="btn btn-sm btnBack item" rendered="#{not empty param['cred']}">
-                  	<span></span>Back to Credential
-                  	<f:param name="id" value="#{param['cred']}"></f:param>
-                  </h:link>
-                  <h:form id="formMessage">
-                    <communications:sendMessageDialog
-                    	receiverId="#{studentProfileBean.student.id}"
-                    	receiverFullName="#{studentProfileBean.student.name}"
-                    	receiverAvatar="#{studentProfileBean.student.avatar}"
-                    	toUpdate=":growl"
-                    	linkStyle="margin:0;"
-                    	learningContext="#{learningContext}"
-                    />
-                  </h:form>
+					<h:link rendered="#{not empty param['comp']}"
+							outcome="/manage/competence-students"
+							styleClass="btn btn-sm btnBack item">
+						<span></span>Back to #{msg['label.competence']}
+						<f:param name="id" value="#{param['comp']}" />
+						<c:if test="#{not empty param['cred']}">
+							<f:param name="credId" value="#{param['cred']}" />
+						</c:if>
+					</h:link>
+
+					<h:link rendered="#{not empty param['cred']}"
+							outcome="/manage/credential-students"
+							styleClass="btn btn-sm btnBack item">
+						<span></span>Back to #{msg['label.credential']}
+						<f:param name="id" value="#{param['cred']}"></f:param>
+					</h:link>
+
+					<h:form id="formMessage">
+						<communications:sendMessageDialog
+								receiverId="#{studentProfileBean.student.id}"
+								receiverFullName="#{studentProfileBean.student.name}"
+								receiverAvatar="#{studentProfileBean.student.avatar}"
+								toUpdate=":growl"
+								linkStyle="margin:0;"
+								learningContext="#{learningContext}"
+						/>
+					</h:form>
                 </div>
             </div>
         </div>
@@ -105,7 +119,7 @@
 	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
 	                        <li role="presentation" class="active"><a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression</a></li>
 	                        <li role="presentation"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
-	                        <li role="presentation"><a href="#social" onclick="updateSocialInteractionDataRegion();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
+	                        <li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
 	                        <li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
 	                    </ul>
 	                </div>
@@ -307,7 +321,7 @@
                                     <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                                         <div class="panel-body">
                                         	<h:inputTextarea styleClass="form-control" rows="3"
-															disabled="#{!studentProfileBean.observationBean.isNew()}"
+															disabled="#{!observationBean.isNew()}"
 															pt:placeholder="Message that will be sent to student if filled. Not mandatory."
 															value="#{observationBean.editObservation.editObservation.message}" />
                                         </div>

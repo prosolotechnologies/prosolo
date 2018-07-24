@@ -8,9 +8,11 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
  * @since 1.0.0
  */
 public interface BulkDataAdministrationService {
-    void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable;
+    void deleteAndInitElasticSearchDBIndexes() throws IndexingServiceNotAvailable;
 
-    void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable;
+    void deleteAndReindexDBESIndexes() throws IndexingServiceNotAvailable;
+
+    void deleteAndReindexLearningContent(long orgId) throws IndexingServiceNotAvailable;
 
     void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable;
 

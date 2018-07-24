@@ -1,24 +1,24 @@
 package org.prosolo.common.domainmodel.assessment;
 
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.*;
-
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"competence_assessment", "target_activity"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"competence_assessment", "activity"})})
 public class ActivityAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -2026612306127154692L;
 
-	private TargetActivity1 targetActivity;
+	//private TargetActivity1 targetActivity;
+	private Activity1 activity;
 	private CompetenceAssessment assessment;
 	private List<ActivityDiscussionParticipant> participants;
 	private List<ActivityDiscussionMessage> messages;
-	private boolean defaultAssessment;
+	private AssessmentType type;
 
 	/**
 	 * Since v0.5. We use points to store assessment points value.
@@ -32,13 +32,23 @@ public class ActivityAssessment extends BaseEntity {
 		messages = new ArrayList<>();
 	}
 
-	@OneToOne(fetch = FetchType.LAZY)
-	public TargetActivity1 getTargetActivity() {
-		return targetActivity;
+//	@OneToOne(fetch = FetchType.LAZY)
+//	public TargetActivity1 getTargetActivity() {
+//		return targetActivity;
+//	}
+//
+//	public void setTargetActivity(TargetActivity1 targetActivity) {
+//		this.targetActivity = targetActivity;
+//	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Activity1 getActivity() {
+		return activity;
 	}
 
-	public void setTargetActivity(TargetActivity1 targetActivity) {
-		this.targetActivity = targetActivity;
+	public void setActivity(Activity1 activity) {
+		this.activity = activity;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -82,12 +92,14 @@ public class ActivityAssessment extends BaseEntity {
 		return null;
 	}
 
-	public boolean isDefaultAssessment() {
-		return defaultAssessment;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public AssessmentType getType() {
+		return type;
 	}
 
-	public void setDefaultAssessment(boolean defaultAssessment) {
-		this.defaultAssessment = defaultAssessment;
+	public void setType(AssessmentType type) {
+		this.type = type;
 	}
 
 	@OneToOne

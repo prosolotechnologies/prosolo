@@ -41,6 +41,10 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 						session);
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				credentialESService.updateVisibleToAll(event.getOrganizationId(), cred.getId(), cred.isVisibleToAll());
+			} else if (event.getAction() == EventType.LEARNING_STAGE_UPDATE) {
+				credentialESService.updateLearningStageInfo(cred);
+			} else if (event.getAction() == EventType.CREDENTIAL_CATEGORY_UPDATE) {
+				credentialESService.updateCredentialCategory(cred);
 			} else {
 				credentialESService.updateCredentialNode(cred, session);
 			}

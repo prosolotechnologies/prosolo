@@ -1,21 +1,23 @@
 package org.prosolo.services.lti.impl;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiUser;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.nodes.data.UserCreationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.UUID;
 
 @Service("org.prosolo.services.lti.LtiUserManager")
 public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserManager {
@@ -26,57 +28,75 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 
 	@Inject
 	private UserManager userManager;
+	@Inject
+	private RoleManager roleManager;
+	@Inject
+	private LtiUserManager self;
+	@Inject
+	private EventFactory eventFactory;
+
+	@Override
+	// nt
+	public User getUserForLaunch(long ltiConsumerId, String userId, String name, String lastName, String email, long unitId, String roleName, long userGroupId, UserContextData context)
+			throws DbConnectionException {
+		Result<User> res = self.getUserForLaunchAndGetEvents(
+				ltiConsumerId, userId, name, lastName, email, unitId, roleName, userGroupId, context);
+
+		if (res.getResult() != null) {
+			eventFactory.generateEvents(res.getEventQueue());
+			return res.getResult();
+		}
+		return null;
+	}
 
 	@Override
 	@Transactional
-	public User getUserForLaunch(long consumerId, String userId, String name, String lastName, String email, long courseId)
+	public Result<User> getUserForLaunchAndGetEvents(long ltiConsumerId, String userId, String name, String lastName, String email, long unitId, String roleName, long userGroupId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			User user = getUser(consumerId, userId);
+			Result<User> result = new Result<>();
+
+			User user = getUser(ltiConsumerId, userId);
 			if (user == null) {
-				LtiConsumer consumer = (LtiConsumer) persistence.currentManager().load(LtiConsumer.class, consumerId);
+				long unitRoleId = roleManager.getRoleIdByName(roleName);
+				Result<UserCreationData> userResult = userManager.createNewUserConnectToResourcesAndGetEvents(name, lastName, email, UUID.randomUUID().toString(), null, unitId, unitRoleId, userGroupId, context);
+
+				user = userResult.getResult().getUser();
+				result.appendEvents(userResult.getEventQueue());
+
+				LtiConsumer consumer = (LtiConsumer) persistence.currentManager().load(LtiConsumer.class, ltiConsumerId);
 				LtiUser ltiUser = new LtiUser();
 				ltiUser.setUserId(userId);
 				ltiUser.setConsumer(consumer);
-				user = createOrGetExistingUser(name, lastName, email);
 				ltiUser.setUser(user);
 				saveEntity(ltiUser);
 			}
-			return user;
-		} catch (Exception e) {
-			throw new DbConnectionException("Error while logging user in");
-		}
-	}
+			result.setResult(user);
 
-	private User createOrGetExistingUser(String name, String lastName, String email) throws DbConnectionException{
-		try{
-			User user = null;
-			String password = UUID.randomUUID().toString();
-			try {
-				user = userManager.createNewUser(0, name, lastName, email, true, password, null, null, null, null);
-			} catch (UserAlreadyRegisteredException e) {
-				user = userManager.getUser(email);
-			}
-			return user;
-		}catch(Exception e){
-			throw new DbConnectionException("User cannot be retrieved");
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw e;
 		}
 	}
 
 	private User getUser(long consumerId, String userId) {
-		try{
-			String queryString = "SELECT user " + "FROM LtiUser ltiuser " + "INNER JOIN  ltiuser.user user "
-					+ "INNER JOIN ltiuser.consumer c " + "WHERE ltiuser.userId = :userId " + "AND c.id = :id";
-	
-			Query query = persistence.currentManager().createQuery(queryString);
-			query.setLong("id", consumerId);
-			query.setString("userId", userId);
-	
-			return (User) query.uniqueResult();
-		}catch(Exception e){
-			throw new DbConnectionException("User cannot be retrieved");
-		}
+		try {
+			String queryString =
+					"SELECT user " +
+							"FROM LtiUser ltiuser " +
+							"INNER JOIN  ltiuser.user user " +
+							"INNER JOIN ltiuser.consumer c " +
+							"WHERE ltiuser.userId = :userId " +
+							"AND c.id = :id";
 
+			return (User) persistence.currentManager().createQuery(queryString)
+					.setLong("id", consumerId)
+					.setString("userId", userId);
+		} catch (Exception e) {
+			return null;
+		}
 	}
+
 
 }

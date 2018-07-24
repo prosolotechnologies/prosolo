@@ -1,23 +1,22 @@
 package org.prosolo.services.logging;
 
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
-import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * @author Zoran Jeremic Dec 29, 2013
@@ -37,13 +36,13 @@ public class LoggingEventsObserver extends EventObserver {
 
 	@Override
 	public void handleEvent(Event event) {
-		logger.info("LoggingEvent handling event action: " + event.getAction());
-		logger.info("LoggingEvent handling event actor: " + event.getActorId());
-		logger.info("LoggingEvent handling event object: " + event.getObject());
-		logger.info("LoggingEvent handling event target: " + event.getTarget());
-		logger.info("LoggingEvent handling event page:"+event.getPage());
-		logger.info("LoggingEvent handling event context:"+event.getContext());
-		logger.info("LoggingEvent handling event service:"+event.getService());
+//		logger.info("LoggingEvent handling event action: " + event.getAction());
+//		logger.info("LoggingEvent handling event actor: " + event.getActorId());
+//		logger.info("LoggingEvent handling event object: " + event.getObject());
+//		logger.info("LoggingEvent handling event target: " + event.getTarget());
+//		logger.info("LoggingEvent handling event page:"+event.getPage());
+//		logger.info("LoggingEvent handling event context:"+event.getContext());
+//		logger.info("LoggingEvent handling event service:"+event.getService());
 		String objectType = "";
 		long objectId = 0;
 		String objectTitle = "";
@@ -54,7 +53,7 @@ public class LoggingEventsObserver extends EventObserver {
 			
 			BaseEntity object = event.getObject();
 			if (object != null) {
-				object = HibernateUtil.initializeAndUnproxy(object);
+				//object = HibernateUtil.initializeAndUnproxy(object);
 				
 				objectType = object.getClass().getSimpleName();
 				objectId = object.getId();
@@ -72,7 +71,7 @@ public class LoggingEventsObserver extends EventObserver {
 			BaseEntity target = event.getTarget();
 			
 			if (target != null) {
-				target = HibernateUtil.initializeAndUnproxy(target);
+				//target = HibernateUtil.initializeAndUnproxy(target);
 				
 				targetType = target.getClass().getSimpleName();
 				targetId = target.getId();

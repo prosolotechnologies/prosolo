@@ -5,7 +5,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -97,7 +97,7 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
 					announcementManager.readAnnouncement(idEncoder.decodeId(announcementId), loggedUser.getUserId());
 					announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(announcementId));
 
-					credentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
+					credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
 				}
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error loading announcement");

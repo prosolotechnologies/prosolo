@@ -140,7 +140,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		if (keys != null && !keys.isEmpty()) {
 			for (ResetKey resetKey : keys) {
 				resetKey.setInvalid(true);
-				saveEntity(resetKey);
+				saveEntity(resetKey, session);
 			}
 		}
 	}

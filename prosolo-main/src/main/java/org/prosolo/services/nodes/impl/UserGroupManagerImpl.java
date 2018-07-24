@@ -49,10 +49,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		try {
 			String query = 
 				"SELECT g " +
-				"FROM UserGroup g ";
+				"FROM UserGroup g " +
+				"WHERE g.deleted IS FALSE ";
 
 			if (!returnDefaultGroups) {
-				query += "WHERE g.defaultGroup IS FALSE ";
+				query += "AND g.defaultGroup IS FALSE ";
 			}
 
 			if (orgId > 0) {
@@ -83,8 +84,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			String query = 
 				"SELECT g " +
 				"FROM UserGroup g " +
-				"WHERE g.id = :groupId ";
-			
+				"WHERE g.id = :groupId " +
+					"AND g.deleted IS FALSE ";
+
 			UserGroup result = (UserGroup) persistence.currentManager().createQuery(query)
 				.setLong("groupId", groupgId)
 				.uniqueResult();
@@ -108,7 +110,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"LEFT JOIN g.credentialUserGroups credGroup " +
 				"LEFT JOIN g.competenceUserGroups compGroup " +
 				"WHERE g.unit.id = :unitId " +
-				"AND g.name LIKE :term " +
+					"AND g.name LIKE :term " +
+					"AND g.deleted IS FALSE " +
 				"GROUP BY g " +
 				"ORDER BY g.name ASC";
 			
@@ -151,7 +154,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"SELECT COUNT(g.id) " +
 				"FROM UserGroup g " +
 				"WHERE g.unit.id = :unitId " +
-				"AND g.name LIKE :term";
+					"AND g.name LIKE :term " +
+					"AND g.deleted IS FALSE ";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			Long result = (Long) persistence.currentManager()
@@ -224,7 +228,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, id);
-			delete(group);
+			//delete(group);
+			// we should not delete group from the DB as event processors will need to load it
+			markAsDeleted(group);
 			
 			//generate delete event
 			UserGroup deletedGroup = new UserGroup();
@@ -273,12 +279,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
+	public Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
 				//TODO add context
-				addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				Result<Void> r = addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -288,11 +297,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
+	public Result<Void> removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
 			for(Long group : groupIds) {
-				removeUserFromTheGroupAndGetEvents(group, userId, context);
+				Result<Void> r = removeUserFromTheGroupAndGetEvents(group, userId, context);
+				result.appendEvents(r.getEventQueue());
 			}
+			return result;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -314,27 +326,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 																	List<Long> groupsToAddUserTo, UserContextData context)
 			throws DbConnectionException {
 		try {
-			addUserToGroups(userId, groupsToAddUserTo);
-			removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
-
-			User user = new User();
-			user.setId(user.getId());
 			Result<Void> result = new Result<>();
+			Result<Void> addResult = addUserToGroups(userId, groupsToAddUserTo);
+			Result<Void> removeResult = removeUserFromGroups(userId, groupsToRemoveUserFrom, context);
 
-			for(long id : groupsToAddUserTo) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				result.appendEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, context,
-						user, group,null, null));
-			}
-			for(long id : groupsToRemoveUserFrom) {
-				UserGroup group = new UserGroup();
-				group.setId(id);
-				result.appendEvent(eventFactory.generateEventData(
-						EventType.REMOVE_USER_FROM_GROUP,
-						context,
-						user, group,null, null));
-			}
+			result.appendEvents(addResult.getEventQueue());
+			result.appendEvents(removeResult.getEventQueue());
 
 			return result;
 		} catch(Exception e) {
@@ -349,8 +346,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Transactional(readOnly = true)
     public long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException {
     	try {
-    		String query = "SELECT COUNT(groupUser.id) FROM UserGroupUser groupUser " +
-				   	   "WHERE groupUser.group.id = :groupId";
+    		String query =
+					"SELECT COUNT(groupUser.id) " +
+					"FROM UserGroupUser groupUser " +
+					"WHERE groupUser.group.id = :groupId";
 			Long count = (Long) persistence.currentManager()
 					.createQuery(query)
 					.setLong("groupId", groupId)
@@ -367,11 +366,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Transactional(readOnly = true)
 	public UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException {
 		try {
-			String query = "SELECT COUNT(distinct user), COUNT(distinct credGroup), COUNT(distinct compGroup) FROM UserGroup g " +
+			String query =
+					"SELECT COUNT(distinct user), COUNT(distinct credGroup), COUNT(distinct compGroup) " +
+					"FROM UserGroup g " +
 					"LEFT JOIN g.users user " +
 					"LEFT JOIN g.credentialUserGroups credGroup " +
 					"LEFT JOIN g.competenceUserGroups compGroup " +
-					"WHERE g.id = :groupId";
+					"WHERE g.id = :groupId " +
+						"AND g.deleted IS FALSE ";
 
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
@@ -395,14 +397,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Transactional(readOnly = true)
     public boolean isUserInGroup(long groupId, long userId) throws DbConnectionException {
     	try {
-    		String query = "SELECT groupUser.id FROM UserGroupUser groupUser " +
-				   	   "WHERE groupUser.group.id = :groupId " +
-				   	   "AND groupUser.user.id = :userId";
+    		String query =
+					"SELECT groupUser.id " +
+					"FROM UserGroupUser groupUser " +
+				   	"WHERE groupUser.group.id = :groupId " +
+				   		"AND groupUser.user.id = :userId";
+
 			Long id = (Long) persistence.currentManager()
 					.createQuery(query)
 					.setLong("groupId", groupId)
 					.setLong("userId", userId)
 					.uniqueResult();
+
 			return id == null ? false : true;
     	} catch(Exception e) {
     		e.printStackTrace();
@@ -415,8 +421,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Transactional(readOnly = true)
     public List<CredentialUserGroup> getCredentialUserGroups(long groupId) throws DbConnectionException {
     	try {
-    		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
-				   	   "WHERE credGroup.userGroup.id = :groupId";
+    		String query =
+					"SELECT credGroup " +
+					"FROM CredentialUserGroup credGroup " +
+					"LEFT JOIN credGroup.userGroup g " +
+					"WHERE g.id = :groupId " +
+						"AND g.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CredentialUserGroup> credGroups = persistence.currentManager()
 					.createQuery(query)
@@ -442,8 +452,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     public List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
     		throws DbConnectionException {
     	try {
-    		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
-				   	   "WHERE credGroup.credential.id = :credId";
+    		String query =
+					"SELECT credGroup " +
+					"FROM CredentialUserGroup credGroup " +
+					"WHERE credGroup.credential.id = :credId " +
+						"AND credGroup.userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CredentialUserGroup> credGroups = session
 					.createQuery(query)
@@ -469,8 +482,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     public List<CompetenceUserGroup> getAllCompetenceUserGroups(long compId, Session session) 
     		throws DbConnectionException {
     	try {
-    		String query = "SELECT compGroup FROM CompetenceUserGroup compGroup " +
-				   	   "WHERE compGroup.competence.id = :compId";
+    		String query =
+					"SELECT compGroup " +
+					"FROM CompetenceUserGroup compGroup " +
+					"WHERE compGroup.competence.id = :compId " +
+						"AND compGroup.userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CompetenceUserGroup> compGroups = session
 					.createQuery(query)
@@ -489,8 +505,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     public List<CompetenceUserGroup> getCompetenceUserGroups(long groupId)
 			throws DbConnectionException {
     	try {
-    		String query = "SELECT compGroup FROM CompetenceUserGroup compGroup " +
-				   	   "WHERE compGroup.userGroup.id = :groupId";
+    		String query =
+					"SELECT compGroup " +
+					"FROM CompetenceUserGroup compGroup " +
+					"LEFT JOIN compGroup.userGroup g " +
+					"WHERE g.id = :groupId " +
+						"AND g.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<CompetenceUserGroup> compGroups = persistence.currentManager()
 					.createQuery(query)
@@ -542,9 +562,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		UserGroupPrivilege privilege, Session session) throws DbConnectionException {
 		try {
     		StringBuilder query = new StringBuilder (
-    					   "SELECT credGroup FROM CredentialUserGroup credGroup " +
-    					   "INNER JOIN fetch credGroup.userGroup userGroup " +
-    					   "WHERE credGroup.credential.id = :credId ");
+    				"SELECT credGroup " +
+					"FROM CredentialUserGroup credGroup " +
+					"INNER JOIN fetch credGroup.userGroup userGroup " +
+					"WHERE credGroup.credential.id = :credId " +
+						"AND userGroup.deleted IS FALSE ");
     		if (!returnDefaultGroups) {
     			query.append("AND userGroup.defaultGroup = :defaultGroup ");
     		}
@@ -579,11 +601,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			StringBuilder query = new StringBuilder("SELECT distinct credGroup FROM CredentialUserGroup credGroup " +
-					   "INNER JOIN fetch credGroup.userGroup userGroup " +
-					   "LEFT JOIN fetch userGroup.users users " +
-					   "WHERE credGroup.credential.id = :credId " +
-					   "AND userGroup.defaultGroup = :defaultGroup ");
+			StringBuilder query = new StringBuilder(
+					"SELECT distinct credGroup FROM CredentialUserGroup credGroup " +
+					"INNER JOIN fetch credGroup.userGroup userGroup " +
+					"LEFT JOIN fetch userGroup.users users " +
+					"WHERE credGroup.credential.id = :credId " +
+						"AND userGroup.defaultGroup = :defaultGroup " +
+						"AND userGroup.deleted IS FALSE ");
 
 			if (privilege != null) {
 				query.append("AND credGroup.privilege = :priv ");
@@ -857,14 +881,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	private UserGroupUser getUserFromDefaultCompetenceUserGroup(long userId, long compId, UserGroupPrivilege priv) {
-		String query = "SELECT ugu FROM CompetenceUserGroup cug " +
+		String query =
+				"SELECT ugu " +
+				"FROM CompetenceUserGroup cug " +
 				"INNER JOIN cug.userGroup ug " +
 				"WITH ug.defaultGroup = :boolTrue " +
 				"INNER JOIN ug.users ugu " +
 				"WITH ugu.user.id = :userId " +
 				"WHERE cug.competence.id = :compId " +
-				"AND cug.privilege = :priv " +
-				"AND cug.inherited = :boolFalse";
+					"AND cug.privilege = :priv " +
+					"AND cug.inherited = :boolFalse " +
+					"AND ug.deleted IS FALSE ";
 
 		return (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
@@ -877,13 +904,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	private UserGroupUser getUserFromDefaultCredentialUserGroup(long userId, long credId, UserGroupPrivilege priv) {
-		String query = "SELECT ugu FROM CredentialUserGroup cug " +
+		String query =
+				"SELECT ugu FROM CredentialUserGroup cug " +
 				"INNER JOIN cug.userGroup ug " +
 					"WITH ug.defaultGroup = :boolTrue " +
 				"INNER JOIN ug.users ugu " +
 					"WITH ugu.user.id = :userId " +
 				"WHERE cug.credential.id = :credId " +
-				"AND cug.privilege = :priv";
+					"AND cug.privilege = :priv " +
+					"AND ug.deleted IS FALSE ";
 
 		return (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
@@ -976,12 +1005,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     public boolean isUserInADefaultCredentialGroup(long userId, long credId) 
     		throws DbConnectionException {
 		try {
-			String query = "SELECT user.id FROM CredentialUserGroup credGroup " +
-					   "INNER JOIN credGroup.userGroup userGroup " +
-					   "INNER JOIN userGroup.users user " +
-					   		"WITH user.id = :userId " +
-					   "WHERE credGroup.credential.id = :credId " +
-					   "AND userGroup.defaultGroup = :defaultGroup ";
+			String query =
+					"SELECT user.id FROM CredentialUserGroup credGroup " +
+					"INNER JOIN credGroup.userGroup userGroup " +
+					"INNER JOIN userGroup.users user " +
+						"WITH user.id = :userId " +
+					"WHERE credGroup.credential.id = :credId " +
+						"AND userGroup.defaultGroup = :defaultGroup " +
+						"AND userGroup.deleted IS FALSE ";
 			@SuppressWarnings("unchecked")
 			List<Long> users = persistence.currentManager()
 					.createQuery(query)
@@ -1127,12 +1158,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	private Optional<CredentialUserGroup> getCredentialDefaultGroup(long credId, UserGroupPrivilege privilege) {
-		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
-					   "INNER JOIN credGroup.userGroup userGroup " +
-					   "WHERE credGroup.credential.id = :credId " +
-					   "AND credGroup.privilege = :priv " +
-					   "AND userGroup.defaultGroup = :default";
-		
+		String query =
+				"SELECT credGroup FROM CredentialUserGroup credGroup " +
+				"INNER JOIN credGroup.userGroup userGroup " +
+				"WHERE credGroup.credential.id = :credId " +
+					"AND credGroup.privilege = :priv " +
+					"AND userGroup.defaultGroup = :default " +
+					"AND userGroup.deleted IS FALSE ";
+
 		CredentialUserGroup credGroup = (CredentialUserGroup) persistence.currentManager()
 				.createQuery(query)
 				.setLong("credId", credId)
@@ -1159,9 +1192,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							       "FROM CompetenceUserGroup compGroup " +
 								   "INNER JOIN compGroup.userGroup userGroup " +
 							       "WHERE compGroup.competence.id = :compId " +
-								   "AND userGroup.id = :userGroupId " +
-							 	   "AND userGroup.defaultGroup IS FALSE " +
-								   "AND compGroup.privilege = :priv " +
+										"AND userGroup.id = :userGroupId " +
+										"AND userGroup.defaultGroup IS FALSE " +
+										"AND compGroup.privilege = :priv " +
+										"AND userGroup.deleted IS FALSE " +
 								   "ORDER BY CASE WHEN compGroup.inherited IS TRUE THEN 1 ELSE 2 END";
 
 					CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence.currentManager()
@@ -1192,13 +1226,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			String query = "SELECT distinct user FROM CompetenceUserGroup compGroup " +
-					   "INNER JOIN compGroup.userGroup userGroup " +
-					   "INNER JOIN userGroup.users userGroupUser " +
-					   "INNER JOIN userGroupUser.user user " +
-					   "WHERE compGroup.competence.id = :compId " +
-					   "AND userGroup.defaultGroup IS TRUE " +
-					   "AND compGroup.privilege = :priv ";
+			String query =
+					"SELECT distinct user FROM CompetenceUserGroup compGroup " +
+					"INNER JOIN compGroup.userGroup userGroup " +
+					"INNER JOIN userGroup.users userGroupUser " +
+					"INNER JOIN userGroupUser.user user " +
+					"WHERE compGroup.competence.id = :compId " +
+						"AND userGroup.defaultGroup IS TRUE " +
+						"AND compGroup.privilege = :priv " +
+						"AND userGroup.deleted IS FALSE ";
 
 			Query q = persistence.currentManager()
 					.createQuery(query)
@@ -1210,13 +1246,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 			if (users != null) {
 				for (User user : users) {
-					String q1 = "SELECT user, compGroup.inherited FROM CompetenceUserGroup compGroup " +
+					String q1 =
+							"SELECT user, compGroup.inherited FROM CompetenceUserGroup compGroup " +
 							"INNER JOIN compGroup.userGroup userGroup " +
 							"INNER JOIN userGroup.users user " +
 							"WITH user.user.id = :userId " +
 							"WHERE compGroup.competence.id = :compId " +
-							"AND userGroup.defaultGroup IS TRUE " +
-							"AND compGroup.privilege = :priv " +
+								"AND userGroup.defaultGroup IS TRUE " +
+								"AND compGroup.privilege = :priv " +
+								"AND userGroup.deleted IS FALSE " +
 							"ORDER BY CASE WHEN compGroup.inherited IS TRUE THEN 1 ELSE 2 END";
 
 					Object[] res = (Object[]) persistence.currentManager().createQuery(q1)
@@ -1246,10 +1284,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder (
-							"SELECT DISTINCT userGroup FROM CompetenceUserGroup compGroup " +
+							"SELECT DISTINCT userGroup " +
+							"FROM CompetenceUserGroup compGroup " +
 							"INNER JOIN compGroup.userGroup userGroup " +
 							"WHERE compGroup.competence.id = :compId " +
-							"AND compGroup.privilege = :priv ");
+								"AND compGroup.privilege = :priv " +
+								"AND userGroup.deleted IS FALSE ");
 
 			if (!returnDefaultGroups) {
 				query.append("AND userGroup.defaultGroup = :defaultGroup ");
@@ -1276,9 +1316,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	private Optional<UserGroupUser> getUserGroupUser(long groupId, long userId) {
-		String query = "SELECT groupUser FROM UserGroupUser groupUser " +
-				   	   "WHERE groupUser.user.id = :userId " +
-				   	   "AND groupUser.group.id = :groupId";
+		String query =
+				"SELECT groupUser " +
+				"FROM UserGroupUser groupUser " +
+				"LEFT JOIN groupUser.group g " +
+				"WHERE groupUser.user.id = :userId " +
+					"AND g.id = :groupId " +
+					"AND g.deleted IS FALSE ";
 		UserGroupUser groupUser = (UserGroupUser) persistence.currentManager()
 				.createQuery(query)
 				.setLong("groupId", groupId)
@@ -1520,11 +1564,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 																	UserGroupPrivilege privilege,
 																	boolean returnIfInherited,
 																	Session session) {
-		StringBuilder query = new StringBuilder("SELECT compGroup FROM CompetenceUserGroup compGroup " +
+		StringBuilder query = new StringBuilder(
+				"SELECT compGroup FROM CompetenceUserGroup compGroup " +
 				"INNER JOIN compGroup.userGroup userGroup " +
 				"WHERE compGroup.competence.id = :compId " +
-				"AND compGroup.privilege = :priv " +
-				"AND userGroup.defaultGroup = :default ");
+					"AND compGroup.privilege = :priv " +
+					"AND userGroup.defaultGroup = :default " +
+					"AND userGroup.deleted IS FALSE ");
 
 		if (!returnIfInherited) {
 			query.append("AND compGroup.inherited = :inherited");
@@ -1678,7 +1724,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = false)
-    public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
+    public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId,
     		UserContextData context, Session session) throws DbConnectionException {
 		Result<Void> res = new Result<>();
 		res.appendEvents(propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(
@@ -1811,30 +1857,40 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
     private Result<Void> propagateUserGroupPrivilegeFromCredentialToDelivery(CredentialUserGroup credUserGroup,
     		long deliveryId, UserContextData context, Session session) throws DbConnectionException {
-    	try {
-    		CredentialUserGroup cug = new CredentialUserGroup();
-    		Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
-    		cug.setCredential(del);
-    		cug.setUserGroup(credUserGroup.getUserGroup());
-    		cug.setPrivilege(credUserGroup.getPrivilege());
-    		saveEntity(cug, session);
-    		
-    		/*
-    		 * we generate only resource visibility change event and not user group added to resource event because 
-    		 * it is inherited group and for now we don't need to generate this event.
-    		 */
-    		Credential1 delivery =  new Credential1();
-    		delivery.setId(deliveryId);
-    		Result<Void> res = new Result<>();
-    		res.appendEvent(eventFactory.generateEventData(
-    				EventType.RESOURCE_VISIBILITY_CHANGE, context, delivery, null, null, null));
-    		return res;
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
-    	}
-    }
+		Result<Void> res = new Result<>();
+		try {
+			CredentialUserGroup cug = new CredentialUserGroup();
+			Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
+			cug.setCredential(del);
+			cug.setUserGroup(credUserGroup.getUserGroup());
+			cug.setPrivilege(credUserGroup.getPrivilege());
+			saveEntity(cug, session);
+
+			/*
+			 * we generate only resource visibility change event and not user group added to resource event because
+			 * it is inherited group and for now we don't need to generate this event.
+			 */
+			Credential1 delivery = new Credential1();
+			delivery.setId(deliveryId);
+			res.appendEvent(eventFactory.generateEventData(
+					EventType.RESOURCE_VISIBILITY_CHANGE, context, delivery, null, null, null));
+
+			session.flush();
+		} catch (ConstraintViolationException e) {
+			/**
+			 * Constraint violation related to unique credId-userGroup-privilege can occur if delivery is created
+			 * immediately after the credential has been created. In this case, there is a race condition for
+			 * USER_GROUP_ADDED_TO_RESOURCE event (fired when a credential is created) that is trying to propagate
+			 * Edit privilege to user, and this privilege has already been added when the delivery is created.
+			 */
+			logger.info("User group " + credUserGroup.getUserGroup().getId() + " already has " + credUserGroup.getPrivilege() + " privilege in delivery " + deliveryId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user privileges");
+		}
+		return res;
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1842,9 +1898,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		UserGroupPrivilege privilege, Session session) throws DbConnectionException {
 		try {
     		StringBuilder query = new StringBuilder (
-    					   "SELECT ug.id FROM CredentialUserGroup credGroup " +
+    					   "SELECT ug.id " +
+						   "FROM CredentialUserGroup credGroup " +
     					   "INNER JOIN credGroup.userGroup ug " +
-    					   "WHERE credGroup.credential.id = :credId ");
+    					   "WHERE credGroup.credential.id = :credId " +
+							   "AND ug.deleted IS FALSE ");
     		if (!returnDefaultGroups) {
     			query.append("AND ug.defaultGroup = :defaultGroup ");
     		}
@@ -2021,16 +2079,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
+	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
 			throws DbConnectionException {
 		try {
-			String q = "SELECT g.id " +
+			String q =
+					"SELECT g.id " +
 					"FROM UserGroupUser ugu " +
 					"INNER JOIN ugu.group g " +
-					"WHERE ugu.user.id = :userId ";
+					"WHERE ugu.user.id = :userId " +
+						"AND g.deleted IS FALSE ";
 
 			if (!returnDefaultGroupIds) {
-				q += "AND g.defaultGroup IS FALSE";
+				q += "AND g.defaultGroup IS FALSE ";
 			}
 
 			@SuppressWarnings("unchecked")

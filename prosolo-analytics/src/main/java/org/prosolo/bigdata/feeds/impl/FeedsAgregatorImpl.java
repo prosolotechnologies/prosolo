@@ -20,6 +20,7 @@ import org.prosolo.bigdata.services.email.impl.EmailLinkGeneratorImpl;
 import org.prosolo.bigdata.similarity.WebPageRelevance;
 import org.prosolo.bigdata.similarity.impl.WebPageRelevanceImpl;
 import org.prosolo.bigdata.utils.ResourceBundleUtil;
+import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -212,7 +213,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 //		if (participantsFeedEntries != null && !participantsFeedEntries.isEmpty()) {
 //			String courseTokenizedString = resourceTokenizer.getTokenizedStringForCourse(course);
 //			
-//			// we need to duplicate all feed entries and calculate relevance for the course
+//			// we need to bcc all feed entries and calculate relevance for the course
 //			
 //			for (FeedEntry feedEntry : participantsFeedEntries) {
 //				FeedEntry cloneFeedEntry = new FeedEntry();
@@ -449,7 +450,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 //			System.out.println("FEEDS DIGEST TO SEND:"+feedsDigests.size()+" for user:"+user.getId()+" email:"+email);
 //			// If development mode, send only to developer email
 //			if(!feedsDigests.isEmpty()){
-//				if(CommonSettings.getInstance().config.appConfig.developmentMode){
+//				if(CommonSettings.getInstance().config.appConfig.projectMode){
 //					email=CommonSettings.getInstance().config.appConfig.developerEmail;
 //				}
 //				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
@@ -472,7 +473,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 //				}
 //			}
 ////			if (!feedsDigests.isEmpty() && 
-////					(!CommonSettings.getInstance().config.appConfig.developmentMode || 
+////					(!CommonSettings.getInstance().config.appConfig.projectMode ||
 ////					email.equals(CommonSettings.getInstance().config.appConfig.developmentEmail))) {
 ////				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
 ////				//emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
@@ -557,7 +558,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				System.out.println("FEEDS DIGEST TO SEND: " + feedsDigests.size() + " for user: " + user.getId() + " email:" + email);
 				// If development mode, send only to developer email
 				if(!feedsDigests.isEmpty()){
-					if(CommonSettings.getInstance().config.appConfig.developmentMode){
+					if(CommonSettings.getInstance().config.appConfig.projectMode.equals(AppConfig.ProjectMode.DEV)){
 						email=CommonSettings.getInstance().config.appConfig.developerEmail;
 					}
 					System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());

@@ -13,6 +13,8 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -50,5 +52,24 @@ public interface OrganizationManager extends AbstractManager {
     String getOrganizationTitle(long organizationId) throws DbConnectionException;
 
     List<LearningResourceLearningStage> getOrganizationLearningStagesForLearningResource(long orgId) throws DbConnectionException;
+
+    LearningStageData getLearningStageData(long learningStageId) throws DbConnectionException;
+
+    /**
+     *
+     * @param organizationId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long organizationId);
+
+    /**
+     * Returns all organization credential categories that are being used in at least one credential
+     *
+     * @param organizationId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<CredentialCategoryData> getUsedOrganizationCredentialCategoriesData(long organizationId);
 }
 

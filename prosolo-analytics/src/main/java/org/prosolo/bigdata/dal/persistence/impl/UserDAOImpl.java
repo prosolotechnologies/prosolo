@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.UserDAO;
 
@@ -17,6 +18,7 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 	
 	public UserDAOImpl() {
 		 setSession(HibernateUtil.getSessionFactory().openSession());
+
 		//setSession(HibernateUtil.getSessionFactory().getCurrentSession());
 	}
 	public static class UserDAOImplHolder {

@@ -1,24 +1,19 @@
 package org.prosolo.services.notifications;
 
-import java.util.List;
-import java.util.Locale;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
@@ -29,6 +24,11 @@ import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class is an observer to the {@link CentralEventDispatcher} that is invoked whenever an event that is related to a notification occurs.  
@@ -42,10 +42,12 @@ public class NotificationObserver extends EventObserver {
 	@Inject private DefaultManager defaultManager;
 	@Inject private NotificationCacheUpdater notificationCacheUpdater;
 	@Inject private SessionMessageDistributer messageDistributer;
+	@Inject private AnalyticalServiceCollector analyticalServiceCollector;
 	@Inject private NotificationEventProcessorFactory notificationEventProcessorFactory;
 	@Inject private InterfaceSettingsManager interfaceSettingsManager;
 	@Inject private NotificationManager notificationManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
+
 	
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -60,7 +62,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.AssessmentRequested,
 				EventType.AssessmentApproved,
 				EventType.AssessmentComment,
-				EventType.AnnouncementPublished
+				EventType.AnnouncementPublished,
+				EventType.GRADE_ADDED,
 		};
 	}
 
@@ -126,9 +129,10 @@ public class NotificationObserver extends EventObserver {
 								taskExecutor.execute(() -> {
 									Session session1 = (Session) defaultManager.getPersistence().openSession();
 									try {
-										String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
+										String email = CommonSettings.getInstance().config.appConfig.projectMode.equals(AppConfig.ProjectMode.DEV) ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
 										logger.info("Sending notification via email to " + email);
-
+										analyticalServiceCollector.storeNotificationData(email, notificationData);
+										/*
 										boolean sent = notificationManager.sendNotificationByEmail(
 												email,
 												notificationData.getReceiver().getFullName(),
@@ -143,10 +147,10 @@ public class NotificationObserver extends EventObserver {
 												session1);
 
 										if (sent) {
-											logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
+											logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.projectMode ? " Development mode is on" : ""));
 										} else {
 											logger.error("Error sending email notification to " + email);
-										}
+										}*/
 									} finally {
 										HibernateUtil.close(session1);
 									}
