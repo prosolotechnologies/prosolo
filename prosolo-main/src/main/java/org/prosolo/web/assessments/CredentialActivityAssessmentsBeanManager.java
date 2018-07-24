@@ -89,7 +89,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				} else {
 					assessmentsSummary = activityManager
 							.getActivityAssessmentsDataForInstructorCredentialAssessment(
-									decodedCredId, decodedActId, access.isCanInstruct(), paginate,
+									decodedCredId, decodedActId, access, loggedUserBean.getUserId(), paginate,
 									paginationData.getPage() - 1, paginationData.getLimit());
 
 					if (paginate) {
@@ -137,7 +137,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				} else {
 					assessmentsSummary = activityManager
 							.getActivityAssessmentDataForDefaultCredentialAssessment(
-									decodedCredId, decodedActId, decodedTargetActId, access.isCanInstruct());
+									decodedCredId, decodedActId, decodedTargetActId, access.isCanInstruct(), !access.isCanEdit(), loggedUserBean.getUserId());
 					if (assessmentsSummary.getStudentResults() != null && !assessmentsSummary.getStudentResults().isEmpty()) {
 						currentResult = assessmentsSummary.getStudentResults().get(0);
 						//loadAdditionalData(currentResult);
@@ -178,19 +178,15 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	public String getResultOwnerFullName() {
 		return currentResult.getUser().getFullName();
 	}
-	
-	private int countStudentResults() {
-		return activityManager.countStudentsLearningCredentialThatCompletedActivity(decodedCredId, decodedActId).intValue();
-	}
 
 	private void searchStudentResults(boolean calculateNumberOfResults) {
 		try {
 			if (paginate) {
-				this.paginationData.update(activityManager.countStudentsLearningCredentialThatCompletedActivity(decodedCredId, decodedActId).intValue());
+				this.paginationData.update(activityManager.countStudentsLearningCredentialThatCompletedActivity(decodedCredId, decodedActId, !access.isCanEdit(), loggedUserBean.getUserId()).intValue());
 			}
 			List<ActivityResultData> results = activityManager
 					.getStudentsActivityAssessmentsData(decodedCredId, decodedActId, 0, access.isCanInstruct(),
-							paginate, paginationData.getPage() - 1, paginationData.getLimit());
+							!access.isCanEdit(), loggedUserBean.getUserId(), paginate, paginationData.getPage() - 1, paginationData.getLimit());
 			assessmentsSummary.setStudentResults(results);
 		} catch(Exception e) {
 			logger.error(e);

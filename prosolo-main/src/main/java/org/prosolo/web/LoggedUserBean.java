@@ -89,7 +89,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
-		System.out.println("SESSION BEAN INITIALIZED");
 		learningContext = new LearningContext();
 	}
 	
@@ -219,25 +218,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				// return "index?faces-redirect=true";
 				logger.info("REDIRECTING TO INDEX");
 				
-				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
-						.getExternalContext().getRequest();
-				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
+				PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
 				return;
 			}
 		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
 			logger.error(e.getMessage());
-		} catch (IOException e) {
-			logger.error(e.getMessage());
 		}
 
 		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?faces-redirect=true");
-			return;
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
+		PageUtil.redirect("/login?faces-redirect=true");
+		return;
 	}
 	
 	@Override
@@ -351,12 +341,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			Authentication auth = getAuthenticationObject();
 			if(auth != null) {
 				if(auth.getCredentials() instanceof SAMLCredential) {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+					PageUtil.redirect("/saml/logout");
 				} else {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+					PageUtil.redirect("/logout");
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}

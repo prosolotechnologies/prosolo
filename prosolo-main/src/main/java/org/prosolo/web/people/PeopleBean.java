@@ -1,134 +1,125 @@
 package org.prosolo.web.people;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.users.UserScopeFilter;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author "Musa Paljos"
  * 
  */
-@ManagedBean(name = "peopleBean")
-@Component("peopleBean")
-@Scope("view")
-public class PeopleBean implements Paginable, Serializable {
+public abstract class PeopleBean implements Paginable, Serializable {
 
 	private static final long serialVersionUID = -5592166239184029819L;
 
 	protected static Logger logger = Logger.getLogger(PeopleBean.class);
 
-	@Inject
-	private LoggedUserBean loggedUser;
-	@Inject
-	private PeopleActionBean peopleActionBean;
-	@Inject
-	private FollowResourceManager followResourceManager;
+	@Inject private LoggedUserBean loggedUser;
+	@Inject private PeopleActionBean peopleActionBean;
 	@Inject private UserTextSearch userTextSearch;
+	@Inject private FollowResourceManager followResourceManager;
+	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
-	private List<UserData> followingUsers;
+	private int page;
+
+	private long studentRoleId;
+	private List<Long> usersUnitsWithStudentRole;
+
+	private List<UserData> users;
 
 	private String searchTerm = "";
 	private PaginationData paginationData = new PaginationData(5);
 
+	private UserScopeFilter searchFilter = UserScopeFilter.ALL;
+	private UserScopeFilter[] filters;
+
 	public void init() {
-		initFollowingUsers();
-	}
-
-	private void initFollowingUsers() {
+		filters = UserScopeFilter.values();
 		try {
-//			searchPeopleUserFollows();
-			followingUsers = new ArrayList<UserData>();
-			paginationData.update(followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId()));
-
-			List<User> followingUsersList = paginationData.getNumberOfResults() > 0
-					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), paginationData.getPage() - 1, paginationData.getLimit())
-					: new ArrayList<User>();
-
-			if (followingUsersList != null && !followingUsersList.isEmpty()) {
-				for (User user : followingUsersList) {
-					UserData userData = new UserData(user);
-					followingUsers.add(userData);
-				}
+			if (page > 0) {
+				paginationData.setPage(page);
 			}
+			studentRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
+			usersUnitsWithStudentRole = unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), studentRoleId);
+			initUsers();
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
-	public void followCollegueById(String userToFollowName, long userToFollowId) {
-		peopleActionBean.followCollegueById(userToFollowName, userToFollowId);
-		
-		init();
+	public void initUsers() {
+		extractPaginatedUsers(getUsersFromDB());
+	}
+
+	private PaginatedResult<UserData> getUsersFromDB() {
+		return followResourceManager.getPaginatedUsersWithFollowInfo(
+				loggedUser.getUserId(), getUserSearchConfig(), paginationData.getPage() - 1, paginationData.getLimit());
+	}
+
+	protected abstract UserSearchConfig.UserScope getUserScope();
+
+	public void followUser(UserData user) {
+		peopleActionBean.followCollegueById(user.getFullName(), user.getId());
+		user.setFollowedByCurrentUser(true);
 	}
 	
-	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
-		peopleActionBean.unfollowCollegueById(userToUnfollowName, userToUnfollowId);
-		
-		init();
-	}
-
-	public void addFollowingUser(UserData user) {
-		if (followingUsers != null && !followingUsers.contains(user)) {
-			followingUsers.add(user);
-		}
-	}
-
-	public void removeFollowingUserById(long userId) {
-		Iterator<UserData> iterator = followingUsers.iterator();
-
-		while (iterator.hasNext()) {
-			UserData u = (UserData) iterator.next();
-
-			if (u.getId() == userId) {
-				iterator.remove();
-				break;
-			}
-		}
+	public void unfollowUser(UserData user) {
+		peopleActionBean.unfollowCollegueById(user.getFullName(), user.getId());
+		user.setFollowedByCurrentUser(false);
 	}
 	
 	public void resetAndSearch() {
 		paginationData.setPage(1);
-		searchPeopleUserFollows();
+		searchUsersAndExtractResult();
+	}
+
+	public void applySearchFilter(UserScopeFilter filter) {
+		this.searchFilter = filter;
+		paginationData.setPage(1);
+		searchUsersAndExtractResult();
 	}
 	
-	public void searchPeopleUserFollows() {
+	public void searchUsersAndExtractResult() {
 		try {
-			if (followingUsers != null) {
-				this.followingUsers.clear();
+			if (users != null) {
+				this.users.clear();
 			}
 
-			fetchFollowingUsers();
+			PaginatedResult<UserData> searchResponse = searchUsers();
+			extractPaginatedUsers(searchResponse);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 		}
 	}
-	
-	public void fetchFollowingUsers() {
-		PaginatedResult<UserData> searchResponse = userTextSearch.searchPeopleUserFollows(
-				loggedUser.getOrganizationId(), searchTerm,
-				paginationData.getPage() - 1, paginationData.getLimit(), 
-				loggedUser.getUserId());
 
-		paginationData.setNumberOfResults((int) searchResponse.getHitsNumber());
-		followingUsers = searchResponse.getFoundNodes();
+	private PaginatedResult<UserData> searchUsers() {
+		return userTextSearch.searchUsersWithFollowInfo(
+				loggedUser.getOrganizationId(), searchTerm,
+				paginationData.getPage() - 1, paginationData.getLimit(),
+				loggedUser.getUserId(), getUserSearchConfig());
+	}
+
+	private void extractPaginatedUsers(PaginatedResult<UserData> result) {
+		paginationData.update((int) result.getHitsNumber());
+		users = result.getFoundNodes();
 	}
 
 	// pagination helper methods
@@ -136,12 +127,16 @@ public class PeopleBean implements Paginable, Serializable {
 	public void changePage(int page) {
 		if (this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			initFollowingUsers();
+			searchUsersAndExtractResult();
 		}
 	}
 
-	public List<UserData> getFollowingUsers() {
-		return followingUsers;
+	protected UserSearchConfig getUserSearchConfig() {
+		return UserSearchConfig.of(getUserScope(), searchFilter, studentRoleId, usersUnitsWithStudentRole);
+	}
+
+	public List<UserData> getUsers() {
+		return users;
 	}
 
 	public PaginationData getPaginationData() {
@@ -155,5 +150,25 @@ public class PeopleBean implements Paginable, Serializable {
 	public void setSearchTerm(String searchTerm) {
 		this.searchTerm = searchTerm;
 	}
-	
+
+	protected UserTextSearch getUserTextSearch() {
+		return userTextSearch;
+	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public UserScopeFilter[] getFilters() {
+		return filters;
+	}
+
+	public UserScopeFilter getSearchFilter() {
+		return searchFilter;
+	}
+
 }

@@ -53,7 +53,7 @@ public class LoggingEventsObserver extends EventObserver {
 			
 			BaseEntity object = event.getObject();
 			if (object != null) {
-				object = HibernateUtil.initializeAndUnproxy(object);
+				//object = HibernateUtil.initializeAndUnproxy(object);
 				
 				objectType = object.getClass().getSimpleName();
 				objectId = object.getId();
@@ -71,7 +71,7 @@ public class LoggingEventsObserver extends EventObserver {
 			BaseEntity target = event.getTarget();
 			
 			if (target != null) {
-				target = HibernateUtil.initializeAndUnproxy(target);
+				//target = HibernateUtil.initializeAndUnproxy(target);
 				
 				targetType = target.getClass().getSimpleName();
 				targetId = target.getId();

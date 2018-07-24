@@ -321,7 +321,7 @@
                                     <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                                         <div class="panel-body">
                                         	<h:inputTextarea styleClass="form-control" rows="3"
-															disabled="#{!studentProfileBean.observationBean.isNew()}"
+															disabled="#{!observationBean.isNew()}"
 															pt:placeholder="Message that will be sent to student if filled. Not mandatory."
 															value="#{observationBean.editObservation.editObservation.message}" />
                                         </div>

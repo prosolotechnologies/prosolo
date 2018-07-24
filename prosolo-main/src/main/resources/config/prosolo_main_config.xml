@@ -22,7 +22,6 @@
 	<logging-config>config/log4j.properties</logging-config>
 
 	<app-config>
-		<development-mode>true</development-mode>
 		<messages-inbox-refresh-rate>30</messages-inbox-refresh-rate>
 		<notifications-refresh-rate>30</notifications-refresh-rate>
 		<password-reset-key-validity-hours>24</password-reset-key-validity-hours>
