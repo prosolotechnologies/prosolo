@@ -50,6 +50,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -2150,13 +2151,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public List<StudentData> getCredentialStudentsData(long credId, int limit)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
+			String query =
+					"SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
 					"FROM TargetCredential1 cred " +
 					"INNER JOIN fetch cred.user " +
 					"LEFT JOIN fetch cred.instructor inst " +
 					"LEFT JOIN fetch inst.user " +
 					"LEFT JOIN cred.assessments a " +
-					"WITH a.type = :instructorAssessment " +
+						"WITH a.type = :instructorAssessment " +
 					"WHERE cred.credential.id = :credId " +
 					"ORDER BY cred.dateStarted DESC";
 
@@ -2190,6 +2192,32 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential members");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException {
+		try {
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId);
+
+			if (tc != null) {
+				StudentData sd = new StudentData(tc.getUser());
+				CredentialInstructor ci = tc.getInstructor();
+				if (ci != null) {
+					sd.setInstructor(credInstructorFactory.getInstructorData(
+							tc.getInstructor(), tc.getInstructor().getUser(),
+							0, false));
+				}
+				sd.setProgress(tc.getProgress());
+				return sd;
+			}
+
+			return null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving target credential for student " + studentId +
+					" and credential " + credId);
 		}
 	}
 
@@ -3011,7 +3039,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			//if credential does not have at least one competency, delivery should not be created
 			if (competences.isEmpty()) {
-				throw new IllegalDataStateException("Can not create delivery without competencies");
+				throw new IllegalDataStateException("Can not start "+ResourceBundleUtil.getLabel("delivery").toLowerCase() +" without " + ResourceBundleUtil.getLabel("competence.plural").toLowerCase());
 			}
 
 			for (CredentialCompetence1 credComp : competences) {
@@ -3863,9 +3891,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	private TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
 		String q =
-				"SELECT tc FROM TargetCredential1 tc " +
+				"SELECT tc " +
+				"FROM TargetCredential1 tc " +
 				"WHERE tc.credential.id = :credId " +
-				"AND tc.user.id = :studentId";
+					"AND tc.user.id = :studentId";
 		return (TargetCredential1) persistence.currentManager().createQuery(q)
 				.setLong("credId", credentialId)
 				.setLong("studentId", studentId)

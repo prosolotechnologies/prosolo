@@ -58,10 +58,6 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Autowired
-	@Qualifier("taskExecutor")
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
 	@Inject private AnnouncementManager announcementManager;
 	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
@@ -124,11 +120,6 @@ public class CredentialViewBeanUser implements Serializable {
 		credentialData = credentialManager
 				.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
 	}
-
-//	public boolean isCurrentUserCreator() {
-//		return credentialData == null || credentialData.getCreator() == null ? false
-//				: credentialData.getCreator().getId() == loggedUser.getUserId();
-//	}
 
 	/*
 	 * ACTIONS
@@ -273,18 +264,6 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
 		this.assessmentRequestData = assessmentRequestData;
-	}
-
-	public AssessmentManager getAssessmentManager() {
-		return assessmentManager;
-	}
-
-	public void setAssessmentManager(AssessmentManager assessmentManager) {
-		this.assessmentManager = assessmentManager;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
 	}
 
 	public long getNumberOfUsersLearningCred() {
