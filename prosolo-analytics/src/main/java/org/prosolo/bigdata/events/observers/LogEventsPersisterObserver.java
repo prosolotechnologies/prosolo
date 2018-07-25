@@ -10,12 +10,14 @@ import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
-import org.prosolo.bigdata.jobs.CronSchedulerImpl;
 import org.prosolo.bigdata.scala.clustering.SNAEventsChecker$;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015

@@ -201,6 +201,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				+TablesNames.NOTIFICATION_DATA+
 				"(date bigint, notificationtype varchar, id bigint, receiverid bigint, receiverfullname varchar, " +
 				"email varchar, actorid bigint, actorfullname varchar, objecttype varchar, objecttitle varchar, link varchar, " +
+				"objectid bigint, targetid bigint, targettitle varchar, section varchar, relationtotarget varchar, predicate varchar, " +
 				"PRIMARY KEY (date, notificationtype, id))";
 		this.cqls.add(notificationDataDDL);
 

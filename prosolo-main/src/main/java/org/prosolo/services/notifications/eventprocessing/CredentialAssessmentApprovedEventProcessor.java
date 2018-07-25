@@ -1,17 +1,11 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -20,21 +14,25 @@ import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUti
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-public class AssessmentApprovedEventProcessor extends NotificationEventProcessor {
+import java.util.ArrayList;
+import java.util.List;
 
-	private static Logger logger = Logger.getLogger(AssessmentApprovedEventProcessor.class);
+public class CredentialAssessmentApprovedEventProcessor extends NotificationEventProcessor {
+
+	private static Logger logger = Logger.getLogger(CredentialAssessmentApprovedEventProcessor.class);
 
 	private CredentialAssessment credentialAssessment;
 
-	public AssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService ctxJsonParser) {
+	public CredentialAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
+													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		credentialAssessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 	}
 
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
-		return true;
+		// notification should not be sent in case of a self-assessment
+		return sender != receiver;
 	}
 
 	@Override
