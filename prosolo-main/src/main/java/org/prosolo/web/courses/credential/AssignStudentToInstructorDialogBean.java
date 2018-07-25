@@ -89,8 +89,6 @@ public class AssignStudentToInstructorDialogBean {
                         loggedUserBean.getUserContext(ctx));
                 if (instructor == null) {
                     lastAction = LastAction.ASSIGNED;
-                    //update filters if student was unassigned
-                    //updateFiltersStudentAssigned();
                 } else {
                     lastAction = LastAction.REASSIGNED;
                 }
@@ -100,7 +98,6 @@ public class AssignStudentToInstructorDialogBean {
                         studentToAssignInstructor.getId(), credentialId, loggedUserBean.getUserContext(ctx));
                 instructor = null;
                 lastAction = LastAction.UNASSIGNED;
-                //updateFiltersStudentUnassigned();
             }
 
             credentialInstructors = null;
