@@ -4,7 +4,11 @@ import org.apache.spark.sql.SparkSession
 import org.prosolo.bigdata.scala.spark._
 import org.elasticsearch.spark.rdd.EsSpark
 import org.prosolo.bigdata.scala.clustering.sna.SNAclusterManager
+import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringManager.{days, dbName, numClusters, numFeatures}
+import org.prosolo.bigdata.spark.scala.clustering.UserProfileClusteringSparkJob
 import org.prosolo.common.config.CommonSettings
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 /**
   *
   * @author Zoran Jeremic
@@ -16,13 +20,16 @@ object TestSparkJob extends App {
 
 
  // UserProfileClusteringManager.runClustering()
-  SNAclusterManager.runClustering()
+ // SNAclusterManager.runClustering()
   //val emailManager = NotificationsEmailManager$.MODULE$
 // val date: Long = DateEpochUtil.getDaysSinceEpoch
 //  logger.debug("CURRENT DATE:"+date)
  //val testDate=17589
  //  NotificationsEmailManager.runAnalyser(testDate)
+ val userProfileClusteringSparkJob=new UserProfileClusteringSparkJob(dbName, numFeatures,numClusters)
+  val credentialsIds=List[java.lang.Long](1).asJava
 
+  userProfileClusteringSparkJob.runSparkJob(credentialsIds,dbName, days,numClusters,numFeatures)
  // InstructorEmailManager.runJob()
 
  //testESInsert()
