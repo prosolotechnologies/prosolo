@@ -114,7 +114,7 @@
 							<h:panelGroup layout="block" rendered="#{cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId}" styleClass="assignOpt">
 								Owner
 							</h:panelGroup>
-							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a credential referencing this #{msg['label.competence'].toLowerCase()}">
+							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a #{msg['label.credential'].toLowerCase()} referencing this #{msg['label.competence'].toLowerCase()}">
 								<p:commandLink styleClass="makeOwner" rendered="#{cc.attrs.bean.privilege eq 'Edit' and user.id gt 0}"
 											   pt:data-toggle="modal"
 											   action="#{cc.attrs.bean.prepareOwnerChange(user.userId)}"

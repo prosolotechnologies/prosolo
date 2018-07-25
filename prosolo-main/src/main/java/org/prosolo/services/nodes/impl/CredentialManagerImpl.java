@@ -991,7 +991,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//create default assessment for user
 			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
 			//create self assessment if enabled
-			if (cred.getAssessmentConfig()
+			 if (cred.getAssessmentConfig()
 					.stream()
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()

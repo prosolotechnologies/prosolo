@@ -169,7 +169,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		int port = mySQLConfig.port;
 		 String database = mySQLConfig.database;
 		//String database="prosolo2";
-		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database+"?useSSL=false";
 
 		// String
 		// mongoUri="mongodb://"+serverConfig.dbHost+":"+serverConfig.dbPort;

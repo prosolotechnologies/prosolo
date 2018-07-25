@@ -36,24 +36,24 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
     private static HashMap<Statements, PreparedStatement> prepared = new HashMap<Statements, PreparedStatement>();
     private static HashMap<Statements, String> statements = new HashMap<Statements, String>();
 
-    static {
-        statements.put(Statements.UPDATE_USERACTIVITY, "UPDATE " + TablesNames.USER_ACTIVITY + "  SET count=count+1 WHERE userid=? AND date=?;");
-        statements.put(Statements.UPDATE_USERLEARNINGGOALACTIVITY, "UPDATE " + TablesNames.USER_LEARNINGGOAL_ACTIVITY + "  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;");
-        statements.put(Statements.FIND_USERLEARNINGOALACTIVITY, "SELECT * FROM " + TablesNames.USER_LEARNINGGOAL_ACTIVITY + "  WHERE date=? ALLOW FILTERING;");
-        statements.put(Statements.UPDATE_ACTIVITYINTERACTION, "UPDATE " + TablesNames.ACTIVITY_INTERACTION + "  SET count=count+1 WHERE competenceid=? AND activityid=?;");
-        statements.put(Statements.INSERT_TARGETCOMPETENCEACTIVITIES, "");
-        statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE, "INSERT INTO " + TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE + "(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
-        statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE, "SELECT * FROM " + TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE + " WHERE date=? ALLOW FILTERING;");
-        statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE, "SELECT * FROM " + TablesNames.ACTIVITY_INTERACTION + "  WHERE competenceid=? ALLOW FILTERING;");
-        statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES, "SELECT * FROM " + TablesNames.TARGET_COMPETENCE_ACTIVITIES + " WHERE competenceid=? ALLOW FILTERING;");
-        statements.put(Statements.FIND_ALLCOMPETENCES, "SELECT distinct competenceid FROM " + TablesNames.TARGET_COMPETENCE_ACTIVITIES + ";");
-        statements.put(Statements.UPDATE_EVENTDAILYCOUNT, "UPDATE " + TablesNames.DASH_EVENT_DAILY_COUNT + " SET count=count+1 WHERE event=? AND date=?;");
-        statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE " + TablesNames.DASH_USER_EVENT_DAILY_COUNT + "  SET count=count+1 WHERE user=? AND event=? AND date=?;");
-        statements.put(Statements.UPDATE_FAILEDFEEDS, "UPDATE " + TablesNames.FAILED_FEEDS + "   SET count=count+1 WHERE url=? AND date=?;");
-        statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE " + TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT + " SET count = count + 1 WHERE course=? AND source=? AND target=?;");
-        statements.put(Statements.INSERT_STORENOTIFICATIONDATA, "INSERT INTO " + TablesNames.NOTIFICATION_DATA +
-                " (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link) " +
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?);");
+	static {
+		statements.put(Statements.UPDATE_USERACTIVITY,"UPDATE "+TablesNames.USER_ACTIVITY+"  SET count=count+1 WHERE userid=? AND date=?;");
+		statements.put(Statements.UPDATE_USERLEARNINGGOALACTIVITY,"UPDATE "+TablesNames.USER_LEARNINGGOAL_ACTIVITY+"  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;");
+		statements.put(Statements.FIND_USERLEARNINGOALACTIVITY,"SELECT * FROM "+TablesNames.USER_LEARNINGGOAL_ACTIVITY+"  WHERE date=? ALLOW FILTERING;");
+		statements.put(Statements.UPDATE_ACTIVITYINTERACTION,"UPDATE "+TablesNames.ACTIVITY_INTERACTION+"  SET count=count+1 WHERE competenceid=? AND activityid=?;");
+		statements.put(Statements.INSERT_TARGETCOMPETENCEACTIVITIES,"");
+		statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"INSERT INTO "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+"(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
+		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * FROM "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+" WHERE date=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE,"SELECT * FROM "+TablesNames.ACTIVITY_INTERACTION+"  WHERE competenceid=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES,"SELECT * FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+" WHERE competenceid=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_ALLCOMPETENCES,"SELECT distinct competenceid FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+";");
+		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE "+TablesNames.DASH_EVENT_DAILY_COUNT+" SET count=count+1 WHERE event=? AND date=?;");
+		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE "+TablesNames.DASH_USER_EVENT_DAILY_COUNT+"  SET count=count+1 WHERE user=? AND event=? AND date=?;");
+		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE "+TablesNames.FAILED_FEEDS+"   SET count=count+1 WHERE url=? AND date=?;");
+		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+		statements.put(Statements.INSERT_STORENOTIFICATIONDATA,"INSERT INTO "+TablesNames.NOTIFICATION_DATA+
+				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link, objectid, targetid, targettitle, section, relationtotarget, predicate) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
 
 
     }
@@ -186,50 +186,70 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
                 }
             }
 
-            ResultSet rs = this.getSession().execute(boundStatement);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+			ResultSet rs = this.getSession().execute(boundStatement);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	@Override
+	public void insertNotificationDataRecord(AnalyticsEvent event) {
+		try {
+		//String statementName = "INSERT_"
+			//	+ event.getDataName().name().toUpperCase();
 
-    @Override
-    public void insertNotificationDataRecord(AnalyticsEvent event) {
-        try {
-            PreparedStatement preparedStatement = getStatement(getSession(), Statements.INSERT_STORENOTIFICATIONDATA);
-            BoundStatement boundStatement = new BoundStatement(preparedStatement);
+		//Statements statement=Statements.valueOf(statementName);
+		 PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
+			BoundStatement boundStatement=new BoundStatement(preparedStatement);
+			//PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
+		//BoundStatement boundStatement=new BoundStatement(preparedStatement);
 
-            JsonObject data = event.getData();
-            logger.debug("INSERT ANALYTICS RECORD DATA:");
-            String dateString = data.get("date").getAsString();
-            Long date = DateEpochUtil.getDaysSinceEpoch();
-            Long id = data.get("id").getAsLong();
-            String notificationType = data.get("notificationType").getAsString();
-            Long receiverid = data.get("receiver").getAsJsonObject().get("id").getAsLong();
-            String receiverfullname = data.get("receiver").getAsJsonObject().get("fullName").getAsString();
-            String email = data.get("email").getAsString();
-            Long actorid = data.get("actor").getAsJsonObject().get("id").getAsLong();
-            String actorfullname = data.get("actor").getAsJsonObject().get("fullName").getAsString();
-            String objecttype = "";
-            String objecttitle = "";
-            if (data.has("objectType")) {
-                objecttype = data.get("objectType").getAsString();
-                objecttitle = data.get("objectTitle").getAsString();
-            }
+		JsonObject data = event.getData();
+			logger.debug("INSERT ANALYTICS RECORD FOR STATEMENT:"+data.toString());
+		//System.out.println("DATA:"+data.getAsString());
+	//	String dateString=data.get("date").getAsString();
+		Long date= DateEpochUtil.getDaysSinceEpoch();
+		Long id=data.get("id").getAsLong();
+		String notificationType=data.get("notificationType").getAsString();
+			Long receiverid=data.get("receiver").getAsJsonObject().get("id").getAsLong();
+			String receiverfullname=data.get("receiver").getAsJsonObject().get("fullName").getAsString();
+			String email=data.get("email").getAsString();
+			Long 	actorid=data.get("actor").getAsJsonObject().get("id").getAsLong();
+			String actorfullname=data.get("actor").getAsJsonObject().get("fullName").getAsString();
+			String objecttype="";
+			String objecttitle="";
+			int objectid=0;
+			if(data.has("objectType")){
+				objecttype=data.get("objectType").getAsString();
+				objecttitle=data.get("objectTitle").getAsString();
+				objectid=data.get("objectId").getAsInt();
+			}
+			int targetid=data.get("targetId").getAsInt();
+			String targettitle=data.get("targetTitle").getAsString();
+			String section=data.get("section").getAsString();
+			String relationToTarget=data.get("relationToTarget").getAsString();
+			String predicate=data.get("predicate").getAsString();
 
 
-            String link = data.get("link").getAsString();
-            boundStatement.setLong(0, date);
-            boundStatement.setString(1, notificationType);
-            boundStatement.setLong(2, id);
-            boundStatement.setLong(3, receiverid);
-            boundStatement.setString(4, receiverfullname);
-            boundStatement.setString(5, email);
-            boundStatement.setLong(6, actorid);
-            boundStatement.setString(7, actorfullname);
-            boundStatement.setString(8, objecttype);
-            boundStatement.setString(9, objecttitle);
-            boundStatement.setString(10, link);
-            ResultSet rs = this.getSession().execute(boundStatement);
+
+			String link=data.get("link").getAsString();
+			boundStatement.setLong(0,date);
+			boundStatement.setString(1,notificationType);
+			boundStatement.setLong(2,id);
+			boundStatement.setLong(3,receiverid);
+			boundStatement.setString(4,receiverfullname);
+			boundStatement.setString(5,email);
+			boundStatement.setLong(6,actorid);
+			boundStatement.setString(7,actorfullname);
+			boundStatement.setString(8,objecttype);
+			boundStatement.setString(9,objecttitle);
+			boundStatement.setString(10,link);
+			boundStatement.setLong(11,objectid);
+			boundStatement.setLong(12,targetid);
+			boundStatement.setString(13,targettitle);
+			boundStatement.setString(14,section);
+			boundStatement.setString(15,relationToTarget);
+			boundStatement.setString(16,predicate);
+			ResultSet rs = this.getSession().execute(boundStatement);
 
         } catch (Exception ex) {
             ex.printStackTrace();
