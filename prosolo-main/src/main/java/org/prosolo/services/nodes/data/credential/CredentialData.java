@@ -709,7 +709,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 				case BY_STUDENTS:
 					return AssessorAssignmentMethod.BY_STUDENTS;
 				default:
-					return null;
+					return AssessorAssignmentMethod.AUTOMATIC;
 			}
 		}
 
@@ -722,7 +722,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 				case BY_STUDENTS:
 					return AssessorAssignmentMethodData.BY_STUDENTS;
 				default:
-					return null;
+					return AssessorAssignmentMethodData.AUTOMATIC;
 			}
 		}
 	}
