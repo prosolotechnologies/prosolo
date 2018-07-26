@@ -1,10 +1,9 @@
-Current date:2018/07/14-16:39:00
+Current date:2018/07/08-08:58:51
 Source branch:1.2.0
 Project version:1
 Git version:
-commit a1a197f330faad132af96e727afe295e35676953
-Merge: bd2171fb1 c934c8488
-Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
-Date:   Fri Jul 13 12:19:05 2018 +0200
+commit bd2171fb1f01ea9cbb0676df3f1f66786efda5e1
+Author: Nikola Milikic <nikola.milikic@gmail.com>
+Date:   Sun Jul 8 17:56:34 2018 +0200
 
-    Merge branch 'PRS-3209-problem-with-reseting-password' into release/1.2.0
+    When creating evidence, tab for selecting Text type of evidence is hidden. Already created text evidence can still be edited. PRS-3211

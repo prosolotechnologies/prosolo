@@ -10,6 +10,7 @@ import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,15 +109,22 @@ public class RubricDataFactory {
 	}
 
 	private void addLevelsWithDescriptionToCriterion(RubricData rubric, RubricCriterionData criterion, Set<CriterionLevel> criterionLevelDescriptions) {
+		/*
+		 HashMap.merge does not support null values in map and it is used by Collectors.toMap
+		 so custom collect method is written
+		  */
 		Map<RubricLevelData, String> descriptions = rubric.getLevels()
 				.stream()
-				.collect(Collectors.toMap(
-						l -> l,
-						l -> criterionLevelDescriptions
-								.stream()
-								.filter(cl -> cl.getLevel().getId() == l.getId()).findFirst()
-								.get()
-								.getDescription()));
+				.collect(
+						HashMap::new,
+						(map, l) ->
+							map.put(l, criterionLevelDescriptions
+									.stream()
+									.filter(cl -> cl.getLevel().getId() == l.getId()).findFirst()
+									.get()
+									.getDescription()),
+						HashMap::putAll);
+
 		rubric.syncCriterionWithExistingDescriptions(criterion, descriptions);
 	}
 

@@ -3,23 +3,16 @@
  */
 package org.prosolo.core.hibernate;
 
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.apache.log4j.Logger;
-import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.prosolo.app.Settings;
-import org.prosolo.bigdata.dal.persistence.*;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.Config;
-import org.prosolo.common.config.MySQLConfig;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 
 /**

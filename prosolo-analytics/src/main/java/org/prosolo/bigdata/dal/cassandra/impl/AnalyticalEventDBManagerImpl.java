@@ -53,8 +53,8 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE "+TablesNames.FAILED_FEEDS+"   SET count=count+1 WHERE url=? AND date=?;");
 		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 		statements.put(Statements.INSERT_STORENOTIFICATIONDATA,"INSERT INTO "+TablesNames.NOTIFICATION_DATA+
-				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link) " +
-				"VALUES (?,?,?,?,?,?,?,?,?,?,?);");
+				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link, objectid, targetid, targettitle, section, relationtotarget, predicate) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
 
 
 
@@ -204,7 +204,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		try {
 		//String statementName = "INSERT_"
 			//	+ event.getDataName().name().toUpperCase();
-		System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:");
+
 		//Statements statement=Statements.valueOf(statementName);
 		 PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
 			BoundStatement boundStatement=new BoundStatement(preparedStatement);
@@ -212,8 +212,9 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		//BoundStatement boundStatement=new BoundStatement(preparedStatement);
 
 		JsonObject data = event.getData();
+			System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:"+data.toString());
 		//System.out.println("DATA:"+data.getAsString());
-		String dateString=data.get("date").getAsString();
+	//	String dateString=data.get("date").getAsString();
 		Long date= DateEpochUtil.getDaysSinceEpoch();
 		Long id=data.get("id").getAsLong();
 		String notificationType=data.get("notificationType").getAsString();
@@ -224,10 +225,18 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			String actorfullname=data.get("actor").getAsJsonObject().get("fullName").getAsString();
 			String objecttype="";
 			String objecttitle="";
+			int objectid=0;
 			if(data.has("objectType")){
 				objecttype=data.get("objectType").getAsString();
 				objecttitle=data.get("objectTitle").getAsString();
+				objectid=data.get("objectId").getAsInt();
 			}
+			int targetid=data.get("targetId").getAsInt();
+			String targettitle=data.get("targetTitle").getAsString();
+			String section=data.get("section").getAsString();
+			String relationToTarget=data.get("relationToTarget").getAsString();
+			String predicate=data.get("predicate").getAsString();
+
 
 
 			String link=data.get("link").getAsString();
@@ -242,6 +251,12 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			boundStatement.setString(8,objecttype);
 			boundStatement.setString(9,objecttitle);
 			boundStatement.setString(10,link);
+			boundStatement.setLong(11,objectid);
+			boundStatement.setLong(12,targetid);
+			boundStatement.setString(13,targettitle);
+			boundStatement.setString(14,section);
+			boundStatement.setString(15,relationToTarget);
+			boundStatement.setString(16,predicate);
 			ResultSet rs = this.getSession().execute(boundStatement);
 
 		} catch (Exception ex) {

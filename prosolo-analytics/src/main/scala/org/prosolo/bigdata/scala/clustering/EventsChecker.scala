@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.clustering
 
 
-import org.prosolo.common.domainmodel.activities.events.EventType
+import org.prosolo.common.domainmodel.events.EventType
 import org.prosolo.bigdata.events.pojo.LogEvent
 import org.prosolo.bigdata.events.analyzers.ObservationType
 import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }

@@ -991,7 +991,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//create default assessment for user
 			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
 			//create self assessment if enabled
-			if (cred.getAssessmentConfig()
+			 if (cred.getAssessmentConfig()
 					.stream()
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
@@ -3604,6 +3604,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("credId", deliveryId)
 					.list();
 			return usersLearningCredential;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the students data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId) {
+		try {
+			String q =
+					"SELECT targetCred.user.id FROM TargetCredential1 targetCred " +
+					"WHERE targetCred.credential.id = :credId " +
+					"AND targetCred.instructor.user.id = :instructorUserId";
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", deliveryId)
+					.setLong("instructorUserId", instructorUserId)
+					.list();
+			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the students data");

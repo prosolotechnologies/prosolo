@@ -6,15 +6,13 @@ import com.google.gson.Gson;
 import org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
-import org.prosolo.bigdata.scala.clustering.ProfileEventsChecker$;
 import org.prosolo.bigdata.scala.clustering.StudentPreferenceChecker$;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.util.date.DateUtil;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 

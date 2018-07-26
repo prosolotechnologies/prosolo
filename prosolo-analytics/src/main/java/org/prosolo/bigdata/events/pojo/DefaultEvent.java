@@ -1,9 +1,9 @@
 package org.prosolo.bigdata.events.pojo;
 
-import java.io.Serializable;
-
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
+
+import java.io.Serializable;
 
 /**
  * @author Zoran Jeremic Apr 5, 2015

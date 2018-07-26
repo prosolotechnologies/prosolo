@@ -184,7 +184,7 @@
 
 							<h:panelGroup id="notificationsContainer">
 
-								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationData}">
 									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
 										<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
 											<span class="icon"></span>
