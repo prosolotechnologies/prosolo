@@ -58,18 +58,15 @@ services:
   rabbitmq:
      container_name: "rabbitmq-prosolo"
      build: rabbitmq
-     environment:
-          RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-          RABBITMQ_DEFAULT_USER: "prosolo"
-          RABBITMQ_DEFAULT_PASS: "prosolo@2014"
-          RABBITMQ_DEFAULT_VHOST: "/prosolo"
+     #image: rabbitmq:3.7.3-management
      ports:
           - "15672:15672"
           - "5672:5672"
      labels:
           NAME: "rabbitmq"
-     #volumes:
-      #    - "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
+     volumes:
+          - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq.conf:ro
+          - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
 
 volumes:
   cassandra_volume:
