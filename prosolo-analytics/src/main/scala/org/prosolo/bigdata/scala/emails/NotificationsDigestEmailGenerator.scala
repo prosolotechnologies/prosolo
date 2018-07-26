@@ -29,7 +29,6 @@ class NotificationsDigestEmailGenerator(
                                          val notificationsByType:HashMap[String,Array[Notification]],
                                          val role: NotificationSections.NotificationSection) extends EmailContentGenerator{
   val DISPLAY_NUMBER=3
-class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, val notificationTypesCounts:HashMap[String,Int], val notificationsByType:HashMap[String,Array[Notification]]) extends EmailContentGenerator{
   val logger = LoggerFactory.getLogger(getClass)
   override def getTemplateName: String = {"notifications/notification-digest"}
   val prettyDate: String = DateUtil.getPrettyDateEn(DateUtil.getPreviousDay(new Date()))
@@ -89,11 +88,4 @@ class NotificationsDigestEmailGenerator(val name:String,val total_number:Int, va
   def hasNotificationType(notificationType:NotificationType):Boolean= notificationTypesCounts.getOrElse(notificationType.toString,0)>0
   def getNotificationTypeCount(notificationType:NotificationType):Int= notificationTypesCounts.getOrElse(notificationType.toString,0)
   def getNotificationsByType(notificationType:NotificationType):java.util.List[Notification] = notificationsByType.get(notificationType.name).get.toList
-  def hasNotificationType(notificationType:NotificationType):Boolean={ notificationTypesCounts.getOrElse(notificationType.toString,0)>0 }
-  def getNotificationTypeCount(notificationType:NotificationType):Int={  notificationTypesCounts.getOrElse(notificationType.toString,0) }
-  def getNotificationsByType(notificationType:NotificationType):java.util.List[Notification]={
-    logger.debug("NAME:"+name+" NOTIFICATION TYPE:"+notificationType.name+"----"+notificationsByType.get(notificationType.name).get.mkString(","));
-    notificationsByType.get(notificationType.name).get.toList
-
-  }
 }

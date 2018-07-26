@@ -13,7 +13,6 @@ import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.scala.clustering.SNAEventsChecker$;
 import org.prosolo.bigdata.streaming.Topic;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.common.event.context.LearningContext;

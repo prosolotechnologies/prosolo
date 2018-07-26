@@ -32,20 +32,8 @@ object NotificationsEmailManager {
 
       }
 
-  def runAnalyser(date: Long) = {
-    logger.debug("RUN ANALYZER")
-    val sparkJob = new UserNotificationEmailsSparkJob(dbName)
-    val emailService = new NotificationsEmailServiceImpl
-    val emailBatches: Array[Array[NotificationReceiverSummary]] = sparkJob.runSparkJob(date)
-    emailBatches.foreach {
-      emailBatch =>
-        val emailResults = emailService.sendEmailBatches(emailBatch)
-        sparkJob.addSuccessEmails(emailResults._1)
-        sparkJob.addFailedEmails(emailResults._2)
+      sparkJob.finishJob()
+      logger.debug("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
     }
-
-
-    sparkJob.finishJob()
-    logger.debug("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
   }
 }
