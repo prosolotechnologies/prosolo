@@ -3,10 +3,13 @@ package org.prosolo.bigdata.scala.emails
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, NotificationSections, UserNotificationEmailsSparkJob}
+import org.prosolo.bigdata.scala.spark.emails.{NotificationReceiverSummary, UserNotificationEmailsSparkJob}
 import org.prosolo.common.config.CommonSettings
 
+import org.slf4j.LoggerFactory
 
 object NotificationsEmailManager {
+  val logger = LoggerFactory.getLogger(getClass)
   val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
   val clusteringDAOManager = new ClusteringDAOImpl
 
@@ -28,10 +31,9 @@ object NotificationsEmailManager {
           sparkJob.addFailedEmails(emailResults._2)
 
       }
+
+      sparkJob.finishJob()
+      logger.debug("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
     }
-
-
-    sparkJob.finishJob()
-    println("FINISHED ANALYZER FOR USER NOTIFICATIONS MANAGER JOB")
   }
 }

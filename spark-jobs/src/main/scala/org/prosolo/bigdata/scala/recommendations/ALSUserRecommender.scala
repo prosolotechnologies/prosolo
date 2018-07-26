@@ -7,6 +7,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.jblas.DoubleMatrix
 import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
+import org.slf4j.LoggerFactory
 
 /**
   * Created by zoran on 23/07/16.
@@ -15,19 +16,20 @@ import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
   * zoran 23/07/16
   */
 object ALSUserRecommender {
+  val logger = LoggerFactory.getLogger(getClass)
   //val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
 
   def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int, keyspaceName:String,indexRecommendationDataName:String, similarUsersIndexType:String) {
-    println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
+    logger.debug("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
     val recommendationsDAO=new RecommendationsDAO(keyspaceName)
     val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable(keyspaceName, TablesNames.USERRECOM_USERRESOURCEPREFERENCES)
-    println("FOUND:" + rawRatings.collect().length);
+    logger.debug("FOUND:" + rawRatings.collect().length);
   if(!rawRatings.isEmpty()) {
     val maximumPreference = rawRatings.fold(rawRatings.first())((res1: (Tuple1[Long], CassandraRow), res2: (Tuple1[Long], CassandraRow)) => {
       if (res1._2.getDouble("preference") < res2._2.getDouble("preference")) res2 else res1
     })._2.getDouble("preference")
-    println("HIGHEST PREFERENCE:" + maximumPreference)
+    logger.debug("HIGHEST PREFERENCE:" + maximumPreference)
 
     val ratings: RDD[Rating] = rawRatings
       .map {
@@ -36,21 +38,21 @@ object ALSUserRecommender {
           rating
       }
     val model = ALS.train(ratings, 50, 10, 0.01)
-    println("FINISHED MODEL FOR CLUSTER:" + cId + " users number:" + usersIds.collect().length)
+    logger.debug("FINISHED MODEL FOR CLUSTER:" + cId + " users number:" + usersIds.collect().length)
 
     val recNumber = clusterAproxSize
 
     users.foreach(userId => {
       // val recommendations= usersIds.map(userId => {
-      println("PROCESSING USER:" + userId)
+      logger.debug("PROCESSING USER:" + userId)
       val sortedSims: Array[(Int, Double)] = findSimilarUsers(model, userId, recNumber);
       val nonRelevantUsers: List[Long] = users.filter { uid => !sortedSims.exists(_._1 == uid) }
-      println("USER RECOMMENDATIONS:FOR USER:" + sortedSims.size + ":" + userId + " :" + sortedSims.slice(1, recNumber + 1).mkString(","))
-      println("NON RELEVANT" + nonRelevantUsers)
+      logger.debug("USER RECOMMENDATIONS:FOR USER:" + sortedSims.size + ":" + userId + " :" + sortedSims.slice(1, recNumber + 1).mkString(","))
+      logger.debug("NON RELEVANT" + nonRelevantUsers)
       val nonRel: Array[(Int, Double)] = nonRelevantUsers.map { uid => (uid.toInt, 0.0) }.toArray
       val recommendations: Array[(Int, Double)] = sortedSims ++ nonRel
-      println("WHOLE LIST:" + recommendations.mkString(","))
-      // println("TEMPORARY DISABLED NEXT TWO LINES")
+      logger.debug("WHOLE LIST:" + recommendations.mkString(","))
+      // logger.debug("TEMPORARY DISABLED NEXT TWO LINES")
       RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations, indexRecommendationDataName, similarUsersIndexType)
       recommendationsDAO.deleteStudentNew(userId)
       // UserRecommendationsDBManagerImpl.getInstance.deleteStudentNew(userId)
@@ -59,8 +61,8 @@ object ALSUserRecommender {
     }
     )
   }
-  //  println("RECOMMENDATIONS:"+recommendations.collect().length);
-    println("USER RECOMMENDATIONS:FINISHED:")
+  //  logger.debug("RECOMMENDATIONS:"+recommendations.collect().length);
+    logger.debug("USER RECOMMENDATIONS:FINISHED:")
 
 
   }
@@ -81,7 +83,7 @@ object ALSUserRecommender {
         sortedSims.slice(1, recNumber + 1)
       }
       case None => {
-        println("USER FACTOR NOT FOUND:" + userid)
+        logger.debug("USER FACTOR NOT FOUND:" + userid)
         new Array[(Int, Double)](0)
       }
     }

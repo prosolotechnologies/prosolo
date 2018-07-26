@@ -5,9 +5,13 @@ import java.util
 import java.util.Date
 
 import org.prosolo.bigdata.scala.spark.emails.{Notification, NotificationSections}
+import org.prosolo.bigdata.scala.spark.emails.Notification
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.prosolo.common.domainmodel.user.notifications.NotificationType
 import org.prosolo.common.email.generators.EmailContentGenerator
 import org.prosolo.common.util.date.DateUtil
+
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.HashMap
@@ -25,6 +29,7 @@ class NotificationsDigestEmailGenerator(
                                          val notificationsByType:HashMap[String,Array[Notification]],
                                          val role: NotificationSections.NotificationSection) extends EmailContentGenerator{
   val DISPLAY_NUMBER=3
+  val logger = LoggerFactory.getLogger(getClass)
   override def getTemplateName: String = {"notifications/notification-digest"}
   val prettyDate: String = DateUtil.getPrettyDateEn(DateUtil.getPreviousDay(new Date()))
 

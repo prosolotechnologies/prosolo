@@ -81,7 +81,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private SAMLUserDetailsService samlUserDetailsService;
 
 	private static final String LOGIN_PAGE = "/login";
-	
+
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
 		
@@ -362,7 +362,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public CustomLoginUrlAuthenticationEntryPoint customAuthEntryPoint() {
 		return new CustomLoginUrlAuthenticationEntryPoint(LOGIN_PAGE);
 	}
-	
+
 
 	@Bean
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
@@ -610,7 +610,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //		extendedMetadataDelegate.setMetadataRequireSignature(false);
 //		return extendedMetadataDelegate;
 //	}
-	
+
     // IDP Metadata configuration + sp metadata configuration
     @Bean
     @Qualifier("metadata")
@@ -667,7 +667,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     	failureHandler.setDefaultFailureUrl("/login?err=1");
     	return failureHandler;
     }
-     
+
     // Processing filter for WebSSO profile messages
     @Bean
     public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {

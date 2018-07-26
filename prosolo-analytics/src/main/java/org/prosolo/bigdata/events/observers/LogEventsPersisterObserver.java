@@ -13,6 +13,9 @@ import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.scala.clustering.SNAEventsChecker$;
 import org.prosolo.bigdata.streaming.Topic;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,10 +56,17 @@ public class LogEventsPersisterObserver implements EventObserver {
 					Set<Long> courses=new HashSet<Long>();
 
 				if(logEvent.getCourseId()==0){
-					Set<Long> actorCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getActorId());
-					courses.addAll(actorCourses);
-					Set<Long> targetUserCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getTargetUserId());
-					courses.addAll(targetUserCourses);
+					LearningContext context = logEvent.getLearningContext();
+					Context credContext = context.getSubContextWithName(ContextName.CREDENTIAL);
+					if(credContext!=null && credContext.getId()>0){
+						courses.add(credContext.getId());
+					}else{
+						Set<Long> actorCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getActorId());
+						courses.addAll(actorCourses);
+						Set<Long> targetUserCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getTargetUserId());
+						courses.addAll(targetUserCourses);
+					}
+
 				}else{
 					courses.add(logEvent.getCourseId());
 				}

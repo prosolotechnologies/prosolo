@@ -14,7 +14,6 @@ public class GenerateFeedsJob  implements Job {
 			throws JobExecutionException {
 logger.info("STARTING GENERATION OF FEED DIGESTS EXECUTED JOB");
 		
-		//digestManager.createFeedDiggestsAndSendEmails();
 		DigestManager1$ digestManager = DigestManager1$.MODULE$;
 		digestManager.createFeedDigestsAndSendEmails();
 		logger.info("COMPLETED GENERATION OF FEED DIGESTS");
