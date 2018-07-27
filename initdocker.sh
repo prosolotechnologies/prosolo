@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 function check_docker {
     docker ps > /dev/null
 }
@@ -88,9 +89,11 @@ function handle_parameter {
 			-b*)
             	if  [[ "$2" == -* ]] || [[ "$2" == 'reset' ]] || [[ "$2" == 'start-database' ]] || [[ -z $2 ]] ; then
             	   VCS_BRANCH=$(getBranch)
+            	   echo "geting branch"
             	   shift
             	else
             	   VCS_BRANCH=$2
+            	   echo "second parameter branch $VCS_BRANCH"
             	   shift 2
             	fi
             	;;
@@ -166,9 +169,12 @@ function displayHelp() {
 
 handle_parameter $@
 
-VCS_BRANCH=$(getBranch)
+if [ -z ${VCS_BRANCH+x} ];
+    then
+    VCS_BRANCH=$(getBranch)
+fi
 export VCS_BRANCH=$VCS_BRANCH
-echo "BRANCH:" + $VCS_BRANCH
+echo "BRANCH is set to:" + $VCS_BRANCH
 
 if ! check_docker ; then
     echo "ERROR"
