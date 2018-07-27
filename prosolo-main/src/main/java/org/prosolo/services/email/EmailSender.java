@@ -1,33 +1,25 @@
 package org.prosolo.services.email;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Properties;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
+import org.prosolo.common.config.AppConfig;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Properties;
+
 @Service("org.prosolo.services.email.EmailSender")
 public class EmailSender {
 	
 	public boolean sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
 		// if development mode is ON, comments should be sent only to the developer
-		if (CommonSettings.getInstance().config.appConfig.developmentMode) {
+		if (CommonSettings.getInstance().config.appConfig.projectMode.equals(AppConfig.ProjectMode.DEV)) {
 			email = CommonSettings.getInstance().config.appConfig.developerEmail;
 		}
 

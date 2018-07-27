@@ -16,8 +16,8 @@
 		<div class="assessmentActivityList">
 			<ul>
 				<ui:repeat value="#{cc.attrs.evidences}" var="ev">
-					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : ev.type eq 'FILE' ? 'evidenceDoc' : 'evidenceLink'}">
-						<span class="iconType #{ev.type eq 'LINK' ? 'link' : ''}"></span>
+					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+						<span class="iconType"></span>
 						<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
 							<h:link outcome="evidence" target="_blank">
 								#{ev.title}

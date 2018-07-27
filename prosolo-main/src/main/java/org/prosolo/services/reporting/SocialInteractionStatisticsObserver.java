@@ -1,11 +1,5 @@
 package org.prosolo.services.reporting;
 
-import static org.prosolo.common.domainmodel.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.events.EventType.Dislike;
-import static org.prosolo.common.domainmodel.events.EventType.Like;
-import static org.prosolo.common.domainmodel.events.EventType.MENTIONED;
-import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -14,6 +8,8 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static org.prosolo.common.domainmodel.events.EventType.*;
 
 @Service("org.prosolo.services.reporting.SocialInteractionStatisticsObserver")
 public class SocialInteractionStatisticsObserver extends EventObserver {
@@ -44,8 +40,8 @@ public class SocialInteractionStatisticsObserver extends EventObserver {
 		/*
 		This is the list of events that should be processed
 		COMMENT,Comment,NodeComment
-EVALUATION,EVALUATION_REQUEST,AchievedCompetenceRequest
-EVALUATION,EVALUATION_REQUEST,NodeRequest
+EVALUATION,,AchievedCompetenceRequest
+EVALUATION,NodeRequest
 EVALUATION,SERVICEUSE,ASK_FOR_EVALUATION_DIALOG
 JOIN,JOIN_GOAL_INVITATION,NodeRequest
 JOIN,JOIN_GOAL_REQUEST,NodeRequest

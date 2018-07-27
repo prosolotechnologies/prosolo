@@ -16,13 +16,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-
+import org.prosolo.common.domainmodel.events.EventType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * zoran 28/09/16

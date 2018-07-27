@@ -18,7 +18,7 @@ class FeatureQuartiles {
   val quartiles=new Array[Double](3)
   val set:ArrayBuffer[Double]=ArrayBuffer[Double]()
   
-  def getQuartiles():Tuple2[Double,Double]={
+  def getQuartiles():(Double, Double)={
      (quartiles(0),quartiles(2))
   }
   /**
@@ -66,7 +66,7 @@ class FeatureQuartiles {
 	 * respectively. The calculation of quartiles uses the Moore and McCabe
 	 * method (aka M and M) as described by http://www.mathsisfun.com/data/quartiles.html.
 	 */
-  def findQuartiles():Tuple2[Double,Double]={
+  def findQuartiles():(Double, Double)={
     val sortedSet:ArrayBuffer[Double]=set.sorted
     val middle:Integer=set.length/2
     if(sortedSet.length==1){
