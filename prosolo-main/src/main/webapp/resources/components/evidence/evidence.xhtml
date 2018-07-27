@@ -23,8 +23,8 @@
 	<composite:implementation>
 		<div class="whiteBox evidenceBox">
 			<div class="evidenceTop">
-				<div class="evidenceTopLeft">
-					<div class="icon #{cc.attrs.evidence.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(cc.attrs.evidence.url)}"></div>
+				<div class="evidenceTopLeft #{cc.attrs.evidence.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(cc.attrs.evidence.url)}">
+					<div class="icon iconType"></div>
 					<h3>
 						<ui:fragment rendered="#{cc.attrs.titleIsClickable}">
 							<h:link outcome="#{cc.attrs.role == 'USER' ? '/evidence' : '/manage/evidence'}">
@@ -50,9 +50,11 @@
 								</li>
 							</ul>
 						</h:panelGroup>
+						a#{javax.servlet.forward.request_uri}b
                         <h:link rendered="#{cc.attrs.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
 							Edit
 							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
+							<f:param name="source" value="#{facesContext.viewRoot.viewId}" />
 						</h:link>
 						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
 							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>

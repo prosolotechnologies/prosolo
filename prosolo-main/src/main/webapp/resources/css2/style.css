@@ -4266,19 +4266,19 @@ header {
         width: 20px;
         height: 20px;
         margin-right: 20px; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceDoc {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.doc {
           background: url("../images2/iconFile20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceArchive {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.archive {
           background: url("../images2/iconArchive20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceImage {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.image {
           background: url("../images2/iconImage20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceAudio {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.audio {
           background: url("../images2/iconAudio20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceVideoAlt {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.videoalt {
           background: url("../images2/iconVideoAlt20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceText {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.text {
           background: url("../images2/iconTextLines20.svg") no-repeat center center; }
-        .evidenceBox .evidenceTop .evidenceTopLeft .icon.evidenceLink {
+        .evidenceBox .evidenceTop .evidenceTopLeft .icon.link {
           background: url("../images2/iconLink20.svg") no-repeat center center; }
       .evidenceBox .evidenceTop .evidenceTopLeft h3 {
         margin: 0; }

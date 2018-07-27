@@ -131,8 +131,8 @@
 							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
 								<div class="whiteBox evidenceBox evidenceBoxSmall">
 									<div class="evidenceTop">
-										<div class="evidenceTopLeft">
-											<div class="icon doc"></div>
+										<div class="evidenceTopLeft #{styleUtilBean.getEvidenceFileTypeIcon(submitEvidenceBean.evidence.url)}">
+											<div class="icon iconType"></div>
 											<h3>#{submitEvidenceBean.evidence.fileName}</h3>
 										</div>
 										<div class="evidenceTopRight">
