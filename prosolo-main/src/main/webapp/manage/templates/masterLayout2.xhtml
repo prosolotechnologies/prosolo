@@ -78,7 +78,7 @@
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
 										or util:getPagePath(view.viewId)  == 'competenceLibrary'
 										or util:getPagePath(view.viewId)  == 'credential-library-instructor'
-										or util:getPagePath(view.viewId)  == 'create-credential'
+										or util:getPagePath(view.viewId)  == 'credential-create'
 										or util:getPagePath(view.viewId)  == 'credential'
 										or util:getPagePath(view.viewId)  == 'credential-students'
 										or util:getPagePath(view.viewId)  == 'credential-editors'
@@ -138,7 +138,7 @@
 							aria-haspopup="true" aria-expanded="true">Create</a>
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
 							<li><h:link value="New #{msg['label.credential']}"
-									outcome="/manage/create-credential.xhtml" /></li>
+									outcome="/manage/credential-create.xhtml" /></li>
 							<li><h:link value="New #{msg['label.competence']}"
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>

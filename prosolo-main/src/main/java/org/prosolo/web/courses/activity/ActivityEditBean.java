@@ -374,7 +374,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		if (saved && isNew) {
 			/*
 			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * example: /credentials/credential-create will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
 			StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
@@ -438,7 +438,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * example: /credentials/credential-create will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
 				StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +

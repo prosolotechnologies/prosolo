@@ -106,7 +106,7 @@
 							</div>
 						</ui:fragment>
 	                    <h:link rendered="#{not cc.attrs.isAdmin and cc.attrs.canEdit}"
-	                    	outcome="/manage/create-credential" 
+	                    	outcome="/manage/credential-create"
 	                    	styleClass="btn btn-green-stroke btn-sm">
 	                    	Edit
 	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
