@@ -1,5 +1,6 @@
 package org.prosolo.web.courses.credential;
 
+import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
@@ -32,6 +33,8 @@ import java.util.List;
 @Scope("view")
 public class AssignStudentToInstructorDialogBean {
 
+    private static Logger logger = Logger.getLogger(AssignStudentToInstructorDialogBean.class);
+
     @Inject
     private UserTextSearch userTextSearch;
     @Inject
@@ -51,8 +54,13 @@ public class AssignStudentToInstructorDialogBean {
     private String context;
 
     public void loadCredentialInstructors(long credentialId, long studentId) {
-        StudentData student = credentialManager.getCredentialStudentsData(credentialId, studentId);
-        loadCredentialInstructors(credentialId, student);
+        try {
+            StudentData student = credentialManager.getCredentialStudentsData(credentialId, studentId);
+            loadCredentialInstructors(credentialId, student);
+        } catch (DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getLabel("instructor.plural").toLowerCase());
+        }
     }
 
     public void loadCredentialInstructors(long credentialId, StudentData student) {

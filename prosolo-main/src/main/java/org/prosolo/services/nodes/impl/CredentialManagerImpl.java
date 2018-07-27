@@ -979,7 +979,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			long instructorId = 0;
 
-			if (cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
+			if (cred.getAssessorAssignmentMethod() != null &&
+					cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
 				List<TargetCredential1> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
