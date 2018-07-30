@@ -3,9 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 >
 
 	<utilcomp:messagesBundle var="msg" />
@@ -141,15 +139,10 @@
 				<ui:fragment rendered="#{studentProfileBean.selectedCredential.selectedCompetence.learningPathType eq 'EVIDENCE'}">
 					<div class="activitiesBlockLeft">
 						<ui:fragment rendered="#{not empty studentProfileBean.selectedCredential.selectedCompetence.evidences}">
-							<assessment:evidenceItems
-									evidences="#{studentProfileBean.selectedCredential.selectedCompetence.evidences}"
-									canViewEvidence="#{true}"
-									showMessageWhyUserCantViewEvidence="#{false}"
-							/>
 							<ui:repeat value="#{studentProfileBean.selectedCredential.selectedCompetence.evidences}" var="ev">
-								<h3 class="#{ev.type eq 'TEXT' ? 'evidenceText' : ev.type eq 'FILE' ? 'evidenceDoc' : 'evidenceLink'}">
+								<h3 class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
 									<h:link outcome="evidence" target="_blank">
-										<span class="iconType #{ev.type eq 'LINK' ? 'link' : ''}"></span>
+										<span class="icon iconType"></span>
 										#{ev.title}
 										<f:param name="id" value="#{util:encodeId(ev.id)}"/>
 									</h:link>
