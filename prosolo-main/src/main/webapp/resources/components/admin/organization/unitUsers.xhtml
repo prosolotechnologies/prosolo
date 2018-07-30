@@ -114,6 +114,16 @@
 													<span>#{user.position}</span>
 												</div>
 											</div>
+											<p:commandLink rendered="#{loggeduser.userId != user.id}"
+														   styleClass="assignOpt"
+														   pt:data-toggle="modal"
+														   action="#{loggeduser.prepareLoginAsUser(user)}"
+														   update=":#{cc.clientId}:loginAs:formLoginAs:panelLoginAs"
+														   oncomplete="$('#loginAs').modal('show');">
+												Login as...
+											</p:commandLink>
+
+
 											<div class="assignOpt">
 												<p:commandLink styleClass="removeX" process="@this"
 															   action="#{unitUsersBean.removeUser(user)}"
@@ -171,6 +181,8 @@
 						  importUsersPanelId="importUsersPanel"
 						  toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination :#{cc.clientId}:growlMain"
 						  learningContext="#{learningContext}"/>
+
+		<user:loginAs id="loginAs" />
 
 		<user:addUsers
 				id="addUsers"

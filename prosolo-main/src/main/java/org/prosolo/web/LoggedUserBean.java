@@ -373,8 +373,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			authenticationService.login((HttpServletRequest)context.getRequest(),
 					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
-			//to avoid IllegalStateException: Commited or content written
-			FacesContext.getCurrentInstance().responseComplete();
+			//to avoid IllegalStateException: Committed or content written
+			//FacesContext.getCurrentInstance().responseComplete();
+			PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
 		} catch(AuthenticationException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());
