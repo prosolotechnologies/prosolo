@@ -17,7 +17,7 @@
 			<ul>
 				<ui:repeat value="#{cc.attrs.evidences}" var="ev">
 					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
-						<span class="iconType"></span>
+						<span class="icon iconType"></span>
 						<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
 							<h:link outcome="evidence" target="_blank">
 								#{ev.title}
