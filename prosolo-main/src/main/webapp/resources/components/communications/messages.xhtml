@@ -29,15 +29,6 @@
 				$("div.modal-backdrop.fade.in").remove()
 			}
 			
-			//function expandTextarea(id) {
-			  //  var $element = $('#messages\\:'+id).get(0);  
-			  //  $element.addEventListener('keyup', function() {
-			  //     this.style.overflow = 'hidden';
-			  //     this.style.height = 0;
-			  //     this.style.height = this.scrollHeight + 'px';
-			  //  }, false);
-			//}
-			
 			function returnFocusMessageText() {
 				$("#messages\\:messageContentTextarea").focus();
 			}
@@ -53,8 +44,8 @@
 	    <div class="whiteBar"></div>
 	
 		<div class="container">
-			<h:panelGroup class="row" id="rowDiv" layout="block">
-	            <h:panelGroup id="messageItemsContainer" layout="block" class="col-md-3">
+			<h:panelGroup class="row" id="messagesPanel" layout="block">
+	            <div class="col-md-3">
 	                <div class="messagesListHead">
 	                    <div class="dropdown showDrop">
 	                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -66,7 +57,7 @@
 	                            <li>
 	                            	<p:commandLink 
 										action="#{messagesBean.setArchiveView(false)}"
-										update=":#{cc.clientId}:rowDiv"
+										update=":#{cc.clientId}:messagesPanel"
 										oncomplete="resetPeopleSearchParameters()">
 										Inbox
 									</p:commandLink>
@@ -74,7 +65,7 @@
 	                            <li>
 	                            	<p:commandLink
 										action="#{messagesBean.setArchiveView(true)}"
-										update=":#{cc.clientId}:rowDiv"
+										update=":#{cc.clientId}:messagesPanel"
 										oncomplete="resetPeopleSearchParameters()">
 										Archive
 									</p:commandLink>
@@ -84,7 +75,7 @@
                     	
                     	<p:commandLink styleClass="newMessageBtn" 
 	                 				   action="#{messagesBean.setNewMessageView(true)}"
-	                 				   update=":#{cc.clientId}:rowDiv"
+	                 				   update=":#{cc.clientId}:messagesPanel"
 	                 				   oncomplete="$('##{cc.clientId}\\:messageRecievingUserName').focus()"
 	                 				   disabled="#{messagesBean.newMessageView}"
 	                 				   process="@this">
@@ -92,37 +83,40 @@
                     	</p:commandLink>
                 	</div>
                 	
-					<h:panelGroup rendered="#{messagesBean.messageThreads.size() > 0}" layout="block" class="messagesList">
+					<h:panelGroup layout="block"
+								  id="threadList"
+								  class="messagesList"
+								  rendered="#{messagesBean.messageThreads.size() > 0}">
 						<ul>
 							<ui:repeat value="#{messagesBean.messageThreads}" var="messageThreadData" varStatus="iterator">
-								<li thread-readed="#{messageThreadData.readed}" thread-id="#{messageThreadData.id}" 
-			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
+								<li thread-readed="#{messageThreadData.readed}"
+									thread-id="#{messageThreadData.id}"
+									class="#{messageThreadData.id == messagesBean.selectedThread.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 			                		 	
-		                		 	<p:commandLink 
-										action="#{messagesBean.changeThread(messageThreadData)}"
-										update=":#{cc.clientId}:rowDiv"
-										onclick="changeConversation(#{messageThreadData.id})"
-										oncomplete="resetPeopleSearchParameters()">
+		                		 	<p:commandLink action="#{messagesBean.changeThread(messageThreadData)}"
+												   update=":#{cc.clientId}:messagesPanel"
+												   onclick="changeConversation(#{messageThreadData.id})"
+												   oncomplete="resetPeopleSearchParameters()">
 										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 										<f:param name="context" value="name:messages" />
 										
 										<div class="media">
 			                                <div class="media-left">
 			                                    <utilcomp:userAvatar
-				                                	avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
-				                                	fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+														avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
+														fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
 			                                </div>
 			                                
 			                                <div class="media-body">
 			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
 			                                    <span>
 													<utilcomp:convertTimeOutput
-															millis="#{messageThreadData.lastUpdatedTime}"
-															format="MM/DD/YYYY"
+															millis="#{messageThreadData.lastUpdated.created.time}"
+															format="rel"
 													/>
 												</span>
 			                                    <div class="clear"></div>
-			                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
+			                                    <p style="color: #859095 !important;">#{messageThreadData.lastUpdated.shortContent}</p>
 			                                </div>
 			                            </div>
 
@@ -138,7 +132,7 @@
 							No Messages.
 						</div>
 	                </h:panelGroup>
-				</h:panelGroup>
+				</div>
 
 				<ui:fragment rendered="#{!messagesBean.newMessageView}">
 					<!-- displayed when there are no messages -->
@@ -172,14 +166,14 @@
 					<h:panelGroup rendered="#{messagesBean.messageThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" id="messagesContainer" class="col-md-6 messageColumn">
 						<section class="whiteBox messagesPane">
 							<div class="messagePaneHead">
-								<h2>#{messagesBean.threadData.participantsListWithoutLoggedUser}</h2>
+								<h2>#{messagesBean.selectedThread.participantsListWithoutLoggedUser}</h2>
 								<div class="dropdown messageMenu">
 									<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
 									<ul class="dropdown-menu dropdown-menu-right bullet pull-center" aria-labelledby="dropdownMenu1">
 										<li>
 											<p:commandLink rendered="#{!messagesBean.archiveView}" 
 												action="#{messagesBean.archiveCurrentThread}" 
-												update=":#{cc.clientId}:rowDiv">Archive
+												update=":#{cc.clientId}:messagesPanel">Archive
 											</p:commandLink>
 										</li>
 										<li>
@@ -201,7 +195,7 @@
 													<p:commandLink action="#{messagesBean.deleteCurrentThread()}" 
                                             			styleClass="btn btn-red"
                                             			process="@this"
-                                            			update=":#{cc.clientId}:rowDiv"
+                                            			update=":#{cc.clientId}:messagesPanel"
                                             			oncomplete="hideConfirmDialog('deleteConv')">
                                             			Delete
 		                                            </p:commandLink>
@@ -216,16 +210,17 @@
 	                    	<div class="greyBar"></div>
 	                    	<!-- END : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
 
-							<ui:fragment rendered="#{messagesBean.loadMore}">
-								<div class="loadMoreThreads">
-									<p:commandLink value="Load more..."
-												   update=":#{cc.clientId}:messagesForm"
-												   action="#{messagesBean.loadMore()}"
-												   process="@this" />
-								</div>
-							</ui:fragment>
 
-	                    	<div class="innerWrapper">
+							<div class="innerWrapper">
+								<ui:fragment rendered="#{messagesBean.loadMore}">
+									<div class="loadMoreMsgs">
+										<p:commandLink value="Load more..."
+													   update=":#{cc.clientId}:messagesForm"
+													   action="#{messagesBean.loadMore()}"
+													   process="@this" />
+									</div>
+								</ui:fragment>
+
 	                    		<!-- FIRST SHOW MESSAGES THAT ARE READ -->
 	                    		<ui:repeat value="#{messagesBean.readMessages}" var="message" varStatus="iterator">
 	                    			<div class="media">
@@ -277,7 +272,7 @@
 	                        		</div>
 	                    		</ui:repeat>
 	                    	</div>
-	   
+
 	                    	<div class="typeBox">
 		                        <div class="media">
 		                            <div class="media-left">
@@ -293,7 +288,7 @@
 		                                    <p:commandLink value="Send"
 		                                    	styleClass="btn btn-green btn-sm" 
 		                                    	action="#{messagesBean.sendMessage()}" 
-		                                    	update=":#{cc.clientId}:rowDiv" 
+		                                    	update=":#{cc.clientId}:messagesPanel :#{cc.clientId}:threadList"
 	                                    	/>
 		                                </div>
 		                            </div>
@@ -365,7 +360,7 @@
 		                                    <p:commandLink value="Send"
 		                                    	styleClass="btn btn-green btn-sm" 
 		                                    	action="#{messagesBean.sendMessage()}" 
-		                                    	update=":#{cc.clientId}:rowDiv"
+		                                    	update=":#{cc.clientId}:messagesPanel"
 	                                    	/>
 		                                </div>
 		                            </div>
