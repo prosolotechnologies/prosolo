@@ -232,7 +232,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading message threads");
+			throw new DbConnectionException("Error loading message threads");
 		}
 	}
 

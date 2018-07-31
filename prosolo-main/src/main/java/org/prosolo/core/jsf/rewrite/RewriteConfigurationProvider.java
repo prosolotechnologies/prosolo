@@ -232,7 +232,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings/password").to("/admin/settings/password.xhtml"))
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
-				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
+//				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
 				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"))
 				.addRule(Join.path("/admin/migrations").to("/admin/migrations.xhtml"));
 	}
