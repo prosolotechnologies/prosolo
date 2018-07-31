@@ -2,7 +2,6 @@ package org.prosolo.web.messaging;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.Pair;
@@ -15,7 +14,6 @@ import org.prosolo.web.messaging.data.MessagesThreadParticipantData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.search.SearchPeopleBean;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -51,13 +49,17 @@ public class MessagesBean implements Serializable {
     private TopInboxBean topInboxBean;
 
     private long decodedThreadId;
-    private List<MessagesThreadData> messageThreads;
     private MessagesThreadData selectedThread;
+    private List<MessagesThreadData> messageThreads;
+    private int limitThreads = 5;
+    private int pageThread = 0;
+    private boolean loadMoreThreads;
+
     private List<MessageData> messages;
     private String threadId;
-    private int limit = 7;
-    private int page = 0;
-    private boolean loadMore;
+    private int limitMessages = 7;
+    private int pageMessages = 0;
+    private boolean loadMoreMessages;
     //variables used for controlling component displays
     private boolean archiveView;
     private boolean newMessageView;
@@ -71,9 +73,16 @@ public class MessagesBean implements Serializable {
         decodedThreadId = idEncoder.decodeId(threadId);
 
         // init message threads
-        this.messageThreads = messagingManager.getMessageThreads(
+        List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
                 loggedUser.getUserId(),
-                0, 0, archiveView);
+                pageThread, limitThreads, archiveView);
+
+        if (loadedThreads.size() > limitThreads) {
+            loadMoreThreads = true;
+            this.messageThreads = loadedThreads.subList(0, limitThreads);
+        } else {
+            this.messageThreads = loadedThreads;
+        }
 
         // set latest message thread to be selected
         if (!messageThreads.isEmpty()) {
@@ -102,7 +111,7 @@ public class MessagesBean implements Serializable {
     }
 
     private UserContextData getLoggedUserContextData() {
-        String page = PageUtil.getPostParameter("page");
+        String page = PageUtil.getPostParameter("pageMessages");
         String context = PageUtil.getPostParameter("context");
         page = (page != null) ? page : "messages";
         context = (context != null) ? context : "name:messages";
@@ -111,7 +120,7 @@ public class MessagesBean implements Serializable {
 
     public void changeThread(MessagesThreadData threadData) {
         // if currently selected thread was not initially read, mark it as read
-        if (!this.selectedThread.isReaded()) {
+        if (this.selectedThread != null && !this.selectedThread.isReaded()) {
             //mark current thread read
             this.messageThreads.stream().filter(mt -> mt.getId() == this.selectedThread.getId()).forEach(mt -> mt.setReaded(true));
             this.selectedThread.setReaded(true);
@@ -136,29 +145,29 @@ public class MessagesBean implements Serializable {
 
         List<MessageData> readMessages;
 
-        //if number of unread messages >= limit, fetch only the latest two read messages in order to show unread messages in a context.
-        if (unreadMessages.size() >= limit) {
+        //if number of unread messages >= limitMessages, fetch only the latest two read messages in order to show unread messages in a context.
+        if (unreadMessages.size() >= limitMessages) {
             readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, 2);
         } else {
             //shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
-            int numberOfMessagesToLoad = limit - unreadMessages.size();
+            int numberOfMessagesToLoad = limitMessages - unreadMessages.size();
             readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, numberOfMessagesToLoad);
         }
 
-        // since getReadMessages loads an additional message, we will use this information to set the loadMore flag
-        if (unreadMessages.size() >= limit) {
+        // since getReadMessages loads an additional message, we will use this information to set the loadMoreMessages flag
+        if (unreadMessages.size() >= limitMessages) {
             if (readMessages.size() > 2) {
-                loadMore = true;
+                loadMoreMessages = true;
                 readMessages.remove(readMessages.size() - 1);
             } else {
-                loadMore = false;
+                loadMoreMessages = false;
             }
         } else {
-            if (unreadMessages.size() + readMessages.size() > limit) {
-                loadMore = true;
+            if (unreadMessages.size() + readMessages.size() > limitMessages) {
+                loadMoreMessages = true;
                 readMessages.remove(readMessages.size() - 1);
             } else {
-                loadMore = false;
+                loadMoreMessages = false;
             }
         }
 
@@ -181,19 +190,34 @@ public class MessagesBean implements Serializable {
         }
     }
 
-    public void loadMore() {
-        page++;
+    public void loadMoreThreads() {
+        pageThread++;
 
-        List<MessageData> newMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), page, limit);
+        List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
+                loggedUser.getUserId(),
+                pageThread, limitThreads, archiveView);
+
+        if (loadedThreads.size() > limitThreads) {
+            this.messageThreads.addAll(loadedThreads.subList(0, limitThreads));
+        } else {
+            this.messageThreads.addAll(loadedThreads);
+            loadMoreThreads = false;
+        }
+    }
+
+    public void loadMoreMessages() {
+        pageMessages++;
+
+        List<MessageData> newMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), pageMessages, limitMessages);
 
         // getReadMessages returns always one more message than requested
-        if (newMessages.size() <= limit) {
-            loadMore = false;
+        if (newMessages.size() <= limitMessages) {
+            loadMoreMessages = false;
         } else {
             newMessages.remove(newMessages.size()-1);
         }
 
-        // /As we sorted them by date DESC, now show them ASC (so last message will be last one created)
+        // As we sorted them by date DESC, now show them ASC (so last message will be last one created)
         Collections.sort(newMessages, Comparator.comparing(MessageData::getCreated));
 
         this.messages.addAll(0, newMessages);
@@ -293,28 +317,32 @@ public class MessagesBean implements Serializable {
         this.threadId = threadId;
     }
 
-    public List<MessageData> getMessages() {
-        return messages;
-    }
-
-    public boolean isLoadMore() {
-        return loadMore;
-    }
-
     public MessagesThreadData getSelectedThread() {
         return selectedThread;
     }
 
+    public List<MessagesThreadData> getMessageThreads() {
+        return messageThreads;
+    }
+
+    public boolean isLoadMoreThreads() {
+        return loadMoreThreads;
+    }
+
+    public List<MessageData> getMessages() {
+        return messages;
+    }
+
     public List<MessageData> getReadMessages() {
-        return getMessagesCoditionaly((msg) -> msg.isReaded());
+        return messages.stream().filter((msg) -> msg.isReaded()).collect(Collectors.toList());
     }
 
     public List<MessageData> getUnreadMessages() {
-        return getMessagesCoditionaly((msg) -> !msg.isReaded());
+        return messages.stream().filter((msg) -> !msg.isReaded()).collect(Collectors.toList());
     }
 
-    public List<MessageData> getMessagesCoditionaly(Predicate<MessageData> predicate) {
-        return messages.stream().filter(predicate).collect(Collectors.toList());
+    public boolean isLoadMoreMessages() {
+        return loadMoreMessages;
     }
 
     public String getMessageText() {
@@ -327,10 +355,6 @@ public class MessagesBean implements Serializable {
 
     public Long getReceiverId() {
         return receiverId;
-    }
-
-    public List<MessagesThreadData> getMessageThreads() {
-        return messageThreads;
     }
 
     public boolean isArchiveView() {

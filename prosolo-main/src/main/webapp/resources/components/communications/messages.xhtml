@@ -125,6 +125,12 @@
 								</li>
 							</ui:repeat>
 						</ul>
+						<div class="loadMoreThreads">
+							<p:commandLink rendered="#{messagesBean.loadMoreThreads}"
+										   value="Load more..."
+										   action="#{messagesBean.loadMoreThreads()}"
+										   update=":#{cc.clientId}:threadList"/>
+						</div>
 					</h:panelGroup>
 		                
 		            <h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="messagesList">
@@ -212,11 +218,11 @@
 
 
 							<div class="innerWrapper">
-								<ui:fragment rendered="#{messagesBean.loadMore}">
+								<ui:fragment rendered="#{messagesBean.loadMoreMessages}">
 									<div class="loadMoreMsgs">
 										<p:commandLink value="Load more..."
 													   update=":#{cc.clientId}:messagesForm"
-													   action="#{messagesBean.loadMore()}"
+													   action="#{messagesBean.loadMoreMessages()}"
 													   process="@this" />
 									</div>
 								</ui:fragment>
@@ -305,6 +311,7 @@
 								<div class="toBox">To:</div>
 								<h:inputText
 									onkeyup="searchListener(execSearchUsers);"
+									placeholder="Type name..."
 									value="#{searchPeopleBean.query}" 
 									id="messageRecievingUserName"
 									name="messageRecievingUserName"

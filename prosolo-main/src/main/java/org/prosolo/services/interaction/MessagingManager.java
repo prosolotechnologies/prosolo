@@ -26,7 +26,9 @@ public interface MessagingManager extends AbstractManager {
 	Result<MessageThread> createNewMessageThread(long creatorId, List<Long> participantIds, String subject) throws ResourceCouldNotBeLoadedException;
 
 	/**
-	 * Retrieves user message threads ordered descending by the last update date.
+	 * Retrieves user message threads ordered descending by the last update date. The method will always fetch one more
+	 * message thread than the limit, so that this information can be used to determine whether there are more message
+	 * threads to load.
 	 *
 	 * @param userId user id
 	 * @param page page for pagination
@@ -63,13 +65,13 @@ public interface MessagingManager extends AbstractManager {
 	 *
 	 * @param threadId message thread id
 	 * @param senderId sender id
-	 * @param receiverId
-	 * @param msg
-	 * @param contextData
-	 * @return
+	 * @param receiverId id of the user receiving the message
+	 * @param text message contencts
+	 * @param contextData context
+	 * @return message created
 	 * @throws DbConnectionException
 	 */
-	MessageData sendMessage(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	MessageData sendMessage(long threadId, long senderId, long receiverId, String text, UserContextData contextData)
 			throws DbConnectionException;
 
 	Pair<MessageData, MessagesThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
@@ -90,14 +92,14 @@ public interface MessagingManager extends AbstractManager {
 	List<MessageData> getAllUnreadMessages(long threadId, long userId);
 
 	/**
-	 * Retrieves read messages for the given user in the message thread. THe method will always fetch one more message
+	 * Retrieves read messages for the given user in the message thread. The method will always fetch one more message
 	 * than the limit so that this information can be used to determine whether there are more messages to load.
 	 *
 	 * @param threadId message thread id
 	 * @param userId user id
-	 * @param page
-	 * @param limit
-	 * @return
+	 * @param page page for pagination
+	 * @param limit number of messages to retrieve
+	 * @return list of {@link MessageData} instances.
 	 */
 	List<MessageData> getReadMessages(long threadId, long userId, int page, int limit);
 

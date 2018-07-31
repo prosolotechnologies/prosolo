@@ -43,9 +43,9 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	private MessagingManager self;
 
 	@Override
-	public MessageData sendMessage(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	public MessageData sendMessage(long threadId, long senderId, long receiverId, String text, UserContextData contextData)
 			throws DbConnectionException {
-		Result<Pair<MessageData, MessagesThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, msg, contextData);
+		Result<Pair<MessageData, MessagesThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, text, contextData);
 		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult().getFirst();
 	}
@@ -215,7 +215,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 			if (limit > 0) {
 				q = q.setFirstResult(page * limit)
-						.setMaxResults(limit);
+						.setMaxResults(limit + 1);
 			}
 
 			List<MessageThread> result = q.list();
