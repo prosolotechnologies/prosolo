@@ -4,14 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
-	
 	</composite:interface>
 	
 	<composite:implementation>
@@ -20,17 +15,13 @@
 			function changeConversation(threadId) {
 				$('.messagesList li.active').removeClass('active');
 				$('.messagesList li[thread-id='+threadId+']').addClass('active');
-				setQueryParam('id', threadId);
+                history.replaceState("", "page 3", "#{request.getAttribute('javax.servlet.forward.request_uri')}/" + threadId);
 			}
 			
 			function hideConfirmDialog(dialogId) {
 				$('#messages\\:'+dialogId).modal('hide');
 				$("body").removeAttr("class").removeAttr("style")
 				$("div.modal-backdrop.fade.in").remove()
-			}
-			
-			function returnFocusMessageText() {
-				$("#messages\\:messageContentTextarea").focus();
 			}
 			
 			function setRecipient(name,id) {
@@ -42,7 +33,7 @@
 		</script>
 		
 	    <div class="whiteBar"></div>
-	
+
 		<div class="container">
 			<h:panelGroup class="row" id="messagesPanel" layout="block">
 	            <div class="col-md-3">
@@ -90,12 +81,12 @@
 						<ul>
 							<ui:repeat value="#{messagesBean.messageThreads}" var="messageThreadData" varStatus="iterator">
 								<li thread-readed="#{messageThreadData.readed}"
-									thread-id="#{messageThreadData.id}"
+									thread-id="#{util:encodeId(messageThreadData.id)}"
 									class="#{messageThreadData.id == messagesBean.selectedThread.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
 			                		 	
 		                		 	<p:commandLink action="#{messagesBean.changeThread(messageThreadData)}"
 												   update=":#{cc.clientId}:messagesPanel"
-												   onclick="changeConversation(#{messageThreadData.id})"
+												   onclick="changeConversation('#{util:encodeId(messageThreadData.id)}')"
 												   oncomplete="resetPeopleSearchParameters()">
 										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 										<f:param name="context" value="name:messages" />
