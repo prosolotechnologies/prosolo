@@ -31,8 +31,6 @@
 
         <ui:param name="learningContext" value="#{learningEvidenceEditBean.createUseCase ? 'name:new_evidence' : 'name:evidence|id:'.concat(learningEvidenceEditBean.evidence.id)}"></ui:param>
 
-        <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
-
         <div class="whiteBar">
 
         </div>
@@ -56,7 +54,6 @@
                             id="submitEvidence"
                             bean="#{learningEvidenceEditBean}"
                             addEvidenceToCompetence="false"
-                            update=":growlMain"
                             learningContext="#{learningContext}"
                             submitButtonText="#{learningEvidenceEditBean.createUseCase ? 'Add' : 'Save Changes'}"
                             displayCancelButton="true"

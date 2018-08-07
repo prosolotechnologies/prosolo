@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Nikola Milikic
@@ -112,7 +111,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString,
                                         String hashtagsString, long creatorId, boolean compOrderMandatory, long duration,
-                                        boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException {
+                                        CredentialData.AssessorAssignmentMethodData assessorAssignment, List<CompetenceData1> comps) throws DbConnectionException {
         try {
             Credential1 cred = new Credential1();
             cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -124,7 +123,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             cred.setDuration(duration);
             cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
             cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-            cred.setManuallyAssignStudents(manuallyAssign);
+            cred.setAssessorAssignmentMethod(assessorAssignment.getAssessorAssignmentMethod());
 
             saveEntity(cred);
 

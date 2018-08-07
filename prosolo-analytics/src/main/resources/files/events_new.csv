@@ -18,7 +18,7 @@ CREATING,Create_Draft,Competence1
 CREATING,Create_Draft,TextActivity1
 CREATING,Create_Draft,UrlActivity1
 CREATING,Create_Draft,ExternalToolActivity1
-EVALUATION,EVALUATION_REQUEST,NodeRequest
+EVALUATION,AssessmentRequested,NodeRequest
 EVALUATION,SERVICEUSE,ASK_FOR_EVALUATION_DIALOG
 LIKE,Like,DefaultSocialActivity
 LIKE,RemoveLike,Comment1

@@ -2,27 +2,6 @@ package org.prosolo.services.interaction.impl;/**
  * Created by zoran on 29/12/15.
  */
 
-import static org.prosolo.common.domainmodel.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_GIVEN;
-import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_REQUEST;
-import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION;
-import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST;
-import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
-import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_DENIED;
-import static org.prosolo.common.domainmodel.events.EventType.Like;
-import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
-
-//import com.mongodb.*;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.junit.AfterClass;
@@ -33,6 +12,14 @@ import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.core.spring.SpringConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.prosolo.common.domainmodel.events.EventType.*;
+
+//import com.mongodb.*;
 
 /**
  * zoran 29/12/15
@@ -49,7 +36,7 @@ public class MoocLogsExporterTest {
 //    @Inject
 //    private CourseManager courseManager;
     private EventType[] interactions=new EventType[]{
-            Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
+            Comment, AssessmentRequested, AssessmentApproved,
             JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
             JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
             Like,SEND_MESSAGE};

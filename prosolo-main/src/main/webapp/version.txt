@@ -1,10 +1,9 @@
-Current date:2018/04/26-19:21:34
+Current date:2018/07/08-08:58:51
 Source branch:1.2.0
 Project version:1
 Git version:
-commit 8e3e75934d613c0808d6c9895e30cb34212dacba
-Merge: 7ea6e9f84 97b4c20ed
-Author: jeremycod <zoran.jeremic@gmail.com>
-Date:   Thu Apr 26 19:21:08 2018 -0700
+commit bd2171fb1f01ea9cbb0676df3f1f66786efda5e1
+Author: Nikola Milikic <nikola.milikic@gmail.com>
+Date:   Sun Jul 8 17:56:34 2018 +0200
 
-    Merge branch 'release/1.2.0' of bitbucket.org:zjeremic/prosolo-multimodule into release/1.2.0
+    When creating evidence, tab for selecting Text type of evidence is hidden. Already created text evidence can still be edited. PRS-3211

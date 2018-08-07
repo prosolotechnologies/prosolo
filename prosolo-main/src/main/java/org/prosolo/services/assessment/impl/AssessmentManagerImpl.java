@@ -1498,19 +1498,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
 		try {
-			Result<Void> res = new Result();
-			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
-					CompetenceAssessment.class, competenceAssessmentId);
-			ca.setApproved(true);
-			ca.setAssessorNotified(false);
+			Result<Void> result = new Result();
+			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
+			competenceAssessment.setApproved(true);
+			competenceAssessment.setAssessorNotified(false);
 			//if instructor assessment, mark approved competence as completed if not already
-			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
-				TargetCompetence1 tc = compManager.getTargetCompetence(ca.getCompetence().getId(), ca.getStudent().getId());
+			if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
 				if (tc.getProgress() < 100) {
-					res.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+					result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
 				}
 			}
-			return res;
+
+			User student = new User();
+			student.setId(competenceAssessment.getStudent().getId());
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+					competenceAssessment, student, null, null));
+			return result;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error approving the competence");

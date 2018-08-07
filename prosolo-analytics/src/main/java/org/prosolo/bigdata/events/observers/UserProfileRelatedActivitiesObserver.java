@@ -1,16 +1,16 @@
 package org.prosolo.bigdata.events.observers;
 
-import java.util.List;
-import java.util.Set;
-
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.analyzers.ObservationType;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.scala.clustering.ProfileEventsChecker$;
 import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.util.date.DateEpochUtil;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+
+import java.util.List;
+import java.util.Set;
 
 
 /**

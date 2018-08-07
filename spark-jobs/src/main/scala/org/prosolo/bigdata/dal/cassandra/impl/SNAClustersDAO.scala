@@ -4,6 +4,7 @@ import java.util
 import java.util.List
 
 import com.datastax.driver.core.Row
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 
@@ -14,6 +15,7 @@ import scala.collection.JavaConversions._
   * zoran 18/03/17
   */
 class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
+  val logger = LoggerFactory.getLogger(getClass)
   override val keyspace=dbName
 
   def updateCurrentTimestamp(tableName:TableNames, timestamp:java.lang.Long): Unit ={
@@ -36,7 +38,7 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
     }
   }
   def insertOutsideClusterInteractions(timestamp:java.lang.Long, credentialId:java.lang.Long, studentId: java.lang.Long, cluster: java.lang.Long, direction: String, interactions: util.List[String]): Unit ={
-    println("Insert outside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+studentId);
+    logger.debug("Insert outside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+studentId);
    val query= s"INSERT INTO $keyspace." + TablesNames.SNA_OUTSIDE_CLUSTER_INTERACTIONS + "(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?) "
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, credentialId,  studentId,direction, cluster, interactions)
@@ -44,7 +46,7 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
   }
 
   def insertInsideClusterInteractions(timestamp: java.lang.Long, credentialId: java.lang.Long, cluster: java.lang.Long, student: java.lang.Long, interactions: util.List[String]) {
-    println("Insert Inside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+student);
+    logger.debug("Insert Inside cluster keyspace:"+keyspace+" time:"+timestamp+" credential:"+credentialId+" cluster:"+cluster+" student:"+student);
     val query= s"INSERT INTO $keyspace." + TablesNames.SNA_INSIDE_CLUSTER_INTERACTIONS + "(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?) "
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, credentialId, cluster, student, interactions)

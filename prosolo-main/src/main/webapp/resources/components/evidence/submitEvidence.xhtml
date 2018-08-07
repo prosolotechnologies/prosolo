@@ -90,7 +90,7 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
 				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
-						<p:growl />
+						<p:growl showDetail="true" />
 
 						<h:inputText
 								id="inputTitle"
@@ -131,8 +131,8 @@
 							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
 								<div class="whiteBox evidenceBox evidenceBoxSmall">
 									<div class="evidenceTop">
-										<div class="evidenceTopLeft">
-											<div class="icon doc"></div>
+										<div class="evidenceTopLeft #{styleUtilBean.getEvidenceFileTypeIcon(submitEvidenceBean.evidence.url)}">
+											<div class="icon iconType"></div>
 											<h3>#{submitEvidenceBean.evidence.fileName}</h3>
 										</div>
 										<div class="evidenceTopRight">
@@ -189,7 +189,7 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'LINK' ? 'in active' : ''}" id="url">
 					<h:form id="formUrlEvidence">
-						<p:growl />
+						<p:growl showDetail="true" />
 
 						<h:inputText
 								id="inputTitle"
@@ -256,7 +256,7 @@
 			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'TEXT' ? 'in active' : ''}" id="text">
 					<h:form id="formTextEvidence">
-						<p:growl />
+						<p:growl showDetail="true" />
 
 						<h:inputText
 								id="inputTitle"
