@@ -4,12 +4,13 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.elasticsearch.AbstractESIndexer;
 
 /**
  * @author Zoran Jeremic 2013-06-29
  *
  */
-public interface UserEntityESService  extends AbstractBaseEntityESService {
+public interface UserEntityESService extends AbstractESIndexer {
 
 	void saveUserNode(User user, Session session);
 
@@ -27,9 +28,9 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	
 	void updateBasicUserData(User user, Session session);
 
-	void updateFollowers(long orgId, long userId);
+	void updateFollowers(long orgId, long userId, Session session);
 
-	void updateFollowingUsers(long orgId, long userId);
+	void updateFollowingUsers(long orgId, long userId, Session session);
 
 	void updateCompetences(long orgId, long userId, Session session);
 

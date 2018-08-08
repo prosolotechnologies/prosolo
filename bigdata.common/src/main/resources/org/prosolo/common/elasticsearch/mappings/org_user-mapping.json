@@ -1,5 +1,5 @@
 {
-	"user": {
+	"org_user": {
 		"properties": {
 			"id": {
 				"store": false,
@@ -7,15 +7,29 @@
 			},
 			"url": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 			"name": {
 				"store": false,
-				"type": "string"
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"lastname": {
 				"store": false,
-				"type": "string"
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
 			},
 			"system": {
 				"store": false,
@@ -23,24 +37,32 @@
 			},
 			"avatar": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 
 			"position": {
 				"store": false,
-				"type": "string"
+				"type": "keyword"
 			},
 
 			"location": {
 				"type": "geo_point"
 			},
 
-			
 			"roles": {
+				"type": "nested",
 				"properties": {
 					"id": {
 						"store": false,
 						"type": "long"
+					},
+					"units" : {
+						"properties": {
+							"id": {
+								"store": false,
+								"type": "long"
+							}
+						}
 					}
 				}
 			},
@@ -64,6 +86,14 @@
 						"store": false,
 						"type":"date",
 						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"assessorNotified": {
+						"store": false,
+						"type": "boolean"
+					},
+					"assessed": {
+						"store": false,
+						"type": "boolean"
 					}
 				}
 			},
@@ -107,6 +137,23 @@
 			},
 			
 			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"following": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+
+			"groups": {
 				"properties": {
 					"id": {
 						"store": false,

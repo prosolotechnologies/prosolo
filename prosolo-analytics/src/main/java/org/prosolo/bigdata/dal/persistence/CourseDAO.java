@@ -29,4 +29,6 @@ public interface CourseDAO {
 	List<Long> getIdsOfCredentialsUserIsLearning(long userId, Session session) 
 			throws DbConnectionException;
 
+	long getOrganizationIdForCredential(long credentialId);
+
 }

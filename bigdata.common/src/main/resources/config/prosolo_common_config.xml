@@ -42,15 +42,17 @@
 			<es-host>
 				<host>192.168.2.219</host>
 				<port>9300</port>
+				<http-port>9200</http-port>
 			</es-host>
 		</es-hosts>
 		<home-path>/home/zoran/elasticsearch</home-path>
 		<cluster-name>elasticsearch</cluster-name>
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
-		<nodes-index>nodes</nodes-index>
+		<credentials-index>credentials</credentials-index>
+		<competences-index>competences</competences-index>
 		<users-index>users</users-index>
-		<associationrules-index>associationrules</associationrules-index>
+		<!--<associationrules-index>associationrules</associationrules-index>-->
 		<recommendationdata-index>recommendationdata</recommendationdata-index>
 		<userGroup-index>usergroups</userGroup-index>
 		<logs-index>logs</logs-index>

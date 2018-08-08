@@ -10,11 +10,11 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.CompetenceIndexer;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
-public class CompetenceIndexerImpl extends AbstractESIndexer implements
+public class CompetenceIndexerImpl extends AbstractESIndexerImpl implements
 		CompetenceIndexer, Serializable {
 	
 	private static final long serialVersionUID = -1740927229182115398L;
@@ -41,7 +41,7 @@ public class CompetenceIndexerImpl extends AbstractESIndexer implements
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_COMPETENCES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

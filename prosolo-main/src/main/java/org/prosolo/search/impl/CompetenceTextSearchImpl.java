@@ -1,23 +1,22 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -26,7 +25,6 @@ import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -75,18 +73,13 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchString != null && !searchString.isEmpty()) {
+			if (searchString != null && !searchString.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
 						.field("title");
 				
 				bQueryBuilder.filter(qb);
@@ -119,33 +112,38 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					CompetenceSearchConfig.of(
 							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId, null));
 			
-			SearchRequestBuilder searchResultBuilder = client
-					.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+//			SearchRequestBuilder searchResultBuilder = client
+//					.prepareSearch(indexName)
+//					.setTypes(ESIndexTypes.COMPETENCE)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit);
 			
 			if (!sortTitleAsc.equals(SortingOption.NONE)) {
 				switch (sortTitleAsc) {
 					case ASC:
-						searchResultBuilder.addSort("title", SortOrder.ASC);
+						searchSourceBuilder.sort(new FieldSortBuilder("title.sort").order(SortOrder.ASC));
 						break;
 					case DESC:
-						searchResultBuilder.addSort("title", SortOrder.DESC);
+						searchSourceBuilder.sort(new FieldSortBuilder("title.sort").order(SortOrder.DESC));
 						break;
 					default:
 						break;
 				}
 			}
 			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
-			SearchResponse sResponse = searchResultBuilder
-					.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				
 				for (SearchHit hit : sResponse.getHits()) {
-					Long id = ((Integer) hit.getSource().get("id")).longValue();
+					Long id = ((Integer) hit.getSourceAsMap().get("id")).longValue();
 					
 					try {
 						/*
@@ -162,7 +160,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				}
 			}
 			return response;
-		} catch (NoNodeAvailableException e1) {
+		} catch (Exception e1) {
 			logger.error(e1);
 			e1.printStackTrace();
 			return null;
@@ -178,18 +176,13 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
 				
@@ -206,28 +199,23 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					break;
 				case FROM_CREATOR:
 					bQueryBuilder.filter(termQuery("creatorId", userId));
+					//this filter returns competencies created by student with userId but only if
+					bQueryBuilder.filter(termQuery("type",
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case BY_OTHER_STUDENTS:
 					bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
+					bQueryBuilder.filter(termQuery("type",
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case UNIVERSITY:
 					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
+							LearningResourceType.UNIVERSITY_CREATED.toString()));
 					break;
 				case BY_STUDENTS:
 					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
 					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
+							LearningResourceType.USER_CREATED.toString()));
 					break;
 				case ENROLLED:
 					bQueryBuilder.filter(termQuery("students.id", userId));
@@ -244,24 +232,22 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
 			String[] includes = {"id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
 			
 			//add sorting
 			SortOrder order = sortOption.getSortOrder() == 
 					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {
@@ -270,7 +256,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 						try {
 							CompetenceData1 cd = null;
 							/*
@@ -309,18 +295,13 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		try {
 			int start = 0;
 			start = setStart(page, limit);
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
 						.field("title").field("description");
 				
 				bQueryBuilder.filter(qb);
@@ -355,26 +336,24 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			bQueryBuilder.filter(configureAndGetSearchFilter(
 					CompetenceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
 						userId, null));
-			
+
 			String[] includes = {"id", "title", "published", "archived", "datePublished", "learningStageId"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
-			
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.from(start)
+					.size(limit)
+					.fetchSource(includes, null);
+
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
+			SortOrder order = sortOption.getSortOrder() ==
+					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
 					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId), ESIndexTypes.COMPETENCE);
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {
@@ -383,11 +362,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						 * long field is parsed this way because ES is returning integer although field type
 						 * is specified as long in mapping file
 						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
-						String title = hit.getSource().get("title").toString();
-						boolean published = Boolean.parseBoolean(hit.getSource().get("published").toString());
-						boolean archived = Boolean.parseBoolean(hit.getSource().get("archived").toString());
-						String datePublishedString = (String) hit.getSource().get("datePublished");
+						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+						String title = hit.getSourceAsMap().get("title").toString();
+						boolean published = Boolean.parseBoolean(hit.getSourceAsMap().get("published").toString());
+						boolean archived = Boolean.parseBoolean(hit.getSourceAsMap().get("archived").toString());
+						String datePublishedString = (String) hit.getSourceAsMap().get("datePublished");
 						Date datePublished = null;
 						if (datePublishedString != null && !datePublishedString.isEmpty()) {
 							datePublished = ElasticsearchUtil.parseDate(datePublishedString);
@@ -401,7 +380,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 
 						CompetenceData1 cd = compFactory.getCompetenceData(null, comp, null, null, false);
 						cd.setNumberOfStudents(compManager.countNumberOfStudentsLearningCompetence(id));
-						long lStageId = Long.parseLong(hit.getSource().get("learningStageId").toString());
+						long lStageId = Long.parseLong(hit.getSourceAsMap().get("learningStageId").toString());
 						cd.setLearningStageEnabled(lStageId > 0);
 						if (lStageId > 0) {
 							cd.setLearningStage(orgManager.getLearningStageData(lStageId));
@@ -468,8 +447,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			 * for example: if competence is user created and user has edit privilege for that competence
 			 * but university created type is set in config object, user should not see this competence
 			 */
-			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()
-					.toLowerCase()));
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()));
 			
 			boolFilter.should(editorAndTypeFilter);
 		}

@@ -7,7 +7,13 @@
       },
       "name":{
         "store": false,
-        "type": "string"
+        "type": "text",
+        "fields": {
+          "sort": {
+            "type": "keyword",
+            "normalizer": "ci_normalizer"
+          }
+        }
       }
     }
   }
