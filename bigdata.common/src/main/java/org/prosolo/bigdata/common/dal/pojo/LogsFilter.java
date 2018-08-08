@@ -2,7 +2,7 @@ package org.prosolo.bigdata.common.dal.pojo;/**
  * Created by zoran on 09/10/16.
  */
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 import java.io.Serializable;
 import java.util.ArrayList;

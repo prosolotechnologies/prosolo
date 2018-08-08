@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.elasticsearch.AbstractESIndexer;
@@ -29,6 +30,8 @@ public interface UserEntityESService extends AbstractESIndexer {
 
 	void updateFollowers(long orgId, long userId, Session session);
 
+	void updateFollowingUsers(long orgId, long userId, Session session);
+
 	void updateCompetences(long orgId, long userId, Session session);
 
 	void updateCompetenceProgress(long orgId, long userId, TargetCompetence1 tComp);
@@ -38,5 +41,7 @@ public interface UserEntityESService extends AbstractESIndexer {
 	void updateGroups(long orgId, long userId, Session session);
 
 	void removeUserFromIndex(User user);
+
+	void updateCredentialAssessmentInfo(long orgId, CredentialAssessment assessment);
 
 }

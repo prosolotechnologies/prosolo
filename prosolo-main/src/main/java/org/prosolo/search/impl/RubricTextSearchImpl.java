@@ -19,7 +19,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -49,7 +48,6 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
     }
 
     @Override
-    @Transactional
     public PaginatedResult<RubricData> searchRubrics(long orgId, String searchString,
                                                      int page, int limit) {
 

@@ -118,6 +118,37 @@ public class GradeAddedEventProcessor extends NotificationEventProcessor {
 		return event.getObject().getId();
 	}
 
+	@Override
+	public ResourceType getTargetType() {
+		if (event.getObject() instanceof CredentialAssessment) {
+			return ResourceType.Credential;
+		} else if (event.getObject() instanceof CompetenceAssessment) {
+			return ResourceType.Competence;
+		} else if (event.getObject() instanceof ActivityAssessment) {
+			return ResourceType.Activity;
+		} else {
+			logger.error("GradeAddedEventProcessor can not process assessment of type " + event.getObject().getClass());
+			return null;
+		}
+	}
+
+	@Override
+	public long getTargetId() {
+		if (event.getObject() instanceof CredentialAssessment) {
+			CredentialAssessment assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
+			return assessment.getTargetCredential().getCredential().getId();
+		} else if (event.getObject() instanceof CompetenceAssessment) {
+			CompetenceAssessment assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
+			return assessment.getCompetence().getId();
+		} else if (event.getObject() instanceof ActivityAssessment) {
+			ActivityAssessment assessment = (ActivityAssessment) session.load(ActivityAssessment.class, event.getObject().getId());
+			return assessment.getActivity().getId();
+		} else {
+			logger.error("GradeAddedEventProcessor can not process assessment of type " + event.getObject().getClass());
+			return 0;
+		}
+	}
+
 	private String getNotificationLink(AssessmentType assessmentType, LearningResourceType resType) {
 		Context context = contextJsonParserService.parseContext(event.getContext());
 		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);

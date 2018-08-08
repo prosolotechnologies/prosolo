@@ -16,21 +16,25 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -155,7 +159,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-					targetCredential.getCredential().getId(), studentId, false, false, true);
+					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.builder().setLoadActivities(true).create());
+			boolean atLeastOneCompGraded = false;
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
 						comp, studentId, assessorId, null, type,false, context);
@@ -164,7 +169,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				cca.setCompetenceAssessment(res.getResult());
 				saveEntity(cca);
 				result.appendEvents(res.getEventQueue());
+
+				/*
+				determine if credential assessment is assessed when automatic grading
+				assessed flag should be true when at least one competence is graded
+				 */
+				if (targetCredential.getCredential().getGradingMode() == GradingMode.AUTOMATIC
+						&& res.getResult().getPoints() >= 0) {
+					atLeastOneCompGraded = true;
+				}
 			}
+
+			assessment.setAssessed(targetCredential.getCredential().getGradingMode() == GradingMode.AUTOMATIC && atLeastOneCompGraded);
 
 			//generate event only for peer assessment
 			if (type == AssessmentType.PEER_ASSESSMENT) {
@@ -187,12 +203,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while creating assessment for a credential");
+			throw new DbConnectionException("Error while creating assessment of a credential");
 		}
 	}
 
 	/**
-	 * Returns credential assessment for given target credential, student and assessor if it exists and it's type is
+	 * Returns credential assessment of given target credential, student and assessor if it exists and it's type is
 	 * not instructor assessment
 	 *
 	 * @param targetCredentialId
@@ -321,7 +337,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				compAssessment.setPoints(-1);
 			}
 
-			//only for peer assessment and when explicit assessment for competence is requested, assessment requested event is fired
+			//only for peer assessment and when explicit assessment of competence is requested, assessment requested event is fired
 			if (type == AssessmentType.PEER_ASSESSMENT && isExplicitRequest) {
 				CompetenceAssessment assessment1 = new CompetenceAssessment();
 				assessment1.setId(compAssessment.getId());
@@ -341,7 +357,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	/**
-	 * Returns competence assessment for given competence, student and assessor if it exists and it's type is
+	 * Returns competence assessment of given competence, student and assessor if it exists and it's type is
 	 * not instructor assessment
 	 *
 	 * @param competenceId
@@ -370,43 +386,62 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat) {
-		return getFullAssessmentDataForAssessmentType(id, userId, null, dateFormat);
+	public AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat, AssessmentLoadConfig loadConfig) {
+		return getFullAssessmentDataForAssessmentType(id, userId, null, dateFormat, loadConfig);
 	}
 
 	@Override
 	@Transactional
-	public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat) {
+	public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat, AssessmentLoadConfig loadConfig) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
 		if (type != null && assessment.getType() != type) {
 			return null;
 		}
+		/*
+		if data should not be loaded when assessment display is disabled or assessment is not approved
+		these cases should be covered and data should not be populated, empty data with basic info should be
+		returned instead
+		 */
+		if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
+			AssessmentDataFull data = new AssessmentDataFull();
+			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
+			data.setApproved(assessment.isApproved());
+			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
+			data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
+			data.setAssessedStudentId(assessment.getStudent().getId());
+
+			return data;
+		}
+
 		List<CompetenceData1> userComps = compManager.getCompetencesForCredential(
 				assessment.getTargetCredential().getCredential().getId(),
-				assessment.getTargetCredential().getUser().getId(), false, false, true);
+				assessment.getTargetCredential().getUser().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
 		int currentGrade = assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC
 				? getAutomaticCredentialAssessmentScore(id) : assessment.getPoints();
-		Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(id);
-		Map<Long, Pair<Integer, Integer>> compAssessmentsGradeSummary = getCompetenceAssessmentsRubricGradeSummary(assessment.getCompetenceAssessments().stream().map(a -> a.getCompetenceAssessment().getId()).collect(Collectors.toList()));
-		Map<Long, Pair<Integer, Integer>> actAssessmentsGradeSummary = getActivityAssessmentsRubricGradeSummary(
+		RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessment);
+		Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary = getCompetenceAssessmentsRubricGradeSummary(assessment.getCompetenceAssessments().stream().map(a -> a.getCompetenceAssessment().getId()).collect(Collectors.toList()));
+		Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary = getActivityAssessmentsRubricGradeSummary(
 				assessment.getCompetenceAssessments()
 						.stream()
 						.map(ca -> ca.getCompetenceAssessment().getActivityDiscussions())
 						.flatMap(aa -> aa.stream())
 						.map(aa -> aa.getId())
 						.collect(Collectors.toList()));
-		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat);
+		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
+	}
+
+	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
+		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved())
+				&& (loadConfig.isLoadDataIfStudentDisabledAssessmentDisplay() || assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 	}
 
 	/**
-	 * Returns pair of numbers for credential assessment where first number represents average level
-	 * in a rubric and second number represents number of levels in each rubric criterion.
 	 *
-	 * @param credAssessmentId
+	 * @param credentialAssessment
 	 * @return
 	 */
-	private Pair<Integer, Integer> getCredentialAssessmentRubricGradeSummary(long credAssessmentId) {
+	private RubricAssessmentGradeSummary getCredentialAssessmentRubricGradeSummary(CredentialAssessment credentialAssessment) {
 		String q =
 				"SELECT CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl) " +
 						"FROM CredentialCriterionAssessment cca " +
@@ -419,19 +454,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 		Object[] res = (Object[]) persistence.currentManager()
 				.createQuery(q)
-				.setLong("credAssessmentId", credAssessmentId)
+				.setLong("credAssessmentId", credentialAssessment.getId())
 				.uniqueResult();
 		if (res != null) {
 			int avgLvl = res[0] != null ? (int) res[0] : 0;
 			int numberOfLevels = res[1] != null ? (int) res[1] : 0;
-			return new Pair<>(avgLvl, numberOfLevels);
+			return new RubricAssessmentGradeSummary(avgLvl, numberOfLevels, getLevelTitleForCredentialRubric(credentialAssessment.getTargetCredential().getCredential().getId(), avgLvl));
 		}
-		return new Pair<>(0, 0);
+		return RubricAssessmentGradeSummary.empty();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Pair<Integer, Integer> getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	public AssessmentGradeSummary getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
 			switch (cred.getGradingMode()) {
@@ -453,7 +488,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 
-	private Pair<Integer, Integer> getCredentialAssessmentsAutomaticGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsAutomaticGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(SUM(CASE WHEN compAssessment.points > 0 THEN compAssessment.points ELSE 0 END), 0), COALESCE(SUM(CASE WHEN compAssessment.points >= 0 THEN 1 ELSE 0 END), 0) > 0, COALESCE(COUNT(DISTINCT ca.id), 0) " +
 				"FROM CredentialCompetenceAssessment cca " +
@@ -515,7 +550,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return nonAutomaticCompPoint + automaticCompPoints;
 	}
 
-	private Pair<Integer, Integer> getCredentialAssessmentsManualGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsManualGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(CAST(ROUND(AVG(CASE WHEN ca.points > 0 THEN ca.points ELSE 0 END)) as int), 0), COALESCE(SUM(CASE WHEN ca.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 				"FROM CredentialAssessment ca " +
@@ -542,7 +577,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
 	}
 
-	private Pair<Integer, Integer> getCredentialAssessmentsRubricGradeSummary(long credentialId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCredentialAssessmentsRubricGradeSummary(long credentialId, long studentId, AssessmentType type) {
 		String q1 =
 				"SELECT CAST(COUNT(lvl.id) as int) " +
 				"FROM Credential1 c " +
@@ -554,7 +589,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setLong("credId", credentialId)
 				.uniqueResult();
 		if (lvlCount == 0) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 		String q =
 				"SELECT COALESCE(CAST(AVG(l.order) as int), 0) " +
@@ -577,7 +612,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.list();
 
 		if (res.isEmpty()) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 
 		double avgGrade = res.stream().mapToInt(grade -> grade).average().getAsDouble();
@@ -586,7 +621,25 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		and we should return 1 as a grade because 0 means there are no graded assessments
 		 */
 		avgGrade = avgGrade < 1 && avgGrade > 0 ? 1 : avgGrade;
-		return new Pair<>((int) Math.round(avgGrade), lvlCount);
+		int roundedAvgGrade = (int) Math.round(avgGrade);
+
+		return new RubricAssessmentGradeSummary(roundedAvgGrade, lvlCount, getLevelTitleForCredentialRubric(credentialId, roundedAvgGrade));
+	}
+
+	private String getLevelTitleForCredentialRubric(long credId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+				"FROM Credential1 c " +
+				"INNER JOIN c.rubric r " +
+				"INNER JOIN r.levels lvl " +
+						"WITH lvl.order = :order " +
+				"WHERE c.id = :credId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("credId", credId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	/*
@@ -595,7 +648,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	public AssessmentGradeSummary getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			switch (comp.getGradingMode()) {
@@ -617,7 +670,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsAutomaticGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsAutomaticGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(SUM(CASE WHEN aa.points > 0 THEN aa.points ELSE 0 END), 0), COALESCE(SUM(CASE WHEN aa.points >= 0 THEN 1 ELSE 0 END), 0) > 0, COALESCE(COUNT(DISTINCT ca.id), 0) " +
 						"FROM CompetenceAssessment ca " +
@@ -659,7 +712,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.uniqueResult();
 	}
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsManualGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsManualGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q =
 				"SELECT COALESCE(CAST(ROUND(AVG(CASE WHEN ca.points > 0 THEN ca.points ELSE 0 END)) as int), 0), COALESCE(SUM(CASE WHEN ca.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 						"FROM CompetenceAssessment ca " +
@@ -685,7 +738,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
 	}
 
-	private Pair<Integer, Integer> getCompetenceAssessmentsRubricGradeSummary(long competenceId, long studentId, AssessmentType type) {
+	private AssessmentGradeSummary getCompetenceAssessmentsRubricGradeSummary(long competenceId, long studentId, AssessmentType type) {
 		String q1 =
 				"SELECT COALESCE(CAST(COUNT(lvl.id) as int), 0) " +
 						"FROM Competence1 c " +
@@ -697,7 +750,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setLong("compId", competenceId)
 				.uniqueResult();
 		if (lvlCount == 0) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 		String q =
 				"SELECT COALESCE(CAST(AVG(l.order) as int), 0) " +
@@ -719,7 +772,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.list();
 
 		if (res.isEmpty()) {
-			return new Pair<>(0, 0);
+			return RubricAssessmentGradeSummary.empty();
 		}
 
 		double avgGrade = res.stream().mapToInt(grade -> grade).average().getAsDouble();
@@ -728,7 +781,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		and we should return 1 as a grade because 0 means there are no graded assessments
 		 */
 		avgGrade = avgGrade < 1 && avgGrade > 0 ? 1 : avgGrade;
-		return new Pair<>((int) Math.round(avgGrade), lvlCount);
+		int roundedAvgGrade = (int) Math.round(avgGrade);
+		return new RubricAssessmentGradeSummary(roundedAvgGrade, lvlCount, getLevelTitleForCompetenceRubric(competenceId, roundedAvgGrade));
+	}
+
+	private String getLevelTitleForCompetenceRubric(long compId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+						"FROM Competence1 c " +
+						"INNER JOIN c.rubric r " +
+						"INNER JOIN r.levels lvl " +
+						"WITH lvl.order = :order " +
+						"WHERE c.id = :compId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("compId", compId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	 /*
@@ -747,35 +817,52 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	 */
 	@Override
 	@Transactional
-	public Map<Long, Pair<Integer, Integer>> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds) {
+	public Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds) {
 		if (activityAssessmentIds == null || activityAssessmentIds.isEmpty()) {
 			return new HashMap<>();
 		}
 		try {
 			String q =
-					"SELECT aa.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM a.rubric r LEFT JOIN r.levels lvl) " +
+					"SELECT aa.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM a.rubric r LEFT JOIN r.levels lvl), aa.activity.id " +
 							"FROM ActivityCriterionAssessment aca " +
 							"INNER JOIN aca.assessment aa " +
 							"INNER JOIN aa.activity a " +
 							"INNER JOIN aca.level l " +
 							"WHERE aa.id IN (:actAssessmentIds) " +
 							"AND a.rubric IS NOT NULL " +
-							"GROUP BY aa.id";
+							"GROUP BY aa.id, aa.activity.id";
 
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(q)
 					.setParameterList("actAssessmentIds", activityAssessmentIds)
 					.list();
 
-			Map<Long, Pair<Integer, Integer>> summary = new HashMap<>();
+			Map<Long, RubricAssessmentGradeSummary> summary = new HashMap<>();
 			for (Object[] row : res) {
-				summary.put((long) row[0], new Pair<>((int) row[1], (int) row[2]));
+				int avgLevel = (int) row[1];
+				summary.put((long) row[0], new RubricAssessmentGradeSummary(avgLevel, (int) row[2], getLevelTitleForActivityRubric((long) row[3], avgLevel)));
 			}
 			return summary;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading rubric grade summary");
 		}
+	}
+
+	private String getLevelTitleForActivityRubric(long activityId, int lvlOrder) {
+		String q =
+				"SELECT lvl.title " +
+				"FROM Activity1 a " +
+				"INNER JOIN a.rubric r " +
+				"INNER JOIN r.levels lvl " +
+				"WITH lvl.order = :order " +
+				"WHERE a.id = :actId";
+
+		return (String) persistence.currentManager()
+				.createQuery(q)
+				.setLong("actId", activityId)
+				.setInteger("order", lvlOrder)
+				.uniqueResult();
 	}
 
 	/**
@@ -787,28 +874,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	 * @param compAssessmentIds
 	 * @return
 	 */
-	private Map<Long, Pair<Integer, Integer>> getCompetenceAssessmentsRubricGradeSummary(List<Long> compAssessmentIds) {
+	private Map<Long, RubricAssessmentGradeSummary> getCompetenceAssessmentsRubricGradeSummary(List<Long> compAssessmentIds) {
 		if (compAssessmentIds == null || compAssessmentIds.isEmpty()) {
 			return new HashMap<>();
 		}
 		String q =
-				"SELECT ca.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl) " +
+				"SELECT ca.id, CAST(ROUND(AVG(l.order)) as int), (SELECT CAST(COUNT(lvl.id) as int) FROM c.rubric r LEFT JOIN r.levels lvl), ca.competence.id " +
 				"FROM CompetenceCriterionAssessment cca " +
 				"INNER JOIN cca.assessment ca " +
 				"INNER JOIN ca.competence c " +
 				"INNER JOIN cca.level l " +
 				"WHERE ca.id IN (:compAssessmentIds) " +
 				"AND c.rubric IS NOT NULL " +
-				"GROUP BY ca.id";
+				"GROUP BY ca.id, ca.competence.id";
 
 		List<Object[]> res = persistence.currentManager()
 				.createQuery(q)
 				.setParameterList("compAssessmentIds", compAssessmentIds)
 				.list();
 
-		Map<Long, Pair<Integer, Integer>> summary = new HashMap<>();
+		Map<Long, RubricAssessmentGradeSummary> summary = new HashMap<>();
 		for (Object[] row : res) {
-			summary.put((long) row[0], new Pair<>((int) row[1], (int) row[2]));
+			int avgLevel = (int) row[1];
+			summary.put((long) row[0], new RubricAssessmentGradeSummary(avgLevel, (int) row[2], getLevelTitleForCompetenceRubric((long) row[3], avgLevel)));
 		}
 		return summary;
 	}
@@ -959,7 +1047,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Result<Void> result = new Result<>();
 			CredentialAssessment credentialAssessment = loadResource(CredentialAssessment.class, credentialAssessmentId);
 			List<CompetenceData1> competenceData1List = compManager.getCompetencesForCredential(credentialAssessment
-					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), false, false, false);
+					.getTargetCredential().getCredential().getId(), credentialAssessment.getStudent().getId(), CompetenceLoadConfig.builder().create());
 
 			Optional<CompetenceData1> userNotEnrolled = competenceData1List.stream().filter(comp -> !comp.isEnrolled()).findFirst();
 
@@ -1410,19 +1498,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
 		try {
-			Result<Void> res = new Result();
-			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
-					CompetenceAssessment.class, competenceAssessmentId);
-			ca.setApproved(true);
-			ca.setAssessorNotified(false);
+			Result<Void> result = new Result();
+			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
+			competenceAssessment.setApproved(true);
+			competenceAssessment.setAssessorNotified(false);
 			//if instructor assessment, mark approved competence as completed if not already
-			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
-				TargetCompetence1 tc = compManager.getTargetCompetence(ca.getCompetence().getId(), ca.getStudent().getId());
+			if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
 				if (tc.getProgress() < 100) {
-					res.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+					result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
 				}
 			}
-			return res;
+
+			User student = new User();
+			student.setId(competenceAssessment.getStudent().getId());
+			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+					competenceAssessment, student, null, null));
+			return result;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error approving the competence");
@@ -1918,13 +2010,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ad);
 
-				if (gradeValue > 0) {
-					//recalculate competence assessment score
-					updateScoreForCompetenceAssessmentIfNeeded(ad.getAssessment().getId());
-				}
+				//recalculate competence assessment score
+				EventQueue updateCompScoreEvents = updateScoreForCompetenceAssessmentIfNeeded(ad.getAssessment().getId(), context);
 
 				//update assessment star data
-				Map<Long, Pair<Integer, Integer>> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
+				Map<Long, RubricAssessmentGradeSummary> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
 						Arrays.asList(activityAssessmentId));
 				GradeDataFactory.updateAssessmentStarData(grade, actAssessmentGradeSummary.get(activityAssessmentId));
 
@@ -1939,6 +2029,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, aa, null,null, params));
+				result.appendEvents(updateCompScoreEvents);
 				result.setResult(grade);
 			}
 			return result;
@@ -1986,8 +2077,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				saveEntity(ca);
 
+				//recalculate assessment score for all credential assessments with this competence assessment
+				result.appendEvents(updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context));
+
 				//update assessment star data
-				Map<Long, Pair<Integer, Integer>> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
+				Map<Long, RubricAssessmentGradeSummary> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
 				GradeDataFactory.updateAssessmentStarData(grade, compAssessmentGradeSummary.get(assessmentId));
 
 				CompetenceAssessment compA = new CompetenceAssessment();
@@ -2009,6 +2103,54 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			e.printStackTrace();
 			throw new DbConnectionException("Error updating the grade");
 		}
+	}
+
+	private EventQueue updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
+		EventQueue events = EventQueue.newEventQueue();
+		List<Long> automaticGradingCredAssessments = getIdsOfNotAssessedAutoGradingCredentialAssessmentsWithCompetenceAssessment(compAssessmentId);
+		if (!automaticGradingCredAssessments.isEmpty()) {
+			setCredentialsAssessmentsAssessedFlag(automaticGradingCredAssessments, true);
+			for (long id : automaticGradingCredAssessments) {
+				CredentialAssessment ca = new CredentialAssessment();
+				ca.setId(id);
+				events.appendEvent(eventFactory.generateEventData(EventType.ASSESSED_BY_AUTO_GRADING, context, ca, null, null, null));
+			}
+		}
+		return events;
+	}
+
+	private void setCredentialsAssessmentsAssessedFlag(List<Long> credAssessmentIds, boolean assessed) {
+		if (credAssessmentIds.isEmpty()) {
+			return;
+		}
+		String q =
+				"UPDATE CredentialAssessment ca SET ca.assessed = :assessed " +
+				"WHERE ca.id IN (:ids)";
+
+		int affected = persistence.currentManager().createQuery(q)
+				.setBoolean("assessed", assessed)
+				.setParameterList("ids", credAssessmentIds)
+				.executeUpdate();
+
+		logger.info("Number of credential assessments with updated assessed flag: " + affected);
+	}
+
+	private List<Long> getIdsOfNotAssessedAutoGradingCredentialAssessmentsWithCompetenceAssessment(long compAssessmentId) {
+		String q =
+				"SELECT ca.id FROM CredentialCompetenceAssessment cca " +
+				"INNER JOIN cca.credentialAssessment ca " +
+				"WITH ca.assessed IS FALSE " +
+				"INNER JOIN ca.targetCredential tc " +
+				"INNER JOIN tc.credential cred " +
+				"WITH cred.gradingMode = :autoGradingMode " +
+				"WHERE cca.competenceAssessment.id = :compAssessmentId";
+
+		@SuppressWarnings("unchecked")
+		List<Long> ids = persistence.currentManager().createQuery(q)
+				.setString("autoGradingMode", GradingMode.AUTOMATIC.name())
+				.setLong("compAssessmentId", compAssessmentId)
+				.list();
+		return ids;
 	}
 
 	//GRADE COMPETENCE ASSESSMENT END
@@ -2042,6 +2184,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						CredentialAssessment.class, assessmentId);
 //
 				ca.setPoints(gradeValue);
+				ca.setAssessed(true);
 
 				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.CREDENTIAL);
 				/*
@@ -2054,7 +2197,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				saveEntity(ca);
 
 				//update assessment star data
-				Pair<Integer, Integer> credGradeSummary = getCredentialAssessmentRubricGradeSummary(assessmentId);
+				RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(ca);
 				GradeDataFactory.updateAssessmentStarData(grade, credGradeSummary);
 
 				CredentialAssessment credA = new CredentialAssessment();
@@ -2137,7 +2280,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public int updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session)
+	public void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session)
 			throws DbConnectionException {
 		try {
 			int points = calculateCompetenceAssessmentScoreAsSumOfActivityPoints(compAssessmentId, session);
@@ -2150,8 +2293,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("compAssessmentId", compAssessmentId)
 					.setInteger("points", points)
 					.executeUpdate();
-
-			return points;
 		} catch (DbConnectionException e) {
 			throw e;
 		} catch (Exception e) {
@@ -2191,16 +2332,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error while retrieving competence assessment score");
 		}
 	}
-	
+
 	@Override
 	@Transactional
-	public int updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException {
+	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
-		//if automatic grading mode calculate comp points as a sum of activitiy points
+		//if automatic grading mode calculate comp points as a sum of activity points
 		if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
-			return updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
+			updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
+			//recalculate assessment score for all credential assessments with this competence assessment if needed
+			return updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context);
 		}
-		return -1;
+		return EventQueue.newEventQueue();
 	}
 
 	//This method would not work because we can have several instructor activity assessments for one target activity
@@ -2295,13 +2438,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.type, assessment.approved " +
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
-					"WHERE assessment.student.id = :assessedStrudentId " +
+					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId";
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
-					.setLong("assessedStrudentId", assessedStudentId)
+					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
 					.list();
 			
@@ -2656,25 +2799,30 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException {
+	public CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId, ResourceAccessData accessData, long userId) throws DbConnectionException {
 		try {
 			Credential1 del = credManager.getCredentialWithCompetences(deliveryId, CredentialType.Delivery);
 
 			CredentialAssessmentsSummaryData credentialAssessmentsSummaryData = assessmentDataFactory
 					.getCredentialAssessmentsSummary(del);
 
+			//return summary for all students if user is credential editor and only user's students if user is instructor
+			boolean loadDataForInstructorOnly =  !accessData.isCanEdit();
+
 			//get number of users that completed activity for each activity in a credential
 			List<Long> credCompIds = new ArrayList<>();
 			del.getCompetences().forEach(cc -> credCompIds.add(cc.getCompetence().getId()));
-			List<Long> studentsLearningCredential = credManager.getUsersLearningDelivery(deliveryId);
-			Map<Long, Long> usersCompletedActivitiesMap = getNumberOfStudentsCompletedActivityForAllActivitiesInACredential(
+			List<Long> studentsLearningCredential = loadDataForInstructorOnly
+					? credManager.getUsersLearningDeliveryAssignedToInstructor(deliveryId, userId)
+					: credManager.getUsersLearningDelivery(deliveryId);
+			Map<Long, Long> usersCompletedActivitiesMap = getNumberOfStudentsCompletedActivityForGivenStudentsAndCompetencies(
 					studentsLearningCredential, credCompIds);
 			//get number of assessed users
-			Map<Long, Long> assessedUsersMap = getNumberOfAssessedStudentsForEachActivityInCredential(deliveryId);
+			Map<Long, Long> assessedUsersMap = getNumberOfAssessedStudentsForEachActivityInCredential(deliveryId, loadDataForInstructorOnly, userId);
 			//get number of enrolled students in a competency in order to have info how many students can be assessed
 			Map<Long, Long> studentsEnrolledInCompetences = getNumberOfStudentsEnrolledInCompetences(studentsLearningCredential, credCompIds);
 			//get number of assessed students and notifications for each competency in credential
-			Map<Long, Long[]> compAssessmentSummaryInfo = getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(deliveryId);
+			Map<Long, Long[]> compAssessmentSummaryInfo = getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(deliveryId, loadDataForInstructorOnly, userId);
 			for (CredentialCompetence1 cc : del.getCompetences()) {
 				Long[] compAssessmentSummary = compAssessmentSummaryInfo.get(cc.getCompetence().getId());
 				long numberOfAssessedStudents = compAssessmentSummary != null ? compAssessmentSummary[0] : 0;
@@ -2701,7 +2849,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private Map<Long, Long> getNumberOfStudentsCompletedActivityForAllActivitiesInACredential(List<Long> usersLearningDelivery, List<Long> compIds) {
+	private Map<Long, Long> getNumberOfStudentsCompletedActivityForGivenStudentsAndCompetencies(List<Long> usersLearningDelivery, List<Long> compIds) {
 		if (usersLearningDelivery == null || usersLearningDelivery.isEmpty() || compIds == null || compIds.isEmpty()) {
 			return new HashMap<>();
 		}
@@ -2723,24 +2871,33 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
-	private Map<Long, Long> getNumberOfAssessedStudentsForEachActivityInCredential(long deliveryId) {
+	private Map<Long, Long> getNumberOfAssessedStudentsForEachActivityInCredential(long deliveryId, boolean loadOnlyResultsForStudentsWithGivenUserAsInstructor, long userId) {
 		String usersAssessedQ =
 				"SELECT aa.activity.id, COUNT(aa.id) FROM ActivityAssessment aa " +
 				"INNER JOIN aa.assessment compAssessment " +
 				"INNER JOIN compAssessment.credentialAssessments cca " +
 				"INNER JOIN cca.credentialAssessment credAssessment " +
-				"WITH credAssessment.type = :instructorAssessment " +
+				"WITH credAssessment.type = :instructorAssessment ";
+		if (loadOnlyResultsForStudentsWithGivenUserAsInstructor) {
+			usersAssessedQ += "AND credAssessment.assessor.id = :assessorId ";
+		}
+		usersAssessedQ +=
 				"INNER JOIN credAssessment.targetCredential tc " +
 				"WITH tc.credential.id = :credId " +
 				"WHERE aa.points >= 0 " +
 				"GROUP BY aa.activity.id";
 
-		@SuppressWarnings("unchecked")
-		List<Object[]> usersAssessed = persistence.currentManager()
+		Query q = persistence.currentManager()
 				.createQuery(usersAssessedQ)
 				.setLong("credId", deliveryId)
-				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-				.list();
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+
+		if (loadOnlyResultsForStudentsWithGivenUserAsInstructor) {
+			q.setLong("assessorId", userId);
+		}
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersAssessed = q.list();
 		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
@@ -2765,46 +2922,64 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return usersCompletedActivities.stream().collect(Collectors.toMap(row -> (long) row[0], row -> (long) row[1]));
 	}
 
-	private Map<Long, Long[]> getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(long deliveryId) {
+	private Map<Long, Long[]> getNumberOfAssessedStudentsAndNotificationsForEachCompetenceInCredential(long deliveryId, boolean loadOnlyResultsForStudentsWithGivenUserAsInstructor, long userId) {
 		String q =
 				"SELECT ca.competence.id, SUM(case when ca.points >= 0 then 1 else 0 end), SUM(case when ca.assessorNotified = true then 1 else 0 end) " +
 				"FROM CompetenceAssessment ca " +
 				"INNER JOIN ca.credentialAssessments cca " +
 				"INNER JOIN cca.credentialAssessment credAssessment " +
-				"WITH credAssessment.type = :instructorAssessment " +
+				"WITH credAssessment.type = :instructorAssessment ";
+		if (loadOnlyResultsForStudentsWithGivenUserAsInstructor) {
+			q += "AND credAssessment.assessor.id = :assessorId ";
+		}
+		q +=
 				"INNER JOIN credAssessment.targetCredential tc " +
 				"WITH tc.credential.id = :credId " +
 				"GROUP BY ca.competence.id";
 
-		@SuppressWarnings("unchecked")
-		List<Object[]> usersAssessed = persistence.currentManager()
+		Query query = persistence.currentManager()
 				.createQuery(q)
 				.setLong("credId", deliveryId)
-				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-				.list();
+				.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+		if (loadOnlyResultsForStudentsWithGivenUserAsInstructor) {
+			query.setLong("assessorId", userId);
+		}
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> usersAssessed = query.list();
 		return usersAssessed.stream().collect(Collectors.toMap(row -> (long) row[0], row -> new Long[] {(long) row[1], (long) row[2]}));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException {
+	public long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId) throws DbConnectionException {
 		try {
 			String usersAssessedQ =
 					"SELECT COUNT(aa.id) FROM ActivityAssessment aa " +
 							"INNER JOIN aa.assessment compAssessment " +
 							"INNER JOIN compAssessment.credentialAssessments cca " +
 							"INNER JOIN cca.credentialAssessment credAssessment " +
-							"WITH credAssessment.type = :instructorAssessment " +
+							"WITH credAssessment.type = :instructorAssessment ";
+
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				usersAssessedQ += "AND credAssessment.assessor.id = :assessorId ";
+			}
+
+			usersAssessedQ +=
 							"INNER JOIN credAssessment.targetCredential tc " +
 							"WITH tc.credential.id = :credId " +
 							"WHERE aa.activity.id = :actId AND aa.points >= 0";
 
-			return (Long) persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(usersAssessedQ)
 					.setLong("credId", deliveryId)
 					.setLong("actId", activityId)
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-					.uniqueResult();
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+			if (loadDataOnlyForStudentsWhereGivenUserIsInstructor) {
+				q.setLong("assessorId", userId);
+			}
+
+			return (Long) q.uniqueResult();
 		} catch (Exception e) {
 			throw new DbConnectionException("Error retrieving assessment info");
 		}
@@ -3006,7 +3181,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	/**
-	 * Returns unique competence assessment for given competence, assessor, student and assessment type.
+	 * Returns unique competence assessment of given competence, assessor, student and assessment type.
 	 * Since this is not enough to guarantee uniqueness for instructor assessment, instructor assessment type
 	 * is not valid parameter value.
 	 *
@@ -3342,7 +3517,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException {
+	public List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat) throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
@@ -3355,11 +3530,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"ON cca.competence_assessment = ca.id " +
 					"INNER JOIN credential_assessment credAssessment " +
 					"ON credAssessment.id = cca.credential_assessment) " +
-					"ON comp.id = ca.competence " +
-					// following condition ensures that assessment for the right student is joined
-					"AND ca.student = tc.user " +
-					"AND ca.type = :instructorAssessment " +
-					"WHERE tc.user = :userId");
+					"ON comp.id = ca.competence ");
+				 	if (loadOnlyApproved) {
+						query.append("AND ca.approved IS TRUE ");
+					}
+					query.append(
+						// following condition ensures that assessment for the right student is joined
+						"AND ca.student = tc.user " +
+						"AND ca.type = :instructorAssessment " +
+						"WHERE tc.user = :userId");
 
 			Query q = persistence.currentManager()
 					.createSQLQuery(query.toString())
@@ -3397,9 +3576,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} else {
 			cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
 		}
-		Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
-		Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, dateFormat);
+		Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
+		Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
+		return CompetenceAssessmentData.from(cd, compAssessment, credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, dateFormat, true);
 	}
 
 	//COMPETENCE ASSESSMENT END
@@ -3432,13 +3611,30 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	public CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().get(CompetenceAssessment.class, competenceAssessmentId);
 			if (ca == null || (assessmentType != null && ca.getType() != assessmentType)) {
 				return null;
 			}
+
+			/*
+			if data should not be loaded when assessment is not approved and assessment is not approved
+			full data should not be populated, data with basic info should be
+			returned instead
+			 */
+			if (!loadConfig.isLoadDataIfAssessmentNotApproved() && !ca.isApproved()) {
+				CompetenceAssessmentData data = new CompetenceAssessmentData();
+				data.setApproved(ca.isApproved());
+				data.setTitle(ca.getCompetence().getTitle());
+				data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
+				data.setStudentId(ca.getStudent().getId());
+				data.setType(ca.getType());
+
+				return data;
+			}
+
 			CompetenceData1 cd = compManager.getTargetCompetenceOrCompetenceData(
 					ca.getCompetence().getId(), ca.getStudent().getId(), false, true, false, false);
 			/*
@@ -3449,9 +3645,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 				credAssessment = getCredentialAssessmentForCompetenceInstructorAssessment(ca.getId());
 			}
-			Map<Long, Pair<Integer, Integer>> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
-			Map<Long, Pair<Integer, Integer>> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat);
+			Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
+			Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
+			return CompetenceAssessmentData.from(cd, ca, credAssessment, compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessment data");
@@ -3475,12 +3671,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
-			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) throws DbConnectionException {
 		try {
 			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
-			res.setHitsNumber(countCredentialPeerAssessmentsForStudent(studentId, credId));
+			res.setHitsNumber(countCredentialPeerAssessmentsForStudent(studentId, credId, loadOnlyApproved));
 			if (res.getHitsNumber() > 0) {
-				res.setFoundNodes(getCredentialPeerAssessmentsForStudent(credId, studentId, dateFormat, offset, limit));
+				res.setFoundNodes(getCredentialPeerAssessmentsForStudent(credId, studentId, dateFormat, loadOnlyApproved, offset, limit));
 			}
 			return res;
 		} catch (Exception e) {
@@ -3490,14 +3686,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private List<AssessmentData> getCredentialPeerAssessmentsForStudent(
-			long credId, long studentId, DateFormat dateFormat, int offset, int limit) {
+			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) {
 		String q =
 				"SELECT ca FROM CredentialAssessment ca " +
 				"INNER JOIN fetch ca.assessor " +
 				"WHERE ca.targetCredential.credential.id = :credentialId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type " +
-				"ORDER BY ca.dateCreated";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+		    q += "AND ca.approved IS TRUE ";
+        }
+        q += "ORDER BY ca.dateCreated";
 
 		List<CredentialAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("credentialId", credId)
@@ -3516,12 +3715,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return res;
 	}
 
-	private long countCredentialPeerAssessmentsForStudent(long studentId, long credentialId) {
+	private long countCredentialPeerAssessmentsForStudent(long studentId, long credentialId, boolean loadOnlyApproved) {
 		String q =
 				"SELECT COUNT(ca.id) FROM CredentialAssessment ca " +
 				"WHERE ca.targetCredential.credential.id = :credentialId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+		    q += "AND ca.approved IS TRUE";
+        }
 		Query query = persistence.currentManager().createQuery(q)
 				.setLong("credentialId", credentialId)
 				.setLong("assessedStudentId", studentId)
@@ -3537,12 +3739,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException {
 		try {
 			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
-			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId));
+			res.setHitsNumber(countCompetencePeerAssessmentsForStudent(studentId, compId, loadOnlyApproved));
 			if (res.getHitsNumber() > 0) {
-				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, dateFormat, offset, limit));
+				res.setFoundNodes(getCompetencePeerAssessmentsForStudent(compId, studentId, loadOnlyApproved, dateFormat, offset, limit));
 			}
 			return res;
 		} catch (Exception e) {
@@ -3552,14 +3754,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private List<AssessmentData> getCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) {
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) {
 		String q =
 				"SELECT ca FROM CompetenceAssessment ca " +
 				"INNER JOIN fetch ca.assessor " +
 				"WHERE ca.competence.id = :compId " +
 				"AND ca.student.id = :assessedStudentId " +
-				"AND ca.type = :type " +
-				"ORDER BY ca.dateCreated";
+				"AND ca.type = :type ";
+		if (loadOnlyApproved) {
+			q += "AND ca.approved IS TRUE ";
+		}
+		q += "ORDER BY ca.dateCreated";
 
 		List<CompetenceAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
@@ -3578,12 +3783,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		return res;
 	}
 
-	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId) {
+	private long countCompetencePeerAssessmentsForStudent(long studentId, long compId, boolean countOnlyApproved) {
 		String q =
 				"SELECT COUNT(ca.id) FROM CompetenceAssessment ca " +
 						"WHERE ca.competence.id = :compId " +
 						"AND ca.student.id = :assessedStudentId " +
-						"AND ca.type = :type";
+						"AND ca.type = :type ";
+		if (countOnlyApproved) {
+			q += "AND ca.approved IS TRUE";
+		}
 		Query query = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
 				.setLong("assessedStudentId", studentId)
@@ -3593,5 +3801,66 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	//get competence peer assessments end
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId) {
+		try {
+			String query =
+					"SELECT COUNT(ca.id) from CredentialAssessment ca " +
+					"WHERE ca.targetCredential.id = :tcId " +
+					"AND ca.approved IS TRUE";
+			return ((Long) persistence.currentManager().createQuery(query)
+					.setLong("tcId", targetCredentialId)
+					.uniqueResult()).intValue();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading number of credential assessments");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId) {
+		try {
+			String query =
+					"SELECT COUNT(ca.id) from CompetenceAssessment ca " +
+					"WHERE ca.competence.id = :compId " +
+					"AND ca.student.id = :studentId " +
+					"AND ca.approved IS TRUE";
+			return ((Long) persistence.currentManager().createQuery(query)
+					.setLong("compId", competenceId)
+					.setLong("studentId", studentId)
+					.uniqueResult()).intValue();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the number of competence assessments");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialAssessment getInstructorCredentialAssessment(long credId, long userId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ca " +
+					"FROM CredentialAssessment ca " +
+					"INNER JOIN ca.targetCredential tc " +
+					"WHERE tc.credential.id = :credId " +
+					"AND tc.user.id = :userId " +
+					"AND ca.type = :instructorAssessment";
+
+			return (CredentialAssessment) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setLong("userId", userId)
+					.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving the credential assessment");
+		}
+	}
+
 
 }

@@ -17,8 +17,9 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +67,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                 long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
 
                 List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), false, false, true);
+                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
 
                 for (CompetenceData1 cd : comps) {
                     // if competence assessment has not been created, create it
@@ -221,7 +222,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
             List<CompetenceAssessment> competenceAssessments = getAllCompetenceAssessments();
             for (CompetenceAssessment ca : competenceAssessments) {
                 if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
-                    assessmentManager.updateScoreForCompetenceAssessmentIfNeeded(ca.getId());
+                    assessmentManager.updateScoreForCompetenceAssessmentIfNeeded(ca.getId(), UserContextData.empty());
                 }
             }
         } catch (Exception e) {
@@ -292,6 +293,24 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void migrateCredentialAssessmentsAssessedFlag() throws DbConnectionException {
+        try {
+            List<CredentialAssessment> assessments = getAllCredentialAssessments();
+            for (CredentialAssessment ca : assessments) {
+                if (ca.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
+                    ca.setAssessed(assessmentManager.getAutomaticCredentialAssessmentScore(ca.getId()) >= 0);
+                } else if(ca.getPoints() >= 0) {
+                    ca.setAssessed(true);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error migrating the data");
         }
     }
 

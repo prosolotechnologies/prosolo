@@ -1,11 +1,9 @@
-Current date:2018/02/19-08:44:40
-Source branch:PRS-3054-when-grade-is-addedupdated-send
+Current date:2018/07/08-08:58:51
+Source branch:1.2.0
 Project version:1
 Git version:
-commit f40a9868e9b92471a0dedb731973f9ac38cf8425
+commit bd2171fb1f01ea9cbb0676df3f1f66786efda5e1
 Author: Nikola Milikic <nikola.milikic@gmail.com>
-Date:   Mon Feb 19 07:15:07 2018 +0100
+Date:   Sun Jul 8 17:56:34 2018 +0200
 
-    Updating YouTube API key since the last one has expired.
-    Updating growl messages in several places.
-    Updated a label on the competence page "Existing Document" -> "Existing Evidence"
+    When creating evidence, tab for selecting Text type of evidence is hidden. Already created text evidence can still be edited. PRS-3211

@@ -1,13 +1,10 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
@@ -204,16 +201,12 @@ public class UserEditBean implements Serializable {
 
 	private void createNewUser() {
 		try {
-			User adminUser = userManager.createNewUser(decodedOrgId, this.user.getName(), this.user.getLastName(),
+			User adminUser = userManager.createNewUserAndSendEmail(decodedOrgId, this.user.getName(), this.user.getLastName(),
 					this.user.getEmail(),true, this.user.getPassword(), this.user.getPosition(),
 					null, null, getSelectedRoles(), false);
 
-			this.user.setId(adminUser.getId());
-
 			logger.debug("New user (" + adminUser.getName() + " " + adminUser.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
-
-			sendNewPassword();
 
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("A new user has been created");
 			if (decodedOrgId > 0) {
@@ -223,7 +216,7 @@ public class UserEditBean implements Serializable {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to save user data");
+			PageUtil.fireErrorMessage("Error trying to save user data");
 		}
 	}
 
@@ -272,29 +265,6 @@ public class UserEditBean implements Serializable {
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
 		newOwner.setFullName(userData.getFullName());
 		newOwner.setPosition(userData.getPosition());
-	}
-
-	private void sendNewPassword() {
-
-		final User user = userManager.getUser(this.user.getEmail());
-
-		taskExecutor.execute(() -> {
-			Session session = (Session) userManager.getPersistence().openSession();
-			try {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-						CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-				session.flush();
-				if (resetLinkSent) {
-					logger.info("Password instructions have been sent");
-				} else {
-					logger.error("Error sending password instruction");
-				}
-			}catch (Exception e){
-				logger.error("Exception in handling mail sending", e);
-			}finally {
-				HibernateUtil.close(session);
-			}
-		});
 	}
 
 	public void delete() {

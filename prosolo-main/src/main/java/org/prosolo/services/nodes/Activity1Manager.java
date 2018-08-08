@@ -8,8 +8,9 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 
 import java.util.Date;
 import java.util.List;
@@ -163,7 +164,8 @@ public interface Activity1Manager extends AbstractManager {
 	 *
 	 * @param credId
 	 * @param actId
-	 * @param isInstructor
+	 * @param accessData
+	 * @param userId
 	 * @param paginate
 	 * @param page
 	 * @param limit
@@ -171,11 +173,11 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 * @throws ResourceNotFoundException
 	 */
-	ActivityAssessmentsSummaryData getActivityAssessmentsDataForInstructorCredentialAssessment(long credId, long actId, boolean isInstructor,
-                                                                                               boolean paginate, int page, int limit)
+	ActivityAssessmentsSummaryData getActivityAssessmentsDataForInstructorCredentialAssessment(long credId, long actId, ResourceAccessData accessData,
+																							   long userId, boolean paginate, int page, int limit)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor)
+	ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId)
 			throws DbConnectionException, ResourceNotFoundException;
 
 	/**
@@ -189,7 +191,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param actId
 	 * @return
 	 */
-	Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId) throws DbConnectionException;
+	Long countStudentsLearningCredentialThatCompletedActivity(long credId, long actId, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId) throws DbConnectionException;
 	
 	/**
 	 * Returns results data for all students that posted result for activity with id {@code actId}
@@ -222,7 +224,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws ResourceNotFoundException
 	 */
 	List<ActivityResultData> getStudentsActivityAssessmentsData(long credId, long actId,
-																long targetActivityId, boolean isInstructor, boolean paginate,
+																long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId, boolean paginate,
 																int page, int limit) throws DbConnectionException, ResourceNotFoundException;
 
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments,

@@ -149,15 +149,16 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, boolean loadTags) throws DbConnectionException {
         try {
             String query =
-                    "SELECT distinct ce from CompetenceEvidence ce " +
-                    "INNER JOIN fetch ce.evidence le ";
+                    "SELECT distinct ce " +
+                    "FROM CompetenceEvidence ce " +
+                    "INNER JOIN FETCH ce.evidence le ";
             if (loadTags) {
                 query +=
                         "LEFT JOIN fetch le.tags ";
             }
             query +=
                     "WHERE ce.competence.id = :tcId " +
-                    "AND ce.deleted IS FALSE " +
+                        "AND ce.deleted IS FALSE " +
                     "ORDER BY ce.dateCreated ASC";
 
             @SuppressWarnings("unchecked")
@@ -194,7 +195,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public List<LearningEvidence> getAllEvidences(long orgId, Session session) throws DbConnectionException {
         try {
             String query =
-                    "SELECT le from LearningEvidence le " +
+                    "SELECT le " +
+                    "FROM LearningEvidence le " +
                     "WHERE le.deleted IS FALSE ";
             if (orgId > 0) {
                 query += "AND le.organization.id = :orgId";
@@ -244,9 +246,9 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     private List<LearningEvidenceData> getUserEvidences(long userId, int offset, int limit) {
         String query =
                 "SELECT le FROM LearningEvidence le " +
-                "LEFT JOIN fetch le.tags " +
+                "LEFT JOIN FETCH le.tags " +
                 "WHERE le.user.id = :userId " +
-                "AND le.deleted IS FALSE " +
+                    "AND le.deleted IS FALSE " +
                 "ORDER BY le.dateCreated DESC";
 
         @SuppressWarnings("unchecked")
@@ -264,9 +266,10 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     private long countUserEvidences(long userId) {
         String query =
-                "SELECT COUNT(le.id) FROM LearningEvidence le " +
+                "SELECT COUNT(le.id) " +
+                "FROM LearningEvidence le " +
                 "WHERE le.user.id = :userId " +
-                "AND le.deleted IS FALSE";
+                    "AND le.deleted IS FALSE";
 
         return (Long) persistence.currentManager()
                 .createQuery(query)
@@ -280,11 +283,11 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         try {
             String query =
                     "SELECT comp, ce.description " +
-                            "FROM CompetenceEvidence ce " +
-                            "INNER JOIN ce.competence tc " +
-                            "INNER JOIN tc.competence comp " +
-                            "WHERE ce.evidence.id = :evId " +
-                            "AND ce.deleted IS FALSE";
+                    "FROM CompetenceEvidence ce " +
+                    "INNER JOIN ce.competence tc " +
+                    "INNER JOIN tc.competence comp " +
+                    "WHERE ce.evidence.id = :evId " +
+                        "AND ce.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
             List<Object[]> competences = persistence.currentManager()
@@ -313,7 +316,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     "FROM LearningEvidence le " +
                     "INNER JOIN le.tags t " +
                     "WHERE le.user.id = :userId " +
-                    "AND le.deleted IS FALSE";
+                        "AND le.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
             List<String> tags = persistence.currentManager()
@@ -335,7 +338,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             String query =
                     "SELECT le FROM LearningEvidence le ";
             if (loadTags) {
-               query +=  "LEFT JOIN fetch le.tags ";
+               query +=  "LEFT JOIN FETCH le.tags ";
             }
             query += "WHERE le.id = :evId " +
                      "AND le.deleted IS FALSE";
@@ -432,44 +435,77 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         try {
             LearningEvidence le = (LearningEvidence) persistence.currentManager()
                 .load(LearningEvidence.class, evidenceId);
-            //if user is evidence owner resource access data with full privileges is returned
-            if (accessRequirements.getAccessMode() == AccessMode.USER && le.getUser().getId() == userId) {
-                return new ResourceAccessData(true, true, true, false, false);
-            }
+            if (userId > 0) {
+                //if user is evidence owner resource access data with full privileges is returned
+                if (accessRequirements.getAccessMode() == AccessMode.USER && le.getUser().getId() == userId) {
+                    return new ResourceAccessData(true, true, true, false, false);
+                }
 
-            String query =
-                    "SELECT ca.id FROM CompetenceAssessment ca " +
-                    "INNER JOIN ca.competence comp " +
-                    "INNER JOIN comp.targetCompetences tc " +
+                //check if user is assessor on at least one competence where this evidence is added
+                String query =
+                        "SELECT ca.id FROM CompetenceAssessment ca " +
+                        "INNER JOIN ca.competence comp " +
+                        "INNER JOIN comp.targetCompetences tc " +
                             "WITH tc.user.id = :studentId " +
-                    "INNER JOIN tc.evidences ce " +
-                    "WHERE ce.evidence.id = :evId " +
-                    "AND ce.deleted IS FALSE " +
-                    "AND ca.assessor.id = :userId " +
-                    "AND ca.type = :type";
+                        "INNER JOIN tc.evidences ce " +
+                        "WHERE ce.evidence.id = :evId " +
+                            "AND ce.deleted IS FALSE " +
+                            "AND ca.assessor.id = :userId " +
+                            "AND ca.type = :type";
 
-            AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
-                    ? AssessmentType.PEER_ASSESSMENT
-                    : AssessmentType.INSTRUCTOR_ASSESSMENT;
+                AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
+                        ? AssessmentType.PEER_ASSESSMENT
+                        : AssessmentType.INSTRUCTOR_ASSESSMENT;
 
-            Long id = (Long) persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("studentId", le.getUser().getId())
-                    .setLong("evId", evidenceId)
-                    .setLong("userId", userId)
-                    .setString("type", aType.name())
-                    .setMaxResults(1)
-                    .uniqueResult();
+                Long id = (Long) persistence.currentManager()
+                        .createQuery(query)
+                        .setLong("studentId", le.getUser().getId())
+                        .setLong("evId", evidenceId)
+                        .setLong("userId", userId)
+                        .setString("type", aType.name())
+                        .setMaxResults(1)
+                        .uniqueResult();
 
-            if (id != null) {
-                return new ResourceAccessData(true, true, false, false, false);
+                if (id != null) {
+                    return new ResourceAccessData(true, true, false, false, false);
+                }
             }
 
+            if (accessRequirements.getAccessMode() == AccessMode.USER) {
+                boolean canAccess = hasUserAllowedHisEvidenceToBeSeenByOtherStudents(le);
+                return new ResourceAccessData(canAccess, canAccess, false, false, false);
+            }
             return new ResourceAccessData(false, false, false, false, false);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error determining learning evidence access rights");
         }
+    }
+
+    /**
+     * Returns true if evidence display is enabled by user on at least one credential with competence for which this evidence is attached
+     * @param le
+     * @return
+     */
+    private boolean hasUserAllowedHisEvidenceToBeSeenByOtherStudents(LearningEvidence le) {
+        String q =
+                "SELECT tCred.id FROM CompetenceEvidence ce " +
+                "INNER JOIN ce.competence tc " +
+                "INNER JOIN tc.competence comp " +
+                "INNER JOIN comp.credentialCompetences cc " +
+                "INNER JOIN cc.credential cred " +
+                "INNER JOIN cred.targetCredentials tCred " +
+                    "WITH tCred.user.id = :userId " +
+                    "AND tCred.evidenceDisplayed IS TRUE " +
+                "WHERE ce.evidence.id = :evidenceId";
+
+        Long res = (Long) persistence.currentManager().createQuery(q)
+                .setLong("userId", le.getUser().getId())
+                .setLong("evidenceId", le.getId())
+                .setMaxResults(1)
+                .uniqueResult();
+
+        return res != null;
     }
 
 }

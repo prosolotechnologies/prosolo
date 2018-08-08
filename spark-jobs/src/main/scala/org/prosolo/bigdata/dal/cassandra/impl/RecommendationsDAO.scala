@@ -3,11 +3,13 @@ package org.prosolo.bigdata.dal.cassandra.impl
 import java.util.List
 
 import com.datastax.driver.core.Row
+import org.slf4j.LoggerFactory
 
 /**
   * Created by zoran on 30/04/17.
   */
 class RecommendationsDAO (val dbName:String) extends Entity with Serializable{
+  val logger = LoggerFactory.getLogger(getClass)
   override val keyspace: String = dbName
   def deleteStudentNew(user: Long) ={
     val query= s"DELETE FROM $keyspace." + TablesNames.USERRECOM_NEWUSERS + " WHERE userid=?; "
@@ -15,7 +17,7 @@ class RecommendationsDAO (val dbName:String) extends Entity with Serializable{
     DBManager.connector.withSessionDo {
       session =>
         val rs = session.execute(query,user.asInstanceOf[java.lang.Long])
-        println("DELETED STUDENT NEW:"+user)
+        logger.debug("DELETED STUDENT NEW:"+user)
 
     }
   }
@@ -24,7 +26,7 @@ class RecommendationsDAO (val dbName:String) extends Entity with Serializable{
     val query= s"INSERT INTO $keyspace." + TablesNames.USERRECOM_CLUSTERUSERS + "(cluster, users) VALUES(?,?); "
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, cluster.asInstanceOf[java.lang.Long], users)
-      println("INSERT CLUSTER USERS:"+cluster+" users:"+users.toString)
+      logger.debug("INSERT CLUSTER USERS:"+cluster+" users:"+users.toString)
     }
 
 

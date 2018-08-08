@@ -91,6 +91,7 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 
 				builder.field("creatorId", cred.getCreatedBy().getId());
 				builder.field("type", cred.getType());
+				setCategoryInfo(builder, cred.getCategory());
 				builder.field("visibleToAll", cred.isVisibleToAll());
 
 				setLearningStageInfo(builder, cred);
@@ -110,6 +111,14 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 		} catch (IOException e) {
 			logger.error("Error", e);
 		}
+	}
+
+	private void setCategoryInfo(XContentBuilder builder, CredentialCategory category) throws IOException {
+		long categoryId = 0;
+		if (category != null) {
+			categoryId = category.getId();
+		}
+		builder.field("category", categoryId);
 	}
 
 	private void setLearningStageInfo(XContentBuilder builder, Credential1 cred) throws IOException {
@@ -401,6 +410,22 @@ public class CredentialESServiceImpl extends AbstractESIndexerImpl implements Cr
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
 			setLearningStageInfo(builder, cred);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, cred.getOrganization().getId()),
+					ESIndexTypes.CREDENTIAL, cred.getId() + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateCredentialCategory(Credential1 cred) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			setCategoryInfo(builder, cred.getCategory());
 			builder.endObject();
 
 			partialUpdate(

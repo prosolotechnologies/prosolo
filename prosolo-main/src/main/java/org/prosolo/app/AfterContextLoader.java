@@ -1,7 +1,9 @@
 package org.prosolo.app;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.bc.*;
+import org.prosolo.app.bc.BusinessCase0_Blank;
+import org.prosolo.app.bc.BusinessCase4_EDX;
+import org.prosolo.app.bc.BusinessCase5_UniSA;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -28,6 +30,7 @@ import java.util.Arrays;
 public class AfterContextLoader implements ServletContextListener {
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
+
 	ReliableConsumer systemConsumer =null;
 	ReliableConsumer sessionConsumer =null;
 	ReliableConsumer broadcastConsumer=null;
@@ -57,7 +60,6 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 
 		if (settings.config.init.formatDB) {
-			//initialize ES indexes
 			try {
 				logger.debug("initialize elasticsearch indexes");
 				initElasticSearchIndexes();
@@ -178,35 +180,23 @@ public class AfterContextLoader implements ServletContextListener {
 	/* Application Shutdown Event */
 	public void contextDestroyed(ServletContextEvent ce) {
 		 systemConsumer.StopAsynchronousConsumer();
-		sessionConsumer.StopAsynchronousConsumer();
-		broadcastConsumer.StopAsynchronousConsumer();
+		 sessionConsumer.StopAsynchronousConsumer();
+		 broadcastConsumer.StopAsynchronousConsumer();
 
 	}
 	
 	void initRepository(int bc) {
 		switch (bc) {
 		
-		case BusinessCase.BLANK:
-			try {
-				ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
-			} catch (Exception e) {
-				logger.error("Could not initialise Repository for BC BLANK:", e);
-			}
+		case 0:
+			ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
 			break;
-
-		case BusinessCase.AU_TEST:
-			try {
-				BusinessCase2_AU.initRepository();
-			} catch (Exception e) {
-				logger.error("Could not initialise Repository for BC AU_TEST:", e);
-			}
-			break;
-		case BusinessCase.STATISTICS:
-			ServiceLocator.getInstance().getService(BusinessCase3_Statistics.class).initRepository();
-			break;
-		case BusinessCase.EDX:
+		case 4:
 			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
-	break;
+			break;
+		case 5:
+			ServiceLocator.getInstance().getService(BusinessCase5_UniSA.class).initRepository();
+			break;
 		default:
 			break;
 		}

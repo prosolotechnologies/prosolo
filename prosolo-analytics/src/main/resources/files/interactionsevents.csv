@@ -1,7 +1,7 @@
 COMMENT,Comment,NodeComment
 COMMENT, Comment_Reply, Comment1
-EVALUATION,EVALUATION_REQUEST,AchievedCompetenceRequest
-EVALUATION,EVALUATION_REQUEST,NodeRequest
+EVALUATION,AssessmentRequested,AchievedCompetenceRequest
+EVALUATION,AssessmentRequested,NodeRequest
 EVALUATION,SERVICEUSE,ASK_FOR_EVALUATION_DIALOG
 JOIN,JOIN_GOAL_INVITATION,NodeRequest
 JOIN,JOIN_GOAL_REQUEST,NodeRequest

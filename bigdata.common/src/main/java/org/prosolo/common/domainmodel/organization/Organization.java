@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.organization;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
@@ -24,6 +25,7 @@ public class Organization extends BaseEntity {
 	private List<User> users;
 	private List<Unit> units;
 	private Set<LearningStage> learningStages;
+	private Set<CredentialCategory> credentialCategories;
 
 	private boolean learningInStagesEnabled;
 
@@ -63,5 +65,14 @@ public class Organization extends BaseEntity {
 
 	public void setLearningStages(Set<LearningStage> learningStages) {
 		this.learningStages = learningStages;
+	}
+
+	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public Set<CredentialCategory> getCredentialCategories() {
+		return credentialCategories;
+	}
+
+	public void setCredentialCategories(Set<CredentialCategory> credentialCategories) {
+		this.credentialCategories = credentialCategories;
 	}
 }

@@ -59,13 +59,21 @@
 								submitButtonText="Submit"
 						/>
 
-						<h2>Your Evidence</h2>
+						<h2>Added Pieces of Evidence</h2>
 						<h:panelGroup id="panelEvidences">
+							<ui:fragment rendered="#{empty cc.attrs.bean.competenceData.evidences}">
+								<div class="noContentMessage">
+									<p>
+										No pieces of evidence.
+									</p>
+								</div>
+							</ui:fragment>
+
 							<ui:repeat value="#{cc.attrs.bean.competenceData.evidences}" var="ev">
 								<div class="whiteBox evidenceBox">
 									<div class="evidenceTop">
-										<div class="evidenceTopLeft">
-											<div class="icon #{ev.type eq 'LINK' ? 'link' : ev.type eq 'TEXT' ? 'text' : 'doc'}"></div>
+										<div class="evidenceTopLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+											<div class="icon iconType"></div>
 											<h3>
 												<h:link outcome="/evidence">
 													#{ev.title}

@@ -8,18 +8,24 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -39,9 +45,9 @@ public interface AssessmentManager {
 
 	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
 
-	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
@@ -126,9 +132,9 @@ public interface AssessmentManager {
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	int updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId) throws DbConnectionException;
+	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException;
 
-	int updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
+	void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
 	Result<Void> updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(long studentId, long activityId, int score,
                                                                           Session session, UserContextData context)
@@ -137,11 +143,11 @@ public interface AssessmentManager {
 	/**
 	 * Load all credential assessments for the given user, but excluding the specific assessment id
 	 *
-	 * @param assessedStrudentId
+	 * @param assessedStudentId
 	 * @param credentialId
 	 * @return list of assessment data instances
 	 */
-	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
+	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId);
 
 	/**
 	 * Returns true if the given user is an assessor of at least one credential containing activity given by
@@ -210,9 +216,9 @@ public interface AssessmentManager {
 	AssessmentBasicData getBasicAssessmentInfoForCredentialAssessment(long assessmentId)
 			throws DbConnectionException;
 
-	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId) throws DbConnectionException;
+	CredentialAssessmentsSummaryData getAssessmentsSummaryData(long deliveryId, ResourceAccessData accessData, long userId) throws DbConnectionException;
 
-	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId) throws DbConnectionException;
+	long getNumberOfAssessedStudentsForActivity(long deliveryId, long activityId, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId) throws DbConnectionException;
 
 	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
@@ -229,7 +235,7 @@ public interface AssessmentManager {
 	 * @param studentId
 	 * @param assessorId
 	 * @param type
-	 * @param isExplicitRequest specifies if assessment for competence is requested explicitly or as a part of credential assessment request
+	 * @param isExplicitRequest specifies if assessment of competence is requested explicitly or as a part of credential assessment request
 	 * @param context
 	 * @return
 	 * @throws IllegalDataStateException
@@ -279,7 +285,7 @@ public interface AssessmentManager {
 
 	/**
 	 * Returns list of ids of all assessors that this particular user has asked
-	 * for assessment for the credential with the given id
+	 * for assessment of the credential with the given id
 	 *
 	 * @param credentialId credential id
 	 * @param userId user id
@@ -299,40 +305,55 @@ public interface AssessmentManager {
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, DateFormat dateFormat) throws DbConnectionException;
+	List<CompetenceAssessmentData> getInstructorCompetenceAssessmentsForStudent(long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat) throws DbConnectionException;
 
 	Optional<Long> getSelfCompetenceAssessmentId(long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, DateFormat dateFormat)
+	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
-			long credId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+			long credId, long studentId, DateFormat dateFormat, boolean loadOnlyApproved, int offset, int limit) throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCompetencePeerAssessmentsForStudent(
-			long compId, long studentId, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
+			long compId, long studentId, boolean loadOnlyApproved, DateFormat dateFormat, int offset, int limit) throws DbConnectionException;
 
-	Map<Long, Pair<Integer, Integer>> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
+	Map<Long, RubricAssessmentGradeSummary> getActivityAssessmentsRubricGradeSummary(List<Long> activityAssessmentIds);
 
 	/**
-	 * Returns pair of numbers for students credential assessments of given type where first number represents
-	 * average grade for that student and second number is a maximum grade that can be given
 	 *
 	 * @param credentialId
 	 * @param studentId
 	 * @param type
 	 * @return
 	 */
-	Pair<Integer, Integer> getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type);
+	AssessmentGradeSummary getCredentialAssessmentsGradeSummary(long credentialId, long studentId, AssessmentType type);
 
 	/**
-	 * Returns pair of numbers for students' competence assessments of given type where first number represents
-	 * average grade for that student and second number is a maximum grade that can be given
 	 *
 	 * @param competenceId
 	 * @param studentId
 	 * @param type
 	 * @return
 	 */
-	Pair<Integer, Integer> getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
+	AssessmentGradeSummary getCompetenceAssessmentsGradeSummary(long competenceId, long studentId, AssessmentType type);
+
+    /**
+     *
+     * @param targetCredentialId
+     * @return
+     * @throws DbConnectionException
+     */
+	int getNumberOfApprovedAssessmentsForUserCredential(long targetCredentialId);
+
+    /**
+     *
+     * @param competenceId
+     * @param studentId
+     * @return
+     * @throws DbConnectionException
+     */
+    int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
+
+	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
 }

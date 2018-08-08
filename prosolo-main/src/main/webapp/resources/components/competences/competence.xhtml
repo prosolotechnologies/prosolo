@@ -100,8 +100,8 @@
 										styleClass="btn btn-green btn-sm"
 										outcome="activity"
 										onclick="sendLogPageNavigation('/activity.xhtml',
-										'#{facesContext.viewRoot.viewId}', 
-										'#{util:addSubContext(cc.attrs.learningContext, &#34;name:COMPETENCE|id:&#34;.concat(util:decodeId(param[&#34;compId&#34;])).concat(&#34;|context:/name:resume_learning/&#34;))}', 
+										'#{facesContext.viewRoot.viewId}',
+										'#{util:addSubContext(cc.attrs.learningContext, &#34;name:COMPETENCE|id:&#34;.concat(util:decodeId(param[&#34;compId&#34;])).concat(&#34;|context:/name:resume_learning/&#34;))}',
 										'#{cc.attrs.service}');">
 									<f:param name="actId"
 											 value="#{util:encodeId(cc.attrs.bean.competenceData.nextActivityToLearnId)}"></f:param>
@@ -155,15 +155,15 @@
 					</div>
 				</div>
 			</div>
-		
+
 		    <div class="container">
 		    	<ui:fragment rendered="#{not empty param.credId}">
 		    		<ol class="breadcrumb">
 						<li>
-							<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+							<ui:fragment rendered="#{cc.attrs.role eq 'USER' or loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
 								<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 							</ui:fragment>
-							<ui:fragment rendered="#{not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+							<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
 								<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
 							</ui:fragment>
 						</li>
@@ -171,9 +171,9 @@
 			            	<h:link
 								value="#{cc.attrs.bean.credentialTitle}"
 			            		outcome="credential"
-			            		onclick="sendLogPageNavigation('/credential.xhtml', 
-										'#{facesContext.viewRoot.viewId}', 
-										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
+			            		onclick="sendLogPageNavigation('/credential.xhtml',
+										'#{facesContext.viewRoot.viewId}',
+										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}',
 										'#{cc.attrs.service}');">
 			            		<f:param name="id" value="#{param.credId}"></f:param>
 			            	</h:link>
@@ -182,7 +182,7 @@
 			        </ol>
 		    	</ui:fragment>
 		        <ui:fragment rendered="#{empty param.credId}">
-		    		<ol class="breadcrumb">	
+		    		<ol class="breadcrumb">
 		    			<li>
 			            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li>
@@ -192,6 +192,7 @@
 		    </div>
 
 			<competence:competenceContent
+					id="competenceContent"
 					readOnly="#{!cc.attrs.bean.access.canAccess and not startedLearning}"
 					bean="#{cc.attrs.bean}"
 					learningContext="#{learningContext}"

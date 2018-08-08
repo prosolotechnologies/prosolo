@@ -1,10 +1,10 @@
 package org.prosolo.bigdata.events;
 
-import java.util.Map;
-
 import org.prosolo.bigdata.events.observers.EventObserver;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+
+import java.util.Map;
 
 public class EventData {
 

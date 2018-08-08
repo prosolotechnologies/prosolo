@@ -9,14 +9,15 @@
 	<composite:interface>
 		<composite:attribute name="evidences" required="true" type="java.util.List" />
 		<composite:attribute name="canViewEvidence" required="true" type="java.util.Boolean" />
+		<composite:attribute name="showMessageWhyUserCantViewEvidence" default="true" type="java.lang.Boolean" />
 	</composite:interface>
 
 	<composite:implementation>
 		<div class="assessmentActivityList">
 			<ul>
 				<ui:repeat value="#{cc.attrs.evidences}" var="ev">
-					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : ev.type eq 'FILE' ? 'evidenceDoc' : 'evidenceLink'}">
-						<span class="iconType #{ev.type eq 'LINK' ? 'link' : ''}"></span>
+					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+						<span class="icon iconType"></span>
 						<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
 							<h:link outcome="evidence" target="_blank">
 								#{ev.title}
@@ -24,7 +25,7 @@
 							</h:link>
 						</ui:fragment>
 						<ui:fragment rendered="#{not cc.attrs.canViewEvidence}">
-							<a href="javascript:void(0);" data-toggle="tooltip" title="Only student's assessor is allowed to see the evidence" disabled="true">#{ev.title}</a>
+							<a href="javascript:void(0);" data-toggle="#{cc.attrs.showMessageWhyUserCantViewEvidence ? 'tooltip' : ''}" title="#{cc.attrs.showMessageWhyUserCantViewEvidence ? &#34;Only student's assessor is allowed to see the evidence&#34; : ''}" disabled="true">#{ev.title}</a>
 						</ui:fragment>
 
 						<div class="activityOptions">

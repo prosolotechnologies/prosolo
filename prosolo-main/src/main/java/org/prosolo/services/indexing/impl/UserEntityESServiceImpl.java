@@ -6,16 +6,18 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.util.RoleUtil;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	@Inject private Competence1Manager compManager;
 	@Inject private UnitManager unitManager;
 	@Inject private UserGroupManager userGroupManager;
+	@Inject private AssessmentManager assessmentManager;
 
 	@Override
 	public void saveUserNode(User user, Session session) {
@@ -137,6 +140,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 				addCredentials(builder, user.getId(), session);
 				addCredentialsWithInstructorRole(builder, user.getId());
 				addFollowers(builder, user.getId(), session);
+				addFollowees(builder, user.getId(), session);
 				addCompetences(builder, user.getId(), session);
 				addGroups(builder, user.getId(),session);
 
@@ -208,6 +212,15 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			if (date != null) {
 				builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
+			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getId(), userId);
+			boolean assessorNotified = false;
+			boolean assessed = false;
+			if (instructorAssessment != null) {
+				assessorNotified = instructorAssessment.isAssessorNotified();
+				assessed = instructorAssessment.isAssessed();
+			}
+			builder.field("assessorNotified", assessorNotified);
+			builder.field("assessed", assessed);
 
 			builder.endObject();
 		}
@@ -258,6 +271,17 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 		for (User follower : followers) {
 			builder.startObject();
 			builder.field("id", follower.getId());
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addFollowees(XContentBuilder builder, long userId, Session session) throws IOException {
+		builder.startArray("following");
+		List<User> followees = followResourceManager.getFollowingUsers(userId, session);
+		for (User followee : followees) {
+			builder.startObject();
+			builder.field("id", followee.getId());
 			builder.endObject();
 		}
 		builder.endArray();
@@ -370,6 +394,21 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	}
 
 	@Override
+	public void updateFollowingUsers(long orgId, long userId, Session session) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addFollowees(builder, userId, session);
+			builder.endObject();
+
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
+					userId + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
 	public void updateCompetences(long orgId, long userId, Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
@@ -460,6 +499,23 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 				delete(user.getId() + "", ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			}
 		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateCredentialAssessmentInfo(long orgId, CredentialAssessment assessment) {
+		try {
+			String script = "ctx._source.credentials.findAll(it -> it.id == params.credId) " +
+					".each(it -> { it.assessed = params.assessed; it.assessorNotified = params.assessorNotified })";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("credId", assessment.getTargetCredential().getCredential().getId());
+			params.put("assessed", assessment.isAssessed());
+			params.put("assessorNotified", assessment.isAssessorNotified());
+			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
+					ESIndexTypes.ORGANIZATION_USER,assessment.getStudent().getId() + "", script, params);
+		} catch(Exception e) {
 			logger.error("Error", e);
 		}
 	}

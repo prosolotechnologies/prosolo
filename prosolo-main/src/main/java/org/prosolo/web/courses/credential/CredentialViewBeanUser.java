@@ -15,8 +15,9 @@ import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -58,13 +59,14 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Autowired
-	@Qualifier("taskExecutor")
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private UserTextSearch userTextSearch;
-	@Inject private Competence1Manager compManager;
-	@Inject private AnnouncementManager announcementManager;
-	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject
+	private Competence1Manager compManager;
+	@Inject
+	private AnnouncementManager announcementManager;
+	@Inject
+	private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject
+	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
 
 	private String id;
 	private long decodedId;
@@ -124,11 +126,6 @@ public class CredentialViewBeanUser implements Serializable {
 		credentialData = credentialManager
 				.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
 	}
-
-//	public boolean isCurrentUserCreator() {
-//		return credentialData == null || credentialData.getCreator() == null ? false
-//				: credentialData.getCreator().getId() == loggedUser.getUserId();
-//	}
 
 	/*
 	 * ACTIONS
@@ -227,6 +224,24 @@ public class CredentialViewBeanUser implements Serializable {
 				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
 	}
 
+	/**
+	 * This method is called after student has chosen an instructor from the modal (it this option is enabled for
+	 * the delivery)
+	 */
+	public void updateAfterInstructorIsAssigned() {
+		InstructorData instructor = assignStudentToInstructorDialogBean.getInstructor();
+
+		if (instructor != null) {
+			credentialData.setInstructorId(instructor.getInstructorId());
+			credentialData.setInstructorAvatarUrl(instructor.getUser().getAvatarUrl());
+			credentialData.setInstructorFullName(instructor.getUser().getFullName());
+		} else {
+			credentialData.setInstructorId(-1);
+			credentialData.setInstructorAvatarUrl(null);
+			credentialData.setInstructorFullName(null);
+		}
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -273,18 +288,6 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
 		this.assessmentRequestData = assessmentRequestData;
-	}
-
-	public AssessmentManager getAssessmentManager() {
-		return assessmentManager;
-	}
-
-	public void setAssessmentManager(AssessmentManager assessmentManager) {
-		this.assessmentManager = assessmentManager;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
 	}
 
 	public long getNumberOfUsersLearningCred() {

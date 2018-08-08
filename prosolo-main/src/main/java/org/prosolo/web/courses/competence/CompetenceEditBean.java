@@ -14,6 +14,8 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -245,7 +247,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			StringBuilder builder = new StringBuilder();
 			/*
 			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * example: /credentials/credential-create will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
 			builder.append(PageUtil.getSectionForView().getPrefix()
@@ -266,7 +268,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * example: /credentials/credential-create will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
 				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +

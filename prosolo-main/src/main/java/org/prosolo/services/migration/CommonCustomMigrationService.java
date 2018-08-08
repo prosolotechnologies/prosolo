@@ -25,4 +25,6 @@ public interface CommonCustomMigrationService {
      * @param context
      */
     void createSelfAssessments(UserContextData context);
+
+    void migrateCredentialAssessmentsAssessedFlag() throws DbConnectionException;
 }

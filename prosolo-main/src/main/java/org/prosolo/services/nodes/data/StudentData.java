@@ -16,6 +16,7 @@ public class StudentData {
 	private boolean enrolled;
 	private Date dateEnrolled;
 	private Date dateCompleted;
+	private boolean sentAssessmentNotification;
 	
 	public StudentData() {
 
@@ -109,5 +110,12 @@ public class StudentData {
 	public void setDateCompleted(Date dateCompleted) {
 		this.dateCompleted = dateCompleted;
 	}
-	
+
+	public boolean isSentAssessmentNotification() {
+		return sentAssessmentNotification;
+	}
+
+	public void setSentAssessmentNotification(boolean sentAssessmentNotification) {
+		this.sentAssessmentNotification = sentAssessmentNotification;
+	}
 }

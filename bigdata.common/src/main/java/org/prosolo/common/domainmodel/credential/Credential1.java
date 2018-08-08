@@ -12,6 +12,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
@@ -35,7 +36,7 @@ public class Credential1 extends BaseEntity {
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
 	private long duration;
-	private boolean manuallyAssignStudents;
+	private AssessorAssignmentMethod assessorAssignmentMethod;
 	private int defaultNumberOfStudentsPerInstructor;
 	private List<TargetCredential1> targetCredentials;
 	private List<CredentialInstructor> credInstructors;
@@ -59,6 +60,9 @@ public class Credential1 extends BaseEntity {
 	//learning in stages
 	private LearningStage learningStage;
 	private Credential1 firstLearningStageCredential;
+
+	//category
+	private CredentialCategory category;
 	
 	private boolean archived;
 	
@@ -75,8 +79,8 @@ public class Credential1 extends BaseEntity {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
 		competences = new ArrayList<>();
-		blogs = new ArrayList<FeedSource>();
-		excludedFeedSources = new ArrayList<FeedSource>();
+		blogs = new ArrayList<>();
+		excludedFeedSources = new ArrayList<>();
 		announcements = new ArrayList<>();
 		assessmentConfig = new HashSet<>();
 	}
@@ -136,12 +140,13 @@ public class Credential1 extends BaseEntity {
 		this.duration = duration;
 	}
 
-	public boolean isManuallyAssignStudents() {
-		return manuallyAssignStudents;
+	@Enumerated(EnumType.STRING)
+	public AssessorAssignmentMethod getAssessorAssignmentMethod() {
+		return assessorAssignmentMethod;
 	}
 
-	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
-		this.manuallyAssignStudents = manuallyAssignStudents;
+	public void setAssessorAssignmentMethod(AssessorAssignmentMethod assessorAssignmentMethod) {
+		this.assessorAssignmentMethod = assessorAssignmentMethod;
 	}
 
 	public int getDefaultNumberOfStudentsPerInstructor() {
@@ -398,5 +403,14 @@ public class Credential1 extends BaseEntity {
 
 	public void setMaxPoints(int maxPoints) {
 		this.maxPoints = maxPoints;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public CredentialCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(CredentialCategory category) {
+		this.category = category;
 	}
 }

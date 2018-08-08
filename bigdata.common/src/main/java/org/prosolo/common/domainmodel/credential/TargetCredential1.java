@@ -1,17 +1,11 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -34,12 +28,17 @@ public class TargetCredential1 extends BaseEntity {
 	private int progress;
 	
 	private boolean hiddenFromProfile;
+	private boolean credentialAssessmentsDisplayed = true;
+	private boolean competenceAssessmentsDisplayed = true;
+	private boolean evidenceDisplayed = true;
 	
 	private long nextCompetenceToLearnId;
 	
 	private String finalReview;
 	
 	private Date lastAction;
+
+	private List<CredentialAssessment> assessments;
 	
 	public TargetCredential1() {
 		
@@ -156,9 +155,44 @@ public class TargetCredential1 extends BaseEntity {
 	public void setLastAction(Date lastAction) {
 		this.lastAction = lastAction;
 	}
-	
-	
-/*
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isCredentialAssessmentsDisplayed() {
+		return credentialAssessmentsDisplayed;
+	}
+
+	public void setCredentialAssessmentsDisplayed(boolean credentialAssessmentsDisplayed) {
+		this.credentialAssessmentsDisplayed = credentialAssessmentsDisplayed;
+	}
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isCompetenceAssessmentsDisplayed() {
+		return competenceAssessmentsDisplayed;
+	}
+
+	public void setCompetenceAssessmentsDisplayed(boolean competenceAssessmentsDisplayed) {
+		this.competenceAssessmentsDisplayed = competenceAssessmentsDisplayed;
+	}
+
+	@Column(columnDefinition = "bit(1) DEFAULT 1")
+	public boolean isEvidenceDisplayed() {
+		return evidenceDisplayed;
+	}
+
+	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
+		this.evidenceDisplayed = evidenceDisplayed;
+	}
+
+	@OneToMany(mappedBy = "targetCredential")
+	public List<CredentialAssessment> getAssessments() {
+		return assessments;
+	}
+
+	public void setAssessments(List<CredentialAssessment> assessments) {
+		this.assessments = assessments;
+	}
+
+	/*
 	public String getDescription() {
 		return description;
 	}

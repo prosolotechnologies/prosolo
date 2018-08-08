@@ -115,9 +115,14 @@ function scrollToNewestComment(hiddenFieldId) {
 }
 
 function showLoader(elem, context) {
-	$(elem).css('text-align', 'center');
-	$(elem).html('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
-	$(elem).show();
+    $(elem).hide();
+    $(elem).css('text-align', 'center');
+    $(elem).html('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
+    $(elem).show();
+};
+
+function showLoaderNextToElem(elem, context) {
+    $(elem).after('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
 };
 
 function hideLoader(comp) {

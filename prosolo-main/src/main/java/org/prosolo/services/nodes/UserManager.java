@@ -44,6 +44,46 @@ public interface UserManager extends AbstractManager {
 										   String password, String position, InputStream avatarStream,
 										   String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
 
+	/**
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws IllegalDataStateException, {@link DbConnectionException}
+	 */
+	Result<User> createNewUserSendEmailAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+													String password, String position, InputStream avatarStream,
+													String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException;
+
+	/**
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws IllegalDataStateException, {@link DbConnectionException}
+	 */
+	User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+								   String password, String position, InputStream avatarStream,
+								   String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException;
+
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
 	String getPassword(long userId) throws ResourceCouldNotBeLoadedException;

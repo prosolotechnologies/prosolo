@@ -174,7 +174,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			}
 			if (limit != 0) {
 				q.setFirstResult(page * limit)
-				 .setMaxResults(limit);
+						.setMaxResults(limit);
 			}
 			
 			@SuppressWarnings("unchecked")

@@ -27,11 +27,10 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -61,7 +60,6 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Inject private OrganizationManager orgManager;
 	
 	@Override
-	@Transactional
 	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long organizationId, long userId,
                                                                                    String searchString, int page, int limit, boolean loadOneMore,
                                                                                    List<Long> unitIds, long[] toExclude, SortingOption sortTitleAsc) {

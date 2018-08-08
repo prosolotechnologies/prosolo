@@ -21,6 +21,7 @@ public class FollowUserProcessor implements NodeChangeProcessor {
 	@Override
 	public void process() {
 		userEntityESService.updateFollowers(event.getOrganizationId(), event.getObject().getId(), session);
+		userEntityESService.updateFollowingUsers(event.getOrganizationId(), event.getActorId(), session);
 	}
 
 }

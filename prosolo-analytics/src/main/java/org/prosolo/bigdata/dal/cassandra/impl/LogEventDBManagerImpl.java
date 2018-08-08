@@ -1,20 +1,19 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.prosolo.bigdata.dal.cassandra.LogEventDBManager;
-import org.prosolo.bigdata.events.pojo.LogEvent;
-import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
 import com.google.gson.JsonParser;
+import org.apache.commons.lang3.StringUtils;
+import org.prosolo.bigdata.dal.cassandra.LogEventDBManager;
+import org.prosolo.bigdata.events.pojo.LogEvent;
+import org.prosolo.bigdata.streaming.Topic;
+import org.prosolo.common.domainmodel.events.EventType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015

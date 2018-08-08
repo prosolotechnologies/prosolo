@@ -6,10 +6,8 @@ import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
-import org.prosolo.search.util.credential.CredentialMembersSortOption;
-import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.search.util.credential.LearningStatus;
+import org.prosolo.search.util.credential.*;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -42,8 +40,8 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param sortOption
 	 * @return
 	 */
-	TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
-			long orgId, String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId,
+	TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchCredentialMembers (
+			long orgId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, int page, int limit, long credId,
 			long instructorId, CredentialMembersSortOption sortOption);
 	
 	PaginatedResult<InstructorData> searchInstructors (
@@ -55,7 +53,7 @@ public interface UserTextSearch extends AbstractManager {
 															 List<Long> excludedUserIds);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			long orgId, String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
+			long orgId, String searchTerm, long credId, long instructorId, StudentAssignSearchFilter.SearchFilter filter,
 			int page, int limit);
 	
 	/**
@@ -97,8 +95,8 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param userId
 	 * @return
 	 */
-	PaginatedResult<UserData> searchPeopleUserFollows(long orgId, String searchTerm,
-                                                      int page, int limit, long userId);
+	PaginatedResult<UserData> searchUsersWithFollowInfo(long orgId, String searchTerm,
+                                                        int page, int limit, long userId, UserSearchConfig searchConfig);
 
 	PaginatedResult<UserData> searchUsersInGroups(
 			long orgId, String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);

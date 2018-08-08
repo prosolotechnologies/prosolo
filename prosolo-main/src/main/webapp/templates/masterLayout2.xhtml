@@ -167,7 +167,7 @@
 
 							<h:panelGroup id="notificationsContainer">
 
-								<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationDatas}">
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationData}">
 									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
 										<h:outputLink value="#{studentNotificationsBean.domainPrefix}#{notificationData.link}">
 											<span class="icon"></span>
@@ -206,11 +206,6 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li>
-									<h:link value="Achievements" 
-										onclick="sendLogPageNavigation('achievements','mainmenu');"
-										outcome="/achievements/credentials" />
-								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"

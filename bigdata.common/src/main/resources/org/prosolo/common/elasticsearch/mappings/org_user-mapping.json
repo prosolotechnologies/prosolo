@@ -86,6 +86,14 @@
 						"store": false,
 						"type":"date",
 						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"assessorNotified": {
+						"store": false,
+						"type": "boolean"
+					},
+					"assessed": {
+						"store": false,
+						"type": "boolean"
 					}
 				}
 			},
@@ -129,6 +137,14 @@
 			},
 			
 			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"following": {
 				"properties": {
 					"id": {
 						"store": false,

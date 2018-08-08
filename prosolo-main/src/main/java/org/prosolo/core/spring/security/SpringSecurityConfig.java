@@ -79,7 +79,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
     private SAMLUserDetailsService samlUserDetailsService;
-	
+
+	private static final String LOGIN_PAGE = "/login";
+
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
 		
@@ -102,6 +104,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/about").permitAll()
 				.antMatchers("/elb_ping").permitAll()
 				.antMatchers("/terms").permitAll()
+				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/profile/**").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
@@ -119,6 +122,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/recovery/**").permitAll()
 				.antMatchers("/javax.faces.resource/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
+				.antMatchers("/api/health").permitAll()
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
@@ -128,34 +132,41 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/version.txt").hasAnyAuthority("BASIC.ADMIN.ACCESS")
 				.antMatchers("/home").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/achievements").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/achievements/credentials").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/achievements/competences").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/achievements/inprogress").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/achievements/externalcompetences").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/people/followers").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/people/following").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/*").permitAll()
 				.antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/credentials/*/assessments/self").permitAll()
 				.antMatchers("/credentials/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/credentials/*/assessments/instructor").permitAll()
 				.antMatchers("/credentials/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/credentials/*/assessments/peer").permitAll()
 				.antMatchers("/credentials/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/credentials/*/assessments/peer/*").permitAll()
 				.antMatchers("/credentials/*/announcements").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*/*/results").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/competences/*/assessments/self").permitAll()
 				.antMatchers("/competences/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/competences/*/assessments/instructor").permitAll()
 				.antMatchers("/competences/*/assessments/instructor/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/competences/*/assessments/instructor/*").permitAll()
 				.antMatchers("/competences/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
+                .antMatchers("/profile/*/competences/*/assessments/peer").permitAll()
 				.antMatchers("/competences/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/profile/*/competences/*/assessments/peer/*").permitAll()
 				//.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
 				//.antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/library").hasAuthority("BASIC.USER.ACCESS")
@@ -167,7 +178,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/evidence/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/evidence/*").permitAll()
 				.antMatchers("/evidence/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/*/edit").hasAuthority("BASIC.USER.ACCESS")
 
@@ -305,12 +316,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/admin/**").denyAll()
 				.antMatchers("/**").hasAnyAuthority("BASIC.USER.ACCESS")
 				.and()
-				.formLogin().loginPage("/login").loginProcessingUrl("/loginspring")
+				.formLogin().loginPage(LOGIN_PAGE).loginProcessingUrl("/loginspring")
 				.usernameParameter("username")
 				.passwordParameter("password")
 				.permitAll()
 				.successHandler(authenticationSuccessHandler)
 				.failureUrl("/login?err=1")
+				.and().exceptionHandling().authenticationEntryPoint(customAuthEntryPoint())
 				.and().csrf().disable()
 				.rememberMe()
 				.rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
@@ -345,7 +357,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		//super.configure(auth);
 		auth.authenticationProvider(daoAuthenticationProvider());
 	}
-	
+
+	@Bean
+	public CustomLoginUrlAuthenticationEntryPoint customAuthEntryPoint() {
+		return new CustomLoginUrlAuthenticationEntryPoint(LOGIN_PAGE);
+	}
+
 
 	@Bean
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
@@ -578,81 +595,30 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //		return extendedMetadataDelegate;
 //	}
 
-	@Bean
-	@Qualifier("idp-testutaedu")
-	public ExtendedMetadataDelegate ssoUtaTestExtendedMetadataProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "https://idp-test.uta.edu/idp/shibboleth";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate =
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
-
-	@Bean
-	@Qualifier("idp-produtaedu")
-	public ExtendedMetadataDelegate ssoUtaProdExtendedMetadataProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "https://idp.uta.edu/idp/shibboleth";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate =
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
-	
-	@Bean
-	@Qualifier("idp-simplesaml")
-	public ExtendedMetadataDelegate simpleSamlProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata.php";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
-//	
 //	@Bean
-//	@Qualifier("idp-simplesaml-shib")
-//	public ExtendedMetadataDelegate simpleSamlShibProvider()
+//	@Qualifier("idp-produtaedu")
+//	public ExtendedMetadataDelegate ssoUtaProdExtendedMetadataProvider()
 //			throws MetadataProviderException {
-//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/shib13/idp/metadata.php";
+//		String idpSSOCircleMetadataURL = "https://idp.uta.edu/idp/shibboleth";
 //		Timer backgroundTaskTimer = new Timer(true);
 //		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
 //				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
 //		httpMetadataProvider.setParserPool(parserPool());
-//		ExtendedMetadataDelegate extendedMetadataDelegate = 
+//		ExtendedMetadataDelegate extendedMetadataDelegate =
 //				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
 //		extendedMetadataDelegate.setMetadataTrustCheck(true);
 //		extendedMetadataDelegate.setMetadataRequireSignature(false);
 //		return extendedMetadataDelegate;
 //	}
- 
+
     // IDP Metadata configuration + sp metadata configuration
     @Bean
     @Qualifier("metadata")
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
     	List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
-      //  providers.add(ssoCircleExtendedMetadataProvider());
-		providers.add(ssoUtaTestExtendedMetadataProvider());
-		providers.add(ssoUtaProdExtendedMetadataProvider());
-        //providers.add(simpleSamlProvider());
-        //providers.add(simpleSamlShibProvider());
-        //our metadata
+      	//providers.add(ssoCircleExtendedMetadataProvider());
+		//providers.add(ssoUtaProdExtendedMetadataProvider());
+        // load our metadata
         providers.add(prosoloSPMetadata());
         return new CachingMetadataManager(providers);
     }
@@ -684,18 +650,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public ExtendedMetadataDelegate prosoloSPMetadata() throws MetadataProviderException, ResourceException {
 		return new ExtendedMetadataDelegate(resourceBackedProvider(), prosoloExtendedMetadata());
 	}
- 
-    // Filter automatically generates default SP metadata
-//    @Bean
-//    public MetadataGenerator metadataGenerator() {
-//        MetadataGenerator metadataGenerator = new MetadataGenerator();
-//        metadataGenerator.setEntityId("ca.prosolo");
-//        metadataGenerator.setExtendedMetadata(extendedMetadata());
-//        metadataGenerator.setIncludeDiscoveryExtension(false);
-//        metadataGenerator.setKeyManager(keyManager()); 
-//        return metadataGenerator;
-//    }
- 
+
     // The filter is waiting for connections on URL suffixed with filterSuffix
     // and presents SP metadata there
     @Bean
@@ -712,16 +667,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     	failureHandler.setDefaultFailureUrl("/login?err=1");
     	return failureHandler;
     }
-     
-//	    @Bean
-//	    public SAMLWebSSOHoKProcessingFilter samlWebSSOHoKProcessingFilter() throws Exception {
-//	        SAMLWebSSOHoKProcessingFilter samlWebSSOHoKProcessingFilter = new SAMLWebSSOHoKProcessingFilter();
-//	        samlWebSSOHoKProcessingFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
-//	        samlWebSSOHoKProcessingFilter.setAuthenticationManager(authenticationManager());
-//	        samlWebSSOHoKProcessingFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
-//	        return samlWebSSOHoKProcessingFilter;
-//	    }
-    
+
     // Processing filter for WebSSO profile messages
     @Bean
     public SAMLProcessingFilter samlWebSSOProcessingFilter() throws Exception {

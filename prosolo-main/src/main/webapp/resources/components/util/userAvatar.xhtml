@@ -22,9 +22,9 @@
 			<span class="letterAvatar letterAvatar#{cc.attrs.width} img-circle">#{util:initials(cc.attrs.fullName)}</span>
 		</ui:fragment>
 		<ui:fragment rendered="#{not empty cc.attrs.avatar}">
-			<h:graphicImage
-				value="#{cc.attrs.avatar}" alt="#{cc.attrs.fullName}"
-				styleClass="img-circle" width="#{cc.attrs.width}" height="#{cc.attrs.height}" />
+			<img
+				src="#{cc.attrs.avatar}" alt="#{cc.attrs.fullName}"
+				class="img-circle" width="#{cc.attrs.width}" height="#{cc.attrs.height}" />
 		</ui:fragment>
 	</composite:implementation>
 </ui:component>

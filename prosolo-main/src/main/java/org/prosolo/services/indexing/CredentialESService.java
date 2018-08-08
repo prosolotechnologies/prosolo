@@ -39,4 +39,6 @@ public interface CredentialESService extends AbstractESIndexer {
 
 	void updateLearningStageInfo(Credential1 cred);
 
+	void updateCredentialCategory(Credential1 cred);
+
 }

@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
@@ -81,6 +82,9 @@ public class OrganizationEditBean implements Serializable {
     private LearningStageData selectedLearningStage;
     private UseCase learningStageUseCase = UseCase.ADD;
 
+    private CredentialCategoryData selectedCategory;
+    private UseCase credentialCategoryUseCase = UseCase.ADD;
+
     public void init() {
         logger.debug("initializing");
         admins = new ArrayList<>();
@@ -103,7 +107,7 @@ public class OrganizationEditBean implements Serializable {
                 PageUtil.accessDenied();
             }
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");
         }
     }
@@ -165,6 +169,39 @@ public class OrganizationEditBean implements Serializable {
         }
         this.selectedLearningStage = null;
     }
+
+    //credential categories administration
+    public void prepareCredentialCategoryForEdit(CredentialCategoryData category) {
+        selectedCategory = category;
+        credentialCategoryUseCase = UseCase.EDIT;
+    }
+
+    public void prepareAddingNewCredentialCategory() {
+        selectedCategory = new CredentialCategoryData(false);
+        selectedCategory.setStatus(ObjectStatus.CREATED);
+        credentialCategoryUseCase = UseCase.ADD;
+    }
+
+    public void removeCredentialCategory(int index) {
+        CredentialCategoryData cat = organization.getCredentialCategories().remove(index);
+        cat.setStatus(ObjectStatusTransitions.removeTransition(cat.getStatus()));
+        if (cat.getStatus() == ObjectStatus.REMOVED) {
+            organization.addCredentialCategoryForDeletion(cat);
+        }
+    }
+
+    public boolean isCreateCredentialCategoryUseCase() {
+        return credentialCategoryUseCase == UseCase.ADD;
+    }
+
+    public void saveCredentialCategory() {
+        if (credentialCategoryUseCase == UseCase.ADD) {
+            organization.addCredentialCategory(selectedCategory);
+        }
+        this.selectedCategory = null;
+    }
+
+    //credential categories administration end
 
     public void saveOrganization(){
         if(this.organization.getId() == 0){
@@ -286,6 +323,7 @@ public class OrganizationEditBean implements Serializable {
 
     //VALIDATORS
 
+    //learning stage validator
     public void validateLearningStage(FacesContext context, UIComponent component, Object value) throws ValidatorException {
         String learningStageName = (String) value;
         for (LearningStageData ls : organization.getLearningStages()) {
@@ -294,6 +332,17 @@ public class OrganizationEditBean implements Serializable {
                 msg.setSeverity(FacesMessage.SEVERITY_ERROR);
                 throw new ValidatorException(msg);
             }
+        }
+    }
+
+    //credential category validator
+    public void validateCredentialCategory(FacesContext context, UIComponent component, Object value) throws ValidatorException {
+        String categoryName = (String) value;
+        boolean duplicateName = organization.getCredentialCategories().stream().anyMatch(cat -> cat != selectedCategory && cat.getTitle().equals(categoryName));
+        if (duplicateName) {
+            FacesMessage msg = new FacesMessage("Category with that name already exists within the organization");
+            msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+            throw new ValidatorException(msg);
         }
     }
 
@@ -339,5 +388,9 @@ public class OrganizationEditBean implements Serializable {
 
     public LearningStageData getSelectedLearningStage() {
         return selectedLearningStage;
+    }
+
+    public CredentialCategoryData getSelectedCategory() {
+        return selectedCategory;
     }
 }

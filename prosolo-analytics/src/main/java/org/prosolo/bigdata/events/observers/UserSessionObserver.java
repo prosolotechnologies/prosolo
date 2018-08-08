@@ -1,8 +1,5 @@
 package org.prosolo.bigdata.events.observers;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.prosolo.bigdata.common.dal.pojo.SessionRecord;
 import org.prosolo.bigdata.dal.cassandra.impl.LogEventDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.UserSessionDBManagerImpl;
@@ -11,7 +8,10 @@ import org.prosolo.bigdata.events.analyzers.SessionAnalyzer;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.streaming.Topic;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
+
+import java.util.List;
+import java.util.Optional;
 
 public class UserSessionObserver implements EventObserver {
 
