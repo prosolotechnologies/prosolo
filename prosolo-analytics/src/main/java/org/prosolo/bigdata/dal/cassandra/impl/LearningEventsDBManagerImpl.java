@@ -149,7 +149,8 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		for (Row eventCounterRow : eventCountersRows) {
 			LearningEventSummary summary = new LearningEventSummary();
-			long milliseconds = DateEpochUtil.getTimeSinceEpoch(Math.toIntExact(eventCounterRow.getLong(1)));
+			summary.setDaysSinceEpoch(eventCounterRow.getLong(1));
+			long milliseconds = DateEpochUtil.getTimeSinceEpoch(Math.toIntExact(summary.getDaysSinceEpoch()));
 			summary.setDate(sdf.format(new Date(milliseconds)));
 			summary.setValue(eventCounterRow.getLong(2));
 			Row milestoneRow = findMilestoneRowForSameDay(eventCounterRow, milestoneRows);
@@ -195,16 +196,11 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 
 	private LearningEventSummary findSummaryByEpochDay(long currentEpochDay, List<LearningEventSummary> values) {
 		LearningEventSummary targetSummary = null;
-		try {
-			for(LearningEventSummary summary : values) {
-				if(summary.getSummaryEpochDay(summaryDateFormat) == currentEpochDay) {
-					targetSummary = summary;
-					break;
-				}
+		for(LearningEventSummary summary : values) {
+			if(summary.getDaysSinceEpoch() == currentEpochDay) {
+				targetSummary = summary;
+				break;
 			}
-		}
-		catch(ParseException ex) {
-			logger.error("Error parsing date for a learning events summary ", ex);
 		}
 		return targetSummary;
 	}
