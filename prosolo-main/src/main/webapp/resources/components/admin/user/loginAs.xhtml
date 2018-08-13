@@ -24,11 +24,11 @@
 						</div>
 						<div class="modal-footer">
 							<p:commandLink
+									ajax="false"
 									id="proceedBtn"
 									styleClass="btn btn-green"
 									process="@this"
-									action="#{loggeduser.loginAs()}"
-									oncomplete="$('#loginAs').modal('hide');">
+									action="#{loggeduser.loginAs()}">
 								Proceed
 							</p:commandLink>
 							<p:defaultCommand target="proceedBtn" />

@@ -1,16 +1,5 @@
 package org.prosolo.services.authentication.impl;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.authentication.AuthenticationService;
@@ -29,6 +18,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
+
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service("org.prosolo.services.authentication.AuthenticationService")
 public class SpringSecurityAuthenticationServiceImpl implements AuthenticationService, Serializable {
