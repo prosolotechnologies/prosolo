@@ -688,7 +688,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public enum AssessorAssignmentMethodData {
 		AUTOMATIC (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students automatically"),
 		MANUAL (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students manually"),
-		BY_STUDENTS ("Students can chose their " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),;
+		BY_STUDENTS ("Students can choose their " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),;
 
 		private String label;
 
