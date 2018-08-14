@@ -79,6 +79,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long numberOfInstructors;
 	
 	//for original
+	private long deliveriesNumber;
 	private List<CredentialData> deliveries;
 
 	//learning in stages
@@ -505,6 +506,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public LearningStageData getLearningStageBeforeUpdate() {
 		return (LearningStageData) changedAttributes.get("learningStage");
+	}
+
+	public long getDeliveriesNumber() {
+		return deliveriesNumber;
+	}
+
+	public void setDeliveriesNumber(long deliveriesNumber) {
+		this.deliveriesNumber = deliveriesNumber;
 	}
 
 	public List<CredentialData> getDeliveries() {

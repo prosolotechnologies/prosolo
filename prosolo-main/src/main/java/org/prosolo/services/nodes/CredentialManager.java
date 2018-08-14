@@ -357,9 +357,9 @@ public interface CredentialManager extends AbstractManager {
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException;
 	
-	List<CredentialData> getOngoingDeliveries(long credId) throws DbConnectionException;
+	long getNumberOfOngoingDeliveries(long credId) throws DbConnectionException;
 
-	List<CredentialData> getOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
+	long getNumberOfOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
 			long userId, CredentialSearchFilterManager filter) throws DbConnectionException;

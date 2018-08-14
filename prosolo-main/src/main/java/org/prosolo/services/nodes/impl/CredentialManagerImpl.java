@@ -2679,16 +2679,36 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getOngoingDeliveries(long credId) throws DbConnectionException {
-		return getDeliveries(credId, true, CredentialSearchFilterManager.ACTIVE);
+	public long getNumberOfOngoingDeliveries(long credId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT COUNT(del.id) " +
+					"FROM Credential1 del " +
+					"WHERE del.type = :type " +
+					"AND del.deliveryOf.id = :credId " +
+					"AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
+					"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now)) " +
+					"AND del.archived IS FALSE";
+
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setString("type", CredentialType.Delivery.name())
+					.setTimestamp("now", new Date());
+
+			return ((Long) q.uniqueResult()).longValue();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving number of deliveries");
+		}
 	}
 
 	@Override
 	@Transactional (readOnly = true)
-	public List<CredentialData> getOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException {
+	public long getNumberOfOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException {
 		try {
 			String query =
-					"SELECT del " +
+					"SELECT COUNT(del.id) " +
 					"FROM Credential1 del " +
 					"INNER JOIN del.deliveryOf origCred " +
 							"WITH origCred.id = :credId or origCred.firstLearningStageCredential.id = :credId " +
@@ -2702,18 +2722,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setParameter("type", CredentialType.Delivery)
 					.setTimestamp("now", new Date());
 
-			@SuppressWarnings("unchecked")
-			List<Credential1> result = q.list();
-
-			List<CredentialData> deliveries = new ArrayList<>();
-			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, null, true));
-			}
-			return deliveries;
+			Long result = (Long) q.uniqueResult();
+			return result != null ? result.longValue() : 0;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential deliveries");
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential deliveries number");
 		}
 	}
 
@@ -2929,7 +2942,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		List<CredentialData> res = new ArrayList<>();
 		for (Credential1 c : creds) {
 			CredentialData cd = credentialFactory.getCredentialData(null, c, null, null, null, null, false);
-			cd.setDeliveries(getOngoingDeliveries(c.getId()));
+			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
+			if (cd.isLearningStageEnabled()) {
+				cd.setDeliveriesNumber(getNumberOfOngoingDeliveriesFromAllStages(c.getId()));
+			} else {
+				cd.setDeliveriesNumber(getNumberOfOngoingDeliveries(c.getId()));
+			}
 			res.add(cd);
 		}
 		return res;
@@ -3442,9 +3460,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			CredentialData cd = credentialFactory.getCredentialData(null, c, c.getCategory(), null, null, null, true);
 			//if learning in stages is enabled, load active deliveries from all stages, otherwise load active deliveries from this credential only
 			if (cd.isLearningStageEnabled()) {
-				cd.setDeliveries(getOngoingDeliveriesFromAllStages(c.getId()));
+				cd.setDeliveriesNumber(getNumberOfOngoingDeliveriesFromAllStages(c.getId()));
 			} else {
-				cd.setDeliveries(getOngoingDeliveries(c.getId()));
+				cd.setDeliveriesNumber(getNumberOfOngoingDeliveries(c.getId()));
 			}
 			res.add(cd);
 		}

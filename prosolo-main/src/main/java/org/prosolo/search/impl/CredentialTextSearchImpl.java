@@ -267,18 +267,18 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 							CredentialCategory category = credentialManager.getCredentialCategory(categoryId);
 							cd.setCategory(new CredentialCategoryData(category.getId(), category.getTitle(), false));
 						}
-						List<CredentialData> deliveries;
+						long numberOfOngoingDeliveries;
 						//if learning in stages is enabled, return active deliveries from all stages
 						if (lStageId > 0) {
 							/*
 							since we return only first stage credential we know that credential id is actually
 							first stage credential id
 							 */
-							deliveries = credentialManager.getOngoingDeliveriesFromAllStages(id);
+							numberOfOngoingDeliveries = credentialManager.getNumberOfOngoingDeliveriesFromAllStages(id);
 						} else {
-							deliveries = credentialManager.getOngoingDeliveries(id);
+							numberOfOngoingDeliveries = credentialManager.getNumberOfOngoingDeliveries(id);
 						}
-						cd.setDeliveries(deliveries);
+						cd.setDeliveriesNumber(numberOfOngoingDeliveries);
 						cd.startObservingChanges();
 						response.addFoundNode(cd);
 					}
