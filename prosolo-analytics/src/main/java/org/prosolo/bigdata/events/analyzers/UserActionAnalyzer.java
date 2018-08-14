@@ -1,11 +1,9 @@
 package org.prosolo.bigdata.events.analyzers;
 
-
-
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.common.util.date.DateEpochUtil;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 /**
  * @author Zoran Jeremic, Oct 11, 2015

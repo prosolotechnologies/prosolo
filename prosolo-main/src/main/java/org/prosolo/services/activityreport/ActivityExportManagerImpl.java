@@ -67,7 +67,7 @@ public class ActivityExportManagerImpl  {
 	// otherwise it does not display UTF characters properly
 	private static final char UNICODE_BOM = '\ufeff';
 
-	public static final boolean DEVELOPMENT = Settings.getInstance().config.application.developmentMode;
+	public static final boolean DEVELOPMENT = Settings.getInstance().config.application.projectMode;
 
 	private static boolean running = false;
 

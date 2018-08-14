@@ -2,7 +2,7 @@ package org.prosolo.bigdata.events.analyzers.activityTimeSpent;
 
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.utils.JsonUtil;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 import com.google.gson.JsonObject;
 

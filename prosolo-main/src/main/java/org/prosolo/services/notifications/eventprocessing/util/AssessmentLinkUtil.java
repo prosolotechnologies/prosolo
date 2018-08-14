@@ -2,15 +2,10 @@ package org.prosolo.services.notifications.eventprocessing.util;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.notifications.eventprocessing.ActivityAssessmentCommentEventProcessor;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
@@ -63,6 +58,7 @@ public class AssessmentLinkUtil {
             AssessmentType assessmentType,
             UrlIdEncoder idEncoder,
             PageSection section) {
+
         if (credId > 0 && credAssessmentId > 0) {
             String encodedCredAssessmentId = idEncoder.encodeId(credAssessmentId);
             return section.getPrefix()

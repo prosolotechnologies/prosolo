@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -17,6 +18,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -61,6 +63,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private EventFactory eventFactory;
 	@Inject
 	private RoleManager roleManager;
+	@Inject private PasswordResetManager passwordResetManager;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -80,9 +83,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.email = :email " +
-							"AND user.verified = :verifiedEmail ";
+					"FROM User user " +
+					"WHERE user.email = :email " +
+					"AND user.verified = :verifiedEmail ";
 			if (onlyNotDeleted) {
 				query += "AND user.deleted IS FALSE";
 			}
@@ -109,9 +112,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.email = :email " +
-							"AND user.verified = :verifiedEmail ";
+					"FROM User user " +
+					"WHERE user.email = :email " +
+					"AND user.verified = :verifiedEmail ";
 			if (organizationId > 0) {
 				query += "AND user.organization.id = :orgId";
 			} else {
@@ -184,8 +187,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			String query =
 					"SELECT user " +
-							"FROM User user " +
-							"WHERE user.deleted = :deleted ";
+					"FROM User user " +
+					"WHERE user.deleted = :deleted ";
 
 			if (orgId > 0) {
 				query += "AND user.organization.id = :orgId";
@@ -217,31 +220,84 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							  String password, String position, InputStream avatarStream,
 							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+		Result<User> res = self.createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	public User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+										  String password, String position, InputStream avatarStream,
+										  String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException {
+		Result<User> res = self.createNewUserSendEmailAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<User> createNewUserSendEmailAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+												   String password, String position, InputStream avatarStream,
+												   String avatarFilename, List<Long> roles, boolean isSystem) throws IllegalDataStateException {
+		Result<User> res = self.createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		//send email to new user for password recovery
+		sendNewPassword(res.getResult());
+		return res;
+	}
+
+	private void sendNewPassword(User user) {
 		try {
-			Result<User> res = self.createNewUserAndGetEvents(
-					organizationId,
-					name,
-					lastname,
-					emailAddress,
-					emailVerified,
-					password,
-					position,
-					avatarStream,
-					avatarFilename,
-					roles,
-					isSystem);
-
-			eventFactory.generateEvents(res.getEventQueue());
-
-			return res.getResult();
-		} catch (IllegalDataStateException idse) {
-			throw idse;
-		} catch (DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
+			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+			if (resetLinkSent) {
+				logger.info("Password instructions have been sent");
+			} else {
+				logger.error("Error sending password instruction");
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error sending the password to the new user");
 		}
 	}
+
 
 	@Override
 	@Transactional (readOnly = false)
@@ -502,8 +558,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		query.append(
 			"SELECT user " +
-			" FROM User user " +
-			" WHERE user.deleted = :deleted "
+			"FROM User user " +
+			"WHERE user.deleted = :deleted "
 		);
 
 		if (toExclude != null && toExclude.length > 0) {
@@ -641,9 +697,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void setUserOrganization(long userId, long organizationId) {
 		try {
 			User user = loadResource(User.class,userId);
-			if(organizationId != 0) {
+			if (organizationId != 0) {
 				user.setOrganization(loadResource(Organization.class, organizationId));
-			}else{
+			} else {
 				user.setOrganization(null);
 			}
 			saveEntity(user);
@@ -905,10 +961,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"WITH role.id = :roleId " +
 				"LEFT JOIN user.unitMemberships um " +
 				"WITH um.unit.id = :unitId " +
-				"AND um.role.id = :roleId " +
+					"AND um.role.id = :roleId " +
 				"WHERE user.organization.id = :orgId " +
-				"AND user.deleted IS FALSE " +
-				"AND um IS NULL";
+					"AND user.deleted IS FALSE " +
+					"AND um IS NULL";
 		return (long) persistence.currentManager()
 				.createQuery(query)
 				.setLong("unitId", unitId)
@@ -1174,7 +1230,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public long getUserOrganizationId(long userId) throws DbConnectionException {
 		try {
 			String q =
-					"SELECT user.organization.id FROM User user " +
+					"SELECT user.organization.id " +
+					"FROM User user " +
 					"WHERE user.id = :userId";
 
 			Long orgId = (Long) persistence.currentManager()

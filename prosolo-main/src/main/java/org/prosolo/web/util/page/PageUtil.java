@@ -14,8 +14,6 @@ import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -125,6 +123,9 @@ public class PageUtil {
 	 */
 	public static void redirect(String url) {
 		try {
+			if (!url.startsWith("/")) {
+				url = "/" + url;
+			}
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			extContext.redirect(extContext.getRequestContextPath() + url);
 		} catch (IOException e) {
@@ -144,7 +145,11 @@ public class PageUtil {
 	 * @return
 	 */
 	public static PageSection getSectionForView() {
-		return getSectionForUri(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+		return getSectionForUri(getPage());
+	}
+
+	public static String getPage() {
+		return FacesContext.getCurrentInstance().getViewRoot().getViewId();
 	}
 
 	/**

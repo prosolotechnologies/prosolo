@@ -2,6 +2,7 @@ package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.driver.core.Row
 import org.prosolo.bigdata.scala.clustering.userprofiling.ClusterName
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -12,6 +13,7 @@ import scala.collection.mutable
   * zoran 04/03/17
   */
 class ProfilesDAO (val dbName:String) extends Entity with Serializable{
+  val logger = LoggerFactory.getLogger(getClass)
     override val keyspace=dbName
 
   def updateStudentProfileInCourse(profile:String, profileFullName:String, sequence:java.util.List[String], course:java.lang.Long, user:java.lang.Long):Unit={
@@ -26,7 +28,7 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
     DBManager.connector.withSessionDo {
       session => {
         userProfile.foreach(record => {
-          println("USER PROFILE RECORD:" + record._1 + " " + record._2 + " " + record._3 + " " + record._4 + " " + record._5)
+          logger.debug("USER PROFILE RECORD:" + record._1 + " " + record._2 + " " + record._3 + " " + record._4 + " " + record._5)
           session.execute(query, record._1.asInstanceOf[java.lang.Long], record._2.asInstanceOf[String], record._3.asInstanceOf[java.lang.Long], record._4.asInstanceOf[java.lang.Long], record._5.asInstanceOf[String])
         })
 
@@ -50,7 +52,7 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
     DBManager.connector.withSessionDo {
       session => {
         userProfile.foreach(record => {
-          println("USER PROFILE RECORD BY DATE:" + record._1 + " " + record._3 + " " + record._4 + " " + record._2 + " " + record._5)
+          logger.debug("USER PROFILE RECORD BY DATE:" + record._1 + " " + record._3 + " " + record._4 + " " + record._2 + " " + record._5)
           session.execute(bydatequery, record._1.asInstanceOf[java.lang.Long], record._3.asInstanceOf[java.lang.Long], record._4.asInstanceOf[java.lang.Long], record._2.asInstanceOf[String], record._5.asInstanceOf[String])
         })
 

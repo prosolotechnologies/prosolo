@@ -10,11 +10,16 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.users.UserScopeFilter;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +34,6 @@ import java.util.List;
  * @author Nikola Milikic
  *
  */
-@Transactional
 @Service("org.prosolo.services.interaction.FollowResourceManager")
 public class FollowResourceManagerImpl extends AbstractManagerImpl implements FollowResourceManager, Serializable {
 
@@ -67,7 +71,9 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 
 				Result<User> res = new Result<>();
 				res.setResult(follower);
-				res.appendEvent(eventFactory.generateEventData(EventType.Follow, context, userToFollow, null, null, null));
+				User eventObject = new User();
+				eventObject.setId(userToFollowId);
+				res.appendEvent(eventFactory.generateEventData(EventType.Follow, context, eventObject, null, null, null));
 				
 				logger.debug(follower.getName() + " started following user " + userToFollow.getId());
 				return res;
@@ -142,7 +148,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		String query = 
 			"SELECT cast(COUNT(fEnt.id) as int) "+
 			"FROM FollowedEntity fEnt " + 
-			"LEFT JOIN fEnt.user user "+
+			"LEFT JOIN fEnt.user user " +
 			"WHERE fEnt.followedUser.id = :followedUserId " +
 				"AND user.id = :userId ";
 		
@@ -180,7 +186,9 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			Result<Boolean> res = new Result<>();
 			res.setResult(deleted > 0);
 			if (deleted > 0) {
-				res.appendEvent(eventFactory.generateEventData(EventType.Unfollow, context, userToUnfollow, null, null, null));
+				User eventObject = new User();
+				eventObject.setId(userToUnfollowId);
+				res.appendEvent(eventFactory.generateEventData(EventType.Unfollow, context, eventObject, null, null, null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -188,41 +196,291 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			throw new DbConnectionException("Error unfollowing the user");
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<User> getFollowingUsers(long userId, int page, int limit) throws DbConnectionException {
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResult<UserData> getPaginatedUsersWithFollowInfo(long userId, UserSearchConfig searchConfig, int page, int limit) throws DbConnectionException {
+        switch (searchConfig.getScope()) {
+            case ORGANIZATION:
+                return getPaginatedOtherUsersFromOrganizationWithFollowInfo(userId, searchConfig, page, limit);
+            case FOLLOWING:
+                return getPaginatedFollowingUsers(userId, searchConfig, page, limit);
+            case FOLLOWERS:
+                return getPaginatedFollowers(userId, searchConfig, page, limit);
+        }
+        return null;
+    }
+
+	private PaginatedResult<UserData> getPaginatedFollowingUsers(long userId, UserSearchConfig searchConfig, int page, int limit) throws DbConnectionException {
 		try {
-			String query = 
-				"SELECT DISTINCT fUser " + 
-				"FROM FollowedEntity fEnt " + 
-				"LEFT JOIN fEnt.user user "+
-				"JOIN fEnt.followedUser fUser " + 
-				"WHERE user.id = :userId " +
-				"ORDER BY fUser.lastname, fUser.name";
-			
-			Query q = persistence.currentManager().createQuery(query)
-					.setLong("userId", userId);
-			
-			if (limit != 0) {
-				q.setFirstResult(page * limit)
-						.setMaxResults(limit);
+			PaginatedResult<UserData> res = new PaginatedResult<>();
+			res.setHitsNumber(getNumberOfFollowingUsers(userId, searchConfig));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getFollowingUsers(userId, searchConfig, page, limit));
 			}
-			
-			List<User> users = q.list();
-			
-			if (users != null) {
-				return users;
-			}
-			return new ArrayList<User>();
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while retrieving notification data");
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving users a given user follows");
 		}
+	}
+	
+	private List<UserData> getFollowingUsers(long userId, UserSearchConfig searchConfig, int page, int limit) {
+		StringBuilder query = new StringBuilder(
+			"SELECT DISTINCT fUser " +
+			"FROM FollowedEntity fEnt " +
+			"INNER JOIN fEnt.user user "+
+			"JOIN fEnt.followedUser fUser " +
+			"INNER JOIN fUser.roles role " +
+			"WITH role.id = :roleId " +
+			"WHERE user.id = :userId ");
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return empty list as a result without issuing the query
+			if (searchConfig.getUnitIds().isEmpty()) {
+				return new ArrayList<>();
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = fUser.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		query.append("ORDER BY fUser.lastname, fUser.name");
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
+		}
+
+		if (limit != 0) {
+			q.setFirstResult(page * limit)
+					.setMaxResults(limit);
+		}
+
+		List<User> users = q.list();
+
+		List<UserData> res = new ArrayList<>();
+		for (User user : users) {
+			UserData userData = new UserData(user);
+			//we only retrieve users that are followed by given user, so this property should be true for all users
+			userData.setFollowedByCurrentUser(true);
+			res.add(userData);
+		}
+
+		return res;
+	}
+
+	private int getNumberOfFollowingUsers(long userId, UserSearchConfig userSearchConfig) throws DbConnectionException {
+		StringBuilder query = new StringBuilder(
+				"SELECT cast( COUNT(DISTINCT fUser) as int) " +
+						"FROM FollowedEntity fEnt " +
+						"LEFT JOIN fEnt.user user "+
+						"JOIN fEnt.followedUser fUser " +
+						"INNER JOIN fUser.roles role " +
+						"WITH role.id = :roleId " +
+						"WHERE user.id = :userId ");
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return 0 as a result without issuing the query
+			if (userSearchConfig.getUnitIds().isEmpty()) {
+				return 0;
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = fUser.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
+
+		}
+
+		return (int) q.uniqueResult();
+	}
+
+	private PaginatedResult<UserData> getPaginatedOtherUsersFromOrganizationWithFollowInfo(long userId, UserSearchConfig searchConfig, int page, int limit) throws DbConnectionException {
+		try {
+			PaginatedResult<UserData> res = new PaginatedResult<>();
+			res.setHitsNumber(getNumberOfOtherUsersFromOrganization(userId, searchConfig));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getOtherUsersFromOrganizationWithFollowInfo(userId, searchConfig, page, limit));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving other users from organization");
+		}
+	}
+
+	private List<UserData> getOtherUsersFromOrganizationWithFollowInfo(long userId, UserSearchConfig searchConfig, int page, int limit) {
+		StringBuilder query = new StringBuilder(
+				"SELECT user " +
+				   "FROM User user " +
+				   "INNER JOIN user.roles role " +
+				   "WITH role.id = :roleId " +
+				   "WHERE user.id != :userId " +
+				   "AND user.organization.id = (SELECT u.organization.id FROM User u WHERE u.id = :userId) ");
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return empty list as a result without issuing the query
+			if (searchConfig.getUnitIds().isEmpty()) {
+				return new ArrayList<>();
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = user.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		query.append("ORDER BY user.lastname, user.name");
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
+		}
+
+		if (limit != 0) {
+			q.setFirstResult(page * limit)
+					.setMaxResults(limit);
+		}
+
+		List<User> users = q.list();
+
+		List<UserData> res = new ArrayList<>();
+		for (User user : users) {
+			UserData userData = new UserData(user);
+			userData.setFollowedByCurrentUser(isUserFollowingUser(userId, userData.getId()));
+			res.add(userData);
+		}
+
+		return res;
+	}
+
+	private int getNumberOfOtherUsersFromOrganization(long userId, UserSearchConfig userSearchConfig) throws DbConnectionException {
+		StringBuilder query = new StringBuilder(
+				"SELECT cast( COUNT(user) as int) " +
+						"FROM User user " +
+						"INNER JOIN user.roles role " +
+						"WITH role.id = :roleId " +
+						"WHERE user.id != :userId " +
+						"AND user.organization.id = (SELECT u.organization.id FROM User u WHERE u.id = :userId) ");
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return 0 as a result without issuing the query
+			if (userSearchConfig.getUnitIds().isEmpty()) {
+				return 0;
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = user.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
+
+		}
+
+		return (int) q.uniqueResult();
+	}
+
+	private PaginatedResult<UserData> getPaginatedFollowers(long userId, UserSearchConfig searchConfig, int page, int limit) throws DbConnectionException {
+		try {
+			PaginatedResult<UserData> res = new PaginatedResult<>();
+			res.setHitsNumber(getNumberOfFollowers(userId, searchConfig));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getFollowers(userId, searchConfig, page, limit));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving users a given user follows");
+		}
+	}
+
+	private List<UserData> getFollowers(long userId, UserSearchConfig searchConfig, int page, int limit) {
+		StringBuilder query = new StringBuilder(
+			 "SELECT user " +
+				"FROM FollowedEntity fEnt " +
+				"INNER JOIN fEnt.user user " +
+			    "INNER JOIN user.roles role " +
+			    "WITH role.id = :roleId " +
+				"INNER JOIN fEnt.followedUser fUser " +
+				"WHERE fUser.id = :userId ");
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return empty list as a result without issuing the query
+			if (searchConfig.getUnitIds().isEmpty()) {
+				return new ArrayList<>();
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = user.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		query.append("ORDER BY user.lastname, user.name");
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", searchConfig.getRoleId());
+
+		if (searchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", searchConfig.getUnitIds());
+		}
+
+		if (limit != 0) {
+			q.setFirstResult(page * limit)
+					.setMaxResults(limit);
+		}
+
+		List<User> users = q.list();
+
+		List<UserData> res = new ArrayList<>();
+		for (User user : users) {
+			UserData userData = new UserData(user);
+			//we only retrieve users that are followed by given user, so this property should be true for all users
+			userData.setFollowedByCurrentUser(isUserFollowingUser(userId, userData.getId()));
+			res.add(userData);
+		}
+
+		return res;
+	}
+
+	private int getNumberOfFollowers(long userId, UserSearchConfig userSearchConfig) throws DbConnectionException {
+		StringBuilder query = new StringBuilder(
+				"SELECT cast( COUNT(user) as int) " +
+						"FROM FollowedEntity fEnt " +
+						"INNER JOIN fEnt.user user " +
+						"INNER JOIN user.roles role " +
+						"WITH role.id = :roleId " +
+						"INNER JOIN fEnt.followedUser fUser " +
+						"WHERE fUser.id = :userId ");
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			//if units list passed is empty we can return 0 as a result without issuing the query
+			if (userSearchConfig.getUnitIds().isEmpty()) {
+				return 0;
+			}
+			query.append("AND exists (SELECT urm.id FROM UnitRoleMembership urm WHERE urm.role.id = :roleId AND urm.user = user.id AND urm.unit.id IN (:unitIds))");
+		}
+
+		Query q = persistence.currentManager().createQuery(query.toString())
+				.setLong("userId", userId)
+				.setLong("roleId", userSearchConfig.getRoleId());
+
+		if (userSearchConfig.getUserScopeFilter() == UserScopeFilter.USERS_UNITS) {
+			q.setParameterList("unitIds", userSearchConfig.getUnitIds());
+
+		}
+
+		return (int) q.uniqueResult();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
+	@Transactional(readOnly = true)
 	public List<User> getFollowers(long userId) throws DbConnectionException {
 		try {
 			String query = 
@@ -246,28 +504,6 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			logger.error(e);
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public int getNumberOfFollowingUsers(long userId) throws DbConnectionException {
-		Integer resNumber = 0;
-		try {
-			String query = 
-				"SELECT cast( COUNT(DISTINCT fUser) as int) " + 
-				"FROM FollowedEntity fEnt " + 
-				"LEFT JOIN fEnt.user user "+
-				"JOIN fEnt.followedUser fUser " + 
-				"WHERE user.id = :userId ";
-	
-		resNumber = (Integer) persistence.currentManager().createQuery(query)
-			.setLong("userId", userId)
-			.uniqueResult();
-
-		} catch(Exception e) {
-			throw new DbConnectionException("Error while retrieving follwing users");
-		}
-		return resNumber;
 	}
 	
 }

@@ -36,7 +36,6 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 
 import static java.lang.String.format;
-import static org.prosolo.common.domainmodel.events.EventType.*;
 /**
  * @author Zoran Jeremic 2013-10-07
  * 
@@ -74,11 +73,17 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private static String logReportDatesCollection= "log_report_dates";
 	
 	private EventType[] interactions=new EventType[]{
-			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
-			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
-			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
-			Like,Dislike, SEND_MESSAGE, PostShare,
-			Comment_Reply, RemoveLike};
+			EventType.Comment,
+			EventType.AssessmentRequested,
+			EventType.AssessmentApproved,
+			EventType.GRADE_ADDED,
+			EventType.Like,
+			EventType.Dislike,
+			EventType.SEND_MESSAGE,
+			EventType.PostShare,
+			EventType.Comment_Reply,
+			EventType.RemoveLike
+	};
 	
 	@Override
 	public void logServiceUse(UserContextData context, String componentName,
@@ -228,7 +233,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					System.out.println("ExtractedCourse id:"+courseId);
 			}
 		}*/
-		System.out.println("EXTRACTED COURSE ID:"+courseId);
 		return courseId;
 	}
 
@@ -488,7 +492,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				try {
 					JSONObject lContext = (JSONObject) new JSONParser().parse(learningContextJson);
 					logObject.put("learningContext", lContext);
-					System.out.println("HAS LEARNING CONTEXT...:" + lContext.toString());
 				}catch(ParseException e){
 					logger.error(e);
 				}

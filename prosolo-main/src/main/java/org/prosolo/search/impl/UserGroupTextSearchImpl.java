@@ -21,7 +21,6 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -58,8 +57,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return start;
 	}
-	
-	@Transactional
+
 	@Override
 	public PaginatedResult<UserGroupData> searchUserGroups (
 			long orgId, long unitId, String searchString, int page, int limit) {
@@ -96,7 +94,6 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	 */
 	@Deprecated
 	@Override
-	@Transactional
 	public PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit) {
 		

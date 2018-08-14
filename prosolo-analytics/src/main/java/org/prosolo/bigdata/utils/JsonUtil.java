@@ -7,6 +7,6 @@ public class JsonUtil {
 
 	public static String getAsString(JsonObject object, String name) {
 		JsonElement el = object.get(name);
-		return el.getAsString();
+		return el != null ? el.getAsString() : null;
 	}
 }

@@ -9,6 +9,6 @@ trait EmailService[S<:EmailSummary] {
   val logger = LoggerFactory.getLogger(getClass)
 
   def sendEmail(emailSummary:S)
-  def sendEmailBatches(emailBatch  : Array[S]):Tuple2[mutable.Map[String,EmailSuccess],mutable.Map[String,EmailSuccess]]
+  def sendEmailBatches(emailBatch  : Array[S]):(mutable.Map[String, EmailSuccess], mutable.Map[String, EmailSuccess])
 
 }

@@ -274,21 +274,19 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
 	
-	void updateTargetCredentialLastAction(long userId, long credentialId) 
-			throws DbConnectionException;
+	void updateTargetCredentialLastAction(long userId, long credentialId) throws DbConnectionException;
 
 	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
 	
 	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
 	
-	long getTargetCredentialNextCompToLearn(long credId, long userId) 
-			throws DbConnectionException;
+	long getTargetCredentialNextCompToLearn(long credId, long userId) throws DbConnectionException;
 	
-	long getNumberOfUsersLearningCredential(long credId) 
-			throws DbConnectionException;
+	long getNumberOfUsersLearningCredential(long credId) throws DbConnectionException;
 	
-	List<StudentData> getCredentialStudentsData(long credId, int limit) 
-			throws DbConnectionException;
+	List<StudentData> getCredentialStudentsData(long credId, int limit) throws DbConnectionException;
+
+	StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException;
 	
 	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
 			throws DbConnectionException;
@@ -440,6 +438,8 @@ public interface CredentialManager extends AbstractManager {
 	Credential1 getCredentialWithCompetences(long credentialId, CredentialType type) throws DbConnectionException;
 
 	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
+
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId);
 
 	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 

@@ -25,18 +25,18 @@ class TestSparkHibernate {
 //                  session.beginTransaction()
 //                }
 //               val node:Competence= session.load(classOf[Competence], nodeid).asInstanceOf[Competence]
-//                println("FOUND Node:"+node.getTitle)
+//                logger.debug("FOUND Node:"+node.getTitle)
 //
 //                val newTag: Tag = new Tag
 //                newTag.setTitle("title" + nodeid)
 //
-//                println("Saving tag:"+newTag)
+//                logger.debug("Saving tag:"+newTag)
 //                session.save(newTag)
-//                println("Saved tag:"+newTag)
+//                logger.debug("Saved tag:"+newTag)
 //
 //                 node.getTags().add(newTag)
 //                 session.save(node)
-//                 println("Saved node")
+//                 logger.debug("Saved node")
 //                 val created:java.util.Date=new java.util.Date
 //                 val postLink="somelink"
 //                 val text="sometext"
@@ -57,7 +57,7 @@ class TestSparkHibernate {
 //    post.setUserUrl(profileUrl);
 //    post.setProfileImage(profileImage);
 //    session.save(post)
-//    println("SAVED POST HERE")
+//    logger.debug("SAVED POST HERE")
 //
 //                 session.getTransaction().commit()
 //              } catch {

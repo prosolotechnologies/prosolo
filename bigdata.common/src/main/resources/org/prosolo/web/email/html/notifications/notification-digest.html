@@ -238,7 +238,7 @@
                                                         <br />
                                                         {{#hasFollowers}}
                                                         <br />
-                                                        You have <strong>{{followersCount}} new followers</strong>:
+                                                        You have <strong>{{followersCount}} new follower(s)</strong>:
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#followers}}
@@ -248,6 +248,13 @@
                                                                 </td>
                                                             </tr>
                                                             {{/followers}}
+                                                            {{#hasMoreFollowers}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=follow_user">View all followers</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreFollowers}}
 
                                                         </table>
                                                         <br />
@@ -255,37 +262,70 @@
                                                         {{#hasAnnouncements}}
                                                         <br />
                                                         You have <strong>{{announcementsCount}} new announcement(s)</strong>
+                                                        <br/>
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#announcements}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    There's a new announcement for the <a href="{{link}}" target="_blank">{{targetTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/announcements}}
+                                                            {{#hasMoreAnnouncements}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=announcements">View all announcements</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAnnouncements}}
+
+                                                        </table>
                                                         {{/hasAnnouncements}}
                                                         {{#hasComments}}
                                                         <br/>
-                                                        You have <strong>{{commentsCount}} new comments</strong>:
+                                                        You have <strong>{{commentsCount}} new comment(s)</strong>:
                                                         <br/>
                                                          <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#comments}}
                                                             <tr>
                                                                 <td valign="top">
-                                                                    {{actorFullName}} commented on a competence <a href="{{link}}">{{objectTitle}}</a>
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
                                                                 </td>
                                                             </tr>
                                                             {{/comments}}
 
-                                                        </table>
-                                                        <table border="0" cellpadding="0" cellspacing="0">
-
+                                                            {{#hasMoreComments}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all comments</a>
+                                                                    <a href="{{notificationsLink}}?filters=comment">View all comments</a>
                                                                 </td>
                                                             </tr>
+                                                            {{/hasMoreComments}}
                                                         </table>
+
                                                         <br/>
                                                         {{/hasComments}}
-
                                                         {{#hasAssessmentsApproved}}
                                                         <br />
-                                                        You have <strong>{{assessmentsApprovedCount}} new assessments approved</strong>
+                                                        You have <strong>{{assessmentsApprovedCount}} new assessment(s) approved</strong>
 
-                                                        <br />
+                                                        <br/>
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assessmentsApproved}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/assessmentsApproved}}
+                                                            {{#hasMoreAssessmentsApproved}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all Assessments approved</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssessmentsApproved}}
+                                                        </table>
 
                                                         {{/hasAssessmentsApproved}}
                                                         {{#hasAssessmentsComments}}
@@ -296,46 +336,110 @@
                                                             {{#assessmentsComments}}
                                                             <tr>
                                                                 <td valign="top">
-                                                                    {{actorFullName}} commented on a competence <a href="{{link}}">{{objectTitle}}</a>
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
                                                                 </td>
                                                             </tr>
                                                             {{/assessmentsComments}}
-
+                                                            {{#hasMoreAssessmentsComments}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all comments</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_comment">View all comments</a>
                                                                 </td>
                                                             </tr>
+                                                            {{/hasMoreAssessmentsComments}}
                                                         </table>
                                                         <br />
                                                         {{/hasAssessmentsComments}}
                                                         {{#hasAssessmentsRequest}}
                                                         <br />
-                                                        You have <strong>{{assessmentsRequestsCount}} new assessment requests</strong>
+                                                        You have <strong>{{assessmentsRequestsCount}} new assessment request(s)</strong>
 
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assessmentsRequests}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/assessmentsRequests}}
+                                                            {{#hasMoreAssessmentsRequests}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_requested">View all requests</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssessmentsRequests}}
+                                                        </table>
                                                         <br />
 
                                                         {{/hasAssessmentsRequest}}
-                                                        </br>
                                                         {{#hasGradeAdded}}
                                                         <br />
-                                                        You have <strong>{{gradeAddedCount}} new grade(s) added</strong>
+                                                        You have <strong>{{gradeAddedCount}} new assessments(s) received</strong>
 
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#gradesAdded}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}}  <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/gradesAdded}}
+                                                            {{#hasMoreGradesAdded}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=gradeadded">View all assessments</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreGradesAdded}}
+                                                        </table>
                                                         <br />
 
                                                         {{/hasGradeAdded}}
-                                                         </br>
                                                         {{#hasCommentLiked}}
                                                         <br />
                                                         You have <strong>{{commentLikeCount}} comment(s) liked</strong>
-
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#commentLikes}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}}  <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/commentLikes}}
+                                                            {{#hasMoreCommentLikes}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=comment_like">View all comment likes</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreCommentLikes}}
+                                                        </table>
                                                         <br />
 
+
                                                         {{/hasCommentLiked}}
-                                                        </br>
                                                         {{#hasSocialActivityLiked}}
                                                         <br />
                                                         You have <strong>{{socialActivityLikeCount}} social activity(s) added</strong>
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#socialActivityLikes}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}}  <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/socialActivityLikes}}
+                                                            {{#hasMoreSocialActivitiesLikes}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=social_activity_like">View all social activities likes</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreSocialActivitiesLikes}}
+                                                        </table>
 
                                                         <br />
 

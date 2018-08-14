@@ -82,13 +82,6 @@ public class StyleUtilBean implements Serializable {
 		}
 	}
 	
-//	public String getClassForSocialActivityText(SocialActivityType type) {
-//		if(type == SocialActivityType.Comment) {
-//			return "commentPreview";
-//		} 
-//		return "";
-//	}
-	
 	public String getIconStyleClassBasedOnMediaType(MediaType1 type) {
 		switch(type) {
 			case Credential:
@@ -126,6 +119,48 @@ public class StyleUtilBean implements Serializable {
 				return "statusRed";
 			default:
 				return "";	
+		}
+	}
+
+	public String getEvidenceFileTypeIcon(String url) {
+		String extension = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+
+		switch (extension) {
+			case "txt":
+			case "doc":
+			case "docx":
+			case "odt":
+			case "rtf":
+			case "pdf":
+				return "evidenceText";
+			case "jpg":
+			case "jpeg":
+			case "png":
+			case "gif":
+			case "tiff":
+			case "bmp":
+				return "evidenceImage";
+			case "mp3":
+			case "wav":
+			case "3gp":
+			case "aac":
+			case "wma":
+				return "evidenceAudio";
+			case "mp4":
+			case "avi":
+			case "flv":
+			case "mov":
+			case "mpg":
+			case "mpeg":
+			case "wmv":
+				return "evidenceVideoAlt";
+			case "zip":
+			case "rar":
+			case "gz":
+			case "7z":
+				return "evidenceArchive";
+			default:
+				return "evidenceDoc";
 		}
 	}
 
