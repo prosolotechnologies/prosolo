@@ -26,6 +26,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -972,7 +973,6 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
        return checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, roleManager.getRoleIdByName(roleName));
     }
 
-
     private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
         if (unitIds == null || unitIds.isEmpty()) {
             return false;
@@ -1251,6 +1251,20 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error("Error", e);
             throw new DbConnectionException("Error retrieving competency info");
         }
+    }
+
+    public boolean isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent(long managerId, long studentId) {
+        try {
+            return hasUserRoleInAtLeastOneUnitWhereOtherUserHasRole(managerId, SystemRoleNames.MANAGER, studentId, SystemRoleNames.USER);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error in method isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent");
+        }
+    }
+
+    private boolean hasUserRoleInAtLeastOneUnitWhereOtherUserHasRole(long firstUserId, String firstUserRoleName, long secondUserId, String secondUserRoleName) {
+        List<Long> secondUserUnits = getUserUnitIdsInRole(secondUserId, secondUserRoleName);
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(firstUserId, roleManager.getRoleIdByName(firstUserRoleName), secondUserUnits);
     }
 
 }
