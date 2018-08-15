@@ -17,6 +17,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
+import org.slf4j.LoggerFactory
 /**
   * Created by zoran on 09/01/16.
   */
@@ -24,26 +26,26 @@ import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
   * zoran 09/01/16
   */
 class LearningGoalsMostActiveUsers {
-
+  val logger = LoggerFactory.getLogger(getClass)
   def analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch:Long)={
     //val dbManager = new AnalyticalEventDBManagerImpl;
-    println("*****************************analyzeLearningGoalsMostActiveUsersForDay")
+    logger.debug("*****************************analyzeLearningGoalsMostActiveUsersForDay")
     val sc=SparkManager.sparkContextLoader.getSC
     val activitiesCounters = AnalyticalEventDBManagerImpl.getInstance().findUserLearningGoalActivitiesByDate(daysSinceEpoch);
    val activitiesCountersRDD:RDD[UserLearningGoalActivitiesCount]= sc.parallelize(activitiesCounters.asScala)
-    println("Activities counters:")
+    logger.debug("Activities counters:")
     activitiesCountersRDD.take(100).foreach(println)
     val actCountersByLearningGoals:RDD[(Long,Iterable[UserLearningGoalActivitiesCount])]=activitiesCountersRDD.groupBy{
       counter:UserLearningGoalActivitiesCount=>
         counter.getLearningGoalId
     }
-    println("***************************actCountersByLearningGoals:")
+    logger.debug("***************************actCountersByLearningGoals:")
     actCountersByLearningGoals.take(100).foreach(println)
 
     val actCountersByLearningGoalsSorted:RDD[(Long,ArrayBuffer[UserLearningGoalActivitiesCount])] =actCountersByLearningGoals.mapValues{
        counters: Iterable[UserLearningGoalActivitiesCount] =>
          val sortedList:List[UserLearningGoalActivitiesCount]=counters.toList.sortWith(_.getCounter<_.getCounter)
-         println("SORTED LIST")
+         logger.debug("SORTED LIST")
          counters.foreach(count=>println(count.getCounter))
        /* val list:util.List[UserLearningGoalActivitiesCount]= new util.ArrayList[UserLearningGoalActivitiesCount]
           counters.foreach(counter=>list.add(counter))
@@ -54,13 +56,13 @@ class LearningGoalsMostActiveUsers {
          sortedList.slice(0, lastindex).foreach{el=>shortList+=el}
          shortList
     }
-    println("*******************actCountersByLearningGoalsSorted:")
+    logger.debug("*******************actCountersByLearningGoalsSorted:")
     actCountersByLearningGoalsSorted.take(100).foreach(println)
 
     actCountersByLearningGoalsSorted.foreach{
       case (learningGoalId:Long,counters:ArrayBuffer[UserLearningGoalActivitiesCount])
       =>
-        println("Learning goal:"+learningGoalId+" counters:"+counters.mkString(","))
+        logger.debug("Learning goal:"+learningGoalId+" counters:"+counters.mkString(","))
         val data=new JsonObject
         data.add("date", new JsonPrimitive(daysSinceEpoch))
         data.add("learninggoalid", new JsonPrimitive(learningGoalId))
@@ -78,8 +80,8 @@ class LearningGoalsMostActiveUsers {
 
   }
   def analyzeLearningGoalsMostActiveUsersForWeek(): Unit ={
-    println("analyzeLearningGoalsMostActiveUsersForWeek")
-    println("NOT FINISHED...")
+    logger.debug("analyzeLearningGoalsMostActiveUsersForWeek")
+    logger.debug("NOT FINISHED...")
     val indexer = new RecommendationDataIndexerImpl
     val daysSinceEpoch=DateEpochUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
@@ -138,7 +140,7 @@ class LearningGoalsMostActiveUsers {
 
             }
         }
-        println("USERS FOR WEEK:" + weeklyUserPoints.toString);
+        logger.debug("USERS FOR WEEK:" + weeklyUserPoints.toString);
         val topTen:util.Set[util.Map.Entry[Long,Long]]=weeklyUserPoints.entrySet()
         val topTenSorted=topTen.asScala.toList.sortWith{_.getValue<_.getValue}
         val ten=if(topTenSorted.size<10) topTenSorted else topTenSorted.slice(0,10)
@@ -148,7 +150,7 @@ class LearningGoalsMostActiveUsers {
         }
         weeklyCounter.setLearninggoal(learningGoal)
         weeklyCounter.setDate(System.currentTimeMillis())
-        println("WEEKLY COUNTER:"+weeklyCounter.toString)
+        logger.debug("WEEKLY COUNTER:"+weeklyCounter.toString)
         indexer.updateMostActiveUsersForLearningGoal(weeklyCounter)
 
     }

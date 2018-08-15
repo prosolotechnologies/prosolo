@@ -1,0 +1,83 @@
+version: '2'
+services:
+  cassandra:
+     build:  ./cassandra
+     restart:  on-failure
+     expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
+     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=700M
+      - VSYSTEM_PROTOCOL=${VSYSTEM_PROTOCOL}
+     ports:
+      - "9042:9042"
+      - "9160:9160"
+    # volumes:
+      #- ./cassandra/init_scripts:/prosolo/init_scripts
+      #- ../db/cassandra/keyspaces.dev:/prosolo/init_scripts/keyspaces
+      #- ../db/dev-bootstrap:/init_script/dev_bootstrap
+      #- cassandra_volume:/var/lib/cassandra
+     ulimits:
+       nofile:
+        soft: 100000
+        hard: 100000
+       nproc:
+        soft: 32768
+        hard: 32768
+     networks:
+         - localnet
+
+  mysql:
+     container_name: mysql
+     environment:
+             - MYSQL_ROOT_PASSWORD=prosolo
+             - MYSQL_DATABASE=prosolo
+     build: mysql
+    # volumes_from:
+     #        - mysql_data
+     volumes:
+             - "./mysql/config:/etc/mysql/conf.d"
+     expose:
+             - "3307"
+     ports:
+             - "3307:3306"
+  elasticsearch:
+     container_name: elasticsearch
+     build: elasticsearch
+     #volumes_from:
+      #           - elasticsearch_data
+     command: -Des.node.name="Prosolo-elasticsearch"
+     ports:
+         - "9200:9200"
+         - "9300:9300"
+
+  rabbitmq:
+     container_name: "rabbitmq-prosolo"
+     build: rabbitmq
+     #image: rabbitmq:3.7.3-management
+     ports:
+          - "15672:15672"
+          - "5672:5672"
+     labels:
+          NAME: "rabbitmq"
+     volumes:
+          - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq.conf:ro
+          - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+
+volumes:
+  cassandra_volume:
+    external:
+      name: cassandra_volume_${VCS_BRANCH}
+  mysql_data_volume:
+    external:
+      name: mysql_data_volume_${VCS_BRANCH}
+  elasticsearch_data_volume:
+    external:
+      name: elasticsearch_data_volume_${VCS_BRANCH}
+networks:
+  localnet:
+

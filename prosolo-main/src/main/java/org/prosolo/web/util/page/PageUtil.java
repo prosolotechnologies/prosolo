@@ -145,7 +145,11 @@ public class PageUtil {
 	 * @return
 	 */
 	public static PageSection getSectionForView() {
-		return getSectionForUri(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+		return getSectionForUri(getPage());
+	}
+
+	public static String getPage() {
+		return FacesContext.getCurrentInstance().getViewRoot().getViewId();
 	}
 
 	/**

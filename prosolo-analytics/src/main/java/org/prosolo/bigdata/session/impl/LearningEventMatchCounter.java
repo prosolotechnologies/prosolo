@@ -26,6 +26,7 @@ public class LearningEventMatchCounter {
 	public void processEvent(LogEvent event,final long epochDay) {
 		//get the matcher based on current state (if we had matches previously, 
 		//we will get next matcher, and so on)
+		//TODO if there can be more than one pattern in the pattern list, only first would be processed
 		boolean match = matcher.getPatternList().get(state).match(event); 
 		if(match) {
 			//we had a match, advance state

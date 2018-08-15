@@ -290,6 +290,8 @@ public class DateUtil {
 		return new LocalDate(date).toDateTimeAtStartOfDay().plusDays(1).toDate();
 	}
 
+	public static Date getPreviousDay(Date date){ return new LocalDate(date).toDateTimeAtStartOfDay().minusDays(1).toDate();}
+
 	public static Date getWeekBeginningDate(Date date) {
 		LocalDate weekBegin = new LocalDate(date).withDayOfWeek(DateTimeConstants.MONDAY);
 		return weekBegin.toDateTimeAtStartOfDay().toDate();

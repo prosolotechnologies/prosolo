@@ -51,11 +51,11 @@ object FeaturesToProfileMatcher {
     * @param clusterResults
     */
   def checkClustersMatching(clusterResults:ClusterResults){
-    val featureValues:Map[Int,Tuple2[Double,Int]]= clusterResults.getFeatureValues()
+    val featureValues:Map[Int,(Double, Int)]= clusterResults.getFeatureValues()
      clusterProfiles.foreach{
       case (clusterName:ClusterName.Value,template:ClusterTemplate)=>
        val clusterMatching:Double= featureValues.foldLeft(0.0){
-          case(acc:Double, (fvKey:Int, fvValue:Tuple2[Double,Int]))=>
+          case(acc:Double, (fvKey:Int, fvValue:(Double, Int)))=>
             val templValue:Double= template.getFeatureValue(fvKey)
             val featureMatching=findFeatureMatching(fvValue._2,templValue)
             acc+featureMatching

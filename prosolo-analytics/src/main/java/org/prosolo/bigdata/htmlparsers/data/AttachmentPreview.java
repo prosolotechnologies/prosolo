@@ -3,12 +3,12 @@
  */
 package org.prosolo.bigdata.htmlparsers.data;
 
+import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.events.EventType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.content.ContentType;
 
 /**
  * @author "Nikola Milikic"
