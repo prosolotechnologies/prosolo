@@ -197,37 +197,38 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public void loginOpenId(String email) {
-		boolean loggedIn;
+	public boolean loginUser(String email, String context) {
 		try {
-			loggedIn = authenticationService.loginOpenId(email);
-
+			boolean loggedIn = authenticationService.loginUser(email);
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
-				//setEmail(email);
-				
-				
 				init(email);
-				
 				logger.info("Initialized");
-				//change --
-				//ipAddress = accessResolver.findRemoteIPAddress();
+
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
-				// return "index?faces-redirect=true";
-				logger.info("REDIRECTING TO INDEX");
-				
-				PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
-				return;
+				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+				PageContextData lcd = new PageContextData(page, context, null);
+				loggingService.logEvent(EventType.LOGIN, getUserContext(lcd), getIpAddress());
+				return true;
 			}
-		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
-			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
+		return false;
+	}
 
-		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-		PageUtil.redirect("/login?faces-redirect=true");
-		return;
+	public void loginOpenId(String email) {
+		boolean loggedIn = loginUser(email, null);
+
+		if (loggedIn) {
+			logger.info("REDIRECTING TO INDEX");
+
+			PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
+		} else {
+			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
+			PageUtil.redirect("/login?faces-redirect=true");
+		}
 	}
 	
 	@Override
