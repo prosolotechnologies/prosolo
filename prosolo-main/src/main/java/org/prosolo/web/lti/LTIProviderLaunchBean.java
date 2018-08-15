@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
@@ -57,6 +58,8 @@ public class LTIProviderLaunchBean implements Serializable {
 	public LTIProviderLaunchBean() {
 		logger.info("LTIProviderLaunchBean initialized");
 	}
+
+	private String learningContext = "name:lti_launch";
 
 	// called when Tool Consumer submits request
 	public void processPOSTRequest() {
@@ -112,17 +115,11 @@ public class LTIProviderLaunchBean implements Serializable {
 		}
 	}
 
-	private boolean login(User user) throws AuthenticationException {
+	private boolean login(User user) {
 		//if there is a different user logged in, invalidate his session
 		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
 		applicationBean.unregisterSession(session);
-
-		boolean loggedIn = authenticationService.loginOpenId(user.getEmail());
-		if (loggedIn) {
-			loggedUserBean.init(user.getEmail());
-			return true;
-		}
-		return false;
+		return loggedUserBean.loginUser(user.getEmail(), learningContext);
 	}
 
 
