@@ -135,16 +135,16 @@
                                                 </div>
                                             </div>
 
-                                            <p:commandLink rendered="#{loggeduser.userId != user.id}"
-                                                           styleClass="assignOpt"
-                                                           pt:data-toggle="modal"
-                                                           action="#{loggeduser.prepareLoginAsUser(user)}"
-                                                           update=":loginAs:formLoginAs:panelLoginAs"
-                                                           oncomplete="$('#loginAs').modal('show');">
-                                                Login as...
-                                            </p:commandLink>
-
                                             <div class="assignOpt">
+                                                <p:commandLink rendered="#{loggeduser.userId != user.id}"
+                                                               styleClass="loginAs"
+                                                               pt:data-toggle="modal"
+                                                               action="#{loggeduser.prepareLoginAsUser(user)}"
+                                                               update=":loginAs:formLoginAs:panelLoginAs"
+                                                               oncomplete="$('#loginAs').modal('show');">
+                                                    Login as...
+                                                </p:commandLink>
+
                                                 <p:commandLink styleClass="removeX" process="@this"
                                                                action="#{groupUsersBean.removeUserFromGroup(user)}"
                                                                update=":panelUsers :growlMain">
