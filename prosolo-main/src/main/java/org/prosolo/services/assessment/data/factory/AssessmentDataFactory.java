@@ -36,8 +36,9 @@ public class AssessmentDataFactory implements Serializable {
 
     public CredentialAssessmentsSummaryData getCredentialAssessmentsSummary(Credential1 cred) {
         CredentialAssessmentsSummaryData credAssessmentsSummary = new CredentialAssessmentsSummaryData();
-        credAssessmentsSummary.setId(cred.getId());
-        credAssessmentsSummary.setTitle(cred.getTitle());
+        credAssessmentsSummary.getCredentialIdData().setId(cred.getId());
+        credAssessmentsSummary.getCredentialIdData().setTitle(cred.getTitle());
+        credAssessmentsSummary.getCredentialIdData().setOrder(cred.getDeliveryOrder());
         credAssessmentsSummary.setMandatoryOrder(cred.isCompetenceOrderMandatory());
 
         return credAssessmentsSummary;

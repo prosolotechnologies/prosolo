@@ -104,7 +104,7 @@ public class ActivityViewBeanManager implements Serializable {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
 		if(decodedCredId > 0) {
-			String credTitle = credManager.getCredentialTitle(decodedCredId);
+			String credTitle = credManager.getCredentialTitle(decodedCredId, null);
 			competenceData.setCredentialId(decodedCredId);
 			competenceData.setCredentialTitle(credTitle);
 		}

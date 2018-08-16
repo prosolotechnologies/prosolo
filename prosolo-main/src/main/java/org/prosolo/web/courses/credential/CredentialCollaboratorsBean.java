@@ -70,7 +70,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				credentialTitle = credManager.getCredentialTitle(decodedId);
+				credentialTitle = credManager.getCredentialTitle(decodedId, null);
 				searchCredentialMembers();
 				if(searchFilters == null) {
 					LearningStatus[] values = LearningStatus.values();

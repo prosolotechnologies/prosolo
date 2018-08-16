@@ -79,7 +79,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 								false);
 
 						if (decodedCredId > 0) {
-							credentialTitle = credManager.getCredentialTitle(decodedCredId);
+							credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
 							competenceData.setCredentialId(decodedCredId);
 						}
 					} else {

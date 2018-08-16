@@ -63,7 +63,7 @@ public class CompetencePrivacyBean implements Serializable {
 					if (competenceTitle != null) {
 						long decodedCredId = idEncoder.decodeId(credId);
 						if (decodedCredId > 0){
-							this.credTitle = credManager.getCredentialTitle(decodedCredId);
+							this.credTitle = credManager.getCredentialTitle(decodedCredId, null);
 						}
 
 						loadData();

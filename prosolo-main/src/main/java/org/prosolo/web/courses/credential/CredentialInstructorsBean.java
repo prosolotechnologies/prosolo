@@ -16,6 +16,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -73,7 +74,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	
 	private String context;
 	
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 	
 	private InstructorSortOption[] sortOptions;
 	
@@ -95,15 +96,14 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
-				if(title != null) {
+				credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);
+				if (credentialIdData != null) {
 					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
 								ResourceAccessRequirements.of(AccessMode.MANAGER)
 														  .addPrivilege(UserGroupPrivilege.Edit));
-					if(!access.isCanAccess()) {
+					if (!access.isCanAccess()) {
 						PageUtil.accessDenied();
 					} else {
-						credentialTitle = title;	
 						//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
 						searchCredentialInstructors();
 						studentAssignBean.init(decodedId, context);
@@ -301,11 +301,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 //	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 
 	public InstructorSortOption[] getSortOptions() {

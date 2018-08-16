@@ -614,11 +614,12 @@ input {
     margin-right: 20px; }
   .credentialCard .credentialCardTop .deliveriesNr {
     display: inline-block;
-    padding-top: 10px;
-    color: #363636; }
+    padding-top: 10px; }
     .credentialCard .credentialCardTop .deliveriesNr.zero {
       color: #859095;
       font-style: italic; }
+    .credentialCard .credentialCardTop .deliveriesNr span:last-child {
+      display: none; }
   .credentialCard .credentialCardTop .credentialCardTopOptions {
     flex-shrink: 0; }
     .credentialCard .credentialCardTop .credentialCardTopOptions a, .credentialCard .credentialCardTop .credentialCardTopOptions .btn {
@@ -2068,7 +2069,8 @@ textarea {
     flex-grow: 1; }
     .formWrapper .formLine .formLineRight input[type="text"],
     .formWrapper .formLine .formLineRight input[type="password"],
-    .formWrapper .formLine .formLineRight textarea {
+    .formWrapper .formLine .formLineRight textarea,
+    .formWrapper .formLine .formLineRight input[type="number"] {
       width: 100%; }
     .formWrapper .formLine .formLineRight textarea {
       height: 100px; }
@@ -4945,6 +4947,15 @@ header {
         .editOrgForm ul.list > li .instructorInfo .infoWrap h3,
         .yourEvidencesLibrary ul.list > li .instructorInfo .infoWrap h3 {
           margin: 0; }
+    .assignInstructorModal ul.list > li .loginAs,
+    .addStudentsModal ul.list > li .loginAs,
+    .manageVisibility ul.list > li .loginAs,
+    .newDeliveryModal ul.list > li .loginAs,
+    .deleteUserModal ul.list > li .loginAs,
+    .editOrgForm ul.list > li .loginAs,
+    .yourEvidencesLibrary ul.list > li .loginAs {
+      display: flex;
+      align-items: center; }
     .assignInstructorModal ul.list > li .progressWrapper,
     .addStudentsModal ul.list > li .progressWrapper,
     .manageVisibility ul.list > li .progressWrapper,

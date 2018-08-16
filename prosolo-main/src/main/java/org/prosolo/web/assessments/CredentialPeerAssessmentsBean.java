@@ -43,7 +43,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
 	public void loadInitialAssessmentData() {
-		credentialTitle = credentialManager.getCredentialTitle(decodedId);
+		credentialTitle = credentialManager.getCredentialTitle(decodedId, null);
 		if (credentialTitle != null) {
 			if (page > 0) {
 				paginationData.setPage(page);

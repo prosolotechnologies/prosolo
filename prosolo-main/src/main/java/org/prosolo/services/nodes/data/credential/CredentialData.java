@@ -5,16 +5,15 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.observable.StandardObservable;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -35,9 +34,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	 * a database record and never be changed again.
 	 */
 	private long version = -1;
-	private long id;
+	private CredentialIdData idData;
 	private long organizationId;
-	private String title;
 	private String description;
 	private Set<Tag> tags;
 	private String tagsString;
@@ -77,10 +75,9 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialDeliveryStatus deliveryStatus;
 	private long numberOfStudents;
 	private long numberOfInstructors;
-	
+
 	//for original
-	private long deliveriesNumber;
-	private List<CredentialData> deliveries;
+	private CredentialDeliveriesSummaryData credentialDeliveriesSummaryData;
 
 	//learning in stages
 	private boolean learningStageEnabled;
@@ -105,18 +102,12 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
+		this.idData = new CredentialIdData(listenChanges);
 		competences = new ArrayList<>();
 		learningStages = new ArrayList<>();
 		assessmentSettings = new LearningResourceAssessmentSettings();
 		assessmentTypes = new ArrayList<>();
 		this.listenChanges = listenChanges;
-	}
-
-	public CredentialData(Credential1 credential){
-		this.id = credential.getId();
-		this.title = credential.getTitle();
-		assessmentSettings = new LearningResourceAssessmentSettings();
-		assessmentTypes = new ArrayList<>();
 	}
 
 	/**
@@ -127,6 +118,9 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean hasObjectChanged() {
 		boolean changed = super.hasObjectChanged();
 		if(!changed) {
+			if (getIdData().hasObjectChanged()) {
+				return true;
+			}
 			for (CompetenceData1 cd : getCompetences()) {
 				if(cd.getObjectStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
@@ -150,6 +144,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	@Override
 	public void startObservingChanges() {
 		super.startObservingChanges();
+		getIdData().startObservingChanges();
 		getAssessmentSettings().startObservingChanges();
 		for (AssessmentTypeConfig atc : getAssessmentTypes()) {
 			atc.startObservingChanges();
@@ -182,7 +177,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	}
 
 	public boolean isFirstStageCredential() {
-		return getId() == getFirstLearningStageCredentialId();
+		return getIdData().getId() == getFirstLearningStageCredentialId();
 	}
 	
 	public boolean hasMoreCompetences(int index) {
@@ -195,15 +190,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	public boolean isCompleted() {
 		return progress == 100;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		observeAttributeChange("title", this.title, title);
-		this.title = title;
 	}
 
 	public String getDescription() {
@@ -240,14 +226,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setMandatoryFlow(boolean mandatoryFlow) {
 		observeAttributeChange("mandatoryFlow", this.mandatoryFlow, mandatoryFlow);
 		this.mandatoryFlow = mandatoryFlow;
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long credId) {
-		this.id = credId;
 	}
 
 	public List<CompetenceData1> getCompetences() {
@@ -508,22 +486,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return (LearningStageData) changedAttributes.get("learningStage");
 	}
 
-	public long getDeliveriesNumber() {
-		return deliveriesNumber;
-	}
-
-	public void setDeliveriesNumber(long deliveriesNumber) {
-		this.deliveriesNumber = deliveriesNumber;
-	}
-
-	public List<CredentialData> getDeliveries() {
-		return deliveries;
-	}
-
-	public void setDeliveries(List<CredentialData> deliveries) {
-		this.deliveries = deliveries;
-	}
-
 	public CredentialDeliveryStatus getDeliveryStatus() {
 		return deliveryStatus;
 	}
@@ -693,6 +655,17 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.evidenceDisplayed = evidenceDisplayed;
 	}
 
+	public CredentialDeliveriesSummaryData getCredentialDeliveriesSummaryData() {
+		return credentialDeliveriesSummaryData;
+	}
+
+	public void setCredentialDeliveriesSummaryData(CredentialDeliveriesSummaryData credentialDeliveriesSummaryData) {
+		this.credentialDeliveriesSummaryData = credentialDeliveriesSummaryData;
+	}
+
+	public CredentialIdData getIdData() {
+		return idData;
+	}
 
 	public enum AssessorAssignmentMethodData {
 		AUTOMATIC (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students automatically"),

@@ -89,7 +89,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
 				if(decodedCredId > 0){
-					this.credTitle = credManager.getCredentialTitle(decodedCredId);
+					this.credTitle = credManager.getCredentialTitle(decodedCredId, null);
 				}
 				if(!access.isCanAccess()) {
 					PageUtil.accessDenied();

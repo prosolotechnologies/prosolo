@@ -620,7 +620,7 @@ public class BusinessCase5_UniSA {
 
 	private Credential1 createCredential(EventQueue events, String title, String description, User user, String tags, long rubricId, LearningStageData learningStage) {
 		CredentialData credentialData = new CredentialData(false);
-		credentialData.setTitle(title);
+		credentialData.getIdData().setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);

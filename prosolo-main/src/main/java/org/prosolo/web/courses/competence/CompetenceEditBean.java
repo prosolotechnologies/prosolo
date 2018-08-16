@@ -97,16 +97,16 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			setContext();
 			if (decodedCredId > 0) {
 				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
-						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
+						.stream().filter(cd -> cd.getIdData().getId() == decodedCredId).findFirst();
 				if (res.isPresent()) {
-					credTitle = res.get().getTitle();
+					credTitle = res.get().getIdData().getTitle();
 				} else {
-					credTitle = credManager.getCredentialTitle(decodedCredId);
+					credTitle = credManager.getCredentialTitle(decodedCredId, null);
 					//we add passed credential to parent credentials only if new competency is being created
 					if (id == null) {
 						CredentialData cd = new CredentialData(false);
-						cd.setId(decodedCredId);
-						cd.setTitle(credTitle);
+						cd.getIdData().setId(decodedCredId);
+						cd.getIdData().setTitle(credTitle);
 						competenceData.getCredentialsWithIncludedCompetence().add(cd);
 					}
 				}

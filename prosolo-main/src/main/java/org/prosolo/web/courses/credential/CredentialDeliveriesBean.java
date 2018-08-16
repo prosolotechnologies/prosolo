@@ -102,7 +102,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	public void archive() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.archiveCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.archiveCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ACTIVE);
 				PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been archived");
 			} catch (DbConnectionException e) {
@@ -120,7 +120,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	public void restore() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.restoreArchivedCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.restoreArchivedCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ARCHIVED);
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been restored");
 			} catch (DbConnectionException e) {

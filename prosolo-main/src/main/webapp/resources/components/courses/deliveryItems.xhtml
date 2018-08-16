@@ -28,7 +28,7 @@
 	            <li class="deliveryItem">
 	                <div class="deliveryItemLeft">
 	                    <div class="status #{styleUtilBean.getStyleClassBasedOnDeliveryStatus(delivery.deliveryStatus)}"></div>
-	                    <h3><span>#{msg['label.delivery']} title:</span> #{delivery.title}</h3>
+	                    <h3><span>#{msg['label.delivery']} #{delivery.idData.formattedOrder}:</span> #{delivery.idData.title}</h3>
 	                    <div class="deliveryMeta">
 							<h:panelGroup layout="block" styleClass="deliveryStage" rendered="#{delivery.learningStageEnabled}">
 								<div class="stage"><span>Stage:</span> #{delivery.learningStage.title}</div>
@@ -109,7 +109,7 @@
 	                    	outcome="/manage/credential-create"
 	                    	styleClass="btn btn-green-stroke btn-sm">
 	                    	Edit
-	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
+	                    	<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
 	                    </h:link>
 						<p:commandLink rendered="#{cc.attrs.isAdmin}"
 									   styleClass="btn btn-green-stroke btn-sm"
@@ -124,11 +124,11 @@
 							View
 							<f:param name="orgId" value="#{cc.attrs.encodedOrgId}"></f:param>
 							<f:param name="unitId" value="#{cc.attrs.encodedUnitId}"></f:param>
-							<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
+							<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
 						</h:link>
 	                    <h:link rendered="#{not cc.attrs.isAdmin}" outcome="/manage/credential">
 							Preview
-	                    	<f:param name="id" value="#{util:encodeId(delivery.id)}"></f:param>
+	                    	<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
 	                    </h:link>
 	                </div>
 	            </li>

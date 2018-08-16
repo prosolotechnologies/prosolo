@@ -68,7 +68,7 @@ public class CredentialFeedsBean implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if(credentialTitle == null) {
-						credentialTitle = credentialManager.getCredentialTitle(decodedId);
+						credentialTitle = credentialManager.getCredentialTitle(decodedId, null);
 					}
 					userFeedSources = feedsManager.getUserFeedsForCredential(decodedId);
 					credentialFeeds = feedsManager.getCredentialFeeds(decodedId);

@@ -203,7 +203,7 @@ public class ActivityViewBeanUser implements Serializable {
 //					credTitle = credLI.getCredentialTitle();
 //					mandatoryOrder = credLI.isMandatoryFlow();
 			if (decodedCredId > 0) {
-				credTitle = credManager.getCredentialTitle(decodedCredId);
+				credTitle = credManager.getCredentialTitle(decodedCredId, null);
 			}
 			//}
 			if (!mandatoryOrder) {
@@ -218,7 +218,7 @@ public class ActivityViewBeanUser implements Serializable {
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
 			if(decodedCredId > 0) {
-				credTitle = credManager.getCredentialTitle(decodedCredId);
+				credTitle = credManager.getCredentialTitle(decodedCredId, null);
 			}
 		}
 		competenceData.setTitle(compTitle);

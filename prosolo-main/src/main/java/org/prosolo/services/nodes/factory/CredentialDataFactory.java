@@ -38,10 +38,10 @@ public class CredentialDataFactory {
 		}
 		CredentialData cred = new CredentialData(false);
 		cred.setVersion(credential.getVersion());
-		cred.setId(credential.getId());
+		cred.getIdData().setId(credential.getId());
 		cred.setOrganizationId(credential.getOrganization().getId());
 		cred.setType(credential.getType());
-		cred.setTitle(credential.getTitle());
+		cred.getIdData().setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
 		if (category != null) {
@@ -92,6 +92,7 @@ public class CredentialDataFactory {
 			cred.setDeliveryEndTime(DateUtil.getMillisFromDate(credential.getDeliveryEnd()));
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
 					credential.getDeliveryStart(), credential.getDeliveryEnd()));
+			cred.getIdData().setOrder(credential.getDeliveryOrder());
 		}
 
 		cred.getAssessmentSettings().setMaxPoints(credential.getMaxPoints());

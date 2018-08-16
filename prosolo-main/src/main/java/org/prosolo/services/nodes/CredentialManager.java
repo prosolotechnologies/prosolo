@@ -20,10 +20,8 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
-import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -204,12 +202,14 @@ public interface CredentialManager extends AbstractManager {
 
 	EventQueue updateCredentialProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
-	
-	String getCredentialTitle(long id) throws DbConnectionException;
+
+	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
+
+	CredentialIdData getCredentialIdData(long id) throws DbConnectionException;
 
 	CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId,long userId) throws DbConnectionException;
 	
-	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
+	CredentialIdData getCredentialIdData(long id, CredentialType type) throws DbConnectionException;
 
 	/**
 	 * Method for getting all credentials (nevertheless the progress)
@@ -357,9 +357,9 @@ public interface CredentialManager extends AbstractManager {
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException;
 	
-	long getNumberOfOngoingDeliveries(long credId) throws DbConnectionException;
+	CredentialDeliveriesSummaryData getOngoingDeliveriesSummaryData(long credId) throws DbConnectionException;
 
-	long getNumberOfOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
+	CredentialInStagesDeliveriesSummaryData getOngoingDeliveriesSummaryDataFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
 			long userId, CredentialSearchFilterManager filter) throws DbConnectionException;

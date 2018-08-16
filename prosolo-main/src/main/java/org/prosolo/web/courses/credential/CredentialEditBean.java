@@ -18,7 +18,9 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.LearningResourceLearningStage;
+import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
@@ -298,14 +300,14 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	 * @return
 	 */
 	public boolean areOtherCredentialsInfluencedByUpdate() {
-		return credentialData.getId() > 0 && credentialData.isLearningStageEnabledChanged()
+		return credentialData.getIdData().getId() > 0 && credentialData.isLearningStageEnabledChanged()
 				&& !credentialData.isLearningStageEnabled() && otherStagesDefined();
 	}
 
 	private boolean otherStagesDefined() {
 		return credentialData.getLearningStages()
 				.stream()
-				.anyMatch(ls -> ls.getLearningResourceId() > 0 && ls.getLearningResourceId() != credentialData.getId());
+				.anyMatch(ls -> ls.getLearningResourceId() > 0 && ls.getLearningResourceId() != credentialData.getIdData().getId());
 	}
 
 	/*
@@ -315,7 +317,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	public void enableLearningStagesChecked() {
 		if (credentialData.isLearningStageEnabled()) {
 			//first stage should be set for new credentials and those which did not have stages enabled before
-			LearningStageData ls = credentialData.getId() == 0 || credentialData.isLearningStageEnabledChanged()
+			LearningStageData ls = credentialData.getIdData().getId() == 0 || credentialData.isLearningStageEnabledChanged()
 					? credentialData.getLearningStages().get(0).getLearningStage()
 					: credentialData.getLearningStageBeforeUpdate();
 			credentialData.setLearningStage(ls);
@@ -354,7 +356,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	}
 
 	public void save() {
-		boolean isCreateUseCase = credentialData.getId() == 0;
+		boolean isCreateUseCase = credentialData.getIdData().getId() == 0;
 		boolean saved = saveCredentialData(!isCreateUseCase);
 
 		//redirect to credential edit page if credential is saved for the first time
@@ -367,15 +369,15 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	
 	public boolean saveCredentialData(boolean reloadData) {
 		try {
-			if (credentialData.getId() > 0) {
+			if (credentialData.getIdData().getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
 					credentialManager.updateCredential(credentialData, loggedUser.getUserContext());
 				}
 			} else {
 				Credential1 cred = credentialManager.saveNewCredential(credentialData, loggedUser.getUserContext());
-				credentialData.setId(cred.getId());
-				decodedId = credentialData.getId();
+				credentialData.getIdData().setId(cred.getId());
+				decodedId = credentialData.getIdData().getId();
 				id = idEncoder.encodeId(decodedId);
 				credentialData.setVersion(cred.getVersion());
 				credentialData.startObservingChanges();
@@ -395,7 +397,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
-			if (credentialData.getId() > 0) {
+			if (credentialData.getIdData().getId() > 0) {
 				reloadCredential();
 			}
 			return false;
@@ -414,7 +416,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	
 	public void archive() {
 		try {
-			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserContext());
+			credentialManager.archiveCredential(credentialData.getIdData().getId(), loggedUser.getUserContext());
 			credentialData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been archived");
 			PageUtil.redirect("/manage/library/credentials");
@@ -426,7 +428,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	
 	public void restore() {
 		try {
-			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserContext());
+			credentialManager.restoreArchivedCredential(credentialData.getIdData().getId(), loggedUser.getUserContext());
 			credentialData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " has been restored");
 		} catch (DbConnectionException e) {
@@ -459,8 +461,8 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	
 	public void delete() {
 		try {
-			if(credentialData.getId() > 0 && isDelivery()) {
-				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserContext());
+			if(credentialData.getIdData().getId() > 0 && isDelivery()) {
+				credentialManager.deleteDelivery(credentialData.getIdData().getId(), loggedUser.getUserContext());
 				credentialData = new CredentialData(false);
 
 				String growlMessage = "The " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been deleted";
@@ -636,11 +638,11 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 //	}
 	 
 	public String getPageHeaderTitle() {
-		return credentialData.getId() > 0 ? credentialData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.credential");
+		return credentialData.getIdData().getId() > 0 ? credentialData.getIdData().getTitle() : "New " + ResourceBundleUtil.getMessage("label.credential");
 	}
 	
 	public boolean isCreateUseCase() {
-		return credentialData.getId() == 0;
+		return credentialData.getIdData().getId() == 0;
 	}
 	
 	/*

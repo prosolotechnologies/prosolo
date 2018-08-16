@@ -16,6 +16,7 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -63,7 +64,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	private int page;
 
 	private CompetenceAssessmentsSummaryData assessmentsSummary;
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 
 	private PaginationData paginationData = new PaginationData();
 	
@@ -136,7 +137,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	}
 
 	private void loadCredentialTitle() {
-		credentialTitle = credManager.getCredentialTitle(decodedCredId);
+		credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 	}
 
 	private boolean isCurrentUserAssessor(CompetenceAssessmentData compAssessment) {
@@ -459,14 +460,14 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
-	}
+    public CredentialIdData getCredentialIdData() {
+        return credentialIdData;
+    }
 
-	public CompetenceAssessmentsSummaryData getAssessmentsSummary() {
+    public CompetenceAssessmentsSummaryData getAssessmentsSummary() {
 		return assessmentsSummary;
 	}
 

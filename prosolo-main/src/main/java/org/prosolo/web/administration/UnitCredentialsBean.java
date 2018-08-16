@@ -12,8 +12,8 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -200,7 +200,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void archive() {
 		if (selectedCred != null) {
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.archiveCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
@@ -221,7 +221,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void restore() {
 		if (selectedCred != null) {
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.restoreArchivedCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
