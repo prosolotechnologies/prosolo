@@ -125,8 +125,6 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/rubrics/{id}/privacy").to("/manage/rubric-privacy.xhtml"))
 				.addRule(Join.path("/manage/rubrics/{id}").to("/manage/rubric-criteria.xhtml"))
 				.addRule(Join.path("/manage/notifications").to("/manage/notifications.xhtml"))
-				.addRule(Join.path("/manage/messages/{id}").to("/manage/messages.xhtml"))
-				.addRule(Join.path("/manage/messages").to("/manage/messages.xhtml"))
 				.addRule(Join.path("/manage/settings/password").to("/manage/settings/password.xhtml"))
 				.addRule(Join.path("/manage/settings/email").to("/manage/settings/email.xhtml"))
 				.addRule(Join.path("/manage/settings").to("/manage/settings.xhtml"))
