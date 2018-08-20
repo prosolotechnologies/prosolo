@@ -484,4 +484,14 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
+
+	/**
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
 }

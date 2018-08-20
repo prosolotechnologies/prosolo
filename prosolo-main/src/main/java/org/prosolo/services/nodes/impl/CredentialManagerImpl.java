@@ -25,7 +25,9 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.credential.*;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -2199,7 +2201,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException {
 		try {
-			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId);
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId, persistence.currentManager());
 
 			if (tc != null) {
 				StudentData sd = new StudentData(tc.getUser());
@@ -3883,22 +3885,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional
 	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
-		TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId);
-		return getTargetCredentialData(credentialId, studentId,
-				CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
-					.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
+		try {
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId, persistence.currentManager());
+			return getTargetCredentialData(credentialId, studentId,
+					CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
+							.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error in method getTargetCredentialDataWithEvidencesAndAssessmentCount");
+		}
 	}
 
-	private TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
-		String q =
-				"SELECT tc " +
-				"FROM TargetCredential1 tc " +
-				"WHERE tc.credential.id = :credId " +
-					"AND tc.user.id = :studentId";
-		return (TargetCredential1) persistence.currentManager().createQuery(q)
-				.setLong("credId", credentialId)
-				.setLong("studentId", studentId)
-				.uniqueResult();
+	@Override
+	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
+		try {
+			String q =
+					"SELECT tc FROM TargetCredential1 tc " +
+							"WHERE tc.credential.id = :credId " +
+							"AND tc.user.id = :studentId";
+			return (TargetCredential1) session.createQuery(q)
+					.setLong("credId", credentialId)
+					.setLong("studentId", studentId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credential");
+		}
 	}
 
 	@Override
