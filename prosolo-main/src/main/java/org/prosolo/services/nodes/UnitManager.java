@@ -159,4 +159,13 @@ public interface UnitManager extends AbstractManager{
 
     boolean isCredentialConnectedToUnit(long credId, long unitId) throws DbConnectionException;
 
+    /**
+     *
+     * @param managerId
+     * @param studentId
+     * @return
+     * @throws DbConnectionException
+     */
+    boolean isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent(long managerId, long studentId);
+
 }
