@@ -271,7 +271,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/studentProfile.history.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 
-				.antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 
 
