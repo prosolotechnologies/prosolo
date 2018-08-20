@@ -3,11 +3,11 @@ package org.prosolo.services.nodes.data.credential;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
+import org.prosolo.services.common.data.LazyInitData;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -73,8 +73,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialType type;
 	//is delivery active
 	private CredentialDeliveryStatus deliveryStatus;
-	private long numberOfStudents;
-	private long numberOfInstructors;
+	private LazyInitData<String> studentsWhoCanLearn;
+	private LazyInitData<String> groupsThatCanLearn;
 
 	//for original
 	private CredentialDeliveriesSummaryData credentialDeliveriesSummaryData;
@@ -494,22 +494,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.deliveryStatus = deliveryStatus;
 	}
 
-	public long getNumberOfStudents() {
-		return numberOfStudents;
-	}
-
-	public void setNumberOfStudents(long numberOfStudents) {
-		this.numberOfStudents = numberOfStudents;
-	}
-
-	public long getNumberOfInstructors() {
-		return numberOfInstructors;
-	}
-
-	public void setNumberOfInstructors(long numberOfInstructors) {
-		this.numberOfInstructors = numberOfInstructors;
-	}
-
 	public long getDeliveryStartTime() {
 		return deliveryStartTime;
 	}
@@ -665,6 +649,22 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public CredentialIdData getIdData() {
 		return idData;
+	}
+
+	public LazyInitData<String> getStudentsWhoCanLearn() {
+		return studentsWhoCanLearn;
+	}
+
+	public void setStudentsWhoCanLearn(LazyInitData<String> studentsWhoCanLearn) {
+		this.studentsWhoCanLearn = studentsWhoCanLearn;
+	}
+
+	public LazyInitData<String> getGroupsThatCanLearn() {
+		return groupsThatCanLearn;
+	}
+
+	public void setGroupsThatCanLearn(LazyInitData<String> groupsThatCanLearn) {
+		this.groupsThatCanLearn = groupsThatCanLearn;
 	}
 
 	public enum AssessorAssignmentMethodData {

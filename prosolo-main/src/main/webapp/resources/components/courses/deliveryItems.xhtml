@@ -11,10 +11,9 @@
 
 	<composite:interface>
 		<composite:attribute name="deliveries" required="true" />
-		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
 		<composite:attribute name="isAdmin" type="java.lang.Boolean" default="false" />
-		<composite:attribute name="bean" />
+		<composite:attribute name="bean" required="true"/>
 		<composite:attribute name="onDeliveryEditComplete" default=""/>
 		<composite:attribute name="onDeliveryEditUpdate" default="" />
 		<composite:attribute name="encodedOrgId" default="" />
@@ -47,27 +46,101 @@
 									/>
 								</div>
 	                        </div>
-	                        <c:if test="#{cc.attrs.showNumberOfStudentsAndInstructors}">
-		                        <div class="deliveryPeople">
-		                            <div class="students">
-		                            	<span>Students:</span> 
-		                            	<ui:fragment rendered="#{delivery.numberOfStudents gt 0}">
-		                            		<a href="javascript:void(0);">#{delivery.numberOfStudents}</a>
-		                            	</ui:fragment>
-		                            	<ui:fragment rendered="#{delivery.numberOfStudents le 0}">
-		                            		-
-		                            	</ui:fragment>		
-		                            </div>
-		                            <div class="instructors"><span>#{msg['label.instructor.plural']}:</span>
-		                            	<ui:fragment rendered="#{delivery.numberOfInstructors gt 0}">
-		                            		<a href="javascript:void(0);">#{delivery.numberOfInstructors}</a>
-		                            	</ui:fragment>
-		                            	<ui:fragment rendered="#{delivery.numberOfInstructors le 0}">
-		                            		-
-		                            	</ui:fragment>	
-		                            </div>
-		                        </div>
-		                    </c:if>
+							<div class="deliveryPeople">
+								<div class="students"><span>Available to:</span>
+									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count lt 0 or delivery.studentsWhoCanLearn.count lt 0}">
+										<h:link outcome="/manage/credential-who-can-learn"
+												pt:data-toggle="tooltip"
+												pt:title="#{msg['label.delivery']} is available to all #{msg['label.unit.plural'].toLowerCase()} having access to the #{msg['label.credential'].toLowerCase()} (units are defined in the Privacy section)">
+											all #{msg['label.unit.plural'].toLowerCase()}
+											<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
+										</h:link>
+									</ui:fragment>
+									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count eq 0 and delivery.studentsWhoCanLearn.count eq 0}">
+										no one
+									</ui:fragment>
+									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count gt 0}">
+										<h:link styleClass="selectorGroupsLink#{delivery.idData.id}" outcome="/manage/credential-who-can-learn"
+												pt:data-toggle="tooltip"
+												pt:title="#{cc.attrs.bean.getGroupsThatCanLearnString(delivery)}">
+												#{delivery.groupsThatCanLearn.count} #{delivery.groupsThatCanLearn.count gt 1 ? 'groups' : 'group'}
+											<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
+										</h:link>
+									</ui:fragment>
+									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count gt 0 and delivery.studentsWhoCanLearn.count gt 0}">
+										and
+									</ui:fragment>
+									<ui:fragment rendered="#{delivery.studentsWhoCanLearn.count gt 0}">
+										<h:link outcome="/manage/credential-who-can-learn"
+												styleClass="selectorStudentsLink#{delivery.idData.id}"
+												pt:data-toggle="tooltip"
+												pt:title="#{cc.attrs.bean.getStudentsWhoCanLearnString(delivery)}">
+											#{delivery.studentsWhoCanLearn.count} #{delivery.studentsWhoCanLearn.count gt 1 ? 'students' : 'student'}
+											<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
+										</h:link>
+									</ui:fragment>
+								</div>
+								<h:form>
+									<p:remoteCommand name="initGroupTooltipData#{delivery.idData.id}"
+													 process="@this"
+													 action="#{cc.attrs.bean.initGroupsThatCanLearnData(delivery)}"
+													 update="panelGroupsThatCanLearnJS"
+													 oncomplete="$('.selectorGroupsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getGroupsThatCanLearn#{delivery.idData.id}).tooltip('show');">
+									</p:remoteCommand>
+									<script>
+                                        var initGroupTooltipFunction#{delivery.idData.id} = function() {
+                                            initGroupTooltipData#{delivery.idData.id}();
+                                        }
+									</script>
+									<h:panelGroup id="panelGroupsThatCanLearnJS">
+										<ui:fragment rendered="#{not delivery.groupsThatCanLearn.initialized}">
+											<script>
+                                                $('.selectorGroupsLink#{delivery.idData.id}').on('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
+										<ui:fragment rendered="#{delivery.groupsThatCanLearn.initialized}">
+											<script>
+												$('.selectorGroupsLink#{delivery.idData.id}').off('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
+										<script>
+                                            function getGroupsThatCanLearn#{delivery.idData.id}() {
+                                                return '#{cc.attrs.bean.getGroupsThatCanLearnString(delivery)}';
+                                            }
+										</script>
+									</h:panelGroup>
+								</h:form>
+								<h:form>
+									<p:remoteCommand name="initStudentTooltipData#{delivery.idData.id}"
+													 process="@this"
+													 action="#{cc.attrs.bean.initStudentsWhoCanLearnData(delivery)}"
+													 update="panelStudentsWhoCanLearnJS"
+													 oncomplete="$('.selectorStudentsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getStudentsWhoCanLearn#{delivery.idData.id}).tooltip('show');">
+									</p:remoteCommand>
+									<script>
+                                        var initStudentsTooltipFunction#{delivery.idData.id} = function() {
+                                            initStudentTooltipData#{delivery.idData.id}();
+                                        }
+									</script>
+									<h:panelGroup id="panelStudentsWhoCanLearnJS">
+										<ui:fragment rendered="#{not delivery.studentsWhoCanLearn.initialized}">
+											<script>
+                                                $('.selectorStudentsLink#{delivery.idData.id}').on('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
+										<ui:fragment rendered="#{delivery.studentsWhoCanLearn.initialized}">
+											<script>
+                                                $('.selectorStudentsLink#{delivery.idData.id}').off('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
+										<script>
+                                            function getStudentsWhoCanLearn#{delivery.idData.id}() {
+                                                return '#{cc.attrs.bean.getStudentsWhoCanLearnString(delivery)}';
+                                            }
+										</script>
+									</h:panelGroup>
+								</h:form>
+							</div>
 	                    </div>
 	                </div>
 	                <div class="deliveryItemRight">

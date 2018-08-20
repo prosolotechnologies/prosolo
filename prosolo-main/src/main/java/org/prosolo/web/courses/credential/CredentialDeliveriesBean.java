@@ -24,7 +24,7 @@ import java.util.List;
 
 @Component("credentialDeliveriesBean")
 @Scope("view")
-public class CredentialDeliveriesBean implements Serializable {
+public class CredentialDeliveriesBean extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = 2020680872327236846L;
 
@@ -35,7 +35,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CredentialTextSearch credentialTextSearch;
 	@Inject private LoggingService loggingService;
-	
+
 	private String id;
 	private long decodedId;
 	

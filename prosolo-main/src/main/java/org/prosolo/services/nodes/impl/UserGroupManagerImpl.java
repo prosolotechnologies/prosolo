@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.UserGroupManager")
 public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGroupManager {
@@ -2103,6 +2104,146 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving user group ids");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long countCredentialUserGroups(long credId, UserGroupPrivilege privilege) {
+		try {
+			StringBuilder query = new StringBuilder (
+					"SELECT COUNT(credGroup) " +
+							"FROM CredentialUserGroup credGroup " +
+							"INNER JOIN credGroup.userGroup userGroup " +
+							"WHERE credGroup.credential.id = :credId " +
+							"AND userGroup.deleted IS FALSE " +
+							"AND userGroup.defaultGroup = :defaultGroup ");
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", false);
+
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+
+			return (long) q.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential groups");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> getCredentialUserGroupsNames(long credId, UserGroupPrivilege privilege, int limit) {
+		try {
+			StringBuilder query = new StringBuilder (
+					"SELECT userGroup.name " +
+					   "FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.deleted IS FALSE " +
+					   "AND userGroup.defaultGroup = :defaultGroup ");
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			query.append("ORDER BY userGroup.title");
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", false);
+
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+
+			if (limit > 0) {
+				q.setMaxResults(limit);
+			}
+
+			return (List<String>) q.list();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential groups");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long countCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege) {
+		try {
+			StringBuilder query = new StringBuilder(
+					"SELECT COUNT(distinct user) FROM CredentialUserGroup credGroup " +
+					"INNER JOIN credGroup.userGroup userGroup " +
+					"INNER JOIN userGroup.users userGroupUser " +
+					"INNER JOIN userGroupUser.user user " +
+					"WHERE credGroup.credential.id = :credId " +
+					"AND userGroup.defaultGroup = :defaultGroup " +
+					"AND userGroup.deleted IS FALSE ");
+
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			return (long) q.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential users");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> getCredentialVisibilityUsersNames(long credId, UserGroupPrivilege privilege, int limit) {
+		try {
+			StringBuilder query = new StringBuilder(
+					"SELECT distinct user FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "INNER JOIN userGroup.users userGroupUser " +
+					   "INNER JOIN userGroupUser.user user " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.defaultGroup = :defaultGroup " +
+					   "AND userGroup.deleted IS FALSE ");
+
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			query.append("ORDER BY user.name, user.lastname");
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			if (limit > 0) {
+				q.setMaxResults(limit);
+			}
+
+			List<User> users = (List) q.list();
+			return users.stream().map(u -> u.getFullName()).collect(Collectors.toList());
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential users");
 		}
 	}
 

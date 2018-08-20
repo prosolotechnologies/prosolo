@@ -33,6 +33,7 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.common.data.LazyInitData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -2812,7 +2813,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null,null, null, null, true));
+				CredentialData cd = credentialFactory.getCredentialData(null, d, null,null, null, null, true);
+				setWhoCanLearnDataForDelivery(d, cd);
+				deliveries.add(cd);
 			}
 			return deliveries;
 		} catch (Exception e) {
@@ -2820,6 +2823,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
+	}
+
+	private void setWhoCanLearnDataForDelivery(Credential1 d, CredentialData deliveryData) {
+		long studentsWhoCanLearnCount;
+		long groupsThatCanLearnCount;
+		if (d.isVisibleToAll()) {
+			studentsWhoCanLearnCount = -1;
+			groupsThatCanLearnCount = -1;
+		} else {
+			studentsWhoCanLearnCount = userGroupManager.countCredentialVisibilityUsers(d.getId(), UserGroupPrivilege.Learn);
+			groupsThatCanLearnCount = userGroupManager.countCredentialUserGroups(d.getId(), UserGroupPrivilege.Learn);
+		}
+		deliveryData.setStudentsWhoCanLearn(new LazyInitData<>(studentsWhoCanLearnCount));
+		deliveryData.setGroupsThatCanLearn(new LazyInitData<>(groupsThatCanLearnCount));
 	}
 
 	@Override
@@ -3286,13 +3303,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<CredentialData> deliveries = new ArrayList<>();
 			for (Credential1 d : result) {
-				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, null, null, false));
+				CredentialData cd = credentialFactory.getCredentialData(null, d, null, null, null, null, false);
+				setWhoCanLearnDataForDelivery(d, cd);
+				deliveries.add(cd);
 			}
 
 			return deliveries;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
 	}

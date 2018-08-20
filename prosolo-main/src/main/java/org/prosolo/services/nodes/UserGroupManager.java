@@ -248,9 +248,28 @@ public interface UserGroupManager extends AbstractManager {
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
 
-
-
-
     List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
             throws DbConnectionException;
+
+	/**
+	 *
+	 * @param credId
+	 * @param privilege
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long countCredentialUserGroups(long credId, UserGroupPrivilege privilege);
+
+	List<String> getCredentialUserGroupsNames(long credId, UserGroupPrivilege privilege, int limit);
+
+	/**
+	 *
+	 * @param credId
+	 * @param privilege
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long countCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege);
+
+	List<String> getCredentialVisibilityUsersNames(long credId, UserGroupPrivilege privilege, int limit);
 }

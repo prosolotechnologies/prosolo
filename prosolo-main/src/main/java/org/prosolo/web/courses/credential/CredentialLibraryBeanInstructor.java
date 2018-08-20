@@ -19,7 +19,7 @@ import java.util.List;
 @ManagedBean(name = "credentialLibraryBeanInstructor")
 @Component("credentialLibraryBeanInstructor")
 @Scope("view")
-public class CredentialLibraryBeanInstructor implements Serializable {
+public class CredentialLibraryBeanInstructor extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = -2145386401343084693L;
 
