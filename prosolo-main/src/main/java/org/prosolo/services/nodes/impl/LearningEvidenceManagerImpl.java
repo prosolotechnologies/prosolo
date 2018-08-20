@@ -17,6 +17,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
@@ -45,6 +46,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     @Inject private EventFactory eventFactory;
     @Inject private LearningEvidenceManager self;
     @Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
+    @Inject private UnitManager unitManager;
 
     @Override
     //nt
@@ -444,14 +446,14 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 //check if user is assessor on at least one competence where this evidence is added
                 String query =
                         "SELECT ca.id FROM CompetenceAssessment ca " +
-                        "INNER JOIN ca.competence comp " +
-                        "INNER JOIN comp.targetCompetences tc " +
-                            "WITH tc.user.id = :studentId " +
-                        "INNER JOIN tc.evidences ce " +
-                        "WHERE ce.evidence.id = :evId " +
-                            "AND ce.deleted IS FALSE " +
-                            "AND ca.assessor.id = :userId " +
-                            "AND ca.type = :type";
+                                "INNER JOIN ca.competence comp " +
+                                "INNER JOIN comp.targetCompetences tc " +
+                                "WITH tc.user.id = :studentId " +
+                                "INNER JOIN tc.evidences ce " +
+                                "WHERE ce.evidence.id = :evId " +
+                                "AND ce.deleted IS FALSE " +
+                                "AND ca.assessor.id = :userId " +
+                                "AND ca.type = :type";
 
                 AssessmentType aType = accessRequirements.getAccessMode() == AccessMode.USER
                         ? AssessmentType.PEER_ASSESSMENT
@@ -466,9 +468,18 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                         .setMaxResults(1)
                         .uniqueResult();
 
+                boolean canAccess = false;
                 if (id != null) {
-                    return new ResourceAccessData(true, true, false, false, false);
+                    canAccess = true;
+                } else if (accessRequirements.getAccessMode() == AccessMode.MANAGER) {
+                    /*
+                    if user not assessor in any of the user assessments and access mode is manager
+                    we check if user is manager in any of the units where evidence owner is student and in
+                    case he is, he can view evidence
+                     */
+                    canAccess = unitManager.isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent(userId, le.getUser().getId());
                 }
+                return new ResourceAccessData(canAccess, canAccess, false, false, false);
             }
 
             if (accessRequirements.getAccessMode() == AccessMode.USER) {
