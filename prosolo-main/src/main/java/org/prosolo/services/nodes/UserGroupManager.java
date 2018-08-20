@@ -248,9 +248,10 @@ public interface UserGroupManager extends AbstractManager {
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
 
-
-
-
     List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
             throws DbConnectionException;
+
+	Result<UserGroup> saveNewGroupAndGetEvents(long unitId, String name, boolean isDefault, UserContextData context) throws DbConnectionException;
+
+	Result<UserGroup> updateGroupNameAndGetEvents(long groupId, String newName, UserContextData context) throws DbConnectionException;
 }

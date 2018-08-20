@@ -134,6 +134,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
+				.defaultOperator(Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
