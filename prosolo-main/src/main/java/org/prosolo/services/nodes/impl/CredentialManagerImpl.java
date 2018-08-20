@@ -3899,6 +3899,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	@Transactional
 	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
 		try {
 			String q =
