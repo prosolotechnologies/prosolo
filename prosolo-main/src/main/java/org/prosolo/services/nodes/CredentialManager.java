@@ -274,7 +274,7 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
 	
-	void updateTargetCredentialLastAction(long userId, long credentialId) throws DbConnectionException;
+	void updateTargetCredentialLastAction(long userId, long credentialId, Session session) throws DbConnectionException;
 
 	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
 	

@@ -2077,7 +2077,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public void updateTargetCredentialLastAction(long userId, long credentialId)
+	public void updateTargetCredentialLastAction(long userId, long credentialId, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetCredential1 cred SET " +
@@ -2086,7 +2086,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"AND cred.user.id = :userId " +
 					"AND cred.progress < :progress";
 
-			persistence.currentManager()
+			session
 					.createQuery(query)
 					.setTimestamp("date", new Date())
 					.setLong("credId", credentialId)
@@ -2094,8 +2094,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setInteger("progress", 100)
 					.executeUpdate();
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while updating last action for user credential");
 		}
 	}

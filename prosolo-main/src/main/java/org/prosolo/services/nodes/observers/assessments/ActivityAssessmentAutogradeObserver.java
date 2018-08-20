@@ -52,7 +52,6 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 		Result<Void> result = null;
 		try {
 			transaction = session.beginTransaction();
-			long userId = event.getActorId();
 			long tActId = event.getObject().getId();
 			TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, tActId);
 			//if automatic grade by activity completion is set maximum grade for all activity assessments is set
@@ -63,7 +62,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 				PageContextData lcd = new PageContextData();
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
 				result = assessmentManager.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
-						userId, ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
+						ta.getTargetCompetence().getUser().getId(), ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
 						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
 			}
 			transaction.commit();

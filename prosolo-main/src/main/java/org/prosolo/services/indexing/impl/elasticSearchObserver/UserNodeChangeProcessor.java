@@ -92,12 +92,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    	if (object instanceof TargetCredential1) {
 		    	TargetCredential1 tc = (TargetCredential1) session.load(TargetCredential1.class, object.getId());
 		    	if (tc != null) {
-					userEntityESService.changeCredentialProgress(event.getOrganizationId(), event.getActorId(), tc.getCredential().getId(), tc.getProgress());
+					userEntityESService.changeCredentialProgress(event.getOrganizationId(), tc.getUser().getId(), tc.getCredential().getId(), tc.getProgress());
 				}
 	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) session.load(TargetCompetence1.class, event.getObject().getId());
 				if (tc != null) {
-			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), event.getActorId(), tc);
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), tc.getUser().getId(), tc);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
