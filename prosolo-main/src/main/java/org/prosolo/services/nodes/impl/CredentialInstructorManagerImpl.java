@@ -128,10 +128,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	}
 	
 	private Result<Void> assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
-			boolean updateAsessor, UserContextData context) throws DbConnectionException {
+			boolean updateAssessor, UserContextData context) throws DbConnectionException {
 		TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
 				TargetCredential1.class, targetCredId);
-		return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, updateAsessor, context);
+		return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, updateAssessor, context);
 	}
 	
 	private Result<Void> assignStudentToInstructor(long instructorId, TargetCredential1 targetCred,

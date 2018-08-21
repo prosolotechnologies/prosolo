@@ -57,7 +57,7 @@ public class NotificationEventProcessorFactory {
 		case Comment_Reply:
 			return new CommentPostEventProcessor(event, session, notificationManager,
 					notificationsSettingsManager, activityManager, idEncoder, commentManager,
-					contextJsonParserService);
+					credentialManager, contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
 		 * was generated on the Status Wall (liked/disliked a SocialActivity
@@ -90,8 +90,13 @@ public class NotificationEventProcessorFactory {
 						notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 			}
 		case AssessmentApproved:
-			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
-					notificationsSettingsManager, idEncoder, credentialManager);
+			if (event.getObject() instanceof CredentialAssessment) {
+				return new CredentialAssessmentApprovedEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, credentialManager);
+			} if (event.getObject() instanceof CompetenceAssessment) {
+				return new CompetenceAssessmentApprovedEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService, credentialManager, competenceManager);
+			}
 		case AssessmentRequested:
 			if (event.getObject() instanceof CredentialAssessment) {
 				return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,

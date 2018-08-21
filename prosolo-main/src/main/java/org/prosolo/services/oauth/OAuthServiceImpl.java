@@ -1,27 +1,22 @@
 package org.prosolo.services.oauth;
 
+import net.oauth.*;
+import net.oauth.server.OAuthServlet;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+import org.prosolo.services.oauth.exceptions.OauthException;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.codec.binary.Base64;
-import org.prosolo.services.oauth.exceptions.OauthException;
-import org.springframework.stereotype.Service;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.server.OAuthServlet;
-
 @Service("org.prosolo.services.oauth.OauthService")
 public class OAuthServiceImpl implements OauthService, Serializable {
-	
-	
+
+	private static Logger logger = Logger.getLogger(OAuthServiceImpl.class.getName());
+
 	/**
 	 * 
 	 */
@@ -56,7 +51,8 @@ public class OAuthServiceImpl implements OauthService, Serializable {
 			OAuthValidator validator = new SimpleOAuthValidator();
 			OAuthConsumer consumer = new OAuthConsumer("about:blank", key, secret, null);
 			validator.validateMessage(msg, new OAuthAccessor(consumer));
-		}catch(Exception e){
+		} catch(Exception e) {
+			logger.error("Error", e);
 			throw new OauthException("Post request not valid");
 		}
 	}

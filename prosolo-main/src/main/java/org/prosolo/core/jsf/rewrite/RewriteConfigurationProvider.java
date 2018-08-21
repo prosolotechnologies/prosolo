@@ -104,6 +104,8 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/library/competencies").to("/competenceLibrary.xhtml"))
 				.addRule(Join.path("/notifications").to("/notifications.xhtml"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
+				.addRule(Join.path("/people/followers").to("/people-followers.xhtml"))
+				.addRule(Join.path("/people/following").to("/people-following.xhtml"))
 				.addRule(Join.path("/evidence").to("/evidences.xhtml"))
 				.addRule(Join.path("/evidence/{id}/edit").to("/evidence-edit.xhtml"))
 				.addRule(Join.path("/evidence/new").to("/evidence-edit.xhtml"))
@@ -133,8 +135,8 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/tools/{credId}/{compId}/{actId}/create").to("/manage/externalTools/toolDetails.xhtml"))
 				.addRule(Join.path("/manage/tools/{id}").to("/manage/externalTools/toolDetails.xhtml"))
 				//manage credential
-				.addRule(Join.path("/manage/credentials/{id}/edit").to("/manage/create-credential.xhtml"))
-				.addRule(Join.path("/manage/credentials/new").to("/manage/create-credential.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/edit").to("/manage/credential-create.xhtml"))
+				.addRule(Join.path("/manage/credentials/new").to("/manage/credential-create.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}").to("/manage/credential.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/students").to("/manage/credential-students.xhtml"))
 				.addRule(Join.path("/manage/students/{id}").to("/manage/studentProfile.xhtml"))
@@ -191,10 +193,8 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
-				.addRule(Join.path("/manage/groups").to("/manage/students-groups.xhtml"))
 				.addRule(Join.path("/manage/evidence/{id}").to("/manage/evidence.xhtml"))
-				//.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
-				
+
 				//admin
 				.addRule(Join.path("/admin/notfound").to("/admin/404.xhtml"))
 				.addRule(Join.path("/admin/accessDenied").to("/admin/accessDenied.xhtml"))

@@ -89,7 +89,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
-		System.out.println("SESSION BEAN INITIALIZED");
 		learningContext = new LearningContext();
 	}
 	
@@ -198,45 +197,37 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public void loginOpenId(String email) {
-		boolean loggedIn;
+	public boolean loginUser(String email, String context) {
 		try {
-			loggedIn = authenticationService.loginOpenId(email);
-
+			boolean loggedIn = authenticationService.loginUser(email);
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
-				//setEmail(email);
-				
-				
 				init(email);
-				
 				logger.info("Initialized");
-				//change --
-				//ipAddress = accessResolver.findRemoteIPAddress();
+
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
-				// return "index?faces-redirect=true";
-				logger.info("REDIRECTING TO INDEX");
-				
-				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
-						.getExternalContext().getRequest();
-				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
-				return;
+				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+				PageContextData lcd = new PageContextData(page, context, null);
+				loggingService.logEvent(EventType.LOGIN, getUserContext(lcd), getIpAddress());
+				return true;
 			}
-		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
+		return false;
+	}
 
-		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?faces-redirect=true");
-			return;
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+	public void loginOpenId(String email) {
+		boolean loggedIn = loginUser(email, null);
+
+		if (loggedIn) {
+			logger.info("REDIRECTING TO INDEX");
+
+			PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
+		} else {
+			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
+			PageUtil.redirect("/login?faces-redirect=true");
 		}
 	}
 	
@@ -351,12 +342,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			Authentication auth = getAuthenticationObject();
 			if(auth != null) {
 				if(auth.getCredentials() instanceof SAMLCredential) {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+					PageUtil.redirect("/saml/logout");
 				} else {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+					PageUtil.redirect("/logout");
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
@@ -383,8 +374,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			authenticationService.login((HttpServletRequest)context.getRequest(),
 					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
-			//to avoid IllegalStateException: Commited or content written
-			FacesContext.getCurrentInstance().responseComplete();
 		} catch(AuthenticationException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());

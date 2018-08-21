@@ -24,31 +24,19 @@ import org.prosolo.web.util.page.PageSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompetenceAssessmentRequestEventProcessor extends AssessmentNotificationEventProcessor {
+public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestEventProcessor.class);
 
-	private ContextJsonParserService ctxJsonParserService;
 	private AssessmentManager assessmentManager;
-	private CredentialManager credentialManager;
-	private Competence1Manager competenceManager;
-	private CompetenceAssessment assessment;
-	private long credentialId;
-	private Context context;
 
 	public CompetenceAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
 													 ContextJsonParserService ctxJsonParserService, AssessmentManager assessmentManager,
 													 CredentialManager credentialManager, Competence1Manager competenceManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.ctxJsonParserService = ctxJsonParserService;
+		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService, credentialManager, competenceManager);
 		this.assessmentManager = assessmentManager;
-		this.credentialManager = credentialManager;
-		this.competenceManager = competenceManager;
-		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
-		context = ctxJsonParserService.parseContext(event.getContext());
-		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 	}
 
 	@Override
@@ -58,35 +46,11 @@ public class CompetenceAssessmentRequestEventProcessor extends AssessmentNotific
 
 	@Override
 	List<NotificationReceiverData> getReceiversData() {
-		PageSection section = assessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
+		PageSection section = getAssessment().getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(section),
 				false, section));
 		return receivers;
-	}
-
-	@Override
-	protected long getAssessorId() {
-		return assessment.getAssessor() != null
-			? assessment.getAssessor().getId()
-			: 0;
-	}
-
-	@Override
-	protected long getStudentId() {
-		return assessment.getStudent().getId();
-	}
-
-	@Override
-	protected BlindAssessmentMode getBlindAssessmentMode() {
-		/*
-		if credential id is available blind assessment mode for credential is retrieved because
-		notification is generated for credential assessment page, otherwise competence blind assessment mode
-		is retrieved
-		 */
-		return credentialId > 0
-				? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, assessment.getType())
-				: competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(assessment.getCompetence().getId(), assessment.getType());
 	}
 
 	@Override
@@ -101,12 +65,12 @@ public class CompetenceAssessmentRequestEventProcessor extends AssessmentNotific
 
 	@Override
 	long getObjectId() {
-		return assessment.getCompetence().getId();
+		return getAssessment().getCompetence().getId();
 	}
 
 	private String getNotificationLink(PageSection section) {
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				context, credentialId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), assessmentManager, idEncoder, session, section);
+				getContext(), getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), assessmentManager, idEncoder, session, section);
 	}
 
 }

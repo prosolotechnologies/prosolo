@@ -9,7 +9,7 @@ public enum ActivityType {
 	
 	private String label;
 	
-	private ActivityType(String label) {
+	ActivityType(String label) {
 		this.label = label;
 	}
 	

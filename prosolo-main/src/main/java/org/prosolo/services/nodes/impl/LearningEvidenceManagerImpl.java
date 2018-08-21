@@ -17,6 +17,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
@@ -45,6 +46,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     @Inject private EventFactory eventFactory;
     @Inject private LearningEvidenceManager self;
     @Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
+    @Inject private UnitManager unitManager;
 
     @Override
     //nt
@@ -149,15 +151,16 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, boolean loadTags) throws DbConnectionException {
         try {
             String query =
-                    "SELECT distinct ce from CompetenceEvidence ce " +
-                    "INNER JOIN fetch ce.evidence le ";
+                    "SELECT distinct ce " +
+                    "FROM CompetenceEvidence ce " +
+                    "INNER JOIN FETCH ce.evidence le ";
             if (loadTags) {
                 query +=
                         "LEFT JOIN fetch le.tags ";
             }
             query +=
                     "WHERE ce.competence.id = :tcId " +
-                    "AND ce.deleted IS FALSE " +
+                        "AND ce.deleted IS FALSE " +
                     "ORDER BY ce.dateCreated ASC";
 
             @SuppressWarnings("unchecked")
@@ -194,7 +197,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public List<LearningEvidence> getAllEvidences(long orgId, Session session) throws DbConnectionException {
         try {
             String query =
-                    "SELECT le from LearningEvidence le " +
+                    "SELECT le " +
+                    "FROM LearningEvidence le " +
                     "WHERE le.deleted IS FALSE ";
             if (orgId > 0) {
                 query += "AND le.organization.id = :orgId";
@@ -244,9 +248,9 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     private List<LearningEvidenceData> getUserEvidences(long userId, int offset, int limit) {
         String query =
                 "SELECT le FROM LearningEvidence le " +
-                "LEFT JOIN fetch le.tags " +
+                "LEFT JOIN FETCH le.tags " +
                 "WHERE le.user.id = :userId " +
-                "AND le.deleted IS FALSE " +
+                    "AND le.deleted IS FALSE " +
                 "ORDER BY le.dateCreated DESC";
 
         @SuppressWarnings("unchecked")
@@ -264,9 +268,10 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     private long countUserEvidences(long userId) {
         String query =
-                "SELECT COUNT(le.id) FROM LearningEvidence le " +
+                "SELECT COUNT(le.id) " +
+                "FROM LearningEvidence le " +
                 "WHERE le.user.id = :userId " +
-                "AND le.deleted IS FALSE";
+                    "AND le.deleted IS FALSE";
 
         return (Long) persistence.currentManager()
                 .createQuery(query)
@@ -280,11 +285,11 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         try {
             String query =
                     "SELECT comp, ce.description " +
-                            "FROM CompetenceEvidence ce " +
-                            "INNER JOIN ce.competence tc " +
-                            "INNER JOIN tc.competence comp " +
-                            "WHERE ce.evidence.id = :evId " +
-                            "AND ce.deleted IS FALSE";
+                    "FROM CompetenceEvidence ce " +
+                    "INNER JOIN ce.competence tc " +
+                    "INNER JOIN tc.competence comp " +
+                    "WHERE ce.evidence.id = :evId " +
+                        "AND ce.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
             List<Object[]> competences = persistence.currentManager()
@@ -313,7 +318,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     "FROM LearningEvidence le " +
                     "INNER JOIN le.tags t " +
                     "WHERE le.user.id = :userId " +
-                    "AND le.deleted IS FALSE";
+                        "AND le.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
             List<String> tags = persistence.currentManager()
@@ -335,7 +340,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             String query =
                     "SELECT le FROM LearningEvidence le ";
             if (loadTags) {
-               query +=  "LEFT JOIN fetch le.tags ";
+               query +=  "LEFT JOIN FETCH le.tags ";
             }
             query += "WHERE le.id = :evId " +
                      "AND le.deleted IS FALSE";
@@ -463,9 +468,18 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                         .setMaxResults(1)
                         .uniqueResult();
 
+                boolean canAccess = false;
                 if (id != null) {
-                    return new ResourceAccessData(true, true, false, false, false);
+                    canAccess = true;
+                } else if (accessRequirements.getAccessMode() == AccessMode.MANAGER) {
+                    /*
+                    if user not assessor in any of the user assessments and access mode is manager
+                    we check if user is manager in any of the units where evidence owner is student and in
+                    case he is, he can view evidence
+                     */
+                    canAccess = unitManager.isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent(userId, le.getUser().getId());
                 }
+                return new ResourceAccessData(canAccess, canAccess, false, false, false);
             }
 
             if (accessRequirements.getAccessMode() == AccessMode.USER) {

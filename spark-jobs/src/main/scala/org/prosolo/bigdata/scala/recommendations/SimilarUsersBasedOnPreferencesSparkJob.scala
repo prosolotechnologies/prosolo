@@ -1,9 +1,8 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row}
 import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 import org.prosolo.bigdata.scala.spark.SparkJob
-//import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -15,7 +14,8 @@ class SimilarUsersBasedOnPreferencesSparkJob(kName:String) extends SparkJob{
   val keyspaceName=kName
 
 
-  println("CREATED SQL CONTEXT")
+
+  logger.debug("CREATED SQL CONTEXT")
   /**
     * Performs users clustering, in order to limit data model loading to one specific cluster only.
     * Users are clustered based on the credentials they are assigned to
@@ -37,7 +37,7 @@ class SimilarUsersBasedOnPreferencesSparkJob(kName:String) extends SparkJob{
     val maxNumber:Int= (totalNumberOfUsers/clusterAproxSize).toInt
     val multiplicator:Int=if(maxNumber>20) maxNumber/10 else 1
     val minNumber:Int=if(maxNumber>5) maxNumber-5*multiplicator else 1
-    println("MIN:"+minNumber+" MAX:"+maxNumber+" multiplicator:"+multiplicator)
+    logger.debug("MIN:"+minNumber+" MAX:"+maxNumber+" multiplicator:"+multiplicator)
     Seq(minNumber, maxNumber)
   }
   /**
@@ -47,26 +47,26 @@ class SimilarUsersBasedOnPreferencesSparkJob(kName:String) extends SparkJob{
     val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sparkSession,keyspaceName).collect()
     clustersUsers.foreach {
       row: Row =>
-        println("RUN ALS ON ROW:"+row.toString())
+        logger.debug("RUN ALS ON ROW:"+row.toString())
         ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize, keyspaceName,indexRecommendationDataName,similarUsersIndexType)
     }
-    println("runALSUserRecommender finished")
+    logger.debug("runALSUserRecommender finished")
   }
   def createOneCluster(keyspaceName:String)= {
-    println("CREATE ONE CLUSTER ONLY")
-    println("KEYSPACE:"+keyspaceName+" ")
-    if(sparkSession==null)println("SQL CONTEXT IS NULL")
+    logger.debug("CREATE ONE CLUSTER ONLY")
+    logger.debug("KEYSPACE:"+keyspaceName+" ")
+    if(sparkSession==null)logger.debug("SQL CONTEXT IS NULL")
     import sparkSession.implicits._
     val usersInTheSystemDF: DataFrame = sparkSession.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
     usersInTheSystemDF.show
     val clusterUsers:java.util.List[java.lang.Long] = usersInTheSystemDF.select("userid").map(row => {
-      println("MAPPING ROW:"+row.toString())
+      logger.debug("MAPPING ROW:"+row.toString())
       val id = row.getLong(0).asInstanceOf[java.lang.Long]
       id
     }).collect().toList.asJava
     val clusterId:Long=0
-    //println("TEMPORARY DISABLED")
+    //logger.debug("TEMPORARY DISABLED")
     val recommendationsDAO=new RecommendationsDAO(keyspaceName)
 
     recommendationsDAO.insertClusterUsers(clusterId,clusterUsers)

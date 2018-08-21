@@ -1,20 +1,10 @@
 package org.prosolo.services.authentication.impl;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +19,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
+
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service("org.prosolo.services.authentication.AuthenticationService")
 public class SpringSecurityAuthenticationServiceImpl implements AuthenticationService, Serializable {
@@ -46,24 +46,25 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	private AuthenticationSuccessHandler authSuccessHandler;
 	@Inject
 	private UserDetailsService userDetailsService;
+	@Inject private EventFactory eventFactory;
 	
 	//@Inject private TokenBasedRememberMeServices rememberMeService;
 
-	@Override
+	/*@Override
 	public boolean login(String email, String password) throws AuthenticationException {
 		email = email.toLowerCase();
 		logger.debug("email: " + email);
-		
+
 		try {
 			Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-			
+
 			logger.debug("User with email "+email+" is authenticated: " + authenticate.isAuthenticated());
 			if (authenticate.isAuthenticated()) {
-				SecurityContextHolder.getContext().setAuthentication(authenticate);		
+				SecurityContextHolder.getContext().setAuthentication(authenticate);
 				//HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 				//HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
 				//rememberMeService.loginSuccess(request, response, authenticate);
-				
+
 				logger.debug("Returning true");
 				return true;
 			}
@@ -76,8 +77,8 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 		}
 		logger.debug("Returning false");
 		return false;
-	}
-	
+	}*/
+
 	@Override
 	public void login(HttpServletRequest req, HttpServletResponse resp, String email) 
 			throws AuthenticationException {
@@ -157,9 +158,9 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	}*/
 	
 	@Override
-	public boolean loginOpenId(String email) throws AuthenticationException {
+	public boolean loginUser(String email) throws AuthenticationException {
 		email = email.toLowerCase();
-		System.out.println("login open id for:"+email);
+		System.out.println("login user with email: "+ email);
 		try {
 			Authentication authenticate =null;
 			boolean existingUser=userManager.checkIfUserExists(email);
@@ -167,19 +168,19 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			Collection grantedAuthorities=new LinkedList<GrantedAuthority>();
 			//grantedAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 			//logger.debug("Granted authority ROLE USER");
-			if(!existingUser){
+			if (!existingUser) {
 				logger.debug("NOT EXISTING USER");
 				return false;
 			// authenticate = new UsernamePasswordAuthenticationToken(email, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
-			}else{
+			} else {
 				System.out.println("Existing user");
 				List<Role> roles=roleManager.getUserRoles(email);
 				//String[] roleNames=new String[3];
 				for (Role role : roles) {
 					List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role.getId());
 					//userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
-					if(capabilities != null){
-						for(String cap:capabilities){
+					if (capabilities != null) {
+						for (String cap:capabilities) {
 							grantedAuthorities.add(new SimpleGrantedAuthority(cap.toUpperCase()));
 						}
 					}
@@ -195,7 +196,7 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 				 logger.info("Authentication was successful");
  				// SecurityContextHolder.getContext().setAuthentication(authenticate);
 				 return true;
-			 }else{
+			 } else {
 				 logger.info("Authentication was not successful");
 				 return false;
 			 }

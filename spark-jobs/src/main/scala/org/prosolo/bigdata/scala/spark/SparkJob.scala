@@ -3,6 +3,7 @@ package org.prosolo.bigdata.scala.spark
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession
 import org.elasticsearch.spark.rdd.EsSpark
+import org.slf4j.LoggerFactory
 
 import collection.JavaConverters._
 
@@ -21,10 +22,11 @@ object ProblemSeverity extends Enumeration{
   val TRIVIAL=Value("TRIVIAL")
 }
 trait SparkJob extends Serializable{
+  val logger = LoggerFactory.getLogger(getClass)
   def keyspaceName:String
   val jobName=this.getClass.getSimpleName
   val jobId=java.util.UUID.randomUUID().toString
-  println("RUNNING JOB:"+jobName+" WITH UUID:"+jobId)
+  logger.debug("RUNNING JOB:"+jobName+" WITH UUID:"+jobId)
  // val sc = SparkContextLoader.getSC
  // sc.setLogLevel("WARN")
  // val sparkSession:SparkSession=SparkContextLoader.getSparkSession
@@ -40,7 +42,7 @@ trait SparkJob extends Serializable{
  // val sc=sparkSession.sparkContext
   //val jobLoggerDAO=new JobLoggerDAO(keyspaceName)
   //jobLoggerDAO.insertJobLog(jobId,LogType.STAGE,LogSeverity.START,"Job started")
-  println("JOB STARTED..."+jobName)
+  logger.debug("JOB STARTED..."+jobName)
   summaryAccu.add(new TaskSummary(jobId, jobName, System.currentTimeMillis(),0))
 
   def submitFailedTask(message:String, objectId:Long, taskType:String): Unit ={
@@ -57,7 +59,7 @@ trait SparkJob extends Serializable{
   def finishJob()={
     summaryAccu.add(new TaskSummary("","", 0,System.currentTimeMillis()))
     val resource=ConfigFactory.load().getString("elasticsearch.jobsIndex");
-    println("FINISH JOB TO:"+resource)
+    logger.debug("FINISH JOB TO:"+resource)
     //val resource=SparkApplicationConfig.conf.getString("elasticsearch.jobsIndex")
     val failedTasks:Seq[FailedTask]=failedTasksAccu.value.asScala
     val taskPoints:Seq[TaskPoint]=taskPointAccu.value.asScala

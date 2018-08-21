@@ -20,7 +20,7 @@ import org.prosolo.bigdata.common.events.serialization.ContextDeserializer;
 import org.prosolo.bigdata.common.events.serialization.LearningContextDeserializer;
 import org.prosolo.bigdata.common.events.serialization.ServiceDeserializer;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;

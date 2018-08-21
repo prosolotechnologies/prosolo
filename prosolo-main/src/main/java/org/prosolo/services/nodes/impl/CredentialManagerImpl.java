@@ -1,7 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -12,6 +11,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -25,7 +25,9 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.credential.*;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -50,6 +52,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -133,7 +136,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setDuration(data.getDuration());
 			cred.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
 			cred.setHashtags(new HashSet<>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
-			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+			cred.setAssessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
 			cred.setCategory(data.getCategory() != null
 					? (CredentialCategory) persistence.currentManager().load(CredentialCategory.class, data.getCategory().getId())
 					: null);
@@ -679,14 +682,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	private void fireEditEvent(CredentialData data, Credential1 cred,
 							   UserContextData context) {
-	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
-	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
-	    		data.isMandatoryFlowChanged());
-	    Gson gson = new GsonBuilder().create();
-	    String jsonChangeTracker = gson.toJson(changeTracker);
-	    params.put("changes", jsonChangeTracker);
+	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(),
+	    		data.isMandatoryFlowChanged(), data.isAssessorAssignmentChanged());
+
+		String jsonChangeTracker = new GsonBuilder().create().toJson(changeTracker);
+
+		Map<String, String> params = new HashMap<>();
+		params.put("changes", jsonChangeTracker);
 	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
 	}
 
@@ -722,7 +726,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setTitle(data.getTitle());
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
-		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+
+		if (data.isAssessorAssignmentChanged()) {
+			credToUpdate.setAssessorAssignmentMethod(data.getAssessorAssignment().getAssessorAssignmentMethod());
+		}
 
 		if (data.isTagsStringChanged()) {
 			credToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
@@ -980,7 +987,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			long instructorId = 0;
 
-			if (!cred.isManuallyAssignStudents()) {
+			if (cred.getAssessorAssignmentMethod() != null &&
+					cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
 				List<TargetCredential1> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
@@ -997,7 +1005,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//create default assessment for user
 			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
 			//create self assessment if enabled
-			if (cred.getAssessmentConfig()
+			 if (cred.getAssessmentConfig()
 					.stream()
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
@@ -2077,7 +2085,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public void updateTargetCredentialLastAction(long userId, long credentialId)
+	public void updateTargetCredentialLastAction(long userId, long credentialId, Session session)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetCredential1 cred SET " +
@@ -2086,7 +2094,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"AND cred.user.id = :userId " +
 					"AND cred.progress < :progress";
 
-			persistence.currentManager()
+			session
 					.createQuery(query)
 					.setTimestamp("date", new Date())
 					.setLong("credId", credentialId)
@@ -2094,8 +2102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setInteger("progress", 100)
 					.executeUpdate();
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while updating last action for user credential");
 		}
 	}
@@ -2152,13 +2159,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public List<StudentData> getCredentialStudentsData(long credId, int limit)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
+			String query =
+					"SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
 					"FROM TargetCredential1 cred " +
 					"INNER JOIN fetch cred.user " +
 					"LEFT JOIN fetch cred.instructor inst " +
 					"LEFT JOIN fetch inst.user " +
 					"LEFT JOIN cred.assessments a " +
-					"WITH a.type = :instructorAssessment " +
+						"WITH a.type = :instructorAssessment " +
 					"WHERE cred.credential.id = :credId " +
 					"ORDER BY cred.dateStarted DESC";
 
@@ -2192,6 +2200,32 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential members");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException {
+		try {
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId, persistence.currentManager());
+
+			if (tc != null) {
+				StudentData sd = new StudentData(tc.getUser());
+				CredentialInstructor ci = tc.getInstructor();
+				if (ci != null) {
+					sd.setInstructor(credInstructorFactory.getInstructorData(
+							tc.getInstructor(), tc.getInstructor().getUser(),
+							0, false));
+				}
+				sd.setProgress(tc.getProgress());
+				return sd;
+			}
+
+			return null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving target credential for student " + studentId +
+					" and credential " + credId);
 		}
 	}
 
@@ -3013,7 +3047,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			//if credential does not have at least one competency, delivery should not be created
 			if (competences.isEmpty()) {
-				throw new IllegalDataStateException("Can not create delivery without competencies");
+				throw new IllegalDataStateException("Can not start "+ResourceBundleUtil.getLabel("delivery").toLowerCase() +" without " + ResourceBundleUtil.getLabel("competence.plural").toLowerCase());
 			}
 
 			for (CredentialCompetence1 credComp : competences) {
@@ -3617,6 +3651,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId) {
+		try {
+			String q =
+					"SELECT targetCred.user.id FROM TargetCredential1 targetCred " +
+					"WHERE targetCred.credential.id = :credId " +
+					"AND targetCred.instructor.user.id = :instructorUserId";
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", deliveryId)
+					.setLong("instructorUserId", instructorUserId)
+					.list();
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the students data");
+		}
+	}
+
+	@Override
 	//nt
 	public long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException {
 		Result<Credential1> res = self.createCredentialInLearningStageAndGetEvents(basedOnCredentialId, learningStageId, copyCompetences, context);
@@ -3700,7 +3755,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred.setHashtags(new HashSet<>(original.getHashtags()));
 			cred.setCompetenceOrderMandatory(original.isCompetenceOrderMandatory());
 			//cred.setDuration(original.getDuration());
-			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
+			cred.setAssessorAssignmentMethod(original.getAssessorAssignmentMethod());
 			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
 			cred.setType(type);
 			cred.setDeliveryOf(deliveryOf);
@@ -3856,21 +3911,35 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional
 	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
-		TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId);
-		return getTargetCredentialData(credentialId, studentId,
-				CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
-					.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
+		try {
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId, persistence.currentManager());
+			return getTargetCredentialData(credentialId, studentId,
+					CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
+							.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error in method getTargetCredentialDataWithEvidencesAndAssessmentCount");
+		}
 	}
 
-	private TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
-		String q =
-				"SELECT tc FROM TargetCredential1 tc " +
-				"WHERE tc.credential.id = :credId " +
-				"AND tc.user.id = :studentId";
-		return (TargetCredential1) persistence.currentManager().createQuery(q)
-				.setLong("credId", credentialId)
-				.setLong("studentId", studentId)
-				.uniqueResult();
+	@Override
+	@Transactional
+	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
+		try {
+			String q =
+					"SELECT tc FROM TargetCredential1 tc " +
+							"WHERE tc.credential.id = :credId " +
+							"AND tc.user.id = :studentId";
+			return (TargetCredential1) session.createQuery(q)
+					.setLong("credId", credentialId)
+					.setLong("studentId", studentId)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credential");
+		}
 	}
 
 	@Override

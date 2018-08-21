@@ -29,13 +29,12 @@ import org.prosolo.common.util.date.DateEpochUtil;
 
 /**
  * @author Zoran Jeremic Apr 14, 2015
- *
  */
 
 public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
-		implements Serializable, AnalyticalEventDBManager {
-	private static HashMap<Statements, PreparedStatement> prepared = new HashMap<Statements, PreparedStatement>();
-	private static HashMap<Statements, String> statements = new HashMap<Statements, String>();
+        implements Serializable, AnalyticalEventDBManager {
+    private static HashMap<Statements, PreparedStatement> prepared = new HashMap<Statements, PreparedStatement>();
+    private static HashMap<Statements, String> statements = new HashMap<Statements, String>();
 
 	static {
 		statements.put(Statements.UPDATE_USERACTIVITY,"UPDATE "+TablesNames.USER_ACTIVITY+"  SET count=count+1 WHERE userid=? AND date=?;");
@@ -53,146 +52,139 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE "+TablesNames.FAILED_FEEDS+"   SET count=count+1 WHERE url=? AND date=?;");
 		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 		statements.put(Statements.INSERT_STORENOTIFICATIONDATA,"INSERT INTO "+TablesNames.NOTIFICATION_DATA+
-				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link) " +
-				"VALUES (?,?,?,?,?,?,?,?,?,?,?);");
+				" (date, notificationtype, id, receiverid, receiverfullname, email, actorid, actorfullname, objecttype, objecttitle, link, objectid, targetid, targettitle, section, relationtotarget, predicate) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
 
 
+    }
+
+    private AnalyticalEventDBManagerImpl() {
+        super();
+
+    }
+
+    public static AnalyticalEventDBManagerImpl getInstance() {
+        return AnalyticalEventDBManagerImplHolder.INSTANCE;
+    }
+
+    private PreparedStatement getStatement(Session session, Statements statement) {
+        // If two threads access prepared map concurrently, prepared can be repeated twice.
+        // This should be better than synchronizing access.
+        if (prepared.get(statement) == null) {
+            prepared.put(statement, session.prepare(statements.get(statement)));
+        }
+        return prepared.get(statement);
+    }
+
+    @Override
+    public void updateAnalyticsEventCounter(AnalyticsEvent event) {
+        String statementName = "UPDATE_"
+                + event.getDataName().name().toUpperCase();
+        try {
+            Statements statement = Statements.valueOf(statementName);
+            PreparedStatement preparedStatement = getStatement(getSession(), statement);
+            BoundStatement boundStatement = new BoundStatement(preparedStatement);
+            JsonObject data = event.getData();
+            String str = statements.get(statement);
+            String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
+                    str.lastIndexOf(";"));
+            whereclause = whereclause.replaceAll("AND ", "");
+            whereclause = whereclause.replaceAll("=\\?", "");
+            String[] words = whereclause.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                String param = words[i];
+                JsonPrimitive element = (JsonPrimitive) data.get(param);
+                if (element.isString()) {
+                    boundStatement.setString(i, element.getAsString());
+                } else if (element.isNumber()) {
+                    long val = element.getAsLong();
+                    boundStatement.setLong(i, val);
+                }
+            }
+            this.getSession().execute(boundStatement);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateGenericCounter(DataName dataName, Map<String, Object> properties) {
+        try {
+            String statementName = "UPDATE_" + dataName.name().toUpperCase();
+            Statements statement = Statements.valueOf(statementName);
+            PreparedStatement preparedStatement = getStatement(getSession(), statement);
+            BoundStatement boundStatement = new BoundStatement(preparedStatement);
+            String str = statements.get(statement);
+            String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
+                    str.lastIndexOf(";"));
+            whereclause = whereclause.replaceAll("AND ", "");
+            whereclause = whereclause.replaceAll("=\\?", "");
+            String[] words = whereclause.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                String param = words[i];
+                Object propValue = properties.get(param);
+                if (propValue instanceof String) {
+                    boundStatement.setString(i, (String) propValue);
+                } else if (propValue instanceof Long) {
+                    boundStatement.setLong(i, (Long) propValue);
+                }
+            }
+            try {
+                this.getSession().execute(boundStatement);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
+    @Override
+    public void insertAnalyticsEventRecord(AnalyticsEvent event) {
+        try {
+            String statementName = "INSERT_"
+                    + event.getDataName().name().toUpperCase();
 
-	}
+            Statements statement = Statements.valueOf(statementName);
+            PreparedStatement preparedStatement = getStatement(getSession(), statement);
+            BoundStatement boundStatement = new BoundStatement(preparedStatement);
 
-	private AnalyticalEventDBManagerImpl() {
-		super();
+            JsonObject data = event.getData();
+            String str = this.statements.get(statement);
+            String paramsStr = str
+                    .substring(str.indexOf("(") + 1, str.indexOf(")"));
+            String[] words = paramsStr.split("\\s*,\\s*");
 
-	}
-
-	public static AnalyticalEventDBManagerImpl getInstance() {
-		return AnalyticalEventDBManagerImplHolder.INSTANCE;
-	}
-
-	private PreparedStatement getStatement(Session session, Statements statement) {
-		// If two threads access prepared map concurrently, prepared can be repeated twice.
-		// This should be better than synchronizing access.
-		if (prepared.get(statement) == null) {
-			prepared.put(statement, session.prepare(statements.get(statement)));
-		}
-		return prepared.get(statement);
-	}
-
-	@Override
-	public void updateAnalyticsEventCounter(AnalyticsEvent event) {
-		String statementName = "UPDATE_"
-				+ event.getDataName().name().toUpperCase();
-		try {
-		Statements statement=Statements.valueOf(statementName);
-		PreparedStatement preparedStatement=getStatement(getSession(),statement);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-		JsonObject data = event.getData();
-		String str = statements.get(statement);
-		String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
-				str.lastIndexOf(";"));
-		whereclause = whereclause.replaceAll("AND ", "");
-		whereclause = whereclause.replaceAll("=\\?", "");
-		String[] words = whereclause.split("\\s+");
-		for (int i = 0; i < words.length; i++) {
-			String param = words[i];
-			JsonPrimitive element = (JsonPrimitive) data.get(param);
-			if (element.isString()) {
-				boundStatement.setString(i, element.getAsString());
-			} else if (element.isNumber()) {
-				long val = element.getAsLong();
-				boundStatement.setLong(i, val);
-			}
-		}
-			this.getSession().execute(boundStatement);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	@Override
-	public void updateGenericCounter(DataName dataName,Map<String,Object> properties) {
-		try {
-			String statementName = "UPDATE_" + dataName.name().toUpperCase();
-			Statements statement = Statements.valueOf(statementName);
-			PreparedStatement preparedStatement = getStatement(getSession(), statement);
-			BoundStatement boundStatement = new BoundStatement(preparedStatement);
-			//BoundStatement boundStatement = new BoundStatement(
-			//preparedStatements.get(statementName));
-			//JsonObject data = event.getData();
-			String str = statements.get(statement);
-			String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
-					str.lastIndexOf(";"));
-			whereclause = whereclause.replaceAll("AND ", "");
-			whereclause = whereclause.replaceAll("=\\?", "");
-			String[] words = whereclause.split("\\s+");
-			for (int i = 0; i < words.length; i++) {
-				String param = words[i];
-				Object propValue = properties.get(param);
-				if (propValue instanceof String) {
-					boundStatement.setString(i, (String) propValue);
-				} else if (propValue instanceof Long) {
-					boundStatement.setLong(i, (Long) propValue);
-				}
-			}
-			try {
-				this.getSession().execute(boundStatement);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-
-	
-	@Override
-	public void insertAnalyticsEventRecord(AnalyticsEvent event) {
-		try {
-		String statementName = "INSERT_"
-				+ event.getDataName().name().toUpperCase();
-
-		Statements statement=Statements.valueOf(statementName);
-		PreparedStatement preparedStatement=getStatement(getSession(),statement);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-
-		JsonObject data = event.getData();
-		String str = this.statements.get(statement);
-		String paramsStr = str
-				.substring(str.indexOf("(") + 1, str.indexOf(")"));
-		String[] words = paramsStr.split("\\s*,\\s*");
-
-		for (int i = 0; i < words.length; i++) {
-			String param = words[i];
-			// JsonPrimitive element=(JsonPrimitive) data.get(param);
-			JsonElement element = (JsonElement) data.get(param);
-				if (element.isJsonPrimitive()) {
-				JsonPrimitive prElement = (JsonPrimitive) element;
-				if (prElement.isString()) {
-					boundStatement.setString(i, prElement.getAsString());
-				} else if (prElement.isNumber()) {
-					long val = prElement.getAsLong();
-					boundStatement.setLong(i, val);
-				}
-			} else if (element.isJsonArray()) {
-				JsonArray val = element.getAsJsonArray();
-				Iterator<JsonElement> iter = val.iterator();
-				List<Long> list = new ArrayList<Long>();
-				while (iter.hasNext()) {
-					JsonElement el = iter.next();
-					if (el.isJsonPrimitive()) {
-						list.add(el.getAsLong());
-					}
-				}
-				try {
-					boundStatement.setList(i, list);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
+            for (int i = 0; i < words.length; i++) {
+                String param = words[i];
+                // JsonPrimitive element=(JsonPrimitive) data.get(param);
+                JsonElement element = (JsonElement) data.get(param);
+                if (element.isJsonPrimitive()) {
+                    JsonPrimitive prElement = (JsonPrimitive) element;
+                    if (prElement.isString()) {
+                        boundStatement.setString(i, prElement.getAsString());
+                    } else if (prElement.isNumber()) {
+                        long val = prElement.getAsLong();
+                        boundStatement.setLong(i, val);
+                    }
+                } else if (element.isJsonArray()) {
+                    JsonArray val = element.getAsJsonArray();
+                    Iterator<JsonElement> iter = val.iterator();
+                    List<Long> list = new ArrayList<Long>();
+                    while (iter.hasNext()) {
+                        JsonElement el = iter.next();
+                        if (el.isJsonPrimitive()) {
+                            list.add(el.getAsLong());
+                        }
+                    }
+                    try {
+                        boundStatement.setList(i, list);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
 
 			ResultSet rs = this.getSession().execute(boundStatement);
 		} catch (Exception ex) {
@@ -204,7 +196,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		try {
 		//String statementName = "INSERT_"
 			//	+ event.getDataName().name().toUpperCase();
-		System.out.println("INSERT ANALYTICS RECORD FOR STATEMENT:");
+
 		//Statements statement=Statements.valueOf(statementName);
 		 PreparedStatement preparedStatement=getStatement(getSession(),Statements.INSERT_STORENOTIFICATIONDATA);
 			BoundStatement boundStatement=new BoundStatement(preparedStatement);
@@ -212,8 +204,9 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		//BoundStatement boundStatement=new BoundStatement(preparedStatement);
 
 		JsonObject data = event.getData();
+			logger.debug("INSERT ANALYTICS RECORD FOR STATEMENT:"+data.toString());
 		//System.out.println("DATA:"+data.getAsString());
-		String dateString=data.get("date").getAsString();
+	//	String dateString=data.get("date").getAsString();
 		Long date= DateEpochUtil.getDaysSinceEpoch();
 		Long id=data.get("id").getAsLong();
 		String notificationType=data.get("notificationType").getAsString();
@@ -224,10 +217,18 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			String actorfullname=data.get("actor").getAsJsonObject().get("fullName").getAsString();
 			String objecttype="";
 			String objecttitle="";
+			int objectid=0;
 			if(data.has("objectType")){
 				objecttype=data.get("objectType").getAsString();
 				objecttitle=data.get("objectTitle").getAsString();
+				objectid=data.get("objectId").getAsInt();
 			}
+			int targetid=data.get("targetId").getAsInt();
+			String targettitle=data.get("targetTitle").getAsString();
+			String section=data.get("section").getAsString();
+			String relationToTarget=data.get("relationToTarget").getAsString();
+			String predicate=data.get("predicate").getAsString();
+
 
 
 			String link=data.get("link").getAsString();
@@ -242,156 +243,162 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			boundStatement.setString(8,objecttype);
 			boundStatement.setString(9,objecttitle);
 			boundStatement.setString(10,link);
+			boundStatement.setLong(11,objectid);
+			boundStatement.setLong(12,targetid);
+			boundStatement.setString(13,targettitle);
+			boundStatement.setString(14,section);
+			boundStatement.setString(15,relationToTarget);
+			boundStatement.setString(16,predicate);
 			ResultSet rs = this.getSession().execute(boundStatement);
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<ActivityAccessCount> findAllActivitiesForCompetence(
-			long competenceId, List<Long> ignoredActivities) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ActivityAccessCount> findAllActivitiesForCompetence(
+            long competenceId, List<Long> ignoredActivities) {
 
-		PreparedStatement preparedStatement=getStatement(getSession(),Statements.FIND_ACTIVITIESFORCOMPETENCE);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-		//BoundStatement boundStatement = new BoundStatement(
-			//	preparedStatements.get("find_activitiesforcompetence"));
-		boundStatement.setLong(0, competenceId);
-		ResultSet rs = this.getSession().execute(boundStatement);
-		List<Row> rows = rs.all();
-		List<ActivityAccessCount> activities = new ArrayList<ActivityAccessCount>();
-		for (Row row : rows) {
-			if (!ignoredActivities.contains(row.getLong(0))) {
-				ActivityAccessCount actAccessCount = new ActivityAccessCount(
-						row.getLong("activityid"), row.getLong("competenceid"),
-						row.getLong("count"));
-				activities.add(actAccessCount);
-			}
-		}
-		Collections.sort(activities);
-		return activities;
-	}
+        PreparedStatement preparedStatement = getStatement(getSession(), Statements.FIND_ACTIVITIESFORCOMPETENCE);
+        BoundStatement boundStatement = new BoundStatement(preparedStatement);
+        //BoundStatement boundStatement = new BoundStatement(
+        //	preparedStatements.get("find_activitiesforcompetence"));
+        boundStatement.setLong(0, competenceId);
+        ResultSet rs = this.getSession().execute(boundStatement);
+        List<Row> rows = rs.all();
+        List<ActivityAccessCount> activities = new ArrayList<ActivityAccessCount>();
+        for (Row row : rows) {
+            if (!ignoredActivities.contains(row.getLong(0))) {
+                ActivityAccessCount actAccessCount = new ActivityAccessCount(
+                        row.getLong("activityid"), row.getLong("competenceid"),
+                        row.getLong("count"));
+                activities.add(actAccessCount);
+            }
+        }
+        Collections.sort(activities);
+        return activities;
+    }
 
-	@Override
-	public List<TargetCompetenceActivities> findAllActivitiesByTargetCompetenceForCompetence(
-			long competenceId) {
-		PreparedStatement preparedStatement=getStatement(getSession(),Statements.FIND_TARGETCOMPETENCEACTIVITIES);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-		//BoundStatement boundStatement = new BoundStatement(
-			//	preparedStatements.get("find_targetcompetenceactivities"));
-		boundStatement.setLong(0, competenceId);
-		ResultSet rs = this.getSession().execute(boundStatement);
-		List<Row> rows = rs.all();
-		List<TargetCompetenceActivities> tCompActivities = new ArrayList<TargetCompetenceActivities>();
-		for (Row row : rows) {
-			Long competenceid = row.getLong(0);
-			Long targetcompetenceid = row.getLong(1);
-			List<Long> activities = row.getList(2, Long.class);
-			TargetCompetenceActivities tcActivities = new TargetCompetenceActivities(
-					competenceid, targetcompetenceid, activities);
-			tCompActivities.add(tcActivities);
+    @Override
+    public List<TargetCompetenceActivities> findAllActivitiesByTargetCompetenceForCompetence(
+            long competenceId) {
+        PreparedStatement preparedStatement = getStatement(getSession(), Statements.FIND_TARGETCOMPETENCEACTIVITIES);
+        BoundStatement boundStatement = new BoundStatement(preparedStatement);
+        //BoundStatement boundStatement = new BoundStatement(
+        //	preparedStatements.get("find_targetcompetenceactivities"));
+        boundStatement.setLong(0, competenceId);
+        ResultSet rs = this.getSession().execute(boundStatement);
+        List<Row> rows = rs.all();
+        List<TargetCompetenceActivities> tCompActivities = new ArrayList<TargetCompetenceActivities>();
+        for (Row row : rows) {
+            Long competenceid = row.getLong(0);
+            Long targetcompetenceid = row.getLong(1);
+            List<Long> activities = row.getList(2, Long.class);
+            TargetCompetenceActivities tcActivities = new TargetCompetenceActivities(
+                    competenceid, targetcompetenceid, activities);
+            tCompActivities.add(tcActivities);
 
-		}
-		return tCompActivities;
-	}
+        }
+        return tCompActivities;
+    }
 
-	@Override
-	public List<Long> findAllCompetences() {
-		PreparedStatement preparedStatement=getStatement(getSession(),Statements.FIND_ALLCOMPETENCES);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-		//BoundStatement boundStatement = new BoundStatement(
-		//		preparedStatements.get("find_allcompetences"));
-		// boundStatement.setLong(0, competenceId);
-		ResultSet rs = this.getSession().execute(boundStatement);
-		List<Row> rows = rs.all();
-		List<Long> competences = new ArrayList<Long>();
-		for (Row row : rows) {
-			Long competenceid = row.getLong(0);
-			// Long targetcompetenceid = row.getLong(1);
-			// List<Long> activities = row.getList(2, Long.class);
-			// TargetCompetenceActivities tcActivities=new
-			// TargetCompetenceActivities(competenceid, targetcompetenceid,
-			// activities);
-			competences.add(competenceid);
+    @Override
+    public List<Long> findAllCompetences() {
+        PreparedStatement preparedStatement = getStatement(getSession(), Statements.FIND_ALLCOMPETENCES);
+        BoundStatement boundStatement = new BoundStatement(preparedStatement);
+        //BoundStatement boundStatement = new BoundStatement(
+        //		preparedStatements.get("find_allcompetences"));
+        // boundStatement.setLong(0, competenceId);
+        ResultSet rs = this.getSession().execute(boundStatement);
+        List<Row> rows = rs.all();
+        List<Long> competences = new ArrayList<Long>();
+        for (Row row : rows) {
+            Long competenceid = row.getLong(0);
+            // Long targetcompetenceid = row.getLong(1);
+            // List<Long> activities = row.getList(2, Long.class);
+            // TargetCompetenceActivities tcActivities=new
+            // TargetCompetenceActivities(competenceid, targetcompetenceid,
+            // activities);
+            competences.add(competenceid);
 
-		}
-		return competences;
-	}
+        }
+        return competences;
+    }
 
-	@Override
-	public List<UserLearningGoalActivitiesCount> findUserLearningGoalActivitiesByDate(
-			long date) {
-		PreparedStatement preparedStatement=getStatement(getSession(),Statements.FIND_USERLEARNINGOALACTIVITY);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-	//	BoundStatement boundStatement = new BoundStatement(
-			//	preparedStatements.get("find_userlearninggoalactivity"));
-		boundStatement.setLong(0, date);
-		ResultSet rs = this.getSession().execute(boundStatement);
-		List<Row> rows = rs.all();
-		List<UserLearningGoalActivitiesCount> activitiesCounters = new ArrayList<UserLearningGoalActivitiesCount>();
-		for (Row row : rows) {
+    @Override
+    public List<UserLearningGoalActivitiesCount> findUserLearningGoalActivitiesByDate(
+            long date) {
+        PreparedStatement preparedStatement = getStatement(getSession(), Statements.FIND_USERLEARNINGOALACTIVITY);
+        BoundStatement boundStatement = new BoundStatement(preparedStatement);
+        //	BoundStatement boundStatement = new BoundStatement(
+        //	preparedStatements.get("find_userlearninggoalactivity"));
+        boundStatement.setLong(0, date);
+        ResultSet rs = this.getSession().execute(boundStatement);
+        List<Row> rows = rs.all();
+        List<UserLearningGoalActivitiesCount> activitiesCounters = new ArrayList<UserLearningGoalActivitiesCount>();
+        for (Row row : rows) {
 
-			Long dateSinceEpoch = row.getLong("date");
-			Long learninggoalid = row.getLong("learninggoalid");
-			Long userid = row.getLong("userid");
-			Long count = row.getLong("count");
-			// System.out.println("FOUND ROW:"+date+" "+learninggoalid+" "+userid+" "+count);
-			UserLearningGoalActivitiesCount actCount = new UserLearningGoalActivitiesCount(
-					learninggoalid, userid, dateSinceEpoch, count);
-			activitiesCounters.add(actCount);
+            Long dateSinceEpoch = row.getLong("date");
+            Long learninggoalid = row.getLong("learninggoalid");
+            Long userid = row.getLong("userid");
+            Long count = row.getLong("count");
+            // System.out.println("FOUND ROW:"+date+" "+learninggoalid+" "+userid+" "+count);
+            UserLearningGoalActivitiesCount actCount = new UserLearningGoalActivitiesCount(
+                    learninggoalid, userid, dateSinceEpoch, count);
+            activitiesCounters.add(actCount);
 
-		}
-		return activitiesCounters;
-	}
+        }
+        return activitiesCounters;
+    }
 
-	@Override
-	public List<MostActiveUsersForLearningGoal> findMostActiveUsersForGoalsByDate(
-			long date) {
-		PreparedStatement preparedStatement=getStatement(getSession(),Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE);
-		BoundStatement boundStatement=new BoundStatement(preparedStatement);
-		//BoundStatement boundStatement = new BoundStatement(
-			//	preparedStatements
-					//	.get("find_mostactiveusersforlearninggoalbydate"));
-		boundStatement.setLong(0, date);
-		ResultSet rs = this.getSession().execute(boundStatement);
-		List<Row> rows = rs.all();
-		List<MostActiveUsersForLearningGoal> counters = new ArrayList<MostActiveUsersForLearningGoal>();
-		for (Row row : rows) {
-			MostActiveUsersForLearningGoal counter = new MostActiveUsersForLearningGoal();
-			counter.setDate(row.getLong("date"));
-			counter.setLearninggoal(row.getLong("learninggoalid"));
-			Type mapType = new TypeToken<Map<Long, Long>>() {
-			}.getType();
-			Map<Long, Long> mostactiveusersmap = new Gson().fromJson(
-					row.getString("mostactiveusers"), mapType);
-			counter.setUsers(mostactiveusersmap);
-			counters.add(counter);
-		}
-		return counters;
-	}
+    @Override
+    public List<MostActiveUsersForLearningGoal> findMostActiveUsersForGoalsByDate(
+            long date) {
+        PreparedStatement preparedStatement = getStatement(getSession(), Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE);
+        BoundStatement boundStatement = new BoundStatement(preparedStatement);
+        //BoundStatement boundStatement = new BoundStatement(
+        //	preparedStatements
+        //	.get("find_mostactiveusersforlearninggoalbydate"));
+        boundStatement.setLong(0, date);
+        ResultSet rs = this.getSession().execute(boundStatement);
+        List<Row> rows = rs.all();
+        List<MostActiveUsersForLearningGoal> counters = new ArrayList<MostActiveUsersForLearningGoal>();
+        for (Row row : rows) {
+            MostActiveUsersForLearningGoal counter = new MostActiveUsersForLearningGoal();
+            counter.setDate(row.getLong("date"));
+            counter.setLearninggoal(row.getLong("learninggoalid"));
+            Type mapType = new TypeToken<Map<Long, Long>>() {
+            }.getType();
+            Map<Long, Long> mostactiveusersmap = new Gson().fromJson(
+                    row.getString("mostactiveusers"), mapType);
+            counter.setUsers(mostactiveusersmap);
+            counters.add(counter);
+        }
+        return counters;
+    }
 
-	public enum Statements{
-		UPDATE_USERLEARNINGGOALACTIVITY,
-		FIND_USERLEARNINGOALACTIVITY,
-		INSERT_TARGETCOMPETENCEACTIVITIES,
-		UPDATE_ACTIVITYINTERACTION,
-		INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,
-		FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,
-		FIND_ACTIVITIESFORCOMPETENCE,
-		FIND_TARGETCOMPETENCEACTIVITIES,
-		UPDATE_EVENTDAILYCOUNT,
-		UPDATE_USEREVENTDAILYCOUNT,
-		UPDATE_FAILEDFEEDS,
+    public enum Statements {
+        UPDATE_USERLEARNINGGOALACTIVITY,
+        FIND_USERLEARNINGOALACTIVITY,
+        INSERT_TARGETCOMPETENCEACTIVITIES,
+        UPDATE_ACTIVITYINTERACTION,
+        INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,
+        FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,
+        FIND_ACTIVITIESFORCOMPETENCE,
+        FIND_TARGETCOMPETENCEACTIVITIES,
+        UPDATE_EVENTDAILYCOUNT,
+        UPDATE_USEREVENTDAILYCOUNT,
+        UPDATE_FAILEDFEEDS,
 
-		FIND_ALLCOMPETENCES,
-		 UPDATE_USERACTIVITY,
-		INSERT_STORENOTIFICATIONDATA,
-		UPDATE_SOCIALINTERACTIONCOUNT
-	}
+        FIND_ALLCOMPETENCES,
+        UPDATE_USERACTIVITY,
+        INSERT_STORENOTIFICATIONDATA,
+        UPDATE_SOCIALINTERACTIONCOUNT
+    }
 
-	public static class AnalyticalEventDBManagerImplHolder {
-		public static final AnalyticalEventDBManagerImpl INSTANCE = new AnalyticalEventDBManagerImpl();
-	}
+    public static class AnalyticalEventDBManagerImplHolder {
+        public static final AnalyticalEventDBManagerImpl INSTANCE = new AnalyticalEventDBManagerImpl();
+    }
 }

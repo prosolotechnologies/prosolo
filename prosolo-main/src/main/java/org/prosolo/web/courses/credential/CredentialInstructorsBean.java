@@ -222,7 +222,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();
 			instructorForRemoval = null;
-			PageUtil.fireSuccessfulInfoMessage("The instructor has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}

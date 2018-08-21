@@ -21,7 +21,6 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -58,8 +57,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return start;
 	}
-	
-	@Transactional
+
 	@Override
 	public PaginatedResult<UserGroupData> searchUserGroups (
 			long orgId, long unitId, String searchString, int page, int limit) {
@@ -96,7 +94,6 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	 */
 	@Deprecated
 	@Override
-	@Transactional
 	public PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit) {
 		
@@ -137,9 +134,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		Client client = ElasticSearchFactory.getClient();
 		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
-		
+
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+				.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
