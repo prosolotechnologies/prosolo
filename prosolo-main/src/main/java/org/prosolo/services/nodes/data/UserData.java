@@ -1,13 +1,16 @@
 package org.prosolo.services.nodes.data;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.AvatarUtils;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class UserData implements Serializable {
 

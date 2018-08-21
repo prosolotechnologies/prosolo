@@ -1,6 +1,8 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentData;
@@ -65,7 +67,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 							paginationData.setPage(page);
 						}
 						getAssessmentsFromDB();
-						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, true);
 						loadAdditionalData();
 					} else {
 						PageUtil.notFound();
@@ -113,6 +115,10 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
+
+    public BlindAssessmentMode getBlindAssessmentMode() {
+        return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
+    }
 
 	public PaginationData getPaginationData() {
 		return paginationData;

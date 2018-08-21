@@ -4954,8 +4954,7 @@ header {
     .deleteUserModal ul.list > li .loginAs,
     .editOrgForm ul.list > li .loginAs,
     .yourEvidencesLibrary ul.list > li .loginAs {
-      display: flex;
-      align-items: center; }
+      margin-right: 30px; }
     .assignInstructorModal ul.list > li .progressWrapper,
     .addStudentsModal ul.list > li .progressWrapper,
     .manageVisibility ul.list > li .progressWrapper,

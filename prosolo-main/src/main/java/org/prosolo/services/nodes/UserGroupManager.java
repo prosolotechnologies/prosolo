@@ -14,7 +14,6 @@ import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -272,4 +271,9 @@ public interface UserGroupManager extends AbstractManager {
 	long countCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege);
 
 	List<String> getCredentialVisibilityUsersNames(long credId, UserGroupPrivilege privilege, int limit);
+
+	Result<UserGroup> saveNewGroupAndGetEvents(long unitId, String name, boolean isDefault, UserContextData context) throws DbConnectionException;
+
+	Result<UserGroup> updateGroupNameAndGetEvents(long groupId, String newName, UserContextData context) throws DbConnectionException;
+
 }

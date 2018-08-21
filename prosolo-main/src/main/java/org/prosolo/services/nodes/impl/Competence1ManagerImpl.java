@@ -1202,6 +1202,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 							if (conf.isEnabled()) {
 								conf.setGradeSummary(assessmentManager.getCompetenceAssessmentsGradeSummary(compId, userId, conf.getType()));
 							}
+							//TODO hack - load the most restrictive credential blind assessment mode for Peer Assessment from all credentials with this competency
+							if (conf.getType() == AssessmentType.PEER_ASSESSMENT) {
+								conf.setBlindAssessmentMode(getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(compId, conf.getType()));
+							}
 						}
 					}
 				}
@@ -2893,7 +2897,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
+	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException {
 		try {
 			String q =
 					"SELECT conf FROM CompetenceAssessmentConfig conf " +
@@ -2903,7 +2907,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.createQuery(q)
 					.setLong("compId", compId)
 					.list();
-			return competenceFactory.getAssessmentConfig(assessmentTypesConfig);
+			List<AssessmentTypeConfig> res = competenceFactory.getAssessmentConfig(assessmentTypesConfig);
+			if (loadBlindAssessmentMode) {
+				res
+						.stream()
+						.filter(conf -> conf.getType() == AssessmentType.PEER_ASSESSMENT)
+						.findFirst().get()
+						.setBlindAssessmentMode(getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(compId, AssessmentType.PEER_ASSESSMENT));
+			}
+			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the assessment types config for competence");
@@ -2930,6 +2942,32 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target competence id");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType) {
+		try {
+			String q =
+					"SELECT conf.blindAssessmentMode FROM CredentialCompetence1 cc " +
+					"INNER JOIN cc.credential cred " +
+					"INNER JOIN cred.assessmentConfig conf " +
+					"WITH conf.assessmentType = :assessmentType " +
+					"WHERE cc.competence.id = :compId " +
+					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
+
+			return (BlindAssessmentMode) persistence.currentManager()
+					.createQuery(q)
+					.setLong("compId", compId)
+					.setString("assessmentType", assessmentType.name())
+					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
+					.setString("blindMode", BlindAssessmentMode.BLIND.name())
+					.setMaxResults(1)
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the blind assessment mode for competency");
 		}
 	}
 

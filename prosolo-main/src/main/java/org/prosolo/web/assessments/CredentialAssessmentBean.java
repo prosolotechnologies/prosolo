@@ -520,7 +520,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						.findFirst()
 						.get().setApproved(true);
 			}
-
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
@@ -707,7 +706,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor);
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor, fullAssessmentData.getBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

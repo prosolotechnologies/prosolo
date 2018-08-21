@@ -5,6 +5,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -87,10 +88,13 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	//this is the last stage for which credential is created;
 	private LearningResourceLearningStage lastCreatedStage;
 
+	private BlindAssessmentMode[] blindAssessmentModes;
+
 	public void init() {
 		initializeValues();
 
 		try {
+			blindAssessmentModes = BlindAssessmentMode.values();
 			if (id == null) {
 				credentialData = new CredentialData(false);
 				//if it is new resource, it can only be original credential, delivery can never be created from this page
@@ -707,5 +711,9 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 
 	public List<CredentialCategoryData> getCategories() {
 		return categories;
+	}
+
+	public BlindAssessmentMode[] getBlindAssessmentModes() {
+		return blindAssessmentModes;
 	}
 }

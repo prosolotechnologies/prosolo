@@ -1,30 +1,21 @@
 package org.prosolo.web.assessments;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
-import org.prosolo.web.util.page.PageUtil;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author stefanvuckovic
@@ -60,7 +51,7 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 			credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
 		}
 
-		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, false);
 	}
 
 	void decodeCredentialAndCompetenceIds() {
@@ -77,6 +68,10 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 
 	public boolean isSelfAssessmentEnabled() {
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
+	}
+
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.INSTRUCTOR_ASSESSMENT);
 	}
 
 	/*
@@ -125,5 +120,9 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 
 	public Competence1Manager getCompManager() {
 		return compManager;
+	}
+
+	public List<AssessmentTypeConfig> getAssessmentTypesConfig() {
+		return assessmentTypesConfig;
 	}
 }

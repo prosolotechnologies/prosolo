@@ -134,9 +134,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		Client client = ElasticSearchFactory.getClient();
 		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
-		
+
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+				.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -155,7 +156,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 				.setQuery(bQueryBuilder)
 				.setFrom(start).setSize(size)
-				.addSort("name", SortOrder.ASC);
+				.addSort("name.sort", SortOrder.ASC);
 		//System.out.println(srb.toString());
 		return srb.execute().actionGet();
 	}
@@ -342,7 +343,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bqBuilder)
 					.setSize(limit)
-					.addSort("name", SortOrder.ASC);
+					.addSort("name.sort", SortOrder.ASC);
 	
 			SearchResponse groupResponse = srb.execute().actionGet();
 			SearchHit[] groupHits = null;

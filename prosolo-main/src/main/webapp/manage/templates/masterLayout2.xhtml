@@ -105,19 +105,6 @@
 									outcome="/manage/library"
 									value="Library" />
 							</li>
-							<ui:remove>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'students-students' or util:getPagePath(view.viewId)  == 'students-groups' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-students-students','mainmenu');"
-									outcome="/manage/students-students"
-									value="Students" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'manage-reports' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-reports','mainmenu');"
-									value="Reports" />
-							</li>
-							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
 										or util:getPagePath(view.viewId)  == 'newRubric'

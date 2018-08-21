@@ -28,15 +28,15 @@
 								
 		                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
 		                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
-			                            <h:outputLink value="#{notification.link}">
+			                            <h:outputLink value="#{notificationBean.domainPrefix}#{notification.link}">
 			                                <div class="icon"></div>
-			                                
+
 			                                <utilcomp:userAvatar
 			                                	avatar="#{notification.actor.avatarUrl}"
-			                                	fullName="#{notification.actor.fullName}" />
-			                                	
+			                                	fullName="#{notification.actor.fullName}"/>
+
 			                                <div class="notContent">
-			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3> 
+			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3>
 			                                </div>
 			                                <span class="timestamp">
 												<utilcomp:convertTimeOutput

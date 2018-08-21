@@ -398,6 +398,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		if (type != null && assessment.getType() != type) {
 			return null;
 		}
+
+		BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
+		if (assessment.getType() == AssessmentType.PEER_ASSESSMENT) {
+			blindAssessmentMode = credManager.getCredentialBlindAssessmentModeForAssessmentType(
+					assessment.getTargetCredential().getCredential().getId(), assessment.getType());
+		}
 		/*
 		if data should not be loaded when assessment display is disabled or assessment is not approved
 		these cases should be covered and data should not be populated, empty data with basic info should be
@@ -410,6 +416,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 			data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
 			data.setAssessedStudentId(assessment.getStudent().getId());
+			data.setBlindAssessmentMode(blindAssessmentMode);
 
 			return data;
 		}
@@ -428,7 +435,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						.flatMap(aa -> aa.stream())
 						.map(aa -> aa.getId())
 						.collect(Collectors.toList()));
-		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
+
+		return AssessmentDataFull.fromAssessment(assessment, currentGrade, blindAssessmentMode, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 	}
 
 	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
@@ -2435,7 +2443,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId) {
 		try {
 			String query = 
-					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.type, assessment.approved " +
+					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessor.id, assessment.type, assessment.approved " +
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
 					"WHERE assessment.student.id = :assessedStudentId " +
@@ -2447,6 +2455,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
 					.list();
+
+			BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
+			boolean blindAssessmentModeLoaded = false;
 			
 			List<AssessmentData> assessments = new LinkedList<>();
 				
@@ -2455,16 +2466,26 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					AssessmentData assessmentData = new AssessmentData();
 					assessmentData.setEncodedAssessmentId(encoder.encodeId((long) record[0]));
 					assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
-					assessmentData.setType((AssessmentType) record[4]);
-					assessmentData.setApproved(Boolean.parseBoolean(record[5].toString()));
+					assessmentData.setType((AssessmentType) record[5]);
+					assessmentData.setApproved(Boolean.parseBoolean(record[6].toString()));
 
 					if (record[3] != null)
 						assessmentData.setAssessorAvatarUrl(record[3].toString());
 
 					// can be null in default assessment when there is no instructor set yet
-					if (record[1] != null && record[2] != null)
+					if (record[4] != null) {
+						assessmentData.setAssessorId((long) record[4]);
 						assessmentData.setAssessorFullName(record[1].toString() + " " + record[2].toString());
-					
+					}
+					if (assessmentData.getType() == AssessmentType.PEER_ASSESSMENT) {
+						if (!blindAssessmentModeLoaded) {
+							blindAssessmentMode = credManager.getCredentialBlindAssessmentModeForAssessmentType(
+									credentialId, assessmentData.getType());
+							blindAssessmentModeLoaded = true;
+						}
+						assessmentData.setBlindAssessmentMode(blindAssessmentMode);
+					}
+
 					assessments.add(assessmentData);
 				}
 			}

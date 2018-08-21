@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessmentDiscussionParticipant;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
@@ -53,9 +54,11 @@ public class AssessmentDataFull {
 
 	private boolean assessmentDisplayEnabled;
 
+	private BlindAssessmentMode blindAssessmentMode;
+
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, BlindAssessmentMode blindAssessmentMode, List<CompetenceData1> userComps,
 													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
 													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
@@ -71,6 +74,7 @@ public class AssessmentDataFull {
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 			data.setAssessorId(assessment.getAssessor().getId());
 		}
+		data.setBlindAssessmentMode(blindAssessmentMode);
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -391,5 +395,13 @@ public class AssessmentDataFull {
 
 	public boolean isAssessmentDisplayEnabled() {
 		return assessmentDisplayEnabled;
+	}
+
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return blindAssessmentMode;
+	}
+
+	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
+		this.blindAssessmentMode = blindAssessmentMode;
 	}
 }

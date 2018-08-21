@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
@@ -274,7 +275,7 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
 	
-	void updateTargetCredentialLastAction(long userId, long credentialId) throws DbConnectionException;
+	void updateTargetCredentialLastAction(long userId, long credentialId, Session session) throws DbConnectionException;
 
 	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
 	
@@ -457,6 +458,15 @@ public interface CredentialManager extends AbstractManager {
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
 
+	/**
+	 *
+	 * @param credId
+	 * @param assessmentType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType);
+
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 
 	CredentialCategory getCredentialCategory(long categoryId) throws DbConnectionException;
@@ -484,4 +494,14 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
+
+	/**
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
 }

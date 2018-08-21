@@ -151,6 +151,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		}
 	}
 
+	public AssessmentTypeConfig getPeerAssessmentConfig() {
+		return getAssessmentTypeConfig(AssessmentType.PEER_ASSESSMENT);
+	}
+
 	public boolean isPeerAssessmentEnabled() {
 		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
 	}
@@ -169,11 +173,16 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return aType != null && aType.isEnabled();
 	}
 
-	private AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
+	public AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
 		if (assessmentTypes == null) {
 			return null;
 		}
-		return assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
+		Optional<AssessmentTypeConfig> assessmentTypeConfigOpt = assessmentTypes.stream().filter(t -> t.getType() == type).findFirst();
+		if (assessmentTypeConfigOpt.isPresent()) {
+			return assessmentTypeConfigOpt.get();
+		} else {
+			return null;
+		}
 	}
 
 	public boolean isFirstStageCredential() {

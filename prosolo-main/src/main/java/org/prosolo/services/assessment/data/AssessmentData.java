@@ -2,6 +2,7 @@ package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
@@ -13,8 +14,10 @@ public class AssessmentData {
 
 	private String studentFullName;
 	private String studentAvatarUrl;
+	private long studentId;
 	private String assessorFullName;
 	private String assessorAvatarUrl;
+	private long assessorId;
 	private String dateValue;
 	private String title;
 	private boolean approved;
@@ -24,14 +27,17 @@ public class AssessmentData {
 	private int totalNumberOfMessages;
 	private String initials;
 	private AssessmentType type;
+	private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 
 	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
 		AssessmentData data = new AssessmentData();
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
+		data.setStudentId(assessment.getStudent().getId());
 		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+			data.setAssessorId(assessment.getAssessor().getId());
 		}
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
@@ -165,5 +171,29 @@ public class AssessmentData {
 
 	public void setAssessmentId(long assessmentId) {
 		this.assessmentId = assessmentId;
+	}
+
+	public long getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(long assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public long getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(long studentId) {
+		this.studentId = studentId;
+	}
+
+	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
+		this.blindAssessmentMode = blindAssessmentMode;
+	}
+
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return blindAssessmentMode;
 	}
 }

@@ -2,13 +2,17 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -23,14 +27,16 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 	private static Logger logger = Logger.getLogger(CommentPostEventProcessor.class);
 	
 	private CommentManager commentManager;
-	
+	private CredentialManager credentialManager;
+
 	public CommentPostEventProcessor(Event event, Session session,
 									 NotificationManager notificationManager,
 									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-									 UrlIdEncoder idEncoder, CommentManager commentManager, ContextJsonParserService contextJsonParserService) {
+									 UrlIdEncoder idEncoder, CommentManager commentManager, CredentialManager credentialManager, ContextJsonParserService contextJsonParserService) {
 		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder,
 				contextJsonParserService);
 		this.commentManager = commentManager;
+		this.credentialManager = credentialManager;
 	}
 	
 	@Override
@@ -39,11 +45,26 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 		
 		try {
 			Long resCreatorId = commentManager.getCommentedResourceCreatorId(
-						getResource().getResourceType(),
-						getResource().getCommentedResourceId());
+					getResource().getResourceType(),
+					getResource().getCommentedResourceId());
 			if (resCreatorId != null) {
+				/*
+				if student commented we want to notify his instructor in delivery if
+				delivery id available and instructor is assigned
+				 */
+				long studentInstructorId = 0;
+				boolean isStudentComment = !getResource().isManagerComment();
+				long credentialId = Context.getIdFromSubContextWithName(getContext(), ContextName.CREDENTIAL);
+				if (isStudentComment && credentialId > 0) {
+					TargetCredential1 tc = credentialManager.getTargetCredentialForStudentAndCredential(credentialId, event.getActorId(), session);
+					if (tc.getInstructor() != null) {
+						studentInstructorId = tc.getInstructor().getUser().getId();
+					}
+				}
 				List<Long> usersToExclude = new ArrayList<>();
-				usersToExclude.add(resCreatorId);
+				if (studentInstructorId > 0) {
+					usersToExclude.add(studentInstructorId);
+				}
 
 				String userSectionLink = getNotificationLink(PageSection.STUDENT);
 				//if link is null or empty it means there is no enough information to create notification
@@ -53,7 +74,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.User, usersToExclude);
 					for (Long id : users) {
-						receiversData.add(new NotificationReceiverData(id, userSectionLink, false, PageSection.STUDENT));
+						receiversData.add(new NotificationReceiverData(id, userSectionLink, id == resCreatorId, PageSection.STUDENT));
 					}
 					usersToExclude.addAll(users);
 				}
@@ -67,18 +88,15 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 							Role.Manager,
 							usersToExclude);
 					for (long id : managers) {
-						receiversData.add(new NotificationReceiverData(id, manageSectionLink, false, PageSection.MANAGE));
+						receiversData.add(new NotificationReceiverData(id, manageSectionLink, id == resCreatorId, PageSection.MANAGE));
 					}
-				}
-				/*
-				 * determine role for user as a creator of this resource
-				 */
-				Role creatorRole = commentManager.getCommentedResourceCreatorRole(
-						getResource().getResourceType(), getResource().getCommentedResourceId());
-				String creatorLink = creatorRole == Role.User ? userSectionLink : manageSectionLink;
-				PageSection section = creatorRole == Role.User ? PageSection.STUDENT : PageSection.MANAGE;
-				if (creatorLink != null && !creatorLink.isEmpty()) {
-					receiversData.add(new NotificationReceiverData(resCreatorId, creatorLink, true, section));
+					/*
+					 * add student instructor (if exists) to the collection of receivers with a link
+					 * for manage section
+					 */
+					if (studentInstructorId > 0) {
+						receiversData.add(new NotificationReceiverData(studentInstructorId, manageSectionLink, studentInstructorId == resCreatorId, PageSection.MANAGE));
+					}
 				}
 			}
 			return receiversData;
