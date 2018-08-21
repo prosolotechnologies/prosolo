@@ -180,7 +180,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		activityData.setCompetenceName(competenceName);
 		
 		if (credId != null) {
-			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId), null);
+			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId));
 		}
 	}
 

@@ -6,6 +6,7 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -56,6 +57,11 @@ public class CredentialLibraryBeanInstructor extends DeliveriesBean implements S
 			e.printStackTrace();
 			logger.error(e);
 		}
+	}
+
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return false;
 	}
 
 	public List<CredentialData> getOngoingDeliveries() {

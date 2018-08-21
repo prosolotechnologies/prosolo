@@ -101,7 +101,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 						throw new AccessDeniedException();
 					}
 					if (decodedCredId > 0) {
-						credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
+						credentialTitle = credManager.getCredentialTitle(decodedCredId);
 					}
 
 					if (shouldLoadAssessmentTypesConfig()) {

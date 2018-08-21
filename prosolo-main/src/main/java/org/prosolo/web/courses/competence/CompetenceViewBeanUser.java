@@ -98,7 +98,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				commentBean.loadComments(commentsData);
 				
 				if(decodedCredId > 0) {
-					credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
 //					if(competenceData.isEnrolled()) {
 ////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
 ////								loggedUser.getUserId(), false);

@@ -59,7 +59,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 					PageUtil.accessDenied();
 				} else {
 					if (decodedCredId > 0) {
-						credentialTitle = credentialManager.getCredentialTitle(decodedCredId, null);
+						credentialTitle = credentialManager.getCredentialTitle(decodedCredId);
 					}
 					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 					if (competenceTitle != null) {

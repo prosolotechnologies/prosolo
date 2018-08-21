@@ -84,7 +84,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if (decodedCredId > 0){
-					this.credTitle = credManager.getCredentialTitle(decodedCredId, null);
+					this.credTitle = credManager.getCredentialTitle(decodedCredId);
 				}
 				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)

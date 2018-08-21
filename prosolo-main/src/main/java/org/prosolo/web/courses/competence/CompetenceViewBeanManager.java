@@ -85,7 +85,7 @@ public class CompetenceViewBeanManager implements Serializable {
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 //							hasInstructorCapability);
 				if(decodedCredId > 0) {
-					credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
 					competenceData.setCredentialId(decodedCredId);
 				}
 			} catch (AccessDeniedException ade) {

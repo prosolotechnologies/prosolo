@@ -206,7 +206,7 @@ public interface CredentialManager extends AbstractManager {
 
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
 
-	CredentialIdData getCredentialIdData(long id) throws DbConnectionException;
+	String getCredentialTitle(long id) throws DbConnectionException;
 
 	CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId,long userId) throws DbConnectionException;
 	

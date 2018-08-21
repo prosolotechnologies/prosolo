@@ -48,7 +48,7 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 				decodedCompId, getStudentId(), getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC, new SimpleDateFormat("MMMM dd, yyyy"));
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		if (decodedCredId > 0) {
-			credentialTitle = credManager.getCredentialTitle(decodedCredId, null);
+			credentialTitle = credManager.getCredentialTitle(decodedCredId);
 		}
 
 		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, false);

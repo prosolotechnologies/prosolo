@@ -1580,12 +1580,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialIdData getCredentialIdData(long id) throws DbConnectionException {
-		return getCredentialIdData(id, null);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialDataAndTargetCompetencesData(long credentialId, long userId) throws DbConnectionException {
 		CredentialData credentialData = getTargetCredentialData(credentialId, userId, CredentialLoadConfig.builder().setLoadCreator(true).setLoadTags(true).setLoadInstructor(true).create());
 		if (credentialData != null && credentialData.isEnrolled()) {
@@ -1621,6 +1615,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential title");
 		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public String getCredentialTitle(long id) throws DbConnectionException {
+		return getCredentialTitle(id, null);
 	}
 
 	@Override
@@ -2762,10 +2762,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				long originalCredId = (long) row[0];
 				String learningStageName = (String) row[1];
 				long deliveriesNumber = (long) row[2];
-				summary.addDeliveryNumberForStage(originalCredId, learningStageName, deliveriesNumber);
+				summary.addDeliveriesCountForStage(originalCredId, learningStageName, deliveriesNumber);
 				totalOngoingDeliveriesNumber += deliveriesNumber;
 			}
-			summary.setDeliveriesNumber(totalOngoingDeliveriesNumber);
+			summary.setDeliveriesCount(totalOngoingDeliveriesNumber);
 			return summary;
 		} catch (Exception e) {
 			logger.error("Error", e);

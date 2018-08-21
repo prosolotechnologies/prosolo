@@ -101,7 +101,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 				if (res.isPresent()) {
 					credTitle = res.get().getIdData().getTitle();
 				} else {
-					credTitle = credManager.getCredentialTitle(decodedCredId, null);
+					credTitle = credManager.getCredentialTitle(decodedCredId);
 					//we add passed credential to parent credentials only if new competency is being created
 					if (id == null) {
 						CredentialData cd = new CredentialData(false);

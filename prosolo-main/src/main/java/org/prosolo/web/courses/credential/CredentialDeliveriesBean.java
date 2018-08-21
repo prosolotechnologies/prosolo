@@ -99,6 +99,11 @@ public class CredentialDeliveriesBean extends DeliveriesBean implements Serializ
 		);
 	}
 
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return true;
+	}
+
 	public void archive() {
 		if(selectedDelivery != null) {
 			try {

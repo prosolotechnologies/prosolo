@@ -56,7 +56,7 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 				PageUtil.accessDenied();
 			} else {
 				try {
-					credentialTitle = credentialManager.getCredentialTitle(decodedId, null);
+					credentialTitle = credentialManager.getCredentialTitle(decodedId);
 					getAssessments();
 				} catch (Exception e) {
 					logger.error("Error loading assessments", e);

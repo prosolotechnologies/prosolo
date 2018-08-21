@@ -17,7 +17,7 @@ import java.util.List;
  * @date 2018-08-20
  * @since 1.2.0
  */
-public class DeliveriesBean implements Serializable {
+public abstract class DeliveriesBean implements Serializable {
 
     private static final long serialVersionUID = -8705926380482295861L;
     private static Logger logger = Logger.getLogger(DeliveriesBean.class);
@@ -25,6 +25,8 @@ public class DeliveriesBean implements Serializable {
     private static final int WHO_CAN_LEARN_LIMIT = 5;
 
     @Inject private UserGroupManager userGroupManager;
+
+    public abstract boolean canUserNavigateToWhoCanLearnPage();
 
     public void initGroupsThatCanLearnData(CredentialData delivery) {
         if (!delivery.getGroupsThatCanLearn().isInitialized()) {
@@ -59,7 +61,7 @@ public class DeliveriesBean implements Serializable {
         if (l == null) {
             return "";
         }
-        String csv = StringUtil.convertToCSV(l);
+        String csv = String.join(", ", l);
         if (l.size() < data.getCount()) {
             csv += "...";
         }

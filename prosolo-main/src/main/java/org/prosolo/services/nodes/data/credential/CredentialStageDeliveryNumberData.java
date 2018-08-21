@@ -1,6 +1,8 @@
 package org.prosolo.services.nodes.data.credential;
 
 /**
+ * Represents the number of deliveries for specified credential and stage
+ *
  * @author stefanvuckovic
  * @date 2018-08-15
  * @since 1.2.0
@@ -9,12 +11,12 @@ public class CredentialStageDeliveryNumberData {
 
     private final long originalCredentialId;
     private final String stageName;
-    private final long deliveriesNumber;
+    private final long deliveriesCount;
 
-    public CredentialStageDeliveryNumberData(long originalCredentialId, String stageName, long deliveriesNumber) {
+    public CredentialStageDeliveryNumberData(long originalCredentialId, String stageName, long deliveriesCount) {
         this.originalCredentialId = originalCredentialId;
         this.stageName = stageName;
-        this.deliveriesNumber= deliveriesNumber;
+        this.deliveriesCount = deliveriesCount;
     }
 
     public long getOriginalCredentialId() {
@@ -25,7 +27,7 @@ public class CredentialStageDeliveryNumberData {
         return stageName;
     }
 
-    public long getDeliveriesNumber() {
-        return deliveriesNumber;
+    public long getDeliveriesCount() {
+        return deliveriesCount;
     }
 }

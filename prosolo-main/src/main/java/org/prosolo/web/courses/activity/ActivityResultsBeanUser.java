@@ -157,7 +157,7 @@ public class ActivityResultsBeanUser implements Serializable {
 		competenceData.setTitle(compManager.getCompetenceTitle(decodedCompId));
 		
 		if (decodedCredId > 0) {
-			competenceData.setCredentialTitle(credManager.getCredentialTitle(decodedCredId, null));
+			competenceData.setCredentialTitle(credManager.getCredentialTitle(decodedCredId));
 		}
 		competenceData.setCredentialId(decodedCredId);
 	}
