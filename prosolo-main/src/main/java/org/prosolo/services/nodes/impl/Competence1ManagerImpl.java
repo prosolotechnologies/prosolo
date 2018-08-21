@@ -353,10 +353,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public void enrollInCompetence(long compId, long userId, UserContextData context)
+	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
 		eventFactory.generateEvents(res.getEventQueue());
+		return res.getResult();
 	}
 
 	@Override

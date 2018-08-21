@@ -53,7 +53,6 @@ public interface Competence1Manager {
 	 * exclusive lock on a competence being updated
 	 * 
 	 * @param data
-	 * @param userId
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
@@ -77,7 +76,7 @@ public interface Competence1Manager {
 	 */
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
-	
+
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
 	
 	
@@ -293,8 +292,8 @@ public interface Competence1Manager {
 	
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
-	
-	void enrollInCompetence(long compId, long userId, UserContextData context)
+
+	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)

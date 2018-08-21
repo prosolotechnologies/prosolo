@@ -1,14 +1,12 @@
 package org.prosolo.app.bc;
 
+import com.google.api.client.auth.oauth2.Credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.GradingMode;
-import org.prosolo.common.domainmodel.credential.LearningPathType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -16,7 +14,9 @@ import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.RubricManager;
@@ -27,10 +27,13 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
@@ -44,9 +47,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 
 /**
  * @author Nikola Milikic
@@ -163,6 +167,9 @@ public class BusinessCase5_UniSA {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAnnaHallowell.getId(), unit1.getId(), roleInstructor.getId(), createUserContext(userAnnaHallowell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userErikaAmes.getId(), unit1.getId(), roleInstructor.getId(), createUserContext(userErikaAmes)));
 
+		// list of all instructors from the School od Education
+		List<User> schoolOfEducationInstructors = Arrays.asList(userKarenWhite, userPhillArmstrong, userAnnaHallowell, userErikaAmes);
+
 		// adding students to the unit School of Education
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userHelenCampbell.getId(), unit1.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userRichardAnderson.getId(), unit1.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
@@ -181,20 +188,27 @@ public class BusinessCase5_UniSA {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAngelicaFallon.getId(), unit1.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userIdaFritz.getId(), unit1.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 
+		// list of all students from the School od Education
+		List<User> schoolOfEducationStudents = Arrays.asList(userHelenCampbell, userRichardAnderson, userStevenTurner, userJosephGarcia, userTimothyRivera, userKevinHall, userKennethCarter, userHelenCampbell, userAnthonyMoore,
+				userTaniaCortese, userSonyaElston, userLoriAbner, userSamanthaDell, userSheriLaureano, userAngelicaFallon, userIdaFritz);
+
 		// adding students to the unit School of Nursing and Midwifery
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userPaulEdwards.getId(), unit2.getId(), roleUser.getId(), createUserContext(userPaulEdwards)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKevinMitchell.getId(), unit2.getId(), roleUser.getId(), createUserContext(userKevinMitchell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userGeorgeYoung.getId(), unit2.getId(), roleUser.getId(), createUserContext(userGeorgeYoung)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userRachelWiggins.getId(), unit2.getId(), roleUser.getId(), createUserContext(userAkikoKido)));
 
+		// list of all students from the School of Nursing and Midwifery
+		List<User> schoolOfNursingStudents = Arrays.asList(userPaulEdwards, userKevinMitchell, userGeorgeYoung, userRachelWiggins);
+
 		// adding follow relations
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userLoriAbner.getId(), UserContextData.of(userPaulEdwards.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSamanthaDell.getId(), UserContextData.of(userPaulEdwards.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userRachelWiggins.getId(), UserContextData.of(userPaulEdwards.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), UserContextData.of(userTimothyRivera.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), UserContextData.of(userKevinMitchell.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null)));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), UserContextData.of(userRachelWiggins.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userLoriAbner.getId(), createUserContext(userPaulEdwards)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSamanthaDell.getId(), createUserContext(userPaulEdwards)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userRachelWiggins.getId(), createUserContext(userPaulEdwards)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), createUserContext(userTimothyRivera)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), createUserContext(userKevinMitchell) ));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), createUserContext(userGeorgeYoung)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userPaulEdwards.getId(), createUserContext(userRachelWiggins)));
 
 
 		/*
@@ -242,349 +256,202 @@ public class BusinessCase5_UniSA {
 			logger.error(ex);
 		}
 
-		Credential1 standard1 = createCredential(events,
+		Credential1 standard1 = createStandard7(events,
 				"Standard 1 - Know students and how they learn",
 				"Know students and how they learn.",
 				userNickPowell,
 				"characteristics of students, learning needs",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "1.1 Physical, social and intellectual development and characteristics of students",
+						"Demonstrate knowledge and understanding of physical, social and intellectual development and characteristics of students and how these may affect learning." },
+				new String[]{ "1.2 Understand how students learn",
+						"Demonstrate knowledge and understanding of research into how students learn and the implications for teaching." },
+				new String[]{ "1.3 Students with diverse linguistic, cultural, religious and socioeconomic backgrounds",
+						"Demonstrate knowledge of teaching strategies that are responsive to the learning strengths and needs of students from diverse linguistic, cultural, religious and socioeconomic backgrounds." },
+				new String[]{ "1.4 Strategies for teaching Aboriginal and Torres Strait Islander students",
+						"Demonstrate broad knowledge and understanding of the impact of culture, cultural identity and linguistic background on the education of students from Aboriginal and Torres Strait Islander backgrounds." },
+				new String[]{ "1.5 Differentiate teaching to meet the specific learning needs of students across the full range of abilities",
+						"Demonstrate knowledge and understanding of strategies for differentiating teaching to meet the specific learning needs of students across the full range of abilities." },
+				new String[]{ "1.6 Strategies to support full participation of students with disability",
+						"Demonstrate broad knowledge and understanding of legislative requirements and teaching strategies that support participation and learning of students with disability." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"1.1 Physical, social and intellectual development and characteristics of students",
-					"Demonstrate knowledge and understanding of physical, social and intellectual development and characteristics of students and how these may affect learning.",
-					standard1.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"1.2 Understand how students learn",
-					"Demonstrate knowledge and understanding of research into how students learn and the implications for teaching.",
-					standard1.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"1.3 Students with diverse linguistic, cultural, religious and socioeconomic backgrounds",
-					"Demonstrate knowledge of teaching strategies that are responsive to the learning strengths and needs of students from diverse linguistic, cultural, religious and socioeconomic backgrounds.",
-					standard1.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"1.4 Strategies for teaching Aboriginal and Torres Strait Islander students",
-					"Demonstrate broad knowledge and understanding of the impact of culture, cultural identity and linguistic background on the education of students from Aboriginal and Torres Strait Islander backgrounds.",
-					standard1.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"1.5 Differentiate teaching to meet the specific learning needs of students across the full range of abilities",
-					"Demonstrate knowledge and understanding of strategies for differentiating teaching to meet the specific learning needs of students across the full range of abilities.",
-					standard1.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"1.6 Strategies to support full participation of students with disability",
-					"Demonstrate broad knowledge and understanding of legislative requirements and teaching strategies that support participation and learning of students with disability.",
-					standard1.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard2 = createCredential(events,
+		Credential1 standard2 = createStandard7(events,
 				"Standard 2 - Know the content and how to teach it",
 				"Know the content and how to teach it.",
 				userNickPowell,
 				"learning content, teaching strategies",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "2.1 Content and teaching strategies of the teaching area",
+						"Demonstrate knowledge and understanding of the concepts, substance and structure of the content and teaching strategies of the teaching area." },
+				new String[]{ "2.2 Content selection and organisation",
+						"Organise content into an effective learning and teaching sequence." },
+				new String[]{ "2.3 Curriculum, assessment and reporting",
+						"Use curriculum, assessment and reporting knowledge to design learning sequences and lesson plans." },
+				new String[]{ "2.4 Understand and respect Aboriginal and Torres Strait Islander people to promote reconciliation between Indigenous and non-Indigenous Australians",
+						"Demonstrate broad knowledge of, understanding of and respect for Aboriginal and Torres Strait Islander histories, cultures and languages." },
+				new String[]{ "2.5 Literacy and numeracy strategies",
+						"Know and understand literacy and numeracy teaching strategies and their application in teaching areas." },
+				new String[]{ "2.6 Information and Communication Technology (ICT)",
+						"Implement teaching strategies for using ICT to expand curriculum learning opportunities for students." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"2.1 Content and teaching strategies of the teaching area",
-					"Demonstrate knowledge and understanding of the concepts, substance and structure of the content and teaching strategies of the teaching area.",
-					standard2.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"2.2 Content selection and organisation",
-					"Organise content into an effective learning and teaching sequence.",
-					standard2.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"2.3 Curriculum, assessment and reporting",
-					"Use curriculum, assessment and reporting knowledge to design learning sequences and lesson plans.",
-					standard2.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"2.4 Understand and respect Aboriginal and Torres Strait Islander people to promote reconciliation between Indigenous and non-Indigenous Australians",
-					"Demonstrate broad knowledge of, understanding of and respect for Aboriginal and Torres Strait Islander histories, cultures and languages.",
-					standard2.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"2.5 Literacy and numeracy strategies",
-					"Know and understand literacy and numeracy teaching strategies and their application in teaching areas.",
-					standard2.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"2.6 Information and Communication Technology (ICT)",
-					"Implement teaching strategies for using ICT to expand curriculum learning opportunities for students.",
-					standard2.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard3 = createCredential(events,
+		Credential1 standard3 = createStandard7(events,
 				"Standard 3 - Plan for and implement effective teaching and learning",
 				"Plan for and implement effective teaching and learning.",
 				userNickPowell,
 				"teaching strategies, effective learning, learning goals",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "3.1 Establish challenging learning goals",
+						"Set learning goals that provide achievable challenges for students of varying abilities and characteristics." },
+				new String[]{ "3.2 Plan, structure and sequence learning programs",
+						"Plan lesson sequences using knowledge of student learning, content and effective teaching strategies." },
+				new String[]{ "3.3 Use teaching strategies",
+						"Include a range of teaching strategies." },
+				new String[]{ "3.4 Select and use resources",
+						"Demonstrate knowledge of a range of resources, including ICT, that engage students in their learning." },
+				new String[]{ "3.5 Use effective classroom communication",
+						"Demonstrate a range of verbal and non-verbal communication strategies to support student engagement." },
+				new String[]{ "3.6 Evaluate and improve teaching programs",
+						"Demonstrate broad knowledge of strategies that can be used to evaluate teaching programs to improve student learning." },
+				new String[]{ "3.7 Engage parents/carers in the educative process",
+						"Describe a broad range of strategies for involving parents/carers in the educative process." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"3.1 Establish challenging learning goals",
-					"Set learning goals that provide achievable challenges for students of varying abilities and characteristics.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.2 Plan, structure and sequence learning programs",
-					"Plan lesson sequences using knowledge of student learning, content and effective teaching strategies.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.3 Use teaching strategies",
-					"Include a range of teaching strategies.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.4 Select and use resources",
-					"Demonstrate knowledge of a range of resources, including ICT, that engage students in their learning.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.5 Use effective classroom communication",
-					"Demonstrate a range of verbal and non-verbal communication strategies to support student engagement.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.6 Evaluate and improve teaching programs",
-					"Demonstrate broad knowledge of strategies that can be used to evaluate teaching programs to improve student learning.",
-					standard3.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"3.7 Engage parents/carers in the educative process",
-					"Describe a broad range of strategies for involving parents/carers in the educative process.",
-					standard3.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard4 = createCredential(events,
+		Credential1 standard4 = createStandard7(events,
 				"Standard 4 - Create and maintain supportive and safe learning environments",
 				"Create and maintain supportive and safe learning environments.",
 				userNickPowell,
 				"student participation, classroom activities, challenging behaviour, student safety, safe learning environment",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "4.1 Support student participation",
+						"Identify strategies to support inclusive student participation and engagement in classroom activities." },
+				new String[]{ "4.2 Manage classroom activities",
+						"Demonstrate the capacity to organise classroom activities and provide clear directions." },
+				new String[]{ "4.3 Manage challenging behaviour",
+						"Demonstrate knowledge of practical approaches to manage challenging behaviour." },
+				new String[]{ "4.4 Maintain student safety",
+						"Describe strategies that support students’ well-being and safety working within school and/or system, curriculum and legislative requirements." },
+				new String[]{ "4.5 Use ICT safely, responsibly and ethically",
+						"Demonstrate an understanding of the relevant issues and the strategies available to support the safe, responsible and ethical use of ICT in learning and teaching." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"4.1 Support student participation",
-					"Identify strategies to support inclusive student participation and engagement in classroom activities.",
-					standard4.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"4.2 Manage classroom activities",
-					"Demonstrate the capacity to organise classroom activities and provide clear directions.",
-					standard4.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"4.3 Manage challenging behaviour",
-					"Demonstrate knowledge of practical approaches to manage challenging behaviour.",
-					standard4.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"4.4 Maintain student safety",
-					"Describe strategies that support students’ well-being and safety working within school and/or system, curriculum and legislative requirements.",
-					standard4.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"4.5 Use ICT safely, responsibly and ethically",
-					"Demonstrate an understanding of the relevant issues and the strategies available to support the safe, responsible and ethical use of ICT in learning and teaching.",
-					standard4.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard5 = createCredential(events,
+		Credential1 standard5 = createStandard7(events,
 				"Standard 5 - Assess, provide feedback and report on student learning",
 				"Assess, provide feedback and report on student learning.",
 				userNickPowell,
 				"assessment, feedback reporting, student achievement",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "5.1 Assess student learning",
+						"Demonstrate understanding of assessment strategies, including informal and formal, diagnostic, formative and summative approaches to assess student learning." },
+				new String[]{ "5.2 Provide feedback to students on their learning",
+						"Demonstrate an understanding of the purpose of providing timely and appropriate feedback to students about their learning." },
+				new String[]{ "5.3 Make consistent and comparable judgements",
+						"Demonstrate understanding of assessment moderation and its application to support consistent and comparable judgements of student learning." },
+				new String[]{ "5.4 Interpret student data",
+						"Demonstrate the capacity to interpret student assessment data to evaluate student learning and modify teaching practice." },
+				new String[]{ "5.5 Report on student achievement",
+						"Demonstrate understanding of a range of strategies for reporting to students and parents/carers and the purpose of keeping accurate and reliable records of student achievement." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"5.1 Assess student learning",
-					"Demonstrate understanding of assessment strategies, including informal and formal, diagnostic, formative and summative approaches to assess student learning.",
-					standard5.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"5.2 Provide feedback to students on their learning",
-					"Demonstrate an understanding of the purpose of providing timely and appropriate feedback to students about their learning.",
-					standard5.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"5.3 Make consistent and comparable judgements",
-					"Demonstrate understanding of assessment moderation and its application to support consistent and comparable judgements of student learning.",
-					standard5.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"5.4 Interpret student data",
-					"Demonstrate the capacity to interpret student assessment data to evaluate student learning and modify teaching practice.",
-					standard5.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"5.5 Report on student achievement",
-					"Demonstrate understanding of a range of strategies for reporting to students and parents/carers and the purpose of keeping accurate and reliable records of student achievement.",
-					standard5.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard6 = createCredential(events,
+		Credential1 standard6 = createStandard7(events,
 				"Standard 6 - Engage in professional learning",
 				"Engage in professional learning.",
 				userNickPowell,
 				"professional learning, teaching practice",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "6.1 Identify and plan professional learning needs",
+						"Demonstrate an understanding of the role of the Australian Professional Standards for Teachers in identifying professional learning needs." },
+				new String[]{ "6.2 Engage in professional learning and improve practice",
+						"Understand the relevant and appropriate sources of professional learning for teachers." },
+				new String[]{ "6.3 Engage with colleagues and improve practice",
+						"Seek and apply constructive feedback from supervisors and teachers to improve teaching practices." },
+				new String[]{ "6.4 Apply professional learning and improve student learning",
+						"Demonstrate an understanding of the rationale for continued professional learning and the implications for improved student learning." });
 
-		try {
-			createCompetence(events,
-					userNickPowell,
-					"6.1 Identify and plan professional learning needs",
-					"Demonstrate an understanding of the role of the Australian Professional Standards for Teachers in identifying professional learning needs.",
-					standard6.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"6.2 Engage in professional learning and improve practice",
-					"Understand the relevant and appropriate sources of professional learning for teachers.",
-					standard6.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"6.3 Engage with colleagues and improve practice",
-					"Seek and apply constructive feedback from supervisors and teachers to improve teaching practices.",
-					standard6.getId(),
-					rubricData.getId());
-
-			createCompetence(events,
-					userNickPowell,
-					"6.4 Apply professional learning and improve student learning",
-					"Demonstrate an understanding of the rationale for continued professional learning and the implications for improved student learning.",
-					standard6.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-
-		Credential1 standard7 = createCredential(events,
+		Credential1 standard7 = createStandard7(events,
 				"Standard 7 - Engage professionally with colleagues, parents/carers and the community",
 				"Engage professionally with colleagues, parents/carers and the community.",
 				userNickPowell,
 				"professional ethics, policies, professional teaching networks",
 				rubricData.getId(),
-				graduateLearningStage);
+				graduateLearningStage,
+				new String[]{ "7.1 Meet professional ethics and responsibilities",
+						"Understand and apply the key principles described in codes of ethics and conduct for the teaching profession." },
+				new String[]{ "7.2 Comply with legislative, administrative and organisational requirements",
+						"Understand the relevant legislative, administrative and organisational policies and processes required for teachers according to school stage." },
+				new String[]{ "7.3 Engage with the parents/carers",
+						"Understand strategies for working effectively, sensitively and confidentially with parents/carers." },
+				new String[]{ "7.4 Engage with professional teaching networks and broader communities",
+						"Understand the role of external professionals and community representatives in broadening teachers’ professional knowledge and practice." });
 
+
+		// create delivery for Standard 1
 		try {
-			createCompetence(events,
-					userNickPowell,
-					"7.1 Meet professional ethics and responsibilities",
-					"Understand and apply the key principles described in codes of ethics and conduct for the teaching profession.",
-					standard7.getId(),
-					rubricData.getId());
+			long date90DaysFromNow = getDaysFromNow(90);
+			Credential1 standard1Delivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(standard1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date90DaysFromNow), UserContextData.of(userNickPowell.getId(), org.getId(), null, null)));
 
-			createCompetence(events,
-					userNickPowell,
-					"7.2 Comply with legislative, administrative and organisational requirements",
-					"Understand the relevant legislative, administrative and organisational policies and processes required for teachers according to school stage.",
-					standard7.getId(),
-					rubricData.getId());
+			givePrivilegeOnDelivery(events, standard1Delivery, UserGroupPrivilege.Learn, userNickPowell, org, schoolOfEducationStudents);
+			givePrivilegeOnDelivery(events, standard1Delivery, UserGroupPrivilege.Instruct, userNickPowell, org, schoolOfEducationInstructors);
 
-			createCompetence(events,
-					userNickPowell,
-					"7.3 Engage with the parents/carers",
-					"Understand strategies for working effectively, sensitively and confidentially with parents/carers.",
-					standard7.getId(),
-					rubricData.getId());
+			// enroll some students to the delivery
+			enrollToDelivery(events, org, standard1Delivery, userHelenCampbell);
+			enrollToDelivery(events, org, standard1Delivery, userRichardAnderson);
+			enrollToDelivery(events, org, standard1Delivery, userStevenTurner);
+			enrollToDelivery(events, org, standard1Delivery, userJosephGarcia);
+			enrollToDelivery(events, org, standard1Delivery, userTimothyRivera);
+			enrollToDelivery(events, org, standard1Delivery, userKevinHall);
 
-			createCompetence(events,
-					userNickPowell,
-					"7.4 Engage with professional teaching networks and broader communities",
-					"Understand the role of external professionals and community representatives in broadening teachers’ professional knowledge and practice.",
-					standard7.getId(),
-					rubricData.getId());
-		} catch (Exception ex) {
-			logger.error(ex);
+			// start first competency
+			List<CompetenceData1> standard1Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(standard1Delivery.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+
+			TargetCompetence1 standard1Comp1Target = ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+
+			// add some evidence to the first competency
+			LearningEvidenceData evidence = new LearningEvidenceData();
+			evidence.setType(LearningEvidenceType.LINK);
+			evidence.setUrl("http://hellen.myblongspot.com/learning-plan-incorporating-teaching-strategies/");
+			evidence.setTitle("Learning plan");
+			evidence.setText("Learning plan incorporating teaching strategies that have been selected specifically to address the students’ physical, social or intellectual development and characteristics");
+			evidence.setTagsString("learning plan");
+			evidence.setRelationToCompetence("Learning plan incorporating teaching strategies");
+
+			LearningEvidenceData evidence1 = new LearningEvidenceData();
+			evidence.setType(LearningEvidenceType.LINK);
+			evidence.setUrl("http://hellen.myblongspot.com/analysis-of-the-success-of-teaching-strategies/");
+			evidence.setTitle("Teaching Strategies Success Analysis");
+			evidence.setText("Analysis of the success of teaching strategies selected on the progress of the student, and how their learning has improved");
+			evidence.setTagsString("teaching strategies");
+			evidence.setRelationToCompetence("Teaching strategies success analysis for the K-12 programme");
+
+			LearningEvidenceData newEvidence = ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAndAttachItToCompetence(
+					standard1Comp1Target.getId(), evidence, createUserContext(userHelenCampbell));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
+		// create deliveries for all other standards
+		List<Credential1> otherStandards = Arrays.asList(standard2, standard3, standard4, standard5, standard6, standard7);
+
+		for (Credential1 standard : otherStandards)
+		try {
+			long date90DaysFromNow = getDaysFromNow(90);
+			Credential1 standardDelivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(standard.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date90DaysFromNow), createUserContext(userNickPowell)));
+
+			givePrivilegeOnDelivery(events, standardDelivery, UserGroupPrivilege.Learn, userNickPowell, org, schoolOfEducationStudents);
+			givePrivilegeOnDelivery(events, standardDelivery, UserGroupPrivilege.Instruct, userNickPowell, org, schoolOfEducationInstructors);
+		} catch (IllegalDataStateException e) {
+			e.printStackTrace();
+		}
+
+
+		// fire all events
 		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
 
 		try {
@@ -593,6 +460,54 @@ public class BusinessCase5_UniSA {
 		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
 			logger.error(indexingServiceNotAvailable);
 		}
+	}
+
+	private void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null)));
+	}
+
+	private void givePrivilegeOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<User> students) {
+		// add Learn privilege to this delivery
+		List<ResourceVisibilityMember> studentsWithPrivilege = new LinkedList<>();
+
+		for (User student : students) {
+			ResourceVisibilityMember resourceVisibilityMember = new ResourceVisibilityMember(0, student, userGroupPrivilege, false, true);
+			resourceVisibilityMember.setStatus(ObjectStatus.CREATED);
+			studentsWithPrivilege.add(resourceVisibilityMember);
+		}
+
+		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
+				delivery.getId(), new LinkedList<>(), studentsWithPrivilege,false, false,
+				UserContextData.of(actor.getId(), org.getId(), null, null)));
+	}
+
+	private long getDaysFromNow(int days) {
+		return LocalDateTime.now(Clock.systemUTC()).plusDays(days).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
+	}
+
+	private Credential1 createStandard7(EventQueue events, String title, String description, User creator, String tags, long rubricId, LearningStageData graduateLearningStage, String[]... compData) {
+		Credential1 standard = createCredential(events,
+				title,
+				description,
+				creator,
+				tags,
+				rubricId,
+				graduateLearningStage);
+
+		try {
+			for (String[] compDatum : compData) {
+				createCompetence(events,
+						creator,
+						compDatum[0],
+						compDatum[1],
+						standard.getId(),
+						rubricId);
+			}
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+
+		return standard;
 	}
 
 	private UserContextData createUserContext(User user) {
@@ -614,8 +529,8 @@ public class BusinessCase5_UniSA {
 							true, password, position, getAvatarInputStream(avatar), avatar, Collections.singletonList(roleUser.getId()),false);
 		} catch (IllegalDataStateException e) {
 			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 
 	private Credential1 createCredential(EventQueue events, String title, String description, User user, String tags, long rubricId, LearningStageData learningStage) {
@@ -639,7 +554,7 @@ public class BusinessCase5_UniSA {
 				.saveNewCredentialAndGetEvents(credentialData, createUserContext(user)));
 	}
 
-	private void createCompetence(EventQueue events, User user, String title, String description, long credentialId, long rubricId) {
+	private Competence1 createCompetence(EventQueue events, User user, String title, String description, long credentialId, long rubricId) {
 		CompetenceData1 compData = new CompetenceData1(false);
 		compData.setTitle(title);
 		compData.setDescription(description);
@@ -655,13 +570,14 @@ public class BusinessCase5_UniSA {
 		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
 
 		try {
-			extractResultAndAddEvents(events, ServiceLocator
+			return extractResultAndAddEvents(events, ServiceLocator
 					.getInstance()
 					.getService(Competence1Manager.class)
 					.saveNewCompetenceAndGetEvents(
 							compData, credentialId, createUserContext(user)));
 		} catch (DbConnectionException | IllegalDataStateException e) {
 			logger.error(e);
+			return null;
 		}
 	}
 
