@@ -156,7 +156,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 				.setQuery(bQueryBuilder)
 				.setFrom(start).setSize(size)
-				.addSort("name", SortOrder.ASC);
+				.addSort("name.sort", SortOrder.ASC);
 		//System.out.println(srb.toString());
 		return srb.execute().actionGet();
 	}
@@ -343,7 +343,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bqBuilder)
 					.setSize(limit)
-					.addSort("name", SortOrder.ASC);
+					.addSort("name.sort", SortOrder.ASC);
 	
 			SearchResponse groupResponse = srb.execute().actionGet();
 			SearchHit[] groupHits = null;
