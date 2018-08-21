@@ -53,7 +53,7 @@ implements Serializable, UserObservationsDBManager{
 		
 		String updateUserprofileactionsobservationsbydate = "UPDATE "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+"  "
 				+ "SET attach=attach+?,progress=progress+?, comment=comment+?, creating=creating+?,"
-				+ "evaluation=evaluation+?, join=join+?,like=like+?, login=login+?, assessment=assessmenr+?"
+				+ "evaluation=evaluation+?, join=join+?,like=like+?, login=login+?, assessment=assessment+?"
 				+ "posting=posting+?, content_access=content_access+?, message=message+?, search=search+? "
 				+ "WHERE date=? AND course=? AND userid=?;";
 		this.queries.put("updateUserprofileactionsobservationsbydate", updateUserprofileactionsobservationsbydate);
