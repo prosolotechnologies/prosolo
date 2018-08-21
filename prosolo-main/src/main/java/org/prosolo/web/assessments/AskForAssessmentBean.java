@@ -3,6 +3,7 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
@@ -47,6 +48,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected List<Long> usersToExcludeFromPeerSearch;
     protected boolean noRandomAssessor = false;
     protected AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
+    protected BlindAssessmentMode blindAssessmentMode;
     protected PaginationData paginationData = new PaginationData();
 
     protected abstract void initInstructorAssessmentAssessor();
@@ -56,10 +58,12 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected abstract void submitAssessmentRequest() throws IllegalDataStateException;
     protected abstract void notifyAssessorToAssessResource();
 
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType);
+    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
         if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
             initInstructorAssessmentAssessor();
+        } else if (assessmentType == AssessmentType.PEER_ASSESSMENT && (blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)) {
+            chooseRandomPeerForAssessor();
         }
     }
 
@@ -71,8 +75,8 @@ public abstract class AskForAssessmentBean implements Serializable {
      * @param assessmentType
      * @param assessor
      */
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, UserData assessor) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType);
+    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
+        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
         if (assessor != null) {
             assessmentRequestData.setAssessorId(assessor.getId());
             assessmentRequestData.setAssessorFullName(assessor.getFullName());
@@ -80,10 +84,11 @@ public abstract class AskForAssessmentBean implements Serializable {
         }
     }
 
-    private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType) {
+    private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         this.resourceId = resourceId;
         this.assessmentType = assessmentType;
         usersToExcludeFromPeerSearch = Arrays.asList(loggedUser.getUserId());
+        this.blindAssessmentMode = blindAssessmentMode;
         populateAssessmentRequestFields(targetResourceId);
     }
 
@@ -208,5 +213,9 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public long getResourceId() {
         return resourceId;
+    }
+
+    public BlindAssessmentMode getBlindAssessmentMode() {
+        return blindAssessmentMode;
     }
 }

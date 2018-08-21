@@ -16,6 +16,7 @@ public class AssessmentDiscussionMessageData {
 	private String content;
 	private String senderAvatarUrl;
 	private String senderFullName;
+	private long senderId;
 	private String encodedSenderId;
 	private String encodedMessageId;
 	private boolean senderInstructor;
@@ -59,6 +60,7 @@ public class AssessmentDiscussionMessageData {
 		data.setSenderFullName(activityMessage.getSender().getParticipant().getName()+" "+activityMessage.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size120x120));
 		data.setSenderInstructor(isSenderAssessor(activityMessage, assessor));
+		data.setSenderId(activityMessage.getSender().getParticipant().getId());
 		data.setDateCreated(activityMessage.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(activityMessage.getDateCreated()));
 		data.setDateUpdated(activityMessage.getLastUpdated());
@@ -79,6 +81,7 @@ public class AssessmentDiscussionMessageData {
 		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
 		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setSenderId(message.getSender().getParticipant().getId());
 		data.setDateCreated(message.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
 		data.setDateUpdated(message.getLastUpdated());
@@ -99,6 +102,7 @@ public class AssessmentDiscussionMessageData {
 		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
 		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setSenderId(message.getSender().getParticipant().getId());
 		data.setDateCreated(message.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
 		data.setDateUpdated(message.getLastUpdated());
@@ -148,5 +152,12 @@ public class AssessmentDiscussionMessageData {
 	public void setDateUpdatedFormat(String dateUpdatedFormat) {
 		this.dateUpdatedFormat = dateUpdatedFormat;
 	}
-	
+
+	public long getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(long senderId) {
+		this.senderId = senderId;
+	}
 }

@@ -131,7 +131,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	}
 
 	public void initAskForAssessment(AssessmentType aType) {
-		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType);
+		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType, competenceData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
 	}
 	
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {

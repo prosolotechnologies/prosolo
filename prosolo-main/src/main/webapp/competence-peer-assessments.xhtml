@@ -117,7 +117,13 @@
 											<div class="assessmentsBoxTop">
 												<div class="user32">
 													<h:link outcome="/competence-peer-assessment">
-														<utilcomp:userAvatar avatar="#{assessment.assessorAvatarUrl}" fullName="#{assessment.assessorFullName}"/>
+														<assessment:assessmentActorAvatar
+																actorId="#{assessment.assessorId}"
+																avatarUrl="#{assessment.assessorAvatarUrl}"
+																actorFullName="#{assessment.assessorFullName}"
+																blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																actorType="ASSESSOR"
+														/>
 														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
 														<f:param value="#{param.compId}" name="compId" />
 														<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
@@ -125,7 +131,12 @@
 
 													<h3>
 														<h:link outcome="/competence-peer-assessment">
-															#{assessment.assessorFullName}
+															<assessment:assessmentActorName
+																	actorId="#{assessment.assessorId}"
+																	actorFullName="#{assessment.assessorFullName}"
+																	blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																	actorType="ASSESSOR"
+															/>
 															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
 															<f:param value="#{param.compId}" name="compId" />
 															<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />

@@ -3,6 +3,7 @@ package org.prosolo.services.notifications.eventprocessing;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
@@ -13,6 +14,7 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
@@ -60,8 +62,8 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 	}
 
 	@Override
-	long getSenderId() {
-		return event.getActorId();
+	NotificationSenderData getSenderData() {
+		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER, false);
 	}
 	
 	@Override

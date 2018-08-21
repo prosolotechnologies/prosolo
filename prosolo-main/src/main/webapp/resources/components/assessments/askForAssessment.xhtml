@@ -4,6 +4,7 @@
 			  xmlns:composite="http://java.sun.com/jsf/composite"
 			  xmlns:p="http://primefaces.org/ui"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+			  xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
 >
 
 	<composite:interface>
@@ -62,13 +63,26 @@
 								class="assessmentModalMetaRight">
 								<h:panelGroup
 									rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
-									<utilcomp:userAvatar
-										avatar="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
-										fullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}" />
-									<h3>#{cc.attrs.bean.assessmentRequestData.assessorFullName}</h3>
+									<assessments:assessmentActorAvatar
+											actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+											avatarUrl="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
+											actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+											blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+											actorType="ASSESSOR"
+											displayAnonymousActorUniqueId="false"
+									/>
+									<h3>
+										<assessments:assessmentActorName
+											actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+											actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+											blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+											actorType="ASSESSOR"
+											displayAnonymousActorUniqueId="false"
+										/>
+									</h3>
 								</h:panelGroup>
 
-								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and cc.attrs.bean.blindAssessmentMode eq 'OFF'}">
 									<h:inputText
 										rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
 										onkeyup="searchListener(execSearchUsers);"
@@ -152,7 +166,14 @@
 						</h:panelGroup>
 
 						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}" styleClass="modal-body alignLeft top30">
-							<p>Are you sure you want to notify your assessor to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?</p>
+							<p>
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
+									Are you sure you want to notify your assessor to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
+									There is already an assessment request sent to this peer. Are you sure you want to notify the peer to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+								</ui:fragment>
+							</p>
 						</h:panelGroup>
 
 						<div class="modal-footer alignLeft">
