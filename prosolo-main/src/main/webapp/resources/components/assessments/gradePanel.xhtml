@@ -50,7 +50,9 @@
 									<div class="sliderWrapper">
 										<input type="text" id="gradeSlider" class="gradeSlider" />
 									</div>
-									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue" class="sliderValueInput" />
+									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue" class="sliderValueInput" validatorMessage="Grade must be between #{cc.attrs.gradeData.minGrade} and #{cc.attrs.gradeData.maxGrade}">
+										<f:validateLongRange minimum="#{cc.attrs.gradeData.minGrade}" maximum="#{cc.attrs.gradeData.maxGrade}" />
+									</h:inputText>
 									<script>
                                         var gradeSlider = $("#gradeSlider").bootstrapSlider({
                                             id: 'gradeSlider',
@@ -67,6 +69,11 @@
                                         });
 									</script>
 								</div>
+								<small class="redText bottom30 topMinus30 displayBlock">
+									<h:panelGroup id="panelGradeValueMessage" styleClass="validationMsgSelector">
+										<h:message for="gradeValue"></h:message>
+									</h:panelGroup>
+								</small>
 								<!-- manual grading - NO rubrics end -->
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC'}">
