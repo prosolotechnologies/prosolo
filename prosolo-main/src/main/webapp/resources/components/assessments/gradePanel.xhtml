@@ -50,7 +50,10 @@
 									<div class="sliderWrapper">
 										<input type="text" id="gradeSlider" class="gradeSlider" />
 									</div>
-									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue" class="sliderValueInput" validatorMessage="Grade must be between #{cc.attrs.gradeData.minGrade} and #{cc.attrs.gradeData.maxGrade}">
+									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue"
+												 autocomplete="off"
+												 class="sliderValueInput"
+												 validatorMessage="Grade must be between #{cc.attrs.gradeData.minGrade} and #{cc.attrs.gradeData.maxGrade}">
 										<f:validateLongRange minimum="#{cc.attrs.gradeData.minGrade}" maximum="#{cc.attrs.gradeData.maxGrade}" />
 									</h:inputText>
 									<script>
