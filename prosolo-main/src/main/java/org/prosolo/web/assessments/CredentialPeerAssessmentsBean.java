@@ -1,6 +1,8 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentData;
@@ -71,6 +73,10 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 
 	public boolean isSelfAssessmentEnabled() {
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
+	}
+
+	public BlindAssessmentMode getPeerAssessmentBlindAssessmentMode() {
+		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
 	}
 
 	protected void getAssessmentsWithExceptionHandling() {

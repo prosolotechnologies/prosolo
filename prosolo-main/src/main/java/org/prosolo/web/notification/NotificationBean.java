@@ -2,6 +2,7 @@ package org.prosolo.web.notification;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.notifications.NotificationManager;
@@ -30,7 +31,9 @@ public class NotificationBean implements Serializable, Paginable {
 	private static final long serialVersionUID = 8874333324943561974L;
 
 	private static Logger logger = Logger.getLogger(NotificationBean.class);
-	
+
+	private String domainPrefix = CommonSettings.getInstance().config.appConfig.domain.substring(0, CommonSettings.getInstance().config.appConfig.domain.length()-1);
+
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private NotificationManager notificationManager;
 	@Inject private NotificationSectionDataFactory notificationSectionDataFactory;
@@ -148,5 +151,9 @@ public class NotificationBean implements Serializable, Paginable {
 
 	public List<NotificationFilter> getFilters() {
 		return filters;
+	}
+
+	public String getDomainPrefix() {
+		return domainPrefix;
 	}
 }

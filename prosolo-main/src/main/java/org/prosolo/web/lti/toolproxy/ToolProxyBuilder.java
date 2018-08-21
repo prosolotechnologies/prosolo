@@ -183,10 +183,12 @@ public class ToolProxyBuilder {
 
 	// find service with desired format
 	private Service findServiceWithFormat(String format, List<Service> services) {
-		for (Service so : services) {
-			boolean exists = so.getFormats().contains(format);
-			if (exists) {
-				return so;
+		if (services != null) {
+			for (Service so : services) {
+				boolean exists = so.getFormats().contains(format);
+				if (exists) {
+					return so;
+				}
 			}
 		}
 		return null;

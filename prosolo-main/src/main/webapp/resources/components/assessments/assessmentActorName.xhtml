@@ -1,0 +1,23 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="actorFullName" default=""/>
+		<composite:attribute name="actorType" default="ASSESSOR"/>
+		<composite:attribute name="actorId" required="true"/>
+		<composite:attribute name="blindAssessmentMode" required="true" type="org.prosolo.common.domainmodel.credential.BlindAssessmentMode"/>
+		<composite:attribute name="displayAnonymousActorUniqueId" default="true" type="java.lang.Boolean"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<ui:fragment rendered="#{cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND'}">
+			Anonymous #{cc.attrs.actorType eq 'ASSESSOR' ? 'Assessor' : 'Student'} #{cc.attrs.displayAnonymousActorUniqueId ? util:encodeUserId(cc.attrs.actorId) : ''}
+		</ui:fragment>
+		<ui:fragment rendered="#{not (cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND')}">
+			#{cc.attrs.actorFullName}
+		</ui:fragment>
+	</composite:implementation>
+</ui:component>

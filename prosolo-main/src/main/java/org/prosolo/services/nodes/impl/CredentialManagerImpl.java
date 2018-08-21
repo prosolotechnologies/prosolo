@@ -155,6 +155,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cac.setCredential(cred);
 					cac.setAssessmentType(atc.getType());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
 				}
 			}
@@ -739,6 +740,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					data.getHashtagsString())));
 		}
 
+		if (data.getAssessmentTypes() != null) {
+			for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
+					//enabled flag should be set only if it is original credential
+					if (data.getType() == CredentialType.Original) {
+						cac.setEnabled(atc.isEnabled());
+					}
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
+				}
+			}
+		}
+
 		//this group of attributes can be changed only for original credential and not for delivery
 		if (data.getType() == CredentialType.Original) {
 			CredentialCategory category = data.getCategory() != null
@@ -771,14 +785,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 
-			if (data.getAssessmentTypes() != null) {
-				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
-					if (atc.hasObjectChanged()) {
-						CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
-						cac.setEnabled(atc.isEnabled());
-					}
-				}
-			}
 			setAssessmentRelatedData(credToUpdate, data, data.getAssessmentSettings().isRubricChanged());
 
 			List<CompetenceData1> comps = data.getCompetences();
@@ -3850,6 +3856,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
+	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
+		try {
+			String q =
+					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
+					"WHERE conf.credential.id = :credId " +
+					"AND conf.assessmentType = :assessmentType";
+
+			return (BlindAssessmentMode) persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credId)
+					.setString("assessmentType", assessmentType.name())
+					.uniqueResult();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading the blind assessment mode for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public long getTargetCredentialId(long credId, long studentId) throws DbConnectionException {
 		try {
 			String query =
@@ -3970,4 +3996,5 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error checking if credential assessment display is enabled");
 		}
 	}
+
 }

@@ -2,16 +2,14 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
@@ -21,21 +19,18 @@ import org.prosolo.web.util.page.PageSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompetenceAssessmentApprovedEventProcessor extends NotificationEventProcessor {
+public class CompetenceAssessmentApprovedEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
 
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentApprovedEventProcessor.class);
 
-	private CompetenceAssessment competenceAssessment;
-	private ContextJsonParserService contextJsonParserService;
 	private AssessmentManager assessmentManager;
 
 	public CompetenceAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													  AssessmentManager assessmentManager, ContextJsonParserService contextJsonParserService) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.contextJsonParserService = contextJsonParserService;
+													  AssessmentManager assessmentManager, ContextJsonParserService contextJsonParserService,
+													  CredentialManager credentialManager, Competence1Manager competenceManager) {
+		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, contextJsonParserService, credentialManager, competenceManager);
 		this.assessmentManager = assessmentManager;
-		this.competenceAssessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
 	}
 
 	@Override
@@ -48,18 +43,12 @@ public class CompetenceAssessmentApprovedEventProcessor extends NotificationEven
 	List<NotificationReceiverData> getReceiversData() {
 		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
-			receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(competenceAssessment.getType()), false, PageSection.STUDENT));
+			receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), false, PageSection.STUDENT));
 			return receivers;
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 			return new ArrayList<>();
 		}
-	}
-
-	@Override
-	long getSenderId() {
-		return event.getActorId();
 	}
 
 	@Override
@@ -74,18 +63,12 @@ public class CompetenceAssessmentApprovedEventProcessor extends NotificationEven
 
 	@Override
 	long getObjectId() {
-		return competenceAssessment.getCompetence().getId();
+		return getAssessment().getCompetence().getId();
 	}
 
-	private String getNotificationLink(AssessmentType assessmentType) {
-		Context context = contextJsonParserService.parseContext(event.getContext());
-		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
-		long competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
-		long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
-
+	private String getNotificationLink() {
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				context, credentialId, competenceId, competenceAssessmentId, assessmentType, assessmentManager, idEncoder,
-				session, PageSection.STUDENT);
+				getContext(), getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), assessmentManager, idEncoder, session, PageSection.STUDENT);
 	}
 
 }

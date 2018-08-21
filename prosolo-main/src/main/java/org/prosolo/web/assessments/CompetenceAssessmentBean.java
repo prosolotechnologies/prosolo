@@ -3,8 +3,8 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
@@ -103,12 +103,9 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 					if (decodedCredId > 0) {
 						credentialTitle = credManager.getCredentialTitle(decodedCredId);
 					}
-					/*
-					if user is assessed student load assessment types config for competence
-					so it can be determined which tabs should be displayed
-					 */
+
 					if (shouldLoadAssessmentTypesConfig()) {
-						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, competenceAssessmentData.getType() == AssessmentType.PEER_ASSESSMENT);
 					}
 				}
 			} catch (AccessDeniedException e) {
@@ -178,6 +175,14 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
 	}
 
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return getBlindAssessmentMode(competenceAssessmentData, assessmentTypesConfig);
+	}
+
+	public BlindAssessmentMode getBlindAssessmentMode(CompetenceAssessmentData compAssessment, List<AssessmentTypeConfig> assessmentTypesConfig) {
+		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, compAssessment.getType());
+	}
+
 	/*
 	ACTIONS
 	 */
@@ -236,5 +241,9 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	public Competence1Manager getCompManager() {
 		return compManager;
+	}
+
+	public List<AssessmentTypeConfig> getAssessmentTypesConfig() {
+		return assessmentTypesConfig;
 	}
 }

@@ -3,11 +3,10 @@ package org.prosolo.services.notifications.factory;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification1;
-import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.domainmodel.user.notifications.*;
+import org.prosolo.services.idencoding.IdEncoder;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -17,6 +16,8 @@ import javax.inject.Inject;
 
 @Component
 public class NotificationDataFactory {
+
+	@Inject private IdEncoder idEncoder;
 	
 	private static Logger logger = Logger.getLogger(NotificationDataFactory.class);
 
@@ -30,7 +31,12 @@ public class NotificationDataFactory {
 		n.setRead(notification.isRead());
 		n.setDate(notification.getDateCreated());
 		n.setNotificationType(notification.getType());
-		UserData actor = new UserData(notification.getActor());
+		UserData actor;
+		if (notification.isAnonymizedActor()) {
+			actor = getAnonymousActor(notification.getActor().getId(), notification.getNotificationActorRole());
+		} else {
+			actor = new UserData(notification.getActor());
+		}
 		n.setActor(actor);
 		n.setSection(notificationSectionDataFactory.getSectionData(section));
 
@@ -57,6 +63,25 @@ public class NotificationDataFactory {
 		n = typeBasedCorrections(n);
 		
 		return n;
+	}
+
+	private UserData getAnonymousActor(long actorId, NotificationActorRole notificationActorRole) {
+		UserData user = new UserData();
+		String anonymousName = "Anonymous ";
+		switch (notificationActorRole) {
+			case ASSESSOR:
+				anonymousName += "Assessor ";
+				break;
+			case STUDENT:
+				anonymousName += "Student ";
+				break;
+			case OTHER:
+				anonymousName += "User ";
+				break;
+		}
+		user.setFullName(anonymousName += idEncoder.encodeId(actorId));
+		user.setAvatarUrl(CommonSettings.getInstance().config.appConfig.domain + "resources/images2/avatar-ph.png");
+		return user;
 	}
 
 	public String getNotificationPredicate(NotificationType notificationType, ResourceType objectType,
