@@ -92,7 +92,7 @@ public interface AssessmentManager {
 
 	void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
 
-	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
+	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, boolean directRequestForCompetenceAssessmentApprove, UserContextData context) throws DbConnectionException;
 
 	void markActivityAssessmentDiscussionAsSeen(long userId, long activityAssessmentId);
 
@@ -356,4 +356,5 @@ public interface AssessmentManager {
     int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 
 	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
+
 }
