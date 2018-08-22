@@ -80,7 +80,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.CREDENTIAL_CATEGORY_UPDATE,
 			EventType.AssessmentRequested,
 			EventType.ASSESSED_BY_AUTO_GRADING,
-			EventType.GRADE_ADDED
+			EventType.GRADE_ADDED,
+			EventType.AssessmentApproved
 		};
 	}
 
