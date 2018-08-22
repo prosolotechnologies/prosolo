@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
@@ -22,8 +23,8 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
-import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -274,21 +275,19 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
 	
-	void updateTargetCredentialLastAction(long userId, long credentialId) 
-			throws DbConnectionException;
+	void updateTargetCredentialLastAction(long userId, long credentialId, Session session) throws DbConnectionException;
 
 	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
 	
 	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
 	
-	long getTargetCredentialNextCompToLearn(long credId, long userId) 
-			throws DbConnectionException;
+	long getTargetCredentialNextCompToLearn(long credId, long userId) throws DbConnectionException;
 	
-	long getNumberOfUsersLearningCredential(long credId) 
-			throws DbConnectionException;
+	long getNumberOfUsersLearningCredential(long credId) throws DbConnectionException;
 	
-	List<StudentData> getCredentialStudentsData(long credId, int limit) 
-			throws DbConnectionException;
+	List<StudentData> getCredentialStudentsData(long credId, int limit) throws DbConnectionException;
+
+	StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException;
 	
 	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
 			throws DbConnectionException;
@@ -441,6 +440,8 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Long> getUsersLearningDelivery(long deliveryId) throws DbConnectionException;
 
+	public List<Long> getUsersLearningDeliveryAssignedToInstructor(long deliveryId, long instructorUserId);
+
 	Result<Credential1> createCredentialInLearningStageAndGetEvents(long firstStageCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
 
 	long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException;
@@ -456,6 +457,15 @@ public interface CredentialManager extends AbstractManager {
 	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
+
+	/**
+	 *
+	 * @param credId
+	 * @param assessmentType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType);
 
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 
@@ -484,4 +494,14 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
+
+	/**
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
 }

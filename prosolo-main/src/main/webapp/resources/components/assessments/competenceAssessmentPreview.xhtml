@@ -135,7 +135,7 @@
 
 					<div class="row">
 						<div class="col-md-#{competenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
-							<h2 class="bottom10">Competence Assessment</h2>
+							<h2 class="bottom10">#{msg['label.competence']} Assessment</h2>
 							<ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
 								<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student #{competenceAssessmentBean.competenceAssessmentData.studentFullName}.
 									All comments between the student and the assessor are private.</p>
@@ -156,6 +156,7 @@
 							<h:form>
 								<assessment:competenceAssessment
 										competenceAssessment="#{competenceAssessmentBean.competenceAssessmentData}"
+										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
 										bean="#{competenceAssessmentBean}"
 										credentialId="#{cc.attrs.credentialId}"
 										role="USER"
@@ -175,12 +176,24 @@
 							<div class="sidebarBlock">
 								<h2>Student</h2>
 								<div class="user32">
-									<a href="javascript:void(0);"> <utilcomp:userAvatar
-											avatar="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
-											fullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}" />
+									<a href="javascript:void(0);">
+										<assessment:assessmentActorAvatar
+												actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+												avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
+												actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+												blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+												actorType="STUDENT"
+										/>
 									</a>
 									<h3>
-										<a href="javascript:void(0);">#{competenceAssessmentBean.competenceAssessmentData.studentFullName}</a>
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorName
+													actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													actorType="STUDENT"
+											/>
+										</a>
 									</h3>
 								</div>
 							</div>
@@ -190,12 +203,24 @@
 										rendered="#{competenceAssessmentBean.competenceAssessmentData.assessorId > 0}">
 									<h2>Assessor</h2>
 									<div class="user32">
-										<a href="javascript:void(0);"> <utilcomp:userAvatar
-												avatar="#{competenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
-												fullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}" />
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorAvatar
+													actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+													avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
+													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													actorType="ASSESSOR"
+											/>
 										</a>
 										<h3>
-											<a href="javascript:void(0);">#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}</a>
+											<a href="javascript:void(0);">
+												<assessment:assessmentActorName
+														actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+														actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+														blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+														actorType="ASSESSOR"
+												/>
+											</a>
 										</h3>
 									</div>
 								</ui:fragment>
@@ -234,6 +259,9 @@
 				toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId})"
 				messages="#{competenceAssessmentBean.currentAssessmentMessages}"
 				bean="#{competenceAssessmentBean.currentAssessmentBean}"
+				studentId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+				assessorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+				blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
 				learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
 					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))
 					: util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"

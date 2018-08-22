@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.clustering
 
 
-import org.prosolo.common.domainmodel.activities.events.EventType
+import org.prosolo.common.domainmodel.events.EventType
 import org.prosolo.bigdata.events.pojo.LogEvent
 import org.prosolo.bigdata.events.analyzers.ObservationType
 import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
@@ -9,7 +9,7 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 trait EventsChecker{
   val eventTypesFile:String;
-  val eventsType: Map[String, Tuple4[ObservationType, EventType, String, Double]] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
+  val eventsType: Map[String, (ObservationType, EventType, String, Double)] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
   val eventTypes: ListBuffer[EventType]=new ListBuffer[EventType]()
   val objectTypes: ListBuffer[String]=new ListBuffer[String]()
   def eventsTypeKey(eventType:EventType, objectType:String):String={

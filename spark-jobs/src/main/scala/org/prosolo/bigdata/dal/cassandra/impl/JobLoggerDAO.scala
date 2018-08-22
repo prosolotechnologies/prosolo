@@ -1,5 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl
 
+import org.slf4j.LoggerFactory
+
 /**
   * Created by zoran on 08/08/17.
   */
@@ -27,6 +29,7 @@ object LogSeverity extends Enumeration{
 }
 
 class JobLoggerDAO (val dbName:String) extends Entity with Serializable {
+  val logger = LoggerFactory.getLogger(getClass)
   override val keyspace=dbName
 
   def insertJobLog(jobid:String, logtype:LogType.Value, loglevel:LogSeverity.Value, message:String): Unit ={
@@ -34,7 +37,7 @@ class JobLoggerDAO (val dbName:String) extends Entity with Serializable {
     DBManager.connector.withSessionDo { session ⇒
       //val currentTime:java.lang.Long=System.currentTimeMillis()
       session.execute(query,jobid, logtype.toString,loglevel.toString,System.currentTimeMillis().asInstanceOf[java.lang.Long],message.toString )
-      println("INSERT JOB LOG:"+jobid+" logtype:"+logtype.toString+" loglevel:"+loglevel.toString+" message:"+message)
+      logger.debug("INSERT JOB LOG:"+jobid+" logtype:"+logtype.toString+" loglevel:"+loglevel.toString+" message:"+message)
     }
   }
 

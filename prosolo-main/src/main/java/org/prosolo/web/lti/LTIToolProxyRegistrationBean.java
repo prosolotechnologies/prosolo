@@ -250,7 +250,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			LtiMessageBuilder msgE = LtiMessageBuilderFactory.createMessageExtractor();
 			ToolProxyRegistrationMessage msg = (ToolProxyRegistrationMessage) msgE.getLtiMessage();
 			return msg;
-		}catch(Exception e){
+		}catch(Exception e) {
+			logger.error("Error", e);
 			throw new Exception("Required parameters missing or not valid");
 		}
 	}
@@ -262,6 +263,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			String authorizationHeader = oAuthService.bodySignMessage(msg, key, password, url);
 			return sendToolProxyRegistrationRequest(url, msg, authorizationHeader);
 		} catch (Exception e) {
+			logger.error("Error", e);
 			throw new Exception("Tool Proxy Registration Failed!");
 		}
 	}
@@ -301,7 +303,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			}
 
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 			throw new Exception("Error while trying to register Tool Proxy");
 		} finally {
 			try {

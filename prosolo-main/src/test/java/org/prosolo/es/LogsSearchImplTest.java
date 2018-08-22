@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.dal.pojo.LogsFilter;
 import org.prosolo.bigdata.common.dal.pojo.LogsRecord;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.core.stress.TestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 

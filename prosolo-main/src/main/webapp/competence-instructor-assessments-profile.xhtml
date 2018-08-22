@@ -35,11 +35,13 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li>
-                    <h:link value="#{profileCompetenceInstructorAssessmentsBean.student.fullName}" outcome="profile">
-                        <f:param name="id" value="#{param.studentId}"/>
-                    </h:link>
-                </li>
+                <ui:fragment rendered="#{profileCompetenceInstructorAssessmentsBean.blindAssessmentMode eq 'OFF'}">
+                    <li>
+                        <h:link value="#{profileCompetenceInstructorAssessmentsBean.student.fullName}" outcome="profile">
+                            <f:param name="id" value="#{param.studentId}"/>
+                        </h:link>
+                    </li>
+                </ui:fragment>
                 <li class="active">Assessments</li>
             </ol>
         </div>
@@ -64,6 +66,7 @@
                             <div class="col-md-12">
                                 <assessment:competenceAssessment
                                         competenceAssessment="#{competenceAssessment}"
+                                        blindAssessmentMode="#{profileCompetenceInstructorAssessmentsBean.blindAssessmentMode}"
                                         fullDisplayMode="#{false}"
                                         bean="#{competenceAssessmentBean}"
                                         credentialId="#{util:decodeId(param.credId)}"

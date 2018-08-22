@@ -26,6 +26,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -516,12 +517,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						.findFirst()
 						.get().setApproved(true);
 			}
-
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " approved");
 		} catch (Exception e) {
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error approving the assessment", e);
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("credential").toLowerCase());
 		}
 	}
 
@@ -541,11 +540,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessmentManager.approveCompetence(competenceAssessmentId, loggedUserBean.getUserContext());
 			markCompetenceApproved(competenceAssessmentId);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the competence for " + fullAssessmentData.getStudentFullName());
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the "+ ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 
@@ -705,7 +703,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor);
+		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor, fullAssessmentData.getBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

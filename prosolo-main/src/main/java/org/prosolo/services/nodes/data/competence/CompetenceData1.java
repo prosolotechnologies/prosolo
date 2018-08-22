@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.util.Pair;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
@@ -169,7 +168,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		return aType != null && aType.isEnabled();
 	}
 
-	private AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
+	public AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
 		if (assessmentTypes == null) {
 			return null;
 		}

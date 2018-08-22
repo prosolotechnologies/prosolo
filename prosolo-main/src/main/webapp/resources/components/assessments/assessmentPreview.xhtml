@@ -167,7 +167,7 @@
 					</li>
 					<li>
 						<h:link value="#{cc.attrs.bean.credentialTitle}"
-								outcome="/manage/create-credential">
+								outcome="/manage/credential-create">
 							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}" />
 						</h:link>
 					</li>
@@ -177,7 +177,14 @@
 						</h:link>
 					</li>
 
-					<li class="active">#{cc.attrs.bean.fullAssessmentData.studentFullName}</li>
+					<li class="active">
+						<assessment:assessmentActorName
+								actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+								actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+								actorType="STUDENT"
+						/>
+					</li>
 				</ui:fragment>
 
 				<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
@@ -200,22 +207,30 @@
 							</h:link>
 						</li>
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
-							<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+							<li class="active">
+								<assessment:assessmentActorName
+										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+										actorType="ASSESSOR"
+								/>
+							</li>
 						</ui:fragment>
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
-						<li>
-							<h:link value="#{cc.attrs.bean.fullAssessmentData.studentFullName}" outcome="profile">
-								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
-							</h:link>
-						</li>
-						<li>
-							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
-								<f:param name="credId" value="#{cc.attrs.bean.id}"/>
-								<f:param name="studentId" value="#{param.studentId}"/>
-							</h:link>
-						</li>
-
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode eq 'OFF'}">
+							<li>
+								<h:link value="#{cc.attrs.bean.fullAssessmentData.studentFullName}" outcome="profile">
+									<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
+								</h:link>
+							</li>
+							<li>
+								<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
+									<f:param name="credId" value="#{cc.attrs.bean.id}"/>
+									<f:param name="studentId" value="#{param.studentId}"/>
+								</h:link>
+							</li>
+						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<li>
 								<h:link value="Assessments" outcome="/credential-instructor-assessment-profile">
@@ -225,7 +240,14 @@
 							</li>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId > 0}">
-							<li class="active">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</li>
+							<li class="active">
+								<assessment:assessmentActorName
+										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+										actorType="ASSESSOR"
+								/>
+							</li>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT'}">
 							<li class="active">Assessment</li>
@@ -277,8 +299,17 @@
 							<h:panelGroup layout="block" id="otherAssessments" styleClass="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
 								   aria-expanded="true">
-									#{cc.attrs.bean.fullAssessmentData.assessorFullName != null ?
-											cc.attrs.bean.fullAssessmentData.assessorFullName : 'Default assessment'}
+									<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorFullName != null}">
+										<assessment:assessmentActorName
+												actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+												actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+												blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+												actorType="ASSESSOR"
+										/>
+									</ui:fragment>
+									<ui:fragment rendered="#{empty cc.attrs.bean.fullAssessmentData.assessorFullName}">
+										Default assessment
+									</ui:fragment>
 									<span class="arrowDown">arrowDown</span>
 								</a>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -286,8 +317,18 @@
 											   var="otherAssessment">
 										<li><h:outputLink
 												value="#{applicationbean.domain}manage/credentials/#{otherAssessment.encodedCredentialId}/assessments/#{otherAssessment.encodedAssessmentId}">
-											#{otherAssessment.assessorFullName != null ? otherAssessment.assessorFullName : 'Default assessment'} <span
-												class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
+											<ui:fragment rendered="#{otherAssessment.assessorId gt 0}">
+												<assessment:assessmentActorName
+														actorId="#{otherAssessment.assessorId}"
+														actorFullName="#{otherAssessment.assessorFullName}"
+														blindAssessmentMode="#{otherAssessment.blindAssessmentMode}"
+														actorType="ASSESSOR"
+												/>
+											</ui:fragment>
+											<ui:fragment rendered="#{otherAssessment.assessorId eq 0}">
+												Default assessment
+											</ui:fragment>
+											<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
 												? 'Approved' : 'Pending'}</span>
 										</h:outputLink></li>
 									</ui:repeat>
@@ -305,7 +346,13 @@
 					</c:if>
 					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
 						<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
-							<p>This is the ${msg['label.credential'].toLowerCase()} assessment of student #{cc.attrs.bean.fullAssessmentData.studentFullName}.
+							<p>This is the ${msg['label.credential'].toLowerCase()} assessment of student
+								<assessment:assessmentActorName
+										actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+										actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+										actorType="STUDENT"
+								/>.
 								All comments between the student and the assessor are private.</p>
 						</ui:fragment>
 
@@ -415,6 +462,7 @@
 								<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 									<assessment:competenceAssessment
 											competenceAssessment="#{competenceAssessment}"
+											blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 											bean="#{cc.attrs.bean}"
 											fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
 											credentialId="#{cc.attrs.bean.fullAssessmentData.credentialId}"
@@ -439,12 +487,24 @@
 						<div class="sidebarBlock">
 							<h2>Student</h2>
 							<div class="user32">
-								<a href="javascript:void(0);"> <utilcomp:userAvatar
-										avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-										fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
+								<a href="javascript:void(0);">
+									<assessment:assessmentActorAvatar
+											actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+											avatarUrl="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+											actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+											blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+											actorType="STUDENT"
+									/>
 								</a>
 								<h3>
-									<a href="javascript:void(0);">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a>
+									<a href="javascript:void(0);">
+										<assessment:assessmentActorName
+												actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+												actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+												blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+												actorType="STUDENT"
+										/>
+									</a>
 								</h3>
 							</div>
 						</div>
@@ -454,12 +514,24 @@
 									rendered="#{cc.attrs.role eq 'USER' and cc.attrs.bean.fullAssessmentData.assessorId > 0}">
 								<h2>Assessor</h2>
 								<div class="user32">
-									<a href="javascript:void(0);"> <utilcomp:userAvatar
-											avatar="#{cc.attrs.bean.fullAssessmentData.assessorAvatarUrl}"
-											fullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}" />
+									<a href="javascript:void(0);">
+										<assessment:assessmentActorAvatar
+												actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+												avatarUrl="#{cc.attrs.bean.fullAssessmentData.assessorAvatarUrl}"
+												actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+												blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+												actorType="ASSESSOR"
+										/>
 									</a>
 									<h3>
-										<a href="javascript:void(0);">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</a>
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorName
+													actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+													actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+													blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+													actorType="ASSESSOR"
+											/>
+										</a>
 									</h3>
 								</div>
 							</ui:fragment>
@@ -497,6 +569,9 @@
 					toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{cc.attrs.bean.currentCompetenceAssessmentId}) :assessmentPreview:assessCredentialForm"
 					messages="#{cc.attrs.bean.currentAssessmentMessages}"
 					bean="#{cc.attrs.bean.currentAssessmentBean}"
+					studentId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+					assessorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+					blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 					learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
 						? util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))
 						: cc.attrs.bean.currentResType eq 'COMPETENCE'
@@ -570,10 +645,21 @@
 											Student:
 										</div>
 										<div class="assessmentModalMetaRight">
-											<utilcomp:userAvatar
-													avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-													fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
-											<h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
+											<assessment:assessmentActorAvatar
+													actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+													avatarUrl="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+													actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+													blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+													actorType="STUDENT"
+											/>
+											<h3>
+												<assessment:assessmentActorName
+														actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+														actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+														blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+														actorType="STUDENT"
+												/>
+											</h3>
 										</div>
 									</div>
 								</div>
@@ -609,7 +695,7 @@
 									<p:commandLink
 											styleClass="btn btn-green"
 											value="Submit"
-											update=":#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
+											update=":#{cc.clientId}:growlMain :#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
 											action="#{cc.attrs.bean.approveCredential()}"
 											oncomplete="$('#approveAssessment').modal('hide')">
 										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />

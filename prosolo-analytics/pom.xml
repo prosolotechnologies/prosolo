@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>org.prosolo</groupId>
 		<artifactId>prosolo-multimodule</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1</version>
 	</parent>
 	<artifactId>prosolo-analytics</artifactId>
 	<name>ProSolo Analytics</name>
 	<packaging>war</packaging>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<properties>
 		<jersey.version>2.8</jersey.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
@@ -18,8 +18,8 @@
 		<jersey2.version>2.23</jersey2.version>
 		<jaxrs.version>2.0.1</jaxrs.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>2.1.0</spark.version>
-		<scala.version>2.11.6</scala.version>
+		<spark.version>2.2.0</spark.version>
+		<scala.version>2.11.12</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
@@ -27,11 +27,6 @@
 		<cassandra-java-driver.version>3.0.0</cassandra-java-driver.version>
 	</properties>
 	<repositories>
-		<!-- boilerpipe repo -->
-		<!--repository>
-			<id>boilerpipe-m2-repo</id>
-			<url>https://boilerpipe.googlecode.com/svn/repo/</url>
-		</repository-->
 		<repository>
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>
@@ -40,11 +35,6 @@
 			<id>conjars.org</id>
 			<url>http://conjars.org/repo</url>
 		</repository>
-		<!--repository>
-			<id>scala-tools.org</id>
-			<name>Scala-tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</repository-->
 		<repository>
 			<id>Jahmm</id>
 			<name>Jahmm HMM library repository</name>
@@ -54,7 +44,6 @@
 			<id>prosolo-local-repository</id>
 			<url>https://bitbucket.org/zjeremic/repo.prosolo.ca/raw/master/repository/</url>
 		</repository>
-
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -64,18 +53,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<dependencies>
-		<!-- <dependency> -->
-		<!-- <groupId>javax.annotation</groupId> -->
-		<!-- <artifactId>jsr250-api</artifactId> -->
-		<!-- <version>1.0</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>jstl</groupId> -->
-		<!-- <artifactId>jstl</artifactId> -->
-		<!-- <version>1.2</version> -->
-		<!-- </dependency> -->
-		<!--local prosolo repository dependencies-->
-
 		<dependency>
 			<groupId>ca.prosolo.local</groupId>
 			<artifactId>boilerpipe-1.2.0</artifactId>
@@ -101,14 +78,13 @@
 		<dependency>
 			<groupId>org.prosolo</groupId>
 			<artifactId>bigdata.common</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.prosolo</groupId>
 			<artifactId>spark-jobs</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
-
 
 		<!-- RabbitMQ dependencies -->
 		<dependency>
@@ -122,26 +98,6 @@
 			<version>2.0-beta4</version>
 		</dependency>
 
-		<!-- Cassandra dependencies -->
-		<!--dependency>
-			<groupId>com.datastax.cassandra</groupId>
-			<artifactId>cassandra-driver-core</artifactId>
-			<version>3.1.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>guava</artifactId>
-					<groupId>com.google.guava</groupId>
-				</exclusion>
-			</exclusions-->
-			<!--version>2.1.4</version-->
-		<!--/dependency-->
-		<!-- MySQL dependencies -->
-		<!--dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.35</version>
-			<scope>runtime</scope>
-		</dependency-->
 		<!-- JSON -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -162,33 +118,6 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
 		</dependency>
-
-		<!--dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-		</dependency-->
-		<!-- RESTful API dependencies -->
-		<!--dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-json-p-provider</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jackson-provider</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-servlet-initializer</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency-->
 
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
@@ -239,28 +168,7 @@
 
 			</exclusions>
 		</dependency>
-		<!--dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-streaming_2.11</artifactId>
-			<version>${spark.version}</version>
-		</dependency-->
-		<!--dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-sql_2.11</artifactId>
-			<version>${spark.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-mllib_2.11</artifactId>
-			<version>${spark.version}</version>
-		</dependency-->
-
-		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.11 -->
-
-		<!-- dependency> <groupId>org.apache.spark</groupId> <artifactId>spark-streaming-twitter_2.11</artifactId> 
-			<version>${spark.version}</version> </dependency -->
-
-		<!-- Twitter4j dependencies -->
+	   <!-- Twitter4j dependencies -->
 		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
@@ -285,15 +193,6 @@
 			<version>4.4.5</version>
 		</dependency>
 
-
-
-
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.spark</groupId> -->
-		<!-- <artifactId>spark-streaming_2.11</artifactId> -->
-		<!-- <version>${spark.version}</version> -->
-		<!-- scope>compile</scope -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.xerial.snappy</groupId>
 			<artifactId>snappy-java</artifactId>
@@ -301,12 +200,6 @@
 		</dependency>
 
 		<!--Scala dependencies -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.scala-lang</groupId> -->
-		<!-- <artifactId>scala-library</artifactId> -->
-		<!-- <version>${scala.version}</version> -->
-		<!-- </dependency> -->
-		<!-- Scala dependencies - used by Spark -->
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
@@ -322,8 +215,15 @@
 			<artifactId>scalatest_2.11</artifactId>
 			<version>3.0.0-M7</version>
 		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.scalastyle/scalastyle-maven-plugin -->
+        <dependency>
+            <groupId>org.scalastyle</groupId>
+            <artifactId>scalastyle-maven-plugin</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
-		<!-- Quartz dependencies -->
+
+        <!-- Quartz dependencies -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
@@ -335,12 +235,6 @@
 			<version>${quartz.version}</version>
 		</dependency>
 
-		<!-- <dependency> -->
-		<!-- <groupId>org.scalatest</groupId> -->
-		<!-- <artifactId>scalatest_2.11</artifactId> -->
-		<!-- <version>3.0.0-M7</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
 		<!-- jsoup - URL Scrapper -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -353,12 +247,7 @@
 			<artifactId>rome</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- boilerpipe -->
-		<!--dependency>
-			<groupId>de.l3s.boilerpipe</groupId>
-			<artifactId>boilerpipe</artifactId>
-			<version>1.1.0</version>
-		</dependency-->
+
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
@@ -421,18 +310,6 @@
 			<version>${mahout.version}</version>
 		</dependency>
 
-
-		<!--JSON dependencies-->
-		<!--dependency>
-			<groupId>org.json4s</groupId>
-			<artifactId>json4s-native_2.11</artifactId>
-			<version>3.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json4s</groupId>
-			<artifactId>json4s-jackson_2.11</artifactId>
-			<version>3.3.0</version>
-		</dependency-->
 		<dependency>
 			<groupId>com.typesafe.play</groupId>
 			<artifactId>play-json_2.11</artifactId>
@@ -445,59 +322,16 @@
   			<version>0.0.4</version>
   			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
-		<!--dependency>
-			<groupId>org.jblas</groupId>
-			<artifactId>jblas</artifactId>
-			<version>1.2.4</version>
-		</dependency-->
 
-		<!-- dependency> <groupId>com.novemberain</groupId> <artifactId>quartz-mongodb</artifactId> 
-			<version>1.5.0</version> </dependency -->
-	    
 	    <!-- added spark cassandra connector -->
 	    <dependency>
 			<groupId>com.datastax.spark</groupId>
 			<artifactId>spark-cassandra-connector_2.11</artifactId>
 			<version>${spark-cassandra-connector.version}</version>
 			<exclusions>
-			<!--exclusion>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-handler</artifactId>
-			</exclusion-->
 			</exclusions>
 		</dependency>
 
-		<!--dependency>
-			<groupId>com.datastax.cassandra</groupId>
-			<artifactId>cassandra-driver-core</artifactId>
-			<version>${cassandra-java-driver.version}</version>
-
-			<exclusions>
-				<exclusion>
-					<groupId>io.netty</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>guava</artifactId>
-					<groupId>com.google.guava</groupId>
-				</exclusion>
-			</exclusions>
-			<version>2.1.4</version>
-		</dependency-->
-		<!--dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-transport-native-epoll</artifactId>
-			<version>4.1.4.Final</version>
-			<classifier>${os.detected.classifier}</classifier>
-		</dependency-->
-		<!--dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-sql_2.11</artifactId>
-			<version>${spark.version}</version>
-		</dependency-->
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark_2.11 -->
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark-20_2.11 -->
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch-spark-20_2.11</artifactId>
@@ -510,15 +344,6 @@
 			<artifactId>hashids</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-
-		<!--dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-transport-native-epoll</artifactId>
-			<version>4.1.4.Final</version>
-		</dependency-->
-
-
-
 
 	</dependencies>
 	<build>
@@ -681,17 +506,30 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId> 
-				<executions> <execution> <phase>compile</phase> <goals> <goal>compile</goal> 
-				</goals> </execution> </executions> </plugin -->
+			<plugin>
+				<groupId>org.scalastyle</groupId>
+				<artifactId>scalastyle-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<verbose>false</verbose>
+					<failOnViolation>true</failOnViolation>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<failOnWarning>false</failOnWarning>
+					<sourceDirectory>${project.basedir}/src/main/scala</sourceDirectory>
+					<testSourceDirectory>${project.basedir}/src/test/scala</testSourceDirectory>
+					<configLocation>${project.basedir}/lib/scalastyle_config.xml</configLocation>
+					<outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
+					<outputEncoding>UTF-8</outputEncoding>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
-		<!--extensions>
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>1.5.0.Final</version>
-			</extension>
-		</extensions-->
 	</build>
 </project>

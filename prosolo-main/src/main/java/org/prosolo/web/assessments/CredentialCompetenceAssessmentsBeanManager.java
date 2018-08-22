@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -199,6 +200,32 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		return null;
 	}
 
+	public long getCurrentStudentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getUserId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getStudentId();
+		}
+		return 0;
+	}
+
+	public long getCurrentAssessorId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getAssessorId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getAssessorId();
+		}
+		return 0;
+	}
+
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;
@@ -301,11 +328,10 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 			compAssessment.setApproved(true);
 			compAssessment.setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the competence for " + compAssessment.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 

@@ -2,6 +2,7 @@ package org.prosolo.web.assessments.util;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
@@ -44,5 +45,13 @@ public class AssessmentUtil {
         }
         AssessmentTypeConfig aType = assessmentTypesConfig.stream().filter(t -> t.getType() == type).findFirst().get();
         return aType.isEnabled();
+    }
+
+    public static BlindAssessmentMode getBlindAssessmentMode(List<AssessmentTypeConfig> assessmentTypesConfig, AssessmentType type) {
+        if (assessmentTypesConfig == null || assessmentTypesConfig.isEmpty()) {
+            return BlindAssessmentMode.OFF;
+        }
+        AssessmentTypeConfig aType = assessmentTypesConfig.stream().filter(t -> t.getType() == type).findFirst().get();
+        return aType.getBlindAssessmentMode();
     }
 }

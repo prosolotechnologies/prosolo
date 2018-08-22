@@ -1,7 +1,5 @@
 package org.prosolo.services.logging;
 
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
@@ -17,6 +15,8 @@ import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  *
@@ -52,7 +52,7 @@ public class UserActivityObserver extends EventObserver {
 				EventType.LinkAdded,
 				EventType.JOIN_GOAL_REQUEST,
 				EventType.JOIN_GOAL_INVITATION,
-				EventType.EVALUATION_REQUEST,
+				EventType.AssessmentRequested,
 				EventType.SEND_MESSAGE,
 				EventType.START_MESSAGE_THREAD,
 				EventType.ENROLL_COURSE,

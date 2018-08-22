@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data.credential;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.util.Pair;
@@ -17,6 +18,7 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
 
 import java.io.Serializable;
 import java.util.*;
@@ -47,7 +49,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private ResourceCreator creator;
 	private UserData student;
 	private List<CompetenceData1> competences;
-	private boolean automaticallyAssingStudents;
+	private AssessorAssignmentMethodData assessorAssignment = AssessorAssignmentMethodData.AUTOMATIC;
 	private int defaultNumberOfStudentsPerInstructor;
 	
 	//target credential data
@@ -153,6 +155,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		}
 	}
 
+	public AssessmentTypeConfig getPeerAssessmentConfig() {
+		return getAssessmentTypeConfig(AssessmentType.PEER_ASSESSMENT);
+	}
+
 	public boolean isPeerAssessmentEnabled() {
 		return isAssessmentTypeEnabled(AssessmentType.PEER_ASSESSMENT);
 	}
@@ -171,11 +177,16 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return aType != null && aType.isEnabled();
 	}
 
-	private AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
+	public AssessmentTypeConfig getAssessmentTypeConfig(AssessmentType type) {
 		if (assessmentTypes == null) {
 			return null;
 		}
-		return assessmentTypes.stream().filter(t -> t.getType() == type).findFirst().get();
+		Optional<AssessmentTypeConfig> assessmentTypeConfigOpt = assessmentTypes.stream().filter(t -> t.getType() == type).findFirst();
+		if (assessmentTypeConfigOpt.isPresent()) {
+			return assessmentTypeConfigOpt.get();
+		} else {
+			return null;
+		}
 	}
 
 	public boolean isFirstStageCredential() {
@@ -311,14 +322,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.hashtags = hashtags;
 	}
 
-	public boolean isAutomaticallyAssingStudents() {
-		return automaticallyAssingStudents;
+	public AssessorAssignmentMethodData getAssessorAssignment() {
+		return assessorAssignment;
 	}
 
-	public void setAutomaticallyAssingStudents(boolean automaticallyAssingStudents) {
-		observeAttributeChange("automaticallyAssingStudents", this.automaticallyAssingStudents, 
-				automaticallyAssingStudents);
-		this.automaticallyAssingStudents = automaticallyAssingStudents;
+	public void setAssessorAssignment(AssessorAssignmentMethodData assessorAssignment) {
+		observeAttributeChange("assessorAssignment", this.assessorAssignment,
+				assessorAssignment);
+		this.assessorAssignment = assessorAssignment;
 	}
 
 	public int getDefaultNumberOfStudentsPerInstructor() {
@@ -481,6 +492,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("title");
 	}
 
+	public boolean isAssessorAssignmentChanged() {
+		return changedAttributes.containsKey("assessorAssignment");
+	}
+
 	public long getDeliveryStartBeforeUpdate() {
 		Long delStartTime = (Long) changedAttributes.get("deliveryStartTime");
 		//if not null return this value, if it is null it means it is not changed so original value can be returned
@@ -625,6 +640,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.assessmentTypes = assessmentTypes;
 	}
 
+	public AssessmentTypeConfig getAssessmentType(AssessmentType assessmentType) {
+		return assessmentTypes.stream().filter(at -> at.getType().equals(assessmentType)).findAny().get();
+	}
+
 	public CredentialCategoryData getCategory() {
 		return category;
 	}
@@ -672,5 +691,48 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
 		this.evidenceDisplayed = evidenceDisplayed;
+	}
+
+
+	public enum AssessorAssignmentMethodData {
+		AUTOMATIC (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students automatically"),
+		MANUAL (ResourceBundleUtil.getLabel("instructor.plural") + " are assigned to students manually"),
+		BY_STUDENTS ("Students can choose their " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),;
+
+		private String label;
+
+		AssessorAssignmentMethodData(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return this.label;
+		}
+
+		public AssessorAssignmentMethod getAssessorAssignmentMethod() {
+			switch (this) {
+				case AUTOMATIC:
+					return AssessorAssignmentMethod.AUTOMATIC;
+				case MANUAL:
+					return AssessorAssignmentMethod.MANUAL;
+				case BY_STUDENTS:
+					return AssessorAssignmentMethod.BY_STUDENTS;
+				default:
+					return AssessorAssignmentMethod.AUTOMATIC;
+			}
+		}
+
+		public static AssessorAssignmentMethodData getAssessorAssignmentMethod(AssessorAssignmentMethod assessorAssignmentMethod) {
+			switch (assessorAssignmentMethod) {
+				case AUTOMATIC:
+					return AssessorAssignmentMethodData.AUTOMATIC;
+				case MANUAL:
+					return AssessorAssignmentMethodData.MANUAL;
+				case BY_STUDENTS:
+					return AssessorAssignmentMethodData.BY_STUDENTS;
+				default:
+					return AssessorAssignmentMethodData.AUTOMATIC;
+			}
+		}
 	}
 }

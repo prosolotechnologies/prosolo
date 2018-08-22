@@ -67,7 +67,7 @@ public class StudentCompetencePeerAssessmentsBean extends CompetencePeerAssessme
 	}
 
 	public void initAskForAssessment() {
-		askForAssessmentBean.init(getDecodedCompId(), targetCompId, AssessmentType.PEER_ASSESSMENT);
+		askForAssessmentBean.init(getDecodedCompId(), targetCompId, AssessmentType.PEER_ASSESSMENT, getBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

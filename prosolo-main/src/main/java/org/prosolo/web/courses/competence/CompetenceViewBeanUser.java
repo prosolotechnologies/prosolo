@@ -131,7 +131,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	}
 
 	public void initAskForAssessment(AssessmentType aType) {
-		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType);
+		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType, competenceData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
 	}
 	
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
@@ -236,15 +236,19 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void removeEvidenceFromCompetence() {
 		try {
-			learningEvidenceManager.removeEvidenceFromCompetence(evidenceToRemove.getCompetenceEvidenceId());
-			competenceData.getEvidences().remove(evidenceToRemove);
-			if (learningEvidenceSearchBean.isInitialized()) {
-				//if evidence search bean is initialized include removed evidence in search and reset search
-				learningEvidenceSearchBean.includeEvidenceInFutureSearches(evidenceToRemove.getId());
-				learningEvidenceSearchBean.resetAndSearch();
+			if (evidenceToRemove != null) {
+				learningEvidenceManager.removeEvidenceFromCompetence(evidenceToRemove.getCompetenceEvidenceId());
+				competenceData.getEvidences().remove(evidenceToRemove);
+				if (learningEvidenceSearchBean.isInitialized()) {
+					//if evidence search bean is initialized include removed evidence in search and reset search
+					learningEvidenceSearchBean.includeEvidenceInFutureSearches(evidenceToRemove.getId());
+					learningEvidenceSearchBean.resetAndSearch();
+				}
+				evidenceToRemove = null;
+				PageUtil.fireSuccessfulInfoMessage("Evidence successfully removed");
+			} else {
+				logger.debug("Evidence to remove is null which means that user double-clicked the remove evidence button");
 			}
-			evidenceToRemove = null;
-			PageUtil.fireSuccessfulInfoMessage("Evidence successfully removed");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error removing the evidence");

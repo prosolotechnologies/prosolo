@@ -7,12 +7,6 @@
 	<namespace>http://www.prosolo.com/util</namespace>
 
 	<function>
-		<function-name>mapToList</function-name>
-		<function-class>org.prosolo.util.CollectionsUtil</function-class>
-		<function-signature>java.util.List mapToList(java.util.Map)</function-signature>
-	</function>
-	
-	<function>
 		<function-name>getDomainFromUrl</function-name>
 		<function-class>org.prosolo.web.util.URLUtil</function-class>
 		<function-signature>java.lang.String getDomainName(java.lang.String)</function-signature>
@@ -52,12 +46,6 @@
 		<function-name>getPagePath</function-name>
 		<function-class>org.prosolo.web.util.URLUtil</function-class>
 		<function-signature>java.lang.String getPagePath(java.lang.String)</function-signature>
-	</function>
-		
-	<function>
-		<function-name>matchPageURLRegex</function-name>
-		<function-class>org.prosolo.web.util.URLUtil</function-class>
-		<function-signature>java.lang.Boolean matchForwardRequestURLRegex(java.lang.String)</function-signature>
 	</function>
 		
 	<function>
@@ -112,6 +100,12 @@
 		<function-name>capitalizeWord</function-name>
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String capitalizeWord(java.lang.String)</function-signature>
+	</function>
+
+	<function>
+		<function-name>encodeUserId</function-name>
+		<function-class>org.prosolo.web.util.UserIdEncoder</function-class>
+		<function-signature>java.lang.String encodeId(long)</function-signature>
 	</function>
 	
 	<!-- Components -->
