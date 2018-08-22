@@ -110,7 +110,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		
 		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+"(date bigint,course bigint, userid bigint, attach counter,  "
 				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
-				+ "posting counter,content_access counter,message counter,search counter, "
+				+ "posting counter,content_access counter,message counter,search counter, assessment counter, "
 				+ " PRIMARY KEY (date, course, userid))";
 		this.cqls.add(userprofileactionsobservationsbydateDDL);
 
