@@ -65,19 +65,11 @@ public class UploadManagerImpl implements UploadManager {
 	@Override
 	public String storeFile(UploadedFile uploadedFile, String fileName) throws IOException {
 		String key = MD5HashUtility.generateKeyForFilename(fileName);
-		//Don't delete this. It temporary stores files to
-		//local directory for later indexing
-		File tempFile = new File(Settings.getInstance().config.fileManagement.uploadPath + File.separator + key);
-		String fileType = FileUtil.getFileType(tempFile);
-	
-		FileUtils.copyInputStreamToFile(
-				uploadedFile.getInputstream(), 
-				tempFile);
-	
+		String fileType = FileUtil.getFileType(uploadedFile.getFileName());
+
 		s3Manager.storeInputStreamByKey(uploadedFile.getInputstream(), key,fileType);
 		
-		String fullPath = AmazonS3Utility.createFullPathFromRelativePath(key);
-		return fullPath;
-	} 
+		return AmazonS3Utility.createFullPathFromRelativePath(key);
+	}
 	
 }
