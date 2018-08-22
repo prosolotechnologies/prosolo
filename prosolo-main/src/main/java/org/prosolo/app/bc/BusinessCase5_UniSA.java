@@ -403,37 +403,97 @@ public class BusinessCase5_UniSA {
 			enrollToDelivery(events, org, standard1Delivery, userTimothyRivera);
 			enrollToDelivery(events, org, standard1Delivery, userKevinHall);
 
-			// start first competency
+			//////////////////////////
+			// Start all competencies
+			//////////////////////////
 			List<CompetenceData1> standard1Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(standard1Delivery.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 standard1Comp1Target = ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
-			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
-			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
-			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
-			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
-			ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetence(standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell));
+			// we need a reference to the TargetCompetence1
+			TargetCompetence1 standard1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+			TargetCompetence1 standard1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+			TargetCompetence1 standard1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+			TargetCompetence1 standard1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+			TargetCompetence1 standard1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+			TargetCompetence1 standard1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
-			// add some evidence to the first competency
-			LearningEvidenceData evidence = new LearningEvidenceData();
-			evidence.setType(LearningEvidenceType.LINK);
-			evidence.setUrl("http://hellen.myblongspot.com/learning-plan-incorporating-teaching-strategies/");
-			evidence.setTitle("Learning plan");
-			evidence.setText("Learning plan incorporating teaching strategies that have been selected specifically to address the students’ physical, social or intellectual development and characteristics");
-			evidence.setTagsString("learning plan");
-			evidence.setRelationToCompetence("Learning plan incorporating teaching strategies");
+			// add pieces of evidence to the all competencies
+			LearningEvidenceData evidence1Data = new LearningEvidenceData();
+			evidence1Data.setType(LearningEvidenceType.LINK);
+			evidence1Data.setTitle("Learning Plan");
+			evidence1Data.setText("Learning plan incorporating teaching strategies that have been selected specifically to address the students’ physical, social or intellectual development and characteristics");
+			evidence1Data.setUrl("https://s3.amazonaws.com/prosolo.nikola/files/6efd5a265b12209a9d88cea9c79aaa6c/Learnign%20Plan.pdf");
+			evidence1Data.setTagsString("learning plan, teaching strategies");
+			evidence1Data.setRelationToCompetence("Learning plan incorporating teaching strategies.");
 
-			LearningEvidenceData evidence1 = new LearningEvidenceData();
-			evidence.setType(LearningEvidenceType.LINK);
-			evidence.setUrl("http://hellen.myblongspot.com/analysis-of-the-success-of-teaching-strategies/");
-			evidence.setTitle("Teaching Strategies Success Analysis");
-			evidence.setText("Analysis of the success of teaching strategies selected on the progress of the student, and how their learning has improved");
-			evidence.setTagsString("teaching strategies");
-			evidence.setRelationToCompetence("Teaching strategies success analysis for the K-12 programme");
+			evidence1Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp1Target.getId(), evidence1Data, createUserContext(userHelenCampbell)));
 
-			LearningEvidenceData newEvidence = ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAndAttachItToCompetence(
-					standard1Comp1Target.getId(), evidence, createUserContext(userHelenCampbell));
+			LearningEvidenceData evidence2Data = new LearningEvidenceData();
+			evidence2Data.setType(LearningEvidenceType.LINK);
+			evidence2Data.setTitle("Teaching Strategies Success Analysis");
+			evidence2Data.setText("Analysis of the success of teaching strategies selected on the progress of the student, and how their learning has improved");
+			evidence2Data.setUrl("http://hellen.myblongspot.com/analysis-of-the-success-of-teaching-strategies/");
+			evidence2Data.setTagsString("teaching strategies");
+			evidence2Data.setRelationToCompetence("Teaching strategies success analysis for the K-12 programme.");
+
+			evidence2Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp1Target.getId(), evidence2Data, createUserContext(userHelenCampbell)));
+
+			LearningEvidenceData evidence3Data = new LearningEvidenceData();
+			evidence3Data.setType(LearningEvidenceType.FILE);
+			evidence3Data.setTitle("New version of the Mathematics teaching program");
+			evidence3Data.setText("A new version of the teaching program for the Mathematics course created based on the advice from the supervisor.");
+			evidence3Data.setUrl("https://s3.amazonaws.com/prosolo.nikola/files/a7db937ae4b4958ceb15fb82137c43fb/New%20Mathematics%20teaching%20program.pdf");
+			evidence3Data.setTagsString("teaching program");
+			evidence3Data.setRelationToCompetence("Contains structure of the new version of a teaching program.");
+
+			evidence3Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp2Target.getId(), evidence3Data, createUserContext(userHelenCampbell)));
+
+			LearningEvidenceData evidence4Data = new LearningEvidenceData();
+			evidence4Data.setType(LearningEvidenceType.FILE);
+			evidence4Data.setTitle("Recording of meeting with supervisor");
+			evidence4Data.setText("Recording of the meeting with my supervisor Rick Sanchez from 15 June, 2018.");
+			evidence4Data.setUrl("https://s3.amazonaws.com/prosolo.nikola/files/6ce971e7edb9bb95a35abd501a2409c7/Meeting%20recording,%2015%20June,%202018.mov");
+			evidence4Data.setTagsString("meeting logs");
+			evidence4Data.setRelationToCompetence("Contains feedback on the new version of the teaching program.");
+
+			evidence4Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp2Target.getId(), evidence4Data, createUserContext(userHelenCampbell)));
+
+			LearningEvidence evidence3 = ServiceLocator.getInstance().getService(DefaultManager.class).loadResource(LearningEvidence.class, evidence3Data.getId(), true);
+			ServiceLocator.getInstance().getService(LearningEvidenceManager.class).attachEvidenceToCompetence(standard1Comp3Target.getId(), evidence3, "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
+
+
+			LearningEvidenceData evidence5Data = new LearningEvidenceData();
+			evidence5Data.setType(LearningEvidenceType.FILE);
+			evidence5Data.setTitle("Lesson notes from English language course");
+			evidence5Data.setText("Lesson notes from the English language course given on 21 April, 2018.");
+			evidence5Data.setUrl("https://s3.amazonaws.com/prosolo.nikola/files/dedd108c4ea49314e6a9d9c0d8cfca5e/Lesson%20notes%20from%20English%20language%20course.pptx");
+			evidence5Data.setTagsString("lesson notes, english language");
+			evidence5Data.setRelationToCompetence("Lesson observation notes and discussion about effective teaching strategies that have been modified to reflect the learning needs and histories of Aboriginal and Torres Strait Islander students.");
+
+			evidence5Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp4Target.getId(), evidence5Data, createUserContext(userHelenCampbell)));
+
+			LearningEvidenceData evidence6Data = new LearningEvidenceData();
+			evidence6Data.setType(LearningEvidenceType.FILE);
+			evidence6Data.setTitle("Audio recording of student feedback");
+			evidence6Data.setText("Recording of student-led conference outcomes informing the development of teaching activities and strategies to meet\n" +
+					"the specific learning strengths and needs of students across a full range of abilities. 01 May, 2018.");
+			evidence6Data.setUrl("https://s3.amazonaws.com/prosolo.nikola/files/05766a8aa68df0b97f6f5934c040adb1/Student%20conference%20recording.mp3");
+			evidence6Data.setTagsString("student conference");
+			evidence6Data.setRelationToCompetence("Student feedback on teaching activities to meet the specific learning strengths and needs.");
+
+			evidence6Data = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
+					standard1Comp5Target.getId(), evidence6Data, createUserContext(userHelenCampbell)));
+
+			LearningEvidence evidence5 = ServiceLocator.getInstance().getService(DefaultManager.class).loadResource(LearningEvidence.class, evidence5Data.getId(), true);
+			ServiceLocator.getInstance().getService(LearningEvidenceManager.class).attachEvidenceToCompetence(standard1Comp6Target.getId(), evidence5, "Lesson observation notes that record how the teaching strategies designed and implemented by\n" +
+					"the teacher have been adjusted to support the learning needs of individual students with disability.");
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("Error", e);
 		}
 
 		// create deliveries for all other standards
