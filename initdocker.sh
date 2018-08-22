@@ -9,7 +9,7 @@ onErrorQuit () {
     exit 1
 }
 function createBranchVolumes {
-    docker volume create --name=cassandra_volume_${VCS_BRANCH} && \
+    docker volume create --name=cassandra_data_volume_${VCS_BRANCH} && \
     docker volume create --name=elasticsearch_data_volume_${VCS_BRANCH} && \
     docker volume create --name=mysql_data_volume_${VCS_BRANCH}
 }
@@ -21,13 +21,12 @@ function check_cassandra {
     printf "Is cassandra on? "
     cassandra_port=9042
     if is_db_running $cassandra_port ; then
-        echo "CHECK"
         printf "Is cassandra running in container? "
         if is_container_running docker_cassandra_1 ; then
-            echo "CHECK"
+            echo "Cassandra is running"
         else
             echo "ERROR"
-            onErrorQuit "Cassandra is running as a local process instead of a container. Shut down cassandra and retry"
+            onErrorQuit "Cassandra is still running as a local process. Wait until cassandra shut down and retry"
         fi
     else
         echo "DOWN. Will start container"
@@ -74,8 +73,8 @@ function handle_parameter {
                 RESET=true
                 shift
                 ;;
-            start-database)
-                START_VSERVER=false
+            stop)
+                STOP=true
                 shift
                 ;;
             -h|--help)
@@ -113,6 +112,7 @@ function handle_parameter {
     done
 
     [[ -z $RESET ]] && RESET=false
+    [[ -z $STOP ]] && STOP=false
     [[ -z $ALWAYSYES ]] && ALWAYSYES=false
     [[ -z $ALWAYSNO ]] && ALWAYSNO=false
     [[ -z $START_VSERVER ]] && START_VSERVER=true
@@ -139,10 +139,16 @@ function reset_database {
     if [ ! -z "${container}" ]; then
         docker rm -v ${container}
     fi
-    docker volume rm -f cassandra_volume_${VCS_BRANCH}
-    docker volume rm -f mysql_volume_${VCS_BRANCH}
-    docker volume rm -f elasticsearch_volume_${VCS_BRANCH}
+    docker volume rm -f cassandra_data_volume_${VCS_BRANCH}
+    docker volume rm -f mysql_data_volume_${VCS_BRANCH}
+    docker volume rm -f elasticsearch__data_volume_${VCS_BRANCH}
 }
+
+function stop_database {
+    pushd docker
+    docker-compose down || onErrorQuit "cannot stop containers"
+    popd
+  }
 
 function displayHelp() {
     echo -e "
@@ -159,6 +165,7 @@ function displayHelp() {
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
         reset          : resets database content and repeats bootstrap process
+        stop           : stops the currently running databases
 
     "
 }
@@ -167,14 +174,20 @@ function displayHelp() {
 #            LOGIC FLOW STARTS HERE                  #
 ######################################################
 
+
 handle_parameter $@
+
+if $STOP; then
+    stop_database
+    exit 1
+fi
 
 if [ -z ${VCS_BRANCH+x} ];
     then
     VCS_BRANCH=$(getBranch)
 fi
 export VCS_BRANCH=$VCS_BRANCH
-echo "BRANCH is set to:" + $VCS_BRANCH
+echo "BRANCH is set to:"  $VCS_BRANCH
 
 if ! check_docker ; then
     echo "ERROR"
