@@ -6,8 +6,8 @@ import java.io.Serializable;
 
 /**
  *
- * Represents a group of credential attributes which identifies credential (delivery) and is often
- * used together: credential id, title and delivery order (specific only to delivery)
+ * Represents a group of credential attributes that identifies a credential (delivery) and is often
+ * used together: credential id, title and delivery order (specific only to deliveries).
  *
  * @author stefanvuckovic
  * @date 2018-08-16

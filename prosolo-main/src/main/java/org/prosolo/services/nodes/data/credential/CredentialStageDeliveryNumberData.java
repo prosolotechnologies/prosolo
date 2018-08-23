@@ -1,7 +1,7 @@
 package org.prosolo.services.nodes.data.credential;
 
 /**
- * Represents the number of deliveries for specified credential and stage
+ * Represents a number of deliveries for specified credential and stage.
  *
  * @author stefanvuckovic
  * @date 2018-08-15

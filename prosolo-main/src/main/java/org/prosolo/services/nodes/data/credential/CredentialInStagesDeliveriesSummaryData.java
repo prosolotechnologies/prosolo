@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the basic, summary data for credential deliveries from all stages in total, as well as
+ * Represents a basic, summary data for credential deliveries from all stages in total, as well as
  * summary for each learning stage.
  *
  * @author stefanvuckovic

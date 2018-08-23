@@ -3,10 +3,7 @@ package org.prosolo.services.common.data;
 import java.util.List;
 
 /**
- * Represents collection of specified type which is supposed to be lazily initialized with flag
- * that indicates if collection is already initialized or not and count which gives the total element count.
- * Note: count is not a number of elements in a collection, but a number of elements in total which is available
- * even before data is initialized.
+ * Represents a collection of a specified type that is supposed to be lazily initialized.
  *
  * @author stefanvuckovic
  * @date 2018-08-16
@@ -27,10 +24,21 @@ public class LazyInitData<T> {
         initialized = true;
     }
 
+    /**
+     * Returns the total element count. Note that this number does not represent a number of elements in the collection,
+     * but the total number of elements.
+     *
+     * @return
+     */
     public long getCount() {
         return count;
     }
 
+    /**
+     * The flag that indicates whether the collection is already initialized or not.
+     *
+     * @return true or false
+     */
     public boolean isInitialized() {
         return initialized;
     }
