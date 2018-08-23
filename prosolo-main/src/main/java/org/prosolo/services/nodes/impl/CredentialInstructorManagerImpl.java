@@ -591,7 +591,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			params.put("dateAssigned", DateUtil.getMillisFromDate(instructor.getDateAssigned()) + "");
 			res.appendEvent(eventFactory.generateEventData(
 					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context, instr, credential, null, params));
-				
+
+			res.setResult(instructor);
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -612,7 +613,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id, 
+	public Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id,
 			List<Long> studentsToAssign, List<Long> studentsToUnassign, UserContextData context)
 			throws DbConnectionException {
 		try {
