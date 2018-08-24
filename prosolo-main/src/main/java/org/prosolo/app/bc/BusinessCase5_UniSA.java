@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -102,18 +103,29 @@ public class BusinessCase5_UniSA {
 				userNickPowell, null, null, params));
 
 		//create organization
+		OrganizationData orgData = new OrganizationData();
+		orgData.setTitle("Desert Winds University");
+		orgData.setAdmins(Collections.singletonList(new UserData(userNickPowell)));
+
+
+		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
+				.createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
+
+		// create learning stage
 		LearningStageData graduateLearningStage = new LearningStageData(false);
 		graduateLearningStage.setTitle("Graduate");
 		graduateLearningStage.setOrder(1);
 		graduateLearningStage.setStatus(ObjectStatus.CREATED);	// this needs to be set in order for the stage to be created in the method createNewOrganizationAndGetEvents
-
-		OrganizationData orgData = new OrganizationData();
-		orgData.setTitle("Desert Winds University");
-		orgData.setAdmins(Collections.singletonList(new UserData(userNickPowell)));
+		orgData.setId(org.getId());
+		orgData.setLearningInStagesEnabled(true);
 		orgData.addLearningStage(graduateLearningStage);
 
-		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
+				.updateOrganizationAndGetEvents(orgData, UserContextData.empty()));
+
+
+		// load learning stage from db in order to obtain its id
+		graduateLearningStage = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationLearningStagesForLearningResource(org.getId()).get(0).getLearningStage();
 
 		userNickPowell.setOrganization(org);
 
@@ -724,6 +736,7 @@ public class BusinessCase5_UniSA {
 		credentialData.setTagsString(tags);
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
 		credentialData.getAssessmentSettings().setRubricId(rubricId);
+		credentialData.setLearningStageEnabled(true);
 		credentialData.setLearningStage(learningStage);
 		credentialData.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.AUTOMATIC);
 
