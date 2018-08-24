@@ -119,15 +119,19 @@
 	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
 	                        <li role="presentation" class="active"><a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression</a></li>
 	                        <li role="presentation"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
-	                        <li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
-	                        <li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
+							<ui:remove>
+								<li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
+							</ui:remove>
+							<li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
 	                    </ul>
 	                </div>
 	                <div class="tab-content">
 	                    <ui:include src="/manage/studentProfile-progression.xhtml"></ui:include>
 	                    <ui:include src="/manage/studentProfile-timeline.xhtml"></ui:include>
-						<ui:include src="/manage/studentProfile-socialInteraction.xhtml"></ui:include>
-	                    <ui:include src="/manage/observation-history.xhtml"></ui:include>
+						<ui:remove>
+							<ui:include src="/manage/studentProfile-socialInteraction.xhtml"></ui:include>
+						</ui:remove>
+						<ui:include src="/manage/observation-history.xhtml"></ui:include>
 	                </div>
 	            </div>
 	            <div class="col-md-3">
