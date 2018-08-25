@@ -19,19 +19,16 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.activityWall.observer.processor.UnitWelcomePostSocialActivityProcessor;
 import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.htmlparser.LinkParser;
@@ -55,7 +52,6 @@ import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.prosolo.web.util.HTMLUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -105,7 +101,7 @@ public class BusinessCase5_UniSA {
 		//create organization
 		OrganizationData orgData = new OrganizationData();
 		orgData.setTitle("Desert Winds University");
-		orgData.setAdmins(Collections.singletonList(new UserData(userNickPowell)));
+		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 
 
 		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
@@ -149,7 +145,7 @@ public class BusinessCase5_UniSA {
 			HibernateUtil.close(session1);
 		}
 
-		// create 20 users
+		// create 20 students
 		User userKevinMitchell = extractResultAndAddEvents(events, createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", genericPassword, "Student", "male3.png", roleUser));
 		User userPaulEdwards = extractResultAndAddEvents(events, createUser(org.getId(), "Paul", "Edwards", "paul.edwards@gmail.com", genericPassword, "Student", "male4.png", roleUser));
 		User userGeorgeYoung = extractResultAndAddEvents(events, createUser(org.getId(), "George", "Young", "george.young@gmail.com", genericPassword, "Student", "male6.png", roleUser));
@@ -196,11 +192,11 @@ public class BusinessCase5_UniSA {
 		// Erika Ames is Instructor (already set when user is defined)
 
 
-		// adding managers to the unit School of Education
+		// add managers to the unit School of Education
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userNickPowell.getId(), unitSchoolOfEducation.getId(), roleManager.getId(), createUserContext(userNickPowell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKarenWhite.getId(), unitSchoolOfEducation.getId(), roleManager.getId(), createUserContext(userKarenWhite)));
 
-		// adding instructors to the unit School of Education
+		// add instructors to the unit School of Education
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userKarenWhite.getId(), unitSchoolOfEducation.getId(), roleInstructor.getId(), createUserContext(userKarenWhite)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userPhilArmstrong.getId(), unitSchoolOfEducation.getId(), roleInstructor.getId(), createUserContext(userPhilArmstrong)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAnnaHallowell.getId(), unitSchoolOfEducation.getId(), roleInstructor.getId(), createUserContext(userAnnaHallowell)));
@@ -209,7 +205,7 @@ public class BusinessCase5_UniSA {
 		// list of all instructors from the School od Education
 		List<User> schoolOfEducationInstructors = Arrays.asList(userKarenWhite, userPhilArmstrong, userAnnaHallowell, userErikaAmes);
 
-		// adding students to the unit School of Education
+		// add students to the unit School of Education
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userHelenCampbell.getId(), unitSchoolOfEducation.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userRichardAnderson.getId(), unitSchoolOfEducation.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userStevenTurner.getId(), unitSchoolOfEducation.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
