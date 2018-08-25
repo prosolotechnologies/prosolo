@@ -6,10 +6,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.Notification1;
-import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.domainmodel.user.notifications.*;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RoleManager;
@@ -105,8 +102,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Notification1 createNotification(long actorId, 
-			long receiverId, NotificationType type, Date date, 
+	public Notification1 createNotification(long actorId, NotificationActorRole actorRole,
+			boolean anonymizedActor, long receiverId, NotificationType type, Date date,
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
 			boolean notifyByEmail, boolean isObjectOwner, Session session, PageSection section) throws DbConnectionException {
 		try {
@@ -116,6 +113,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			notification.setNotifyByEmail(notifyByEmail);
 			notification.setDateCreated(date);
 			notification.setActor(actor);
+			notification.setNotificationActorRole(actorRole);
+			notification.setAnonymizedActor(anonymizedActor);
 			notification.setReceiver(receiver);
 			notification.setRead(false);
 			notification.setType(type);

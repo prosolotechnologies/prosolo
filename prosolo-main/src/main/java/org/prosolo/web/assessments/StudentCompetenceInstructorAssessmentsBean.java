@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;

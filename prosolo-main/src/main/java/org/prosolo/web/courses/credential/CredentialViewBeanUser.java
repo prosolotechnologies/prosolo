@@ -116,7 +116,7 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 
 	public void initAskForAssessment(AssessmentType aType) {
-		askForAssessmentBean.init(decodedId, credentialData.getTargetCredId(), aType);
+		askForAssessmentBean.init(decodedId, credentialData.getTargetCredId(), aType, credentialData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
 	}
 
 	private void retrieveUserCredentialData() {

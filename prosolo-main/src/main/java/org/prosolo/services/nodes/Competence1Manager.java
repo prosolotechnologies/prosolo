@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
@@ -458,7 +459,7 @@ public interface Competence1Manager {
 			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
-	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
 
@@ -470,4 +471,14 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
+
+	/**
+	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type
+	 *
+	 * @param compId
+	 * @param assessmentType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 }

@@ -8,6 +8,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public abstract class NotificationEventProcessor {
         List<Notification1> notifications = new ArrayList<>();
         List<NotificationReceiverData> receivers = getReceiversData();
         if (!receivers.isEmpty()) {
-            long sender = getSenderId();
+            NotificationSenderData sender = getSenderData();
             NotificationType notificationType = getNotificationType();
             long objectId = getObjectId();
             ResourceType resType = getObjectType();
@@ -44,9 +45,11 @@ public abstract class NotificationEventProcessor {
             ResourceType targetType = getTargetType();
 
             for (NotificationReceiverData receiver : receivers) {
-                if (isConditionMet(sender, receiver.getReceiverId()) && receiver.getNotificationLink() != null) {
+                if (isConditionMet(sender.getSenderId(), receiver.getReceiverId()) && receiver.getNotificationLink() != null) {
                     Notification1 notification = notificationManager.createNotification(
-                            sender,
+                            sender.getSenderId(),
+                            sender.getActorRole(),
+                            sender.isAnonymizedRole(),
                             receiver.getReceiverId(),
                             notificationType,
                             event.getDateCreated(),
@@ -73,7 +76,7 @@ public abstract class NotificationEventProcessor {
 
     abstract List<NotificationReceiverData> getReceiversData();
 
-    abstract long getSenderId();
+    abstract NotificationSenderData getSenderData();
 
     abstract NotificationType getNotificationType();
 
