@@ -207,6 +207,7 @@ public class NodeChangeProcessorFactory {
             case AssessmentRequested:
             case ASSESSED_BY_AUTO_GRADING:
             case GRADE_ADDED:
+            case AssessmentApproved:
                 if (node instanceof CredentialAssessment) {
                     return new UserNodeChangeProcessor(event, session, userEntityESService,
                             credentialESService, competenceESService, credManager, assessmentManager, EventUserRole.Subject);

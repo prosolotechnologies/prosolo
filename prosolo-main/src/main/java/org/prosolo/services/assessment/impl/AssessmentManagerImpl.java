@@ -23,7 +23,6 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -1066,7 +1065,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			for (CompetenceData1 competenceData1 : competenceData1List) {
 				CompetenceAssessment competenceAssessment = getCompetenceAssessmentForCredentialAssessment(
 						competenceData1.getCompetenceId(), credentialAssessment.getStudent().getId(), credentialAssessmentId);
-				result.appendEvents(approveCompetenceAndGetEvents(competenceAssessment.getId(), context).getEventQueue());
+				result.appendEvents(approveCompetenceAndGetEvents(competenceAssessment.getId(), false, context).getEventQueue());
 			}
 
 			credentialAssessment.setApproved(true);
@@ -1498,13 +1497,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	//nt
 	public void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
-		Result<Void> res = self.approveCompetenceAndGetEvents(competenceAssessmentId, context);
+		Result<Void> res = self.approveCompetenceAndGetEvents(competenceAssessmentId, true, context);
 		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
 	@Transactional
-	public Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
+	public Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, boolean directRequestForCompetenceAssessmentApprove, UserContextData context) throws DbConnectionException {
 		try {
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
@@ -1518,10 +1517,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 			}
 
-			User student = new User();
-			student.setId(competenceAssessment.getStudent().getId());
-			result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
-					competenceAssessment, student, null, null));
+			/*
+			 only if request for competence assessment approve is direct we should generate this event
+			 if competence is being approved as a part of approving credential assessment this
+			 event is not generated
+
+			 TODO event refactor - should we generate this event and filter it out in some other place
+			 or not generate it like we are doing now
+			  */
+			if (directRequestForCompetenceAssessmentApprove) {
+				CompetenceAssessment compAssessmentObj = new CompetenceAssessment();
+				compAssessmentObj.setId(competenceAssessmentId);
+				User student = new User();
+				student.setId(competenceAssessment.getStudent().getId());
+
+				result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+						compAssessmentObj, student, null, null));
+			}
 			return result;
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -3235,30 +3247,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	//NOTIFY ASSESSOR COMPETENCE END
 
-	@Override
-	@Transactional
-	public void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException {
-		try {
-			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, assessmentId);
-			ca.setAssessorNotified(false);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error removing the assessor notification from credential assessment");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException {
-		try {
-			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, assessmentId);
-			ca.setAssessorNotified(false);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error removing the assessor notification from competence assessment");
-		}
-	}
-
 	// GET CREDENTIAL ASSESSMENT PEER ASSESSOR IDS BEGIN
 
 	@Override
@@ -3882,6 +3870,5 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error retrieving the credential assessment");
 		}
 	}
-
 
 }
