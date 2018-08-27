@@ -9,7 +9,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -22,7 +21,6 @@ import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.nodes.CredentialManager;
@@ -67,7 +65,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -116,10 +114,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					.fetchSource(includes, null);
 
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() ==
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
-					: SortOrder.DESC;
-			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
+			searchSourceBuilder.sort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId), ESIndexTypes.CREDENTIAL);
 			
@@ -156,31 +151,31 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.filter(configureAndGetSearchFilter(
 				CredentialSearchConfig.forOriginal(true), userId, null));
 
-		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
+		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId);
 	}
 
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForAdmin(
 			long organizationId, long unitId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//admin should see all credentials from unit with passed id
 			bQueryBuilder.filter(termQuery("units.id", unitId));
 			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name()));
 
-			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
+			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId);
 	}
 
 	private PaginatedResult<CredentialData> searchCredentials(
 			BoolQueryBuilder bQueryBuilder, long organizationId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -222,10 +217,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					.fetchSource(includes, null);
 
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() ==
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
-					: SortOrder.DESC;
-			searchSourceBuilder.sort(new FieldSortBuilder(sortOption.getSortField()).order(order));
+			searchSourceBuilder.sort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, organizationId), ESIndexTypes.CREDENTIAL);
 

@@ -25,9 +25,9 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -51,6 +51,7 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.services.util.SortingOption;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -2687,7 +2688,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getOngoingDeliveries(long credId) throws DbConnectionException {
-		return getDeliveries(credId, true, CredentialSearchFilterManager.ACTIVE);
+		return getDeliveries(credId, true, CredentialDeliverySortOption.DATE_STARTED, CredentialSearchFilterManager.ACTIVE);
 	}
 
 	@Override
@@ -2701,7 +2702,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							"WITH origCred.id = :credId or origCred.firstLearningStageCredential.id = :credId " +
 					"WHERE del.type = :type " +
 					"AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
-					"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now))";
+					"AND (del.deliveryEnd IS NULL OR del.deliveryEnd > :now)) " +
+					"ORDER BY del.deliveryStart DESC, del.title ASC";
 
 			Query q = persistence.currentManager()
 					.createQuery(query)
@@ -2726,16 +2728,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId,
-																								long userId, CredentialSearchFilterManager filter ) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false, filter);
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, CredentialDeliverySortOption sortOption,
+																								CredentialSearchFilterManager filter ) throws DbConnectionException {
+		List<CredentialData> credentials = getDeliveries(credId, false, sortOption, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialSearchFilterManager filter)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
@@ -2754,6 +2756,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			} else if (filter.equals(CredentialSearchFilterManager.ARCHIVED)) {
 				query.append(" AND del.archived IS TRUE");
 			}
+
+			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
+			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
+			String sort = null;
+			switch (sortOption) {
+				case DATE_STARTED:
+					sort = dateStartedSortOption + ", " + titleSortOption;
+					break;
+				case ALPHABETICALLY:
+					sort = titleSortOption + ", " + dateStartedSortOption;
+					break;
+			}
+			query.append(" ORDER BY " + sort);
 
 			Query q = persistence.currentManager()
 					.createQuery(query.toString())
@@ -2873,11 +2888,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public PaginatedResult<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit,
-																	   int page, LearningResourceSortOption sortOption, long userId)
+																	   int page, long userId)
 			throws DbConnectionException, NullPointerException {
 		PaginatedResult<CredentialData> res = new PaginatedResult<>();
 		try {
-			if (searchFilter == null || sortOption == null) {
+			if (searchFilter == null) {
 				throw new NullPointerException("Invalid argument values");
 			}
 
@@ -2892,7 +2907,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (count > 0) {
 				res.setHitsNumber(count);
-				res.setFoundNodes(getCredentialsForManager(searchFilter, limit, page, sortOption, ids));
+				res.setFoundNodes(getCredentialsForManager(searchFilter, limit, page, ids));
 			}
 			return res;
 		} catch (NullPointerException npe) {
@@ -2906,8 +2921,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	private List<CredentialData> getCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit,
-														  int page, LearningResourceSortOption sortOption,
-														  List<Long> credIds) {
+														  int page, List<Long> credIds) {
 		StringBuilder query = new StringBuilder(
 				"SELECT c " +
 				"FROM Credential1 c " +
@@ -2922,7 +2936,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				break;
 		}
 
-		query.append("ORDER BY c." + sortOption.getSortFieldDB() + " " + sortOption.getSortOrder());
+		query.append("ORDER BY lower(c.title) ASC");
 
 		Query q = persistence.currentManager()
 				.createQuery(query.toString())
@@ -3197,7 +3211,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
 			throws DbConnectionException {
 		try {
 			/*
@@ -3209,10 +3223,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 */
 			String query =
 					"SELECT del " +
-							"FROM Credential1 del " +
-							"INNER JOIN del.credInstructors instructor " +
-							"WITH instructor.user.id = :userId " +
-							"WHERE del.type = :type";
+					"FROM Credential1 del " +
+					"INNER JOIN del.credInstructors instructor " +
+					"WITH instructor.user.id = :userId " +
+					"WHERE del.type = :type ";
+
+			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
+			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
+			String sort = null;
+			switch (sortOption) {
+				case DATE_STARTED:
+					sort = dateStartedSortOption + ", " + titleSortOption;
+					break;
+				case ALPHABETICALLY:
+					sort = titleSortOption + ", " + dateStartedSortOption;
+					break;
+			}
+			query += "ORDER BY " + sort;
 
 			@SuppressWarnings("unchecked")
 			List<Credential1> result = persistence.currentManager()
@@ -3413,7 +3440,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	private List<CredentialData> getCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
-															int page, LearningResourceSortOption sortOption) {
+															int page) {
 		//return only first stage credentials and credentials with disabled learning in stages
 		StringBuilder query = new StringBuilder(
 				"SELECT c " +
@@ -3433,7 +3460,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				break;
 		}
 
-		query.append("ORDER BY lower(c." + sortOption.getSortFieldDB() + ") " + sortOption.getSortOrder());
+		query.append("ORDER BY lower(c.title) ASC");
 
 		@SuppressWarnings("unchecked")
 		List<Credential1> creds = persistence.currentManager()
@@ -3488,11 +3515,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
-																	 int page, LearningResourceSortOption sortOption)
+																	 int page)
 			throws DbConnectionException, NullPointerException {
 		PaginatedResult<CredentialData> res = new PaginatedResult<>();
 		try {
-			if (searchFilter == null || sortOption == null) {
+			if (searchFilter == null) {
 				throw new NullPointerException("Invalid argument values");
 			}
 
@@ -3500,7 +3527,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			if (count > 0) {
 				res.setHitsNumber(count);
-				res.setFoundNodes(getCredentialsForAdmin(unitId, searchFilter, limit, page, sortOption));
+				res.setFoundNodes(getCredentialsForAdmin(unitId, searchFilter, limit, page));
 			}
 			return res;
 		} catch (NullPointerException npe) {

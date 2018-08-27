@@ -3,7 +3,6 @@ package org.prosolo.search;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 
@@ -25,12 +24,11 @@ public interface CredentialTextSearch extends AbstractManager {
 	 * @param unitIds
 	 * @param filter
 	 * @param filterCategoryId - if 0 it means that credentials should not be filtered by category
-	 * @param sortOption
 	 * @return
 	 */
 	PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId, LearningResourceSortOption sortOption);
+			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId);
 
 	/**
 	 *
@@ -41,12 +39,11 @@ public interface CredentialTextSearch extends AbstractManager {
 	 * @param userId
 	 * @param filter
 	 * @param filterCategoryId - if 0 it means that credentials should not be filtered by category
-	 * @param sortOption
 	 * @return
 	 */
 	PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption);
+			CredentialSearchFilterManager filter, long filterCategoryId);
 
 	/**
 	 *
@@ -57,11 +54,10 @@ public interface CredentialTextSearch extends AbstractManager {
 	 * @param limit
 	 * @param filter
 	 * @param filterCategoryId - if 0 it means that credentials should not be filtered by category
-	 * @param sortOption
 	 * @return
 	 */
 	PaginatedResult<CredentialData> searchCredentialsForAdmin(
 			long organizationId, long unitId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption);
+			CredentialSearchFilterManager filter, long filterCategoryId);
 
 }
