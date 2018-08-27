@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -38,6 +37,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.prosolo.services.nodes.data.resourceAccess.*;
@@ -46,7 +46,6 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -1889,11 +1888,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
-			LearningResourceSortOption sortOption, long userId) 
+	public List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, long userId)
 				throws DbConnectionException, NullPointerException {
 		try {
-			if(searchFilter == null || sortOption == null) {
+			if(searchFilter == null) {
 				throw new NullPointerException("Invalid argument values");
 			}
 			
@@ -1931,8 +1929,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					query.append("AND c.archived = :boolTrue ");
 					break;
 			}
-			
-			query.append("ORDER BY c." + sortOption.getSortFieldDB() + " " + sortOption.getSortOrder());
+
+			query.append("ORDER BY c.title ASC");
 			
 			Query q = persistence.currentManager()
 						.createQuery(query.toString())

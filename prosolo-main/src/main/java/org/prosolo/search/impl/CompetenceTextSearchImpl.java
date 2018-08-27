@@ -23,7 +23,6 @@ import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -172,8 +171,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetences(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, LearningResourceSearchFilter filter, LearningResourceSortOption sortOption,
-			CompetenceSearchConfig config) {
+			List<Long> unitIds, LearningResourceSearchFilter filter, CompetenceSearchConfig config) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -254,14 +252,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			searchRequestBuilder.setFrom(start).setSize(limit);
 			
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
-					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchRequestBuilder.addSort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {
@@ -304,7 +299,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetencesForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CompetenceSearchFilter filter, LearningResourceSortOption sortOption) {
+			CompetenceSearchFilter filter) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -367,10 +362,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			searchRequestBuilder.setFrom(start).setSize(limit);
 			
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
-					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchRequestBuilder.addSort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			

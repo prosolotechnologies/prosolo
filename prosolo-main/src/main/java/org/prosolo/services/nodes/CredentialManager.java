@@ -11,9 +11,9 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
@@ -363,7 +363,7 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getOngoingDeliveriesFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
-			long userId, CredentialSearchFilterManager filter) throws DbConnectionException;
+			long userId, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter) throws DbConnectionException;
 	
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 
@@ -377,7 +377,7 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 
 	PaginatedResult<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page,
-																LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+																long userId) throws DbConnectionException, NullPointerException;
 	
 	UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) throws DbConnectionException;
 	
@@ -403,7 +403,7 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
 
-	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
+	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
 			throws DbConnectionException;
 
 	long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException;
@@ -424,8 +424,7 @@ public interface CredentialManager extends AbstractManager {
 
 	boolean isUserEnrolled(long credId, long userId);
 
-	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit,
-												   int page, LearningResourceSortOption sortOption)
+	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit, int page)
 			throws DbConnectionException, NullPointerException;
 
 	void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
