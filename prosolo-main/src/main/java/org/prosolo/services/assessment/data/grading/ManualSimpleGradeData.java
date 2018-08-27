@@ -72,6 +72,7 @@ public class ManualSimpleGradeData implements GradeData {
         this.newGrade = newGrade;
     }
 
+    @Override
     public int getMinGrade() {
         return gradeInfo.getMinGrade();
     }
