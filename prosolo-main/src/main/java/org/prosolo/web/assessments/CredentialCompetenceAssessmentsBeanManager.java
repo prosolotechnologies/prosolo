@@ -3,7 +3,6 @@ package org.prosolo.web.assessments;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -312,15 +311,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	/*
 	ACTIONS
 	 */
-	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
-		try {
-			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
-			compAssessment.setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
 
 	public void approveCompetence(CompetenceAssessmentData compAssessment) {
 		try {

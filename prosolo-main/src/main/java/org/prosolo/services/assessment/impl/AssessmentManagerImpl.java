@@ -3247,30 +3247,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	//NOTIFY ASSESSOR COMPETENCE END
 
-	@Override
-	@Transactional
-	public void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException {
-		try {
-			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, assessmentId);
-			ca.setAssessorNotified(false);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error removing the assessor notification from credential assessment");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException {
-		try {
-			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, assessmentId);
-			ca.setAssessorNotified(false);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error removing the assessor notification from competence assessment");
-		}
-	}
-
 	// GET CREDENTIAL ASSESSMENT PEER ASSESSOR IDS BEGIN
 
 	@Override

@@ -654,26 +654,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
-	public void removeAssessorNotification() {
-		try {
-			assessmentManager.removeAssessorNotificationFromCredentialAssessment(fullAssessmentData.getCredAssessmentId());
-			fullAssessmentData.setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
-
-	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
-		try {
-			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
-			compAssessment.setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
-
 	private boolean isCurrentUserAssessor() {
 		if (fullAssessmentData == null) {
 			return false;
