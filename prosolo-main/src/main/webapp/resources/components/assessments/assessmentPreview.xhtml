@@ -167,7 +167,7 @@
 					</li>
 					<li>
 						<h:link value="#{cc.attrs.bean.credentialTitle}"
-								outcome="/manage/credential-create">
+								outcome="/manage/credential">
 							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}" />
 						</h:link>
 					</li>
@@ -373,14 +373,6 @@
 							<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
 								<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessorNotified}">
 									<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-										<p:commandButton id="btn"
-														 styleClass="close"
-														 pt:data-dismiss="alert"
-														 pt:aria-label="Close"
-														 value="&#215;"
-														 action="#{cc.attrs.bean.removeAssessorNotification()}"
-														 update="panelAssessorNotification :#{cc.clientId}:growlMain"
-										/>
 										Student asked for assessment of this #{msg['label.credential'].toLowerCase()}.
 									</div>
 								</h:panelGroup>

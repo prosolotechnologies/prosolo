@@ -401,20 +401,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return getCompetenceAssessmentData().getType();
 	}
 
-	public void removeAssessorNotification() {
-		removeAssessorNotification(getCompetenceAssessmentData());
-	}
-
-	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
-		try {
-			getAssessmentManager().removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
-			getCompetenceAssessmentData().setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
-
 	//STUDENT ONLY CODE
 	public void initAskForAssessment() {
 		initAskForAssessment(getCompetenceAssessmentData(), getAssessmentTypesConfig());

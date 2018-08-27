@@ -127,7 +127,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getObject().getId()),
 					session);
 		} else if (event.getObject() instanceof CredentialAssessment && (eventType == EventType.AssessmentRequested
-				|| eventType == EventType.ASSESSED_BY_AUTO_GRADING || eventType == EventType.GRADE_ADDED)) {
+				|| eventType == EventType.ASSESSED_BY_AUTO_GRADING || eventType == EventType.GRADE_ADDED || eventType == EventType.AssessmentApproved)) {
 			CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 				userEntityESService.updateCredentialAssessmentInfo(event.getOrganizationId(), ca);
