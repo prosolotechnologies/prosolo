@@ -9,7 +9,7 @@
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
     <ui:define name="windowTitle">
-        Announcements - #{announcementBeanStudent.credentialData.title} - ProSolo
+        Announcements - #{announcementBeanStudent.credentialData.idData.title} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -23,7 +23,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="resourceTitle">
-        <h1>#{announcementBeanStudent.credentialData.title}</h1>
+        <h1>#{announcementBeanStudent.credentialData.idData.title}</h1>
     </ui:define>
 
     <ui:param name="baseContext" value="name:credential|id:#{announcementBeanStudent.decodedCredentialId}" />
@@ -77,7 +77,7 @@
                                 </h:commandButton>
 
                                 <courses:askForAssessmentModal id='askForAssessmentModal'
-                                                               credentialTitle="#{announcementBeanStudent.credentialData.title}"
+                                                               credentialTitle="#{announcementBeanStudent.credentialData.idData.title}"
                                                                role="#{cc.attrs.role}"
                                                                toUpdate=":formMain:growlMain"/>
                             </ui:remove>
@@ -101,7 +101,7 @@
                     <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
                 </li>
                 <li><h:link
-                        value="#{announcementBeanStudent.credentialData.title}"
+                        value="#{announcementBeanStudent.credentialData.idData.title}"
                         outcome="credential"
                         onclick="sendLogPageNavigation('/credential.xhtml',
 										'#{facesContext.viewRoot.viewId}',

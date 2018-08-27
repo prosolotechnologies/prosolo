@@ -13,6 +13,7 @@ import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -69,7 +70,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	private String context;
 	
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 	
 	private CredentialMembersSearchFilter[] searchFilters;
 	private CredentialMembersSortOption[] sortOptions;
@@ -91,17 +92,16 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
-				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
-				if(title != null) {
+				credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);
+				if (credentialIdData != null) {
 					//user needs instruct or edit privilege to be able to access this page
 					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
 							ResourceAccessRequirements.of(AccessMode.MANAGER)
 													  .addPrivilege(UserGroupPrivilege.Instruct)
 													  .addPrivilege(UserGroupPrivilege.Edit));
-					if(!access.isCanAccess()) {
+					if (!access.isCanAccess()) {
 						PageUtil.accessDenied();
 					} else {
-						credentialTitle = title;
 						/*
 						 * if user can't edit resource, it means that he can only instruct and that is why
 						 * he can only see his students
@@ -297,11 +297,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
-	}
-
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
 	public CredentialMembersSearchFilter[] getSearchFilters() {
@@ -328,4 +324,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.sortOptions = sortOptions;
 	}
 
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
+	}
 }

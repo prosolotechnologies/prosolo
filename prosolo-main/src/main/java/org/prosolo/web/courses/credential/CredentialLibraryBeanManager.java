@@ -169,7 +169,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		if(selectedCred != null) {
 			boolean archived = false;
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext());
+				credManager.archiveCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -193,7 +193,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		if(selectedCred != null) {
 			boolean success = false;
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext());
+				credManager.restoreArchivedCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);

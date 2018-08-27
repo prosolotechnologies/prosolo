@@ -12,6 +12,7 @@ import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -58,7 +59,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	private String commentId;
 	
 	private ActivityAssessmentsSummaryData assessmentsSummary;
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 
 	private static final boolean paginate = false;
 	private PaginationData paginationData = new PaginationData();
@@ -102,10 +103,10 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error(rnfe);
+				logger.error("Error", rnfe);
 				PageUtil.notFound();
 			} catch(Exception e) {
-				logger.error(e);
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
@@ -196,7 +197,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	
 	private void loadCredentialTitle() {
 		decodedCredId = idEncoder.decodeId(credId);
-		credentialTitle = credManager.getCredentialTitle(decodedCredId);
+		credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 	}
 	
 	public void initializeResultCommentsIfNotInitialized(ActivityResultData result) {
@@ -336,11 +337,11 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 
 	public ActivityAssessmentsSummaryData getAssessmentsSummary() {

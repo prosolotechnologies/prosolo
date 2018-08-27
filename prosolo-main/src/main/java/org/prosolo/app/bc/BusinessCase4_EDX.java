@@ -862,7 +862,7 @@ public class BusinessCase4_EDX {
 
 	private Credential1 createCredential(EventQueue events, long orgId, String title, String description, User userNickPowell, String tags, long unitId) {
 		CredentialData credentialData = new CredentialData(false);
-		credentialData.setTitle(title);
+		credentialData.getIdData().setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
 		credentialData.getAssessmentSettings().setGradingMode(GradingMode.NONGRADED);

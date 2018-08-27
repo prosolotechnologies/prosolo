@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data;
 
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +15,13 @@ public class CredentialAssessmentsSummaryData implements Serializable {
 
     private static final long serialVersionUID = 2506027909576746426L;
 
-    private long id;
-    private String title;
+    private CredentialIdData credentialIdData;
     private boolean mandatoryOrder;
     private List<CompetenceAssessmentsSummaryData> competencesAssessmentSummary;
 
     public CredentialAssessmentsSummaryData() {
         this.competencesAssessmentSummary = new ArrayList<>();
+        this.credentialIdData = new CredentialIdData(false);
     }
 
     public void addCompetenceSummary(CompetenceAssessmentsSummaryData compSummary) {
@@ -27,19 +29,15 @@ public class CredentialAssessmentsSummaryData implements Serializable {
     }
 
     public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+        return credentialIdData.getId();
     }
 
     public String getTitle() {
-        return title;
+        return credentialIdData.getTitle();
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public CredentialIdData getCredentialIdData() {
+        return credentialIdData;
     }
 
     public boolean isMandatoryOrder() {
