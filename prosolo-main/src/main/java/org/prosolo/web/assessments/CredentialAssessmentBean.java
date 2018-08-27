@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -19,6 +20,7 @@ import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -72,7 +74,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private long decodedAssessmentId;
 	private AssessmentDataFull fullAssessmentData;
 
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 	private List<AssessmentData> otherAssessments;
 
 	private LearningResourceType currentResType;
@@ -122,8 +124,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					if (fullAssessmentData == null) {
 						PageUtil.notFound();
 					} else {
-						credentialTitle = fullAssessmentData.getTitle();
-
+						credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);
 						otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStudentId(), fullAssessmentData.getCredentialId());
 					}
 				}
@@ -169,7 +170,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					PageUtil.accessDenied();
 					success = false;
 				} else {
-					credentialTitle = fullAssessmentData.getTitle();
+					credentialIdData = new CredentialIdData(false);
+					credentialIdData.setId(decodedId);
+					credentialIdData.setTitle(fullAssessmentData.getTitle());
 					/*
 					if user is assessed student or it is public display mode load assessment types config for credential
 					so it can be determined which tabs should be displayed
@@ -301,7 +304,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			case COMPETENCE:
 				return compAssessmentBean.getCompetenceAssessmentData().getTitle();
 			case CREDENTIAL:
-				return credentialTitle;
+				return credentialIdData.getTitle();
 		}
 		return null;
 	}
@@ -712,13 +715,13 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
-	
+
 	public List<AssessmentData> getOtherAssessments() {
 		return otherAssessments;
 	}

@@ -28,9 +28,9 @@ public class BookmarkBean implements Serializable {
 	public void bookmarkCredential(CredentialData cred) {
 		try {
 			if(cred.isBookmarkedByCurrentUser()) {
-				credentialManager.deleteCredentialBookmark(cred.getId(), loggedUserBean.getUserContext());
+				credentialManager.deleteCredentialBookmark(cred.getIdData().getId(), loggedUserBean.getUserContext());
 			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserContext());
+				credentialManager.bookmarkCredential(cred.getIdData().getId(), loggedUserBean.getUserContext());
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
 		} catch (DbConnectionException e) {

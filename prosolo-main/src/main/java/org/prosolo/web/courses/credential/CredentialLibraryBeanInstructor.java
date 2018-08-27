@@ -20,7 +20,7 @@ import java.util.List;
 @ManagedBean(name = "credentialLibraryBeanInstructor")
 @Component("credentialLibraryBeanInstructor")
 @Scope("view")
-public class CredentialLibraryBeanInstructor implements Serializable {
+public class CredentialLibraryBeanInstructor extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = -2145386401343084693L;
 
@@ -60,6 +60,11 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 		} catch (Exception e) {
 			logger.error("Error", e);
 		}
+	}
+
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return false;
 	}
 
 	public void applySortOption(CredentialDeliverySortOption sortOption) {

@@ -27,7 +27,7 @@ import java.util.List;
 @ManagedBean(name = "credentialDeliveriesBean")
 @Component("credentialDeliveriesBean")
 @Scope("view")
-public class CredentialDeliveriesBean implements Serializable {
+public class CredentialDeliveriesBean extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = 2020680872327236846L;
 
@@ -38,7 +38,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CredentialTextSearch credentialTextSearch;
 	@Inject private LoggingService loggingService;
-	
+
 	private String id;
 	private long decodedId;
 	
@@ -106,6 +106,11 @@ public class CredentialDeliveriesBean implements Serializable {
 		);
 	}
 
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return true;
+	}
+
 	public void applySortOption(CredentialDeliverySortOption sortOption) {
 		this.sortOption = sortOption;
 		loadCredentialDeliveries(searchFilter);
@@ -114,7 +119,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	public void archive() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.archiveCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.archiveCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ACTIVE);
 				PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been archived");
 			} catch (DbConnectionException e) {
@@ -132,7 +137,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	public void restore() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.restoreArchivedCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.restoreArchivedCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ARCHIVED);
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been restored");
 			} catch (DbConnectionException e) {

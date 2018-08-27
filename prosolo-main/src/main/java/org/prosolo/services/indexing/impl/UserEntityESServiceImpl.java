@@ -196,7 +196,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 
 		for (CredentialData cd : creds) {
 			builder.startObject();
-			long credId = cd.getId();
+			long credId = cd.getIdData().getId();
 			builder.field("id", credId);
 			int credProgress = cd.getProgress();
 			builder.field("progress", credProgress);
@@ -212,7 +212,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			if (date != null) {
 				builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
-			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getId(), userId);
+			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getIdData().getId(), userId);
 			boolean assessorNotified = false;
 			boolean assessed = false;
 			if (instructorAssessment != null) {
@@ -254,7 +254,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 		builder.startArray("credentialsWithInstructorRole");
 		for (CredentialData cd : instructorCreds) {
 			builder.startObject();
-			builder.field("id", cd.getId());
+			builder.field("id", cd.getIdData().getId());
 			Date date = cd.getDate();
 			if (date != null) {
 				builder.field("dateAssigned", ElasticsearchUtil.getDateStringRepresentation(date));

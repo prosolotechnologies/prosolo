@@ -54,8 +54,7 @@ public class CredentialPrivacyBean implements Serializable {
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					credentialTitle = credManager.getCredentialTitle(decodedCredId,
-							CredentialType.Original);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId, CredentialType.Original);
 					if (credentialTitle != null) {
 						loadData();
 					} else {

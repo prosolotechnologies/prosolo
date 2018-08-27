@@ -152,9 +152,9 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	 */
 	public void enrollInCredential(CredentialData cred) {
 		try {
-			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserContext());
+			credentialManager.enrollInCredential(cred.getIdData().getId(), loggedUserBean.getUserContext());
 
-			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
+			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getIdData().getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while enrolling a " +

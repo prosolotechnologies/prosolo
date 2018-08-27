@@ -190,7 +190,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void archive() {
 		if (selectedCred != null) {
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.archiveCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
@@ -211,7 +211,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void restore() {
 		if (selectedCred != null) {
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.restoreArchivedCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
