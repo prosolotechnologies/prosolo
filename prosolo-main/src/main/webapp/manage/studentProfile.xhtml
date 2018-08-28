@@ -53,7 +53,10 @@
 	
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.custom.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/social-interaction.css" />
+
+	<ui:remove>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/social-interaction.css" />
+	</ui:remove>
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/timeline-graph.css" />
 
 	<script src="#{request.contextPath}/manage/js/slick.min.js"></script>
@@ -68,9 +71,11 @@
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-graph.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-main.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
+	<ui:remove>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
+	</ui:remove>
 
  	<ui:param name="learningContext" value="name:user|id:#{studentProfileBean.decodedId}"></ui:param>
  	
