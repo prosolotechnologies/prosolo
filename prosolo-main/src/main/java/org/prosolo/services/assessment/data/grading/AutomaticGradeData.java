@@ -57,6 +57,11 @@ public class AutomaticGradeData implements GradeData {
         return gradeInfo.getMaxGrade();
     }
 
+    @Override
+    public int getMinGrade() {
+        return gradeInfo.getMinGrade();
+    }
+
     public void setGradeInfo(int maxPoints, int currentGrade) {
         this.gradeInfo = new PointGradeValues(0, maxPoints, currentGrade);
     }

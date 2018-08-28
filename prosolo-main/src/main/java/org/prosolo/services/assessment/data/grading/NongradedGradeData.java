@@ -39,4 +39,9 @@ public class NongradedGradeData implements GradeData {
     public int getMaxGrade() {
         return 0;
     }
+
+    @Override
+    public int getMinGrade() {
+        return 0;
+    }
 }
