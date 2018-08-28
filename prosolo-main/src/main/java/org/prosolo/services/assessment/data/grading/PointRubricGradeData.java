@@ -67,6 +67,11 @@ public class PointRubricGradeData extends RubricGradeData<PointRubricCriteriaGra
     }
 
     @Override
+    public int getMinGrade() {
+        return gradeInfo.getMinGrade();
+    }
+
+    @Override
     public RubricType getRubricType() {
         return RubricType.POINT;
     }

@@ -65,6 +65,11 @@ public class DescriptiveRubricGradeData extends RubricGradeData<DescriptiveRubri
     }
 
     @Override
+    public int getMinGrade() {
+        return 0;
+    }
+
+    @Override
     public RubricType getRubricType() {
         return RubricType.DESCRIPTIVE;
     }
