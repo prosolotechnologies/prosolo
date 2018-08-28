@@ -7,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
-import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -26,10 +25,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.AskForCredentialAssessmentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -95,12 +91,12 @@ public class CredentialViewBeanUser implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if (justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getTitle());
+						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getIdData().getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
 						numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
-						numberOfTags = credentialManager.getNumberOfTags(credentialData.getId());
+						numberOfTags = credentialManager.getNumberOfTags(credentialData.getIdData().getId());
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {

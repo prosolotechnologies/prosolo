@@ -11,16 +11,16 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
-import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
@@ -353,7 +353,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				for(Object[] row : result) {
 					if(row != null) {
 						CredentialData cd = new CredentialData(false);
-						cd.setId((long) row[0]);
+						cd.getIdData().setId((long) row[0]);
 						cd.setDate((Date) row[1]);
 						data.add(cd);
 					}

@@ -56,6 +56,8 @@ public class Credential1 extends BaseEntity {
 	private Date deliveryStart;
 	private Date deliveryEnd;
 	private CredentialType type;
+	//serial number of a delivery of a credential
+	private int deliveryOrder;
 
 	//learning in stages
 	private LearningStage learningStage;
@@ -412,5 +414,14 @@ public class Credential1 extends BaseEntity {
 
 	public void setCategory(CredentialCategory category) {
 		this.category = category;
+	}
+
+	@Column(columnDefinition = "int(11) DEFAULT 0")
+	public int getDeliveryOrder() {
+		return deliveryOrder;
+	}
+
+	public void setDeliveryOrder(int deliveryOrder) {
+		this.deliveryOrder = deliveryOrder;
 	}
 }

@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -38,6 +37,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.prosolo.services.nodes.data.resourceAccess.*;
@@ -46,7 +46,6 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -1890,11 +1889,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
-			LearningResourceSortOption sortOption, long userId) 
+	public List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, long userId)
 				throws DbConnectionException, NullPointerException {
 		try {
-			if(searchFilter == null || sortOption == null) {
+			if(searchFilter == null) {
 				throw new NullPointerException("Invalid argument values");
 			}
 			
@@ -1932,8 +1930,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					query.append("AND c.archived = :boolTrue ");
 					break;
 			}
-			
-			query.append("ORDER BY c." + sortOption.getSortFieldDB() + " " + sortOption.getSortOrder());
+
+			query.append("ORDER BY c.title ASC");
 			
 			Query q = persistence.currentManager()
 						.createQuery(query.toString())
@@ -2068,6 +2066,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		competence.setGradingMode(original.getGradingMode());
 		competence.setMaxPoints(original.getMaxPoints());
 		competence.setRubric(original.getRubric());
+		competence.setLearningPathType(original.getLearningPathType());
 		saveEntity(competence);
 		for (CompetenceAssessmentConfig cac : original.getAssessmentConfig()) {
 			CompetenceAssessmentConfig compAssessmentConfig = new CompetenceAssessmentConfig();
@@ -2089,9 +2088,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		c.setId(competence.getId());
 		res.appendEvent(eventFactory.generateEventData(EventType.Create, context, c, null, null, null));
 
-		Result<List<CompetenceActivity1>> activityCopies = copyCompetenceActivities(competence, original.getActivities(), context);
-		competence.getActivities().addAll(activityCopies.getResult());
-		res.appendEvents(activityCopies.getEventQueue());
+		if (competence.getLearningPathType() == LearningPathType.ACTIVITY) {
+			Result<List<CompetenceActivity1>> activityCopies = copyCompetenceActivities(competence, original.getActivities(), context);
+			competence.getActivities().addAll(activityCopies.getResult());
+			res.appendEvents(activityCopies.getEventQueue());
+		}
 
 		//add Edit privilege to the competence creator
 		res.appendEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
@@ -2394,11 +2395,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			return res;
 		} catch (IllegalDataStateException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			throw e;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while publishing competency");
 		}
 	}

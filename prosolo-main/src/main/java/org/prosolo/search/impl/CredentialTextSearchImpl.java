@@ -22,7 +22,6 @@ import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -68,7 +67,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			List<Long> unitIds, CredentialSearchFilterUser filter, long filterCategoryId) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -123,10 +122,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			searchRequestBuilder.setFrom(start).setSize(limit);
 			
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
-					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchRequestBuilder.addSort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
@@ -163,31 +159,31 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 		bQueryBuilder.filter(configureAndGetSearchFilter(
 				CredentialSearchConfig.forOriginal(true), userId, null));
 
-		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
+		return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId);
 	}
 
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForAdmin(
 			long organizationId, long unitId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			//admin should see all credentials from unit with passed id
 			bQueryBuilder.filter(termQuery("units.id", unitId));
 			bQueryBuilder.filter(termQuery("type", CredentialType.Original.name().toLowerCase()));
 
-			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId, sortOption);
+			return searchCredentials(bQueryBuilder, organizationId, searchTerm, page, limit, filter, filterCategoryId);
 	}
 
 	private PaginatedResult<CredentialData> searchCredentials(
 			BoolQueryBuilder bQueryBuilder, long organizationId, String searchTerm, int page, int limit,
-			CredentialSearchFilterManager filter, long filterCategoryId, LearningResourceSortOption sortOption) {
+			CredentialSearchFilterManager filter, long filterCategoryId) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -236,10 +232,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			searchRequestBuilder.setFrom(start).setSize(limit);
 
 			//add sorting
-			SortOrder order = sortOption.getSortOrder() ==
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC
-					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
+			searchRequestBuilder.addSort("title.sort", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 
@@ -259,26 +252,25 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						Object categoryIdObj = hit.getSource().get("category");
 						long categoryId = categoryIdObj != null ? Long.parseLong(categoryIdObj.toString()) : 0;
 						CredentialData cd = new CredentialData(false);
-						cd.setId(id);
-						cd.setTitle(title);
+						cd.getIdData().setId(id);
+						cd.getIdData().setTitle(title);
 						cd.setArchived(archived);
 						cd.setLearningStageEnabled(lStageId > 0);
 						if (categoryId > 0) {
 							CredentialCategory category = credentialManager.getCredentialCategory(categoryId);
 							cd.setCategory(new CredentialCategoryData(category.getId(), category.getTitle(), false));
 						}
-						List<CredentialData> deliveries;
-						//if learning in stages is enabled, return active deliveries from all stages
+
+						//if learning in stages is enabled, return ongoing deliveries from all stages
 						if (lStageId > 0) {
 							/*
 							since we return only first stage credential we know that credential id is actually
 							first stage credential id
 							 */
-							deliveries = credentialManager.getOngoingDeliveriesFromAllStages(id);
+							cd.setCredentialDeliveriesSummaryData(credentialManager.getOngoingDeliveriesSummaryDataFromAllStages(id));
 						} else {
-							deliveries = credentialManager.getOngoingDeliveries(id);
+							cd.setCredentialDeliveriesSummaryData(credentialManager.getOngoingDeliveriesSummaryData(id));
 						}
-						cd.setDeliveries(deliveries);
 						cd.startObservingChanges();
 						response.addFoundNode(cd);
 					}
