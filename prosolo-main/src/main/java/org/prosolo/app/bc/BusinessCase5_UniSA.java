@@ -292,7 +292,7 @@ public class BusinessCase5_UniSA {
 			logger.error("Error", e);
 		}
 
-		Credential1 standard1 = createStandard7(events,
+		Credential1 standard1 = createStandard(events,
 				"Standard 1 - Know students and how they learn",
 				"Know students and how they learn.",
 				userNickPowell,
@@ -312,7 +312,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "1.6 Strategies to support full participation of students with disability",
 						"Demonstrate broad knowledge and understanding of legislative requirements and teaching strategies that support participation and learning of students with disability." });
 
-		Credential1 standard2 = createStandard7(events,
+		Credential1 standard2 = createStandard(events,
 				"Standard 2 - Know the content and how to teach it",
 				"Know the content and how to teach it.",
 				userNickPowell,
@@ -332,7 +332,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "2.6 Information and Communication Technology (ICT)",
 						"Implement teaching strategies for using ICT to expand curriculum learning opportunities for students." });
 
-		Credential1 standard3 = createStandard7(events,
+		Credential1 standard3 = createStandard(events,
 				"Standard 3 - Plan for and implement effective teaching and learning",
 				"Plan for and implement effective teaching and learning.",
 				userNickPowell,
@@ -354,7 +354,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "3.7 Engage parents/carers in the educative process",
 						"Describe a broad range of strategies for involving parents/carers in the educative process." });
 
-		Credential1 standard4 = createStandard7(events,
+		Credential1 standard4 = createStandard(events,
 				"Standard 4 - Create and maintain supportive and safe learning environments",
 				"Create and maintain supportive and safe learning environments.",
 				userNickPowell,
@@ -372,7 +372,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "4.5 Use ICT safely, responsibly and ethically",
 						"Demonstrate an understanding of the relevant issues and the strategies available to support the safe, responsible and ethical use of ICT in learning and teaching." });
 
-		Credential1 standard5 = createStandard7(events,
+		Credential1 standard5 = createStandard(events,
 				"Standard 5 - Assess, provide feedback and report on student learning",
 				"Assess, provide feedback and report on student learning.",
 				userNickPowell,
@@ -390,7 +390,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "5.5 Report on student achievement",
 						"Demonstrate understanding of a range of strategies for reporting to students and parents/carers and the purpose of keeping accurate and reliable records of student achievement." });
 
-		Credential1 standard6 = createStandard7(events,
+		Credential1 standard6 = createStandard(events,
 				"Standard 6 - Engage in professional learning",
 				"Engage in professional learning.",
 				userNickPowell,
@@ -406,7 +406,7 @@ public class BusinessCase5_UniSA {
 				new String[]{ "6.4 Apply professional learning and improve student learning",
 						"Demonstrate an understanding of the rationale for continued professional learning and the implications for improved student learning." });
 
-		Credential1 standard7 = createStandard7(events,
+		Credential1 standard7 = createStandard(events,
 				"Standard 7 - Engage professionally with colleagues, parents/carers and the community",
 				"Engage professionally with colleagues, parents/carers and the community.",
 				userNickPowell,
@@ -676,7 +676,7 @@ public class BusinessCase5_UniSA {
 		return LocalDateTime.now(Clock.systemUTC()).plusDays(days).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
 	}
 
-	private Credential1 createStandard7(EventQueue events, String title, String description, User creator, String tags, long rubricId, LearningStageData graduateLearningStage, String[]... compData) {
+	private Credential1 createStandard(EventQueue events, String title, String description, User creator, String tags, long rubricId, LearningStageData graduateLearningStage, String[]... compData) {
 		Credential1 standard = createCredential(events,
 				title,
 				description,
