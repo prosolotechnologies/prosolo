@@ -237,32 +237,32 @@ public class BusinessCase4_EDX {
 					"Example datasets used in the videos",
 					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 
-			act4comp1cred1 = createActivity(events, org.getId(),
-					userNickPowell,
-					"Network measures",
-					"Dragan Gasevic discusses network measures (degree centrality, betweenness centrality, closeness centrality, degree, diameter)  for week 3 of DALMOOC.",
-					"https://www.youtube.com/watch?v=Gq-4ErYLuLA",
-					ActivityType.VIDEO,
-					comp1cred1.getId(),
-					0,
-					8,
-					ActivityResultType.TEXT,
-					"Slides",
-					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
-
-			createActivity(events, org.getId(),
-					userNickPowell,
-					"Network Modularity and Community Identification",
-					"Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC. The presentation describes the notion of network modularity as a method used" +
+            createActivity(events, org.getId(),
+                    userNickPowell,
+                    "Network Modularity and Community Identification",
+                    "Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC. The presentation describes the notion of network modularity as a method used" +
                             "\n",
-					"https://www.slideshare.net/dgasevic/network-modularity-and-community-identification",
-					ActivityType.SLIDESHARE,
-					comp1cred1.getId(),
-					0,
-					6,
-					ActivityResultType.TEXT,
-					"Slides",
-					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
+                    "https://www.slideshare.net/dgasevic/network-modularity-and-community-identification",
+                    ActivityType.SLIDESHARE,
+                    comp1cred1.getId(),
+                    0,
+                    6,
+                    ActivityResultType.TEXT,
+                    "Slides",
+                    "http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
+
+            act4comp1cred1 = createActivity(events, org.getId(),
+                    userNickPowell,
+                    "Network measures",
+                    "Dragan Gasevic discusses network measures (degree centrality, betweenness centrality, closeness centrality, degree, diameter)  for week 3 of DALMOOC.",
+                    "https://www.youtube.com/watch?v=Gq-4ErYLuLA",
+                    ActivityType.VIDEO,
+                    comp1cred1.getId(),
+                    0,
+                    8,
+                    ActivityResultType.TEXT,
+                    "Slides",
+                    "http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
 
 			createActivity(events, org.getId(),
 					userNickPowell,
@@ -368,28 +368,6 @@ public class BusinessCase4_EDX {
 
 			createActivity(events, org.getId(),
 					userNickPowell,
-					"Gephi - Modularity tutorial",
-					"A quick tutorial by Jennifer Golbeck  on how to use gephi's modularity feature to detect communities and color code them in graphs.",
-					"https://www.youtube.com/watch?v=7LMnpM0p4cM",
-					ActivityType.VIDEO,
-					comp2cred1.getId(),
-					0,
-					9,
-					ActivityResultType.TEXT);
-
-			createActivity(events, org.getId(),
-					userNickPowell,
-					"Gephi Tutorial Quick start",
-					"Explore slide presentation: Gephi Tutorial Quick start",
-					"http://www.slideshare.net/gephi/gephi-quick-start",
-					ActivityType.SLIDESHARE,
-					comp2cred1.getId(),
-					0,
-					10,
-					ActivityResultType.TEXT);
-
-			createActivity(events, org.getId(),
-					userNickPowell,
 					"Gephi Tutorial Visualization",
 					"Explore slide presentation: Gephi Tutorial Visualization",
 					"http://www.slideshare.net/gephi/gephi-tutorial-visualization",
@@ -397,28 +375,6 @@ public class BusinessCase4_EDX {
 					comp2cred1.getId(),
 					0,
 					15,
-					ActivityResultType.TEXT);
-
-			createActivity(events, org.getId(),
-					userNickPowell,
-					"Hands-on - Import the example dataset and perform the SNA analysis methods",
-					"",
-					"<p><strong>Hands-on activity: Import the example dataset into Gephi and perform the SNA analysis "
-							+ "methods</strong></p><p>After you have studied the resources on how to visualize social networks "
-							+ "and performed main analysis method in Gephi, it is now time to perform some hands-on activities:"
-							+ "</p><p></p><ul><li>Download the example dataset available used in this course for the description "
-							+ "of social network measures and use both files (example_1.csv and example_2.csv from example dataset)."
-							+ "</li><li>Perform the following operations on the network in Gephi as undirected files:</li><ul><li>"
-							+ "Compute the density measure of the networks</li><li>Compute centrality measures (betweenness and "
-							+ "degree) introduced in the course</li><li>Apply the Giant Component filter to filter out all the "
-							+ "disconnected nodes and identify communities by using the modularity algorithm.</li></ul><li>Save "
-							+ "the results of your analysis as Gephi projects, one separate project for either of the two examples."
-							+ "</li><li>Share your experience with other course participants on social media (blog, Twitter, and "
-							+ "ProSolo, edX discussion forum)<br></li></ul>",
-					ActivityType.TEXT,
-					comp2cred1.getId(),
-					1,
-					0,
 					ActivityResultType.TEXT);
 
 			createActivity(events, org.getId(),
@@ -553,16 +509,6 @@ public class BusinessCase4_EDX {
 					cred2.getId(),
 					"analytics interpretation, gephi, learning analytics, sensemaking, social network analysis, tableau", LearningPathType.EVIDENCE);
 
-//			createActivity(events, org.getId(),
-//					userNickPowell,
-//					"Bazaar assignment: Collaborative reflection on the interpretation of the results of social network analysis",
-//					"",
-//					"<p>Now that you have been learned about different perspectives how social network analysis can inform learning research and practice, you will collaboratively reflect with a partner on what you have learned and what ideas you have. Before you engage into this collaborative activity, it will be useful if you have imported the blogs and Twitter social networks (both Week 6 and Week 12) from the dataset for social network analysis into Gephi, computed density and centrality measures, and performed modularity analysis. <br>We would like you to do this portion of the assignment online with a partner student we will assign to you.&nbsp; You will use the Collaborative Chat tool.&nbsp; To access the chat tool, paste the following URL (https://bit.ly/dalchat4) into your browser.&nbsp; You will log in using your EdX id.&nbsp; When you log in, you will enter a lobby program that will assign you to a partner. If it turns out that a partner student is not available, after 5 minutes it will suggest that you try again later.</p><p>When you are matched with a partner, you will be given a link to the chat room.&nbsp; Click the link to enter, and follow the instructions in the chat.&nbsp; The collaborative exercise will require about 30 minutes to complete.</p><p>Instructions for the chat activity will come up in the right hand panel, and you can chat with your partner in the left hand panel. A computer agent will provide prompts to structure the chat activity.</p>",
-//					ActivityType.TEXT,
-//					comp2cred2.getId(),
-//					0,
-//					20,
-//					ActivityResultType.TEXT);
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
@@ -770,10 +716,10 @@ public class BusinessCase4_EDX {
 					instructorKarenWhite.getId(), cred4Delivery.getId(), Arrays.asList(userRichardAnderson.getId()), null, createUserContext(userNickPowell)));
 
 			// Richard starts both competencies
-			List<CompetenceData1> cred4Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+			List<CompetenceData1> cred4CompetenciesRichardAnderson = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Competencies.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
-			TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Competencies.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp1TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp2TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 			// Richard completes first competency
 			// create a piece of evidence and add to
@@ -786,26 +732,38 @@ public class BusinessCase4_EDX {
 			evidence1Data.setRelationToCompetence("The script demonstrates feature manipulation skills.");
 
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAttachItToCompetenceAndGetEvents(
-					cred4Comp1Target.getId(), evidence1Data, createUserContext(userRichardAnderson)));
+					cred4Comp1TargetRichardAnderson.getId(), evidence1Data, createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp1Target.getId(), createUserContext(userRichardAnderson)));
+					cred4Comp1TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 			// Richard completes first competency
-			List<ActivityData> cred2Comp2Activities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(cred4Comp2Target.getId());
+			List<ActivityData> cred2Comp2Activities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(cred4Comp2TargetRichardAnderson.getId());
 
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivityAndGetEvents(
 					cred2Comp2Activities.get(0).getTargetActivityId(),
-					cred4Comp2Target.getId(),
+					cred4Comp2TargetRichardAnderson.getId(),
 					createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp2Target.getId(), createUserContext(userRichardAnderson)));
+					cred4Comp2TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 			// the credential is completed at this point
-		} catch (IllegalDataStateException e) {
+
+            // enroll Lori Abner to the delivery
+            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred4Delivery.getId(), userLoriAbner.getId(), 0, createUserContext(userLoriAbner)));
+
+            // Lori starts both competencies
+            List<CompetenceData1> cred4CompetenciesLoriAbner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userLoriAbner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+
+            TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+            TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(1).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+
+            // give learn privilege to Akiko Kido
+            givePrivilegeToUsersOnDelivery(events, cred4Delivery, UserGroupPrivilege.Learn, userNickPowell, org, Arrays.asList(userAkikoKido));
+        } catch (IllegalDataStateException e) {
 			e.printStackTrace();
 			logger.error("Error", e);
 		}
@@ -1021,7 +979,7 @@ public class BusinessCase4_EDX {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		compData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
-		compData.getAssessmentSettings().setMaxPoints(100);
+		compData.getAssessmentSettings().setMaxPointsString(String.valueOf(100));
 		compData.setLearningPathType(learningPathType);
 
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
