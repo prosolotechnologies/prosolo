@@ -457,25 +457,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
-				SortOrder sortOrder = sortOption.getSortOrder() == 
-						org.prosolo.services.util.SortingOption.ASC ? 
-						SortOrder.ASC : SortOrder.DESC;
-				for(String field : sortOption.getSortFields()) {
-					String nestedDoc = null;
-					int dotIndex = field.indexOf(".");
-					if(dotIndex != -1) {
-						nestedDoc = field.substring(0, dotIndex);
-					}
-					if(nestedDoc != null) {
-						BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
-						credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
-						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
-						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(nestedDoc).setNestedFilter(credFilter);
-						searchRequestBuilder.addSort(sortB);
-					} else {
-						searchRequestBuilder.addSort(field, sortOrder);
-					}
-				}
+				addCredentialSortOption(sortOption, credId, searchRequestBuilder);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				
@@ -568,6 +550,29 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			logger.error("Error", e1);
 		}
 		return null;
+	}
+
+	private void addCredentialSortOption(CredentialMembersSortOption sortOption, long credId, SearchRequestBuilder searchRequestBuilder) {
+		//add sorting
+		SortOrder sortOrder = sortOption.getSortOrder() ==
+				org.prosolo.services.util.SortingOption.ASC ?
+				SortOrder.ASC : SortOrder.DESC;
+		for (String field : sortOption.getSortFields()) {
+			String nestedDoc = null;
+			int dotIndex = field.indexOf(".");
+			if (dotIndex != -1) {
+				nestedDoc = field.substring(0, dotIndex);
+			}
+			if (nestedDoc != null) {
+				BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+				credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
+				//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
+				FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(nestedDoc).setNestedFilter(credFilter);
+				searchRequestBuilder.addSort(sortB);
+			} else {
+				searchRequestBuilder.addSort(field, sortOrder);
+			}
+		}
 	}
 	
 	/*
@@ -997,12 +1002,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
-				for(String field : sortOption.getSortFields()) {
-					SortOrder sortOrder = sortOption.getSortOrder() == 
-							org.prosolo.services.util.SortingOption.ASC ? 
-							SortOrder.ASC : SortOrder.DESC;
-					searchRequestBuilder.addSort(field, sortOrder);
-				}
+				addCredentialSortOption(sortOption, credId, searchRequestBuilder);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				
