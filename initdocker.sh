@@ -91,7 +91,7 @@ function handle_parameter {
                 exit 0
                 ;;
             -es)
-                ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+                ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.4
                 shift
                 ;;
 			-d|--dev)
