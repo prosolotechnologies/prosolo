@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   cassandra:
      build:  ./cassandra
@@ -49,15 +49,25 @@ services:
              - "3307:3306"
   elasticsearch:
      container_name: elasticsearch
-     build: elasticsearch
-     #volumes_from:
-      #           - elasticsearch_data
-     command: -Des.node.name="Prosolo-elasticsearch"
+     image: ${ES_VERSION_MANIFEST}
+     environment:
+          - LOGSPOUT=ignore
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - cluster.name=docker-prosolo-elasticsearch
+          - bootstrap.memory_lock=true
+     #command: -Des.node.name="Prosolo-elasticsearch"
+     ulimits:
+          memlock:
+             soft: -1
+             hard: -1
+     networks:
+          - localnet
      ports:
-         - "9200:9200"
-         - "9300:9300"
+         - 9200:9200
+         - 9300:9300
      volumes:
-         - elasticsearch_volume:/var/lib/elasticsearch
+         - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/elasticsearch.yml
+         - elasticsearch_volume:/usr/share/elasticsearch/data
 
   rabbitmq:
      container_name: "rabbitmq-prosolo"
