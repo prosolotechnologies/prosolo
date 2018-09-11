@@ -52,8 +52,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			return lContext;
 			
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			return null;
 		}
 	}
