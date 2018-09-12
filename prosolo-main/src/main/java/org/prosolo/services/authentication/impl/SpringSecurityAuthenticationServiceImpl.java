@@ -191,10 +191,10 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			authenticate = new UsernamePasswordAuthenticationToken(email, null,grantedAuthorities);
 			logger.debug("Authentication token created for:"+email);
 			//Authentication authenticate = new UsernamePasswordAuthenticationToken(email, null);
-			SecurityContextHolder.getContext().setAuthentication(authenticate);
+			//SecurityContextHolder.getContext().setAuthentication(authenticate);
 			 if (authenticate.isAuthenticated()) {
 				 logger.info("Authentication was successful");
- 				// SecurityContextHolder.getContext().setAuthentication(authenticate);
+ 				 SecurityContextHolder.getContext().setAuthentication(authenticate);
 				 return true;
 			 } else {
 				 logger.info("Authentication was not successful");
