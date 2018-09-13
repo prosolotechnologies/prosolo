@@ -140,10 +140,9 @@
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
 													<li>
-														<p:commandLink
-																process="@this"
-																action="#{submitEvidenceBean.removeUploadedEvidence()}"
-																update=":#{cc.clientId}:formFileEvidence:panelUploadEvidence">
+														<p:commandLink process="@this"
+																	   action="#{submitEvidenceBean.removeUploadedEvidence()}"
+																	   update=":#{cc.clientId}:formFileEvidence:panelUploadEvidence">
 															Remove
 														</p:commandLink>
 													</li>
@@ -160,25 +159,29 @@
 									 value="#{submitEvidenceBean.evidence.tagsString}"
 									 placeholder="Keywords - Type and press 'Enter'"
 									 pt:data-role="tagsinput"
-									 autocomplete="off">
-						</h:inputText>
+									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 required="true"
+										 requiredMessage="Required field"
+										 autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
 						<div class="lastRow">
-							<p:commandLink styleClass="btn btn-green"
+							<utilcomp:singleClickLink styleClass="btn btn-green"
+										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postFileEvidence()}"
 										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formFileEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
 								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formFileEvidence:inputTitle" />
-								#{cc.attrs.submitButtonText}
-							</p:commandLink>
+							</utilcomp:singleClickLink>
 							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
 								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
 							</ui:fragment>
@@ -232,20 +235,25 @@
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 required="true"
+										 requiredMessage="Required field"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
 						<div class="lastRow">
-							<p:commandLink styleClass="btn btn-green"
+							<utilcomp:singleClickLink styleClass="btn btn-green"
+										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postUrlEvidence()}"
 										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formUrlEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
 								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formUrlEvidence:inputTitle" />
-								#{cc.attrs.submitButtonText}
-							</p:commandLink>
+							</utilcomp:singleClickLink>
 							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
 								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
 							</ui:fragment>
@@ -284,25 +292,29 @@
 									 value="#{submitEvidenceBean.evidence.tagsString}"
 									 placeholder="Keywords - Type and press 'Enter'"
 									 pt:data-role="tagsinput"
-									 autocomplete="off">
-						</h:inputText>
+									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 required="true"
+										 requiredMessage="Required field"
+										 autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
 						<div class="lastRow">
-							<p:commandLink styleClass="btn btn-green"
+							<utilcomp:singleClickLink styleClass="btn btn-green"
+										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postTextEvidence()}"
 										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formTextEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
 								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formTextEvidence:inputTitle" />
-								#{cc.attrs.submitButtonText}
-							</p:commandLink>
+							</utilcomp:singleClickLink>
 							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
 								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
 							</ui:fragment>
@@ -393,13 +405,12 @@
 									<small class="redText bottom30 topMinus30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
 								</div>
 								<div class="modal-footer alignLeft">
-									<p:commandLink
-											styleClass="btn btn-green"
-											action="#{cc.attrs.bean.postEvidence()}"
-											update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
-											oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
-										Add
-									</p:commandLink>
+									<utilcomp:singleClickLink styleClass="btn btn-green"
+															  value="Add"
+															  action="#{cc.attrs.bean.postEvidence()}"
+															  update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence :#{cc.clientId}:formAddExistingEvidence:msgInputRelToCompetence"
+															  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
+									</utilcomp:singleClickLink>
 								</div>
 							</h:panelGroup>
 						</div>

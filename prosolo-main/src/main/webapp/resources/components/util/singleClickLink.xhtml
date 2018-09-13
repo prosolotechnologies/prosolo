@@ -1,0 +1,30 @@
+<ui:component
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:composite="http://java.sun.com/jsf/composite"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:f="http://java.sun.com/jsf/core">
+
+    <composite:interface>
+        <composite:attribute name="value"/>
+        <composite:attribute name="styleClass" default="" />
+        <composite:attribute name="process" default="" />
+        <composite:attribute name="onclick" default="" />
+        <composite:attribute name="action" required="true" />
+        <composite:attribute name="oncomplete" default="" />
+        <composite:attribute name="update" default="" />
+    </composite:interface>
+
+    <composite:implementation>
+        <p:commandLink
+                value="#{cc.attrs.value}1122"
+                styleClass="#{cc.attrs.styleClass}"
+                onclick="#{cc.attrs.onclick}; preventDoubleClick(this);"
+                process="#{cc.attrs.process}"
+                action="#{cc.attrs.action}"
+                oncomplete="#{cc.attrs.oncomplete}"
+                update="#{cc.attrs.update}">
+            <composite:insertChildren/>
+        </p:commandLink>
+    </composite:implementation>
+
+</ui:component>

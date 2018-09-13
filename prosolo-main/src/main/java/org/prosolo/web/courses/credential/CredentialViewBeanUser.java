@@ -177,11 +177,7 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void enrollInCredential() {
 		try {
-			PageContextData lcd = new PageContextData();
-			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
-			lcd.setLearningContext(PageUtil.getPostParameter("context"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext(lcd));
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext());
 			//reload user credential data after enroll
 			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
