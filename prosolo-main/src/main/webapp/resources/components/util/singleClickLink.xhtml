@@ -6,6 +6,7 @@
 
     <composite:interface>
         <composite:attribute name="value"/>
+        <composite:attribute name="style" default="" />
         <composite:attribute name="styleClass" default="" />
         <composite:attribute name="process" default="" />
         <composite:attribute name="onclick" default="" />
@@ -16,7 +17,8 @@
 
     <composite:implementation>
         <p:commandLink
-                value="#{cc.attrs.value}1122"
+                value="#{cc.attrs.value}"
+                style="#{cc.attrs.style}"
                 styleClass="#{cc.attrs.styleClass}"
                 onclick="#{cc.attrs.onclick}; preventDoubleClick(this);"
                 process="#{cc.attrs.process}"
