@@ -1,3 +1,0 @@
-UPDATE user
-SET user_type="REGULAR_USER"
-WHERE 1;

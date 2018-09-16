@@ -92,12 +92,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    	if (object instanceof TargetCredential1) {
 		    	TargetCredential1 tc = (TargetCredential1) session.load(TargetCredential1.class, object.getId());
 		    	if (tc != null) {
-					userEntityESService.changeCredentialProgress(event.getOrganizationId(), event.getActorId(), tc.getCredential().getId(), tc.getProgress());
+					userEntityESService.changeCredentialProgress(event.getOrganizationId(), tc.getUser().getId(), tc.getCredential().getId(), tc.getProgress());
 				}
 	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) session.load(TargetCompetence1.class, event.getObject().getId());
 				if (tc != null) {
-			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), event.getActorId(), tc);
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), tc.getUser().getId(), tc);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
@@ -127,7 +127,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getObject().getId()),
 					session);
 		} else if (event.getObject() instanceof CredentialAssessment && (eventType == EventType.AssessmentRequested
-				|| eventType == EventType.ASSESSED_BY_AUTO_GRADING || eventType == EventType.GRADE_ADDED)) {
+				|| eventType == EventType.ASSESSED_BY_AUTO_GRADING || eventType == EventType.GRADE_ADDED || eventType == EventType.AssessmentApproved)) {
 			CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 				userEntityESService.updateCredentialAssessmentInfo(event.getOrganizationId(), ca);

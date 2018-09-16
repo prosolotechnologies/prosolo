@@ -11,16 +11,16 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
-import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
@@ -128,10 +128,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	}
 	
 	private Result<Void> assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
-			boolean updateAsessor, UserContextData context) throws DbConnectionException {
+			boolean updateAssessor, UserContextData context) throws DbConnectionException {
 		TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
 				TargetCredential1.class, targetCredId);
-		return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, updateAsessor, context);
+		return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, updateAssessor, context);
 	}
 	
 	private Result<Void> assignStudentToInstructor(long instructorId, TargetCredential1 targetCred,
@@ -353,7 +353,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				for(Object[] row : result) {
 					if(row != null) {
 						CredentialData cd = new CredentialData(false);
-						cd.setId((long) row[0]);
+						cd.getIdData().setId((long) row[0]);
 						cd.setDate((Date) row[1]);
 						data.add(cd);
 					}
@@ -591,7 +591,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			params.put("dateAssigned", DateUtil.getMillisFromDate(instructor.getDateAssigned()) + "");
 			res.appendEvent(eventFactory.generateEventData(
 					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, context, instr, credential, null, params));
-				
+
+			res.setResult(instructor);
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
@@ -612,7 +613,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id, 
+	public Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id,
 			List<Long> studentsToAssign, List<Long> studentsToUnassign, UserContextData context)
 			throws DbConnectionException {
 		try {

@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.User;
@@ -37,7 +36,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Nikola Milikic
@@ -109,7 +107,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString,
                                         String hashtagsString, long creatorId, boolean compOrderMandatory, long duration,
-                                        boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException {
+                                        CredentialData.AssessorAssignmentMethodData assessorAssignment, List<CompetenceData1> comps) throws DbConnectionException {
         try {
             Credential1 cred = new Credential1();
             cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -121,7 +119,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             cred.setDuration(duration);
             cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
             cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-            cred.setManuallyAssignStudents(manuallyAssign);
+            cred.setAssessorAssignmentMethod(assessorAssignment.getAssessorAssignmentMethod());
 
             saveEntity(cred);
 
@@ -256,21 +254,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException {
-        try {
-            UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
-            group.setName(newName);
-
-            return group;
-        } catch(Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while saving user group");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword)
             throws DbConnectionException {
         try {
@@ -285,25 +268,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             return group;
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while saving user group");
-        }
-    }
-
-    @Override
-    @Transactional (readOnly = false)
-    public UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException {
-        try {
-            UserGroup group = new UserGroup();
-            group.setDateCreated(new Date());
-            group.setDefaultGroup(isDefault);
-            group.setName(name);
-            group.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
-
-            saveEntity(group);
-            return group;
-        } catch(Exception e) {
             e.printStackTrace();
             logger.error(e);
             throw new DbConnectionException("Error while saving user group");

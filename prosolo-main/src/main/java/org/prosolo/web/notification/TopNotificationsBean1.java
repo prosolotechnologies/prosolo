@@ -1,9 +1,5 @@
 package org.prosolo.web.notification;
 
-import java.util.*;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
@@ -13,6 +9,11 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public abstract class TopNotificationsBean1 {
 
@@ -25,12 +26,11 @@ public abstract class TopNotificationsBean1 {
 	@Inject
 	private NotificationManager notificationsManager;
 
-	private LinkedList<NotificationData> notificationDatas;
-	private int unreadNotificationsNo;
-
 	private int notificationsLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
-	private int refreshRate = Settings.getInstance().config.application.notificationsRefreshRate;
 	private String domainPrefix = CommonSettings.getInstance().config.appConfig.domain.substring(0, CommonSettings.getInstance().config.appConfig.domain.length()-1);
+
+	private LinkedList<NotificationData> notificationData;
+	private int unreadNotificationsNo;
 
 	@PostConstruct
 	public void init(){
@@ -49,7 +49,7 @@ public abstract class TopNotificationsBean1 {
 		logger.debug("Initializing notifications.");
 
 		try {
-			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
+			this.notificationData = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
 					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale(), getSection());
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -57,16 +57,16 @@ public abstract class TopNotificationsBean1 {
 	}
 
 	public synchronized void addNotification(NotificationData notificationData, Session session) {
-		if (notificationDatas == null) {
+		if (this.notificationData == null) {
 			fetchNotifications();
 		} else {
-			notificationDatas.addFirst(notificationData);
+			this.notificationData.addFirst(notificationData);
 		}
 
 		unreadNotificationsNo++;
 
-		if (notificationDatas.size() > notificationsLimit) {
-			Iterator<NotificationData> iterator = notificationDatas.iterator();
+		if (this.notificationData.size() > notificationsLimit) {
+			Iterator<NotificationData> iterator = this.notificationData.iterator();
 			int index = 1;
 
 			while (iterator.hasNext()) {
@@ -84,28 +84,12 @@ public abstract class TopNotificationsBean1 {
 		unreadNotificationsNo = 0;
 	}
 
-	public LinkedList<NotificationData> getNotificationDatas() {
-		return notificationDatas;
-	}
-
-	public void setNotificationDatas(LinkedList<NotificationData> notificationDatas) {
-		this.notificationDatas = notificationDatas;
+	public LinkedList<NotificationData> getNotificationData() {
+		return notificationData;
 	}
 
 	public int getUnreadNotificationsNo() {
 		return unreadNotificationsNo;
-	}
-
-	public void setUnreadNotificationsNo(int unreadNotificationsNo) {
-		this.unreadNotificationsNo = unreadNotificationsNo;
-	}
-
-	public int getRefreshRate() {
-		return refreshRate;
-	}
-
-	public void setRefreshRate(int refreshRate) {
-		this.refreshRate = refreshRate;
 	}
 
 	public String getDomainPrefix() {

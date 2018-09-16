@@ -52,6 +52,14 @@ function initializeDeliveryDatePickers() {
     });
 }
 
+function toggleBlindAssessmentPanel() {
+	var panel = $('#blindAssessmentPanel');
+    panel.toggle();
+    if (!panel.is(":visible")) {
+        $("#blindAssessmentPanel select.selectBlindAssessmentModeSelector").val($("#blindAssessmentPanel select.selectBlindAssessmentModeSelector option:first").val()).change();
+	}
+}
+
 
 //function getFieldValue(label) {
 //	switch(label) {

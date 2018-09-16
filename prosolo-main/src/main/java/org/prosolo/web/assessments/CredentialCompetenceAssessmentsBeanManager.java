@@ -3,7 +3,6 @@ package org.prosolo.web.assessments;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -16,11 +15,13 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -62,7 +63,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	private int page;
 
 	private CompetenceAssessmentsSummaryData assessmentsSummary;
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 
 	private PaginationData paginationData = new PaginationData();
 	
@@ -135,7 +136,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	}
 
 	private void loadCredentialTitle() {
-		credentialTitle = credManager.getCredentialTitle(decodedCredId);
+		credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 	}
 
 	private boolean isCurrentUserAssessor(CompetenceAssessmentData compAssessment) {
@@ -197,6 +198,32 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 				return competenceAssessmentBean.getCompetenceAssessmentData().getMessages();
 		}
 		return null;
+	}
+
+	public long getCurrentStudentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getUserId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getStudentId();
+		}
+		return 0;
+	}
+
+	public long getCurrentAssessorId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getAssessorId();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getAssessorId();
+		}
+		return 0;
 	}
 
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
@@ -285,15 +312,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	/*
 	ACTIONS
 	 */
-	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
-		try {
-			assessmentManager.removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
-			compAssessment.setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
 
 	public void approveCompetence(CompetenceAssessmentData compAssessment) {
 		try {
@@ -301,11 +319,10 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 			compAssessment.setApproved(true);
 			compAssessment.setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the competence for " + compAssessment.getStudentFullName());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
 			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 
@@ -459,14 +476,14 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
-	}
+    public CredentialIdData getCredentialIdData() {
+        return credentialIdData;
+    }
 
-	public CompetenceAssessmentsSummaryData getAssessmentsSummary() {
+    public CompetenceAssessmentsSummaryData getAssessmentsSummary() {
 		return assessmentsSummary;
 	}
 

@@ -53,7 +53,10 @@
 	
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/manage/css/slick.custom.css" />
-	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/social-interaction.css" />
+
+	<ui:remove>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/social-interaction.css" />
+	</ui:remove>
 	<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/timeline-graph.css" />
 
 	<script src="#{request.contextPath}/manage/js/slick.min.js"></script>
@@ -68,9 +71,11 @@
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-graph.js"></script>
 	<script src="#{request.contextPath}/resources/javascript2/timeline/timeline-main.js"></script>
 
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
-	<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
+	<ui:remove>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-service.js?#{applicationbean.loginTime}"></script>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-graph.js?#{applicationbean.loginTime}"></script>
+		<script src="#{request.contextPath}/resources/javascript2/social-interaction/social-interaction-main.js?#{applicationbean.loginTime}"></script>
+	</ui:remove>
 
  	<ui:param name="learningContext" value="name:user|id:#{studentProfileBean.decodedId}"></ui:param>
  	
@@ -119,15 +124,19 @@
 	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
 	                        <li role="presentation" class="active"><a href="#progression" aria-controls="progression" role="tab" data-toggle="tab">Progression</a></li>
 	                        <li role="presentation"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
-	                        <li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
-	                        <li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
+							<ui:remove>
+								<li role="presentation"><a href="#social" onclick="loadSocialInteractionGraphRemote();" aria-controls="social" role="tab" data-toggle="tab">Social</a></li>
+							</ui:remove>
+							<li role="presentation"><a href="#observationsTab" onclick="loadObservationHistory();" aria-controls="observationsTab" role="tab" data-toggle="tab">Observations</a></li>
 	                    </ul>
 	                </div>
 	                <div class="tab-content">
 	                    <ui:include src="/manage/studentProfile-progression.xhtml"></ui:include>
 	                    <ui:include src="/manage/studentProfile-timeline.xhtml"></ui:include>
-						<ui:include src="/manage/studentProfile-socialInteraction.xhtml"></ui:include>
-	                    <ui:include src="/manage/observation-history.xhtml"></ui:include>
+						<ui:remove>
+							<ui:include src="/manage/studentProfile-socialInteraction.xhtml"></ui:include>
+						</ui:remove>
+						<ui:include src="/manage/observation-history.xhtml"></ui:include>
 	                </div>
 	            </div>
 	            <div class="col-md-3">

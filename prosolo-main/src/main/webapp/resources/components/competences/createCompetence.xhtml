@@ -45,7 +45,7 @@
 		            <li>
 		            	<h:link
 		            		value="#{competenceEditBean.credTitle}"
-		            		outcome="create-credential">
+		            		outcome="credential-create">
 		            		<f:param name="id" value="#{param['credId']}"></f:param>
 		            	</h:link>
 		            </li>
@@ -138,9 +138,9 @@
 			                                        <ul class="addedItems">
 			                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
 			                                        		<li>
-			                                        			<h:link value="#{cred.title}"
+			                                        			<h:link value="#{cred.idData.title}"
 			                                        				outcome="credential">
-			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
+			                                        				<f:param name="id" value="#{util:encodeId(cred.idData.id)}" />
 			                                        			</h:link>
 				                                            </li>
 			                                        	</ui:repeat>

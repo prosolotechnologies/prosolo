@@ -9,13 +9,13 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
-import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -67,10 +67,12 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 	@Override
 	boolean shouldLoadAssessmentTypesConfig() {
 		/*
-		if user is assessed student load assessment types config for competence
-		so it can be determined which tabs should be displayed
+		there are two possible cases:
+		1. student visits the page and he should have assessment types config loaded so we know which tabs to display and
+		because of blind assessment mode which is needed to know how to display assessment actors
+		2. peer assessor visits the page and he needs assessment types config because of blind assessment mode
 		 */
-		return getCompetenceAssessmentData().getStudentId() == loggedUserBean.getUserId();
+		return true;
 	}
 
 	public void markActivityAssessmentDiscussionRead() {
@@ -292,6 +294,32 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return null;
 	}
 
+	public long getCurrentAssessorId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getAssessorId();
+			case COMPETENCE:
+				return getCompetenceAssessmentData().getAssessorId();
+		}
+		return 0;
+	}
+
+	public long getCurrentStudentId() {
+		if (currentResType == null) {
+			return 0;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getUserId();
+			case COMPETENCE:
+				return getCompetenceAssessmentData().getStudentId();
+		}
+		return 0;
+	}
+
 	//actions based on currently selected resource type end
 
 	/*
@@ -373,26 +401,12 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return getCompetenceAssessmentData().getType();
 	}
 
-	public void removeAssessorNotification() {
-		removeAssessorNotification(getCompetenceAssessmentData());
-	}
-
-	public void removeAssessorNotification(CompetenceAssessmentData compAssessment) {
-		try {
-			getAssessmentManager().removeAssessorNotificationFromCompetenceAssessment(compAssessment.getCompetenceAssessmentId());
-			getCompetenceAssessmentData().setAssessorNotified(false);
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing the notification");
-		}
-	}
-
 	//STUDENT ONLY CODE
 	public void initAskForAssessment() {
-		initAskForAssessment(getCompetenceAssessmentData());
+		initAskForAssessment(getCompetenceAssessmentData(), getAssessmentTypesConfig());
 	}
 
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
+	public void initAskForAssessment(CompetenceAssessmentData compAssessment, List<AssessmentTypeConfig> assessmentTypesConfig) {
 		UserData assessor = null;
 		if (compAssessment.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -400,7 +414,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 			assessor.setFullName(compAssessment.getAssessorFullName());
 			assessor.setAvatarUrl(compAssessment.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor);
+		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor, getBlindAssessmentMode(compAssessment, assessmentTypesConfig));
 
 		setCompetenceAssessmentData(compAssessment);
 	}

@@ -17,6 +17,7 @@ public class CredentialAssessmentConfig extends BaseEntity {
 
     private Credential1 credential;
     private AssessmentType assessmentType;
+    private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
     private boolean enabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,5 +48,15 @@ public class CredentialAssessmentConfig extends BaseEntity {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    public BlindAssessmentMode getBlindAssessmentMode() {
+        return blindAssessmentMode;
+    }
+
+    public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
+        this.blindAssessmentMode = blindAssessmentMode;
     }
 }

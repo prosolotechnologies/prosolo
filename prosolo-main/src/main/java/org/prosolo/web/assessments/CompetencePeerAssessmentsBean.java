@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentData;
@@ -9,16 +10,12 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -70,7 +67,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 							paginationData.setPage(page);
 						}
 						getAssessmentsFromDB();
-						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, true);
 						loadAdditionalData();
 					} else {
 						PageUtil.notFound();
@@ -118,6 +115,10 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
+
+    public BlindAssessmentMode getBlindAssessmentMode() {
+        return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
+    }
 
 	public PaginationData getPaginationData() {
 		return paginationData;

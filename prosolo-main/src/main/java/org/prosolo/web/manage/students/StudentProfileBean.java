@@ -3,6 +3,7 @@ package org.prosolo.web.manage.students;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -58,6 +59,7 @@ public class StudentProfileBean implements Serializable {
 	private Competence1Manager compManager;
 	@Inject
 	private Activity1Manager activityManager;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
 
 	private String id;
 	private long decodedId;
@@ -186,24 +188,37 @@ public class StudentProfileBean implements Serializable {
 	public void selectCompetence(CompetenceProgressData cd) {
 		try {
 			if (selectedCredential.getSelectedCompetence() != null) {
-				selectedCredential.getSelectedCompetence().setActivities(null);
+				if (selectedCredential.getSelectedCompetence().getLearningPathType() == LearningPathType.ACTIVITY) {
+					selectedCredential.getSelectedCompetence().setActivities(null);
+				} else {
+					selectedCredential.getSelectedCompetence().setEvidences(null);
+				}
 			}
 
 			selectedCredential.setSelectedCompetence(cd);
 
-			List<ActivityData> activities;
-			if (cd.getId() > 0) {
-				activities = activityManager.getTargetActivitiesData(cd.getId());
+			//depending on a learning path type, load activities or evidence
+			if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+				List<ActivityData> activities;
+				if (cd.getId() > 0) {
+					activities = activityManager.getTargetActivitiesData(cd.getId());
+				} else {
+					activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				}
+
+				List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
+
+				for (ActivityData activityData : activities) {
+					activitiesProgressData.add(new ActivityProgressData(activityData));
+				}
+				cd.setActivities(activitiesProgressData);
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				// load evidence only if student enrolled in a competence, otherwise he could not post evidence
+				if (cd.getId() > 0) {
+					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), false));
+				}
 			}
-			
-			List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
-			
-			for (ActivityData activityData : activities) {
-				activitiesProgressData.add(new ActivityProgressData(activityData));
-			}
-			cd.setActivities(activitiesProgressData);
+
 		} catch (Exception e) {
 			throw new DbConnectionException("Error while loading activities");
 		}

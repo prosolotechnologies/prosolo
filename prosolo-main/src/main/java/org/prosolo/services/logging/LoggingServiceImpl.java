@@ -3,6 +3,7 @@ package org.prosolo.services.logging;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.joda.time.Days;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDate;
@@ -10,7 +11,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.app.Settings;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
+import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
@@ -18,12 +23,14 @@ import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.LoggingESService;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
+import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +43,6 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 
 import static java.lang.String.format;
-import static org.prosolo.common.domainmodel.events.EventType.*;
 /**
  * @author Zoran Jeremic 2013-10-07
  * 
@@ -56,7 +62,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-
+	@Inject private DefaultManager defaultManager;
 
     @Inject
     private AnalyticalServiceCollector analyticalServiceCollector;
@@ -74,11 +80,18 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private static String logReportDatesCollection= "log_report_dates";
 	
 	private EventType[] interactions=new EventType[]{
-			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
-			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
-			JOIN_GOAL_REQUEST_APPROVED, JOIN_GOAL_REQUEST_DENIED,
-			Like,Dislike, SEND_MESSAGE, PostShare,
-			Comment_Reply, RemoveLike};
+			EventType.Comment,
+			EventType.AssessmentRequested,
+			EventType.AssessmentApproved,
+			EventType.GRADE_ADDED,
+			EventType.Like,
+			EventType.Dislike,
+			EventType.SEND_MESSAGE,
+			EventType.PostShare,
+			EventType.Comment_Reply,
+			EventType.RemoveLike,
+			EventType.AssessmentComment
+	};
 	
 	@Override
 	public void logServiceUse(UserContextData context, String componentName,
@@ -169,28 +182,73 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		});
 	}
 
+	/*
+	TODO discuss with Nikola and Zoran whether this is the best place for this logic.
+	I think better place would be some kind of observer in analytics app which reacts on events of interest,
+	retrieves target user id depending on event type (maybe even encapsulate logic for retrieving target user id in different classes with
+	one class per event type) and saves interaction in db (cassandra)
+	 */
 	private Long extractSocialInteractionTargetUser(JSONObject logObject, EventType eventType){
-		long actorId=(long) logObject.get("actorId");
+//		long actorId=(long) logObject.get("actorId");
 		String objectType=(String) logObject.get("objectType");
 		long objectId= (long) logObject.get("objectId");
 		String targetType=   (String) logObject.get("targetType");
 		long targetId= (long) logObject.get("targetId");
 		Long targetUserId=(long)0;
-		if(objectType.equals(Comment1.class.getSimpleName())){
-			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
+		if (objectType.equals(Comment1.class.getSimpleName())) {
+			if (eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
-			}else if(eventType.equals(EventType.Comment)){
+			} else if(eventType.equals(EventType.Comment)){
 				targetUserId=logsDataManager.getUserOfTargetActivity(targetId);
 			} else targetUserId=logsDataManager.getParentCommentMaker(objectId);
-		}
-
-
-		else {
-			if(eventType.equals(EventType.SEND_MESSAGE)){
+		} else if (eventType.equals(EventType.SEND_MESSAGE)) {
 				JSONObject parameters=(JSONObject) logObject.get("parameters");
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
+		} else if (eventType == EventType.AssessmentRequested || eventType == EventType.AssessmentApproved) {
+			targetUserId = targetId;
+		} else if (eventType == EventType.AssessmentComment) {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+			try {
+				if (CredentialAssessment.class.getSimpleName().equals(targetType)) {
+					CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class,  targetId);
+					targetUserId = ca.getStudent().getId();
+				} else if (CompetenceAssessment.class.getSimpleName().equals(targetType)) {
+					CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, targetId);
+					targetUserId = ca.getStudent().getId();
+				} else {
+					ActivityAssessment aa = (ActivityAssessment) session.load(ActivityAssessment.class, targetId);
+					targetUserId = aa.getAssessment().getStudent().getId();
+				}
+			} finally {
+				HibernateUtil.close(session);
 			}
+		} else if (eventType == EventType.GRADE_ADDED) {
+			Session session = (Session) defaultManager.getPersistence().openSession();
+			try {
+				if (CredentialAssessment.class.getSimpleName().equals(objectType)) {
+					CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class,  objectId);
+					if (ca.getTargetCredential().getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = ca.getStudent().getId();
+					}
+				} else if (CompetenceAssessment.class.getSimpleName().equals(objectType)) {
+					CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, objectId);
+					if (ca.getCompetence().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = ca.getStudent().getId();
+					}
+				} else {
+					ActivityAssessment aa = (ActivityAssessment) session.load(ActivityAssessment.class, objectId);
+					if (aa.getActivity().getGradingMode() != GradingMode.AUTOMATIC) {
+						//if grading is automatic, we should not count grade added event as interaction between two users
+						targetUserId = aa.getAssessment().getStudent().getId();
+					}
+				}
+			} finally {
+				HibernateUtil.close(session);
+			}
+		}
 //			else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
 //				if(objectType.equals(PostSocialActivity.class.getSimpleName())||objectType.equals(SocialActivityComment.class.getSimpleName())||
 //						objectType.equals(TwitterPostSocialActivity.class.getSimpleName())||objectType.equals(UserSocialActivity.class.getSimpleName())||
@@ -214,7 +272,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 //					targetUserId=logsDataManager.getPostMaker(actorId,objectId);
 //				}
 //			}
-		}
 		System.out.println("TARGET USER ID:"+targetUserId);
 		//TODO this method should be changed because domain model changed
 		return targetUserId != null ? targetUserId : 0;

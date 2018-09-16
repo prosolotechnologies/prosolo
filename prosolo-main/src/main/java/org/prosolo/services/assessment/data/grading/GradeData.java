@@ -22,6 +22,7 @@ public interface GradeData {
 	 */
 	int calculateGrade();
 	int getMaxGrade();
+	int getMinGrade();
 
 	default boolean isAssessed() {
 		return getCurrentGrade() >= 0;

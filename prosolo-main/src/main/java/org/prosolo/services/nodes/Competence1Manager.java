@@ -6,13 +6,13 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -20,8 +20,8 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -53,7 +53,6 @@ public interface Competence1Manager {
 	 * exclusive lock on a competence being updated
 	 * 
 	 * @param data
-	 * @param userId
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
@@ -77,7 +76,7 @@ public interface Competence1Manager {
 	 */
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
-	
+
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
 	
 	
@@ -293,8 +292,8 @@ public interface Competence1Manager {
 	
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
-	
-	void enrollInCompetence(long compId, long userId, UserContextData context)
+
+	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
@@ -327,7 +326,7 @@ public interface Competence1Manager {
 			throws DbConnectionException, NullPointerException;
 	
 	List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
-			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+			long userId) throws DbConnectionException, NullPointerException;
 	
 	long duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
 
@@ -459,7 +458,7 @@ public interface Competence1Manager {
 			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
-	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
 
@@ -471,4 +470,14 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
+
+	/**
+	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type
+	 *
+	 * @param compId
+	 * @param assessmentType
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 }

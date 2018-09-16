@@ -3,7 +3,7 @@ package org.prosolo.bigdata.scala.twitter
 import java.util.{Timer, TimerTask}
 
 import scala.collection.mutable.ListBuffer
-import org.prosolo.bigdata.scala.spark.{ SparkManager}
+import org.prosolo.bigdata.scala.spark.SparkManager
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
 import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
@@ -20,13 +20,16 @@ import scala.collection.JavaConversions._
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.common.util.date.DateUtil
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
+import org.prosolo.bigdata.scala.twitter.StatusListener.getClass
 import org.prosolo.common.util.date.DateEpochUtil
+import org.slf4j.LoggerFactory
 
 
 /**
   * @author zoran Jul 28, 2015
   */
 object TwitterStatusBuffer {
+  val logger = LoggerFactory.getLogger(getClass)
   val buffer: ListBuffer[Status] = ListBuffer()
   val profanityFilter: BadWordsCensor = new BadWordsCensor
 
@@ -67,7 +70,6 @@ object TwitterStatusBuffer {
     }
     filteredStatusesRDD.foreachPartition { statuses => {
       statuses.foreach { status: Status => {
-        //println("status:"+status.getText)
         processStatus(status)
 
       }
@@ -84,8 +86,7 @@ object TwitterStatusBuffer {
   }
 
   def processStatus(status: Status) {
-    //}status:Status, twitterStreamingDao:TwitterStreamingDAO,session:Session ){
-    println("process status")
+    logger.debug("process status")
 
     val twitterUser = status.getUser
     val twitterHashtags: java.util.List[String] = new java.util.ArrayList[String]()
@@ -93,7 +94,6 @@ object TwitterStatusBuffer {
     val (twitterId, cName, screenName, profileImage) = (twitterUser.getId, twitterUser.getName, twitterUser.getScreenName, twitterUser.getProfileImageURL)
     val creatorName = cName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     val profileUrl = "https://twitter.com/" + screenName
-
 
 
     val twitterStreamingDao: TwitterStreamingDAO = new TwitterStreamingDAOImpl
@@ -108,10 +108,10 @@ object TwitterStatusBuffer {
     val (text, created, postLink) = (status.getText, status.getCreatedAt, "https://twitter.com/" + twitterUser.getScreenName + "/status/" + status.getId)
     val statusText = text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     printTweet("current", creatorName, profileUrl, screenName, profileImage, statusText)
-    println("is retweet:" + status.isRetweet + " is retweeted:" + status.isRetweeted)
-    println("retweeted status " + (if(status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
+    logger.debug("is retweet:" + status.isRetweet + " is retweeted:" + status.isRetweeted)
+    logger.debug("retweeted status " + (if (status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
     val twitterPostSocialActivity = if (status.isRetweet) {
-      println("this is retweet")
+      logger.debug("this is retweet")
 
       val reStatus = status.getRetweetedStatus
       val reTwitterUser = reStatus.getUser
@@ -121,39 +121,33 @@ object TwitterStatusBuffer {
       val reCreatorName = reCName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
       val reProfileUrl = "https://twitter.com/" + reScreenName
       printTweet("RE-TWEET:", reCreatorName, reProfileUrl, reScreenName, reProfileImage, reStatusText)
-       twitterStreamingDao.createTwitterPostSocialActivity(
-        poster, reCreated, rePostLink, twitterId, true,reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
-         reStatusText, twitterHashtags, session);
-    }else{
-      println("create twitter post")
-        twitterStreamingDao.createTwitterPostSocialActivity(
+      twitterStreamingDao.createTwitterPostSocialActivity(
+        poster, reCreated, rePostLink, twitterId, true, reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
+        reStatusText, twitterHashtags, session);
+    } else {
+      logger.debug("create twitter post")
+      twitterStreamingDao.createTwitterPostSocialActivity(
         poster, created, postLink, twitterId, false, "", creatorName, screenName, profileUrl, profileImage,
         statusText, twitterHashtags, session);
     }
-    //val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
-
-    //val twitterPostSocialActivity = twitterStreamingDao.createTwitterPostSocialActivity(
-    //  poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage,
-    //  statusText, twitterHashtags, session);
     session.getTransaction().commit()
     session.close();
     val day = DateEpochUtil.getDaysSinceEpoch;
-    //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
     twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
     if (twitterPostSocialActivity != null) {
-      println("broadcasting tweet")
+      logger.debug("broadcasting tweet")
       val parameters: java.util.Map[String, String] = new java.util.HashMap[String, String]()
       parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
       BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)
     } else {
-      println("ERROR: TwitterPostSocialActivity was not initialized")
+      logger.debug("ERROR: TwitterPostSocialActivity was not initialized")
     }
 
 
   }
 
   def printTweet(statusType: String, creatorName: String, profileUrl: String, screenName: String, profileImage: String, text: String): Unit = {
-    println("statusType:" + statusType + " creatorName:" + creatorName + " profileUrl:" + profileUrl + " screenName:" + screenName + " profileImage:" + profileImage + " text:" + text);
+    logger.debug("statusType:" + statusType + " creatorName:" + creatorName + " profileUrl:" + profileUrl + " screenName:" + screenName + " profileImage:" + profileImage + " text:" + text);
   }
 
   def initAnonUser(creatorName: String, profileUrl: String, screenName: String, profileImage: String): AnonUser = {

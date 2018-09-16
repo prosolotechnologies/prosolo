@@ -6,6 +6,7 @@ import org.apache.spark.ml.linalg.Vectors
 import org.jblas.DoubleMatrix
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
 import org.apache.spark.mllib.linalg.Vector
+import org.slf4j.LoggerFactory
 
 
 
@@ -19,7 +20,7 @@ case class UserCredentials(id:Long, credentials: Seq[String]) {
   override def toString: String=id+", "+credentials
 }
 object UserFeaturesDataManager {
-
+  val logger = LoggerFactory.getLogger(getClass)
   implicit val doubleMatrixEncoder=org.apache.spark.sql.Encoders.kryo[DoubleMatrix]
   implicit def tuple2[A1, A2](
                                implicit e1: Encoder[A1],
@@ -64,7 +65,7 @@ object UserFeaturesDataManager {
     */
   def combineUserCredentialVectors(sqlContext: SparkSession, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
     import sqlContext.implicits._
-    implicit val myObjEncoder = org.apache.spark.sql.Encoders.kryo[Tuple2[Long,DoubleMatrix]]
+    implicit val myObjEncoder = org.apache.spark.sql.Encoders.kryo[(Long, DoubleMatrix)]
     usersWithCredentialsDF.show(100)
     resultsDF.show(100)
      //Combine One-Hot Encoded credential vectors for each item
@@ -106,7 +107,7 @@ object UserFeaturesDataManager {
     clustersUsers.saveToCassandra(keyspaceName,TablesNames.USERRECOM_CLUSTERUSERS,SomeColumns("cluster","users"))
   }
   def loadUsersInClusters(sqlContext: SparkSession,keyspaceName:String):DataFrame={
-    println("LOAD USERS IN CLUSTERS:"+keyspaceName)
+    logger.debug("LOAD USERS IN CLUSTERS:"+keyspaceName)
     val clustersUsers = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USERRECOM_CLUSTERUSERS)).load()
     clustersUsers.show

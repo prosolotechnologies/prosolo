@@ -49,7 +49,7 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 	}
 
 	public void initAskForAssessment() {
-		askForAssessmentBean.init(getDecodedId(), targetCredId, AssessmentType.PEER_ASSESSMENT);
+		askForAssessmentBean.init(getDecodedId(), targetCredId, AssessmentType.PEER_ASSESSMENT, getPeerAssessmentBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

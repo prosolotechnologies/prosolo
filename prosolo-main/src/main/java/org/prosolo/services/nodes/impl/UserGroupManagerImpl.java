@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -26,10 +27,12 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.UserGroupManager")
 public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGroupManager {
@@ -173,35 +176,62 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Override
-	@Transactional (readOnly = false)
 	public UserGroup saveNewGroup(long unitId, String name, boolean isDefault,
 								  UserContextData context) throws DbConnectionException {
-		try {
-			UserGroup group = resourceFactory.saveNewGroup(unitId, name, isDefault);
+		Result<UserGroup> res = self.saveNewGroupAndGetEvents(unitId, name, isDefault, context);
 
-			eventFactory.generateEvent(EventType.Create, context, group, null, null, null);
-			return group;
-		} catch(DbConnectionException dbce) {
-			throw dbce;
+		eventFactory.generateEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserGroup> saveNewGroupAndGetEvents(long unitId, String name, boolean isDefault, UserContextData context) throws DbConnectionException {
+		try {
+			UserGroup group = new UserGroup();
+			group.setDateCreated(new Date());
+			group.setDefaultGroup(isDefault);
+			group.setName(name);
+			group.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+
+			saveEntity(group);
+
+			Result<UserGroup> res = new Result<>();
+			res.setResult(group);
+			UserGroup obj = new UserGroup();
+			obj.setId(group.getId());
+			res.appendEvent(eventFactory.generateEventData(EventType.Create, context, obj, null, null, null));
+			return res;
 		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving user group");
 		}
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public UserGroup updateGroupName(long groupId, String newName, UserContextData context)
 			throws DbConnectionException {
-		try {
-			UserGroup group = resourceFactory.updateGroupName(groupId, newName);
+			Result<UserGroup> res = self.updateGroupNameAndGetEvents(groupId, newName, context);
 
-			eventFactory.generateEvent(EventType.Edit, context, group, null, null, null);
-			return group;
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			eventFactory.generateEvents(res.getEventQueue());
+			return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserGroup> updateGroupNameAndGetEvents(long groupId, String newName, UserContextData context) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setName(newName);
+
+			Result<UserGroup> res = new Result<>();
+			res.setResult(group);
+			UserGroup obj = new UserGroup();
+			obj.setId(group.getId());
+			res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, obj, null, null, null));
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving user group");
 		}
 	}
@@ -2103,6 +2133,146 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving user group ids");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long countCredentialUserGroups(long credId, UserGroupPrivilege privilege) {
+		try {
+			StringBuilder query = new StringBuilder (
+					"SELECT COUNT(credGroup) " +
+							"FROM CredentialUserGroup credGroup " +
+							"INNER JOIN credGroup.userGroup userGroup " +
+							"WHERE credGroup.credential.id = :credId " +
+							"AND userGroup.deleted IS FALSE " +
+							"AND userGroup.defaultGroup = :defaultGroup ");
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", false);
+
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+
+			return (long) q.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential groups");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> getCredentialUserGroupsNames(long credId, UserGroupPrivilege privilege, int limit) {
+		try {
+			StringBuilder query = new StringBuilder (
+					"SELECT userGroup.name " +
+					   "FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.deleted IS FALSE " +
+					   "AND userGroup.defaultGroup = :defaultGroup ");
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			query.append("ORDER BY userGroup.title");
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", false);
+
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+
+			if (limit > 0) {
+				q.setMaxResults(limit);
+			}
+
+			return (List<String>) q.list();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential groups");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long countCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege) {
+		try {
+			StringBuilder query = new StringBuilder(
+					"SELECT COUNT(distinct user) FROM CredentialUserGroup credGroup " +
+					"INNER JOIN credGroup.userGroup userGroup " +
+					"INNER JOIN userGroup.users userGroupUser " +
+					"INNER JOIN userGroupUser.user user " +
+					"WHERE credGroup.credential.id = :credId " +
+					"AND userGroup.defaultGroup = :defaultGroup " +
+					"AND userGroup.deleted IS FALSE ");
+
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			return (long) q.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential users");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> getCredentialVisibilityUsersNames(long credId, UserGroupPrivilege privilege, int limit) {
+		try {
+			StringBuilder query = new StringBuilder(
+					"SELECT distinct user FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "INNER JOIN userGroup.users userGroupUser " +
+					   "INNER JOIN userGroupUser.user user " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.defaultGroup = :defaultGroup " +
+					   "AND userGroup.deleted IS FALSE ");
+
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			query.append("ORDER BY user.name, user.lastname");
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			if (limit > 0) {
+				q.setMaxResults(limit);
+			}
+
+			List<User> users = (List) q.list();
+			return users.stream().map(u -> u.getFullName()).collect(Collectors.toList());
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential users");
 		}
 	}
 

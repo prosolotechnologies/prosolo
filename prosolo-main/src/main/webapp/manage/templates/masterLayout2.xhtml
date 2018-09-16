@@ -78,7 +78,7 @@
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
 										or util:getPagePath(view.viewId)  == 'competenceLibrary'
 										or util:getPagePath(view.viewId)  == 'credential-library-instructor'
-										or util:getPagePath(view.viewId)  == 'create-credential'
+										or util:getPagePath(view.viewId)  == 'credential-create'
 										or util:getPagePath(view.viewId)  == 'credential'
 										or util:getPagePath(view.viewId)  == 'credential-students'
 										or util:getPagePath(view.viewId)  == 'credential-editors'
@@ -105,19 +105,6 @@
 									outcome="/manage/library"
 									value="Library" />
 							</li>
-							<ui:remove>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'students-students' or util:getPagePath(view.viewId)  == 'students-groups' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-students-students','mainmenu');"
-									outcome="/manage/students-students"
-									value="Students" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'manage-reports' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-reports','mainmenu');"
-									value="Reports" />
-							</li>
-							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
 										or util:getPagePath(view.viewId)  == 'newRubric'
@@ -138,7 +125,7 @@
 							aria-haspopup="true" aria-expanded="true">Create</a>
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
 							<li><h:link value="New #{msg['label.credential']}"
-									outcome="/manage/create-credential.xhtml" /></li>
+									outcome="/manage/credential-create.xhtml" /></li>
 							<li><h:link value="New #{msg['label.competence']}"
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
@@ -167,7 +154,7 @@
 
 							<h:panelGroup id="notificationsContainer">
 
-								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationDatas}">
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationData}">
 									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
 										<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
 											<span class="icon"></span>

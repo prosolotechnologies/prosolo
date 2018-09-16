@@ -8,6 +8,7 @@ import org.apache.spark.api.java.JavaSparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import com.typesafe.config._
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 //import org.prosolo.bigdata.config.Settings
@@ -19,6 +20,7 @@ import scala.collection.mutable.ListBuffer
  * @author zoran Jul 28, 2015
  */
 class SparkContextLoader {
+  val logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Return a SparkContext that has hard-coded parameters
@@ -27,7 +29,7 @@ class SparkContextLoader {
  *
    * @return SparkContext .
    */
-println("Initializing SparkContextLoader")
+logger.debug("Initializing SparkContextLoader")
 
   val numOfCores=Runtime.getRuntime.availableProcessors()
   val conf:Config=ConfigFactory.load();
@@ -54,7 +56,7 @@ println("Initializing SparkContextLoader")
     sparkConf.setJars(List(conf.getString("spark.oneJar")))
   }
   addESConfig(sparkConf)
-     println("SPARK CONFIG:"+sparkConf.toDebugString)
+     logger.debug("SPARK CONFIG:"+sparkConf.toDebugString)
   //val sparkSession=SparkSession.builder().appName(conf.getString("spark.applicationName")).master(master).getOrCreate()
   val sparkSession:SparkSession=SparkSession.builder().config(sparkConf).getOrCreate()
 

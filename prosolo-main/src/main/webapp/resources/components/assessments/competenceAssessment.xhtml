@@ -14,6 +14,7 @@
 		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="competenceAssessment" type="org.prosolo.services.assessment.data.CompetenceAssessmentData" required="true" />
+		<composite:attribute name="blindAssessmentMode" required="true" type="org.prosolo.common.domainmodel.credential.BlindAssessmentMode"/>
 		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
 		<composite:attribute name="role" default="USER" />
 		<composite:attribute name="growlToUpdate" default="" />
@@ -34,16 +35,6 @@
 				<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
 					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.fullDisplayMode and cc.attrs.competenceAssessment.assessorNotified}">
 						<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-							<h:commandButton id="btn"
-											 rendered="#{not cc.attrs.currentUserAssessedStudent}"
-											 type="button"
-											 styleClass="close"
-											 pt:data-dismiss="alert"
-											 pt:aria-label="Close"
-											 value="&#215;"
-											 action="#{cc.attrs.bean.removeAssessorNotification(cc.attrs.competenceAssessment)}">
-								<f:ajax execute="@this" render="panelAssessorNotificationComp #{cc.attrs.growlToUpdate}" />
-							</h:commandButton>
 							#{cc.attrs.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
 						</div>
 					</h:panelGroup>
@@ -55,11 +46,23 @@
 				<div class="summaryAssessmentsHead #{cc.attrs.fullDisplayMode and (!cc.attrs.competenceAssessment.participantInDiscussion or cc.attrs.competenceAssessment.allRead or cc.attrs.competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 					<ui:fragment rendered="#{cc.attrs.displayStudentNameInHeader}">
 						<div class="user32">
-							<utilcomp:userAvatar
-									avatar="#{competenceAssessment.studentAvatarUrl}"
-									fullName="#{competenceAssessment.studentFullName}"
+							<assessment:assessmentActorAvatar
+									actorId="#{cc.attrs.competenceAssessment.studentId}"
+									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
+									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
+									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									actorType="STUDENT"
 							/>
-							<h3><a href="javascript:void(0);">#{competenceAssessment.studentFullName}</a></h3>
+							<h3>
+								<a href="javascript:void(0);">
+									<assessment:assessmentActorName
+											actorId="#{cc.attrs.competenceAssessment.studentId}"
+											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
+											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											actorType="STUDENT"
+									/>
+								</a>
+							</h3>
 						</div>
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
@@ -225,11 +228,23 @@
 				<div class="summaryAssessmentsHead">
 					<ui:fragment rendered="#{cc.attrs.displayStudentNameInHeader}">
 						<div class="user32">
-							<utilcomp:userAvatar
-									avatar="#{competenceAssessment.studentAvatarUrl}"
-									fullName="#{competenceAssessment.studentFullName}"
+							<assessment:assessmentActorAvatar
+									actorId="#{cc.attrs.competenceAssessment.studentId}"
+									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
+									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
+									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									actorType="STUDENT"
 							/>
-							<h3><a href="javascript:void(0);">#{competenceAssessment.studentFullName}</a></h3>
+							<h3>
+								<a href="javascript:void(0);">
+									<assessment:assessmentActorName
+											actorId="#{cc.attrs.competenceAssessment.studentId}"
+											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
+											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											actorType="STUDENT"
+									/>
+								</a>
+							</h3>
 						</div>
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
@@ -257,8 +272,6 @@
 							</a>
 						</div>
 					</ui:fragment>
-
-					<div class="clear"></div>
 				</div>
 
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.activityAssessmentData}">

@@ -38,10 +38,10 @@ public class CredentialDataFactory {
 		}
 		CredentialData cred = new CredentialData(false);
 		cred.setVersion(credential.getVersion());
-		cred.setId(credential.getId());
+		cred.getIdData().setId(credential.getId());
 		cred.setOrganizationId(credential.getOrganization().getId());
 		cred.setType(credential.getType());
-		cred.setTitle(credential.getTitle());
+		cred.getIdData().setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
 		if (category != null) {
@@ -69,7 +69,8 @@ public class CredentialDataFactory {
 					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
-		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
+
+		cred.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.getAssessorAssignmentMethod(credential.getAssessorAssignmentMethod()));
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
 		boolean learningStagesEnabled = false;
@@ -91,6 +92,7 @@ public class CredentialDataFactory {
 			cred.setDeliveryEndTime(DateUtil.getMillisFromDate(credential.getDeliveryEnd()));
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
 					credential.getDeliveryStart(), credential.getDeliveryEnd()));
+			cred.getIdData().setOrder(credential.getDeliveryOrder());
 		}
 
 		cred.getAssessmentSettings().setMaxPoints(credential.getMaxPoints());
@@ -112,7 +114,7 @@ public class CredentialDataFactory {
 	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CredentialAssessmentConfig> assessmentConfig) {
 		List<AssessmentTypeConfig> types = new ArrayList<>();
 		for (CredentialAssessmentConfig cac : assessmentConfig) {
-			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT, cac.getBlindAssessmentMode()));
 		}
 		return types;
 	}

@@ -215,7 +215,7 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 //				scaledWidth, scaledWidth, Scalr.OP_ANTIALIAS);
 		File resizedImage=new File(imageUrl);
 		ImageIO.write(scaledBI, imageExtension, resizedImage);
-		String fileType=FileUtil.getFileType(resizedImage);
+		String fileType=FileUtil.getFileType(imageUrl);
 	 	amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(resizedImage), 
 	 			CommonSettings.getInstance().config.services.userService.userAvatarPath+  userFolder+'/' +imageName, fileType);
     }

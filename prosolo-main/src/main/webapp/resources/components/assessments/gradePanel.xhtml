@@ -44,13 +44,18 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{cc.attrs.completed and (cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE' or cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC')}">
 						<h:form id="formGradeModal">
-							<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE'}">
+							<c:if test="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_SIMPLE'}">
 								<!-- manual grading - NO rubrics start -->
 								<div class="sliderBox">
 									<div class="sliderWrapper">
 										<input type="text" id="gradeSlider" class="gradeSlider" />
 									</div>
-									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue" class="sliderValueInput" />
+									<h:inputText value="#{cc.attrs.gradeData.newGrade}" id="gradeValue"
+												 autocomplete="off"
+												 class="sliderValueInput"
+												 validatorMessage="Grade must be between #{cc.attrs.gradeData.minGrade} and #{cc.attrs.gradeData.maxGrade}">
+										<f:validateLongRange minimum="#{cc.attrs.gradeData.minGrade}" maximum="#{cc.attrs.gradeData.maxGrade}" />
+									</h:inputText>
 									<script>
                                         var gradeSlider = $("#gradeSlider").bootstrapSlider({
                                             id: 'gradeSlider',
@@ -67,9 +72,14 @@
                                         });
 									</script>
 								</div>
+								<small class="redText bottom30 topMinus30 displayBlock">
+									<h:panelGroup id="panelGradeValueMessage" styleClass="validationMsgSelector">
+										<h:message for="gradeValue"></h:message>
+									</h:panelGroup>
+								</small>
 								<!-- manual grading - NO rubrics end -->
-							</ui:fragment>
-							<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC'}">
+							</c:if>
+							<c:if test="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC'}">
 								<!-- manual grading - WITH rubrics start -->
 								<ui:repeat value="#{cc.attrs.gradeData.rubricCriteria.criteria}" var="c">
 									<h3>#{c.name}</h3>
@@ -110,7 +120,7 @@
 									<p class="totalPoints"><strong>Total Points: <span id="spanTotalPoints">#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}</span></strong></p>
 								</c:if>
 								<!-- manual grading - WITH rubrics end -->
-							</ui:fragment>
+							</c:if>
 							<p:commandLink
 									styleClass="btn btn-green"
 									action="#{cc.attrs.gradeAction}"

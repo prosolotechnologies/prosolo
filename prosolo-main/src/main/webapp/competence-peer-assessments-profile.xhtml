@@ -40,11 +40,13 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li>
-					<h:link value="#{profileCompetencePeerAssessmentsBean.student.fullName}" outcome="profile">
-						<f:param name="id" value="#{param.studentId}"/>
-					</h:link>
-				</li>
+				<ui:fragment rendered="#{profileCompetencePeerAssessmentsBean.blindAssessmentMode eq 'OFF'}">
+					<li>
+						<h:link value="#{profileCompetencePeerAssessmentsBean.student.fullName}" outcome="profile">
+							<f:param name="id" value="#{param.studentId}"/>
+						</h:link>
+					</li>
+				</ui:fragment>
 				<li class="active">
 					Assessments
 				</li>
@@ -77,7 +79,13 @@
 											<div class="assessmentsBoxTop">
 												<div class="user32">
 													<h:link outcome="/competence-peer-assessment-profile">
-														<utilcomp:userAvatar avatar="#{assessment.assessorAvatarUrl}" fullName="#{assessment.assessorFullName}"/>
+														<assessment:assessmentActorAvatar
+																actorId="#{assessment.assessorId}"
+																avatarUrl="#{assessment.assessorAvatarUrl}"
+																actorFullName="#{assessment.assessorFullName}"
+																blindAssessmentMode="#{profileCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																actorType="ASSESSOR"
+														/>
 														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId"/>
 														<f:param value="#{param.compId}" name="compId"/>
 														<f:param value="#{param.studentId}" name="studentId"/>
@@ -85,7 +93,12 @@
 
 													<h3>
 														<h:link outcome="/competence-peer-assessment-profile">
-															#{assessment.assessorFullName}
+															<assessment:assessmentActorName
+																	actorId="#{assessment.assessorId}"
+																	actorFullName="#{assessment.assessorFullName}"
+																	blindAssessmentMode="#{profileCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																	actorType="ASSESSOR"
+															/>
 															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId"/>
 															<f:param value="#{param.compId}" name="compId"/>
 															<f:param value="#{param.studentId}" name="studentId"/>

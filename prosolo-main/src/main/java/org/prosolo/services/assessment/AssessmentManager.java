@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.Pair;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
@@ -22,9 +21,9 @@ import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.assessments.*;
+import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -92,7 +91,7 @@ public interface AssessmentManager {
 
 	void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
 
-	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, UserContextData context) throws DbConnectionException;
+	Result<Void> approveCompetenceAndGetEvents(long competenceAssessmentId, boolean directRequestForCompetenceAssessmentApprove, UserContextData context) throws DbConnectionException;
 
 	void markActivityAssessmentDiscussionAsSeen(long userId, long activityAssessmentId);
 
@@ -276,10 +275,6 @@ public interface AssessmentManager {
 	Result<Void> notifyAssessorToAssessCompetenceAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
 			throws DbConnectionException;
 
-	void removeAssessorNotificationFromCredentialAssessment(long assessmentId) throws DbConnectionException;
-
-	void removeAssessorNotificationFromCompetenceAssessment(long assessmentId) throws DbConnectionException;
-
 	Optional<UserData> getInstructorCompetenceAssessmentAssessor(long credId, long compId, long userId)
 			throws DbConnectionException;
 
@@ -356,4 +351,5 @@ public interface AssessmentManager {
     int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 
 	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
+
 }

@@ -26,14 +26,17 @@
 			
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
      		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
-     	<c:choose>
+
+		<c:choose>
 			<c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
-				<c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
-					<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
-				</c:when>
-				<c:otherwise>
-					<c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}//"/>
-				</c:otherwise>
+				<c:choose>
+					<c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+						<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
+					</c:when>
+					<c:otherwise>
+						<c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}//"/>
+					</c:otherwise>
+				</c:choose>
 		    </c:when>
 			<c:otherwise>
 				<c:choose>

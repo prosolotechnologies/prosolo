@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.search.CredentialTextSearch;
+import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
@@ -17,14 +18,16 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@ManagedBean(name = "credentialDeliveriesBean")
 @Component("credentialDeliveriesBean")
 @Scope("view")
-public class CredentialDeliveriesBean implements Serializable {
+public class CredentialDeliveriesBean extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = 2020680872327236846L;
 
@@ -35,7 +38,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CredentialTextSearch credentialTextSearch;
 	@Inject private LoggingService loggingService;
-	
+
 	private String id;
 	private long decodedId;
 	
@@ -47,6 +50,9 @@ public class CredentialDeliveriesBean implements Serializable {
 	private CredentialSearchFilterManager searchFilter = CredentialSearchFilterManager.ACTIVE;
 	private CredentialSearchFilterManager[] searchFilters;
 	private CredentialData selectedDelivery;
+
+	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.DATE_STARTED;
+	private CredentialDeliverySortOption[] sortOptions;
 	
 	private ResourceAccessData access;
 	
@@ -71,6 +77,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	
 	private void initializeValues() {
 		initializeDeliveryCollections();
+		sortOptions = CredentialDeliverySortOption.values();
 		searchFilters = CredentialSearchFilterManager.values();
 	}
 
@@ -82,7 +89,7 @@ public class CredentialDeliveriesBean implements Serializable {
 
 	private void loadCredentialDeliveries(CredentialSearchFilterManager filter) {
 		RestrictedAccessResult<List<CredentialData>> res = credentialManager
-				.getCredentialDeliveriesWithAccessRights(decodedId, loggedUser.getUserId(),filter);
+				.getCredentialDeliveriesWithAccessRights(decodedId, loggedUser.getUserId(), sortOption, filter);
 		unpackResult(res);
 
 		if(!access.isCanAccess()) {
@@ -99,10 +106,20 @@ public class CredentialDeliveriesBean implements Serializable {
 		);
 	}
 
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return true;
+	}
+
+	public void applySortOption(CredentialDeliverySortOption sortOption) {
+		this.sortOption = sortOption;
+		loadCredentialDeliveries(searchFilter);
+	}
+
 	public void archive() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.archiveCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.archiveCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ACTIVE);
 				PageUtil.fireSuccessfulInfoMessage( "The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been archived");
 			} catch (DbConnectionException e) {
@@ -120,7 +137,7 @@ public class CredentialDeliveriesBean implements Serializable {
 	public void restore() {
 		if(selectedDelivery != null) {
 			try {
-				credentialManager.restoreArchivedCredential(selectedDelivery.getId(), loggedUser.getUserContext());
+				credentialManager.restoreArchivedCredential(selectedDelivery.getIdData().getId(), loggedUser.getUserContext());
 				loadCredentialDeliveries(CredentialSearchFilterManager.ARCHIVED);
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been restored");
 			} catch (DbConnectionException e) {
@@ -191,6 +208,22 @@ public class CredentialDeliveriesBean implements Serializable {
 
 	public List<CredentialData> getDeliveries() {
 		return deliveries;
+	}
+
+	public CredentialDeliverySortOption getSortOption() {
+		return sortOption;
+	}
+
+	public void setSortOption(CredentialDeliverySortOption sortOption) {
+		this.sortOption = sortOption;
+	}
+
+	public CredentialDeliverySortOption[] getSortOptions() {
+		return sortOptions;
+	}
+
+	public void setSortOptions(CredentialDeliverySortOption[] sortOptions) {
+		this.sortOptions = sortOptions;
 	}
 
 }

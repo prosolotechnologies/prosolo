@@ -3,6 +3,7 @@ package org.prosolo.bigdata.scala.clustering.kmeans
 //import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
 import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
+import org.slf4j.LoggerFactory
 
 /**
   * Created by zoran on 19/07/16.
@@ -11,6 +12,7 @@ import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
   * zoran 19/07/16
   */
 object KMeansClusterer {
+  val logger = LoggerFactory.getLogger(getClass)
 
   /**
     * Analyses different KMeans models to find the one with lowest costs
@@ -39,9 +41,9 @@ object KMeansClusterer {
       }
     val (bestWSSSE, bestNumClusters, bestMaxIterations, bestKMeansModel) = results.sortBy(_._1).toSeq(0)
 
-    println("BEST WSSSE:"+bestWSSSE.toString)
-    println("BEST NUM CLUSTERS:"+bestNumClusters)
-    println("BEST MAX ITERATIONS:"+bestMaxIterations)
+    logger.debug("BEST WSSSE:"+bestWSSSE.toString)
+    logger.debug("BEST NUM CLUSTERS:"+bestNumClusters)
+    logger.debug("BEST MAX ITERATIONS:"+bestMaxIterations)
     bestKMeansModel
   }
   def performClustering(dataFrame: DataFrame, sqlContext:SparkSession, possibleNumClusters:Seq[Int],possibleMaxIterations:Seq[Int]): DataFrame ={

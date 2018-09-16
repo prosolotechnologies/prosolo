@@ -36,8 +36,9 @@ public class AssessmentDataFactory implements Serializable {
 
     public CredentialAssessmentsSummaryData getCredentialAssessmentsSummary(Credential1 cred) {
         CredentialAssessmentsSummaryData credAssessmentsSummary = new CredentialAssessmentsSummaryData();
-        credAssessmentsSummary.setId(cred.getId());
-        credAssessmentsSummary.setTitle(cred.getTitle());
+        credAssessmentsSummary.getCredentialIdData().setId(cred.getId());
+        credAssessmentsSummary.getCredentialIdData().setTitle(cred.getTitle());
+        credAssessmentsSummary.getCredentialIdData().setOrder(cred.getDeliveryOrder());
         credAssessmentsSummary.setMandatoryOrder(cred.isCompetenceOrderMandatory());
 
         return credAssessmentsSummary;
@@ -96,10 +97,12 @@ public class AssessmentDataFactory implements Serializable {
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
+            data.setStudentId(student.getId());
         }
         if (assessor != null) {
             data.setAssessorFullName(assessor.getName()+ " " + assessor.getLastname());
             data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
+            data.setAssessorId(assessor.getId());
         }
 
         return data;
