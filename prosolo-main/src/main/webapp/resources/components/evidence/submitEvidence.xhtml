@@ -163,17 +163,10 @@
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<h:inputText id="inputRelationToCompetence"
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
-<<<<<<< HEAD
-										 required="true"
-										 requiredMessage="Required field"
-										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
-										 h:autocomplete="off" />
-=======
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 required="true"
 										 requiredMessage="Required field"
 										 autocomplete="off" />
->>>>>>> PRS-3141-double-clicking-the-start-cred1
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
