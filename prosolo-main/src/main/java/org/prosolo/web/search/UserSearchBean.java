@@ -34,18 +34,18 @@ public class UserSearchBean implements Serializable {
 	private int userSize;
 	
 	public UserSearchBean() {
-		users = new ArrayList<UserData>();
+		users = new ArrayList<>();
 	}
 
 	public void searchUsers() {
-		List<Long> excludeUsers = new ArrayList<Long>();
+		List<Long> excludeUsers = new ArrayList<>();
 		excludeUsers.add(loggedUser.getUserId());
 		
 		searchUsers(query, excludeUsers);
 	}
 	
 	public void searchUsers(String searchQuery) {
-		List<Long> excludeUsers = new ArrayList<Long>();
+		List<Long> excludeUsers = new ArrayList<>();
 		excludeUsers.add(loggedUser.getUserId());
 		
 		searchUsers(searchQuery, excludeUsers);
@@ -64,13 +64,11 @@ public class UserSearchBean implements Serializable {
 					ComponentName.SEARCH_PEOPLE, 
 					searchQuery);
 		}
-		
-		searchQuery = null;
 	}
  
 	public void fetchUsers(String query, List<Long> excludeUsers) {
 		PaginatedResult<UserData> usersResponse = userTextSearch.getUsersWithRoles(
-				query, 0, 0, false, 0, null, false, excludeUsers, 0);
+				query, 0, 0, false, 0, null, false, excludeUsers, loggedUser.getOrganizationId());
 		
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();
@@ -95,20 +93,16 @@ public class UserSearchBean implements Serializable {
 		return query;
 	}
 
-	public List<UserData> getUsers() {
-		return users;
-	}
-
 	public void setQuery(String query) {
 		this.query = query;
 	}
 
+	public List<UserData> getUsers() {
+		return users;
+	}
+
 	public int getUserSize() {
 		return userSize;
-	}
-	
-	public void setUserSize(int userSize) {
-		this.userSize = userSize;
 	}
 	
 	public String getContext() {

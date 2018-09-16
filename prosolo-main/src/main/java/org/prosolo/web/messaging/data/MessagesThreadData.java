@@ -3,7 +3,7 @@ package org.prosolo.web.messaging.data;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,15 +21,13 @@ public class MessagesThreadData implements Serializable {
 	private long id;
 	private List<MessageData> messages;
 	private List<MessagesThreadParticipantData> participants;
-	private List<MessagesThreadParticipantData> participantsWithoutLoggedUser;
-	private String participantsListWithoutLoggedUser;
+	private MessagesThreadParticipantData receiver;
 	private MessageData lastUpdated;
 	private boolean readed;
 	
 	public MessagesThreadData() {
 		messages = new ArrayList<>();
 		participants = new ArrayList<>();
-		participantsWithoutLoggedUser = new ArrayList<>();
 	}
 	
 	public MessagesThreadData(MessageThread thread, long userId) {
@@ -42,12 +40,8 @@ public class MessagesThreadData implements Serializable {
 		this.readed = participant.isRead();
 
 
-		this.participants = thread.getParticipants().stream().map(tp -> new MessagesThreadParticipantData(tp)).sorted().collect(Collectors.toList());
-		this.participantsWithoutLoggedUser = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessagesThreadParticipantData(tp)).sorted().collect(Collectors.toList());
-
-		this.participantsListWithoutLoggedUser = participantsWithoutLoggedUser.stream()
-				.map(UserData::getName)
-				.collect(Collectors.joining(", "));
+		this.participants = thread.getParticipants().stream().map(tp -> new MessagesThreadParticipantData(tp)).collect(Collectors.toList());
+		this.receiver = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessagesThreadParticipantData(tp)).findAny().get();
 
 		List<MessageData> messagesData = new ArrayList<>();
 		for (Message m : thread.getMessages()) {
@@ -120,15 +114,6 @@ public class MessagesThreadData implements Serializable {
 		this.participants = participants;
 	}
 	
-	public MessagesThreadParticipantData getParticipant(long userId) {
-		for (MessagesThreadParticipantData participant : participants) {
-			if (participant.getId() == userId) {
-				return participant;
-			}
-		}
-		return null;
-	}
-
 	public MessagesThreadParticipantData getParticipantThatIsNotUser(long userId) {
 		for (MessagesThreadParticipantData participant : participants) {
 			if (participant.getId() != userId) {
@@ -138,21 +123,12 @@ public class MessagesThreadData implements Serializable {
 		return null;
 	}
 
-	public List<MessagesThreadParticipantData> getParticipantsWithoutLoggedUser() {
-		return participantsWithoutLoggedUser;
+	public MessagesThreadParticipantData getReceiver() {
+		return receiver;
 	}
 
-	public void setParticipantsWithoutLoggedUser(List<MessagesThreadParticipantData> participantsWithoutLoggedUser) {
-		this.participantsWithoutLoggedUser = participantsWithoutLoggedUser;
+	public void setReceiver(MessagesThreadParticipantData receiver) {
+		this.receiver = receiver;
 	}
-
-	public String getParticipantsListWithoutLoggedUser() {
-		return participantsListWithoutLoggedUser;
-	}
-
-	public void setParticipantsListWithoutLoggedUser(String participantsListWithoutLoggedUser) {
-		this.participantsListWithoutLoggedUser = participantsListWithoutLoggedUser;
-	}
-	
 }
 

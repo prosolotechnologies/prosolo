@@ -49,9 +49,6 @@ import java.util.*;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
-//import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
-
 
 /**
  * 
@@ -72,10 +69,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserManager userManager;
-	@Inject private UserGroupManager userGroupManager;
 
 	@Override
-	public TextSearchResponse searchUsers (
+	public TextSearchResponse searchStudents(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		

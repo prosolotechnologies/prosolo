@@ -1,28 +1,26 @@
 package org.prosolo.web.messaging;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.Pair;
 import org.prosolo.services.interaction.MessagingManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.messaging.data.MessagesThreadParticipantData;
 import org.prosolo.web.notification.TopInboxBean;
-import org.prosolo.web.search.SearchPeopleBean;
+import org.prosolo.web.search.UserSearchBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -44,11 +42,10 @@ public class MessagesBean implements Serializable {
     @Inject
     private UrlIdEncoder idEncoder;
     @Inject
-    private SearchPeopleBean searchPeopleBean;
+    private UserSearchBean userSearchBean;
     @Inject
     private TopInboxBean topInboxBean;
 
-    private long decodedThreadId;
     private MessagesThreadData selectedThread;
     private List<MessagesThreadData> messageThreads;
     private int limitThreads = 5;
@@ -60,20 +57,26 @@ public class MessagesBean implements Serializable {
     private int limitMessages = 7;
     private int pageMessages = 0;
     private boolean loadMoreMessages;
+
+    private UserData messageRecipient;
     //variables used for controlling component displays
     private boolean archiveView;
     private boolean newMessageView;
 
     private String messageText = "";
 
-    private Long receiverId;
-    private String receiverName;
-
     public void init() {
+        long decodedThreadId = idEncoder.decodeId(threadId);
+
+        init(decodedThreadId);
+    }
+
+    private void init(long messageThreadId) {
         this.messageThreads = null;
-        this.selectedThread = null;
         this.newMessageView = false;
-        this.decodedThreadId = idEncoder.decodeId(threadId);
+        this.selectedThread = null;
+        this.messages = null;
+        this.messageRecipient = null;
 
         // init message threads
         List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
@@ -90,14 +93,18 @@ public class MessagesBean implements Serializable {
         // set latest message thread to be selected
         if (!messageThreads.isEmpty()) {
             // if URL contained id of the message thread, try loading it from the db.
-            if (decodedThreadId > 0) {
+            if (messageThreadId > 0) {
                 try {
-                    messagingManager.markThreadAsRead(decodedThreadId, loggedUser.getUserId(), getLoggedUserContextData());
+                    this.selectedThread = messagingManager.markThreadAsRead(messageThreadId, loggedUser.getUserId(), getLoggedUserContextData());
 
-                    // find by id from the messageThreads list in order to work with the same Java object
-                    this.selectedThread = messageThreads.stream().filter(mt -> mt.getId() == decodedThreadId).findAny().orElse(null);
+                    // if the opened message thread is among loaded threads in the sidebar, then "selectedThread" should reference that object
+                    Optional<MessagesThreadData> optionalSelectedMThread = messageThreads.stream().filter(mt -> mt.getId() == messageThreadId).findAny();
+
+                    if (optionalSelectedMThread.isPresent()) {
+                        this.selectedThread = optionalSelectedMThread.get();
+                    }
                 } catch (Exception e) {
-                    logger.debug("Could not find the message thread with id " + decodedThreadId + ". The first message thread will be shown");
+                    logger.debug("Could not find the message thread with id " + messageThreadId + ". The first message thread will be shown");
                 }
             }
 
@@ -105,6 +112,8 @@ public class MessagesBean implements Serializable {
             if (selectedThread == null) {
                 this.selectedThread = messageThreads.get(0);
             }
+
+            this.messageRecipient = selectedThread.getReceiver();
             // init messages for the selected thread
             loadMessages();
         }
@@ -122,16 +131,15 @@ public class MessagesBean implements Serializable {
     }
 
     public void changeThread(MessagesThreadData threadData) {
-        // if currently selected thread was not initially read, mark it as read
+        // if previously selected thread was not initially marked as read, mark it as read
         if (this.selectedThread != null && !this.selectedThread.isReaded()) {
-            //mark current thread read
             this.messageThreads.stream().filter(mt -> mt.getId() == this.selectedThread.getId()).forEach(mt -> mt.setReaded(true));
             this.selectedThread.setReaded(true);
         }
 
-        //if we were on "newView", set it to false so we do not see user dropdown (no need for full init())
         newMessageView = false;
 
+        // look into already loaded message threads
         Optional<MessagesThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
 
         if (optionalThread.isPresent()) {
@@ -140,7 +148,27 @@ public class MessagesBean implements Serializable {
             this.selectedThread = messagingManager.getMessageThread(threadData.getId(), loggedUser.getUserId());
         }
 
+        this.messageRecipient = selectedThread.getReceiver();
+
         loadMessages();
+    }
+
+    private void openThreadWithParticipant(UserData messageRecipient) {
+        // first search in already loaded threads
+        Optional<MessagesThreadData> optionalMessagesThreadData = messageThreads.stream().filter(t -> t.getParticipants().stream().anyMatch(p -> p.getId() == messageRecipient.getId())).findAny();
+
+        if (optionalMessagesThreadData.isPresent()) {
+            changeThread(optionalMessagesThreadData.get());
+        } else {
+            // if not found, load from the database
+            Optional<MessagesThreadData> threadData = messagingManager.getMessageThreadDataForUsers(loggedUser.getUserId(), messageRecipient.getId());
+
+            if (threadData.isPresent()) {
+                this.selectedThread = threadData.get();
+            }
+
+            // if not found, then do nothing
+        }
     }
 
     private void loadMessages() {
@@ -234,29 +262,28 @@ public class MessagesBean implements Serializable {
 
             // if there is no thread with this user
             if (this.selectedThread == null) {
-                Pair<MessageData, MessagesThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(0, loggedUser.getUserId(), receiverId,
-                        this.messageText, userContext);
+                Pair<MessageData, MessagesThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
+                        0, loggedUser.getUserId(), messageRecipient.getId(), this.messageText, userContext);
 
                 this.selectedThread = result.getSecond();
                 this.messageThreads.add(0, this.selectedThread);
                 this.messages = this.selectedThread.getMessages();
             } else {
-                MessagesThreadParticipantData receiver = this.selectedThread.getParticipantThatIsNotUser(loggedUser.getUserId());
-                if (receiver != null) {
-                    newMessageData = messagingManager.sendMessage(this.selectedThread.getId(), loggedUser.getUserId(), receiver.getId(),
-                            this.messageText, userContext);
-                    this.messages.add(newMessageData);
-                    this.selectedThread.setLastUpdated(newMessageData);
+                newMessageData = messagingManager.sendMessage(this.selectedThread.getId(), loggedUser.getUserId(), selectedThread.getReceiver().getId(),
+                        this.messageText, userContext);
+                this.messages.add(newMessageData);
+                this.selectedThread.setLastUpdated(newMessageData);
 
-                    // mark all messages as read
-                    for (MessageData message : this.messages) {
-                        message.setReaded(true);
-                    }
-                } else {
-                    logger.error("Could not find a receiver");
-                    PageUtil.fireErrorMessage("There was an error sending the message");
-                    return;
+                // mark all messages as read
+                for (MessageData message : this.messages) {
+                    message.setReaded(true);
                 }
+            }
+
+            // if the message is sent from the Archive section, then reinitialize everything as the thread has now
+            // been revoked
+            if (archiveView) {
+                setArchiveView(false);
             }
 
             logger.debug("User " + loggedUser.getUserId() + " sent a message to thread " + selectedThread.getId() + " with content: '" + this.messageText + "'");
@@ -267,38 +294,44 @@ public class MessagesBean implements Serializable {
             this.messageText = null;
         } catch (Exception e) {
             logger.error("Exception while sending message", e);
+            PageUtil.fireErrorMessage("There was an error sending the message");
         }
-    }
-
-    public void setupNewMessageThreadRecievers(long receiverId) {
-        this.receiverId = receiverId;
-        this.receiverName = searchPeopleBean.getUsers().stream().filter(ud -> ud.getId() == receiverId).findAny().get().getName();
     }
 
     public void setNewMessageView(boolean newMessageView) {
         this.newMessageView = newMessageView;
 
         if (newMessageView) {
-            searchPeopleBean.resetSearch();
+            userSearchBean.resetSearch();
         }
         this.messageText = null;
         this.selectedThread = null;
+        this.messageRecipient = null;
     }
 
     public void setArchiveView(boolean archiveView) {
         this.archiveView = archiveView;
-        searchPeopleBean.resetSearch();
-        init();
+        init(-1);
     }
 
-    public void archiveCurrentThread() {
-        messagingManager.archiveThread(selectedThread.getId(), loggedUser.getUserId());
-        init();
+    public void archiveSelectedThread() {
+        messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), true);
+        init(-1);
+
+        PageUtil.fireSuccessfulInfoMessage("Thread is archived");
+    }
+
+    public void revokeFromArchiveSelectedThread() {
+        messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), false);
+        this.archiveView = false;
+        init(selectedThread.getId());
+
+        PageUtil.fireSuccessfulInfoMessage("Thread is revoked from the Archive");
     }
 
     public void deleteCurrentThread() {
         messagingManager.markThreadDeleted(selectedThread.getId(), loggedUser.getUserId());
-        init();
+        init(-1);
     }
 
 	/*
@@ -330,11 +363,11 @@ public class MessagesBean implements Serializable {
     }
 
     public List<MessageData> getReadMessages() {
-        return messages.stream().filter((msg) -> msg.isReaded()).collect(Collectors.toList());
+        return messages != null ? messages.stream().filter((msg) -> msg.isReaded()).collect(Collectors.toList()) : null;
     }
 
     public List<MessageData> getUnreadMessages() {
-        return messages.stream().filter((msg) -> !msg.isReaded()).collect(Collectors.toList());
+        return messages != null ? messages.stream().filter((msg) -> !msg.isReaded()).collect(Collectors.toList()) : null;
     }
 
     public boolean isLoadMoreMessages() {
@@ -349,16 +382,28 @@ public class MessagesBean implements Serializable {
         this.messageText = messageText;
     }
 
-    public Long getReceiverId() {
-        return receiverId;
-    }
-
     public boolean isArchiveView() {
         return archiveView;
     }
 
     public boolean isNewMessageView() {
         return newMessageView;
+    }
+
+    public UserData getMessageRecipient() {
+        return messageRecipient;
+    }
+
+    public void setMessageRecipient(UserData messageRecipient) {
+        this.messageRecipient = messageRecipient;
+        this.newMessageView = false;
+
+        userSearchBean.resetSearch();
+
+        this.selectedThread = null;
+        this.messages = null;
+
+        openThreadWithParticipant(messageRecipient);
     }
 
 }

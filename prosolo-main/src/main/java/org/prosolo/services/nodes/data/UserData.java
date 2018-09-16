@@ -42,6 +42,8 @@ public class UserData implements Serializable {
 	public UserData(User user) {
 		this();
 		this.id = user.getId();
+		this.name = user.getName();
+		this.lastName = user.getLastname();
 		setFullName(user.getName(), user.getLastname());
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 		this.position = user.getPosition();

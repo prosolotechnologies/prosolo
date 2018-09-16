@@ -3,7 +3,7 @@ package org.prosolo.web.messaging.data;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 
 /**
@@ -23,7 +23,7 @@ public class MessagesThreadParticipantData extends UserData {
         User user = participant.getUser();
 
         setId(user.getId());
-        setFirstName(user.getName());
+        setName(user.getName());
         setLastName(user.getLastname());
         setName(user.getFullName());
         setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));

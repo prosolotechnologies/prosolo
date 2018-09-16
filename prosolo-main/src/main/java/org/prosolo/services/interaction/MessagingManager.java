@@ -9,8 +9,10 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MessagingManager extends AbstractManager {
 
@@ -103,7 +105,15 @@ public interface MessagingManager extends AbstractManager {
 	 */
 	List<MessageData> getReadMessages(long threadId, long userId, int page, int limit);
 
-	void archiveThread(long threadId, long userId);
+	/**
+	 * If archiveStatus is true, updates the message thread for the given user to be archived. If archiveStatus is
+	 * false, the message thread for the given user is revoked from being archived.
+	 *
+	 * @param threadId id of the message thread
+	 * @param userId id of the user participating in the thread
+	 * @param archiveStatus determines whether a thread should be archived or revoked from being archived
+	 */
+	void updateArchiveStatus(long threadId, long userId, boolean archiveStatus);
 
 	/**
 	 * Marks the thread as deleted, but does not delete it. The reason it is not deleted is that when a new message
@@ -131,4 +141,21 @@ public interface MessagingManager extends AbstractManager {
 	 */
 	MessagesThreadData getMessageThread(long threadId, long userId);
 
+	/**
+	 * Retrieves a message thread between two users.
+	 *
+	 * @param loggedUserId id of the logged user
+	 * @param otherUserId id of the other user
+	 * @return message thread
+	 */
+	MessageThread getMessageThreadForUsers(long loggedUserId, long otherUserId);
+
+	/**
+	 * Retrieves a message thread data for a message thread between two users.
+	 *
+	 * @param loggedUserId id of the logged user
+	 * @param otherUserId id of the other user
+	 * @return message thread data
+	 */
+	Optional<MessagesThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId);
 }

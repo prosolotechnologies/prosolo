@@ -266,7 +266,8 @@ public class ActivityWallBean implements Serializable {
 			populateDataForNewPost(postShareSocialActivity, postShare, SocialActivityType.Post_Reshare);
 			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null,
 					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
-					socialActivityForShare.getActor().getFullName(), 
+					socialActivityForShare.getActor().getName(),
+					socialActivityForShare.getActor().getLastName(),
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
 			postShareSocialActivity.setText(postShareText);

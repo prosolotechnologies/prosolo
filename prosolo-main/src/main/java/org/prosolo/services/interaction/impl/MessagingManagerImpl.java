@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.messaging.MessageParticipant;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
@@ -72,7 +73,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			if (threadId > 0) {
 				thread = loadResource(MessageThread.class, threadId);
 			} else {
-				thread = getMessageThreadForUsers(Arrays.asList(senderId, receiverId));
+				thread = getMessageThreadForUsers(senderId, receiverId);
 
 				if (thread == null) {
 					Result<MessageThread> threadResult = createNewMessageThread(senderId, Arrays.asList(senderId, receiverId), msg);
@@ -88,11 +89,16 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			ThreadParticipant msgSender = thread.getParticipant(senderId);
 			msgSender.setRead(true);
 			msgSender.setLastReadMessage(message);
-			//check if thread was deleted by sender
+
+			//check if thread was deleted by the sender
 			if (msgSender.isDeleted()) {
 				msgSender.setDeleted(false);
 				msgSender.setShowMessagesFrom(now);
 			}
+
+			//check if thread was archived by the sender
+			msgSender.setArchived(false);
+
 			msgSender = saveEntity(msgSender);
 
 			ThreadParticipant msgReceiver = thread.getParticipant(receiverId);
@@ -126,7 +132,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
 					message, null, null, parameters));
 
-			result.setResult(new Pair<MessageData, MessagesThreadData>(new MessageData(message, true), new MessagesThreadData(thread, senderId)));
+			result.setResult(new Pair<>(new MessageData(message, true), new MessagesThreadData(thread, senderId)));
 
 			return result;
 		} catch (Exception e) {
@@ -143,8 +149,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread.setCreator(loadResource(User.class, creatorId));
 
 		List<User> participants = userManager.loadUsers(participantIds);
-		if(participants.size() < participantIds.size()) {
-			//some of the user ids do not exist
+		if (participants.size() < participantIds.size()) {
 			throw new ResourceCouldNotBeLoadedException("Some of the ids : "+participantIds+" do not exist in database, cannot create message thread");
 		}
 
@@ -174,26 +179,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 		return result;
 	}
-
-	@Transactional(readOnly = true)
-	public MessageThread getMessageThreadForUsers(List<Long> userIds) {
-		Query query = createMultipleThreadparticipantsQuery(userIds);
-
-		Session session = this.persistence.openSession();
-		MessageThread messagesThread = null;
-
-		try {
-			messagesThread = (MessageThread)query.uniqueResult();
-
-			session.flush();
-		} catch (Exception e) {
-			logger.error("Exception in handling message", e);
-		} finally {
-			HibernateUtil.close(session);
-		}
-		return messagesThread;
-	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -249,55 +234,41 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public Result<MessagesThreadData> markThreadAsReadAndGetEvents(long threadId, long userId, UserContextData context) throws DbConnectionException {
 		try {
 			String query =
-					"SELECT message " +
+					"SELECT thread, participant, message " +
 					"FROM MessageThread thread " +
 					"LEFT JOIN thread.messages message " +
-					"WHERE thread.id = :threadId "  +
+					"LEFT JOIN thread.participants participant " +
+					"LEFT JOIN participant.user user " +
+					"WHERE thread.id = :threadId " +
+							"AND user.id = :userId "  +
 					"ORDER BY message.createdTimestamp DESC ";
 
 			@SuppressWarnings("unchecked")
-			Message lastMessage = (Message) persistence.currentManager().createQuery(query)
-					.setLong("threadId", threadId)
-					.setMaxResults(1).uniqueResult();
-
-			// since Hibernate does not support JOIN in the UPDATE query, we must first obtain participantId
-			String query1 =
-					"SELECT participant.id " +
-					"FROM ThreadParticipant participant " +
-					"WHERE participant.user.id = :userId " +
-						"AND participant.messageThread.id = :threadId";
-
-			@SuppressWarnings("unchecked")
-			Long participantId = (Long) persistence.currentManager().createQuery(query1)
+			Object[] queryResult = (Object[]) persistence.currentManager().createQuery(query)
 					.setLong("threadId", threadId)
 					.setLong("userId", userId)
+					.setMaxResults(1)
 					.uniqueResult();
-
-			// update the thread participant
-			String query2 =
-					"UPDATE ThreadParticipant participant SET " +
-					"participant.read = TRUE, " +
-					"participant.lastReadMessage = :lastMessage " +
-					"WHERE participant.id = :participantId";
-
-			persistence.currentManager()
-					.createQuery(query2)
-					.setEntity("lastMessage", lastMessage)
-					.setLong("participantId", participantId)
-					.executeUpdate();
-
-
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("threadId", String.valueOf(threadId));
 
 			Result<MessagesThreadData> result = new Result<>();
 
-			MessageThread thread = (MessageThread) persistence.currentManager().get(MessageThread.class, threadId);
+			if (queryResult != null) {
+				MessageThread thread = (MessageThread) queryResult[0];
+				ThreadParticipant participant = (ThreadParticipant) queryResult[1];
+				Message lastMessage = (Message) queryResult[2];
 
-			result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
-					context, thread, null, null, parameters));
+				// mark thread as read by setting the last read message
+				participant.setLastReadMessage(lastMessage);
 
-			result.setResult(new MessagesThreadData(thread, userId));
+
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("threadId", String.valueOf(threadId));
+
+				result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+						context, thread, null, null, parameters));
+
+				result.setResult(new MessagesThreadData(thread, userId));
+			}
 
 			return result;
 		} catch (DbConnectionException dce) {
@@ -369,12 +340,20 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public void archiveThread(long threadId, long userId) {
-		String updateQuery = "UPDATE ThreadParticipant SET archived=true WHERE messageThread.id = :threadId AND user.id = :userId";
-		Query query = persistence.currentManager().createQuery(updateQuery);
-		query.setLong("threadId", threadId).setLong("userId", userId);
-		query.executeUpdate();
+	public void updateArchiveStatus(long threadId, long userId, boolean archiveStatus) {
+		String updateQuery =
+				"UPDATE ThreadParticipant " +
+				"SET archived = :archive " +
+				"WHERE messageThread.id = :threadId " +
+						"AND user.id = :userId";
 
+		persistence.currentManager().createQuery(updateQuery)
+				.setLong("threadId", threadId)
+				.setLong("userId", userId)
+				.setBoolean("archive", archiveStatus)
+				.executeUpdate();
+
+		persistence.currentManager().flush();
 	}
 
 	@Override
@@ -404,6 +383,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
+	@Transactional
 	public MessagesThreadData getMessageThread(long threadId, long userId) {
 		try {
 			MessageThread messageThread = loadResource(MessageThread.class, threadId);
@@ -418,39 +398,45 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		}
 	}
 
-	private MessageThread findMessageThread(long threadId) {
-		String queryValue = "SELECT thread FROM MessageThread thread WHERE id = :threadId";
-		Query query = persistence.currentManager().createQuery(queryValue);
-		query.setLong("threadId", threadId);
-		return (MessageThread) query.uniqueResult();
+	@Override
+	@Transactional
+	public MessageThread getMessageThreadForUsers(long loggedUserId, long otherUserId) {
+		try {
+			String query =
+					"SELECT thread " +
+					"FROM MessageThread thread " +
+					"LEFT JOIN thread.participants participant1  " +
+					"LEFT JOIN thread.participants participant2  " +
+					"WHERE participant1.user.id = :userId1 " +
+							"AND participant2.user.id = :userId2";
+
+			return (MessageThread) persistence.currentManager().createQuery(query)
+					.setLong("userId1", loggedUserId)
+					.setLong("userId2", otherUserId)
+					.setMaxResults(1)
+					.uniqueResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading message thread");
+		}
 	}
 
-	private Query createMultipleThreadparticipantsQuery(List<Long> userIds) {
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT thread " +
-				"FROM MessageThread thread ");
+	@Override
+	@Transactional
+	public Optional<MessagesThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId) {
+		try {
+			MessageThread thread = getMessageThreadForUsers(loggedUserId, otherUserId);
 
-		//create join clauses
-		for(int i = 0; i < userIds.size(); i++) {
-			queryBuilder.append(" LEFT JOIN thread.participants participant").append(i);
-		}
-
-		//create where clauses and named parameters
-		for (int i = 0; i < userIds.size(); i++) {
-			if (i == 0) {
-				queryBuilder.append(" WHERE ");
+			if (thread != null) {
+				return Optional.of(new MessagesThreadData(thread, loggedUserId));
 			}
-			queryBuilder.append("participant" + i + ".user.id =:userid" + i);
-			if (i < userIds.size() - 1) {
-				queryBuilder.append(" AND ");
-			}
+			return Optional.empty();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading message thread");
 		}
-		Query query = persistence.currentManager().createQuery(queryBuilder.toString());
-		//bind parameters
-		for(int i = 0; i < userIds.size(); i++) {
-			query.setLong("userid"+i, userIds.get(i));
-		}
-		return query;
 	}
 
 }
