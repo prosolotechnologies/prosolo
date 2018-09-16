@@ -67,10 +67,13 @@ public class MessagesBean implements Serializable {
     private String messageText = "";
 
     private Long receiverId;
+    private String receiverName;
 
     public void init() {
-        newMessageView = false;
-        decodedThreadId = idEncoder.decodeId(threadId);
+        this.messageThreads = null;
+        this.selectedThread = null;
+        this.newMessageView = false;
+        this.decodedThreadId = idEncoder.decodeId(threadId);
 
         // init message threads
         List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
@@ -267,14 +270,9 @@ public class MessagesBean implements Serializable {
         }
     }
 
-    public void setupNewMessageThreadRecievers() {
-        String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("receiverId");
-        if (StringUtils.isBlank(id)) {
-            logger.error("User " + loggedUser.getUserId() + " tried to send message with no recipient set");
-            PageUtil.fireErrorMessage("messagesFormGrowl", "Unable to send message");
-        } else {
-            this.receiverId = Long.parseLong(id);
-        }
+    public void setupNewMessageThreadRecievers(long receiverId) {
+        this.receiverId = receiverId;
+        this.receiverName = searchPeopleBean.getUsers().stream().filter(ud -> ud.getId() == receiverId).findAny().get().getName();
     }
 
     public void setNewMessageView(boolean newMessageView) {
@@ -289,18 +287,16 @@ public class MessagesBean implements Serializable {
 
     public void setArchiveView(boolean archiveView) {
         this.archiveView = archiveView;
-        messageThreads = null;
+        searchPeopleBean.resetSearch();
         init();
     }
 
     public void archiveCurrentThread() {
-        messageThreads = null;
         messagingManager.archiveThread(selectedThread.getId(), loggedUser.getUserId());
         init();
     }
 
     public void deleteCurrentThread() {
-        messageThreads = null;
         messagingManager.markThreadDeleted(selectedThread.getId(), loggedUser.getUserId());
         init();
     }

@@ -46,20 +46,16 @@
 	                        
 	                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 	                            <li>
-	                            	<p:commandLink 
-										action="#{messagesBean.setArchiveView(false)}"
-										update=":#{cc.clientId}:messagesPanel"
-										oncomplete="resetPeopleSearchParameters()">
-										Inbox
-									</p:commandLink>
+	                            	<p:commandLink id="inboxBtn"
+												   value="Inbox"
+												   action="#{messagesBean.setArchiveView(false)}"
+												   update=":#{cc.clientId}:messagesPanel :#{cc.clientId}:usersListPanel" />
 								</li>
 	                            <li>
-	                            	<p:commandLink
-										action="#{messagesBean.setArchiveView(true)}"
-										update=":#{cc.clientId}:messagesPanel"
-										oncomplete="resetPeopleSearchParameters()">
-										Archive
-									</p:commandLink>
+	                            	<p:commandLink id="archiveBtn"
+												   value="Archive"
+												   action="#{messagesBean.setArchiveView(true)}"
+												   update=":#{cc.clientId}:messagesPanel :#{cc.clientId}:usersListPanel" />
 	                            </li>
                         	</ul>
                     	</div>
@@ -126,7 +122,7 @@
 		                
 		            <h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="messagesList">
 						<div class="noMessagesList">
-							No Messages.
+							No messages.
 						</div>
 	                </h:panelGroup>
 				</div>
@@ -135,7 +131,7 @@
 					<!-- displayed when there are no messages -->
 					<h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="col-md-6 messageColumn">
 						<section class="whiteBox messagesPane noSelected">
-							<h2>No message selected.</h2>
+							<h2>No message thread selected.</h2>
 						</section>
 					</h:panelGroup>
 
@@ -148,12 +144,12 @@
 	              
 				<!-- BEGIN MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
 				<h:form id="messagesForm" prependId="false">
-					<p:remoteCommand name="setupNewMessageThreadRecievers" 
-						update="typeBoxNewMessageThread" 
-						process="@this" 
+					<p:remoteCommand name="setupNewMessageThreadRecievers"
+						update="typeBoxNewMessageThread"
+						process="@this"
 						actionListener="#{messagesBean.setupNewMessageThreadRecievers()}" />
-					
-					<p:remoteCommand name="resetPeopleSearchParameters" 
+
+					<p:remoteCommand name="resetPeopleSearchParameters"
 						update="usersListPanel" 
 						process="@this" 
 						actionListener="#{searchPeopleBean.resetSearch()}" />
@@ -280,12 +276,15 @@
 		                            </div>
 		                            <div class="media-body">
 		                                <div class="">
-		                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea" />
+		                                    <p:inputTextarea id="messageContentTextarea"
+															 value="#{messagesBean.messageText}"
+															 placeholder="Write message..."
+															 onkeyup="displaySubmitButton(this);" />
 		                                    
-		                                    <p:commandLink value="Send"
-		                                    	styleClass="btn btn-green btn-sm" 
-		                                    	action="#{messagesBean.sendMessage()}" 
-		                                    	update=":#{cc.clientId}:messagesPanel :#{cc.clientId}:threadList"
+		                                    <utilcomp:singleClickLink value="Send"
+																	  styleClass="btn btn-green btn-sm hidden submitBtn"
+																	  action="#{messagesBean.sendMessage()}"
+																	  update=":#{cc.clientId}:messagesPanel :#{cc.clientId}:threadList"
 	                                    	/>
 		                                </div>
 		                            </div>
@@ -300,20 +299,18 @@
 		          		<section class="whiteBox messagesPane">
 							<div id="messagePaneHead" class="messagePaneHead">
 								<div class="toBox">To:</div>
-								<h:inputText
-									onkeyup="searchListener(execSearchUsers);"
-									placeholder="Type name..."
-									value="#{searchPeopleBean.query}" 
-									id="messageRecievingUserName"
-									name="messageRecievingUserName"
-									autocomplete="off"/>
-								
-								<p:remoteCommand 
-									name="execSearchUsers" 
-									process="messageRecievingUserName"
-									action="#{searchPeopleBean.searchPeople()}" 
-									update="usersListPanel"
-								/>
+								<h:inputText id="messageRecievingUserName"
+											 onkeyup="searchListener(execSearchUsers);"
+											 placeholder="Type name..."
+											 value="#{searchPeopleBean.query}"
+											 name="messageRecievingUserName"
+											 autocomplete="off"/>
+
+								<p:remoteCommand
+										name="execSearchUsers"
+										process="messageRecievingUserName"
+										action="#{searchPeopleBean.searchPeople()}"
+										update="usersListPanel" />
 								
 								<h:panelGroup id="usersListPanel">
 									<h:panelGroup rendered="#{searchPeopleBean.userSize > 0}">
@@ -322,20 +319,22 @@
 											aria-expanded="true" style="display: block;">
 											<ui:repeat value="#{searchPeopleBean.users}" var="user" varStatus="iterator">
 												<li>
-													<a style="cursor: pointer;"
-														onclick="setRecipient('#{user.name}','#{user.id}')"
-														id="userlink-#{user.id}"> 
-														<h:panelGroup styleClass="letterAvatar letterAvatar32 img-circle"
-															rendered="#{empty user.avatarUrl}">
-				                                			#{user.initials}
-				                                		</h:panelGroup>
-				                                		<h:graphicImage
-															rendered="#{not empty user.avatarUrl}"
-															value="#{user.avatarUrl}"
-															styleClass="img-circle media-object" width="32"
-															height="32" alt="#{user.commaSeparatedFullName}" />
+													<p:commandLink style="cursor: pointer;"
+																   onclick="setRecipient('#{user.name}','#{user.id}')"
+																   oncomplete="resetPeopleSearchParameters();"
+																   update="typeBoxNewMessageThread :#{cc.clientId}:usersListPanel">
+														<h:panelGroup
+																styleClass="letterAvatar letterAvatar32 img-circle"
+																rendered="#{empty user.avatarUrl}">
+															#{user.initials}
+														</h:panelGroup>
+														<h:graphicImage
+																rendered="#{not empty user.avatarUrl}"
+																value="#{user.avatarUrl}"
+																styleClass="img-circle media-object" width="32"
+																height="32" alt="#{user.commaSeparatedFullName}"/>
 														<h3>#{user.name}</h3>
-													</a>
+													</p:commandLink>
 												</li>
 											</ui:repeat>
 										</ul>
@@ -348,16 +347,19 @@
 		                        <h:panelGroup styleClass="media typeBox" layout="block" rendered="#{messagesBean.receiverId > 0}">
 		                            <div class="media-left">
 										<utilcomp:userAvatar
-											avatar="#{loggeduser.avatar}"
-											fullName="#{loggeduser.fullName}" />
+												avatar="#{loggeduser.avatar}"
+												fullName="#{loggeduser.fullName}" />
 		                            </div>
 		                            <div class="media-body">
 		                                <div class="">
-		                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea2" />
+		                                    <p:inputTextarea id="messageContentTextarea2"
+															 placeholder="Write message..."
+															 value="#{messagesBean.messageText}"
+															 onkeyup="displaySubmitButton(this);" />
 		                                   
 		                                    <p:commandLink value="Send"
-		                                    	styleClass="btn btn-green btn-sm" 
-		                                    	action="#{messagesBean.sendMessage()}" 
+		                                    	styleClass="btn btn-green btn-sm hidden submitBtn"
+		                                    	action="#{messagesBean.sendMessage()}"
 		                                    	update=":#{cc.clientId}:messagesPanel"
 	                                    	/>
 		                                </div>

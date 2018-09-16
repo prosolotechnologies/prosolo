@@ -19,7 +19,13 @@ var custom = {
 
 //comment form hide/show
 function displaySubmitButton(inputElem) {
-    if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
+	var inputElem = $(inputElem);
+	console.log($(inputElem).val().length);
+	console.log($(inputElem).is('input'));
+	console.log($(inputElem).val().length == 0);
+	console.log($(inputElem).is('input') && $(inputElem).val().length == 0);
+
+    if ((($(inputElem).is('input') || $(inputElem).is('textarea')) && $(inputElem).val().length == 0) ||
 			($(inputElem).is('div') && !stripTags($(inputElem).html()).trim())) {
         $(inputElem).parent().find('.submitBtn').addClass('hidden');
      } else {

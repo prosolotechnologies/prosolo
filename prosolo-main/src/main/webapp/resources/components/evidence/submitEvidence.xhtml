@@ -413,8 +413,7 @@
 															  value="Add"
 															  action="#{cc.attrs.bean.postEvidence()}"
 															  update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence :#{cc.clientId}:formAddExistingEvidence:msgInputRelToCompetence"
-															  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
-									</utilcomp:singleClickLink>
+															  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }" />
 								</div>
 							</h:panelGroup>
 						</div>

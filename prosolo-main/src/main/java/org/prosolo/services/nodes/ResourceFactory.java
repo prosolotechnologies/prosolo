@@ -59,6 +59,4 @@ public interface ResourceFactory extends AbstractManager {
 	
 	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;
 	
-	UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException;
-
 }
