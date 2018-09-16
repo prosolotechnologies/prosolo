@@ -37,21 +37,14 @@ public class UserSearchBean implements Serializable {
 		users = new ArrayList<>();
 	}
 
-	public void searchUsers() {
+	public void search() {
 		List<Long> excludeUsers = new ArrayList<>();
 		excludeUsers.add(loggedUser.getUserId());
 		
-		searchUsers(query, excludeUsers);
+		search(query, excludeUsers);
 	}
 	
-	public void searchUsers(String searchQuery) {
-		List<Long> excludeUsers = new ArrayList<>();
-		excludeUsers.add(loggedUser.getUserId());
-		
-		searchUsers(searchQuery, excludeUsers);
-	}
-	
-	public void searchUsers(String searchQuery, List<Long> excludeUsers) {
+	public void search(String searchQuery, List<Long> excludeUsers) {
 		this.users.clear();
 		this.userSize = 0;
 
@@ -66,15 +59,15 @@ public class UserSearchBean implements Serializable {
 		}
 	}
  
-	public void fetchUsers(String query, List<Long> excludeUsers) {
+	private void fetchUsers(String query, List<Long> excludeUsers) {
 		PaginatedResult<UserData> usersResponse = userTextSearch.getUsersWithRoles(
 				query, 0, 0, false, 0, null, false, excludeUsers, loggedUser.getOrganizationId());
-		
+
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();
 			this.users = usersResponse.getFoundNodes();
 		} else {
-			this.userSize=0;
+			this.userSize = 0;
 		}
 		
 	}
