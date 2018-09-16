@@ -89,9 +89,10 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			UserDetails user = userDetailsService.loadUserByUsername(email);
 			Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
 				   user.getAuthorities());
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+			//SecurityContextHolder.getContext().setAuthentication(authentication);
 			if (authentication.isAuthenticated()) {
 				logger.info("AUTHENTICATED");
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 			authSuccessHandler.onAuthenticationSuccess(req, resp, authentication);
 		} catch (Exception e) {
@@ -191,10 +192,10 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			authenticate = new UsernamePasswordAuthenticationToken(email, null,grantedAuthorities);
 			logger.debug("Authentication token created for:"+email);
 			//Authentication authenticate = new UsernamePasswordAuthenticationToken(email, null);
-			SecurityContextHolder.getContext().setAuthentication(authenticate);
+			//SecurityContextHolder.getContext().setAuthentication(authenticate);
 			 if (authenticate.isAuthenticated()) {
 				 logger.info("Authentication was successful");
- 				// SecurityContextHolder.getContext().setAuthentication(authenticate);
+ 				 SecurityContextHolder.getContext().setAuthentication(authenticate);
 				 return true;
 			 } else {
 				 logger.info("Authentication was not successful");

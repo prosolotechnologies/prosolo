@@ -143,41 +143,41 @@ public class CommentBean implements Serializable, ICommentBean {
 	
 	@Override
 	public void saveNewComment(CommentData parent, CommentsData commentsData) {
-		CommentData newComment = new CommentData();
-		CommentData realParent = null;
-		if(parent == null) {
-			newComment.setComment(commentsData.getTopLevelComment());
-			commentsData.setTopLevelComment(null);
-		} else {
-			/*
-			 * if parent comment has parent, then that comment will be the
-			 * parent of a new comment because we have only one level of replies
-			 */
-			realParent = parent.getParent() != null ? parent.getParent() : 
-				parent;
-			newComment.setParent(realParent);
-			newComment.setComment(parent.getReplyToComment());
-		}
-		newComment.setCommentedResourceId(commentsData.getResourceId());
-		newComment.setDateCreated(new Date());
-		
-		// strip all tags except <br>
-		newComment.setComment(HTMLUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
-		
-		UserData creator = new UserData(
-				loggedUser.getUserId(), 
-				loggedUser.getSessionData().getName(),
-				loggedUser.getSessionData().getLastName(),
-				loggedUser.getSessionData().getAvatar(),
-				loggedUser.getSessionData().getPosition(),
-				loggedUser.getSessionData().getEmail(),
-				true);
-		
-		newComment.setCreator(creator);
-		newComment.setInstructor(commentsData.isInstructor());
-		newComment.setManagerComment(commentsData.isManagerComment());
-			
 		try {
+			CommentData newComment = new CommentData();
+			CommentData realParent = null;
+			if (parent == null) {
+				newComment.setComment(commentsData.getTopLevelComment());
+				commentsData.setTopLevelComment(null);
+			} else {
+				/*
+				 * if parent comment has parent, then that comment will be the
+				 * parent of a new comment because we have only one level of replies
+				 */
+				realParent = parent.getParent() != null ? parent.getParent() :
+					parent;
+				newComment.setParent(realParent);
+				newComment.setComment(parent.getReplyToComment());
+			}
+			newComment.setCommentedResourceId(commentsData.getResourceId());
+			newComment.setDateCreated(new Date());
+
+			// strip all tags except <br>
+			newComment.setComment(HTMLUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
+
+			UserData creator = new UserData(
+					loggedUser.getUserId(),
+					loggedUser.getSessionData().getName(),
+					loggedUser.getSessionData().getLastName(),
+					loggedUser.getSessionData().getAvatar(),
+					loggedUser.getSessionData().getPosition(),
+					loggedUser.getSessionData().getEmail(),
+					true);
+
+			newComment.setCreator(creator);
+			newComment.setInstructor(commentsData.isInstructor());
+			newComment.setManagerComment(commentsData.isManagerComment());
+			
     		Comment1 comment = null;
     		if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
     			comment = socialActivityManager.saveSocialActivityComment(
@@ -209,7 +209,7 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.incrementNumberOfComments();
         	}
         	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
-    	} catch (DbConnectionException e) {
+    	} catch (Exception e) {
     		logger.error(e);
     		PageUtil.fireErrorMessage("Error posting a comment");
     	}

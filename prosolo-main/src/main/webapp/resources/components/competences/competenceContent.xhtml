@@ -273,7 +273,7 @@
 							<p:commandLink styleClass="btn btn-red"
 							   	process="@this"
 								action="#{cc.attrs.bean.removeEvidenceFromCompetence()}"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence #{cc.attrs.toUpdateOnEvidencePost}"
 								oncomplete="$('#deleteEvidence').modal('hide')">
 								Remove
 							</p:commandLink>

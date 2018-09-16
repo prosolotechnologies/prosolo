@@ -158,9 +158,10 @@ public class LTIProviderLaunchBean implements Serializable {
 	}
 
 	private LTILaunchMessage validateRequest() throws Exception {
-		if (!LTIConstants.POST_REQUEST.equalsIgnoreCase(
-				((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
-						.getMethod())) {
+		String httpMethod = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
+				.getMethod();
+		if (!LTIConstants.POST_REQUEST.equalsIgnoreCase(httpMethod)) {
+			logger.error("LTI PROVIDER LAUNCH METHOD NOT POST AS EXPECTED BUT: " + httpMethod);
 			throw new Exception("Not POST Request!");
 		}
 		LTILaunchMessage message = createLTILaunchMessage();
