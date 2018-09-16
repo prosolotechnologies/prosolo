@@ -105,7 +105,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			unitManager.addUserToUnitWithRole(user.getId(), unitId,
 					roleId, loggedUser.getUserContext(orgId));
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
-					+ " is added to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
+					+ " is added to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " '" + unitTitle + "'");
 			resetSearchData();
 			try {
 				loadUsersFromDB();
@@ -117,7 +117,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while trying to add "
-					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
+					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " '" + unitTitle + "'");
 		}
 		return false;
 	}

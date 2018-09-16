@@ -4,9 +4,16 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.Pair;
+import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.users.UserScopeFilter;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.interaction.MessagingManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
@@ -44,6 +51,12 @@ public class MessagesBean implements Serializable {
     private UserSearchBean userSearchBean;
     @Inject
     private TopInboxBean topInboxBean;
+    @Inject
+    private RoleManager roleManager;
+    @Inject
+    private UserTextSearch userTextSearch;
+    @Inject
+    private UnitManager unitManager;
 
     private MessagesThreadData selectedThread;
     private List<MessagesThreadData> messageThreads;
@@ -64,8 +77,18 @@ public class MessagesBean implements Serializable {
 
     private String messageText = "";
 
+    // search related fields
+    private long studentRoleId;
+    private List<Long> usersUnitsWithStudentRole;
+    private String query;
+    private List<UserData> users;
+    private int userSize;
+    private int userSearchLimit = 5;
+
     public void init() {
         long decodedThreadId = idEncoder.decodeId(threadId);
+        studentRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
+        usersUnitsWithStudentRole = unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), studentRoleId);
 
         init(decodedThreadId);
     }
@@ -338,6 +361,35 @@ public class MessagesBean implements Serializable {
         init(-1);
     }
 
+    /*
+     * Search related methods
+     */
+    public void search() {
+        List<Long> excludeUsers = new ArrayList<>();
+        excludeUsers.add(loggedUser.getUserId());
+
+        UserSearchConfig searchConfig = UserSearchConfig.of(
+                UserSearchConfig.UserScope.ORGANIZATION, UserScopeFilter.USERS_UNITS, studentRoleId, usersUnitsWithStudentRole);
+
+        PaginatedResult<UserData> usersResponse = userTextSearch.searchUsersWithFollowInfo(
+                loggedUser.getOrganizationId(), query, - 1, userSearchLimit, loggedUser.getUserId(), searchConfig);
+
+        if (usersResponse != null) {
+            this.userSize = (int) usersResponse.getHitsNumber();
+            this.users = usersResponse.getFoundNodes();
+        } else {
+            this.userSize = 0;
+        }
+
+    }
+
+    public void resetSearch() {
+        users = new ArrayList<>();
+        query = "";
+        userSize = 0;
+    }
+
+
 	/*
      * GETTERS / SETTERS
 	 */
@@ -410,4 +462,19 @@ public class MessagesBean implements Serializable {
         openThreadWithParticipant(messageRecipient);
     }
 
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public List<UserData> getUsers() {
+        return users;
+    }
+
+    public int getUserSize() {
+        return userSize;
+    }
 }

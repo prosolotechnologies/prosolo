@@ -130,7 +130,7 @@
 					<p:remoteCommand name="resetPeopleSearchParameters"
 						update="usersListPanel" 
 						process="@this" 
-						action="#{userSearchBean.resetSearch}" />
+						action="#{messagesBean.resetSearch}" />
               
               		<p:growl id="messagesFormGrowl" showDetail="true" />
 
@@ -280,22 +280,22 @@
 								<h:inputText id="messageRecievingUserName"
 											 name="messageRecievingUserName"
 											 placeholder="Type name..."
-											 value="#{userSearchBean.query}"
+											 value="#{messagesBean.query}"
 											 onkeyup="searchListener(execSearchUsers);"
 											 autocomplete="off" />
 								
 								<p:remoteCommand name="execSearchUsers"
 												 process="messageRecievingUserName"
-												 action="#{userSearchBean.search()}"
+												 action="#{messagesBean.search}"
 												 update="usersListPanel"	/>
 
 								<h:panelGroup id="usersListPanel">
-									<ui:fragment rendered="#{userSearchBean.userSize > 0}">
+									<ui:fragment rendered="#{messagesBean.userSize > 0}">
 										<ul id="usersList" class="dropdown-menu searchResultsDrop"
 											data-toggle="dropdown" aria-haspopup="true"
 											aria-expanded="true" style="display: block;">
 
-											<ui:repeat value="#{userSearchBean.users}" var="user" varStatus="iterator">
+											<ui:repeat value="#{messagesBean.users}" var="user" varStatus="iterator">
 												<li>
 													<p:commandLink styleClass="cursor: pointer;"
 																   action="#{messagesBean.setMessageRecipient(user)}"
