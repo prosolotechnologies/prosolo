@@ -25,7 +25,8 @@ public class MessagesThreadParticipantData extends UserData {
         setId(user.getId());
         setName(user.getName());
         setLastName(user.getLastname());
-        setName(user.getFullName());
+        setName(user.getName());
+        setFullName(user.getFullName());
         setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
         this.participantId = participant.getId();
         this.deleted = participant.isDeleted();

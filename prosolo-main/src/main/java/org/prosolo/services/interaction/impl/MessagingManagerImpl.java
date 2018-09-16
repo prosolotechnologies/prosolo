@@ -241,6 +241,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 					"LEFT JOIN participant.user user " +
 					"WHERE thread.id = :threadId " +
 							"AND user.id = :userId "  +
+							"AND participant.deleted = FALSE "  +
 					"ORDER BY message.createdTimestamp DESC ";
 
 			@SuppressWarnings("unchecked")

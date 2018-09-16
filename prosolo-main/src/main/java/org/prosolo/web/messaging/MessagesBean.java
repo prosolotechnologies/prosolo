@@ -10,7 +10,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
-import org.prosolo.web.messaging.data.MessagesThreadParticipantData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.search.UserSearchBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -87,6 +86,7 @@ public class MessagesBean implements Serializable {
             loadMoreThreads = true;
             this.messageThreads = loadedThreads.subList(0, limitThreads);
         } else {
+            loadMoreThreads = false;
             this.messageThreads = loadedThreads;
         }
 
@@ -280,6 +280,9 @@ public class MessagesBean implements Serializable {
                 }
             }
 
+            // reorder message threads based on the lastUpdated field. Multiplying by -1 to reverse the order.
+            this.messageThreads.sort((o1, o2) -> o1.getLastUpdated().getCreated().compareTo(o2.getLastUpdated().getCreated()) * -1);
+
             // if the message is sent from the Archive section, then reinitialize everything as the thread has now
             // been revoked
             if (archiveView) {
@@ -311,6 +314,7 @@ public class MessagesBean implements Serializable {
 
     public void setArchiveView(boolean archiveView) {
         this.archiveView = archiveView;
+        pageThread = 0;
         init(-1);
     }
 
@@ -318,7 +322,7 @@ public class MessagesBean implements Serializable {
         messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), true);
         init(-1);
 
-        PageUtil.fireSuccessfulInfoMessage("Thread is archived");
+        PageUtil.fireSuccessfulInfoMessage("Conversation is archived");
     }
 
     public void revokeFromArchiveSelectedThread() {
@@ -326,7 +330,7 @@ public class MessagesBean implements Serializable {
         this.archiveView = false;
         init(selectedThread.getId());
 
-        PageUtil.fireSuccessfulInfoMessage("Thread is revoked from the Archive");
+        PageUtil.fireSuccessfulInfoMessage("Conversation is revoked from the Archive");
     }
 
     public void deleteCurrentThread() {
