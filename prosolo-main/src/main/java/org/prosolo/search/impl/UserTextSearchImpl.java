@@ -71,11 +71,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
-	public TextSearchResponse searchStudents(
+	public PaginatedResult<UserData> searchStudents(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		
-		TextSearchResponse response = new TextSearchResponse();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
@@ -129,7 +129,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						User user = defaultManager.loadResource(User.class, id);
 						
 						if (user != null) {
-							response.addFoundNode(user);
+							response.addFoundNode(new UserData(user));
 						}
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error("User was not found: " + id);

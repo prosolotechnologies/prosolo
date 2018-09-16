@@ -23,7 +23,7 @@ import java.util.List;
  */
 public interface UserTextSearch extends AbstractManager {
 
-	TextSearchResponse searchStudents(long orgId, String searchString,
+	PaginatedResult<UserData> searchStudents(long orgId, String searchString,
 									  int page, int limit, boolean loadOneMore,
 									  Collection<Long> excludeUserIds);
 	

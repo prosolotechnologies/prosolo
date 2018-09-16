@@ -13,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @ManagedBean(name = "userSearchBean")
@@ -60,8 +61,8 @@ public class UserSearchBean implements Serializable {
 	}
  
 	private void fetchUsers(String query, List<Long> excludeUsers) {
-		PaginatedResult<UserData> usersResponse = userTextSearch.getUsersWithRoles(
-				query, 0, 0, false, 0, null, false, excludeUsers, loggedUser.getOrganizationId());
+		PaginatedResult<UserData> usersResponse = userTextSearch.searchStudents(loggedUser.getOrganizationId(), query,
+		0, 0, false, excludeUsers);
 
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();
