@@ -92,14 +92,12 @@
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
 						<p:growl showDetail="true" />
 
-						<h:inputText
-								id="inputTitle"
-								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence title"
-								required="true"
-								requiredMessage="Title is required"
-								autocomplete="off"
-						/>
+						<h:inputText id="inputTitle"
+									 value="#{submitEvidenceBean.evidence.title}"
+									 placeholder="Evidence title"
+									 required="true"
+									 requiredMessage="Title is required"
+									 autocomplete="off" />
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
 						<h:inputTextarea id="textareaEvidenceText"
@@ -160,12 +158,16 @@
 									 value="#{submitEvidenceBean.evidence.tagsString}"
 									 placeholder="Keywords - Type and press 'Enter'"
 									 pt:data-role="tagsinput"
-									 autocomplete="off">
-						</h:inputText>
+									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 required="true"
+										 requiredMessage="Required field"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 h:autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -191,14 +193,12 @@
 					<h:form id="formUrlEvidence">
 						<p:growl showDetail="true" />
 
-						<h:inputText
-								id="inputTitle"
-								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence title"
-								required="true"
-								requiredMessage="Title is required"
-								autocomplete="off"
-						/>
+						<h:inputText id="inputTitle"
+									 value="#{submitEvidenceBean.evidence.title}"
+									 placeholder="Evidence title"
+									 required="true"
+									 requiredMessage="Title is required"
+									 autocomplete="off" />
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
 						<h:inputTextarea id="textareaEvidenceText"
@@ -219,7 +219,7 @@
 									 requiredMessage="URL is required"
 									 validator="urlValidator"
 									 autocomplete="off"
-									 value="#{submitEvidenceBean.evidence.url}"/>
+									 value="#{submitEvidenceBean.evidence.url}" />
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
 
 						<h:inputText styleClass="tagsInputEvidence"
@@ -227,12 +227,16 @@
 									 value="#{submitEvidenceBean.evidence.tagsString}"
 									 placeholder="Keywords - Type and press 'Enter'"
 									 pt:data-role="tagsinput"
-									 autocomplete="off">
-						</h:inputText>
+									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" required="true" requiredMessage="Required field" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 required="true"
+										 requiredMessage="Required field"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -258,14 +262,12 @@
 					<h:form id="formTextEvidence">
 						<p:growl showDetail="true" />
 
-						<h:inputText
-								id="inputTitle"
-								value="#{submitEvidenceBean.evidence.title}"
-								placeholder="Evidence title"
-								required="true"
-								requiredMessage="Required field"
-								autocomplete="off"
-						/>
+						<h:inputText id="inputTitle"
+									 value="#{submitEvidenceBean.evidence.title}"
+									 placeholder="Evidence title"
+									 required="true"
+									 requiredMessage="Required field"
+									 autocomplete="off" />
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
 
 						<h:inputTextarea id="textareaEvidenceText"
@@ -284,12 +286,16 @@
 									 value="#{submitEvidenceBean.evidence.tagsString}"
 									 placeholder="Keywords - Type and press 'Enter'"
 									 pt:data-role="tagsinput"
-									 autocomplete="off">
-						</h:inputText>
+									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputText>
+							<h:inputText id="inputRelationToCompetence"
+										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+										 required="true"
+										 requiredMessage="Required field"
+										 autocomplete="off" />
 							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
 						</c:if>
 
@@ -331,8 +337,7 @@
 											 value="#{learningEvidenceSearchBean.searchTerm}"
 											 onclick="$(this).select();"
 											 onkeyup="searchListener(execSearchEvidences);"
-											 autocomplete="off">
-								</h:inputText>
+											 autocomplete="off" />
 							</h:form>
 						</div>
 						<h:panelGroup id="panelEvidenceSearchResults">
@@ -389,15 +394,19 @@
 									</div>
 								</div>
 								<div class="modal-body alignLeft">
-									<h:inputTextarea id="inputRelToCompetence" value="#{submitEvidenceBean.evidence.relationToCompetence}" placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?" required="true" requiredMessage="Required field"></h:inputTextarea>
+									<h:inputTextarea id="inputRelToCompetence"
+													 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+													 required="true"
+													 requiredMessage="Required field"
+													 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+													 autocomplete="off" />
 									<small class="redText bottom30 topMinus30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
 								</div>
 								<div class="modal-footer alignLeft">
-									<p:commandLink
-											styleClass="btn btn-green"
-											action="#{cc.attrs.bean.postEvidence()}"
-											update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
-											oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
+									<p:commandLink styleClass="btn btn-green"
+												   action="#{cc.attrs.bean.postEvidence()}"
+												   update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence msgInputRelToCompetence"
+												   oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
 										Add
 									</p:commandLink>
 								</div>
