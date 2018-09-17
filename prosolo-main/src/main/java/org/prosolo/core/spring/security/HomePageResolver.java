@@ -102,9 +102,14 @@ public class HomePageResolver {
     @SuppressWarnings("unchecked")
     private List<GrantedAuthority> getGrantedAuthorities() {
         SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
+        if (context != null) {
+            Authentication authentication = context.getAuthentication();
 
-        List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) authentication.getAuthorities();
-        return grantedAuthorities == null ? new ArrayList<>() : grantedAuthorities;
+            if (authentication != null) {
+                List<GrantedAuthority> grantedAuthorities = (List<GrantedAuthority>) authentication.getAuthorities();
+                return grantedAuthorities == null ? new ArrayList<>() : grantedAuthorities;
+            }
+        }
+        return new ArrayList<>();
     }
 }
