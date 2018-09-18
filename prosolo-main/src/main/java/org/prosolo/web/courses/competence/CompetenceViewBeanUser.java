@@ -220,15 +220,7 @@ public class CompetenceViewBeanUser implements Serializable {
 			}
 			submitEvidenceBean.resetEvidence();
 			PageUtil.fireSuccessfulInfoMessage("Evidence successfully added");
-		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
-			logger.error("Error", e);
-			FacesContext context = FacesContext.getCurrentInstance();
-			String inputTitleId = PageUtil.getPostParameter("evidenceTitleInputId");
-			UIInput input = (UIInput) context.getViewRoot().findComponent(inputTitleId);
-			input.setValid(false);
-			context.addMessage(inputTitleId, new FacesMessage("Evidence with this name already exists"));
-			context.validationFailed();
-		} catch (DbConnectionException e) {
+		} catch (RuntimeException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error posting the evidence");
 		}

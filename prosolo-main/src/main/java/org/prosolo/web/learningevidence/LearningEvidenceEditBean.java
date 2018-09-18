@@ -86,10 +86,7 @@ public class LearningEvidenceEditBean implements Serializable {
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Evidence added");
                 PageUtil.redirect("/evidence");
             }
-        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
-            logger.error("Error", e);
-            //for now we don't check unique evidence name so this exception can't occur
-        } catch (DbConnectionException e) {
+        } catch (Exception e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error saving the evidence");
         }
