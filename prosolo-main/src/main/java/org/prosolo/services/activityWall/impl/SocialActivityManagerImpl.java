@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
@@ -26,10 +27,13 @@ import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.annotation.Annotation1Manager;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -51,9 +55,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	private static final long serialVersionUID = 8656308195928025188L;
 	
 	private static Logger logger = Logger.getLogger(SocialActivityManagerImpl.class);
-//
-//	@Autowired private TagManager tagManager;
-//	
+
 	@Inject private SocialActivityDataFactory socialActivityFactory;
 	@Inject private Annotation1Manager annotationManager;
 	@Inject private EventFactory eventFactory;
@@ -63,6 +65,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private CredentialManager credentialManager;
+	@Inject private SocialActivityManager self;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -366,7 +369,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						 "OFFSET :offset");
 	}
 	
-	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
+	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset,
 			String specificCondition, long previousId, Date previousDate, boolean queryById, 
 			boolean shouldReturnHidden, Locale locale) {
 		List<Long> deliveriesUserIsLearning = null;
@@ -799,51 +802,60 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	//nt
 	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
 			UserContextData context) throws DbConnectionException {
+		Result<PostSocialActivity1> res = self.createNewPostAndGetEvents(postData, context);
+		eventFactory.generateEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<PostSocialActivity1> createNewPostAndGetEvents(SocialActivityData1 postData,
+																 UserContextData context) throws DbConnectionException {
 		try {
+			Result<PostSocialActivity1> result = new Result<>();
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
-			
+
 			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
 
-			// generate events related to the content
-			//TODO richcontent1 is not a baseentity so event can't be generated
-			
-			taskExecutor.execute(() -> {
-				Session session = this.getPersistence().openSession();
-				try {
-					
-					generateEventForContent(context, postData.getText(), post);
-					
-					// generate Post event
-					eventFactory.generateEvent(EventType.Post, context, post, null, null, null);
-					
-					// generate MENTIONED event
-					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
-					
-					if (!mentionedUsers.isEmpty()) {
-						for (long mentionedUserId : mentionedUsers) {
-							User mentionedUser = (User) session.load(User.class, mentionedUserId);
-							
-							eventFactory.generateEvent(EventType.MENTIONED, context, mentionedUser, post, null, null);
-						}
-					}
-				} catch (Exception e) {
-					logger.error(e);
-				} finally {
-					HibernateUtil.close(session);
+			// generate events for links and files indexing
+//			if (richContent != null && richContent.getContentType() != null) {
+//				switch (richContent.getContentType()) {
+//					case LINK:
+//						result.appendEvent(eventFactory.generateEventData(EventType.LinkAdded, context, post, null, null, null));
+//					case FILE:
+//						result.appendEvent(eventFactory.generateEventData(EventType.FileUploaded, context, post, null, null, null));
+//					default:
+//						break;
+//				}
+//			}
+
+			// generate Post event
+			result.appendEvent(eventFactory.generateEventData(EventType.Post, context, post, null, null, null));
+
+			// generate MENTIONED event
+			List<Long> mentionedUsers = getMentionedUsers(postData.getText());
+
+			if (!mentionedUsers.isEmpty()) {
+				for (long mentionedUserId : mentionedUsers) {
+					User mentionedUser = (User) persistence.currentManager().load(User.class, mentionedUserId);
+
+					result.appendEvent(eventFactory.generateEventData(EventType.MENTIONED, context, mentionedUser, post, null, null));
 				}
-			});
-			
-			return post;
+			}
+
+			result.setResult(post);
+
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving post");
 		}
 	}
-	
+
 	private List<Long> getMentionedUsers(String postText) {
 		List<Long> userIds = new ArrayList<>();
 		
@@ -860,7 +872,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
 			throws DbConnectionException {
 		try {
@@ -877,7 +889,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public PostSocialActivity1 updatePost(long postId, String newText,
 			UserContextData context) throws DbConnectionException {
 		try {
@@ -891,41 +903,12 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			
 			return post;
 		} catch(Exception e) {
-			logger.error(e);
 			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving post");
 		}
 	}
 
-	/**
-	 * @param context
-	 * @param text
-	 * @param post
-	 */
-	private void generateEventForContent(final UserContextData context, final String text, final PostSocialActivity1 post) {
-		String addedLink = null;
-	
-		RichContent1 richContent = post.getRichContent();
-		if (richContent != null && richContent.getContentType() != null) {
-			switch (richContent.getContentType()) {
-				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
-					addedLink = richContent.getLink();
-					break;
-				case FILE:
-					eventFactory.generateEvent(EventType.FileUploaded, context, post, null, null, null);
-					break;
-				default:
-					break;
-			}
-		}
-	
-		Collection<String> urls = StringUtil.pullLinks(text);
-		if (urls.contains(addedLink)) {
-			urls.remove(addedLink);
-		}
-	}
-	
 	@Override
 	@Transactional(readOnly = false)
 	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
