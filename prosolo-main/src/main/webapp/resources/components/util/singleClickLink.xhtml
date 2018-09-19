@@ -1,8 +1,7 @@
 <ui:component
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:composite="http://java.sun.com/jsf/composite"
-        xmlns:p="http://primefaces.org/ui"
-        xmlns:f="http://java.sun.com/jsf/core">
+        xmlns:p="http://primefaces.org/ui">
 
     <composite:interface>
         <composite:attribute name="value"/>
@@ -24,7 +23,7 @@
                 process="#{cc.attrs.process}"
                 action="#{cc.attrs.action}"
                 oncomplete="#{cc.attrs.oncomplete}"
-                update="#{cc.attrs.update}">
+                update="#{cc.attrs.update} @this">
             <composite:insertChildren/>
         </p:commandLink>
     </composite:implementation>

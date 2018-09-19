@@ -118,7 +118,6 @@
 											<utilcomp:singleClickLink rendered="#{not comp.enrolled}"
 														   value="Start"
 														   styleClass="btn btn-green btn-sm"
-														   onclick="preventDoubleClick(this);"
 														   action="#{cc.attrs.bean.enrollInCompetence(comp)}"
 														   update="#{cc.attrs.growlToUpdate}">
 												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
