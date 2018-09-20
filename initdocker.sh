@@ -51,9 +51,14 @@ function is_container_running {
 
 function start_database {
     pushd docker
-    docker-compose up -d || onErrorQuit " cannot start container orchestration"
+    if $DEBUG; then
+        docker-compose up || onErrorQuit " cannot start container orchestration"
+    else
+        docker-compose up -d || onErrorQuit " cannot start container orchestration"
+    fi
+
     popd
-    echo "started database"
+    echo "started databases"
 }
 function handle_parameter {
     while [[ $# -gt 0 ]]
@@ -73,6 +78,10 @@ function handle_parameter {
                 RESET=true
                 shift
                 ;;
+            debug)
+                DEBUG=true
+                shift
+                ;;
             stop)
                 STOP=true
                 shift
@@ -80,6 +89,10 @@ function handle_parameter {
             -h|--help)
                 displayHelp
                 exit 0
+                ;;
+            -es6)
+                ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+                shift
                 ;;
 			-d|--dev)
 			    VCS_BRANCH='dev'
@@ -164,8 +177,10 @@ function displayHelp() {
         -b <branch>    : uses named branch to label container volumes. If no branch is specified (just -b) it will use
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
+        -es6           : initializes docker container with elasticsearch v6.2.4 instead of deafult v2.3.0
         reset          : resets database content and repeats bootstrap process
         stop           : stops the currently running databases
+        debug          : prevents running containers in the background which is set as default and makes it possible to investigate container initialization problems
 
     "
 }
@@ -174,8 +189,12 @@ function displayHelp() {
 #            LOGIC FLOW STARTS HERE                  #
 ######################################################
 
+ ES_VERSION_MANIFEST=elasticsearch:2.3.0
 
 handle_parameter $@
+
+echo "ES VERSION MANIFEST:" $ES_VERSION_MANIFEST
+export ES_VERSION_MANIFEST=$ES_VERSION_MANIFEST
 
 if $STOP; then
     stop_database
