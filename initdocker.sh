@@ -90,7 +90,7 @@ function handle_parameter {
                 displayHelp
                 exit 0
                 ;;
-            -es)
+            -es6)
                 ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.4
                 shift
                 ;;
@@ -177,6 +177,7 @@ function displayHelp() {
         -b <branch>    : uses named branch to label container volumes. If no branch is specified (just -b) it will use
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
+        -es6           : initializes docker container with elasticsearch v6.2.4 instead of deafult v2.3.0
         reset          : resets database content and repeats bootstrap process
         stop           : stops the currently running databases
         debug          : prevents running containers in the background which is set as default and makes it possible to investigate container initialization problems
