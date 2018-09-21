@@ -125,7 +125,6 @@ public class HibernateUtil {
 		p.setMinEvictableIdleTimeMillis(30000);
 		p.setMinIdle(10);
 		p.setLogAbandoned(true);
-//		p.setInitSQL("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_520_ci'");
 		//if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			p.setRemoveAbandoned(false);
 		//}else{

@@ -64,7 +64,7 @@
 		<database>prosolo</database>
 		<user>root</user>
 		<password>root</password>
-		<jdbc_driver>com.mysql.cj.jdbc.Driver</jdbc_driver>
+		<jdbc_driver>com.mysql.jdbc.Driver</jdbc_driver>
 	</mysql-config>
 	<hibernate>
 		<dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
