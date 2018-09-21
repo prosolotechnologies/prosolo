@@ -170,13 +170,6 @@
 			<version>2.0.12.Final</version>
 		</dependency>
 
-		<!-- MySQL Database dependencies -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.19</version>
-		</dependency>
-
 		<!-- JSON dependencies -->
 		<!--dependency>
 			<groupId>org.json</groupId>
@@ -690,6 +683,12 @@
 		    <groupId>com.google.oauth-client</groupId>
 		    <artifactId>google-oauth-client-jetty</artifactId>
 		    <version>1.22.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>5.1.4</version>
 		</dependency>
 	</dependencies>
 

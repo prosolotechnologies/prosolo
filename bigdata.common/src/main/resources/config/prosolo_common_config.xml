@@ -64,7 +64,7 @@
 		<database>prosolo</database>
 		<user>root</user>
 		<password>root</password>
-		<jdbc_driver>com.mysql.jdbc.Driver</jdbc_driver>
+		<jdbc_driver>com.mysql.cj.jdbc.Driver</jdbc_driver>
 	</mysql-config>
 	<hibernate>
 		<dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
@@ -77,6 +77,7 @@
 			<charSet>UTF-8</charSet>
 			<character-encoding>UTF-8</character-encoding>
 			<use-unicode>true</use-unicode>
+			<connection-collation>utf8mb4_unicode_520_ci</connection-collation>
 			<autocommit>false</autocommit>
 			<!-- 
 				READ_UNCOMMITED - 1

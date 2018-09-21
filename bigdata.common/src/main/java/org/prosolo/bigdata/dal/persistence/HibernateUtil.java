@@ -4,15 +4,7 @@ package org.prosolo.bigdata.dal.persistence;
  * @author zoran Jul 7, 2015
  */
 
-import java.beans.PropertyVetoException;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.sql.DataSource;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -20,11 +12,18 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.service.ServiceRegistry;
-//import org.hibernate.service.ServiceRegistryBuilder;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.Config;
 import org.prosolo.common.config.MySQLConfig;
 import org.reflections.Reflections;
+
+import javax.persistence.Entity;
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
+import java.util.Properties;
+import java.util.Set;
+
+//import org.hibernate.service.ServiceRegistryBuilder;
 
 
  
@@ -48,7 +47,7 @@ public class HibernateUtil {
             configuration.setProperty("hibernate.current_session_context_class","thread" );
             configuration.setProperty("hibernate.connection.driver_class", config.mysqlConfig.jdbcDriver);
             configuration.setProperty("hibernate.connection.url", "jdbc:mysql://"
-					+ host + ":" + port + "/" + database+"?useUnicode=true&characterEncoding=UTF-8");
+					+ host + ":" + port + "/" + database+"?connectionCollation=" + CommonSettings.getInstance().config.hibernateConfig.connection.connectionCollation);
             configuration.setProperty("hibernate.connection.username", user);
             configuration.setProperty("hibernate.connection.password", password);
           //  configuration.setProperty("hibernate.show_sql", "true");
@@ -86,9 +85,9 @@ public class HibernateUtil {
 		properties.setProperty("hibernate.hbm2ddl.auto", formatDB ? "update" : CommonSettings.getInstance().config.hibernateConfig.hbm2ddlAuto);
 		properties.setProperty("hibernate.jdbc.batch_size", CommonSettings.getInstance().config.hibernateConfig.jdbcBatchSize);
 		properties.setProperty("hibernate.connection.pool_size", CommonSettings.getInstance().config.hibernateConfig.connection.poolSize);
-		properties.setProperty("hibernate.connection.charSet", CommonSettings.getInstance().config.hibernateConfig.connection.charSet);
-		properties.setProperty("hibernate.connection.characterEncoding", CommonSettings.getInstance().config.hibernateConfig.connection.characterEncoding);
-		properties.setProperty("hibernate.connection.useUnicode", CommonSettings.getInstance().config.hibernateConfig.connection.useUnicode);
+//		properties.setProperty("hibernate.connection.charSet", CommonSettings.getInstance().config.hibernateConfig.connection.charSet);
+//		properties.setProperty("hibernate.connection.characterEncoding", CommonSettings.getInstance().config.hibernateConfig.connection.characterEncoding);
+//		properties.setProperty("hibernate.connection.useUnicode", CommonSettings.getInstance().config.hibernateConfig.connection.useUnicode);
 		properties.setProperty("hibernate.connection.autocommit", CommonSettings.getInstance().config.hibernateConfig.connection.autocommit);
 		properties.setProperty("hibernate.cache.use_second_level_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useSecondLevelCache);
 		properties.setProperty("hibernate.cache.use_query_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useQueryCache);
@@ -108,7 +107,7 @@ public class HibernateUtil {
 		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 		
 		PoolProperties p = new PoolProperties();
-		p.setUrl(url+"?useUnicode=true&characterEncoding=UTF-8&useTimezone=true&serverTimezone=UTC");
+		p.setUrl(url+"?connectionCollation=" + CommonSettings.getInstance().config.hibernateConfig.connection.connectionCollation + "&useTimezone=true&serverTimezone=UTC");
 		p.setDriverClassName(CommonSettings.getInstance().config.mysqlConfig.jdbcDriver);
 		p.setUsername(username);
 		p.setPassword(password);
@@ -126,6 +125,7 @@ public class HibernateUtil {
 		p.setMinEvictableIdleTimeMillis(30000);
 		p.setMinIdle(10);
 		p.setLogAbandoned(true);
+//		p.setInitSQL("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_520_ci'");
 		//if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			p.setRemoveAbandoned(false);
 		//}else{
@@ -141,7 +141,8 @@ public class HibernateUtil {
 			 org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
 			 ds.setPoolProperties(p);
 			 return ds;
-	 }
+    }
+
 	public static DataSource getBasicDataSource() throws PropertyVetoException {
 		Config config = CommonSettings.getInstance().config;
 		MySQLConfig mySQLConfig=config.mysqlConfig;
