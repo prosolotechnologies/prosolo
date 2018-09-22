@@ -48,22 +48,21 @@
 					</p>
 
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
-						<h:inputTextarea class="hidden"
-								value="#{comment.comment}" />
+						<h:inputTextarea class="hidden"	value="#{comment.comment}" />
 
 						<div class="contentEditableComment"
 							 strip-br="true" contenteditable="true"
 							 placeholder="Add Comment..."
 							 onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
 
-						<p:commandLink
-							styleClass="btn btn-sm btn-green submitBtn"
-							value="Submit"
-							action="#{commentBean.editComment(comment, cc.attrs.comments)}"
-							update="@(.commentMainRegion_#{comment.commentId})">
+						<utilcomp:singleClickLink value="Submit"
+												  styleClass="btn btn-sm btn-green submitBtn"
+												  action="#{commentBean.editComment(comment, cc.attrs.comments)}"
+												  update="@(.commentMainRegion_#{comment.commentId})">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
-						</p:commandLink>
+						</utilcomp:singleClickLink>
+
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
 
 						<script>
@@ -118,15 +117,14 @@
 								strip-br="true" contenteditable="true"
 								onkeyup="displaySubmitButton(this);"></div>
 
-							<p:commandLink
-								styleClass="btn btn-sm btn-green hidden submitBtn"
-								value="Submit"
-								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
-								update="@(.topLevelCommentChildren_#{topLevelCommentId}) panelReply #{cc.attrs.toUpdate}"
-								oncomplete="scrollToNewestComment('#{cc.attrs.newestCommentId}');">
+							<utilcomp:singleClickLink value="Submit"
+													  styleClass="btn btn-sm btn-green hidden submitBtn"
+													  action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
+													  update="@(.topLevelCommentChildren_#{topLevelCommentId}) :#{cc.clientId}:panelReply #{cc.attrs.toUpdate}"
+													  oncomplete="scrollToNewestComment('#{cc.attrs.newestCommentId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
-							</p:commandLink>
+							</utilcomp:singleClickLink>
 							
 							<script>
 							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {

@@ -2,8 +2,8 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:composite="http://java.sun.com/jsf/composite">
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="competence" required="true" />
@@ -40,16 +40,15 @@
 				</div>
 			</ui:fragment>
      	</ui:fragment>
-     	
+
      	<ui:fragment rendered="#{!cc.attrs.competence.enrolled and cc.attrs.competence.published}">
-     		<p:commandLink
-	      		value="Start"
-	      		styleClass="btn btn-green btn-sm"
-	      		action="#{cc.attrs.bean.enrollInCompetence(cc.attrs.competence)}"
-	      		update="#{cc.attrs.toUpdate}">
-	      		<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-             	<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}" />
-      		</p:commandLink>
+			<utilcomp:singleClickLink value="Start"
+						   styleClass="btn btn-green btn-sm"
+						   action="#{cc.attrs.bean.enrollInCompetence(cc.attrs.competence)}"
+						   update="#{cc.attrs.toUpdate}">
+				<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+				<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}" />
+      		</utilcomp:singleClickLink>
      	</ui:fragment>
 	</composite:implementation>
 </ui:component>

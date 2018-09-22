@@ -277,15 +277,16 @@
 
 										 <small class="redText"><h:message for="responseText"></h:message></small>
 									 </div>
-				                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
-				                    	styleClass="btn btn-sm btn-green"
-				                    	onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
-				                    	action="#{cc.attrs.bean.saveTextResponse()}"
-				                    	update=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
-				                    	value="Submit">
+				                    <utilcomp:singleClickLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
+												   value="Submit"
+												   styleClass="btn btn-sm btn-green"
+												   onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
+												   action="#{cc.attrs.bean.saveTextResponse()}"
+												   update=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails">
 				                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 										<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-				                    </p:commandLink>
+				                    </utilcomp:singleClickLink>
+
 				                    <ui:fragment rendered="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 					                    <a href="javascript:void(0);"
 					                    	disabled="disabled"

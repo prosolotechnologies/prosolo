@@ -115,13 +115,14 @@
 												<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 												<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
 											</h:link>
-											<p:commandLink rendered="#{not comp.enrolled}" value="Start"
-												styleClass="btn btn-green btn-sm"
-												action="#{cc.attrs.bean.enrollInCompetence(comp)}"
-												update="#{cc.attrs.growlToUpdate}">
+											<utilcomp:singleClickLink rendered="#{not comp.enrolled}"
+														   value="Start"
+														   styleClass="btn btn-green btn-sm"
+														   action="#{cc.attrs.bean.enrollInCompetence(comp)}"
+														   update="#{cc.attrs.growlToUpdate}">
 												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
              									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(comp.competenceId))}" />
-											</p:commandLink>
+											</utilcomp:singleClickLink>
 										</ui:fragment>
 										
 										

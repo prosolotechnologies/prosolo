@@ -83,15 +83,16 @@
                         <small>Note: Evidence will be removed from all #{msg['label.competence.plural'].toLowerCase()}.</small></p>
                     </div>
                     <div class="modal-footer">
-                        <p:commandLink styleClass="btn btn-red"
-                            process="@this"
-                            action="#{learningEvidenceBean.deleteEvidence()}"
-                            update=":growlMain"
-                            oncomplete="$('#deleteEvidence').modal('hide')">
-                            Delete
+                        <utilcomp:singleClickLink styleClass="btn btn-red"
+                                                  value="Delete"
+                                                  process="@this"
+                                                  action="#{learningEvidenceBean.deleteEvidence()}"
+                                                  update=":growlMain"
+                                                  oncomplete="$('#deleteEvidence').modal('hide')">
                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                             <f:param name="learningContext" value="name:evidence|id:#{learningEvidenceBean.evidence.id}|context:/name:delete_dialog/" />
-                        </p:commandLink>
+                        </utilcomp:singleClickLink>
+
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                     </div>
                 </div>

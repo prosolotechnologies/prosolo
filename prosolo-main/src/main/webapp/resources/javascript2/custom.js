@@ -224,3 +224,7 @@ function hidePopupSidebar (sidebarSelector) {
     $(sidebarSelector).removeClass('cbp-spmenu-open');
 };
 
+function preventDoubleClick(elem) {
+    $(elem).prop("onclick", "").off("click");
+    $(elem).attr("onclick", "return false;").unbind("click");
+}

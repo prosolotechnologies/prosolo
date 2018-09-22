@@ -98,14 +98,14 @@
 									strip-br="true" contenteditable="true"
 									onkeyup="displaySubmitButton(this);"></div>
 	
-								<p:commandLink styleClass="btn btn-sm btn-green hidden submitBtn"
-									value="Submit" action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
-									update="formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave}"
-									oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
+								<utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden submitBtn"
+											   value="Submit"
+											   action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
+											   oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');"
+											   update=":#{cc.clientId}:formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave} @this">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-									<f:param name="learningContext"
-										value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
-								</p:commandLink>
+									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
+								</utilcomp:singleClickLink>
 							</div>
 							
 							<script>
