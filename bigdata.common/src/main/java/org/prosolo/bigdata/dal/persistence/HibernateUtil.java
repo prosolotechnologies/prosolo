@@ -47,7 +47,7 @@ public class HibernateUtil {
             configuration.setProperty("hibernate.current_session_context_class","thread" );
             configuration.setProperty("hibernate.connection.driver_class", config.mysqlConfig.jdbcDriver);
             configuration.setProperty("hibernate.connection.url", "jdbc:mysql://"
-					+ host + ":" + port + "/" + database+"?connectionCollation=" + CommonSettings.getInstance().config.hibernateConfig.connection.connectionCollation);
+					+ host + ":" + port + "/" + database+"?connectionCollation=" + config.hibernateConfig.connection.connectionCollation);
             configuration.setProperty("hibernate.connection.username", user);
             configuration.setProperty("hibernate.connection.password", password);
           //  configuration.setProperty("hibernate.show_sql", "true");
@@ -150,7 +150,8 @@ public class HibernateUtil {
 		String host = mySQLConfig.host;
 		int port = mySQLConfig.port;
 		String database = mySQLConfig.database;
-		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database
+				+ "?connectionCollation=" + config.hibernateConfig.connection.connectionCollation;
 
 		ComboPooledDataSource dataSource = new ComboPooledDataSource();
 		dataSource.setDriverClass("com.mysql.jdbc.Driver");
