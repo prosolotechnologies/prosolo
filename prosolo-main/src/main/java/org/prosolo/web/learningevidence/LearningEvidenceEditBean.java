@@ -1,7 +1,6 @@
 package org.prosolo.web.learningevidence;
 
 import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -9,7 +8,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;

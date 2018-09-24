@@ -128,10 +128,6 @@
 										disabled="false"
 										toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
 								/>
-								<h:inputHidden id="inputHiddenFileEvidence" value="0" validator="#{submitEvidenceBean.validateFileEvidence}"/>
-								<ui:fragment rendered="#{facesContext.validationFailed and not empty facesContext.getMessageList(cc.clientId.concat(':formFileEvidence:inputHiddenFileEvidence'))}">
-									<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputHiddenFileEvidence"></h:message></small>
-								</ui:fragment>
 							</ui:fragment>
 							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
 								<div class="whiteBox evidenceBox evidenceBoxSmall">
@@ -157,6 +153,10 @@
 										</div>
 									</div>
 								</div>
+							</ui:fragment>
+							<h:inputHidden id="inputHiddenFileEvidence" value="0" validator="#{submitEvidenceBean.validateFileEvidence}"/>
+							<ui:fragment rendered="#{facesContext.validationFailed and not empty facesContext.getMessageList(cc.clientId.concat(':formFileEvidence:inputHiddenFileEvidence'))}">
+								<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputHiddenFileEvidence"></h:message></small>
 							</ui:fragment>
 						</h:panelGroup>
 
