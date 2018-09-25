@@ -124,6 +124,7 @@ function handle_parameter {
         esac
     done
 
+    [[ -z $DEBUG ]] && DEBUG=false
     [[ -z $RESET ]] && RESET=false
     [[ -z $STOP ]] && STOP=false
     [[ -z $ALWAYSYES ]] && ALWAYSYES=false
