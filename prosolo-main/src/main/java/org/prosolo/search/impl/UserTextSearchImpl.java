@@ -430,24 +430,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				}
 				
 				//add sorting
-				SortOrder sortOrder = sortOption.getSortOrder() == 
-						org.prosolo.services.util.SortingOption.ASC ? 
-						SortOrder.ASC : SortOrder.DESC;
-				for (String field : sortOption.getSortFields()) {
-					if (sortOption.isNestedSort()) {
-						String nestedDoc = field.substring(0, field.indexOf("."));
-						BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
-						credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
-						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
-						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder)
-								.setNestedSort(new NestedSortBuilder(nestedDoc).setFilter(credFilter));
-						//setting nested path and nested filter is deprecated
-						//.setNestedPath(nestedDoc).setNestedFilter(credFilter);
-						searchSourceBuilder.sort(sortB);
-					} else {
-						searchSourceBuilder.sort(field, sortOrder);
-					}
-				}
+				addCredentialSortOption(sortOption, credId, searchSourceBuilder);
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
@@ -541,6 +524,28 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			logger.error("Error", e1);
 		}
 		return response;
+	}
+
+	private void addCredentialSortOption(CredentialMembersSortOption sortOption, long credId, SearchSourceBuilder searchSourceBuilder) {
+		//add sorting
+		SortOrder sortOrder = sortOption.getSortOrder() ==
+				org.prosolo.services.util.SortingOption.ASC ?
+				SortOrder.ASC : SortOrder.DESC;
+		for (String field : sortOption.getSortFields()) {
+			if (sortOption.isNestedSort()) {
+				String nestedDoc = field.substring(0, field.indexOf("."));
+				BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+				credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
+				//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
+				FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder)
+						.setNestedSort(new NestedSortBuilder(nestedDoc).setFilter(credFilter));
+				//setting nested path and nested filter is deprecated
+				//.setNestedPath(nestedDoc).setNestedFilter(credFilter);
+				searchSourceBuilder.sort(sortB);
+			} else {
+				searchSourceBuilder.sort(field, sortOrder);
+			}
+		}
 	}
 	
 	/*
@@ -946,12 +951,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				searchSourceBuilder.from(start).size(limit);
 				
 				//add sorting
-				for (String field : sortOption.getSortFields()) {
-					SortOrder sortOrder = sortOption.getSortOrder() == 
-							org.prosolo.services.util.SortingOption.ASC ? 
-							SortOrder.ASC : SortOrder.DESC;
-					searchSourceBuilder.sort(field, sortOrder);
-				}
+				addCredentialSortOption(sortOption, credId, searchSourceBuilder);
 				//System.out.println(searchRequestBuilder.toString());
 				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
 				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);

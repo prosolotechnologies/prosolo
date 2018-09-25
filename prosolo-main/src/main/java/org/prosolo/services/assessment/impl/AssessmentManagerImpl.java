@@ -199,6 +199,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (IllegalDataStateException e) {
 			throw e;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
+			logger.error("Error", e);
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
