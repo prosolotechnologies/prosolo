@@ -13,11 +13,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<ui:fragment rendered="#{cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND'}">
-			Anonymous #{cc.attrs.actorType eq 'ASSESSOR' ? 'Assessor' : 'Student'} #{cc.attrs.displayAnonymousActorUniqueId ? util:encodeUserId(cc.attrs.actorId) : ''}
-		</ui:fragment>
-		<ui:fragment rendered="#{not (cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND')}">
-			#{cc.attrs.actorFullName}
-		</ui:fragment>
+		<ui:fragment rendered="#{cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND'}">Anonymous #{cc.attrs.actorType eq 'ASSESSOR' ? 'Assessor' : 'Student'} #{cc.attrs.displayAnonymousActorUniqueId ? util:encodeUserId(cc.attrs.actorId) : ''}</ui:fragment>
+		<ui:fragment rendered="#{not (cc.attrs.actorType eq 'ASSESSOR' and (cc.attrs.blindAssessmentMode eq 'BLIND' or cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND') or cc.attrs.actorType eq 'STUDENT' and cc.attrs.blindAssessmentMode eq 'DOUBLE_BLIND')}">#{cc.attrs.actorFullName}</ui:fragment>
 	</composite:implementation>
 </ui:component>
