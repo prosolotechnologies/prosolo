@@ -33,7 +33,7 @@ public class CredentialLibraryBeanInstructor extends DeliveriesBean implements S
 	private List<CredentialData> pendingDeliveries;
 	private List<CredentialData> pastDeliveries;
 
-	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.DATE_STARTED;
+	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.ALPHABETICALLY;
 	private CredentialDeliverySortOption[] sortOptions;
 
 	private String context = "name:library";
