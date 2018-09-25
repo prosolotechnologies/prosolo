@@ -133,30 +133,7 @@
 							</ui:fragment>
 						</h:panelGroup>
 
-						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and not (cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment)}" styleClass="modal-body alignLeft">
-							<h:inputTextarea id="messageContentTextarea"
-								placeholder="Write message..."
-								value="#{cc.attrs.bean.assessmentRequestData.messageText}" />
-
-							<ui:remove>
-								<div class="assessmentMassageContent"
-									placeholder="Write message..." strip-br="true"
-									contenteditable="true" onkeyup="displaySubmitButton(this);"></div>
-							</ui:remove>
-
-							<script>
-								$(
-										'#'
-												+ escapeColons('comment_#{comment.commentId}')
-												+ ' .replyComment .contentEditableComment')
-										.on(
-												'keyup',
-												function(e) {
-													$(this).prev('textarea').val(
-															$(this).html());
-												});
-							</script>
-						</h:panelGroup>
+						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and not (cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment)}" styleClass="modal-body top30"/>
 
 						<h:panelGroup layout="block" styleClass="modal-body alignLeft top30"
 								rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
@@ -179,7 +156,7 @@
 						<div class="modal-footer alignLeft">
 							<p:commandLink
 								rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}"
-								process="messageContentTextarea"
+								process="@this"
 								update="#{cc.attrs.toUpdate}"
 								action="#{cc.attrs.submitAssessmentRequestAction}"
 								styleClass="btn btn-green"
@@ -197,7 +174,7 @@
 		</div>
 		<p:remoteCommand name="resetAskForAssessmentModal"
 			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
-			update="selectAssessor randomUserErrorMessage messageContentTextarea" />
+			update="selectAssessor randomUserErrorMessage" />
 
 		<script>
 			$('#askAssessment').on('shown.bs.modal', function() {
