@@ -1,20 +1,19 @@
 package org.prosolo.web.util;
- 
 
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
+
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Class ResourceBundleUtil handles retrieving values from UIResources.properties file.
@@ -185,5 +184,12 @@ public class ResourceBundleUtil {
 			logger.error(e);
 		}
 		return "";
+	}
+
+	public static String getJSFMessage(FacesContext facesContext, String key, Object... params) {
+		String jsfBundle = facesContext.getApplication().getMessageBundle();
+		Locale locale = facesContext.getViewRoot().getLocale();
+		ResourceBundle bundle = ResourceBundle.getBundle(jsfBundle, locale);
+		return getString(key, bundle, params);
 	}
 }
