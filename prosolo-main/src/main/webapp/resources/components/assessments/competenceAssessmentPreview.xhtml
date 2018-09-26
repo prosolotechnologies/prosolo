@@ -137,7 +137,13 @@
 						<div class="col-md-#{competenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
 							<h2 class="bottom10">#{msg['label.competence']} Assessment</h2>
 							<ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
-								<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student #{competenceAssessmentBean.competenceAssessmentData.studentFullName}.
+								<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student
+									<assessment:assessmentActorName
+										actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+										actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+										actorType="STUDENT"
+									/>.
 									All comments between the student and the assessor are private.</p>
 							</ui:fragment>
 
