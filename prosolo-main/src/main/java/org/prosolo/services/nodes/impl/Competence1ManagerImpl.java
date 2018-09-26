@@ -634,6 +634,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
     		compToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
     				data.getTagsString())));		     
     	}
+
+		if (data.getAssessmentTypes() != null) {
+			for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
+					cac.setEnabled(atc.isEnabled());
+				}
+			}
+		}
     	
     	//these changes are not allowed if competence was once published
     	if(data.getDatePublished() == null) {
@@ -692,14 +701,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.setDuration(0);
 			}
 
-			if (data.getAssessmentTypes() != null) {
-				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
-					if (atc.hasObjectChanged()) {
-						CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
-						cac.setEnabled(atc.isEnabled());
-					}
-				}
-			}
 			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
 	    

@@ -39,7 +39,7 @@ public class AssessmentUtil {
         return isAssessmentTypeEnabled(assessmentTypesConfig, AssessmentType.SELF_ASSESSMENT);
     }
 
-    private static boolean isAssessmentTypeEnabled(List<AssessmentTypeConfig> assessmentTypesConfig, AssessmentType type) {
+    public static boolean isAssessmentTypeEnabled(List<AssessmentTypeConfig> assessmentTypesConfig, AssessmentType type) {
         if (assessmentTypesConfig == null || assessmentTypesConfig.isEmpty()) {
             return false;
         }

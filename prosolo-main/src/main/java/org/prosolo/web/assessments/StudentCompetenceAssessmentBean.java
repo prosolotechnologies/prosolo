@@ -64,17 +64,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return AssessmentDisplayMode.FULL;
 	}
 
-	@Override
-	boolean shouldLoadAssessmentTypesConfig() {
-		/*
-		there are two possible cases:
-		1. student visits the page and he should have assessment types config loaded so we know which tabs to display and
-		because of blind assessment mode which is needed to know how to display assessment actors
-		2. peer assessor visits the page and he needs assessment types config because of blind assessment mode
-		 */
-		return true;
-	}
-
 	public void markActivityAssessmentDiscussionRead() {
 		String encodedActivityDiscussionId = getEncodedAssessmentIdFromRequest();
 

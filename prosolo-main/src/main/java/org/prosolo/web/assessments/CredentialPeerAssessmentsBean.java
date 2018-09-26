@@ -50,8 +50,15 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 			if (page > 0) {
 				paginationData.setPage(page);
 			}
-			getAssessmentsFromDB();
 			assessmentTypesConfig = credentialManager.getCredentialAssessmentTypesConfig(decodedId);
+			/*
+			cover the case when user has the direct access to the link and peer assessment is disabled
+			 */
+			if (!isPeerAssessmentEnabled()) {
+				PageUtil.notFound("This page is no longer available");
+			} else {
+				getAssessmentsFromDB();
+			}
 		}
 	}
 
