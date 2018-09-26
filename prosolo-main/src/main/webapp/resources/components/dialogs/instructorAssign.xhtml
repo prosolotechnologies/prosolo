@@ -8,6 +8,7 @@
 	<composite:interface>
 		<composite:attribute name="title" required="true" />
 		<composite:attribute name="credentialId" required="true" />
+		<composite:attribute name="displayInstructorLoad" default="true" />
 		<composite:attribute name="learningContext" />
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="updateAfterInstructorIsAssigned"
@@ -52,9 +53,12 @@
 											</div>
 										</div>
 										<div class="assignOpt">
-											<span class="#{instructor.full ? 'redText' : ''}">
-												#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudentsString}
-											</span>
+											<ui:fragment rendered="#{cc.attrs.displayInstructorLoad}">
+												<span class="#{instructor.full ? 'redText' : ''}">
+													#{instructor.numberOfAssignedStudents}/#{instructor.maxNumberOfStudentsString}
+												</span>
+											</ui:fragment>
+
 											<div class="buttonWrapper">
 												<ui:fragment rendered="#{!assignStudentToInstructorDialogBean.isInstructorCurrentlyAssignedToStudent(instructor) and instructor.full}">
 													<a href="javascript:void(0);" class="btn btn-green btn-sm disabled">Assign</a>
