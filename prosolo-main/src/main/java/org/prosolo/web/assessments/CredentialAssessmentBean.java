@@ -83,6 +83,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
 
+	private ResourceAccessData access;
+
 	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
 		setIds(encodedCredId, encodedAssessmentId);
 		this.displayMode = displayMode;
@@ -111,7 +113,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			try {
 				// for managers, load all other assessments
 
-				ResourceAccessData access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+				access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
 						ResourceAccessRequirements.of(AccessMode.MANAGER)
 								.addPrivilege(UserGroupPrivilege.Instruct)
 								.addPrivilege(UserGroupPrivilege.Edit));
@@ -193,6 +195,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private void decodeCredentialAndAssessmentIds() {
 		decodedId = idEncoder.decodeId(id);
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
+	}
+
+	public boolean canUserEditDelivery() {
+		return access.isCanEdit();
 	}
 
 	private boolean isUserAllowedToAccessPage() {
