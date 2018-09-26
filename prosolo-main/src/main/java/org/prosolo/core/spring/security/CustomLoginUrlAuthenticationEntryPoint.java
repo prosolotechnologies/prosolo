@@ -1,5 +1,6 @@
 package org.prosolo.core.spring.security;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
@@ -19,6 +20,8 @@ import java.io.IOException;
  */
 public class CustomLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
+    private static Logger logger = Logger.getLogger(CustomLoginUrlAuthenticationEntryPoint.class);
+
     private static final String AJAX_REDIRECT_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             + "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
 
@@ -29,11 +32,13 @@ public class CustomLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticati
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         if ("partial/ajax".equals(request.getHeader("Faces-Request"))) {
+            logger.info("Non authenticated user detected through ajax request; redirect to login page");
             // Redirect on ajax request requires special XML response. See also http://stackoverflow.com/a/9311920/157882
             response.setContentType("text/xml");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().printf(AJAX_REDIRECT_XML, request.getContextPath() + getLoginFormUrl());
         } else {
+            logger.info("Non authenticated user detected through standard, non ajax request; redirect to login page");
             super.commence(request, response, authException);
         }
     }

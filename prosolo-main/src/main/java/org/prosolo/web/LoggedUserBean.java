@@ -197,9 +197,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public boolean loginUser(String email, String context) {
+	public boolean loginUserOpenId(String email, String context) {
 		try {
-			boolean loggedIn = authenticationService.loginUser(email);
+			boolean loggedIn = authenticationService.loginUserOpenID(email);
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
 				init(email);
@@ -219,10 +219,10 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 
 	public void loginOpenId(String email) {
-		boolean loggedIn = loginUser(email, null);
+		boolean loggedIn = loginUserOpenId(email, null);
 
 		if (loggedIn) {
-			logger.info("REDIRECTING TO INDEX");
+			logger.info("REDIRECTING TO HOME PAGE FOR THE USER");
 
 			PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
 		} else {
@@ -233,7 +233,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent event) {
-		if(initialized){
+		if (initialized) {
 			final String ipAddress = this.getIpAddress();
 			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 			//delete all temp files for this user
@@ -372,7 +372,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		try {
 			forceUserLogout();
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			authenticationService.login((HttpServletRequest)context.getRequest(),
+			authenticationService.loginAs((HttpServletRequest)context.getRequest(),
 					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
 		} catch(AuthenticationException e) {
 			logger.error(e);

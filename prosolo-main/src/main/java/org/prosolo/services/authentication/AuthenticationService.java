@@ -7,12 +7,15 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface AuthenticationService {
 
-	void login(HttpServletRequest req, HttpServletResponse resp, String email)
+	void loginAs(HttpServletRequest req, HttpServletResponse resp, String email)
 			throws AuthenticationException;
 
-	void logout();
+	boolean loginUserOpenID(String email);
 
-	boolean loginUser(String email) throws AuthenticationException;
+	boolean loginUserLTI(HttpServletRequest request, HttpServletResponse response, String email);
+
+
+	void logout();
 
 	boolean checkPassword(String rawPassword, String encodedPassword);
 }
