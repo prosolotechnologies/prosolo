@@ -14,6 +14,7 @@ import java.util.Set;
  * @since 1.2.0
  */
 @Entity
+@AttributeOverride(name = "title", column = @Column(name = "title", columnDefinition="varchar(500)"))
 public class LearningEvidence extends BaseEntity {
 
     private Organization organization;
@@ -60,6 +61,7 @@ public class LearningEvidence extends BaseEntity {
         this.type = type;
     }
 
+    @Column(columnDefinition="varchar(1200)")
     public String getUrl() {
         return url;
     }
@@ -76,4 +78,5 @@ public class LearningEvidence extends BaseEntity {
     public void setCompetences(Set<CompetenceEvidence> competences) {
         this.competences = competences;
     }
+
 }

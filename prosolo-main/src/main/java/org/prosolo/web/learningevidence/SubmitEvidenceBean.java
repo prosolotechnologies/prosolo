@@ -6,6 +6,7 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.upload.UploadManager;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,8 @@ public class SubmitEvidenceBean implements Serializable {
     @Inject private UploadManager uploadManager;
 
     private LearningEvidenceData evidence;
+
+    private static final int MAX_FILE_NAME_LENGTH = 200;
 
     public void init(LearningEvidenceData evidence) {
         this.evidence = evidence;
@@ -84,10 +87,16 @@ public class SubmitEvidenceBean implements Serializable {
 	 */
 
     public void validateFileEvidence(FacesContext context, UIComponent component, Object value) {
+        String msg = null;
         if (evidence.getUrl() == null || evidence.getUrl().isEmpty()) {
-            FacesMessage msg = new FacesMessage("File must be uploaded");
-            msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-            throw new ValidatorException(msg);
+            msg = "File must be uploaded";
+        } else if (evidence.getFileName().length() > MAX_FILE_NAME_LENGTH) {
+            msg = ResourceBundleUtil.getJSFMessage(FacesContext.getCurrentInstance(), "javax.faces.validator.LengthValidator.MAXIMUM",MAX_FILE_NAME_LENGTH, "File name");
+        }
+        if (msg != null) {
+            FacesMessage fm = new FacesMessage(msg);
+            fm.setSeverity(FacesMessage.SEVERITY_ERROR);
+            throw new ValidatorException(fm);
         }
     }
 
