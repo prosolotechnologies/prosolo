@@ -66,9 +66,13 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 						if (page > 0) {
 							paginationData.setPage(page);
 						}
-						getAssessmentsFromDB();
 						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, true);
-						loadAdditionalData();
+						if (!isPeerAssessmentEnabled()) {
+							PageUtil.notFound("This page is no longer available");
+						} else {
+							getAssessmentsFromDB();
+							loadAdditionalData();
+						}
 					} else {
 						PageUtil.notFound();
 					}

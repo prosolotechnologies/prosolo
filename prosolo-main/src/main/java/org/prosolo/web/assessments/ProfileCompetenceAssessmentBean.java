@@ -55,11 +55,6 @@ public class ProfileCompetenceAssessmentBean extends CompetenceAssessmentBean {
 	}
 
 	@Override
-	boolean shouldLoadAssessmentTypesConfig() {
-		return true;
-	}
-
-	@Override
 	public GradeData getGradeData() {
 		throw new UnsupportedOperationException();
 	}

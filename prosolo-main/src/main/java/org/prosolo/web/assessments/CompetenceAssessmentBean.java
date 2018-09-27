@@ -92,21 +92,22 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 				if (!canAccessPreLoad()) {
 					throw new AccessDeniedException();
 				}
-				competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
-						decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, getLoadConfig(), new SimpleDateFormat("MMMM dd, yyyy"));
-				if (competenceAssessmentData == null) {
-					PageUtil.notFound();
+				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, assessmentType == AssessmentType.PEER_ASSESSMENT);
+				if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
+					competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
+							decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, getLoadConfig(), new SimpleDateFormat("MMMM dd, yyyy"));
+					if (competenceAssessmentData == null) {
+						PageUtil.notFound();
+					} else {
+						if (!canAccessPostLoad()) {
+							throw new AccessDeniedException();
+						}
+						if (decodedCredId > 0) {
+							credentialTitle = credManager.getCredentialTitle(decodedCredId);
+						}
+					}
 				} else {
-					if (!canAccessPostLoad()) {
-						throw new AccessDeniedException();
-					}
-					if (decodedCredId > 0) {
-						credentialTitle = credManager.getCredentialTitle(decodedCredId);
-					}
-
-					if (shouldLoadAssessmentTypesConfig()) {
-						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, competenceAssessmentData.getType() == AssessmentType.PEER_ASSESSMENT);
-					}
+					PageUtil.notFound("This page is no longer available");
 				}
 			} catch (AccessDeniedException e) {
 				PageUtil.accessDenied();
@@ -122,7 +123,6 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	abstract boolean canAccessPreLoad();
 	abstract boolean canAccessPostLoad();
 	abstract AssessmentDisplayMode getDisplayMode();
-	abstract boolean shouldLoadAssessmentTypesConfig();
 
 	public boolean isFullDisplayMode() {
 		return getDisplayMode() == AssessmentDisplayMode.FULL;
