@@ -133,8 +133,14 @@
 						<h:panelGroup layout="block"
 									  styleClass="modal-body alignLeft top30"
 									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
-													not (cc.attrs.bean.assessmentRequestData.assessorSet and
-													not cc.attrs.bean.assessmentRequestData.newAssessment)}">
+													not cc.attrs.bean.assessmentRequestData.assessorSet and
+													not cc.attrs.bean.noRandomAssessor}"/>
+
+						<h:panelGroup layout="block"
+									  styleClass="modal-body alignLeft top30"
+									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
+													cc.attrs.bean.assessmentRequestData.assessorSet and
+													cc.attrs.bean.assessmentRequestData.newAssessment}">
 							<p>
 								Are you sure you want to send an assessment request to your peer?
 							</p>
