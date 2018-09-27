@@ -76,8 +76,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetResourceId());
 		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
-				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
-				AssessmentType.PEER_ASSESSMENT, context);
+				assessmentRequestData.getAssessorId(), AssessmentType.PEER_ASSESSMENT, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
@@ -87,21 +86,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<Long> createInstructorAssessmentAndGetEvents(TargetCredential1 targetCredential, long assessorId,
 										   UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
-				null, AssessmentType.INSTRUCTOR_ASSESSMENT, context);
+				AssessmentType.INSTRUCTOR_ASSESSMENT, context);
 	}
 
 	@Override
 	@Transactional
 	public Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), targetCredential.getUser().getId(),
-				null, AssessmentType.SELF_ASSESSMENT, context);
+				AssessmentType.SELF_ASSESSMENT, context);
 	}
 
 	@Override
 	@Transactional
 	public Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-														  String message, AssessmentType type, UserContextData context) throws DbConnectionException,
-			IllegalDataStateException {
+														  AssessmentType type, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		Result<Long> result = new Result<>();
 		try {
 			/*
@@ -125,7 +123,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			CredentialAssessment assessment = new CredentialAssessment();
 			Date creationDate = new Date();
-			assessment.setMessage(message);
 			assessment.setDateCreated(creationDate);
 			assessment.setApproved(false);
 			assessment.setStudent(student);
@@ -162,7 +159,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			boolean atLeastOneCompGraded = false;
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
-						comp, studentId, assessorId, null, type,false, context);
+						comp, studentId, assessorId, type,false, context);
 				CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
 				cca.setCredentialAssessment(assessment);
 				cca.setCompetenceAssessment(res.getResult());
@@ -240,7 +237,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		Result<CompetenceAssessment> res = self.requestCompetenceAssessmentAndGetEvents(assessmentRequestData.getResourceId(), assessmentRequestData.getStudentId(),
-				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(), context);
+				assessmentRequestData.getAssessorId(), context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult().getId();
 	}
@@ -249,20 +246,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, null, AssessmentType.SELF_ASSESSMENT, false, context);
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, AssessmentType.SELF_ASSESSMENT, false, context);
 	}
 
 	@Override
 	@Transactional
-	public Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, String message, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+	public Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, message, AssessmentType.PEER_ASSESSMENT, true, context);
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, AssessmentType.PEER_ASSESSMENT, true, context);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
 	public Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-															long assessorId, String message, AssessmentType type, boolean isExplicitRequest, UserContextData context)
+															long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException {
 		try {
 			Result<CompetenceAssessment> res = new Result<>();
@@ -283,7 +280,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			CompetenceAssessment compAssessment = new CompetenceAssessment();
 			compAssessment.setDateCreated(new Date());
-			compAssessment.setMessage(message);
 			//compAssessment.setTitle(targetCompetence.getTitle());
 			compAssessment.setCompetence((Competence1) persistence.currentManager().load(Competence1.class, comp.getCompetenceId()));
 			compAssessment.setStudent((User) persistence.currentManager().load(User.class, studentId));

@@ -8,7 +8,6 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -25,7 +24,6 @@ import java.util.Map;
 public class AssessmentDataFull {
 
 	private long credAssessmentId;
-	private String message;
 	private String studentFullName;
 	private String studentAvatarUrl;
 	private String assessorFullName;
@@ -63,7 +61,6 @@ public class AssessmentDataFull {
 													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
-		data.setMessage(assessment.getMessage());
 		data.setAssessedStudentId(assessment.getStudent().getId());
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
@@ -153,14 +150,6 @@ public class AssessmentDataFull {
 
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
-	}
-	
-	public String getMessage() {
-		return message;
-	}
-	
-	public void setMessage(String message) {
-		this.message = message;
 	}
 
 	public String getStudentFullName() {

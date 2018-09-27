@@ -356,19 +356,6 @@
 								All comments between the student and the assessor are private.</p>
 						</ui:fragment>
 
-						<ui:fragment
-								rendered="#{cc.attrs.bean.fullDisplayMode and not empty cc.attrs.bean.fullAssessmentData.message}">
-							<div class="whiteBox assessmentInitialMessage">
-								<h2>Message</h2>
-								<p>
-									<h:outputText
-											value="#{cc.attrs.bean.fullAssessmentData.message}"
-											escape="false" />
-								</p>
-								<div class="clear"></div>
-							</div>
-						</ui:fragment>
-
 						<c:if test="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
 								<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessorNotified}">
