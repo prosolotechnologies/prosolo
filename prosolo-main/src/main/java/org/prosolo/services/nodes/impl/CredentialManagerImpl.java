@@ -745,10 +745,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
 				if (atc.hasObjectChanged()) {
 					CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
-					//enabled flag should be set only if it is original credential
-					if (data.getType() == CredentialType.Original) {
-						cac.setEnabled(atc.isEnabled());
-					}
+					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 				}
 			}

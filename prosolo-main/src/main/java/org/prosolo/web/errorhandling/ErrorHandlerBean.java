@@ -29,7 +29,7 @@ public class ErrorHandlerBean implements Serializable {
 		String uri = (String) ((HttpServletRequest) extContext.getRequest()).getAttribute("javax.servlet.error.request_uri");
 		uri = uri.substring(extContext.getRequestContextPath().length());
 		logger.info("404 for URI: " + uri);
-		PageUtil.notFound(uri);
+		PageUtil.notFoundForGivenUri(uri);
 	}
 
 }
