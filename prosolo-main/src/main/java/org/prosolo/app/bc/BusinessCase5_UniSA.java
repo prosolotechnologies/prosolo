@@ -619,22 +619,22 @@ public class BusinessCase5_UniSA {
 		rubricData.addNewCriterion(criterion);
 
 		RubricLevelData level1 = new RubricLevelData(ObjectStatus.CREATED);
-		level1.setName("Outstanding Performance");
+		level1.setName("Working Towards Graduate Level");
 		level1.setOrder(1);
 		rubricData.addNewLevel(level1);
-
+		
 		RubricLevelData level2 = new RubricLevelData(ObjectStatus.CREATED);
-		level2.setName("Meet the Standard at Enhanced Level");
+		level2.setName("Meet the Standard at Threshold Level");
 		level2.setOrder(2);
 		rubricData.addNewLevel(level2);
 
 		RubricLevelData level3 = new RubricLevelData(ObjectStatus.CREATED);
-		level3.setName("Meet the Standard at Threshold Level");
+		level3.setName("Meet the Standard at Enhanced Level");
 		level3.setOrder(3);
 		rubricData.addNewLevel(level3);
 
 		RubricLevelData level4 = new RubricLevelData(ObjectStatus.CREATED);
-		level4.setName("Working Towards Graduate Level");
+		level4.setName("Outstanding Performance");
 		level4.setOrder(4);
 		rubricData.addNewLevel(level4);
 		return rubricData;

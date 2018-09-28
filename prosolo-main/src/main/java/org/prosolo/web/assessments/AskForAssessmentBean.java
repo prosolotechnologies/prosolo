@@ -102,7 +102,6 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public void resetAskForAssessmentModal() {
         noRandomAssessor = false;
-        assessmentRequestData.setMessageText(null);
         assessmentRequestData.resetAssessorData();
         peersForAssessment = null;
         peerSearchTerm = null;
@@ -146,8 +145,6 @@ public abstract class AskForAssessmentBean implements Serializable {
         boolean status;
         if (this.assessmentRequestData.isAssessorSet()) {
             if (assessmentRequestData.isNewAssessment()) {
-                this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\r", ""));
-                this.assessmentRequestData.setMessageText(this.assessmentRequestData.getMessageText().replace("\n", "<br/>"));
                 submitAssessmentRequest();
                 if (existingPeerAssessors != null) {
                     existingPeerAssessors.add(assessmentRequestData.getAssessorId());

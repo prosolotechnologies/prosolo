@@ -50,7 +50,6 @@ public class CompetenceAssessmentData {
 	private String studentAvatarUrl;
 	private long duration;
 	private String durationString;
-	private String message;
 	private String dateValue;
 	private AssessmentType type;
 
@@ -168,8 +167,6 @@ public class CompetenceAssessmentData {
 		data.setStudentId(compAssessment.getStudent().getId());
 		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
-
-		data.setMessage(compAssessment.getMessage());
 
 		if (dateFormat != null) {
 			data.setDateValue(dateFormat.format(compAssessment.getDateCreated()));
@@ -353,14 +350,6 @@ public class CompetenceAssessmentData {
 
 	public String getStudentAvatarUrl() {
 		return studentAvatarUrl;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
 	}
 
 	public String getDateValue() {

@@ -73,7 +73,7 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
                     // if competence assessment has not been created, create it
                     if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
                         Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getStudent().getId(), assessorId, null, ca.getType(), false, UserContextData.empty());
+                                cd, ca.getStudent().getId(), assessorId, ca.getType(), false, UserContextData.empty());
                         CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
                         cca.setCredentialAssessment(ca);
                         cca.setCompetenceAssessment(res.getResult());

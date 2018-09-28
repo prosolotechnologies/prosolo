@@ -147,18 +147,6 @@
 									All comments between the student and the assessor are private.</p>
 							</ui:fragment>
 
-							<ui:fragment
-									rendered="#{not empty competenceAssessmentBean.competenceAssessmentData.message}">
-								<div class="whiteBox assessmentInitialMessage">
-									<h2>Message</h2>
-									<p>
-										<h:outputText
-												value="#{competenceAssessmentBean.competenceAssessmentData.message}"
-												escape="false" />
-									</p>
-									<div class="clear"></div>
-								</div>
-							</ui:fragment>
 							<h:form>
 								<assessment:competenceAssessment
 										competenceAssessment="#{competenceAssessmentBean.competenceAssessmentData}"
