@@ -158,7 +158,7 @@
                                                 competenceAssessment="#{competenceAssessment}"
                                                 blindAssessmentMode="#{competenceInstructorAssessmentsBean.blindAssessmentMode}"
                                                 bean="#{competenceAssessmentBean}"
-                                                credentialId="#{util:decodeId(param.credId)}"
+                                                credentialId="#{competenceAssessment.credentialId}"
                                                 role="USER"
                                                 learningContext="name:credential|id:#{competenceAssessment.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessment.credentialAssessmentId}|context:/name:COMPETENCE|id:#{competenceAssessment.competenceId}|context:/name:COMPETENCE_ASSESSMENT|id:#{competenceAssessment.competenceAssessmentId}///"
                                                 growlToUpdate=":growlMain"
