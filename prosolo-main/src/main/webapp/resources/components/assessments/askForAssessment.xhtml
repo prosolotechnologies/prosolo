@@ -5,6 +5,7 @@
 			  xmlns:p="http://primefaces.org/ui"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 			  xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
+			  xmlns:util="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
@@ -150,7 +151,15 @@
 									  styleClass="modal-body alignLeft top30"
 									  rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
 							<p>
-								You don't have a tutor assigned yet.
+								You don't have a #{msg['label.instructor'].toLowerCase()} assigned yet.
+								<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE' and cc.attrs.bean.isStudentCanChooseInstructor()}">
+									Go to the
+									<h:link outcome="/credential" value="#{msg['label.credential'].toLowerCase()} page">
+										<f:param name="id" value="#{util:encodeId(cc.attrs.bean.credentialId)}"/>
+									</h:link>
+									and select a #{msg['label.instructor'].toLowerCase()}.
+								</ui:fragment>
+
 							</p>
 						</h:panelGroup>
 

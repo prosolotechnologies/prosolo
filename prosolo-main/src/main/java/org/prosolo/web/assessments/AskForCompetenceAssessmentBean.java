@@ -3,9 +3,11 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
@@ -34,17 +36,31 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     private static Logger logger = Logger.getLogger(AskForCompetenceAssessmentBean.class);
 
     @Inject private Competence1Manager compManager;
+    @Inject private CredentialManager credManager;
 
     private long credentialId;
+    private boolean studentCanChooseInstructor;
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         this.credentialId = credentialId;
         init(competenceId, targetCompId, assessmentType, blindAssessmentMode);
+        initStudentCanChooseInstructorFlag();
     }
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
         this.credentialId = credentialId;
         init(competenceId, targetCompId, assessmentType, assessor, blindAssessmentMode);
+        initStudentCanChooseInstructorFlag();
+    }
+
+    private void initStudentCanChooseInstructorFlag() {
+        if (getAssessmentRequestData().getAssessorId() == 0) {
+            /*
+            if assessor is not assigned, get assessor assignment method info for credential to be able
+            to provide student with more information
+             */
+            studentCanChooseInstructor = credManager.getAssessorAssignmentMethod(credentialId) == AssessorAssignmentMethod.BY_STUDENTS;
+        }
     }
 
     @Override
@@ -104,4 +120,11 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
                 loggedUser.getUserContext());
     }
 
+    public long getCredentialId() {
+        return credentialId;
+    }
+
+    public boolean isStudentCanChooseInstructor() {
+        return studentCanChooseInstructor;
+    }
 }
