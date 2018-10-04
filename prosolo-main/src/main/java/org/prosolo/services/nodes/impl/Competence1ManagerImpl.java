@@ -2971,4 +2971,51 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public long getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(long compId, long studentId) {
+		CompetenceData1 compData = null;
+		try {
+			String query = "SELECT cred.id, tc.id " +
+					"FROM CredentialCompetence1 cc " +
+					"INNER JOIN cc.credential cred " +
+					"WITH cred.type = :type " +
+					"LEFT JOIN cred.targetCredentials tc " +
+					"WITH tc.user.id = :userId " +
+					"WHERE cc.competence.id = :compId";
+
+			List<Object[]> res = (List<Object[]>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("compId", compId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+
+			for (Object[] row : res) {
+				long credId = (long) row[0];
+				if (row[1] != null) {
+					/*
+					if student is enrolled in credential it means he has a privilege to learn it so
+					return id of that credential
+					 */
+					return credId;
+				}
+				ResourceAccessData resourceAccess = credentialManager.getResourceAccessData(
+						credId,
+						studentId,
+						ResourceAccessRequirements.of(AccessMode.USER).addPrivilege(UserGroupPrivilege.Learn));
+				if (resourceAccess.isCanLearn()) {
+					/*
+					if student is allowed to learn credential return id of that credential
+					 */
+					return credId;
+				}
+			}
+			return 0L;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential id");
+		}
+	}
+
 }
