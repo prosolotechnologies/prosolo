@@ -5,6 +5,7 @@
 			  xmlns:p="http://primefaces.org/ui"
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 			  xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
+			  xmlns:util="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
@@ -15,6 +16,7 @@
 		<composite:attribute name="submitAssessmentRequestActionMethodName" required="true"/>
 		<composite:attribute name="submitAssessmentRequestAction" required="true" method-signature="void #{cc.attrs.submitAssessmentRequestActionMethodName}()"/>
 		<composite:attribute name="learningContext" default="" />
+		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -143,6 +145,22 @@
 													cc.attrs.bean.assessmentRequestData.newAssessment}">
 							<p>
 								Are you sure you want to send an assessment request to your peer?
+								<ui:fragment rendered="#{cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
+									<br/><br/>
+									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE'}">
+										Make sure you have added an appropriate summary of your evidence on the
+										<h:link outcome="/competence"
+												target="_blank"
+												value="#{msg['label.competence'].toLowerCase()} page">
+											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.credentialId gt 0 ? cc.attrs.bean.credentialId : cc.attrs.credentialId)}" disable="#{cc.attrs.bean.credentialId eq 0 and cc.attrs.credentialId eq 0}"/>
+											<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.resourceId)}"/>
+										</h:link>
+										that will be visible to the assessor.
+									</ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
+										Make sure you have added an appropriate summary of your evidence for all #{msg['label.competence.plural'].toLowerCase()} that will be visible to the assessor.
+									</ui:fragment>
+								</ui:fragment>
 							</p>
 						</h:panelGroup>
 
@@ -161,6 +179,22 @@
 								</ui:fragment>
 								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
 									There is already an assessment request sent to this peer. Are you sure you want to notify the peer to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
+									<br/><br/>
+									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE'}">
+										Make sure you have added an appropriate summary of your evidence on the
+										<h:link outcome="/competence"
+												target="_blank"
+												value="#{msg['label.competence'].toLowerCase()} page">
+											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.credentialId gt 0 ? cc.attrs.bean.credentialId : cc.attrs.credentialId)}" disable="#{cc.attrs.bean.credentialId eq 0 and cc.attrs.credentialId eq 0}"/>
+											<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.resourceId)}"/>
+										</h:link>
+										that will be visible to the assessor.
+									</ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
+										Make sure you have added an appropriate summary of your evidence for all #{msg['label.competence.plural'].toLowerCase()} that will be visible to the assessor.
+									</ui:fragment>
 								</ui:fragment>
 							</p>
 						</h:panelGroup>

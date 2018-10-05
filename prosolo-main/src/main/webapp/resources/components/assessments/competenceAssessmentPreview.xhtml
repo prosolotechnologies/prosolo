@@ -280,6 +280,7 @@
 							resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
 							toUpdate=":#{cc.clientId}:growlMain @(.panelAssessorNotificationSelector)"
 							learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
+							credentialId="#{cc.attrs.credentialId}"
 					/>
 				</h:form>
 			</c:if>

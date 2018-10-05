@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -104,4 +105,13 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
                 loggedUser.getUserContext());
     }
 
+    @Override
+    protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
+        //student should be reminded if competency is evidence based
+        return compManager.getCompetenceLearningPathType(resourceId) == LearningPathType.EVIDENCE;
+    }
+
+    public long getCredentialId() {
+        return credentialId;
+    }
 }

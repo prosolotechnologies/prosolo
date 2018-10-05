@@ -503,4 +503,12 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
+
+	/**
+	 *
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean doesCredentialHaveAtLeastOneEvidenceBasedCompetence(long credId);
 }

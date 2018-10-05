@@ -480,4 +480,12 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
+
+	/**
+	 *
+	 * @param targetCompetenceId
+	 * @param evidenceSummary
+	 * @throws DbConnectionException
+	 */
+	void saveEvidenceSummary(long targetCompetenceId, String evidenceSummary);
 }

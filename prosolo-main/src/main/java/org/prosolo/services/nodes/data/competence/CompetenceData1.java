@@ -74,8 +74,9 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private LearningPathType learningPathType = LearningPathType.ACTIVITY;
 
 	//target competence data
-	//if evidence based learning path, student can post evidences
+	//if evidence based learning path, student can post evidences and add evidence summary
 	private List<LearningEvidenceData> evidences;
+	private String evidenceSummary;
 
 	//learning stage info
 	private boolean learningStageEnabled;
@@ -611,5 +612,36 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setNumberOfAssessments(int numberOfAssessments) {
 		this.numberOfAssessments = numberOfAssessments;
+	}
+
+	public String getEvidenceSummary() {
+		return evidenceSummary;
+	}
+
+	public void setEvidenceSummary(String evidenceSummary) {
+		observeAttributeChange("evidenceSummary", this.evidenceSummary, evidenceSummary);
+		this.evidenceSummary = evidenceSummary;
+	}
+
+	public boolean isEvidenceSummaryChanged() {
+		return changedAttributes.containsKey("evidenceSummary");
+	}
+
+	/**
+	 * Resets tracking for evidenceSummary so all future changes are compared relative
+	 * to current value
+	 */
+	public void resetTrackingForEvidenceSummary() {
+		changedAttributes.remove("evidenceSummary");
+	}
+
+	/**
+	 * Method should be used when we know for sure that evidence summary has been changed so
+	 * it should be called only if {@link #isEvidenceSummaryChanged()} method returns true
+	 *
+	 * @return
+	 */
+	public String getEvidenceSummaryBeforeUpdate() {
+		return (String) changedAttributes.get("evidenceSummary");
 	}
 }

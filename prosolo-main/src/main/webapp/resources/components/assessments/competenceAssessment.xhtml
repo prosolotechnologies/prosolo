@@ -131,6 +131,35 @@
 					</h:panelGroup>
 				</div>
 
+				<ui:fragment rendered="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessor or cc.attrs.currentUserAssessedStudent) and cc.attrs.competenceAssessment.learningPathType eq 'EVIDENCE'}">
+					<ui:fragment rendered="#{empty cc.attrs.competenceAssessment.evidenceSummary}">
+						<div class="summaryAssessmentsSubHead">
+						   <i>No evidence summary.</i>
+					   	</div>
+					</ui:fragment>
+					<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.evidenceSummary}">
+						<div class="summaryAssessmentsSubHead">
+							<a href="#" data-toggle="modal" data-target="#newFeedModal#{cc.attrs.competenceAssessment.competenceAssessmentId}">Evidence Summary</a>
+						</div>
+						<div class="modal fade newFeedModal" id="newFeedModal#{cc.attrs.competenceAssessment.competenceAssessmentId}" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header alignLeft">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+										<h2 class="modal-title">Evidence summary</h2>
+									</div>
+									<div class="modal-body alignLeft">
+										<p>#{cc.attrs.competenceAssessment.evidenceSummary}</p>
+									</div>
+									<div class="modal-footer alignLeft">
+										<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</ui:fragment>
+				</ui:fragment>
+
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.activityAssessmentData}">
 					<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{cc.attrs.competenceAssessment.competenceAssessmentId}"
 								  id="activityAssessmentWrapper#{compAssIndex.index}">

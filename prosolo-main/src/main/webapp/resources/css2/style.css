@@ -311,17 +311,20 @@ ul {
   .tagPending.left,
   .tagDeclined.left {
     padding-right: 0;
-    padding-left: 34px;
-    background: url("../images2/icon-approved.svg") no-repeat left center; }
+    padding-left: 34px; }
 
 .tagApproved {
   background: url("../images2/icon-approved.svg") no-repeat right center; }
+  .tagApproved.left {
+    background: url("../images2/icon-approved.svg") no-repeat left center; }
 
 .tagPending {
   background: url("../images2/icon-pending.svg") no-repeat right center; }
 
 .tagDeclined {
   background: url("../images2/icon-declined.svg") no-repeat right center; }
+  .tagDeclined.left {
+    background: url("../images2/icon-declined.svg") no-repeat left center; }
 
 h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus {
   margin-bottom: 30px;
@@ -1143,7 +1146,9 @@ input {
 #message .assessmentModalMeta,
 #message .messageModalMeta,
 #newAnnouncementModal .assessmentModalMeta,
-#newAnnouncementModal .messageModalMeta {
+#newAnnouncementModal .messageModalMeta,
+#evidenceSummaryModal .assessmentModalMeta,
+#evidenceSummaryModal .messageModalMeta {
   background: #F8F9FB;
   border-top: 1px solid #EEEFF3;
   border-bottom: 1px solid #EEEFF3;
@@ -1181,7 +1186,11 @@ input {
   #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine,
   #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine,
   #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine,
-  #newAnnouncementModal .messageModalMeta .messageModalMetaLine {
+  #newAnnouncementModal .messageModalMeta .messageModalMetaLine,
+  #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine,
+  #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine,
+  #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine,
+  #evidenceSummaryModal .messageModalMeta .messageModalMetaLine {
     display: flex;
     padding-top: 10px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine:last-child,
@@ -1215,7 +1224,11 @@ input {
     #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine:last-child,
     #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine:last-child,
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine:last-child,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine:last-child {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine:last-child,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine:last-child,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine:last-child,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine:last-child,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine:last-child {
       padding-bottom: 10px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
@@ -1344,7 +1357,23 @@ input {
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
       position: relative;
       display: flex;
       line-height: 32px;
@@ -1476,7 +1505,23 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
-      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
         margin: 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
@@ -1509,7 +1554,11 @@ input {
     #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
       width: 90px;
       flex-shrink: 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1543,7 +1592,11 @@ input {
     #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
       width: 30px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
@@ -1608,7 +1661,15 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
       flex-grow: 1; }
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
@@ -1737,7 +1798,23 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
-      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
         margin-right: 15px; }
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
@@ -1802,7 +1879,15 @@ input {
       #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"] {
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"] {
         width: 100%;
         height: 30px;
         line-height: 20px;
@@ -1875,7 +1960,15 @@ input {
       #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
         top: 30px; }
         #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
@@ -1940,7 +2033,15 @@ input {
         #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
+        #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
           height: 52px; }
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
@@ -2069,7 +2170,23 @@ input {
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
@@ -2135,7 +2252,15 @@ input {
           #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
           #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
@@ -2168,7 +2293,11 @@ input {
     #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX {
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX {
       position: absolute;
       right: 0; }
 
@@ -2179,7 +2308,8 @@ input {
 #evidencesList .modal-body input[type="text"],
 #assessmentsList .modal-body input[type="text"],
 #message .modal-body input[type="text"],
-#newAnnouncementModal .modal-body input[type="text"] {
+#newAnnouncementModal .modal-body input[type="text"],
+#evidenceSummaryModal .modal-body input[type="text"] {
   width: 100%;
   margin-top: 20px;
   padding: 0;
@@ -2195,7 +2325,8 @@ input {
 #evidencesList .modal-body textarea,
 #assessmentsList .modal-body textarea,
 #message .modal-body textarea,
-#newAnnouncementModal .modal-body textarea {
+#newAnnouncementModal .modal-body textarea,
+#evidenceSummaryModal .modal-body textarea {
   width: 100%;
   height: 100px;
   margin-top: 20px;
@@ -2245,6 +2376,9 @@ input {
   #newAnnouncementModal .radioGroup .radio {
     display: inline;
     margin-left: 10px; }
+
+#evidenceSummaryModal .modal-body textarea {
+  margin-top: 0; }
 
 #uploadFile .modal-body, #addURL .modal-body, #addSubtitles .modal-body {
   padding-bottom: 10px; }
@@ -4092,6 +4226,10 @@ header {
     background: url("../images2/iconComments20Orange.svg") no-repeat;
     opacity: 1; }
 
+.summaryAssessmentsSubHead {
+  line-height: 20px;
+  padding: 0 30px 30px 30px; }
+
 .disabledOverlay {
   display: none;
   position: absolute;
@@ -4722,6 +4860,11 @@ header {
     .assessmentsSidebar li h3 {
       margin: 0; }
 
+.evidenceSummary {
+  margin-bottom: 30px; }
+  .evidenceSummary .text p {
+    margin-bottom: 10px; }
+
 .evidenceBox {
   padding-bottom: 30px; }
   .evidenceBox .evidenceTop {
@@ -4750,7 +4893,8 @@ header {
         .evidenceBox .evidenceTop .evidenceTopLeft .icon.link {
           background: url("../images2/iconLink20.svg") no-repeat center center; }
       .evidenceBox .evidenceTop .evidenceTopLeft h3 {
-        margin: 0; }
+        margin: 0 30px 0 0;
+        word-break: break-word; }
     .evidenceBox .evidenceTop .evidenceTopRight {
       display: flex;
       align-items: center; }
