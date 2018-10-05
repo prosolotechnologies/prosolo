@@ -2,11 +2,10 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -29,15 +28,13 @@ public class BookmarkBean implements Serializable {
 	public void bookmarkCredential(CredentialData cred) {
 		try {
 			if(cred.isBookmarkedByCurrentUser()) {
-				credentialManager.deleteCredentialBookmark(cred.getId(), loggedUserBean.getUserContext());
+				credentialManager.deleteCredentialBookmark(cred.getIdData().getId(), loggedUserBean.getUserContext());
 			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserContext());
+				credentialManager.bookmarkCredential(cred.getIdData().getId(), loggedUserBean.getUserContext());
 			}
 			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -52,8 +49,6 @@ public class BookmarkBean implements Serializable {
 			comp.setBookmarkedByCurrentUser(!comp.isBookmarkedByCurrentUser());
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 }

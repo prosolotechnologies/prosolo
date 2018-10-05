@@ -6,22 +6,23 @@ import org.prosolo.bigdata.dal.cassandra.impl.{SocialInteractionStatisticsDBMana
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.common.config.CommonSettings
 import org.prosolo.bigdata.spark.scala.clustering.UserProfileInteractionsSparkJob
+import org.slf4j.LoggerFactory
 
 /**
   * Created by zoran on 29/03/16.
   */
 object UserProfileInteractionsManager{
-  val clusteringDAOManager = new ClusteringDAOImpl
+  val logger = LoggerFactory.getLogger(getClass)
   val dbManager = SocialInteractionStatisticsDBManagerImpl.getInstance()
-  //val sc = SparkContextLoader.getSC
-  val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
+    val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
 
   def runAnalyser() = {
-    println("RUN ANALYZER")
+    logger.debug("RUN ANALYZER")
+    val clusteringDAOManager = new ClusteringDAOImpl
     val credentialsIds = clusteringDAOManager.getAllActiveDeliveriesIds
     val userProfileInteractionsSparkJob=new UserProfileInteractionsSparkJob(dbName)
     userProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)
-    println("FINISHED ANALYZER FOR USER PROFILE INTERACTIONS MANAGER JOB")
+    logger.debug("FINISHED ANALYZER FOR USER PROFILE INTERACTIONS MANAGER JOB")
   }
 
 

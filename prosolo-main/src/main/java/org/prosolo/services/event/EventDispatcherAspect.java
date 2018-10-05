@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Aspect
 public class EventDispatcherAspect {
@@ -19,11 +21,14 @@ public class EventDispatcherAspect {
 		pointcut = "execution(* org.prosolo.services.event.EventFactory.*(..))",
 		returning= "result")
 	public void dispatchEvent(JoinPoint joinPoint, Object result) {
-		if (result instanceof Event) {
-			Event event = (Event) result;
-			
-			logger.debug("Dispatching to the CentralEventDispatcher event: "+result);
-			centralEventDispatcher.dispatchEvent(event);
+		if (result != null) {
+			if (result instanceof Event) {
+				Event event = (Event) result;
+
+				centralEventDispatcher.dispatchEvent(event);
+			} else if (result instanceof List) {
+				centralEventDispatcher.dispatchEvents((List<Event>) result);
+			}
 		}
 	}
 	

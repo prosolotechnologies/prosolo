@@ -14,7 +14,9 @@ import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -25,14 +27,17 @@ import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.annotation.Annotation1Manager;
-import org.prosolo.services.event.EventException;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,9 +55,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	private static final long serialVersionUID = 8656308195928025188L;
 	
 	private static Logger logger = Logger.getLogger(SocialActivityManagerImpl.class);
-//
-//	@Autowired private TagManager tagManager;
-//	
+
 	@Inject private SocialActivityDataFactory socialActivityFactory;
 	@Inject private Annotation1Manager annotationManager;
 	@Inject private EventFactory eventFactory;
@@ -62,6 +65,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private CredentialManager credentialManager;
+	@Inject private SocialActivityManager self;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -252,6 +256,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"compObjectActor.name AS compObjectActorName, " +
 				"compObjectActor.lastname AS compObjectActorLastname, " +
 				"compObject.description AS compObjectDescription, " +
+				//unit welcome post
+				"unit.welcome_message as unitWelcomeMessage, " +
 				
 				"annotation.id is NOT NULL AS liked, \n " +
 				" (SELECT COUNT(comm.id) FROM comment1 comm \n" +
@@ -262,10 +268,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate,
 			boolean queryById, boolean shouldReturnHidden, List<Long> credentialIds) {
-		//straight join is used for actor to force table order because after analyzing query, it appears that MySQL optimizer chooses wrong table order
 		String q =
 				"FROM social_activity1 sa \n" +
-				"	STRAIGHT_JOIN user AS actor \n" +
+				"	LEFT JOIN user AS actor \n" +
 				"		ON sa.actor = actor.id \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
 				"		ON config.social_activity = sa.id \n" +
@@ -318,6 +323,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 //				"       ON tActObject.target_competence = tComp.id " +
 //				"   LEFT JOIN user AS actObjectActor " +
 //				"       ON actObject.created_by = actObjectActor.id " +
+				//unit welcome post
+				" 	LEFT JOIN unit AS unit \n " +
+						"ON sa.dType = :unitWelcomePostDType \n " +
+						"AND sa.unit = unit.id \n " +
 
 				"	LEFT JOIN annotation1 AS annotation \n" +
 				"		ON annotation.annotated_resource_id = sa.id \n" +
@@ -336,11 +345,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 
 		if (!queryById) {
+			String commonCondition = "actor.id = :userId OR (sa.dType = :unitWelcomePostDType AND EXISTS " +
+				"(SELECT urm.id FROM unit_role_membership urm INNER JOIN role r ON (urm.role = r.id) where urm.unit = unit.id AND urm.user = :userId AND r.title = :studentRoleTitle))";
 			if (!credentialIds.isEmpty()) {
-				q += "AND (actor.id = :userId OR EXISTS " +
+				q += "AND (" + commonCondition + " OR EXISTS " +
 						"(SELECT cred.id from target_credential1 cred WHERE cred.user = actor.id AND cred.credential IN (:credentialIds))) ";
 			} else {
-				q += "AND actor.id = :userId ";
+				q += "AND " + commonCondition + " ";
 			}
 		}
 
@@ -358,7 +369,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						 "OFFSET :offset");
 	}
 	
-	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
+	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset,
 			String specificCondition, long previousId, Date previousDate, boolean queryById, 
 			boolean shouldReturnHidden, Locale locale) {
 		List<Long> deliveriesUserIsLearning = null;
@@ -377,14 +388,18 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("activityCommentDType", ActivityCommentSocialActivity.class.getSimpleName())
 			.setString("activityCompleteDType", ActivityCompleteSocialActivity.class.getSimpleName())
 			.setString("compCompleteDType", CompetenceCompleteSocialActivity.class.getSimpleName())
+			.setString("unitWelcomePostDType", UnitWelcomePostSocialActivity.class.getSimpleName())
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
 			//.setBoolean("boolFalse", false)
 			.setCharacter("saDeleted", 'F')
 			.setString("commentResourceType", CommentedResourceType.SocialActivity.name());
 
-		if (!queryById && !deliveriesUserIsLearning.isEmpty()) {
-			q.setParameterList("credentialIds", deliveriesUserIsLearning);
+		if (!queryById) {
+			q.setString("studentRoleTitle", SystemRoleNames.USER);
+			if (!deliveriesUserIsLearning.isEmpty()) {
+				q.setParameterList("credentialIds", deliveriesUserIsLearning);
+			}
 		}
 
 		q.setResultTransformer(new ResultTransformer() {
@@ -393,7 +408,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
 				//Sometimes Integer is returned and sometimes BigInteger
-				boolean liked = 1 == Integer.valueOf(tuple[53].toString());
+				boolean liked = 1 == Integer.valueOf(tuple[54].toString());
 
 				return socialActivityFactory.getSocialActivityData(
 						(BigInteger) tuple[0],
@@ -470,8 +485,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						(String) tuple[50],
 						(String) tuple[51],
 						(String) tuple[52],
+						(String) tuple[53],
 						liked,
-						(BigInteger) tuple[54],
+						(BigInteger) tuple[55],
 						locale);
 			}
 
@@ -503,6 +519,56 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving social activity");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void saveUnitWelcomePostSocialActivityIfNotExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			Optional<UnitWelcomePostSocialActivity> sa = getUnitWelcomePostSocialActivityIfExists(unitId, session);
+			if (!sa.isPresent()) {
+				UnitWelcomePostSocialActivity unitWelcomePostSocialActivity = new UnitWelcomePostSocialActivity();
+				Date now = new Date();
+				unitWelcomePostSocialActivity.setDateCreated(now);
+				unitWelcomePostSocialActivity.setLastAction(now);
+				unitWelcomePostSocialActivity.setUnit((Unit) session.load(Unit.class, unitId));
+				saveEntity(unitWelcomePostSocialActivity, session);
+			}
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving the unit welcome post social activity");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void deleteUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			Optional<UnitWelcomePostSocialActivity> sa = getUnitWelcomePostSocialActivityIfExists(unitId, session);
+			if (sa.isPresent()) {
+				session.delete(sa.get());
+			}
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error deleting the unit welcome post social activity");
+		}
+	}
+
+	private Optional<UnitWelcomePostSocialActivity> getUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException {
+		try {
+			String query = "SELECT sa " +
+					"FROM UnitWelcomePostSocialActivity sa " +
+					"WHERE sa.unit.id = :unitId";
+			UnitWelcomePostSocialActivity sa = (UnitWelcomePostSocialActivity) session.createQuery(query)
+					.setLong("unitId", unitId)
+					.uniqueResult();
+
+			return Optional.ofNullable(sa);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving social activity");
 		}
 	}
 	
@@ -736,51 +802,60 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	//nt
 	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
 			UserContextData context) throws DbConnectionException {
+		Result<PostSocialActivity1> res = self.createNewPostAndGetEvents(postData, context);
+		eventFactory.generateEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<PostSocialActivity1> createNewPostAndGetEvents(SocialActivityData1 postData,
+																 UserContextData context) throws DbConnectionException {
 		try {
+			Result<PostSocialActivity1> result = new Result<>();
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
-			
+
 			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
 
-			// generate events related to the content
-			//TODO richcontent1 is not a baseentity so event can't be generated
-			
-			taskExecutor.execute(() -> {
-				Session session = this.getPersistence().openSession();
-				try {
-					
-					generateEventForContent(context, postData.getText(), post);
-					
-					// generate Post event
-					eventFactory.generateEvent(EventType.Post, context, post, null, null, null);
-					
-					// generate MENTIONED event
-					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
-					
-					if (!mentionedUsers.isEmpty()) {
-						for (long mentionedUserId : mentionedUsers) {
-							User mentionedUser = (User) session.load(User.class, mentionedUserId);
-							
-							eventFactory.generateEvent(EventType.MENTIONED, context, mentionedUser, post, null, null);
-						}
-					}
-				} catch (Exception e) {
-					logger.error(e);
-				} finally {
-					HibernateUtil.close(session);
+			// generate events for links and files indexing
+//			if (richContent != null && richContent.getContentType() != null) {
+//				switch (richContent.getContentType()) {
+//					case LINK:
+//						result.appendEvent(eventFactory.generateEventData(EventType.LinkAdded, context, post, null, null, null));
+//					case FILE:
+//						result.appendEvent(eventFactory.generateEventData(EventType.FileUploaded, context, post, null, null, null));
+//					default:
+//						break;
+//				}
+//			}
+
+			// generate Post event
+			result.appendEvent(eventFactory.generateEventData(EventType.Post, context, post, null, null, null));
+
+			// generate MENTIONED event
+			List<Long> mentionedUsers = getMentionedUsers(postData.getText());
+
+			if (!mentionedUsers.isEmpty()) {
+				for (long mentionedUserId : mentionedUsers) {
+					User mentionedUser = (User) persistence.currentManager().load(User.class, mentionedUserId);
+
+					result.appendEvent(eventFactory.generateEventData(EventType.MENTIONED, context, mentionedUser, post, null, null));
 				}
-			});
-			
-			return post;
+			}
+
+			result.setResult(post);
+
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving post");
 		}
 	}
-	
+
 	private List<Long> getMentionedUsers(String postText) {
 		List<Long> userIds = new ArrayList<>();
 		
@@ -797,7 +872,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
 			throws DbConnectionException {
 		try {
@@ -814,7 +889,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public PostSocialActivity1 updatePost(long postId, String newText,
 			UserContextData context) throws DbConnectionException {
 		try {
@@ -823,53 +898,17 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
 			
-			try {
-				eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
-			} catch (EventException e) {
-				logger.error(e);
-			}
+			eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
+
 			
 			return post;
 		} catch(Exception e) {
-			logger.error(e);
 			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving post");
 		}
 	}
 
-	/**
-	 * @param context
-	 * @param text
-	 * @param post
-	 */
-	private void generateEventForContent(final UserContextData context, final String text, final PostSocialActivity1 post) {
-		String addedLink = null;
-	
-		RichContent1 richContent = post.getRichContent();
-		if (richContent != null && richContent.getContentType() != null) {
-			try {
-				switch (richContent.getContentType()) {
-				case LINK:
-					eventFactory.generateEvent(EventType.LinkAdded, context, post, null, null, null);
-					addedLink = richContent.getLink();
-					break;
-				case FILE:
-					eventFactory.generateEvent(EventType.FileUploaded, context, post, null, null, null);
-					break;
-				default:
-					break;
-				}
-			} catch (EventException e) {
-				logger.error(e);
-			}
-		}
-	
-		Collection<String> urls = StringUtil.pullLinks(text);
-		if (urls.contains(addedLink)) {
-			urls.remove(addedLink);
-		}
-	}
-	
 	@Override
 	@Transactional(readOnly = false)
 	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 

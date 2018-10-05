@@ -11,14 +11,12 @@ import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -55,10 +53,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	//search
 	private String searchTerm = "";
 	private LearningResourceSearchFilter searchFilter = LearningResourceSearchFilter.ALL;
-	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData = new PaginationData();
 	
-	private LearningResourceSortOption[] sortOptions;
 	private LearningResourceSearchFilter[] searchFilters;
 	
 	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
@@ -69,7 +65,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	private List<Long> unitIds = new ArrayList<>();
 
 	public void init() {
-		sortOptions = LearningResourceSortOption.values();
 		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
 				f -> f != LearningResourceSearchFilter.BY_STUDENTS &&
 					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
@@ -115,7 +110,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetences(
 				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
-				paginationData.getLimit(), loggedUserBean.getUserId(), unitIds, searchFilter, sortOption, config);
+				paginationData.getLimit(), loggedUserBean.getUserId(), unitIds, searchFilter, config);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -123,12 +118,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	public void applySearchFilter(LearningResourceSearchFilter filter) {
 		this.searchFilter = filter;
-		paginationData.setPage(1);
-		searchCompetences(true);
-	}
-	
-	public void applySortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
 		paginationData.setPage(1);
 		searchCompetences(true);
 	}
@@ -158,8 +147,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
@@ -173,14 +160,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 	public void setSearchTerm(String searchTerm) {
 		this.searchTerm = searchTerm;
-	}
-
-	public LearningResourceSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
 	}
 
 	public List<CompetenceData1> getCompetences() {
@@ -199,14 +178,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		this.searchFilter = searchFilter;
 	}
 
-	public LearningResourceSortOption[] getSortOptions() {
-		return sortOptions;
-	}
-
-	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
-	}
-
 	public LearningResourceSearchFilter[] getSearchFilters() {
 		return searchFilters;
 	}
@@ -215,5 +186,4 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		this.searchFilters = searchFilters;
 	}
 
-	
 }

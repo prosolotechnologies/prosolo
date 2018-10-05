@@ -14,8 +14,6 @@ import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,6 +47,11 @@ public class PageUtil {
 	
 	public static void fireSuccessfulInfoMessageAcrossPages(String description) {
 		fireSuccessfulInfoMessage(null, description);
+		keepFiredMessagesAcrossPages();
+	}
+
+	public static void fireErrorMessageAcrossPages(String msg) {
+		fireErrorMessage(msg);
 		keepFiredMessagesAcrossPages();
 	}
 
@@ -120,6 +123,9 @@ public class PageUtil {
 	 */
 	public static void redirect(String url) {
 		try {
+			if (!url.startsWith("/")) {
+				url = "/" + url;
+			}
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			extContext.redirect(extContext.getRequestContextPath() + url);
 		} catch (IOException e) {
@@ -139,7 +145,11 @@ public class PageUtil {
 	 * @return
 	 */
 	public static PageSection getSectionForView() {
-		return getSectionForUri(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+		return getSectionForUri(getPage());
+	}
+
+	public static String getPage() {
+		return FacesContext.getCurrentInstance().getViewRoot().getViewId();
 	}
 
 	/**
@@ -236,15 +246,33 @@ public class PageUtil {
 	}
 	
 	public static void notFound() {
-		forward(getSectionForView().getPrefix() + "/notfound");
+		notFound(null);
 	}
 
 	/**
 	 * Forwards to not found page
 	 * @param uri
 	 */
-	public static void notFound(String uri) {
-		forward(getSectionForUri(uri).getPrefix() + "/notfound");
+	public static void notFoundForGivenUri(String uri) {
+		notFound(getSectionForUri(uri).getPrefix(), null);
+	}
+
+	/**
+	 * Forwards to not found page with given msg displayed
+	 *
+	 * @param msg
+	 */
+	public static void notFound(String msg) {
+		notFound(getSectionForView().getPrefix(), msg);
+	}
+
+	private static void notFound(String section, String msg) {
+		forward(section + "/notfound" + (msg != null && !msg.isEmpty() ? "?msg=" + msg : ""));
+	}
+
+	public static boolean isInManageSection() {
+		String currentUrl = getRewriteURL();
+		return currentUrl.contains("/manage/");
 	}
 
 }

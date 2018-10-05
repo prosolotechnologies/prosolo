@@ -2,15 +2,10 @@ package org.prosolo.common.domainmodel.interfacesettings;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 
 /**
@@ -19,6 +14,7 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
  *
  */
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"type", "user"})})
 public class NotificationSettings implements Serializable {
 
 	private static final long serialVersionUID = 7481670064380351424L;
@@ -26,6 +22,7 @@ public class NotificationSettings implements Serializable {
 	private long id;
 	private NotificationType type;
 	private boolean subscribedEmail;
+	private User user;
 	
 	public NotificationSettings() { }
 	
@@ -64,6 +61,15 @@ public class NotificationSettings implements Serializable {
 
 	public void setSubscribedEmail(boolean subscribedEmail) {
 		this.subscribedEmail = subscribedEmail;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	@Override

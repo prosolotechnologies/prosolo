@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.user;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -130,11 +131,29 @@ public class User extends BaseEntity {
 		this.roles = roles;
 	}
 	
+	public boolean hasRole(long id) {
+		return roles.stream().anyMatch(r -> r.getId() == id);
+	}
+
 	public void addRole(Role role) {
 		if (role != null && !getRoles().contains(role))
 			getRoles().add(role);
 	}
-	
+
+	public boolean removeRoleById(Long roleId) {
+		Iterator<Role> iterator = roles.iterator();
+
+		while (iterator.hasNext()) {
+			Role role =  iterator.next();
+
+			if (role.getId() == roleId) {
+				iterator.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public String getPosition() {
 		return position;
 	}

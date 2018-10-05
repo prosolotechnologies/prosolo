@@ -9,7 +9,7 @@ import org.prosolo.common.config.CommonSettings;
  */
 public class AmazonS3Utility {
 	
-		//private static String prefix = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl +
+	//private static String prefix = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl +
 								//	"/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName +
 								//	"/";
 
@@ -25,5 +25,4 @@ public class AmazonS3Utility {
 		}
 		return fullPath;
 	}
-	
 }

@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
@@ -55,8 +54,7 @@ public class CredentialPrivacyBean implements Serializable {
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					credentialTitle = credManager.getCredentialTitle(decodedCredId,
-							CredentialType.Original);
+					credentialTitle = credManager.getCredentialTitle(decodedCredId, CredentialType.Original);
 					if (credentialTitle != null) {
 						loadData();
 					} else {
@@ -96,8 +94,6 @@ public class CredentialPrivacyBean implements Serializable {
 			unit.changeSelectionStatus();
 			logger.error(e);
 			PageUtil.fireErrorMessage("An error has occurred");
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 	}
 

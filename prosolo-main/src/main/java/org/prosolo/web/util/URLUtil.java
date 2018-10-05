@@ -75,17 +75,4 @@ public class URLUtil {
 		return url.substring(0, url.length() - viewId.length() + 1); // added -1 to include leading slash (/)
 	}
 	
-	public static boolean matchForwardRequestURLRegex(String pageRegex) {
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-		
-		String forwardRequestUri = (String) request.getAttribute("javax.servlet.forward.request_uri");
-		
-		if (forwardRequestUri != null && !forwardRequestUri.isEmpty()) {
-			return forwardRequestUri.matches(pageRegex);
-		} else {
-			return false;
-		}
-	}
-	
-	
 }

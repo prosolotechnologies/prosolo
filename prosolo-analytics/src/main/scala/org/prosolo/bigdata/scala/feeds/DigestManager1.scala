@@ -4,7 +4,7 @@ import java.util.{Calendar, Date}
 
 import org.slf4j.LoggerFactory
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl
-import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkManager}
+import org.prosolo.bigdata.scala.spark.{ SparkManager}
 import org.prosolo.bigdata.feeds.impl.FeedsAgregatorImpl
 import org.prosolo.bigdata.feeds.FeedsAgregator
 

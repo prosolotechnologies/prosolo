@@ -6,29 +6,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.CredentialUnit;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"first_learning_stage_credential", "learning_stage"})})
 public class Credential1 extends BaseEntity {
 
 	private static final long serialVersionUID = 4974054331339101656L;
@@ -42,7 +36,7 @@ public class Credential1 extends BaseEntity {
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
 	private long duration;
-	private boolean manuallyAssignStudents;
+	private AssessorAssignmentMethod assessorAssignmentMethod;
 	private int defaultNumberOfStudentsPerInstructor;
 	private List<TargetCredential1> targetCredentials;
 	private List<CredentialInstructor> credInstructors;
@@ -58,24 +52,39 @@ public class Credential1 extends BaseEntity {
 	//All existing users have View privilege
 	private boolean visibleToAll;
 	
-	// when credential is cloned, this reference to the original
 	private Credential1 deliveryOf;
 	private Date deliveryStart;
 	private Date deliveryEnd;
 	private CredentialType type;
+	//serial number of a delivery of a credential
+	private int deliveryOrder;
+
+	//learning in stages
+	private LearningStage learningStage;
+	private Credential1 firstLearningStageCredential;
+
+	//category
+	private CredentialCategory category;
 	
 	private boolean archived;
 	
 	private List<CredentialUserGroup> userGroups;
 	private List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential;
+
+	//assessment
+	private GradingMode gradingMode = GradingMode.MANUAL;
+	private Rubric rubric;
+	private int maxPoints;
+	private Set<CredentialAssessmentConfig> assessmentConfig;
 	
 	public Credential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
 		competences = new ArrayList<>();
-		blogs = new ArrayList<FeedSource>();
-		excludedFeedSources = new ArrayList<FeedSource>();
+		blogs = new ArrayList<>();
+		excludedFeedSources = new ArrayList<>();
 		announcements = new ArrayList<>();
+		assessmentConfig = new HashSet<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -108,6 +117,7 @@ public class Credential1 extends BaseEntity {
 
 	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
+	@OrderBy("order ASC")
 	public List<CredentialCompetence1> getCompetences() {
 		return competences;
 	}
@@ -132,12 +142,13 @@ public class Credential1 extends BaseEntity {
 		this.duration = duration;
 	}
 
-	public boolean isManuallyAssignStudents() {
-		return manuallyAssignStudents;
+	@Enumerated(EnumType.STRING)
+	public AssessorAssignmentMethod getAssessorAssignmentMethod() {
+		return assessorAssignmentMethod;
 	}
 
-	public void setManuallyAssignStudents(boolean manuallyAssignStudents) {
-		this.manuallyAssignStudents = manuallyAssignStudents;
+	public void setAssessorAssignmentMethod(AssessorAssignmentMethod assessorAssignmentMethod) {
+		this.assessorAssignmentMethod = assessorAssignmentMethod;
 	}
 
 	public int getDefaultNumberOfStudentsPerInstructor() {
@@ -340,5 +351,77 @@ public class Credential1 extends BaseEntity {
 
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public LearningStage getLearningStage() {
+		return learningStage;
+	}
+
+	public void setLearningStage(LearningStage learningStage) {
+		this.learningStage = learningStage;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Credential1 getFirstLearningStageCredential() {
+		return firstLearningStageCredential;
+	}
+
+	public void setFirstLearningStageCredential(Credential1 firstLearningStageCredential) {
+		this.firstLearningStageCredential = firstLearningStageCredential;
+	}
+
+	@OneToMany(mappedBy = "credential")
+	public Set<CredentialAssessmentConfig> getAssessmentConfig() {
+		return assessmentConfig;
+	}
+
+	public void setAssessmentConfig(Set<CredentialAssessmentConfig> assessmentConfig) {
+		this.assessmentConfig = assessmentConfig;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Rubric getRubric() {
+		return rubric;
+	}
+
+	public void setRubric(Rubric rubric) {
+		this.rubric = rubric;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public GradingMode getGradingMode() {
+		return gradingMode;
+	}
+
+	public void setGradingMode(GradingMode gradingMode) {
+		this.gradingMode = gradingMode;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public CredentialCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(CredentialCategory category) {
+		this.category = category;
+	}
+
+	@Column(columnDefinition = "int(11) DEFAULT 0")
+	public int getDeliveryOrder() {
+		return deliveryOrder;
+	}
+
+	public void setDeliveryOrder(int deliveryOrder) {
+		this.deliveryOrder = deliveryOrder;
 	}
 }

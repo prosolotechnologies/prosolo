@@ -3,7 +3,9 @@ package org.prosolo.web.manage.students.data;
 import java.io.Serializable;
 import java.util.List;
 
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 
 public class CompetenceProgressData implements Serializable{
 
@@ -13,6 +15,8 @@ public class CompetenceProgressData implements Serializable{
 	private long competenceId;
 	private String name;
 	private int progress;
+	private LearningPathType learningPathType;
+	private List<LearningEvidenceData> evidences;
 	private List<ActivityProgressData> activities;
 	
 	private long approvedSubmissionNumber;
@@ -36,6 +40,7 @@ public class CompetenceProgressData implements Serializable{
 		this.competenceId = compData.getCompetenceId();
 		this.name = compData.getTitle();
 		this.progress = compData.getProgress();
+		this.learningPathType = compData.getLearningPathType();
 	}
 
 	public long getId() {
@@ -89,4 +94,23 @@ public class CompetenceProgressData implements Serializable{
 		return competenceId;
 	}
 
+	public void setCompetenceId(long competenceId) {
+		this.competenceId = competenceId;
+	}
+
+	public LearningPathType getLearningPathType() {
+		return learningPathType;
+	}
+
+	public void setLearningPathType(LearningPathType learningPathType) {
+		this.learningPathType = learningPathType;
+	}
+
+	public List<LearningEvidenceData> getEvidences() {
+		return evidences;
+	}
+
+	public void setEvidences(List<LearningEvidenceData> evidences) {
+		this.evidences = evidences;
+	}
 }

@@ -7,7 +7,7 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
+import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.factory.CredentialDeliveryStatusFactory;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Component;

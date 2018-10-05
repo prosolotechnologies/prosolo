@@ -67,7 +67,7 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
 
     @Override
     public void insertStudentPreferenceForDate(Long student, String resourcetype, Long resourceid, Double preference, Long dateEpoch) {
-        System.out.println("INSERT studentPreference... for date:"+dateEpoch+" student:"+student+" resource type:"+resourcetype+" resourceid:"+resourceid+" preference:"+preference);
+        logger.debug("INSERT studentPreference... for date:"+dateEpoch+" student:"+student+" resource type:"+resourcetype+" resourceid:"+resourceid+" preference:"+preference);
         PreparedStatement prepared = getStatement(getSession(), INSERT_USER_PREFERENCE_FOR_DATE);
 
         BoundStatement statement = new BoundStatement(prepared);

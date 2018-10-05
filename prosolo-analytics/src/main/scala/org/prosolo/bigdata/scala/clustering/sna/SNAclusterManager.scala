@@ -4,9 +4,12 @@ package org.prosolo.bigdata.scala.clustering.sna
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl
 import org.prosolo.bigdata.dal.cassandra.impl.TableNames
+import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringManager._
+import org.prosolo.bigdata.scala.messaging.BroadcastDistributer.getClass
 import org.prosolo.bigdata.spark.scala.clustering.SNAClusteringSparkJob
 import org.prosolo.common.config.CommonSettings
+import org.slf4j.LoggerFactory
 
 
 
@@ -19,10 +22,11 @@ import org.prosolo.common.config.CommonSettings
 object SNAclusterManager{
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
   val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName+CommonSettings.getInstance().config.getNamespaceSufix();
-  println("INITIALIZED SNA CLUSTER MANAGER")
+  val logger = LoggerFactory.getLogger(getClass)
+  logger.debug("INITIALIZED SNA CLUSTER MANAGER")
 
   def updateTimestamp(timestamp:Long)={
-    println("UPDATE TIMESTAMP TO:"+timestamp)
+    logger.debug("UPDATE TIMESTAMP TO:"+timestamp)
     dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
     dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
     dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
@@ -30,9 +34,10 @@ object SNAclusterManager{
 
 
   def runClustering()={
-    println("INITIALIZE USER PROFILE CLUSTERING ")
+    logger.debug("INITIALIZE USER PROFILE CLUSTERING ")
     val timestamp=System.currentTimeMillis()
-    val deliveriesIds=clusteringDAOManager.getAllActiveDeliveriesIds
+    val clusteringDAO=new ClusteringDAOImpl();
+    val deliveriesIds=clusteringDAO.getAllActiveDeliveriesIds
     val sNAClusteringSparkJob=new SNAClusteringSparkJob(dbName)
     sNAClusteringSparkJob.runSparkJob(deliveriesIds,dbName, timestamp)
     updateTimestamp(timestamp)

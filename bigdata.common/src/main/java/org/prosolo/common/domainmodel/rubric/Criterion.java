@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.rubric;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -13,23 +14,30 @@ import java.util.Set;
 
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Criterion extends BaseEntity {
 
-    private double points;
+    //private double points;
     private Rubric rubric;
     private int order;
     private Set<CriterionLevel> levels;
 
     //criterion assessments
-    private Set<CriterionAssessment> assessments;
+    private Set<ActivityCriterionAssessment> assessments;
+    private Set<CompetenceCriterionAssessment> compAssessments;
+    private Set<CredentialCriterionAssessment> credAssessments;
 
-    @Column(name = "points", nullable = false)
-    public double getPoints() {
-        return points;
-    }
+//    @Column(name = "points", nullable = false)
+//    public double getPoints() {
+//        return points;
+//    }
+//
+//    public void setPoints(double points) {
+//        this.points = points;
+//    }
 
-    public void setPoints(double points) {
-        this.points = points;
+    public <T> T accept(CriterionVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -60,11 +68,29 @@ public class Criterion extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "criterion")
-    public Set<CriterionAssessment> getAssessments() {
+    public Set<ActivityCriterionAssessment> getAssessments() {
         return assessments;
     }
 
-    public void setAssessments(Set<CriterionAssessment> assessments) {
+    public void setAssessments(Set<ActivityCriterionAssessment> assessments) {
         this.assessments = assessments;
+    }
+
+    @OneToMany(mappedBy = "criterion")
+    public Set<CompetenceCriterionAssessment> getCompAssessments() {
+        return compAssessments;
+    }
+
+    public void setCompAssessments(Set<CompetenceCriterionAssessment> compAssessments) {
+        this.compAssessments = compAssessments;
+    }
+
+    @OneToMany(mappedBy = "criterion")
+    public Set<CredentialCriterionAssessment> getCredAssessments() {
+        return credAssessments;
+    }
+
+    public void setCredAssessments(Set<CredentialCriterionAssessment> credAssessments) {
+        this.credAssessments = credAssessments;
     }
 }

@@ -6,16 +6,18 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ElasticsearchUtil;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.util.RoleUtil;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Inject private Competence1Manager compManager;
 	@Inject private UnitManager unitManager;
 	@Inject private UserGroupManager userGroupManager;
+	@Inject private AssessmentManager assessmentManager;
 
 	@Override
 	public void saveUserNode(User user, Session session) {
@@ -137,16 +140,16 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				addCredentials(builder, user.getId(), session);
 				addCredentialsWithInstructorRole(builder, user.getId());
 				addFollowers(builder, user.getId());
+				addFollowees(builder, user.getId());
 				addCompetences(builder, user.getId(), session);
-				addGroups(builder, user.getId());
+				addGroups(builder, user.getId(),session);
 
 				builder.endObject();
-				System.out.println("JSON: " + builder.prettyPrint().string());
 				String indexType = ESIndexTypes.ORGANIZATION_USER;
 				String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, organizationId);
 				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error("Error", e);
 			}
 		}
 	}
@@ -193,7 +196,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 		for (CredentialData cd : creds) {
 			builder.startObject();
-			long credId = cd.getId();
+			long credId = cd.getIdData().getId();
 			builder.field("id", credId);
 			int credProgress = cd.getProgress();
 			builder.field("progress", credProgress);
@@ -209,6 +212,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			if (date != null) {
 				builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
+			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getIdData().getId(), userId);
+			boolean assessorNotified = false;
+			boolean assessed = false;
+			if (instructorAssessment != null) {
+				assessorNotified = instructorAssessment.isAssessorNotified();
+				assessed = instructorAssessment.isAssessed();
+			}
+			builder.field("assessorNotified", assessorNotified);
+			builder.field("assessed", assessed);
 
 			builder.endObject();
 		}
@@ -242,7 +254,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.startArray("credentialsWithInstructorRole");
 		for (CredentialData cd : instructorCreds) {
 			builder.startObject();
-			builder.field("id", cd.getId());
+			builder.field("id", cd.getIdData().getId());
 			Date date = cd.getDate();
 			if (date != null) {
 				builder.field("dateAssigned", ElasticsearchUtil.getDateStringRepresentation(date));
@@ -259,6 +271,17 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		for (User follower : followers) {
 			builder.startObject();
 			builder.field("id", follower.getId());
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addFollowees(XContentBuilder builder, long userId) throws IOException {
+		builder.startArray("following");
+		List<User> followees = followResourceManager.getFollowingUsers(userId);
+		for (User followee : followees) {
+			builder.startObject();
+			builder.field("id", followee.getId());
 			builder.endObject();
 		}
 		builder.endArray();
@@ -282,9 +305,9 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.endArray();
 	}
 
-	private void addGroups(XContentBuilder builder, long userId) throws IOException {
+	private void addGroups(XContentBuilder builder, long userId, Session session) throws IOException {
 		builder.startArray("groups");
-		List<Long> groups = userGroupManager.getUserGroupIds(userId, false);
+		List<Long> groups = userGroupManager.getUserGroupIds(userId, false,session);
 		for (long id : groups) {
 			builder.startObject();
 			builder.field("id", id);
@@ -371,6 +394,21 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 
 	@Override
+	public void updateFollowingUsers(long orgId, long userId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addFollowees(builder, userId);
+			builder.endObject();
+
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
+					userId + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
 	public void updateCompetences(long orgId, long userId, Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
@@ -436,11 +474,11 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 
 	@Override
-	public void updateGroups(long orgId, long userId) {
+	public void updateGroups(long orgId, long userId,Session session) {
 		try {
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
-			addGroups(builder, userId);
+			addGroups(builder, userId,session);
 			builder.endObject();
 
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
@@ -461,6 +499,23 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				delete(user.getId() + "", ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			}
 		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateCredentialAssessmentInfo(long orgId, CredentialAssessment assessment) {
+		try {
+			String script = "ctx._source.credentials.findAll {it.id == credId } " +
+					".each {it.assessed = assessed; it.assessorNotified = assessorNotified;}";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("credId", assessment.getTargetCredential().getCredential().getId());
+			params.put("assessed", assessment.isAssessed());
+			params.put("assessorNotified", assessment.isAssessorNotified());
+			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
+					ESIndexTypes.ORGANIZATION_USER,assessment.getStudent().getId() + "", script, params);
+		} catch(Exception e) {
 			logger.error("Error", e);
 		}
 	}

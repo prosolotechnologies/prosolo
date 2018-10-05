@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{SequenceFile, Text}
 import org.joda.time.DateTime
 import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
-import org.prosolo.bigdata.scala.spark.{ProblemSeverity, SparkContextLoader, SparkJob}
+import org.prosolo.bigdata.scala.spark.SparkJob
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 
@@ -26,6 +26,7 @@ import scala.collection.mutable
 import scala.collection.mutable._
 import com.datastax.spark.connector._
 import com.datastax.driver.core.Row
+import org.slf4j.LoggerFactory
 
 
 
@@ -37,6 +38,7 @@ import com.datastax.driver.core.Row
   */
 @deprecated
 class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters:Int, val numFeatures:Int)  {
+  val logger = LoggerFactory.getLogger(getClass)
   //val sc=SparkContextLoader.getSC
   val featuresQuartiles: mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   val matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
@@ -62,7 +64,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     */
   //def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long):Iterable[Tuple5[Long,String,Long,Long,String]] = {
     def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long) = {
-    println("perform kmeans clustering for:"+courseId)
+    logger.debug("perform kmeans clustering for:"+courseId)
     val clustersDir = "clustersdir/"+courseId
     val vectorsDir = clustersDir + "/users"
     val outputDir: String = clustersDir + "/output"
@@ -106,7 +108,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     /* val rows=sc.cassandraTable(dbName, TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE)
       .select("date","userid","attach","progress","comment","creating","evaluation","join","like","login" ,"posting","content_access","message","search")
       .where("date="+date+" and course="+courseId)
-    println("kmeans-2.1:"+rows.collect().size)
+    logger.debug("kmeans-2.1:"+rows.collect().size)
      rows.collect().toList*/
 
     val rows=profilesDAO.findUserProfileObservationsByDate(date,courseId)
@@ -137,7 +139,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     * @return
     */
   def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[Row]) = {
-    println("TRANSFORM USER FEATURES:"+userid)
+    logger.debug("TRANSFORM USER FEATURES:"+userid)
     val featuresArray: Array[Double] = new Array[Double](numFeatures)
     for (userRow <- userRows) {
       for (i <- 0 to numFeatures - 1) {
@@ -155,7 +157,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     * @param usersFeatures
     */
   def extractFeatureQuartilesValues(usersFeatures: collection.Map[Long, Array[Double]]): Unit = {
-    println("EXTRACT FEATURE:"+usersFeatures.size)
+    logger.debug("EXTRACT FEATURE:"+usersFeatures.size)
     usersFeatures.foreach {
       case (userid: Long, userFeatures: Array[Double]) =>
         for (i <- 0 to (userFeatures.length - 1)) {
@@ -174,7 +176,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     val vectors = new ListBuffer[NamedVector]
     usersFeatures.foreach {
       case (userid: Long, featuresArray: Array[Double]) =>
-        println("ADDING VECTOR FOR USER:"+userid+" features:"+featuresArray.mkString(","))
+        logger.debug("ADDING VECTOR FOR USER:"+userid+" features:"+featuresArray.mkString(","))
         val dv = new DenseVector(featuresArray)
         vectors += (new NamedVector(dv, userid.toString()))
     }
@@ -199,7 +201,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     val clustersIn = new Path(courseClusterConfiguration.output, "random-seeds")
     var success=true;
     RandomSeedGenerator.buildRandom(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, numClusters, measure)
-    println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
+    logger.debug("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
     ////end
     val convergenceDelta = 0.01
     val maxIterations = 50
@@ -210,7 +212,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
         KMeansDriver.run(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, courseClusterConfiguration.output, convergenceDelta, maxIterations, true, clusterClassificationThreshold, true)
       }catch{
         case ise: IllegalStateException=>
-          println("ERROR in KMeansDriver.run:"+ise.getMessage)
+          logger.debug("ERROR in KMeansDriver.run:"+ise.getMessage)
           sparkJob.submitTaskProblem(ise.getMessage,courseClusterConfiguration.courseId,"KMeansClustering",ProblemSeverity.MAJOR)
           success=false;
       }
@@ -239,17 +241,17 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     csvfilewriter.append("\r\n")
     clusterResults.foreach(results=>
     {
-      println(" ")
-      println("CLUSTER:"+results.id)
-      println("FEATURES:"+results.featureValues)
+      logger.debug(" ")
+      logger.debug("CLUSTER:"+results.id)
+      logger.debug("FEATURES:"+results.featureValues)
 
       val line="FEATURE QUARTILES:"+ results.featureValues.map {
         case (fid, triple) => {
           (fid, triple._2)
         }
       }
-      println(line)
-      println("MATCHING LIST:"+results.sortedMatchingList)
+      logger.debug(line)
+      logger.debug("MATCHING LIST:"+results.sortedMatchingList)
       csvfilewriter.append(results.id+",")
       results.featureValues.foreach{
         case(featureKey:Int, featureValue:Tuple2[Double,Int])=>
@@ -267,13 +269,13 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
   }
 
   def storeUserQuartilesFeaturesToClusterFiles(usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])],
-                                               days:IndexedSeq[Long], courseId:Long):Iterable[Tuple5[Long,String,Long,Long,String]] ={
+                                               days:IndexedSeq[Long], courseId:Long):Iterable[(Long, String, Long, Long, String)] ={
     // val csvfilewriter = new PrintWriter(new BufferedWriter(new FileWriter("features_outputs_"+algorithmType.toString+".csv", true)))
     val clusterswriters:HashMap[Int,PrintWriter]=new HashMap[Int,PrintWriter]()
     //val dates=startDateSinceEpoch.toString+"_"+endDateSinceEpoch.toString
     val dates=days(0)+"_"+days(days.length-1)
     val endDateSinceEpoch=days(days.length-1)
-    val usercourseSequences:Iterable[Tuple5[Long,String,Long,Long,String]]=usersQuartilesFeaturesAndClusters.map{
+    val usercourseSequences:Iterable[(Long, String, Long, Long, String)]=usersQuartilesFeaturesAndClusters.map{
       case(userid, valueTuple)=> {
         val clusterId = valueTuple._1
         val clusterProfile = getMatchedClusterProfile(clusterId)
@@ -289,7 +291,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
         val sequence = userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(",")
-        println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
+        logger.debug("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(","))
         (courseId, clusterProfile, endDateSinceEpoch, userid, sequence)
@@ -375,7 +377,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
         if(!matchedElements.contains(matchElem._1)){
           val tempList = elementsToCheck.getOrElse(matchElem._1,new ArrayBuffer[(ClusterResults,Double)]())
           //  val elem=(clusterResult,matchElem._2)
-          tempList +=new Tuple2(clusterResult,matchElem._2)
+          tempList +=Tuple2(clusterResult,matchElem._2)
           elementsToCheck.put(matchElem._1, tempList)
         }
 
@@ -410,13 +412,13 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
           }
       }
     }
-    println("***********************************************************************")
-    println("CLUSTERS ASSOCIATIONS")
+    logger.debug("***********************************************************************")
+    logger.debug("CLUSTERS ASSOCIATIONS")
     matchedElements.foreach{
       case(a,b)=>{
         val line:String="cluster:" +b.id+" matches: "+a+" cluster matching:"+b.sortedMatchingList
         matchedClusterProfiles.put(b.id,a)
-        println(line)
+        logger.debug(line)
       }
     }
   }
@@ -425,7 +427,7 @@ class UsersClustering (val sparkJob:SparkJob, val dbName:String, val numClusters
     val reader = new SequenceFile.Reader(ClusteringUtils.fs, new Path(outputDir + "/" + Cluster.CLUSTERED_POINTS_DIR + "/part-m-0"), ClusteringUtils.conf)
     val key = new org.apache.hadoop.io.IntWritable()
     val value = new WeightedPropertyVectorWritable()
-    val usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])]=new HashMap[Long,Tuple2[Int,Array[Double]]]()
+    val usersQuartilesFeaturesAndClusters: mutable.HashMap[Long, (Int, Array[Double])]=new HashMap[Long,(Int, Array[Double])]()
     while (reader.next(key, value)) {
       val namedVector:NamedVector=value.getVector().asInstanceOf[NamedVector]
 

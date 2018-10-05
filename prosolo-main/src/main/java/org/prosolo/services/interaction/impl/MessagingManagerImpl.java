@@ -1,13 +1,5 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -20,11 +12,10 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.UserDataFactory;
-import org.prosolo.services.event.EventException;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
@@ -35,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.interaction.MessagingManager")
 public class MessagingManagerImpl extends AbstractManagerImpl implements MessagingManager {
@@ -47,6 +41,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	private EventFactory eventFactory;
 	@Autowired
 	private UserManager userManager;
+	@Autowired
+	private MessagingManager self;
 
 	@Transactional
 	public Message sendMessage(long senderId, long receiverId, String msg) throws DbConnectionException {
@@ -78,6 +74,73 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 			return message;
 
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DbConnectionException("Error while sending the message");
+		}
+	}
+
+	@Override
+	public Message sendMessageParticipantsSet(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
+		Result<Message> result = self.sendMessageParticipantsSetAndGetEvents(senderId, receiverId, msg, contextData);
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<Message> sendMessageParticipantsSetAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
+		try {
+			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
+
+			if (messagesThread == null) {
+				List<Long> participantsIds = new ArrayList<Long>();
+				participantsIds.add(receiverId);
+				participantsIds.add(senderId);
+				messagesThread = createNewMessagesThread(senderId, participantsIds, msg);
+			} else {
+				//check if thread was deleted by sender
+				ThreadParticipant participant = messagesThread.getParticipant(senderId);
+				if (participant.isDeleted()) {
+					participant.setDeleted(false);
+					persistence.merge(participant);
+				}
+			}
+
+			Message message = sendSimpleOfflineMessage(senderId, receiverId, msg, messagesThread.getId(), null);
+
+			messagesThread.addMessage(message);
+			messagesThread.setLastUpdated(new Date());
+			saveEntity(messagesThread);
+
+			Result<Message> result = new Result<>();
+
+			MessagesThreadData messagesThreadData = new MessagesThreadData(messagesThread, senderId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
+
+			result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+					contextData, message.getMessageThread(), null, null, parameters));
+
+			Map<String, String> parameters1 = new HashMap<String, String>();
+
+			parameters1.put("context", contextData.getContext().getLearningContext());
+			parameters1.put("users", messagesThreadData.getParticipants().stream().map(u ->
+					String.valueOf(u.getId())).collect(Collectors.joining(",")));
+			parameters1.put("user", String.valueOf(messagesThreadData.getParticipants().get(0).getId()));
+			parameters1.put("message", String.valueOf(message.getId()));
+
+			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+					message, null, null, parameters1));
+
+			result.setResult(message);
+
+			message.setMessageThread(messagesThread);
+			saveEntity(message);
+
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DbConnectionException("Error while sending the message");
@@ -123,12 +186,32 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 
 	@Override
-	public Message sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context)
+	public void sendMessages(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
 			throws ResourceCouldNotBeLoadedException {
-		Message message = createMessages(senderId, receivers, text, threadId, context);
-		return message;
+
+		Result<Void> result = self.sendMessagesAndGetEvents(senderId, receivers, text, threadId, context, contextData);
+		eventFactory.generateEvents(result.getEventQueue());
 	}
 
+	@Override
+	public Result<Void> sendMessagesAndGetEvents(long senderId, List<UserData> receivers, String text, Long threadId, String context, UserContextData contextData)
+			throws ResourceCouldNotBeLoadedException {
+
+		Message message = createMessages(senderId, receivers, text, threadId, context);
+		Result<Void> result = new Result<>();
+		Map<String, String> parameters = new HashMap<String, String>();
+
+		parameters.put("context", contextData.getContext().getLearningContext());
+		parameters.put("users", receivers.stream().map(u ->
+				String.valueOf(u.getId())).collect(Collectors.joining(",")));
+		parameters.put("user", String.valueOf(receivers.get(0).getId()));
+		parameters.put("message", String.valueOf(message.getId()));
+
+		result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+				message, null, null, parameters));
+
+		return result;
+	}
 
 
 	//Sending null for thread id does not mean that it doesn't exist, only that we don't know if it exists
@@ -216,12 +299,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread.setSubject(subject);
 		messagesThread = saveEntity(messagesThread);
 
-		try {
-			eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
-					null, null, null);
-		} catch (EventException e) {
-			logger.error(e);
-		}
+		eventFactory.generateEvent(EventType.START_MESSAGE_THREAD, UserContextData.ofActor(creatorId), messagesThread,
+				null, null, null);
 		return messagesThread;
 	}
 
@@ -305,8 +384,21 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public MessageThread getLatestMessageThread(long userId, boolean archived) {
+	public MessageThread getLatestMessageThread(long userId, boolean archived, UserContextData context) {
+		Result<MessageThread> result = self.getLatestMessageThreadAndGetEvents(userId, archived, context);
+
+		if(result != null) {
+			eventFactory.generateEvents(result.getEventQueue());
+			return result.getResult();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<MessageThread> getLatestMessageThreadAndGetEvents(long userId, boolean archived, UserContextData context)
+			throws DbConnectionException {
 		String query =
 				"SELECT DISTINCT thread " +
 						"FROM MessageThread thread " +
@@ -322,10 +414,77 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				.setBoolean("archived", archived)
 				.setMaxResults(1).list();
 
+		Result<MessageThread> res = new Result<>();
+
 		if (!result.isEmpty()) {
-			return result.iterator().next();
+			MessageThread messageThread = result.iterator().next();
+			MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread, userId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
+
+			res.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+					context, messageThread, null, null, parameters));
+
+			res.setResult(messageThread);
+			return res;
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	public String sendMessageDialog(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
+		Result<String> result = self.sendMessageDialogAndGetEvents(senderId, receiverId, msg, contextData);
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<String> sendMessageDialogAndGetEvents(long senderId, long receiverId, String msg, UserContextData contextData)
+			throws DbConnectionException {
+		try {
+			MessageThread messagesThread = findMessagesThreadForUsers(Arrays.asList(senderId, receiverId));
+
+			if (messagesThread == null) {
+				List<Long> participantsIds = new ArrayList<Long>();
+				participantsIds.add(receiverId);
+				participantsIds.add(senderId);
+				messagesThread = createNewMessagesThread(senderId, participantsIds, msg);
+			} else {
+				//check if thread was deleted by sender
+				ThreadParticipant participant = messagesThread.getParticipant(senderId);
+				if (participant.isDeleted()) {
+					participant.setDeleted(false);
+					persistence.merge(participant);
+				}
+			}
+
+			Message message = sendSimpleOfflineMessage(senderId, receiverId, msg, messagesThread.getId(), null);
+
+			messagesThread.addMessage(message);
+			messagesThread.setLastUpdated(new Date());
+			saveEntity(messagesThread);
+
+			message.setMessageThread(messagesThread);
+			saveEntity(message);
+
+			Result<String> result = new Result<>();
+			Map<String, String> parameters = new HashMap<String, String>();
+			parameters.put("user", String.valueOf(receiverId));
+			parameters.put("message", String.valueOf(message.getId()));
+
+			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
+					message, null,null, parameters));
+
+			result.setResult(message.getContent());
+
+			return result;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DbConnectionException("Error while sending the message");
 		}
 	}
 
@@ -422,7 +581,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		}
 		return true;
 	}
-
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
@@ -529,6 +687,35 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			return null;
 		}
 
+	}
+
+	@Override
+	public MessageThread getAndMarkMessageThreadAsRead(long id, UserContextData context) {
+		Result<MessageThread> result = self.getAndMarkMessageThreadAsReadAndGetEvents(id, context);
+		eventFactory.generateEvents(result.getEventQueue());
+		return result.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<MessageThread> getAndMarkMessageThreadAsReadAndGetEvents(long id, UserContextData context){
+		try {
+			MessageThread messageThread = get(MessageThread.class, id);
+			Result<MessageThread> result = new Result<>();
+
+			MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread, context.getActorId());
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("threadId", String.valueOf(messagesThreadData.getId()));
+
+			result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
+					context, messageThread, null, null, parameters));
+
+			result.setResult(messageThread);
+
+			return result;
+		} catch (ResourceCouldNotBeLoadedException e){
+			throw new DbConnectionException("Error while loading message thread");
+		}
 	}
 
 	private MessageThread findMessageThread(long threadId) {

@@ -9,16 +9,18 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -50,17 +52,18 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	@Inject private LoggingService loggingService;
 	@Inject private UnitManager unitManager;
 	@Inject private RoleManager roleManager;
+	@Inject private OrganizationManager orgManager;
 
 	private List<CredentialData> credentials;
 	
 	//search
 	private String searchTerm = "";
 	private CredentialSearchFilterUser searchFilter = CredentialSearchFilterUser.ALL;
-	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
+	private CredentialCategoryData filterCategory;
 	private PaginationData paginationData = new PaginationData();
 	
-	private LearningResourceSortOption[] sortOptions;
 	private CredentialSearchFilterUser[] searchFilters;
+	private List<CredentialCategoryData> filterCategories;
 
 	private String context = "name:library";
 
@@ -68,17 +71,24 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	private List<Long> unitIds = new ArrayList<>();
 
 	public void init() {
-		sortOptions = LearningResourceSortOption.values();
 		searchFilters = CredentialSearchFilterUser.values();
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
 			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), userRoleId);
 
+			initCategoryFilters();
 			searchCredentials(false);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Error while loading the page");
 		}
+	}
+
+	private void initCategoryFilters() {
+		filterCategories = orgManager.getUsedOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
+		//add 'All' category and define it as default (initially selected)
+		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategories.add(0, filterCategory);
 	}
 
 	public void searchCredentials(boolean userSearch) {
@@ -111,7 +121,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
 				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(),
-				unitIds, searchFilter, sortOption);
+				unitIds, searchFilter, filterCategory.getId());
 				
 		paginationData.update((int) response.getHitsNumber());
 		credentials = response.getFoundNodes();
@@ -122,10 +132,10 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 		paginationData.setPage(1);
 		searchCredentials(true);
 	}
-	
-	public void applySortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
-		paginationData.setPage(1);
+
+	public void applyCategoryFilter(CredentialCategoryData filter) {
+		this.filterCategory = filter;
+		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
@@ -142,12 +152,13 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	 */
 	public void enrollInCredential(CredentialData cred) {
 		try {
-			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserContext());
+			credentialManager.enrollInCredential(cred.getIdData().getId(), loggedUserBean.getUserContext());
 
-			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
+			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getIdData().getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a credential");
+			PageUtil.fireErrorMessage("Error while enrolling a " +
+					ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
 
@@ -163,14 +174,6 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public LearningResourceSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
 	@Override
 	public PaginationData getPaginationData() {
 		return paginationData;
@@ -182,14 +185,6 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	public List<CredentialData> getCredentials() {
 		return credentials;
-	}
-
-	public LearningResourceSortOption[] getSortOptions() {
-		return sortOptions;
-	}
-
-	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
 	}
 
 	public CredentialSearchFilterUser getSearchFilter() {
@@ -207,5 +202,12 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void setSearchFilters(CredentialSearchFilterUser[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
-	
+
+	public CredentialCategoryData getFilterCategory() {
+		return filterCategory;
+	}
+
+	public List<CredentialCategoryData> getFilterCategories() {
+		return filterCategories;
+	}
 }

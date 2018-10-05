@@ -9,11 +9,8 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for creating the new Event @Event (actually its subclasses). After the
@@ -30,8 +27,8 @@ public class EventFactory {
 
 	private ChangeProgressEvent generateChangeProgressEvent(UserContextData context, BaseEntity resource,
 															int newProgress, Class<? extends EventObserver>[] observersToExclude,
-															Map<String, String> parameters) throws EventException {
-		
+															Map<String, String> parameters) {
+
 		if (context.getActorId() > 0 && resource != null ) {
 			logger.debug("Generating ChangeProgressEvent because progress of "
 					+ newProgress + " (on the scale "
@@ -46,13 +43,14 @@ public class EventFactory {
 			parameters.put("progress", String.valueOf(newProgress));
 			populateEvent(changeProgressEvent, context, resource, null, observersToExclude, parameters);
 			return changeProgressEvent;
-		} else
-			throw new EventException(
-					"Error occured while creating new ChangeProgressEvent. Parameters given can not be null.");
+		} else {
+			logger.error("Event not generated because event actor or object is not passed: " +
+					"actor id: " + context.getActorId() + "; object id: " + (resource != null ? resource.getId() : "NULL"));
+			return null;
+		}
 	}
 
-	@Transactional(readOnly = false)
-	public Event generateEvent(EventData event) throws EventException {
+	private Event generateEvent(EventData event) {
 		if(event.getEventType() == EventType.ChangeProgress) {
 			return generateChangeProgressEvent(event.getContext(), event.getObject(), event.getProgress(),
 					event.getObserversToExclude(), event.getParameters());
@@ -61,10 +59,9 @@ public class EventFactory {
 				event.getObserversToExclude(), event.getParameters());
 	}
 
-	@Transactional
 	public Event generateEvent(EventType eventType, UserContextData context, BaseEntity object,
 							   BaseEntity target, Class<? extends EventObserver>[] observersToExclude,
-							   Map<String, String> parameters) throws EventException {
+							   Map<String, String> parameters) {
 		logger.debug("Generating "+eventType.name()+" " +
 				"event " + (object != null ? " object: "+object.getId() : "") +
 				(target != null ? ", target: "+target.getId() : "") +
@@ -73,6 +70,33 @@ public class EventFactory {
 		Event genericEvent = new Event(eventType);
 		populateEvent(genericEvent, context, object, target, observersToExclude, parameters);
 		return genericEvent;
+	}
+
+	/**
+	 * NOTE: Events are processed sequentially by individual consumer/observer in order they are added
+	 * to event queue {@code eventQueue}.
+	 *
+	 * @param eventQueue
+	 * @return
+	 */
+	public List<Event> generateEvents(EventQueue eventQueue) {
+		return generateEvents(eventQueue, null);
+	}
+
+	public List<Event> generateEvents(EventQueue eventQueue, Class<? extends EventObserver>[] observersToExclude) {
+		List<Event> eventList = new LinkedList<>();
+		for (EventData ev : eventQueue.getEvents()) {
+			//set observers to exclude, but only if not already set
+			if (observersToExclude != null && ev.getObserversToExclude() == null) {
+				ev.setObserversToExclude(observersToExclude);
+			}
+			Event event = generateEvent(ev);
+			if (event != null) {
+				eventList.add(event);
+			}
+		}
+
+		return eventList;
 	}
 
 	private void populateEvent(Event genericEvent, UserContextData context, BaseEntity object,

@@ -79,9 +79,12 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			ToolProxyRegistrationMessage msg = validateRequest();
 			logger.info("LTI registration request valid");
 			TCProfile tcProfile = getTCProfile(msg.getTcProfileURL());
+			logger.info("LTI TC Profile");
 			ToolProxy tp = registerToolProxy(tcProfile, msg);
+			logger.info("LTI Register Tool Proxy");
 			consumerManager.registerLTIConsumer(msg.getId(), tp.getToolProxyGuid(), 
 					tp.getSecurityContract().getSharedSecret(), tcProfile.getCapabilities(), tcProfile.getServices());
+			logger.info("LTI Register LTI Consumer");
 			redirectUser(tp.getToolProxyGuid());
 		} catch (Exception e) {
 			logger.error(e);
@@ -247,7 +250,8 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			LtiMessageBuilder msgE = LtiMessageBuilderFactory.createMessageExtractor();
 			ToolProxyRegistrationMessage msg = (ToolProxyRegistrationMessage) msgE.getLtiMessage();
 			return msg;
-		}catch(Exception e){
+		}catch(Exception e) {
+			logger.error("Error", e);
 			throw new Exception("Required parameters missing or not valid");
 		}
 	}
@@ -259,6 +263,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			String authorizationHeader = oAuthService.bodySignMessage(msg, key, password, url);
 			return sendToolProxyRegistrationRequest(url, msg, authorizationHeader);
 		} catch (Exception e) {
+			logger.error("Error", e);
 			throw new Exception("Tool Proxy Registration Failed!");
 		}
 	}
@@ -298,7 +303,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			}
 
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 			throw new Exception("Error while trying to register Tool Proxy");
 		} finally {
 			try {

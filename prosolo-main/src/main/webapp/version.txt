@@ -1,13 +1,9 @@
-Current date:2017/11/05-17:51:29
-Source branch:develop
+Current date:2018/07/08-08:58:51
+Source branch:1.2.0
+Project version:1
 Git version:
-commit 19462bdba2c760534435d27afe9386fcd6492d4f
-Merge: 4723a2ed 7f678b3f
-Author: Stefan Vuckovic <stefan.vuckovic10@gmail.com>
-Date:   Sun Nov 5 16:45:34 2017 +0000
+commit bd2171fb1f01ea9cbb0676df3f1f66786efda5e1
+Author: Nikola Milikic <nikola.milikic@gmail.com>
+Date:   Sun Jul 8 17:56:34 2018 +0200
 
-    Merged in PRS-2892-manager-gets-access-denied-when (pull request #227)
-    
-    Implement redirection logic for application root based on capabilities
-    
-    Approved-by: Nikola Milikic <nikola.milikic@gmail.com>
+    When creating evidence, tab for selecting Text type of evidence is hidden. Already created text evidence can still be edited. PRS-3211

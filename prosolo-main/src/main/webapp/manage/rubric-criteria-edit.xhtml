@@ -12,14 +12,27 @@
             <div class="col-md-12">
                 <h:panelGroup layout="block" rendered="#{rubricCriteriaBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
                     Since the #{msg['label.rubric'].toLowerCase()} is being used in at least one activity, some changes can't be performed.
-                    These include changing the percentage weights, adding or removing criteria and levels, changing the 'ready' status for the #{msg['label.rubric'].toLowerCase()}.
+                    These include changing the #{msg['label.rubric'].toLowerCase()} type, percentage weights, adding or removing criteria and levels, changing the 'ready' status for the #{msg['label.rubric'].toLowerCase()}.
                 </h:panelGroup>
                 <h:form id="formMain">
                     <p:focus />
                     <p:growl id="growlMain" globalOnly="true" showDetail="true" />
 
                     <div class="whiteBox">
-                        <div class="row rubricsTop">
+                        <div class="row rubricsSelect">
+                            <div class="col-md-12">
+                                <h2>Rubric Type</h2>
+                                <h:selectOneMenu disabled="#{rubricCriteriaBean.limitedEdit}" styleClass="selectpicker bottom20" value="#{rubricCriteriaBean.rubric.rubricType}">
+                                    <f:ajax event="change" execute="@this"
+                                            render="panelCriteriaLevels panelPreview" />
+                                    <f:selectItems value="#{rubricCriteriaBean.rubricTypes}" var="type" itemValue="#{type.rubricType}" itemLabel="#{type.label}"/>
+                                </h:selectOneMenu>
+                                <script>
+                                    $('.selectpicker').selectpicker('refresh');
+                                </script>
+                            </div>
+                        </div>
+                        <h:panelGroup layout="block" id="panelCriteriaLevels" styleClass="row rubricsTop">
                             <div class="col-md-6 rubricsCategories">
                                 <h2>Criteria</h2>
                                 <p>Specify grading criteria. A criterion score should be given as a percentage (that will be applied to the total number of points of an activity the #{msg['label.rubric'].toLowerCase()} is used for).</p>
@@ -37,7 +50,7 @@
                                                              value="#{c.name}"
                                                              required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
                                                              requiredMessage="Criterion name is required" />
-                                                <h:inputText disabled="#{rubricCriteriaBean.limitedEdit}" id="inputCriterionPoints"
+                                                <h:inputText rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT' or rubricCriteriaBean.rubric.rubricType eq 'POINT_RANGE'}" disabled="#{rubricCriteriaBean.limitedEdit}" id="inputCriterionPoints"
                                                              type="number"
                                                              autocomplete="off"
                                                              pt:data-percent="true"
@@ -51,7 +64,7 @@
                                                     <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
                                                     <f:attribute name="minValue" value="0.01" />
                                                 </h:inputText>
-                                                <div class="percentage">%</div>
+                                                <h:panelGroup layout="block" rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT' or rubricCriteriaBean.rubric.rubricType eq 'POINT_RANGE'}" styleClass="percentage">%</h:panelGroup>
                                                 <div class="editOptions">
                                                     <ui:fragment rendered="#{rubricCriteriaBean.isLastCriterion(status.index)}">
                                                         <a href="javascript:void(0);" class="moveDown" disabled="disabled">down</a>
@@ -96,10 +109,13 @@
                                         </div>
                                     </ui:repeat>
 
-                                    <h:inputHidden id="inputHiddenCriterionPoints" value="0" validator="percentSumValidator">
-                                        <f:attribute name="msg" value="Sum of criteria points must be 100" />
-                                    </h:inputHidden>
-                                    <small class="redText"><h:message for="inputHiddenCriterionPoints"/></small>
+                                    <ui:fragment rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT' or rubricCriteriaBean.rubric.rubricType eq 'POINT_RANGE'}">
+                                        <h:inputHidden id="inputHiddenCriterionPoints" value="0" validator="percentSumValidator">
+                                            <f:attribute name="msg" value="Sum of criteria points must be 100" />
+                                        </h:inputHidden>
+                                        <small class="redText"><h:message for="inputHiddenCriterionPoints"/></small>
+                                    </ui:fragment>
+
                                     <ui:fragment rendered="#{not empty facesContext.getMessageList('formMain:inputHiddenCriterionPoints') and not empty facesContext.getMessageList('formMain:inputHiddenCriteriaEmpty')}">
                                         <br/>
                                     </ui:fragment>
@@ -121,11 +137,12 @@
                             <div class="col-md-6 rubricsLevels">
                                 <h2>Levels</h2>
                                 <p>Specify criteria levels. Each criterion will have all levels specified. A level score should be given as a percentage (that will be applied to a criterion score).</p>
-                                <h:panelGroup layout="block" id="panelLevels" styleClass="rubricsLevelsList">
+                                <h:panelGroup layout="block" id="panelLevels" styleClass="rubricsLevelsList rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
                                     <h:inputHidden id="inputHiddenLevelUniqueName" validator="uniqueNameValidator" />
                                     <ui:repeat id="levelList" value="#{rubricCriteriaBean.rubric.levels}" var="l" varStatus="status">
                                         <div class="listItemWrapper">
-                                            <div class="listItem">
+                                            <div class="listItem rubricItem0#{status.index+1}">
+                                                <span class="rubricColor"></span>
                                                 <h:inputText id="inputLevelName"
                                                              autocomplete="off"
                                                              pt:data-unique-name="true"
@@ -134,7 +151,7 @@
                                                              placeholder="Level Name" value="#{l.name}"
                                                              required="#{not empty param['formMain:btnSaveRubricDoValidate']}"
                                                              requiredMessage="Level name is required"/>
-                                                <h:inputText id="inputLevelPoints" type="number"
+                                                <h:inputText rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT'}" id="inputLevelPoints" type="number"
                                                              autocomplete="off"
                                                              disabled="#{rubricCriteriaBean.limitedEdit}"
                                                              pt:data-field="weight"
@@ -149,7 +166,7 @@
                                                     <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
                                                     <f:attribute name="minValue" value="0" />
                                                 </h:inputText>
-                                                <div class="percentage">%</div>
+                                                <h:panelGroup layout="block" rendered="#{rubricCriteriaBean.rubric.rubricType eq 'POINT'}" styleClass="percentage">%</h:panelGroup>
                                                 <div class="editOptions">
                                                     <ui:fragment rendered="#{rubricCriteriaBean.isLastLevel(status.index)}">
                                                         <a href="javascript:void(0);" class="moveDown" disabled="disabled">down</a>
@@ -179,7 +196,7 @@
                                                             rendered="#{not rubricCriteriaBean.limitedEdit}"
                                                             value="Remove"
                                                             action="#{rubricCriteriaBean.removeLevel(status.index)}"
-                                                            update=":formMain:panelLevels :formMain:panelPreview"
+                                                            update=":formMain:panelLevels :formMain:panelPreview :formMain:newLevelBtn"
                                                             styleClass="removeX"
                                                             pt:data-toggle="tooltip" title="" data-original-title="Remove">
                                                         remove
@@ -199,26 +216,26 @@
                                     <small class="redText"><h:message for="inputHiddenLevelsEmpty"/></small>
                                     <script>linkLevelLabels();</script>
                                 </h:panelGroup>
-                                <div class="addButtonWrapper">
+                                <h:panelGroup layout="block" id="newLevelBtn" class="addButtonWrapper">
                                     <p:commandLink
-                                            rendered="#{not rubricCriteriaBean.limitedEdit}"
+                                            rendered="#{(not rubricCriteriaBean.limitedEdit) and (rubricCriteriaBean.rubric.levels.size() lt rubricCriteriaBean.maxNumberOfLevels)}"
                                             action="#{rubricCriteriaBean.addEmptyLevel()}"
-                                            update=":formMain:panelLevels :formMain:panelPreview">
+                                            update=":formMain:panelLevels :formMain:panelPreview :formMain:newLevelBtn">
                                         Add Level
                                     </p:commandLink>
-                                </div>
+                                </h:panelGroup>
                             </div>
-                        </div>
+                        </h:panelGroup>
 
                         <h:panelGroup layout="block" id="panelPreview" styleClass="rubricsPreview">
                             <h2>Rubrics Preview</h2>
                             <ui:repeat value="#{rubricCriteriaBean.rubric.criteria}" var="cat">
                                 <h3 data-criterion-order="#{cat.order}"></h3>
                                 <script>copyCriterionNameAndWeight(#{cat.order});</script>
-                                <table class="rubricsTable">
-                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl">
-                                        <tr>
-                                            <td class="col01" data-level-order="#{lvl.order}"></td>
+                                <table class="rubricsTable rubricColors has#{rubricCriteriaBean.rubric.levels.size()}Colors">
+                                    <ui:repeat value="#{rubricCriteriaBean.rubric.levels}" var="lvl" varStatus="status">
+                                        <tr class="rubricItem0#{status.index+1}">
+                                            <td class="col01" data-level-order="#{lvl.order}"><span class="rubricColor"></span><span class="name"></span></td>
                                             <script>copyLevelName(#{lvl.order});</script>
                                             <td class="col02" data-level-order="#{lvl.order}"></td>
                                             <script>copyLevelWeight(#{lvl.order});</script>
@@ -230,7 +247,7 @@
 
                             <div class="checkbox checkLine bottom30">
                                 <h:selectBooleanCheckbox id="checkReady" value="#{rubricCriteriaBean.rubric.readyToUse}" disabled="#{rubricCriteriaBean.limitedEdit}"/>
-                                <h:outputLabel for="checkReady">Ready to use (the #{msg['label.rubric'].toLowerCase()} can be used for grading an activity)</h:outputLabel>
+                                <h:outputLabel for="checkReady">Ready to use (the #{msg['label.rubric'].toLowerCase()} can be used for grading)</h:outputLabel>
                             </div>
 
                             <p:commandLink id="btnSaveRubricDoValidate"

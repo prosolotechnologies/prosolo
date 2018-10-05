@@ -17,7 +17,7 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -68,48 +68,53 @@ public class ESAdministrationImpl implements ESAdministration {
 
 	@Override
 	public void createIndex(String indexName) throws IndexingServiceNotAvailable {
-		Client client = ElasticSearchFactory.getClient();
+		try {
+			Client client = ElasticSearchFactory.getClient();
 
-		boolean exists = client.admin().indices().prepareExists(indexName)
-				.execute().actionGet().isExists();
+			boolean exists = client.admin().indices().prepareExists(indexName)
+                    .execute().actionGet().isExists();
 
-		if (!exists) {
-			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
-			Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
-					.loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"))
-					.put("http.enabled", "false")
-					.put("cluster.name", elasticSearchConfig.clusterName)
-					.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
-					.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+			if (!exists) {
+				ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
+				Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
+						.loadFromStream("index-analysis-settings.json", Streams.class.getResourceAsStream("/org/prosolo/services/indexing/index-analysis-settings.json"))
+						.put("http.enabled", "false")
+						.put("cluster.name", elasticSearchConfig.clusterName)
+						.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
+						.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
 
-			client.admin()
-					.indices()
-					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
-							//)
-					).actionGet();
-			logger.debug("Running Cluster Health");
-			ClusterHealthResponse clusterHealth = client.admin().cluster()
-					.health(clusterHealthRequest().waitForGreenStatus())
-					.actionGet();
+				client.admin()
+						.indices()
+						.create(createIndexRequest(indexName).settings(elasticsearchSettings))
+						.actionGet();
 
-			logger.debug("Done Cluster Health, status " + clusterHealth.getStatus());
+				logger.debug("Running Cluster Health");
 
-			if (indexName.startsWith(ESIndexNames.INDEX_NODES)) {
-				this.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
-				this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
-			} else if (indexName.startsWith(ESIndexNames.INDEX_USERS)) {
-				if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-					//it means that index name does not have organization suffix so it is system level user index
-					this.addMapping(client, indexName, ESIndexTypes.USER);
-				} else {
-					//index has organization suffix so it is organization user index
-					this.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+				ClusterHealthResponse clusterHealth = client.admin().cluster()
+						.health(clusterHealthRequest().waitForGreenStatus())
+						.actionGet();
+
+				logger.debug("Done Cluster Health, status " + clusterHealth.getStatus());
+
+				if (indexName.startsWith(ESIndexNames.INDEX_NODES)) {
+					this.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
+					this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
+				} else if (indexName.startsWith(ESIndexNames.INDEX_USERS)) {
+					if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+						//it means that index name does not have organization suffix so it is system level user index
+						this.addMapping(client, indexName, ESIndexTypes.USER);
+					} else {
+						//index has organization suffix so it is organization user index
+						this.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+					}
+				} else if(indexName.startsWith(ESIndexNames.INDEX_USER_GROUP)) {
+					this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
+				} else if(indexName.startsWith(ESIndexNames.INDEX_RUBRIC_NAME)) {
+					this.addMapping(client, indexName, ESIndexTypes.RUBRIC);
 				}
-			} else if(indexName.startsWith(ESIndexNames.INDEX_USER_GROUP)) {
-				this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
-			} else if(indexName.startsWith(ESIndexNames.INDEX_RUBRIC_NAME)) {
-				this.addMapping(client, indexName, ESIndexTypes.RUBRIC);
-			}
+            }
+		} catch (NoNodeAvailableException e) {
+			throw new IndexingServiceNotAvailable("Elasticsearc server is not available");
 		}
 	}
 

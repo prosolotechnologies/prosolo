@@ -8,9 +8,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
-import org.prosolo.services.event.EventException;
+import org.prosolo.search.util.credential.StudentAssignSearchFilter;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
@@ -52,8 +50,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 
 	private String studentSearchTerm;
 	private PaginationData paginationData = new PaginationData(3);
-	private CredentialMembersSearchFilter searchFilter;
-	private CredentialMembersSearchFilter[] searchFilters;
+	private StudentAssignSearchFilter searchFilter;
+	private StudentAssignSearchFilter[] searchFilters;
 	
 	private InstructorData instructorForStudentAssign;
 	private int maxNumberOfStudents;
@@ -92,7 +90,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 	
 	public void prepareStudentAssign(InstructorData id) {
 		selectAll = false;
-		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
+		searchFilter = new StudentAssignSearchFilter(StudentAssignSearchFilter.SearchFilter.All, 0);
 		instructorForStudentAssign = id;
 		maxNumberOfStudents = instructorForStudentAssign.getMaxNumberOfStudents();
 		studentSearchTerm = "";
@@ -135,8 +133,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 		Map<String, Object> additional = result.getAdditionalInfo();
 		
 		if (additional != null) {
-			searchFilters = (CredentialMembersSearchFilter[]) additional.get("filters");
-			searchFilter = (CredentialMembersSearchFilter) additional.get("selectedFilter");
+			searchFilters = (StudentAssignSearchFilter[]) additional.get("filters");
+			searchFilter = (StudentAssignSearchFilter) additional.get("selectedFilter");
 		}
 	}
 	
@@ -243,8 +241,6 @@ public class StudentAssignBean implements Serializable, Paginable {
 			logger.error(e);
 			instructorForStudentAssign.setMaxNumberOfStudentsToOriginalValue();
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 	
@@ -253,7 +249,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 		searchStudents();	
 	}
 	
-	public void applySearchFilter(CredentialMembersSearchFilter filter) {
+	public void applySearchFilter(StudentAssignSearchFilter filter) {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
 		searchStudents();
@@ -316,11 +312,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.studentSearchTerm = studentSearchTerm;
 	}
 
-	public CredentialMembersSearchFilter getSearchFilter() {
+	public StudentAssignSearchFilter getSearchFilter() {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(CredentialMembersSearchFilter searchFilter) {
+	public void setSearchFilter(StudentAssignSearchFilter searchFilter) {
 		this.searchFilter = searchFilter;
 	}
 
@@ -340,11 +336,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.instructorForStudentAssign = instructorForStudentAssign;
 	}
 
-	public CredentialMembersSearchFilter[] getSearchFilters() {
+	public StudentAssignSearchFilter[] getSearchFilters() {
 		return searchFilters;
 	}
 
-	public void setSearchFilters(CredentialMembersSearchFilter[] searchFilters) {
+	public void setSearchFilters(StudentAssignSearchFilter[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
 

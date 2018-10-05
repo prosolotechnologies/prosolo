@@ -3,24 +3,24 @@ package org.prosolo.web.manage.students;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
-import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.AnalyticalServerConfig;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
-import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -59,14 +59,13 @@ public class StudentProfileBean implements Serializable {
 	private Competence1Manager compManager;
 	@Inject
 	private Activity1Manager activityManager;
+	@Inject private LearningEvidenceManager learningEvidenceManager;
 
 	private String id;
 	private long decodedId;
 
 	private StudentData student;
-	private SocialNetworksData socialNetworksData;
-	
-	private UserSocialNetworks userSocialNetworks;
+	private UserSocialNetworksData userSocialNetworksData;
 
 	private List<CredentialProgressData> credentials;
 	private CredentialProgressData selectedCredential;
@@ -121,7 +120,7 @@ public class StudentProfileBean implements Serializable {
 //
 //				student.addInterests(preferredKeywords);
 //			}
-			if (socialNetworksData == null) {
+			if (userSocialNetworksData == null) {
 				initSocialNetworks();
 			}
 		} catch (Exception e) {
@@ -133,10 +132,10 @@ public class StudentProfileBean implements Serializable {
 	private void initCredentials() {
 		try {
 			credentials = new ArrayList<>();
-			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId, false);
+			List<TargetCredentialData> userCredentials = credentialManager.getAllCredentials(decodedId, false);
 			boolean first = true;
 
-			for (TargetCredential1 targetCred : userCredentials) {
+			for (TargetCredentialData targetCred : userCredentials) {
 				CredentialProgressData credProgressData = new CredentialProgressData(targetCred);
 				credentials.add(credProgressData);
 
@@ -162,9 +161,7 @@ public class StudentProfileBean implements Serializable {
 					.getCompetencesForCredential(
 							credProgressData.getCredentialId(),
 							decodedId,
-							false,
-							false,
-							false);
+							CompetenceLoadConfig.builder().create());
 
 			boolean first = true;
 			
@@ -191,24 +188,37 @@ public class StudentProfileBean implements Serializable {
 	public void selectCompetence(CompetenceProgressData cd) {
 		try {
 			if (selectedCredential.getSelectedCompetence() != null) {
-				selectedCredential.getSelectedCompetence().setActivities(null);
+				if (selectedCredential.getSelectedCompetence().getLearningPathType() == LearningPathType.ACTIVITY) {
+					selectedCredential.getSelectedCompetence().setActivities(null);
+				} else {
+					selectedCredential.getSelectedCompetence().setEvidences(null);
+				}
 			}
 
 			selectedCredential.setSelectedCompetence(cd);
 
-			List<ActivityData> activities;
-			if (cd.getId() > 0) {
-				activities = activityManager.getTargetActivitiesData(cd.getId());
+			//depending on a learning path type, load activities or evidence
+			if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+				List<ActivityData> activities;
+				if (cd.getId() > 0) {
+					activities = activityManager.getTargetActivitiesData(cd.getId());
+				} else {
+					activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				}
+
+				List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
+
+				for (ActivityData activityData : activities) {
+					activitiesProgressData.add(new ActivityProgressData(activityData));
+				}
+				cd.setActivities(activitiesProgressData);
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				// load evidence only if student enrolled in a competence, otherwise he could not post evidence
+				if (cd.getId() > 0) {
+					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), false));
+				}
 			}
-			
-			List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
-			
-			for (ActivityData activityData : activities) {
-				activitiesProgressData.add(new ActivityProgressData(activityData));
-			}
-			cd.setActivities(activitiesProgressData);
+
 		} catch (Exception e) {
 			throw new DbConnectionException("Error while loading activities");
 		}
@@ -222,11 +232,9 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public void initSocialNetworks() {
-		if (socialNetworksData == null) {
+		if (userSocialNetworksData == null) {
 			try {
-				userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
-				socialNetworksData = new SocialNetworksDataToPageMapper()
-						.mapDataToPageObject(userSocialNetworks);
+				userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(student.getId());
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}
@@ -284,8 +292,12 @@ public class StudentProfileBean implements Serializable {
 		this.decodedId = decodedId;
 	}
 
-	public SocialNetworksData getSocialNetworksData() {
-		return socialNetworksData;
+	public UserSocialNetworksData getUserSocialNetworksData() {
+		return userSocialNetworksData;
+	}
+
+	public void setUserSocialNetworksData(UserSocialNetworksData userSocialNetworksData) {
+		this.userSocialNetworksData = userSocialNetworksData;
 	}
 
 	public List<CredentialProgressData> getCredentials() {

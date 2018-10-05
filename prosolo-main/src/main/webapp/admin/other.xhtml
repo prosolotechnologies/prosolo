@@ -14,7 +14,7 @@
 	</ui:define>
 
 	<ui:define name="windowTitle">
-		Other
+		Other - ProSolo
 	</ui:define>
 
 	<ui:define name="resourceTitle">
@@ -38,20 +38,11 @@
 						<p:commandLink value="Reindex Content"
 									   pt:role="button"
 									   styleClass="btn btn-green"
-									   action="#{bulkDataAdministration.deleteAndReindexNodes(0)}"	/>
+									   action="#{bulkDataAdministration.deleteAndReindexLearningContent(0)}"	/>
 						<p:commandLink value="Reindex #{msg['label.rubric.plural']}"
 									   pt:role="button"
 									   styleClass="btn btn-green"
 									   action="#{bulkDataAdministration.deleteAndReindexRubrics(0)}"	/>
-
-						<ui:remove>
-							<p:commandLink value="Migrate Demo to 1.1"
-										   pt:role="button"
-										   styleClass="btn btn-green"
-										   onclick=""
-										   action="#{otherSettingsBean.migrateDemoServer()}"
-										   oncomplete="" />
-						</ui:remove>
 						<div class="clear top30"></div>
 					</div>
 				</div>

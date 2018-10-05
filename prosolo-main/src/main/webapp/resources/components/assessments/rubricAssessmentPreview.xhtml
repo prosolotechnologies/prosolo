@@ -1,0 +1,44 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="grade" required="true" type="org.prosolo.services.assessment.data.grading.GradeData" />
+		<composite:attribute name="resourceType" required="true" type="org.prosolo.services.nodes.data.LearningResourceType" />
+		<composite:attribute name="resourceTitle" required="true" />
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right rubricsSidebar" id="cbp-spmenu-s2">
+			<a href="javascript:void(0);" onclick="hidePopupSidebar('#cbp-spmenu-s2')" class="removeX">Close</a>
+			<h:panelGroup id="panelRubricAssessment">
+				<h2>#{cc.attrs.resourceType eq 'ACTIVITY' ? 'Activity' : msg['label.'.concat(cc.attrs.resourceType.name().toLowerCase())]} Assessment</h2>
+				<h3 class="bottom30">#{cc.attrs.resourceTitle}</h3>
+
+				<ui:fragment rendered="#{cc.attrs.grade.gradingMode eq 'MANUAL_RUBRIC'}">
+					<ui:repeat value="#{cc.attrs.grade.rubricCriteria.criteria}" var="c">
+						<h3>#{c.name}</h3>
+						<ul class="levelsList rubricColors has#{c.levels.size()}Colors">
+							<ui:repeat value="#{c.levels}" var="l" varStatus="status">
+								<li class="#{c.levelId eq l.id ? 'checked' : ''} rubricItem0#{status.index+1}">
+									<span class="rubricColor"></span>#{l.name}
+									<h:panelGroup rendered="#{cc.attrs.grade.rubricType eq 'POINT'}" styleClass="points">(#{l.points} #{l.points eq 1 ? 'point' : 'points'})</h:panelGroup>
+									<h:panelGroup rendered="#{not empty l.description}" styleClass="iconInfo" pt:data-toggle="tooltip" pt:title="#{l.description}">info</h:panelGroup>
+								</li>
+							</ui:repeat>
+						</ul>
+						<ui:fragment rendered="#{not empty c.comment}">
+							<p><strong>Comments:</strong> #{c.comment}</p>
+						</ui:fragment>
+					</ui:repeat>
+					<c:if test="#{cc.attrs.grade.pointBasedGrading == true}">
+						<p class="totalPoints"><strong>Total Points: #{cc.attrs.grade.currentGrade != null and cc.attrs.grade.isAssessed() ? cc.attrs.grade.currentGrade : '-'}</strong></p>
+					</c:if>
+				</ui:fragment>
+			</h:panelGroup>
+		</div>
+	</composite:implementation>
+</ui:component>

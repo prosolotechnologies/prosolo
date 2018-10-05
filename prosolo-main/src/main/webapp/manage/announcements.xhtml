@@ -10,6 +10,10 @@
 
 	<utilcomp:messagesBundle var="msg" />
 
+	<ui:define name="windowTitle">
+		Announcements - #{msg['label.delivery']}: #{announcementBeanManager.credentialData.idData.title} - ProSolo
+	</ui:define>
+
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
@@ -18,18 +22,17 @@
 		</f:metadata>
 	</ui:define>
 
-	<ui:define name="windowTitle">
-		#{msg['label.delivery']} - #{announcementBeanManager.credentialData.title} - Announcements
-	</ui:define>
-
 	<ui:define name="resourceTitle">
-		<h1><span>#{msg['label.delivery']}:</span> #{announcementBeanManager.credentialData.title}</h1>
+		<h1>
+			<span>#{msg['label.delivery']} #{announcementBeanManager.credentialData.idData.formattedOrder}:</span>
+			#{announcementBeanManager.credentialData.idData.title}
+		</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
 			credId="#{announcementBeanManager.decodedCredentialId}"
-			credType="#{msg['label.delivery']}"
+			credType="Delivery"
 			canEdit="#{announcementBeanManager.canEdit()}"
 		/>
 	</ui:define>
@@ -67,9 +70,16 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
-				<li><h:link value="#{announcementBeanManager.credentialData.title}"
-							outcome="/manage/create-credential">
+				<li>
+					<ui:fragment rendered="#{loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+					</ui:fragment>
+					<ui:fragment rendered="#{not loggeduser.hasCapability('BASIC.MANAGER.ACCESS')}">
+						<h:link value="#{msg['label.credential.plural']}" outcome="credential-library-instructor"/>
+					</ui:fragment>
+				</li>
+				<li><h:link value="#{announcementBeanManager.credentialData.idData.title}"
+							outcome="/manage/credential">
 					<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 				</h:link></li>
 				<li class="active">Announcements</li>
@@ -99,7 +109,7 @@
 								   disabled="true"
 								   class="btn btn-green"
 								   data-toggle="tooltip"
-								   title="You are not allowed to publish announcements for this credential">
+								   title="You are not allowed to publish announcements for this #{msg['label.credential'].toLowerCase()}">
 									New Announcement
 								</a>
 							</ui:fragment>
@@ -132,8 +142,7 @@
 								<utilcomp:convertTimeOutput
 										millis="#{announcementData.creationTime}"
 										format="MMM DD, YYYY"
-								/>
-								, by</h2>
+								/>, by</h2>
 							<div class="user32">
 								<a href="#">
 									<utilcomp:userAvatar
@@ -178,7 +187,7 @@
 								<div class="assessmentModalMetaLine">
 									<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
 									<div class="assessmentModalMetaRight">
-										<h3>#{announcementBeanManager.credentialData.title}</h3>
+										<h3>#{announcementBeanManager.credentialData.idData.title}</h3>
 									</div>
 								</div>
 							</div>

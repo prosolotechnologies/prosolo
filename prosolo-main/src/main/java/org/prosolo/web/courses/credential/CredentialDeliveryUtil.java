@@ -1,6 +1,6 @@
 package org.prosolo.web.courses.credential;
 
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import java.util.List;
 
@@ -12,14 +12,14 @@ import java.util.List;
 public class CredentialDeliveryUtil {
 
     public static void populateCollectionsBasedOnDeliveryStartAndEnd(List<CredentialData> deliveries,
-                                                                     List<CredentialData> activeDeliveries,
+                                                                     List<CredentialData> ongoingDeliveries,
                                                                      List<CredentialData> pendingDeliveries,
                                                                      List<CredentialData> pastDeliveries) {
         //put each delivery in right collection
         for (CredentialData d : deliveries) {
             switch (d.getDeliveryStatus()) {
                 case ACTIVE:
-                    activeDeliveries.add(d);
+                    ongoingDeliveries.add(d);
                     break;
                 case PENDING:
                     pendingDeliveries.add(d);

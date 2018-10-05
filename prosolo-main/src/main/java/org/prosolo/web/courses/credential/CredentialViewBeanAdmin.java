@@ -7,8 +7,8 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -66,7 +66,7 @@ public class CredentialViewBeanAdmin implements Serializable {
 						unitTitle = td.getUnitTitle();
 
 						credentialData = credentialManager
-								.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+								.getCredentialData(decodedId, true, false, false, true, loggedUser.getUserId(), AccessMode.MANAGER);
 						if (!unitManager.isCredentialConnectedToUnit(decodedId, decodedUnitId, credentialData.getType())) {
 							//if credential is not connected to the unit this page is for show the not found page
 							PageUtil.notFound();

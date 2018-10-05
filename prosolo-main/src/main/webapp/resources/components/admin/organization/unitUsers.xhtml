@@ -72,8 +72,8 @@
 				<li>
 					<h:link outcome="/admin/unit-credentials">
 						#{unitUsersBean.unitTitle}
-						<f:param name="orgId" value="#{param.orgId}" />
-						<f:param name="id" value="#{param.id}" />
+						<f:param name="id" value="#{param.orgId}" />
+						<f:param name="unitId" value="#{param.id}" />
 					</h:link>
 				</li>
 				<li class="active">#{util:capitalizeWord(cc.attrs.resourcePlural)}</li>
@@ -114,7 +114,17 @@
 													<span>#{user.position}</span>
 												</div>
 											</div>
+
 											<div class="assignOpt">
+												<p:commandLink rendered="#{loggeduser.userId != user.id}"
+															   styleClass="loginAs"
+															   pt:data-toggle="modal"
+															   action="#{loggeduser.prepareLoginAsUser(user)}"
+															   update=":#{cc.clientId}:loginAs:formLoginAs:panelLoginAs"
+															   oncomplete="$('#loginAs').modal('show');">
+													Login as...
+												</p:commandLink>
+												
 												<p:commandLink styleClass="removeX" process="@this"
 															   action="#{unitUsersBean.removeUser(user)}"
 															   update=":#{cc.clientId}:formSearchExistingUsers:inputUserSearch :#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain">
@@ -171,6 +181,8 @@
 						  importUsersPanelId="importUsersPanel"
 						  toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination :#{cc.clientId}:growlMain"
 						  learningContext="#{learningContext}"/>
+
+		<user:loginAs id="loginAs" />
 
 		<user:addUsers
 				id="addUsers"

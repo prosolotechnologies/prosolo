@@ -3,8 +3,6 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -42,7 +40,8 @@ public class DeliveryStartBean implements Serializable {
 		try {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserContext()).getId();
-			//TODO it would probably be better to move redirection login to the appropriate beans that know which section to redirect to
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("New " + ResourceBundleUtil.getLabel("delivery").toLowerCase() + " has been created");
+			//TODO it would probably be better to move redirection logic to the appropriate beans that know which section to redirect to
 			//find out which section we are currently in and redirect there
 			PageSection section = PageUtil.getSectionForView();
 			if (section == PageSection.MANAGE) {
@@ -51,8 +50,6 @@ public class DeliveryStartBean implements Serializable {
 				PageUtil.redirect("/admin/organizations/" + PageUtil.getGetParameter("orgId") + "/units/"
 						+ PageUtil.getGetParameter("unitId") + "/credentials");
 			}
-		} catch (EventException ee) {
-			logger.error(ee);
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
 			String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";

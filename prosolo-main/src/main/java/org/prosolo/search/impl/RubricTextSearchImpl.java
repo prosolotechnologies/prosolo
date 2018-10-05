@@ -14,13 +14,12 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.RubricTextSearch;
+import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.nodes.RubricManager;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -49,7 +48,6 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
     }
 
     @Override
-    @Transactional
     public PaginatedResult<RubricData> searchRubrics(long orgId, String searchString,
                                                      int page, int limit) {
 

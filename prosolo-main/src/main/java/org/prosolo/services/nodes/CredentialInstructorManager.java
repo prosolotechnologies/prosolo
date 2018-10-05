@@ -5,8 +5,7 @@ import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 
@@ -29,16 +28,15 @@ public interface CredentialInstructorManager {
 	 * @param formerInstructorUserId
 	 * @param context
 	 * @throws DbConnectionException
-	 * @throws EventException
 	 */
 	void assignStudentToInstructor(long studentId, long instructorId, long credId, long formerInstructorUserId,
-			UserContextData context) throws DbConnectionException, EventException;
+			UserContextData context) throws DbConnectionException;
 
 	Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
 			long formerInstructorUserId, UserContextData context) throws DbConnectionException;
 	
 	void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
-			UserContextData context) throws DbConnectionException, EventException;
+			UserContextData context) throws DbConnectionException;
 	
 	/**
 	 * Assigns students with target credential ids to instructors that currently have lowest 
@@ -67,7 +65,7 @@ public interface CredentialInstructorManager {
 			throws DbConnectionException;
 	
 	void unassignStudentFromInstructor(long userId, long credId, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 	
 	Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, UserContextData context)
     		throws DbConnectionException;
@@ -85,11 +83,10 @@ public interface CredentialInstructorManager {
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
-	 * @throws EventException
 	 */
 	void removeInstructorFromCredential(long instructorId, long credId, 
 			boolean reassignAutomatically, UserContextData context)
-					throws DbConnectionException, EventException;
+					throws DbConnectionException;
 	
 	/**
 	 * Remove instructor from credential and based on {@code reassignAutomatically} parameter, sets all their students
@@ -100,7 +97,6 @@ public interface CredentialInstructorManager {
 	 * @param instructorId
 	 * @param credId
 	 * @param reassignAutomatically
-	 * @param actorId
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
@@ -112,12 +108,11 @@ public interface CredentialInstructorManager {
 			int maxNumberOfStudents, UserContextData context) throws DbConnectionException;
 	
 	void addInstructorToCredential(long credId, long userId, 
-			int maxNumberOfStudents, UserContextData context) throws DbConnectionException,
-				EventException;
+			int maxNumberOfStudents, UserContextData context) throws DbConnectionException;
 	
 	void updateInstructorAndStudentsAssigned(long credId, InstructorData id, 
 			List<Long> studentsToAssign, List<Long> studentsToUnassign, UserContextData context)
-			throws DbConnectionException, EventException;
+			throws DbConnectionException;
 	
 	Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id, 
 			List<Long> studentsToAssign, List<Long> studentsToUnassign, UserContextData context)

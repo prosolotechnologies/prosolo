@@ -2,7 +2,7 @@ package org.prosolo.services.nodes.factory;
 
 import java.util.Date;
 
-import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
+import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.springframework.stereotype.Component;
 
 @Component

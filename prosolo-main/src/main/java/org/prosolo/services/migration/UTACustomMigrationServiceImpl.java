@@ -12,15 +12,14 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.OrganizationData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
@@ -59,28 +58,22 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     @Override
     public void migrateCredentialsFrom06To07 () {
         logger.info("MIGRATION STARTED");
-        List<EventData> events = ServiceLocator.getInstance().getService(UTACustomMigrationService.class)
+        EventQueue events = ServiceLocator.getInstance().getService(UTACustomMigrationService.class)
                .migrateCredentials();
-        for (EventData ev : events) {
-           try {
-               eventFactory.generateEvent(ev);
-           } catch (EventException e) {
-               logger.error(e);
-           }
-        }
+        eventFactory.generateEvents(events);
         logger.info("MIGRATION FINISHED");
     }
 
     @Override
     @Transactional
-    public List<EventData> migrateCredentials() {
+    public EventQueue migrateCredentials() {
         try {
             migrateUsers();
             return migrateData();
         } catch (Exception e) {
             logger.error("Error", e);
         }
-        return new ArrayList<>();
+        return EventQueue.newEventQueue();
     }
 
     private void migrateUsers() {
@@ -97,8 +90,11 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             User userJustinDellinger = userManager.getUser("jdelling@uta.edu");
 
             // Create UTA organization
+            OrganizationData orgData = new OrganizationData();
+            orgData.setTitle("UTA");
+            orgData.setAdmins(Arrays.asList(new UserData(userJustinDellinger)));
             Organization orgUta = ServiceLocator.getInstance().getService(OrganizationManager.class)
-                    .createNewOrganizationAndGetEvents("UTA", Arrays.asList(new UserData(userJustinDellinger)), UserContextData.empty()).getResult();
+                    .createNewOrganizationAndGetEvents(orgData, UserContextData.empty()).getResult();
 
             // Giving Justin Dellinger an admin role in UTA
             Role roleAdmin = roleManager.getRoleByName(SystemRoleNames.ADMIN);
@@ -167,13 +163,13 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
         }
     }
 
-    private List<EventData> migrateData() throws Exception {
+    private EventQueue migrateData() throws Exception {
         logger.info("Migrate data start");
         /*
         collect events related to adding privileges to users to be able to generate those events
         which would fire observers to propagate privileges to deliveries and competences
          */
-        List<EventData> events = new ArrayList<>();
+        EventQueue events = EventQueue.newEventQueue();
 
         //connect credentials to organization and unit
         OrganizationData org = orgManager.getAllOrganizations(0, 1, false).getFoundNodes().get(0);
@@ -187,7 +183,7 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                     .load(Credential1.class, mapping.lastDelivery.id);
             //create original credential from last delivery
             Result<Credential1> originalCredRes = createOriginalCredentialFromDelivery(lastDelivery.getId(), org.getId());
-            events.addAll(originalCredRes.getEvents());
+            events.appendEvents(originalCredRes.getEventQueue());
             Credential1 originalCred = originalCredRes.getResult();
             //connect credential to unit
             unitManager.addCredentialToUnitAndGetEvents(originalCred.getId(), unit.getId(), UserContextData.ofOrganization(org.getId()));
@@ -262,21 +258,21 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
     }
 
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
-        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, true, 0, AccessMode.MANAGER);
+        CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, false,false,true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
         Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
         //propagate edit privileges from last delivery to original credential
-        res.addEvents(copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, res.getResult().getId()));
+        res.appendEvents(copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, res.getResult().getId()));
         persistence.currentManager().flush();
         return res;
     }
 
-    private List<EventData> copyEditPrivilegesFromDeliveryToOriginal(long orgId, long deliveryId, long credId) {
-       List<EventData> events = new ArrayList<>();
+    private EventQueue copyEditPrivilegesFromDeliveryToOriginal(long orgId, long deliveryId, long credId) {
+       EventQueue events = EventQueue.newEventQueue();
        List<ResourceVisibilityMember> editors = userGroupManager.getCredentialVisibilityUsers(deliveryId, UserGroupPrivilege.Edit);
        for (ResourceVisibilityMember editor :editors) {
-           events.addAll(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(editor.getUserId(), credId,
-                   UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId)).getEvents());
+           events.appendEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(editor.getUserId(), credId,
+                   UserGroupPrivilege.Edit, UserContextData.ofOrganization(orgId)).getEventQueue());
        }
        return events;
     }

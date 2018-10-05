@@ -6,6 +6,8 @@ public enum ResourceType {
 	Activity("Activity1"),
 	Comment("Comment1"),
 	CredentialAssessment("CredentialAssessment"),
+	CompetenceAssessment("CompetenceAssessment"),
+	ActivityAssessment("ActivityAssessment"),
 	Credential("Credential1"),
 	PostSocialActivity("PostSocialActivity1"), 
 	Announcement("Announcement"),
@@ -14,7 +16,7 @@ public enum ResourceType {
 
 	private String dbTableName;
 	
-	private ResourceType(String dbTableName) {
+	ResourceType(String dbTableName) {
 		this.dbTableName = dbTableName;
 	}
 	

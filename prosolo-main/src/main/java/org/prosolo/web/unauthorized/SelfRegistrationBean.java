@@ -1,22 +1,20 @@
 package org.prosolo.web.unauthorized;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author Zoran Jeremic 2013-10-24
@@ -96,7 +94,6 @@ public class SelfRegistrationBean {
 		this.email = email;
 	}
 	
-	//@Transactional
 	public void registerUser() {
 		this.bot = false;
 		
@@ -116,33 +113,25 @@ public class SelfRegistrationBean {
 					null,
 					null,
 					null,
-					null);
+					null,
+					false);
 			
 			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e);
-		} catch (EventException e) {
-			logger.error(e);
-		} catch (FileNotFoundException e) {
-			logger.error(e);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}
 		this.registrationSuccess = true;
 	}
 	
 	public User registerUserOpenId(String firstName, String lastName, String email){
-		System.out.println("register user open id:"+email);
+		logger.info("Registering new user via OpenId: " + email);
 		User user = null;
-		
 		try {
-			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
-		} catch (UserAlreadyRegisteredException e) {
-			logger.error(e);
-		} catch (EventException e) {
+			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null, false);
+		} catch (IllegalDataStateException e) {
 			logger.error(e);
 		}
-		return user; 
+		return user;
 	}
 
 	public String getKey() {

@@ -40,6 +40,10 @@ public class Notification1 extends BaseEntity {
 	private ResourceType targetType;
 	private long targetId;
 	private boolean notifyByEmail;
+	private NotificationSection section;
+
+	private boolean anonymizedActor;
+	private NotificationActorRole notificationActorRole = NotificationActorRole.OTHER;
 	
 	public Notification1() {
 		
@@ -144,5 +148,32 @@ public class Notification1 extends BaseEntity {
 	public void setObjectOwner(boolean objectOwner) {
 		this.objectOwner = objectOwner;
 	}
-	
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public NotificationSection getSection() {
+		return section;
+	}
+
+	public void setSection(NotificationSection section) {
+		this.section = section;
+	}
+
+	public boolean isAnonymizedActor() {
+		return anonymizedActor;
+	}
+
+	public void setAnonymizedActor(boolean anonymizedActor) {
+		this.anonymizedActor = anonymizedActor;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public NotificationActorRole getNotificationActorRole() {
+		return notificationActorRole;
+	}
+
+	public void setNotificationActorRole(NotificationActorRole notificationActorRole) {
+		this.notificationActorRole = notificationActorRole;
+	}
 }

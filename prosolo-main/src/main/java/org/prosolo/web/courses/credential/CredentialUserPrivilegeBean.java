@@ -7,13 +7,13 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -57,7 +57,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private String credId;
 	private long credentialId;
 	private long creatorId;
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
 
@@ -156,8 +156,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		 */
 		CredentialType credType = privilege == UserGroupPrivilege.Edit
 				? CredentialType.Original : CredentialType.Delivery;
-		credentialTitle = credManager.getCredentialTitle(credentialId, credType);
-		if (credentialTitle != null) {
+		credentialIdData = credManager.getCredentialIdData(credentialId, credType);
+        if (credentialIdData != null) {
 			if (privilege == UserGroupPrivilege.Edit) {
 							/*
 							we only need credential owner info in case we administer Edit privileges for a credential
@@ -236,8 +236,6 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-		} catch (EventException ee) {
-			logger.error(ee);
 		}
 
 		if (saved) {
@@ -262,8 +260,6 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error changing the owner");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
@@ -335,8 +331,12 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		this.credId = credId;
 	}
 
-	public String getCredentialTitle() {
-		return credentialTitle;
+    public CredentialIdData getCredentialIdData() {
+        return credentialIdData;
+    }
+
+    public String getCredentialTitle() {
+		return credentialIdData.getTitle();
 	}
 
 	public long getCredentialId() {

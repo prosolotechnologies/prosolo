@@ -8,8 +8,10 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences">
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:learningResource="http://java.sun.com/jsf/composite/components/learningResource">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -43,7 +45,7 @@
 		            <li>
 		            	<h:link
 		            		value="#{competenceEditBean.credTitle}"
-		            		outcome="create-credential">
+		            		outcome="credential-create">
 		            		<f:param name="id" value="#{param['credId']}"></f:param>
 		            	</h:link>
 		            </li>
@@ -71,38 +73,46 @@
 	    </div>
 
 	    <div id="#{cc.clientId}">
-		    <script>
-				containerId = '#{cc.clientId}';
-				var isDraft = '#{competenceEditBean.draft}';
+		    <h:panelGroup id="jsPanel">
+				<script>
+					containerId = '#{cc.clientId}';
+					var isDraft = #{competenceEditBean.draft};
 
-				function shouldOpenCanNotPublishModal(){
-					var activityListSize = $('.activityItem').length - 1;
-					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
-
-					 if(activityListSize == 0 &amp;&amp; selectStatus == "PUBLISHED"){
-						var desc = $("#createCompetence\\:formMain\\:description");
-						var title = $("#createCompetence\\:formMain\\:inputTitle");
-						if(desc.val() &amp;&amp; title.val()){
-							return true;
+					function shouldOpenCanNotPublishModal(){
+						var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
+						if (lPath !== 'ACTIVITY') {
+							return false;
 						}
-					}
-					return false;
-				}
+						var activityListSize = $('.activityItem').length - 1;
+						var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-				function shouldOpenPublishModal(){
-					var activityListSize = $('.activityItem').length - 1;
-					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
-
-					 if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
-						var desc = $("#createCompetence\\:formMain\\:description");
-						var title = $("#createCompetence\\:formMain\\:inputTitle");
-						if(desc.val() &amp;&amp; title.val()){
-							return true;
+						 if(activityListSize &lt;= 0 &amp;&amp; selectStatus == "PUBLISHED"){
+							var desc = $("#createCompetence\\:formMain\\:description");
+							var title = $("#createCompetence\\:formMain\\:inputTitle");
+							if(desc.val() &amp;&amp; title.val()){
+								return true;
+							}
 						}
+						return false;
 					}
-					return false;
-				}
-			</script>
+
+					function shouldOpenPublishModal(){
+						console.log("IS DRAFT " + isDraft);
+						var activityListSize = $('.activityItem').length - 1;
+						var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
+
+						if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
+							console.log("PASSED");
+							var desc = $("#createCompetence\\:formMain\\:description");
+							var title = $("#createCompetence\\:formMain\\:inputTitle");
+							if(desc.val() &amp;&amp; title.val()){
+								return true;
+							}
+						}
+						return false;
+					}
+				</script>
+			</h:panelGroup>
 
 			<h:form id="formMain">
 				<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
@@ -117,12 +127,12 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
-			                        <li role="presentation" class="#{param.tab eq 'activities' ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
+			                        <li role="presentation" class="#{param.tab ne 'paths' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
+			                        <li role="presentation" class="#{param.tab eq 'paths' ? 'active' : ''}"><a href="#paths" aria-controls="paths" role="tab" data-toggle="tab" onclick="setQueryParam('tab','paths')">Learning Paths</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'activities' ? 'active in' : '' }" id="info">
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'paths' ? 'active in' : '' }" id="info">
 			                        <div class="whiteBox">
 			                            <h2>#{msg['label.competence']} Info</h2>
 			                            <div class="formWrapper">
@@ -132,9 +142,9 @@
 			                                        <ul class="addedItems">
 			                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
 			                                        		<li>
-			                                        			<h:link value="#{cred.title}"
+			                                        			<h:link value="#{cred.idData.title}"
 			                                        				outcome="credential">
-			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
+			                                        				<f:param name="id" value="#{util:encodeId(cred.idData.id)}" />
 			                                        			</h:link>
 				                                            </li>
 			                                        	</ui:repeat>
@@ -185,38 +195,91 @@
 			                                    </div>
 			                                </div>
 			                                <script>$('.tagsInputCompTag').tagsinput();</script>
-			                                <div class="formLine">
-			                                    <label>Other</label>
-			                                    <div class="formLineRight">
-			                                        <div class="checkbox checkLine">
-														<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
-															id="selectAllowStudentsToAddActivities"
-															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
-														</h:selectBooleanCheckbox>
+			                                <ui:remove>
+												<div class="formLine">
+													<label>Other</label>
+													<div class="formLineRight">
+														<div class="checkbox checkLine">
+															<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
+																id="selectAllowStudentsToAddActivities"
+																value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
+															</h:selectBooleanCheckbox>
 
-														<h:outputLabel for="selectAllowStudentsToAddActivities">
-															Allow students to add activities
-														</h:outputLabel>
+															<h:outputLabel for="selectAllowStudentsToAddActivities">
+																Allow students to add activities
+															</h:outputLabel>
+														</div>
 													</div>
-			                                    </div>
-			                                </div>
+												</div>
+											</ui:remove>
 			                            </div>
 			                        </div>
-			                    </div>
-			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'activities' ? 'active in' : ''}" id="activities">
-			                    <div class="whiteBox activitiesList">
-			                    	<courses:activityList
-			                    		id="activityList"
-			                    		activities="#{competenceEditBean.competenceData.activities}"
-			                    		bean="#{competenceEditBean}"
-			                    		isEdit="true"
-			                    		showMarkedIfCompleted="false"
-			                    		encodedCompetenceId="#{param['id']}"
-			                    		encodedCredentialId="#{param['credId']}"
-			                    		toUpdate=""
-			                    		mainForm=":#{cc.clientId}:formMain"/>
 
+									<!-- assessment -->
+									<div class="whiteBox">
+										<div class="formWrapper">
+											<h2>Assessment</h2>
+											<div class="formLine">
+												<label>Assessment Type</label>
+												<div class="formLineRight">
+													<ui:repeat value="#{competenceEditBean.competenceData.assessmentTypes}" var="at">
+														<div class="checkbox checkLine">
+															<h:selectBooleanCheckbox value="#{at.enabled}" id="checkAssessmentType" disabled="#{at.mandatory}"/>
+															<h:outputLabel for="checkAssessmentType">#{msg['label.assessment.type.'.concat(at.type)]} #{at.mandatory ? '(mandatory)' : ''}</h:outputLabel>
+														</div>
+													</ui:repeat>
+												</div>
+											</div>
+
+											<learningResource:assessmentSettings
+													id="assessmentSettings"
+													bean="#{competenceEditBean}"
+													resource="COMPETENCE"
+													showAcceptGrades="false"
+											/>
+
+										</div>
+										<!--<script>determineVisibilityBasedOnGradingMode();</script>-->
+									</div>
+									<!-- assessment end -->
 			                    </div>
+			                    <div role="tabpanel" class="tab-pane fade #{param.tab eq 'paths' ? 'active in' : ''}" id="paths">
+									<div class="whiteBox pathOptions">
+										<p>Choose which learning path you want students to take in order to master this #{msg['label.competence'].toLowerCase()}</p>
+										<div class="radioGroup">
+											<ui:repeat value="#{competenceEditBean.learningPaths}" var="path">
+												<div class="radio">
+													<input type="radio" jsf:id="pathRadio"
+														   name="#{hiddenPathRadio.clientId}"
+														   value="#{path.learningPathType}" jsf:disabled="#{competenceEditBean.limitedEdit}"
+														   jsf:checked="#{competenceEditBean.competenceData.learningPathType eq path.learningPathType ? true : false}"
+														   onchange="changeLearningPath()"
+													/>
+													<h:outputLabel for="pathRadio">#{path.description}</h:outputLabel>
+												</div>
+											</ui:repeat>
+											<h:inputHidden id="pathChooser" binding="#{hiddenPathRadio}" value="#{competenceEditBean.competenceData.learningPathType}"/>
+										</div>
+										<p:remoteCommand name="changeLearningPath"
+														 process="pathChooser"
+														 update=":#{cc.clientId}:formMain:panelActivities pathChooser"/>
+									</div>
+
+									<h:panelGroup layout="block" id="panelActivities" styleClass="whiteBox activitiesList">
+										<ui:fragment rendered="#{competenceEditBean.competenceData.learningPathType eq 'ACTIVITY'}">
+											<courses:activityList
+												id="activityList"
+												activities="#{competenceEditBean.competenceData.activities}"
+												bean="#{competenceEditBean}"
+												isEdit="true"
+												showMarkedIfCompleted="false"
+												encodedCompetenceId="#{param['id']}"
+												encodedCredentialId="#{param['credId']}"
+												toUpdate=""
+												mainForm=":#{cc.clientId}:formMain"/>
+										</ui:fragment>
+
+									</h:panelGroup>
 			                    </div>
 			                </div>
 			            </div>
@@ -275,7 +338,8 @@
 									styleClass="btn btn-green"
 									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
 									action="#{competenceEditBean.save}"
-									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog">
+									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+								    oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode('COMPETENCE');}">
 										Save changes
 								</p:commandLink>
 								#{cc.attrs.activities}
@@ -297,7 +361,7 @@
 			                    				<p:commandLink
 													styleClass="btn btn-green saveChangesSelector"
 													action="#{competenceEditBean.save}"
-													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog :#{cc.clientId}:jsPanel"
 													oncomplete="hideModal('publishModal');">
 													<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 													<f:param name="service" value="name:publish_resource_dialog"></f:param>
@@ -386,17 +450,17 @@
 		        </div>
 		    </h:form>
 
-			<dialogs:archiveResource
+			<dlg:archiveResource
 	    		id="archiveDialog"
 				archiveActionMethodName="archive"
 				archiveAction="#{competenceEditBean.archive}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-				title="#{msg['label.competence']}"
-				resourceType="#{msg['label.competence'].toLowerCase()}"
-				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
+				resourceType="#{msg['label.competence']}"
+				resourceTypePlural="#{msg['label.competence.plural']}"
+				pageWithArchivedResources="#{msg['label.competence']} Library"
 				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 
-			<dialogs:restoreResource
+			<dlg:restoreResource
 	    		id="restoreDialog"
 				restoreActionMethodName="restore"
 				restoreAction="#{competenceEditBean.restore}"

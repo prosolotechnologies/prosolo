@@ -1,22 +1,19 @@
 package org.prosolo.web.settings;
 
-import java.io.Serializable;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.administration.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import java.io.Serializable;
 
 /**
  * @author "Nikola Milikic"
@@ -36,15 +33,14 @@ public class AccountSettingsBean implements Serializable {
 	@Autowired
 	private UserManager userManager;
 
-	private AccountData accountData;
+	private UserData accountData;
 	private String currentPassword;
-	private UserData userData;
 	@Autowired
 	private AuthenticationService authenticationService;
 
 	@PostConstruct
 	public void initializeAccountData() {
-		accountData = new AccountData();
+		accountData = new UserData();
 
 		// emails
 		String email = loggedUser.getSessionData().getEmail();
@@ -87,7 +83,7 @@ public class AccountSettingsBean implements Serializable {
 	 * GETTERS / SETTERS
 	 */
 
-	public AccountData getAccountData() {
+	public UserData getAccountData() {
 		return accountData;
 	}
 

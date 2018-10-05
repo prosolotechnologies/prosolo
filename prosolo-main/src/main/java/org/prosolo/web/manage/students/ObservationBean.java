@@ -2,14 +2,9 @@ package org.prosolo.web.manage.students;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
@@ -50,12 +45,9 @@ public class ObservationBean implements Serializable {
 	@Inject
 	@Qualifier("taskExecutor") 
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Inject
-	private EventFactory eventFactory;
 
 	private long studentId;
 	private String studentName;
-	//private long targetCredentialId;
 
 	private ObservationData lastObservation;
 
@@ -87,39 +79,19 @@ public class ObservationBean implements Serializable {
 			}
 		}
 	}
-	
-	public void removeObservationHistory() {
-		observationHistory = null;
-	}
 
 	public void saveObservation() {
 		try {
 			Date date = isNew ? new Date() : editObservation.getEditObservation().getDateCreated();
-			Map<String, Object> result = observationManager.saveObservation(editObservation.getEditObservation().getId(),
+			observationManager.saveObservation(editObservation.getEditObservation().getId(),
 					date, editObservation.getEditObservation().getMessage(), editObservation.getEditObservation().getNote(),
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), loggedUserBean.getUserContext(),
 					studentId);
-			
+
+
+
 			logger.info("User with id "+ loggedUserBean.getUserId() + " created observation for student with id "+studentId);
-			
-			Object msg = result.get("message");
-			
-			if(msg != null) {
-				final Message message1 = (Message) msg;
-				UserContextData userContext = loggedUserBean.getUserContext();
-				taskExecutor.execute(() -> {
-					try {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("user", String.valueOf(studentId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext,
-								message1, null, null, parameters);
-					} catch (EventException e) {
-						logger.error(e);
-					}
-				});
-			}
-			
+
 			editObservation = null;
 			Observation observation = observationManager.getLastObservationForUser(studentId);
 			if (observation != null) {
@@ -277,41 +249,6 @@ public class ObservationBean implements Serializable {
 		}
 		return false;
 	}
-	
-	public List<String> getFirstTwoSymptoms() {
-		List<String> s = new ArrayList<>();
-		List<SymptomData> symptoms = lastObservation.getSymptoms();
-		for (int i  = 0; i < 2; i++) {
-			if(symptoms != null && symptoms.size() != i) {
-				s.add(symptoms.get(i).getDescription());
-			} else {
-				break;
-			}
-		}
-		
-		return s;
-	}
-	
-	public List<String> getFirstTwoSuggestions() {
-		List<String> s = new ArrayList<>();
-		List<SuggestionData> suggestions = lastObservation.getSuggestions();
-		for (int i  = 0; i < 2; i++) {
-			if(suggestions != null && suggestions.size() != i) {
-				s.add(suggestions.get(i).getDescription());
-			} else {
-				break;
-			}
-		}
-		
-		return s;
-	}
-	
-//	public void resetObservationData(long targetCredentialId) {
-//		editObservation = null;
-//		lastObservation = null;
-//		setTargetCredentialId(targetCredentialId);
-//		initializeObservationData();
-//	}
 
 	public ObservationData getLastObservation() {
 		return lastObservation;
@@ -377,13 +314,4 @@ public class ObservationBean implements Serializable {
 		this.observationHistory = observationHistory;
 	}
 
-//	public long getTargetCredentialId() {
-//		return targetCredentialId;
-//	}
-//
-//	public void setTargetCredentialId(long targetCredentialId) {
-//		this.targetCredentialId = targetCredentialId;
-//	}
-	
-	
 }

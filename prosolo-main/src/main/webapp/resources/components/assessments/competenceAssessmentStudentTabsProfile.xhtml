@@ -1,0 +1,44 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:h="http://java.sun.com/jsf/html"
+>
+
+	<composite:interface>
+		<composite:attribute name="selfAssessmentEnabled" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="peerAssessmentEnabled" required="true" type="java.lang.Boolean" />
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="whiteBox">
+			<ul class="nav nav-tabs pageSubmenu" role="tablist">
+				<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+				<li role="presentation" class="#{page eq 'competence-instructor-assessments-profile'
+				 								 or page eq 'competence-instructor-assessment-profile' ? 'active' : ''}">
+					<h:link includeViewParams="true"
+							value="#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
+							outcome="/competence-instructor-assessments-profile">
+					</h:link>
+				</li>
+				<ui:fragment rendered="#{cc.attrs.peerAssessmentEnabled}">
+					<li role="presentation" class="#{page eq 'competence-peer-assessments-profile'
+													 or page eq 'competence-peer-assessment-profile' ? 'active' : ''}">
+						<h:link includeViewParams="true"
+								value="#{msg['label.assessment.type.PEER_ASSESSMENT']}"
+								outcome="/competence-peer-assessments-profile">
+						</h:link>
+					</li>
+				</ui:fragment>
+				<ui:fragment rendered="#{cc.attrs.selfAssessmentEnabled}">
+					<li role="presentation" class="#{page eq 'competence-self-assessment-profile' ? 'active' : ''}">
+						<h:link includeViewParams="true"
+								value="#{msg['label.assessment.type.SELF_ASSESSMENT']}"
+								outcome="/competence-self-assessment-profile">
+						</h:link>
+					</li>
+				</ui:fragment>
+			</ul>
+		</div>
+	</composite:implementation>
+
+</ui:component>

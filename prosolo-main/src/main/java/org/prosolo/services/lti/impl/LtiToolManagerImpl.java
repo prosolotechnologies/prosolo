@@ -1,9 +1,5 @@
 package org.prosolo.services.lti.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -13,6 +9,10 @@ import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.filter.Filter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("org.prosolo.services.lti.LtiToolManager")
 public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolManager {
@@ -113,7 +113,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		try{
 			String queryString = 
 					"SELECT new LtiTool (t.id, t.enabled, t.deleted, t.customCss, t.toolType, t.activityId, " +
-					"t.competenceId, t.learningGoalId, ts.id, " +
+					"t.competenceId, t.credentialId, ts.id, " +
 					"c.id, c.keyLtiOne, c.secretLtiOne, c.keyLtiTwo, c.secretLtiTwo, t.launchUrl) " +
 					"FROM LtiTool t " +
 					"INNER JOIN t.toolSet ts " +

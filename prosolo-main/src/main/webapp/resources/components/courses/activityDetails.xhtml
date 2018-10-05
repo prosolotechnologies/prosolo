@@ -65,7 +65,7 @@
 					<iframe src="#{cc.attrs.activity.embedId}"
 						width="731" height="413" frameborder="0"
 						marginwidth="0" marginheight="0" scrolling="no"
-						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px" allowFullScreen="true">
 					</iframe>
 				</ui:fragment>
 				
@@ -208,14 +208,15 @@
 	            	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
 	            		<h2>Your Response</h2>
 	            		<activities:activityResult
-	            			resultData="#{cc.attrs.activity.resultData}"
-	            			resultType="#{cc.attrs.activity.resultData.resultType}"
-	            			learningContext="#{cc.attrs.learningContext}"
-	            			role="USER"
-	            			assignmentUploadModalId="newRes"
-	            			growlToUpdate=":#{cc.clientId}:growlDetails"
-	            			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
-	            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
+								activityTitle="#{cc.attrs.activity.title}"
+								resultData="#{cc.attrs.activity.resultData}"
+								resultType="#{cc.attrs.activity.resultData.resultType}"
+								learningContext="#{cc.attrs.learningContext}"
+								role="USER"
+								assignmentUploadModalId="newRes"
+								growlToUpdate=":#{cc.clientId}:growlDetails"
+								regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
+								studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
 	            		/>
 	            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
 	            			outcome="/activity-responses" 
@@ -276,15 +277,16 @@
 
 										 <small class="redText"><h:message for="responseText"></h:message></small>
 									 </div>
-				                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
-				                    	styleClass="btn btn-sm btn-green"
-				                    	onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
-				                    	action="#{cc.attrs.bean.saveTextResponse()}"
-				                    	update=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
-				                    	value="Submit">
+				                    <utilcomp:singleClickLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
+												   value="Submit"
+												   styleClass="btn btn-sm btn-green"
+												   onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
+												   action="#{cc.attrs.bean.saveTextResponse()}"
+												   update=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails">
 				                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 										<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-				                    </p:commandLink>
+				                    </utilcomp:singleClickLink>
+
 				                    <ui:fragment rendered="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 					                    <a href="javascript:void(0);"
 					                    	disabled="disabled"

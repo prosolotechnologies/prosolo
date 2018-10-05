@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -15,16 +16,17 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -54,14 +56,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     private UserGroupManager userGroupManager;
     @Inject
     private UnitManager self;
+    @Inject private RoleManager roleManager;
+    @Inject private SocialActivityManager socialActivityManager;
 
     public UnitData createNewUnit(String title, long organizationId,long parentUnitId, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
         return new UnitData(res.getResult(),parentUnitId);
     }
 
@@ -69,6 +71,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Transactional
     public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        String defaultWelcomeMsg = "<p>Welcome to ProSolo. To start your learning, navigate to the <a href=\"" + CommonSettings.getInstance().config.appConfig.domain + "library\">Library</a> page</p>";
         try {
             Result<Unit> res = new Result<>();
             Organization organization = new Organization();
@@ -76,6 +79,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = new Unit();
             unit.setTitle(title);
             unit.setOrganization(organization);
+            unit.setWelcomeMessage(defaultWelcomeMsg);
 
             if(parentUnitId == 0) {
                 unit.setParentUnit(null);
@@ -84,7 +88,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             }
             saveEntity(unit);
 
-            res.addEvent(eventFactory.generateEventData(EventType.Create, context, unit, null, null, null));
+            res.appendEvent(eventFactory.generateEventData(EventType.Create, context, unit, null, null, null));
             res.setResult(unit);
 
             return res;
@@ -245,8 +249,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         Result<Void> res = new Result<>();
 
         if (unitId > 0 && roleId > 0 && groupId > 0) {
-            res.addEvents(addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context).getEvents());
-            res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(groupId, userId, context).getEvents());
+            res.appendEvents(addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context).getEventQueue());
+            res.appendEvents(userGroupManager.addUserToTheGroupAndGetEvents(groupId, userId, context).getEventQueue());
         }
         return res;
     }
@@ -254,23 +258,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void addUserToUnitAndGroupWithRole(long userId, long unitId, long roleId, long groupId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.addUserToUnitAndGroupWithRoleAndGetEvents(userId, unitId, roleId, groupId, context);
 
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
     //nt
     public void addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
-        throws DbConnectionException, EventException {
+        throws DbConnectionException {
         Result<Void> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -291,7 +291,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             unit.setId(unitId);
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
-            result.addEvent(eventFactory.generateEventData(
+            result.appendEvent(eventFactory.generateEventData(
                     EventType.ADD_USER_TO_UNIT, context, user, unit, null, params));
 
             return result;
@@ -304,16 +304,75 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    //nt
+    public void removeUserFromAllUnitsWithRole(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = self.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context);
+
+        eventFactory.generateEvents(res.getEventQueue());
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeUserFromAllUnitsWithRoleAndGetEvents(long userId, long roleId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> result = new Result<>();
+        try {
+            String query =
+                    "SELECT unit.id " +
+                    "FROM UnitRoleMembership urm " +
+                    "WHERE urm.user.id = :userId " +
+                        "AND urm.role.id = :roleId";
+
+            List<Long> unitIds = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            if (unitIds.size() > 0) {
+
+                String query1 =
+                        "DELETE FROM UnitRoleMembership urm " +
+                                "WHERE urm.unit.id IN (:unitIds) " +
+                                "AND urm.user.id = :userId " +
+                                "AND urm.role.id = :roleId";
+
+                int affected = persistence.currentManager()
+                        .createQuery(query1)
+                        .setParameterList("unitIds", unitIds)
+                        .setLong("userId", userId)
+                        .setLong("roleId", roleId)
+                        .executeUpdate();
+
+                logger.info("Deleted user memebership from " + affected + " units in role " + roleId);
+
+                for (Long unitId : unitIds) {
+                    User user = new User(userId);
+                    Unit unit = new Unit();
+                    unit.setId(unitId);
+                    Map<String, String> params = new HashMap<>();
+                    params.put("roleId", roleId + "");
+                    result.appendEvent(eventFactory.generateEventData(
+                            EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing user from unit");
+        }
+    }
 
     @Override
     //nt
     public void removeUserFromUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -341,7 +400,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Result<Void> result = new Result<>();
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
-            result.addEvent(eventFactory.generateEventData(
+            result.appendEvent(eventFactory.generateEventData(
                     EventType.REMOVE_USER_FROM_UNIT, context, user, unit, null, params));
 
             return result;
@@ -387,37 +446,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public Unit updateUnit(long unitId, String title, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
-
-        Result<Unit> res = self.updateUnitAndGetEvents(unitId, title, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+    public Unit updateUnit(UnitData unit, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
+        Result<Unit> res = self.updateUnitAndGetEvents(unit, context);
+        eventFactory.generateEvents(res.getEventQueue());
         return res.getResult();
     }
 
     @Override
-    public Result<Unit> updateUnitAndGetEvents(long unitId, String title, UserContextData context)
-            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+    @Transactional
+    public Result<Unit> updateUnitAndGetEvents(UnitData unit, UserContextData context)
+            throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Unit> res = new Result<>();
-            Unit unit = new Unit();
-            unit.setId(unitId);
 
-            String query =
-                    "UPDATE Unit unit " +
-                            "SET unit.title = :title " +
-                            "WHERE unit.id = :unitId ";
+            Unit unitToUpdate = (Unit) persistence.currentManager().load(Unit.class, unit.getId());
+            unitToUpdate.setTitle(unit.getTitle());
+            unitToUpdate.setWelcomeMessage(unit.getWelcomeMessage());
+            persistence.currentManager().flush();
 
-            persistence.currentManager()
-                    .createQuery(query)
-                    .setString("title", title)
-                    .setParameter("unitId", unitId)
-                    .executeUpdate();
+            res.setResult(unitToUpdate);
 
-            res.addEvent(eventFactory.generateEventData(EventType.Edit, context, unit, null, null, null));
-            res.setResult(unit);
+            Unit u = new Unit();
+            u.setId(unit.getId());
+            res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, u, null, null, null));
 
             return res;
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
@@ -574,6 +626,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 throw new IllegalStateException("Unit can not be deleted as there are users associated with it");
             }
 
+            //delete unit welcome post social activity if exists
+            socialActivityManager.deleteUnitWelcomePostSocialActivityIfExists(unitId, persistence.currentManager());
+
             String deleteQuery =
                     "DELETE FROM Unit unit " +
                     "WHERE unit.id = :unitId ";
@@ -651,11 +706,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void addCredentialToUnit(long credId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.addCredentialToUnitAndGetEvents(credId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -673,7 +726,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             cr.setId(credId);
             Unit un = new Unit();
             un.setId(unitId);
-            res.addEvent(eventFactory.generateEventData(
+            res.appendEvent(eventFactory.generateEventData(
                     EventType.ADD_CREDENTIAL_TO_UNIT, context, cr, un, null, null));
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.info("Credential (" + credId + ") already added to the unit (" + unitId + ") so it can't be added again");
@@ -688,11 +741,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.removeCredentialFromUnitAndGetEvents(credId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -718,7 +769,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 cr.setId(credId);
                 Unit un = new Unit();
                 un.setId(unitId);
-                res.addEvent(eventFactory.generateEventData(
+                res.appendEvent(eventFactory.generateEventData(
                         EventType.REMOVE_CREDENTIAL_FROM_UNIT, context, cr, un,null, null));
             }
         } catch (Exception e) {
@@ -793,11 +844,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void addCompetenceToUnit(long compId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.addCompetenceToUnitAndGetEvents(compId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -815,7 +864,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             comp.setId(compId);
             Unit un = new Unit();
             un.setId(unitId);
-            res.addEvent(eventFactory.generateEventData(
+            res.appendEvent(eventFactory.generateEventData(
                     EventType.ADD_COMPETENCE_TO_UNIT, context, comp, un,null, null));
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.info("Competency (" + compId + ") already added to the unit (" + unitId + ") so it can't be added again");
@@ -830,11 +879,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void removeCompetenceFromUnit(long compId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.removeCompetenceFromUnitAndGetEvents(compId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -860,7 +907,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 comp.setId(compId);
                 Unit un = new Unit();
                 un.setId(unitId);
-                res.addEvent(eventFactory.generateEventData(
+                res.appendEvent(eventFactory.generateEventData(
                         EventType.REMOVE_COMPETENCE_FROM_UNIT, context, comp, un,null, null));
             }
         } catch (Exception e) {
@@ -919,6 +966,13 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, String roleName)
+            throws DbConnectionException {
+       return checkIfUserHasRoleInUnitsConnectedToCompetence(userId, compId, roleManager.getRoleIdByName(roleName));
+    }
+
     private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
         if (unitIds == null || unitIds.isEmpty()) {
             return false;
@@ -960,6 +1014,18 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, String role) throws DbConnectionException {
+        try {
+            long roleId = roleManager.getRoleIdByName(role);
+            return getUserUnitIdsInRole(userId, roleId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving user units");
         }
     }
 
@@ -1024,11 +1090,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void addRubricToUnit(long rubricId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.addRubricToUnitAndGetEvents(rubricId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -1046,7 +1110,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             rubric.setId(rubricId);
             Unit un = new Unit();
             un.setId(unitId);
-            res.addEvent(eventFactory.generateEventData(
+            res.appendEvent(eventFactory.generateEventData(
                     EventType.ADD_RUBRIC_TO_UNIT, context, rubric, un, null, null));
         } catch (ConstraintViolationException|DataIntegrityViolationException e) {
             logger.info("Rubric (" + rubricId + ") already added to the unit (" + unitId + ") so it can't be added again");
@@ -1061,11 +1125,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     //nt
     public void removeRubricFromUnit(long rubricId, long unitId, UserContextData context)
-            throws DbConnectionException, EventException {
+            throws DbConnectionException {
         Result<Void> res = self.removeRubricFromUnitAndGetEvents(rubricId, unitId, context);
-        for (EventData ev : res.getEvents()) {
-            eventFactory.generateEvent(ev);
-        }
+        eventFactory.generateEvents(res.getEventQueue());
     }
 
     @Override
@@ -1091,7 +1153,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 rubric.setId(rubricId);
                 Unit un = new Unit();
                 un.setId(unitId);
-                res.addEvent(eventFactory.generateEventData(
+                res.appendEvent(eventFactory.generateEventData(
                         EventType.REMOVE_RUBRIC_FROM_UNIT, context, rubric, un, null, null));
             }
         } catch (Exception e) {
@@ -1189,6 +1251,20 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error("Error", e);
             throw new DbConnectionException("Error retrieving competency info");
         }
+    }
+
+    public boolean isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent(long managerId, long studentId) {
+        try {
+            return hasUserRoleInAtLeastOneUnitWhereOtherUserHasRole(managerId, SystemRoleNames.MANAGER, studentId, SystemRoleNames.USER);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error in method isUserManagerInAtLeastOneUnitWhereOtherUserIsStudent");
+        }
+    }
+
+    private boolean hasUserRoleInAtLeastOneUnitWhereOtherUserHasRole(long firstUserId, String firstUserRoleName, long secondUserId, String secondUserRoleName) {
+        List<Long> secondUserUnits = getUserUnitIdsInRole(secondUserId, secondUserRoleName);
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(firstUserId, roleManager.getRoleIdByName(firstUserRoleName), secondUserUnits);
     }
 
 }

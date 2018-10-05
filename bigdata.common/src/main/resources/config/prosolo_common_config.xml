@@ -3,7 +3,7 @@
 	<namespace>local</namespace>
 	<app-config>
 		<app-name>prosolo</app-name>
-		<development-mode>true</development-mode>
+		<project-mode>DEV</project-mode> <!-- DEV or PROD -->
 		<developer-email>name.lastname@gmail.com</developer-email>
 		<support-email>administrator@prosolo.ca</support-email>
 		<maintenance>false</maintenance>
@@ -56,6 +56,7 @@
 		<logs-index>logs</logs-index>
 		<rubrics-index>rubrics</rubrics-index>
 		<jobsLogs-index>jobslogs</jobsLogs-index>
+		<evidences-index>evidence</evidences-index>
 	</elastic-search-config>
 	<mysql-config>
 		<host>localhost</host>
@@ -106,6 +107,8 @@
 		<daily>false</daily>
 		<weekly>false</weekly>
 		<monthly>false</monthly>
+		<bcc>false</bcc>
+		<bcc-email>test@prosolo.ca</bcc-email>
 		<smtp-config>
 			<host>email-smtp.us-east-1.amazonaws.com</host>
 			<user>AKIAIZ7V7VE3IKI7MWNA</user>

@@ -3,7 +3,6 @@ package org.prosolo.web.activitywall;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
@@ -64,7 +63,6 @@ public class ActivityWallBean implements Serializable {
 	@Inject private InterfaceSettingsManager interfaceSettingsManager;
 	@Inject private LoggingNavigationBean actionLogger;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private HTMLParser htmlParser;
 	@Inject private UploadManager uploadManager;
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private CommentBean commentBean;
@@ -100,16 +98,6 @@ public class ActivityWallBean implements Serializable {
 			}
 		}
 		initializeActivities();
-	}
-	
-	public void updateSocialActivityLastActionDate(long id, Date date) {
-		if(socialActivities != null) {
-			for(SocialActivityData1 sa : socialActivities) {
-				if(sa.getId() == id) {
-					sa.setLastAction(date);
-				}
-			}
-		}
 	}
 	
 	public void initializeActivities() {
@@ -258,11 +246,6 @@ public class ActivityWallBean implements Serializable {
 			
 			PageUtil.fireSuccessfulInfoMessage("Your new status is posted");
 			populateDataForNewPost(newSocialActivity, post, SocialActivityType.Post);
-
-//			if(post.getRichContent() != null) {
-//				newSocialActivity.setAttachmentPreview(richContentFactory.getAttachmentPreview(
-//						post.getRichContent()));
-//			}
 
 			socialActivities.add(0, newSocialActivity);
 			
@@ -414,11 +397,6 @@ public class ActivityWallBean implements Serializable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
-	public int getRefreshRate() {
-		return Settings.getInstance().config.application.defaultRefreshRate;
-	}
-
 	public synchronized List<SocialActivityData1> getSocialActivities() {
 		return socialActivities;
 	}

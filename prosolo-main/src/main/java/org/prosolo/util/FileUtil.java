@@ -41,9 +41,9 @@ public class FileUtil {
 	    }
 	    folder.delete();
 	}
-	public static String getFileType(File file){
+	public static String getFileType(String fileName){
 		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
-		String type = mimeMap.getContentType(file);
+		String type = mimeMap.getContentType(fileName);
 		return type;
 	}
 }

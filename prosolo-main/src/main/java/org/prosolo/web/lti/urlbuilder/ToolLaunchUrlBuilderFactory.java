@@ -10,6 +10,8 @@ public class ToolLaunchUrlBuilderFactory {
 				return new CredentialUrlBuilder();
 			case Competence:
 				return new CompetenceUrlBuilder();
+			case Global:
+				return new GlobalUrlBuilder();
 		    default: 
 			    return null;
 		}

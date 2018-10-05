@@ -8,17 +8,22 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.competence.util.LearningPathDescription;
+import org.prosolo.web.courses.credential.CompoundLearningResourceAssessmentSettingsBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
@@ -33,7 +38,7 @@ import java.util.*;
 @ManagedBean(name = "competenceEditBean")
 @Component("competenceEditBean")
 @Scope("view")
-public class CompetenceEditBean implements Serializable {
+public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = -2951979198939808173L;
 
@@ -45,6 +50,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
 	@Inject private CompetenceUserPrivilegeBean visibilityBean;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private String credId;
@@ -63,6 +69,8 @@ public class CompetenceEditBean implements Serializable {
 	private int activityForRemovalIndex;
 	
 	private PublishedStatus[] compStatusArray;
+
+	private LearningPathDescription[] learningPaths;
 	
 	private String credTitle;
 	
@@ -80,6 +88,7 @@ public class CompetenceEditBean implements Serializable {
 				if(decodedCredId > 0) {
 					addToCredential = true;
 				}
+				competenceData.setAssessmentTypes(getAssessmentTypes());
 			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing competence with id " + decodedId);
@@ -88,21 +97,23 @@ public class CompetenceEditBean implements Serializable {
 			setContext();
 			if (decodedCredId > 0) {
 				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
-						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
+						.stream().filter(cd -> cd.getIdData().getId() == decodedCredId).findFirst();
 				if (res.isPresent()) {
-					credTitle = res.get().getTitle();
+					credTitle = res.get().getIdData().getTitle();
 				} else {
 					credTitle = credManager.getCredentialTitle(decodedCredId);
 					//we add passed credential to parent credentials only if new competency is being created
 					if (id == null) {
 						CredentialData cd = new CredentialData(false);
-						cd.setId(decodedCredId);
-						cd.setTitle(credTitle);
+						cd.getIdData().setId(decodedCredId);
+						cd.getIdData().setTitle(credTitle);
 						competenceData.getCredentialsWithIncludedCompetence().add(cd);
 					}
 				}
 			}
+			loadAssessmentData();
 			initializeStatuses();
+			learningPaths = LearningPathDescription.values();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -115,20 +126,41 @@ public class CompetenceEditBean implements Serializable {
 		competenceData = res.getResource();
 		access = res.getAccess();
 	}
-	
-	//competence is draft when it has never been published or when date of first publish is null
-	public boolean isDraft() {
-		return competenceData.getDatePublished() == null;
-	}
-	
+
+	@Override
 	/**
 	 * if this method returns true only limited edits are allowed
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isLimitedEdit() {
 		//if competence was once published 'big' changes are not allowed
 		return competenceData.getDatePublished() != null;
+	}
+
+	@Override
+	public LearningResourceAssessmentSettings getAssessmentSettings() {
+		return competenceData.getAssessmentSettings();
+	}
+
+	@Override
+	public List<Long> getAllUnitsResourceIsConnectedTo() {
+		if (decodedId > 0) {
+			return unitManager.getAllUnitIdsCompetenceIsConnectedTo(competenceData.getCompetenceId());
+		} else {
+			//if new competence is being created, we return units where competence creator is added as manager
+			return unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), SystemRoleNames.MANAGER);
+		}
+	}
+
+	@Override
+	public boolean isPointBasedResource() {
+		return isPointBasedResource(competenceData.getAssessmentSettings().getGradingMode(), competenceData.getAssessmentSettings().getRubricId(), competenceData.getAssessmentSettings().getRubricType());
+	}
+	
+	//competence is draft when it has never been published or when date of first publish is null
+	public boolean isDraft() {
+		return competenceData.getDatePublished() == null;
 	}
 	
 //	public void initVisibilityManageData() {
@@ -215,7 +247,7 @@ public class CompetenceEditBean implements Serializable {
 			StringBuilder builder = new StringBuilder();
 			/*
 			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * example: /credentials/credential-create will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
 			builder.append(PageUtil.getSectionForView().getPrefix()
@@ -236,7 +268,7 @@ public class CompetenceEditBean implements Serializable {
 			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * example: /credentials/credential-create will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
 				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
@@ -313,9 +345,6 @@ public class CompetenceEditBean implements Serializable {
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
-		} catch (EventException e) {
-			logger.error(e);
-			return false;
 		}
 	}
 	
@@ -347,8 +376,6 @@ public class CompetenceEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -360,8 +387,6 @@ public class CompetenceEditBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 	
@@ -373,8 +398,6 @@ public class CompetenceEditBean implements Serializable {
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error duplicating the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch(EventException ee) {
-			logger.error(ee);
 		}
 	}
 	
@@ -462,7 +485,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	 
 	public String getPageHeaderTitle() {
-		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New Competence";
+		return competenceData.getCompetenceId() > 0 ? competenceData.getTitle() : "New " + ResourceBundleUtil.getMessage("label.competence");
 	}
 	
 	public boolean isCreateUseCase() {
@@ -547,5 +570,9 @@ public class CompetenceEditBean implements Serializable {
 
 	public long getDecodedCredId() {
 		return decodedCredId;
+	}
+
+	public LearningPathDescription[] getLearningPaths() {
+		return learningPaths;
 	}
 }

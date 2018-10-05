@@ -9,7 +9,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{msg['label.competence']} - #{competenceViewBean.competenceData.title}
+		#{competenceViewBean.competenceData.title} - #{not empty competenceViewBean.credentialTitle ? competenceViewBean.credentialTitle.concat(' - ') : ''}ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -26,11 +26,21 @@
     	<h1>#{competenceViewBean.competenceData.title} 
     		<span>#{competenceViewBean.getLabelForCompetence()}</span></h1>
     </ui:define>
+
+	<ui:define name="navLinks">
+		<competences:competenceStudentNavLinks
+				id="compNavLinks"
+				enrolled="#{competenceViewBean.competenceData.enrolled}"
+				credId="#{competenceViewBean.decodedCredId}"
+				compId="#{competenceViewBean.decodedCompId}"
+		/>
+	</ui:define>
     
 	<ui:define name="content">
     	<competences:competence
     		id="competence"
 			bean="#{competenceViewBean}"
+			toUpdateOnEnroll=":compNavLinks"
     	/>
 	</ui:define>
 </ui:composition>

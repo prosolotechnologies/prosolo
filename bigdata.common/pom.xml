@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>org.prosolo</groupId>
 		<artifactId>prosolo-multimodule</artifactId>
-		<version>1.1.0</version>
+		<version>1.2.3</version>
 	</parent>
 	<artifactId>bigdata.common</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0</version>
 
 	<name>bigdata.common</name>
 	<url>http://maven.apache.org</url>
@@ -25,6 +24,8 @@
                 <version>3.0-alpha-1</version>
             </dependency-->
 		<!-- Hibernate dependencies -->
+		<!-- https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp -->
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
@@ -52,11 +53,11 @@
 			<version>2.9.4</version>
 		</dependency>
 		<!-- Gson dependencies -->
-		<dependency>
+		<!--dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.2.2</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
@@ -228,6 +229,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.38</version>
 		</dependency>
 
 	</dependencies>

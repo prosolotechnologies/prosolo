@@ -10,12 +10,10 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -51,10 +49,8 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	//search
 	private String searchTerm = "";
 	private CompetenceSearchFilter searchFilter = CompetenceSearchFilter.ACTIVE;
-	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData = new PaginationData();
 	
-	private LearningResourceSortOption[] sortOptions;
 	private CompetenceSearchFilter[] searchFilters;
 	
 	private CompetenceData1 selectedComp;
@@ -62,7 +58,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	private String context = "name:library";
 
 	public void init() {
-		sortOptions = LearningResourceSortOption.values();
 		searchFilters = CompetenceSearchFilter.values();
 		searchCompetences(false);
 	}
@@ -101,7 +96,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetencesForManager(
 				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
-				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
+				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -109,12 +104,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void applySearchFilter(CompetenceSearchFilter filter) {
 		this.searchFilter = filter;
-		paginationData.setPage(1);
-		searchCompetences(true);
-	}
-	
-	public void applySortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
 		paginationData.setPage(1);
 		searchCompetences(true);
 	}
@@ -147,8 +136,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(archived) {
 				try {
@@ -173,8 +160,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 			if(success) {
 				try {
@@ -192,7 +177,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 		paginationData.update((int) compManager.countNumberOfCompetences(searchFilter, 
 				loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
 		competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
-				paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+				paginationData.getPage() - 1, loggedUserBean.getUserId());
 	}
 	
 	public void duplicate() {
@@ -203,9 +188,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to duplicate competence");
-			} catch(EventException ee) {
-				logger.error(ee);
+				PageUtil.fireErrorMessage("Error while trying to bcc competence");
 			}
 		}
 	}
@@ -222,14 +205,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public LearningResourceSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
 	public List<CompetenceData1> getCompetences() {
 		return competences;
 	}
@@ -244,14 +219,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 
 	public void setSearchFilter(CompetenceSearchFilter searchFilter) {
 		this.searchFilter = searchFilter;
-	}
-
-	public LearningResourceSortOption[] getSortOptions() {
-		return sortOptions;
-	}
-
-	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
 	}
 
 	public CompetenceSearchFilter[] getSearchFilters() {

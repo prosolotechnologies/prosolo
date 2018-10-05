@@ -56,7 +56,7 @@ public enum ContextName {
 	UPLOAD_RESULT_DIALOG(""),
 	RESULT("TargetActivity1"),
 	RESULTS(""),
-	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1"),
+	RESULT_PRIVATE_CONVERSATION_DIALOG(""),
 	STUDENTS(""),
 	EDIT_DIALOG(""),
 	USER_GROUPS_DIALOG("User"),
@@ -64,8 +64,11 @@ public enum ContextName {
 	MANAGE_VISIBILITY_DIALOG(""),
 	PUBLISH_RESOURCE_DIALOG(""),
 	ACTIVITY_ASSESSMENT("ActivityAssessment"),
+	COMPETENCE_ASSESSMENT("CompetenceAssessment"),
+	CREDENTIAL_ASSESSMENT("CredentialAssessment"),
 	ACTIVITY_GRADE_DIALOG(""),
 	ASSESSMENT_COMMENTS(""),
+	COMMENTS_ON_ACTIVITY_SUBMISSION("TargetActivity1"),	// used when assessing an activity and instructor clicks the link that displays comments on activity submissions by other students
 	ASK_FOR_ASSESSMENT_DIALOG(""),
 	EXTERNAL_ACTIVITY_GRADE("TargetActivity1"),
 	AUTOGRADE("TargetActivity1"),
@@ -83,7 +86,10 @@ public enum ContextName {
 	RUBRIC("Rubric"),	
 	MAKE_OWNER_DIALOG(""),
 	GROUP_JOIN("UserGroup"),
-	USERS("");
+	USERS(""),
+	NEXT_LEARNING_STAGE_DIALOG("LearningStage"),
+	EVIDENCE("LearningEvidence"),
+	NEW_EVIDENCE("");
 
     private String objectType; 
     

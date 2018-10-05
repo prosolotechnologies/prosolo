@@ -1,8 +1,6 @@
 package org.prosolo.services.migration;
 
-import org.prosolo.services.event.EventData;
-
-import java.util.List;
+import org.prosolo.services.event.EventQueue;
 
 /**
  * @author nikolamilikic
@@ -15,5 +13,5 @@ public interface UTACustomMigrationService {
 
     void deleteUsers(long newCreatorId);
 
-    List<EventData> migrateCredentials();
+    EventQueue migrateCredentials();
 }

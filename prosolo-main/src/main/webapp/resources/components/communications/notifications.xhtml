@@ -14,7 +14,7 @@
 		<h:form id="formMain">
 		    <p:growl id="growlMain" showDetail="true" globalOnly="true" />
 	     	<div class="whiteBar"></div>
-	
+
 		    <div class="container">
 		        <div class="row">
 		            <div class="col-md-9">
@@ -22,21 +22,21 @@
 		                    <ul>
 		                    	<ui:fragment rendered="#{empty notificationBean.notifications}">
 									<li class="noNotifications">
-										No recent activity.
+										No notifications
 									</li>
 								</ui:fragment>
 								
 		                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
 		                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
-			                            <h:outputLink value="#{notification.link}">
+			                            <h:outputLink value="#{notificationBean.domainPrefix}#{notification.link}">
 			                                <div class="icon"></div>
-			                                
+
 			                                <utilcomp:userAvatar
 			                                	avatar="#{notification.actor.avatarUrl}"
-			                                	fullName="#{notification.actor.fullName}" />
-			                                	
+			                                	fullName="#{notification.actor.fullName}"/>
+
 			                                <div class="notContent">
-			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3> 
+			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3>
 			                                </div>
 			                                <span class="timestamp">
 												<utilcomp:convertTimeOutput
@@ -63,11 +63,11 @@
 		                    <h:panelGroup id="panelFilters">
 			                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
 			                    	<div class="checkbox checkLine">
-				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
+				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.type}" value="#{filter.applied}">
 											<p:ajax event="click" process="@this"
 												listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
 										</h:selectBooleanCheckbox>
-										<label for="#{cc.clientId}:formMain:checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
+										<label for="#{cc.clientId}:formMain:checkboxFilter#{filter.type}">#{filter.type.label}</label>
 									</div>
 			                    </c:forEach>
 			                </h:panelGroup>

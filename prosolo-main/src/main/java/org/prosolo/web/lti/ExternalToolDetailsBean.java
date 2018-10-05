@@ -3,12 +3,6 @@
  */
 package org.prosolo.web.lti;
 
-import java.io.Serializable;
-import java.util.Iterator;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
@@ -27,6 +21,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Iterator;
 
 
 /**
@@ -101,7 +100,7 @@ public class ExternalToolDetailsBean implements Serializable {
 					User user = defaultManager.loadResource(User.class, loggedUserBean.getUserId());
 				
 					tool.setCreatedBy(user);
-					tool.setLearningGoalId(decodedCred);
+					tool.setCredentialId(decodedCred);
 					tool.setCompetenceId(decodedComp);
 					tool.setActivityId(decodedAct);
 					

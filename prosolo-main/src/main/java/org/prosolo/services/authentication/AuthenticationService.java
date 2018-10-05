@@ -1,20 +1,21 @@
 package org.prosolo.services.authentication;
 
+import org.prosolo.services.authentication.exceptions.AuthenticationException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.prosolo.services.authentication.exceptions.AuthenticationException;
-
 public interface AuthenticationService {
 
-	boolean login(String email, String password) throws AuthenticationException;
-	
-	void login(HttpServletRequest req, HttpServletResponse resp, String email) 
+	void loginAs(HttpServletRequest req, HttpServletResponse resp, String email)
 			throws AuthenticationException;
 
-	void logout();
+	boolean loginUserOpenID(String email);
 
-	boolean loginOpenId(String email) throws AuthenticationException;
+	boolean loginUserLTI(HttpServletRequest request, HttpServletResponse response, String email);
+
+
+	void logout();
 
 	boolean checkPassword(String rawPassword, String encodedPassword);
 }

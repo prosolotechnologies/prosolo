@@ -23,17 +23,20 @@ public class LinkParserFactory {
 
     public LinkParserFactory(){}
 
-    private String followRedirects(String url) throws LinkParserException {
-        Connection parsedUrl = Jsoup.connect(url).followRedirects(true);
-        String followUrl = null;
+    private String followRedirects(String url) {
+//        Connection parsedUrl = Jsoup.connect(url).followRedirects(true);
+//        String followUrl = null;
 
         try {
-            Document document = parsedUrl.get();
-            followUrl = document.baseUri();
+            Connection.Response response = Jsoup.connect(url).followRedirects(true).execute();
+            return response.url().toExternalForm();
+//            Document document = parsedUrl.get();
+//            followUrl = document.baseUri();
         } catch (Exception e) {
-            throw new LinkParserException("URL not valid.");
+            // sometimes follow redirects gets 403 for the valid URL, not sure why :/
+            return url;
         }
-        return followUrl;
+//        return followUrl;
     }
 
         public static LinkParser buildParser(String url) throws LinkParserException {

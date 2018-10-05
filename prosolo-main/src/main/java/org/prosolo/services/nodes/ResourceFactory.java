@@ -20,11 +20,10 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import java.io.InputStream;
 import java.util.List;
@@ -34,9 +33,6 @@ public interface ResourceFactory extends AbstractManager {
     Role createNewRole(String name, String description, boolean systemDefined);
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
-
-    User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
-            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
 
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
@@ -51,9 +47,6 @@ public interface ResourceFactory extends AbstractManager {
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
-			throws DbConnectionException;
-
 	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
 	
 	PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 
@@ -64,16 +57,6 @@ public interface ResourceFactory extends AbstractManager {
 	PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
    			throws DbConnectionException;
 	
-	User updateUser(long userId, String name, String lastName, String email,
-			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException;
-	
-	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
-
 	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;
 	
-	UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException;
-	
-	Result<Competence1> duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
-
 }

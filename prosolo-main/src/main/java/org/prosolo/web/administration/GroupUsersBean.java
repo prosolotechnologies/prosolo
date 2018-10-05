@@ -2,13 +2,8 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
@@ -39,7 +34,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UserGroupManager userGroupManager;
-	@Inject private EventFactory eventFactory;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private GroupUserAddBean groupUserAddBean;
@@ -104,18 +98,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void removeUserFromGroup(UserData user) {
 		try {
-			userGroupManager.removeUserFromTheGroup(decodedGroupId, user.getId());
-			/*
-			TODO for now events are fired here in a JSF bean because removeUserFromTheGroup method is called
-			in other places too so event generation can't be moved to this method at the moment. This should be
-			refactored later.
-			 */
-			User u = new User();
-			u.setId(user.getId());
-			UserGroup group = new UserGroup();
-			group.setId(decodedGroupId);
-			eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP,
-					loggedUserBean.getUserContext(decodedOrgId), u, group, null, null);
+			userGroupManager.removeUserFromTheGroup(decodedGroupId, user.getId(),loggedUserBean.getUserContext(decodedOrgId));
 
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " is removed from the group");
 
@@ -129,8 +112,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while removing user " + user.getFullName() + " from the group");
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 

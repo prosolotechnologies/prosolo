@@ -2,7 +2,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:f="http://java.sun.com/jsf/core"
+>
 
 	<utilcomp:messagesBundle var="msg" />
 
@@ -22,7 +24,7 @@
 				</script></ui:remove>
 			</h:panelGroup>
 
-           <h2>Credentials</h2>
+           <h2>#{msg['label.credential.plural']}</h2>
            <div class="blockRow" id="credentials" style="display: none;">
            	   <p:commandLink styleClass="sliderIconLeft"
 					update=":svgContainer">
@@ -35,7 +37,7 @@
                         <p:commandLink
                             styleClass="progressBlock #{cred.id == studentProfileBean.selectedCredential.id ? 'selected' : ''}"
                             action="#{studentProfileBean.selectCredential(cred)}"
-                            update=":competencesBlock :activitiesBlock :svgContainer"
+                            update=":competencesBlock :panelCompLearningPathLabel :activitiesBlock :svgContainer"
                             onclick="$('#credentials .progressBlock').removeClass('selected');$(this).addClass('selected');">
 
                             <div class="progress">
@@ -77,7 +79,7 @@
 							styleClass="progressBlock competence #{comp.id == studentProfileBean.selectedCredential.selectedCompetence.id ? 'selected' : ''}"
 							onclick="$('#competencesBlock .progressBlock').removeClass('selected');$(this).addClass('selected');"
 							action="#{studentProfileBean.selectCompetence(comp)}"
-							update=":activitiesBlock :svgContainer">
+							update=":panelCompLearningPathLabel :activitiesBlock :svgContainer">
 
 							<div class="progress">
 								<div class="progression bgBlue" style="height: #{comp.progress}%"></div>
@@ -104,38 +106,64 @@
 			   </script>
            </h:panelGroup>
 
-           <h2>Activities</h2>
-           <h:panelGroup layout="block" styleClass="activitiesBlock" id="activitiesBlock" style="display: none;">
+		   <h:panelGroup id="panelCompLearningPathLabel">
+          	 	<h2>#{studentProfileBean.selectedCredential.selectedCompetence.learningPathType eq 'ACTIVITY' ? 'Activities' : 'Pieces of Evidence'}</h2>
+		   </h:panelGroup>
 
-          	<div class="activitiesBlockLeft">
-          	  	<ui:repeat var="act" value="#{studentProfileBean.selectedCredential.selectedCompetence.activities}">
-					<h3 class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.type)}" id="act#{act.id}"
-						onclick="selectActivity(#{act.id});">
-	                    <a href="javascript:void(0);">
-	                        <span class="#{act.completed ? 'check' : 'iconType'}"></span>
-	                        #{act.name}
-	                    </a>
-	                </h3>
-				</ui:repeat>
-            </div>
-            <div class="activitiesBlockRight">
-                <div class="graph">
-                    <div id="quadrantchart">
-						<script>
-						    var service = "#{studentProfileBean.completedActivitiesServicePath}";
-							drawQuadrantChart(service);
-						</script>
+			<h:panelGroup layout="block" styleClass="activitiesBlock" id="activitiesBlock" style="display: none;">
+
+				<ui:fragment rendered="#{studentProfileBean.selectedCredential.selectedCompetence.learningPathType eq 'ACTIVITY'}">
+					<div class="activitiesBlockLeft">
+						<ui:repeat var="act" value="#{studentProfileBean.selectedCredential.selectedCompetence.activities}">
+							<h3 class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.type)}" id="act#{act.id}"
+								onclick="selectActivity(#{act.id});">
+								<a href="javascript:void(0);">
+									<span class="#{act.completed ? 'check' : 'iconType'}"></span>
+									#{act.name}
+								</a>
+							</h3>
+						</ui:repeat>
 					</div>
-                </div>
-            </div>
+					<div class="activitiesBlockRight">
+						<div class="graph">
+							<div id="quadrantchart">
+								<script>
+									var service = "#{studentProfileBean.completedActivitiesServicePath}";
+									drawQuadrantChart(service);
+								</script>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
 
-               <div class="clear"></div>
+				<ui:fragment rendered="#{studentProfileBean.selectedCredential.selectedCompetence.learningPathType eq 'EVIDENCE'}">
+					<div class="activitiesBlockLeft">
+						<ui:fragment rendered="#{not empty studentProfileBean.selectedCredential.selectedCompetence.evidences}">
+							<ui:repeat value="#{studentProfileBean.selectedCredential.selectedCompetence.evidences}" var="ev">
+								<h3 class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+									<h:link outcome="evidence" target="_blank">
+										<span class="icon iconType"></span>
+										#{ev.title}
+										<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+									</h:link>
+								</h3>
+							</ui:repeat>
+						</ui:fragment>
+						<ui:fragment rendered="#{empty studentProfileBean.selectedCredential.selectedCompetence.evidences}">
+							<div class="noPeopleMessage">
+								<p>No evidence.</p>
+							</div>
+						</ui:fragment>
+					</div>
+				</ui:fragment>
 
-               <script>
-				$(function(){
-					$('#activitiesBlock').fadeIn();
-				});
-			   </script>
+               	<div class="clear"></div>
+
+               	<script>
+					$(function(){
+						$('#activitiesBlock').fadeIn();
+					});
+			   	</script>
            </h:panelGroup>
            <div class="clear" style="height:1px;"></div>
        </div>

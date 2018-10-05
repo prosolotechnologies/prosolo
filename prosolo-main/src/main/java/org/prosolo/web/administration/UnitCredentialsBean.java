@@ -8,12 +8,12 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
-import org.prosolo.search.util.credential.LearningResourceSortOption;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -45,6 +45,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	@Inject private UnitManager unitManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
+	@Inject private OrganizationManager orgManager;
 
 	private String unitId;
 	private long decodedUnitId;
@@ -61,11 +62,11 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	//search
 	private String searchTerm = "";
 	private CredentialSearchFilterManager searchFilter = CredentialSearchFilterManager.ACTIVE;
-	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
+	private CredentialCategoryData filterCategory;
 	private PaginationData paginationData;
 
-	private LearningResourceSortOption[] sortOptions;
 	private CredentialSearchFilterManager[] searchFilters;
+	private List<CredentialCategoryData> filterCategories;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
@@ -79,14 +80,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 					paginationData = new PaginationData();
 				}
 
-				sortOptions = LearningResourceSortOption.values();
 				searchFilters = CredentialSearchFilterManager.values();
 				try {
 					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
 					if (td != null) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
-
+						initCategoryFilters();
 						loadDataFromDB();
 					} else {
 						PageUtil.notFound();
@@ -103,6 +103,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		}
 	}
 
+	private void initCategoryFilters() {
+		filterCategories = orgManager.getUsedOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
+		//add 'All' category and define it as default (initially selected)
+		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategories.add(0, filterCategory);
+	}
+
 	public void resetAndSearch() {
 		this.paginationData.setPage(1);
 		searchCredentials();
@@ -115,7 +122,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	private void searchCredentials() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForAdmin(
 				decodedOrgId, decodedUnitId, searchTerm, paginationData.getPage() - 1, paginationData.getLimit(),
-				searchFilter, sortOption);
+				searchFilter, filterCategory.getId());
 		extractResult(response);
 	}
 
@@ -130,8 +137,8 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		searchCredentials();
 	}
 
-	public void applySortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
+	public void applyCategoryFilter(CredentialCategoryData filter) {
+		this.filterCategory = filter;
 		this.paginationData.setPage(1);
 		searchCredentials();
 	}
@@ -183,7 +190,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void archive() {
 		if (selectedCred != null) {
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.archiveCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
@@ -197,8 +204,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error archiving the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 		}
 	}
@@ -206,7 +211,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void restore() {
 		if (selectedCred != null) {
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext(decodedOrgId));
+				credManager.restoreArchivedCredential(selectedCred.getIdData().getId(), loggedUserBean.getUserContext(decodedOrgId));
 				searchTerm = null;
 				paginationData.setPage(1);
 
@@ -220,8 +225,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error restoring the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-			} catch (EventException e) {
-				logger.error("Error", e);
 			}
 		}
 	}
@@ -231,8 +234,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 			try {
 				credManager.updateDeliveryStartAndEnd(selectedCred, loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been updated");
-			} catch (EventException e) {
-				logger.error("Error", e);
 			} catch (Exception e) {
 				logger.error("Error", e);
 				//restore dates
@@ -245,7 +246,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 
 	private void loadDataFromDB() {
 		PaginatedResult<CredentialData> res = credManager.searchCredentialsForAdmin(decodedUnitId, searchFilter, paginationData.getLimit(),
-				paginationData.getPage() - 1, sortOption);
+				paginationData.getPage() - 1);
 		extractResult(res);
 	}
 
@@ -261,14 +262,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public LearningResourceSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(LearningResourceSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
 	public PaginationData getPaginationData() {
 		return paginationData;
 	}
@@ -279,14 +272,6 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 
 	public List<CredentialData> getCredentials() {
 		return credentials;
-	}
-
-	public LearningResourceSortOption[] getSortOptions() {
-		return sortOptions;
-	}
-
-	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
 	}
 
 	public CredentialSearchFilterManager getSearchFilter() {
@@ -339,5 +324,13 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 
 	public String getOrganizationTitle() {
 		return organizationTitle;
+	}
+
+	public CredentialCategoryData getFilterCategory() {
+		return filterCategory;
+	}
+
+	public List<CredentialCategoryData> getFilterCategories() {
+		return filterCategories;
 	}
 }

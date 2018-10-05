@@ -3,6 +3,7 @@ package org.prosolo.services.interaction;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 
 /**
  * @author Zoran Jeremic
@@ -36,4 +37,5 @@ public interface AnalyticalServiceCollector {
 
 	void increaseSocialInteractionCount(long courseid, long source, long target);
 
+    void storeNotificationData(String email,NotificationData notificationData);
 }

@@ -40,21 +40,22 @@ public interface UserGroupManager extends AbstractManager {
 	Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
 			throws DbConnectionException;
 
-	void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException;
-
-	void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException;
-
-	void removeUsersFromTheGroup(long groupId, List<Long> userIds) throws DbConnectionException;
-
-	void updateGroupUsers(long groupId, List<Long> usersToAdd, List<Long> usersToRemove)
+	void addUserToTheGroup(long groupId, long userId, UserContextData context)
 			throws DbConnectionException;
 
-	void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
+	void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException;
 
-	void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException;
+	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException;
+
+	Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
+
+	Result<Void> removeUserFromGroups(long userId, List<Long> groupIds, UserContextData context) throws DbConnectionException;
 
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom,
-										 List<Long> groupsToAddUserTo) throws DbConnectionException;
+										 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException;
+
+	Result<Void> updateUserParticipationInGroupsAndGetEvents(long userId, List<Long> groupsToRemoveUserFrom,
+															 List<Long> groupsToAddUserTo, UserContextData context) throws DbConnectionException;
 
 	long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException;
 
@@ -246,6 +247,33 @@ public interface UserGroupManager extends AbstractManager {
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
 
-	List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
-			throws DbConnectionException;
+    List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds, Session session)
+            throws DbConnectionException;
+
+	/**
+	 *
+	 * @param credId
+	 * @param privilege
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long countCredentialUserGroups(long credId, UserGroupPrivilege privilege);
+
+	List<String> getCredentialUserGroupsNames(long credId, UserGroupPrivilege privilege, int limit);
+
+	/**
+	 *
+	 * @param credId
+	 * @param privilege
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long countCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege);
+
+	List<String> getCredentialVisibilityUsersNames(long credId, UserGroupPrivilege privilege, int limit);
+
+	Result<UserGroup> saveNewGroupAndGetEvents(long unitId, String name, boolean isDefault, UserContextData context) throws DbConnectionException;
+
+	Result<UserGroup> updateGroupNameAndGetEvents(long groupId, String newName, UserContextData context) throws DbConnectionException;
+
 }

@@ -4,8 +4,9 @@
 package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
+import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ import java.util.List;
 @ManagedBean(name = "credentialLibraryBeanInstructor")
 @Component("credentialLibraryBeanInstructor")
 @Scope("view")
-public class CredentialLibraryBeanInstructor implements Serializable {
+public class CredentialLibraryBeanInstructor extends DeliveriesBean implements Serializable {
 
 	private static final long serialVersionUID = -2145386401343084693L;
 
@@ -28,19 +29,22 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credManager;
 
-	private List<CredentialData> activeDeliveries;
+	private List<CredentialData> ongoingDeliveries;
 	private List<CredentialData> pendingDeliveries;
 	private List<CredentialData> pastDeliveries;
+
+	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.ALPHABETICALLY;
+	private CredentialDeliverySortOption[] sortOptions;
 
 	private String context = "name:library";
 
 	public void init() {
-		initializeValues();
+		sortOptions = CredentialDeliverySortOption.values();
 		loadCredentials();
 	}
 
-	private void initializeValues() {
-		activeDeliveries = new ArrayList<>();
+	private void initializeDeliveriesCollections() {
+		ongoingDeliveries = new ArrayList<>();
 		pendingDeliveries = new ArrayList<>();
 		pastDeliveries = new ArrayList<>();
 	}
@@ -48,22 +52,32 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 	public void loadCredentials() {
 		try {
 			List<CredentialData> deliveries = credManager.getCredentialDeliveriesForUserWithInstructPrivilege(
-					loggedUserBean.getUserId());
+					loggedUserBean.getUserId(), sortOption);
+			initializeDeliveriesCollections();
 			CredentialDeliveryUtil.populateCollectionsBasedOnDeliveryStartAndEnd(
-					deliveries, activeDeliveries, pendingDeliveries, pastDeliveries
+					deliveries, ongoingDeliveries, pendingDeliveries, pastDeliveries
 			);
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 		}
 	}
 
-	public List<CredentialData> getActiveDeliveries() {
-		return activeDeliveries;
+	@Override
+	public boolean canUserNavigateToWhoCanLearnPage() {
+		return false;
 	}
 
-	public void setActiveDeliveries(List<CredentialData> activeDeliveries) {
-		this.activeDeliveries = activeDeliveries;
+	public void applySortOption(CredentialDeliverySortOption sortOption) {
+		this.sortOption = sortOption;
+		loadCredentials();
+	}
+
+	public List<CredentialData> getOngoingDeliveries() {
+		return ongoingDeliveries;
+	}
+
+	public void setOngoingDeliveries(List<CredentialData> ongoingDeliveries) {
+		this.ongoingDeliveries = ongoingDeliveries;
 	}
 
 	public List<CredentialData> getPendingDeliveries() {
@@ -80,6 +94,22 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 
 	public void setPastDeliveries(List<CredentialData> pastDeliveries) {
 		this.pastDeliveries = pastDeliveries;
+	}
+
+	public CredentialDeliverySortOption getSortOption() {
+		return sortOption;
+	}
+
+	public void setSortOption(CredentialDeliverySortOption sortOption) {
+		this.sortOption = sortOption;
+	}
+
+	public CredentialDeliverySortOption[] getSortOptions() {
+		return sortOptions;
+	}
+
+	public void setSortOptions(CredentialDeliverySortOption[] sortOptions) {
+		this.sortOptions = sortOptions;
 	}
 
 }

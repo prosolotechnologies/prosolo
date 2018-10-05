@@ -1,7 +1,5 @@
 package org.prosolo.services.reporting;
 
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -12,6 +10,8 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Deprecated
 @Service("org.prosolo.services.reporting.UserActivityStatisticsObserver")

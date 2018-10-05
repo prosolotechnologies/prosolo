@@ -6,9 +6,7 @@ import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -20,7 +18,6 @@ import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
@@ -28,11 +25,11 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
+import org.prosolo.web.settings.data.NotificationSettingsData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,7 +37,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -93,7 +89,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
-		System.out.println("SESSION BEAN INITIALIZED");
 		learningContext = new LearningContext();
 	}
 	
@@ -132,30 +127,25 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setEmail((String) userData.get("email"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setNotificationsSettings((List<NotificationSettingsData>) userData.get("notificationsSettings"));
 			sessionData.setPassword((String) userData.get("password"));
 			sessionData.setSessionId((String) userData.get("sessionId"));
 			initialized = true;
 		}
 	}
 	
-	public void reinitializeSessionData(User user) {
+	public void reinitializeSessionData(UserData user, long organizationId) {
 		if (user != null) {
-//			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
-			long orgId = 0;
-			if (user.getOrganization() != null) {
-				orgId = user.getOrganization().getId();
-			}
-			sessionData.setOrganizationId(orgId);
+			sessionData.setOrganizationId(organizationId);
 			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
-			sessionData.setLastName(user.getLastname());
+			sessionData.setLastName(user.getLastName());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
 			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
-			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
+			sessionData.setFullName(setFullName(user.getName(), user.getLastName()));
 			initialized = true;
 		}
 	}
@@ -207,51 +197,43 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
-	public void loginOpenId(String email) {
-		boolean loggedIn;
+	public boolean loginUserOpenId(String email, String context) {
 		try {
-			loggedIn = authenticationService.loginOpenId(email);
-
+			boolean loggedIn = authenticationService.loginUserOpenID(email);
 			if (loggedIn) {
 				logger.info("LOGGED IN:" + email);
-				//setEmail(email);
-				
-				
 				init(email);
-				
 				logger.info("Initialized");
-				//change --
-				//ipAddress = accessResolver.findRemoteIPAddress();
+
 				logger.info("LOGING EVENT");
 				// this.checkIpAddress();
-				loggingService.logEvent(EventType.LOGIN, getUserContext(), getIpAddress());
-				// return "index?faces-redirect=true";
-				logger.info("REDIRECTING TO INDEX");
-				
-				HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
-						.getExternalContext().getRequest();
-				String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-				FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + new HomePageResolver().getHomeUrl(getOrganizationId()));
-				return;
+				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+				PageContextData lcd = new PageContextData(page, context, null);
+				loggingService.logEvent(EventType.LOGIN, getUserContext(lcd), getIpAddress());
+				return true;
 			}
-		} catch (org.prosolo.services.authentication.exceptions.AuthenticationException e) {
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+		} catch (Exception e) {
+			logger.error("Error", e);
 		}
+		return false;
+	}
 
-		PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
-		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?faces-redirect=true");
-			return;
-		} catch (IOException e) {
-			logger.error(e.getMessage());
+	public void loginOpenId(String email) {
+		boolean loggedIn = loginUserOpenId(email, null);
+
+		if (loggedIn) {
+			logger.info("REDIRECTING TO HOME PAGE FOR THE USER");
+
+			PageUtil.redirect(new HomePageResolver().getHomeUrl(getOrganizationId()));
+		} else {
+			PageUtil.fireErrorMessage("loginMessage", "Email or password incorrect.", null);
+			PageUtil.redirect("/login?faces-redirect=true");
 		}
 	}
 	
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent event) {
-		if(initialized){
+		if (initialized) {
 			final String ipAddress = this.getIpAddress();
 			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
 			//delete all temp files for this user
@@ -263,15 +245,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
-				try {
-					Map<String, String> parameters = new HashMap<>();
-					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
-							getUserId(), getOrganizationId(), event.getSession().getId(), null),
-							null, null, null, parameters);
-				} catch (EventException e) {
-					logger.error("Generate event failed.", e);
-				}
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("ip", ipAddress);
+				eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+						getUserId(), getOrganizationId(), event.getSession().getId(), null),
+						null, null, null, parameters);
+
 				userManager.fullCacheClear();
 				logger.debug("UserSession unbound:" + event.getName() + " session:" + event.getSession().getId()
 						+ " for user:" + getUserId());
@@ -363,12 +342,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			Authentication auth = getAuthenticationObject();
 			if(auth != null) {
 				if(auth.getCredentials() instanceof SAMLCredential) {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+					PageUtil.redirect("/saml/logout");
 				} else {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+					PageUtil.redirect("/logout");
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
@@ -393,10 +372,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		try {
 			forceUserLogout();
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			authenticationService.login((HttpServletRequest)context.getRequest(),
+			authenticationService.loginAs((HttpServletRequest)context.getRequest(),
 					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
-			//to avoid IllegalStateException: Commited or content written
-			FacesContext.getCurrentInstance().responseComplete();
 		} catch(AuthenticationException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());
@@ -497,30 +474,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
-//	public String switchRole(String rolename){
-//		getSessionData().setSelectedRole(rolename);
-//		String navigateTo="/index";
-//		if(rolename.equalsIgnoreCase("manager")){
-//			navigateTo= "/manage/credentialLibrary";
-//		}else if (rolename.equalsIgnoreCase("admin")){
-//			navigateTo= "/admin/users";
-//		}
-//		return navigateTo;
-// 	}
 
-//	public LearningGoalFilter getSelectedLearningGoalFilter() {
-//		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();
-//	}
-//
-//	public void setSelectedLearningGoalFilter(LearningGoalFilter selectedLearningGoalFilter) {
-//		getSessionData().setSelectedLearningGoalFilter(selectedLearningGoalFilter);
-//	}
-
-	public UserNotificationsSettings getNotificationsSettings() {
+	public List<NotificationSettingsData> getNotificationsSettings() {
 		return getSessionData() == null ? null : getSessionData().getNotificationsSettings();
 	}
 
-	public void setNotificationsSettings(UserNotificationsSettings notificationsSettings) {
+	public void setNotificationsSettings(List<NotificationSettingsData> notificationsSettings) {
 		getSessionData().setNotificationsSettings(notificationsSettings);
 	}
 	public String getIpAddress() {

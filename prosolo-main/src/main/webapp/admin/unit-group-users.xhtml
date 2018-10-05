@@ -12,7 +12,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        #{groupUsersBean.userGroupTitle} - Users
+        #{groupUsersBean.userGroupTitle} - Student Groups - #{groupUsersBean.unitTitle} - #{groupUsersBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -86,8 +86,8 @@
                 <li>
                     <h:link outcome="/admin/unit-credentials">
                         #{groupUsersBean.unitTitle}
-                        <f:param name="orgId" value="#{param.orgId}" />
-                        <f:param name="id" value="#{param.unitId}" />
+                        <f:param name="id" value="#{param.orgId}" />
+                        <f:param name="unitId" value="#{param.unitId}" />
                     </h:link>
                 </li>
                 <li>
@@ -134,7 +134,17 @@
                                                     <span>#{user.position}</span>
                                                 </div>
                                             </div>
+
                                             <div class="assignOpt">
+                                                <p:commandLink rendered="#{loggeduser.userId != user.id}"
+                                                               styleClass="loginAs"
+                                                               pt:data-toggle="modal"
+                                                               action="#{loggeduser.prepareLoginAsUser(user)}"
+                                                               update=":loginAs:formLoginAs:panelLoginAs"
+                                                               oncomplete="$('#loginAs').modal('show');">
+                                                    Login as...
+                                                </p:commandLink>
+
                                                 <p:commandLink styleClass="removeX" process="@this"
                                                                action="#{groupUsersBean.removeUserFromGroup(user)}"
                                                                update=":panelUsers :growlMain">
@@ -182,6 +192,8 @@
                 learningContext="#{learningContext}"
                 noResultsMessage="No students"
         />
+
+        <user:loginAs id="loginAs" />
 
     </ui:define>
 </ui:composition>

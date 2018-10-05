@@ -11,8 +11,10 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.*;
-import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.event.Event;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventObserver;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,6 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 		Result<Void> result = null;
 		try {
 			transaction = session.beginTransaction();
-			long userId = event.getActorId();
 			long tActId = event.getObject().getId();
 			TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, tActId);
 			//if automatic grade by activity completion is set maximum grade for all activity assessments is set
@@ -60,9 +61,8 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 			if (ta.getActivity().getGradingMode() == GradingMode.AUTOMATIC && !externalAutograde) {
 				PageContextData lcd = new PageContextData();
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
-				result = assessmentManager.updateActivityGradeInAllAssessmentsAndGetEvents(
-						userId, 0, ta.getTargetCompetence().getCompetence().getId(),
-						ta.getTargetCompetence().getId(), ta.getId(), ta.getActivity().getMaxPoints(), session,
+				result = assessmentManager.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
+						ta.getTargetCompetence().getUser().getId(), ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
 						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
 			}
 			transaction.commit();
@@ -74,14 +74,8 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 			HibernateUtil.close(session);
 		}
 
-		if (result != null && result.getEvents() != null) {
-			try {
-				for (EventData ev : result.getEvents()) {
-					eventFactory.generateEvent(ev);
-				}
-			} catch (EventException ee) {
-				logger.error(ee);
-			}
+		if (result != null) {
+			eventFactory.generateEvents(result.getEventQueue(), event.getObserversToExclude());
 		}
 	}
 

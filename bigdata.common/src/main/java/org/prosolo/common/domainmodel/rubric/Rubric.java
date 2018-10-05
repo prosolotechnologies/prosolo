@@ -20,6 +20,7 @@ import java.util.Set;
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","organization"})})
 public class Rubric extends BaseEntity {
 
+    private RubricType rubricType = RubricType.DESCRIPTIVE;
     private User creator;
     private Organization organization;
     private Set<Criterion> criteria;
@@ -30,6 +31,16 @@ public class Rubric extends BaseEntity {
     public Rubric() {
         criteria = new HashSet<>();
         levels = new HashSet<>();
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    public RubricType getRubricType() {
+        return rubricType;
+    }
+
+    public void setRubricType(RubricType rubricType) {
+        this.rubricType = rubricType;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

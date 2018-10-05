@@ -1,112 +1,32 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:settings="http://java.sun.com/jsf/composite/components/settings"
-	xmlns:people="http://java.sun.com/jsf/composite/components/people">
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:people="http://java.sun.com/jsf/composite/components/people">
 
-	<ui:define name="windowTitle">
-		People
-	</ui:define>
+    <ui:define name="windowTitle">
+        People - ProSolo
+    </ui:define>
 
-	<ui:define name="metadata">
-		<f:metadata>
-			<f:viewParam name="p" value="#{peopleBean.paginationData.pageString}" default="1" />
-			<f:viewAction action="#{peopleBean.init()}" />
-		</f:metadata>
-	</ui:define>
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="p" value="#{allPeopleBean.page}" default="1" />
+            <f:viewAction action="#{allPeopleBean.init()}" />
+        </f:metadata>
+    </ui:define>
 
-	<ui:define name="resourceTitle">
-		<h:panelGroup id="panelTitle">
-			<h1>People</h1>
-		</h:panelGroup>
-	</ui:define>
+    <ui:define name="resourceTitle">
+        <h:panelGroup id="panelTitle">
+            <h1>People</h1>
+            <people:peopleFollowHeaderLinks/>
+        </h:panelGroup>
+    </ui:define>
 
-	<ui:define name="content">
-		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-		
-		<div class="whiteBar">
-			<h:form id="formSearch">
-				<div class="container">
-					<div class="whiteBarContent">
-						<div class="whiteBarLeft">
-							<div class="searchBox">
-								<p:remoteCommand 
-									name="execSearchStudents" 
-									process="inputStudentSearch"
-									update=":formMainFollowingUsers:panelFollowingUsers"
-									action="#{peopleBean.resetAndSearch()}" />
-															
-								<h:inputText id="inputStudentSearch"
-									type="search"
-									styleClass="studentSearchField"
-									placeholder="Search people you follow"
-									value="#{peopleBean.searchTerm}"
-									onclick="$(this).select();"
-									onkeyup="searchListener(execSearchStudents);"/>
-							</div>
-						</div>
-						<div class="whiteBarRight"></div>
-					</div>
-				</div>
-			</h:form>
-		</div>
-
-		<div class="container">
-			<div class="row">
-				<h:form id="formMainFollowingUsers">
-					<p:growl id="formMainFollowingUsersGrowl" showDetail="true" globalOnly="true" />
-					
-					<h:panelGroup layout="block" styleClass="col-md-8" id="panelFollowingUsers">
-						<ul class="whiteBox peopleList peopleListDefaut">
-							<ui:fragment rendered="#{empty peopleBean.followingUsers}">
-								<li class="noPeople">You are not following anyone at the moment.</li>
-                        	</ui:fragment>
-						
-							<ui:repeat var="user" value="#{peopleBean.followingUsers}">
-								<li>
-									<div class="peopleListLeft">
-										<h:link outcome="/profile">
-											<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-												fullName="#{user.commaSeparatedFullName}" width="64" height="64" />
-											<f:param name="id" value="#{util:encodeId(user.id)}" />
-										</h:link>
-										<div>
-											<h2>
-												<h:link outcome="/profile">
-													#{user.commaSeparatedFullName}
-													<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
-												</h:link>
-											</h2>
-											<span>#{user.position}</span>
-										</div>
-									</div>
-								</li>
-							</ui:repeat>
-						</ul>
-						
-						<utilcomp:pagination id="pagination" 
-							bean="#{peopleBean}"
-							updateUrl="true"
-							toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
-					</h:panelGroup>
-					
-					<div class="col-md-4">
-						<div class="sidebarBlock">
-							<people:whoToFollow
-		                    	learningContext="people"
-		                    	toUpdate=":formMainFollowingUsers"
-		                    	callbackAction="#{peopleBean.init()}"
-		                    />
-	                    </div>
-					</div>
-				</h:form>
-			</div>
-		</div>
-	</ui:define>
+    <ui:define name="content">
+        <people:peopleFollow
+            noUsersMsg="No users."
+            bean="#{allPeopleBean}"
+        />
+    </ui:define>
 </ui:composition>

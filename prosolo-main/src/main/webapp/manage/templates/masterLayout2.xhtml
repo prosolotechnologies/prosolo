@@ -78,13 +78,14 @@
 								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
 										or util:getPagePath(view.viewId)  == 'competenceLibrary'
 										or util:getPagePath(view.viewId)  == 'credential-library-instructor'
-										or util:getPagePath(view.viewId)  == 'create-credential'
+										or util:getPagePath(view.viewId)  == 'credential-create'
 										or util:getPagePath(view.viewId)  == 'credential'
 										or util:getPagePath(view.viewId)  == 'credential-students'
 										or util:getPagePath(view.viewId)  == 'credential-editors'
 										or util:getPagePath(view.viewId)  == 'credential-who-can-learn'
 										or util:getPagePath(view.viewId)  == 'credential-instructors'
-										or util:getPagePath(view.viewId)  == 'credential-assessments'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-assessments'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-assessments-activity'
 										or util:getPagePath(view.viewId)  == 'credential-assessment'
 										or util:getPagePath(view.viewId)  == 'assessment-preview'
 										or util:getPagePath(view.viewId)  == 'credential-rss'
@@ -98,26 +99,12 @@
 										or util:getPagePath(view.viewId)  == 'competence-students'
 										or util:getPagePath(view.viewId)  == 'create-activity'
 										or util:getPagePath(view.viewId)  == 'activity'
-										or util:getPagePath(view.viewId)  == 'activity-responses'
-										or util:getPagePath(view.viewId)  == 'activity-response'
-										or util:getPagePath(view.viewId)  == 'activity-responses' ? 'active' : ''}">
+										or util:getPagePath(view.viewId)  == 'credential-delivery-'
+										or util:getPagePath(view.viewId)  == 'credential-delivery-activity-assessment' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
 									outcome="/manage/library"
 									value="Library" />
 							</li>
-							<ui:remove>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'students-students' or util:getPagePath(view.viewId)  == 'students-groups' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-students-students','mainmenu');"
-									outcome="/manage/students-students"
-									value="Students" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'manage-reports' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('manage-reports','mainmenu');"
-									value="Reports" />
-							</li>
-							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'rubricLibrary'
 										or util:getPagePath(view.viewId)  == 'newRubric'
@@ -138,7 +125,7 @@
 							aria-haspopup="true" aria-expanded="true">Create</a>
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
 							<li><h:link value="New #{msg['label.credential']}"
-									outcome="/manage/create-credential.xhtml" /></li>
+									outcome="/manage/credential-create.xhtml" /></li>
 							<li><h:link value="New #{msg['label.competence']}"
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
@@ -167,47 +154,49 @@
 							pt:data-toggle="dropdown" 
 							pt:aria-haspopup="true" 
 							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
+							action="#{managerNotificationsBean.markNotificationsAsRead}"
 							process="@this"
 							update="notificationLoop @this">
 							
 							Notifications
 							
-							<h:panelGroup id="unreadNotificationsDot">
+							<h:panelGroup id="unreadNotificationsDot"  >
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									class="#{managerNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 					
-						<h:panelGroup layout="block" id="notificationsContainer" 
-							class="dropdown-menu bullet pull-center"
+						<div class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
-								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
-										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3> 
-										#{notificationData.predicate}
-										<h3>#{notificationData.objectTitle}</h3>
-										#{notificationData.relationToTarget}
-										<h3>#{notificationData.targetTitle}</h3>
-										<span class="timestamp">
-											<utilcomp:convertTimeOutput
-													millis="#{notificationData.notificationTime}"
-													format="rel"
-											/>
-										</span>
-									</h:outputLink>
+
+							<h:panelGroup id="notificationsContainer">
+
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationData}">
+									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
+										<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
+											<span class="icon"></span>
+											<h3>#{notificationData.actor.fullName}</h3>
+											#{notificationData.predicate}
+											<h3>#{notificationData.objectTitle}</h3>
+											#{notificationData.relationToTarget}
+											<h3>#{notificationData.targetTitle}</h3>
+											<span class="timestamp">
+												<utilcomp:convertTimeOutput
+														millis="#{notificationData.notificationTime}"
+														format="rel"
+												/>
+											</span>
+										</h:outputLink>
+									</li>
+								</ui:repeat>
+
+								<li class="linkAllNotifications">
+									<h:link value="View all"
+										onclick="sendLogPageNavigation('notifications','mainmenu');"
+										outcome="/manage/notifications" />
 								</li>
-							</ui:repeat>
-							
-							<li class="linkAllNotifications">
-								<h:link value="View all"
-									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/manage/notifications" />
-							</li>
-						</h:panelGroup>
+							</h:panelGroup>
+						</div>
 					</div>
 					
 					<h:form id="userMenuForm">

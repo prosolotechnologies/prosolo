@@ -77,17 +77,16 @@
 	                       />
 	                   </div>
 	                   <div class="modal-footer alignLeft">
-	                   	   <p:commandLink 
-	                   	   	 	styleClass="btn btn-green"
-	                   	   	 	process="textAreaPostShareText"
-	                   	   	 	action="#{cc.attrs.bean.sharePost()}"
-	                   	   	 	update="#{cc.attrs.toUpdate}"
-	                   	   	 	oncomplete="$('#sharePostModal').modal('hide');">
+	                   	   <utilcomp:singleClickLink styleClass="btn btn-green"
+													 value="Share"
+													 process=":#{cc.clientId}:formSharePost:textAreaPostShareText"
+													 action="#{cc.attrs.bean.sharePost()}"
+													 update="#{cc.attrs.toUpdate}"
+													 oncomplete="$('#sharePostModal').modal('hide');">
 	                   	   	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 	                 			<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 	                 			<f:param name="service" value="name:post_share_dialog"/>
-	                   	   	 	Share
-	                   	   </p:commandLink>
+	                   	   </utilcomp:singleClickLink>
 	                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 	                   </div>
 	                  </ui:fragment>
@@ -115,7 +114,8 @@
 					userSearchInputSelector: '.postShareUserSuggestInputSelector',
 					userSearchAction: searchUsersMentionedInPostShare,
 					allowUrlPreview : false,
-					showHidePostOptions : false
+					showHidePostOptions : false,
+					context: '#{request.contextPath}'
 				});
 				newPostShare = $('#sharePostModal').data('newpost');
 			}

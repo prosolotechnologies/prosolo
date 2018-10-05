@@ -62,7 +62,7 @@
 							<div class="assessmentModalMetaLine" id="assessmentModalMetaLine">
 								<ui:fragment
 									rendered="#{askForAssessmentBean.credentialData.instructorPresent}">
-									<div class="assessmentModalMetaLeft">Instructor:</div>
+									<div class="assessmentModalMetaLeft">#{msg['label.instructor']}:</div>
 									<div class="assessmentModalMetaRight">
 										<img src="#{askForAssessmentBean.credentialData.instructorAvatarUrl}"
 											class="img-circle" width="32" height="32"
@@ -75,7 +75,7 @@
 
 						<div class="assessmentModalMetaLine">
 							<div class="assessmentModalMetaLeft">Ask to:</div>
-							<h:panelGroup layuot="block" id="selectAssessor"
+							<h:panelGroup layout="block" id="selectAssessor"
 								class="assessmentModalMetaRight">
 								<h:panelGroup
 									rendered="#{askForAssessmentBean.assessmentRequestData.assessorSet}">

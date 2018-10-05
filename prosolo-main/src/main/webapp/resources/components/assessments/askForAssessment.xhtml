@@ -1,0 +1,199 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+			  xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
+>
+
+	<composite:interface>
+		<composite:attribute name="resourceTitle" required="true" />
+		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="resource" required="true" />
+		<composite:attribute name="bean" required="true" type="org.prosolo.web.assessments.AskForAssessmentBean" />
+		<composite:attribute name="submitAssessmentRequestActionMethodName" required="true"/>
+		<composite:attribute name="submitAssessmentRequestAction" required="true" method-signature="void #{cc.attrs.submitAssessmentRequestActionMethodName}()"/>
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+		<script>
+			try {
+				Typekit.load({
+					async : true
+				});
+			} catch (e) {
+			}
+		</script>
+		<script>
+			function hideAssesmentDialog(dialogId) {
+				$('#' + dialogId).modal('hide');
+				$("body").removeAttr("class").removeAttr("style")
+				$("div.modal-backdrop.fade.in").remove()
+			}
+		</script>
+
+		<div class="modal fade" id="askAssessment" tabindex="-1" role="dialog"
+			aria-labelledby="askForAssessment">
+			<div class="modal-dialog" role="document">
+				<h:panelGroup layout="block" id="askForAssessmentPanel" styleClass="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&#215;</span>
+						</button>
+						<h2 class="modal-title" id="askForAssessment">Ask for Assessment</h2>
+					</div>
+
+					<div class="assessmentModalMeta">
+						<div class="assessmentModalMetaLine">
+							<div class="assessmentModalMetaLeft">#{msg['label.'.concat(cc.attrs.resource.toLowerCase())]}:</div>
+							<div class="assessmentModalMetaRight">
+								<h3>#{cc.attrs.resourceTitle}</h3>
+							</div>
+						</div>
+
+						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet or cc.attrs.bean.assessmentType ne 'INSTRUCTOR_ASSESSMENT'}" styleClass="assessmentModalMetaLine">
+							<div class="assessmentModalMetaLeft">Ask to:</div>
+							<h:panelGroup layuot="block" id="selectAssessor"
+								class="assessmentModalMetaRight">
+								<h:panelGroup
+									rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
+									<assessments:assessmentActorAvatar
+											actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+											avatarUrl="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
+											actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+											blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+											actorType="ASSESSOR"
+											displayAnonymousActorUniqueId="false"
+									/>
+									<h3>
+										<assessments:assessmentActorName
+											actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+											actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+											blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+											actorType="ASSESSOR"
+											displayAnonymousActorUniqueId="false"
+										/>
+									</h3>
+								</h:panelGroup>
+
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and cc.attrs.bean.blindAssessmentMode eq 'OFF'}">
+									<h:inputText rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
+												 onkeyup="searchListener(execSearchUsers);"
+												 value="#{cc.attrs.bean.peerSearchTerm}" id="newAssessorName"
+												 placeholder="Type peer's name..." name="newAssessorName"
+												 autocomplete="off"/>
+
+									<p:remoteCommand name="execSearchUsers"
+													 process="newAssessorName"
+													 action="#{cc.attrs.bean.searchPeers()}"
+													 update="usersListPanel"/>
+
+									<p:commandLink styleClass="btn btn-green-stroke btn-sm"
+												   rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
+												   value="Choose random"
+												   action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
+												   update="selectAssessor :#{cc.clientId}:askForAssessmentPanelContent"/>
+
+									<h:panelGroup id="usersListPanel">
+										<h:panelGroup rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.peersForAssessment != null and cc.attrs.bean.peersForAssessment.size() > 0}">
+											<ul id="usersList" class="dropdown-menu searchResultsDrop"
+												style="display: block;">
+												<ui:repeat value="#{cc.attrs.bean.peersForAssessment}"
+														   var="user" varStatus="iterator">
+													<li><p:commandLink style="cursor: pointer;"
+																	   id="userlink-#{user.id}"
+																	   action="#{cc.attrs.bean.setAssessor(user)}"
+																	   update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:askForAssessmentPanelContent">
+														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																			 fullName="#{user.fullName}"/>
+														<h3>#{user.fullName}</h3>
+													</p:commandLink></li>
+												</ui:repeat>
+											</ul>
+										</h:panelGroup>
+									</h:panelGroup>
+								</ui:fragment>
+							</h:panelGroup>
+						</h:panelGroup>
+					</div>
+
+					<h:panelGroup id="askForAssessmentPanelContent">
+						<h:panelGroup id="randomUserErrorMessage">
+							<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
+								<div class="alert alert-warning" role="alert">There is no
+									peer available to ask for assessment.</div>
+							</ui:fragment>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block"
+									  styleClass="modal-body alignLeft top30"
+									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
+													not cc.attrs.bean.assessmentRequestData.assessorSet and
+													not cc.attrs.bean.noRandomAssessor}"/>
+
+						<h:panelGroup layout="block"
+									  styleClass="modal-body alignLeft top30"
+									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
+													cc.attrs.bean.assessmentRequestData.assessorSet and
+													cc.attrs.bean.assessmentRequestData.newAssessment}">
+							<p>
+								Are you sure you want to send an assessment request to your peer?
+							</p>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block"
+									  styleClass="modal-body alignLeft top30"
+									  rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
+							<p>
+								You don't have a tutor assigned yet.
+							</p>
+						</h:panelGroup>
+
+						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}" styleClass="modal-body alignLeft top30">
+							<p>
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
+									Are you sure you want to notify your assessor to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
+									There is already an assessment request sent to this peer. Are you sure you want to notify the peer to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+								</ui:fragment>
+							</p>
+						</h:panelGroup>
+
+						<div class="modal-footer alignLeft">
+							<p:commandLink
+								rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}"
+								process="@this"
+								update="#{cc.attrs.toUpdate}"
+								action="#{cc.attrs.submitAssessmentRequestAction}"
+								styleClass="btn btn-green"
+								oncomplete="hideAssesmentDialog('askAssessment')">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+								<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
+															Submit
+							</p:commandLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+						</div>
+					</h:panelGroup>
+				</h:panelGroup>
+			</div>
+		</div>
+		<p:remoteCommand name="resetAskForAssessmentModal"
+			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
+			update="selectAssessor randomUserErrorMessage" />
+
+		<script>
+			$('#askAssessment').on('shown.bs.modal', function() {
+				$('#credential\\:formMain\\:newAssessorName').focus();
+			}).on('hidden.bs.modal', function() {
+				resetAskForAssessmentModal();
+			})
+		</script>
+	</composite:implementation>
+</ui:component>

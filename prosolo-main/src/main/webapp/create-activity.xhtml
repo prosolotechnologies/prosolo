@@ -6,7 +6,7 @@
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
 	<ui:define name="windowTitle">
-		#{activityEditBean.pageHeaderTitle}
+		#{activityEditBean.pageHeaderTitle} - #{activityEditBean.activityData.competenceName} - #{not empty activityEditBean.credentialTitle ? activityEditBean.credentialTitle.concat(' - ') : ''}ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">

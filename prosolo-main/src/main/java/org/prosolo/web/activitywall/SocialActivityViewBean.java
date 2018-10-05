@@ -63,10 +63,6 @@ public class SocialActivityViewBean implements Serializable {
 		return socialActivity;
 	}
 	
-	public void updateSocialActivityLastActionDate(Date date) {
-		socialActivity.setLastAction(date);
-	}
-	
 	public void initializeActivity() {
 		socialActivity = socialActivityManger.getSocialActivityById(decodedId, 
 				loggedUser.getUserId(), loggedUser.getLocale());
@@ -125,7 +121,7 @@ public class SocialActivityViewBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator(SocialActivityData1 sa) {
-		return loggedUser.getUserId() == sa.getActor().getId();
+		return sa.getActor() != null && loggedUser.getUserId() == sa.getActor().getId();
 	}
 	
 	/*

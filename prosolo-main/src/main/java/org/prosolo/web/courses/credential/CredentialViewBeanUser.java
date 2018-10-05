@@ -4,25 +4,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
-import org.prosolo.search.UserTextSearch;
-import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentRequestData;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AnnouncementManager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.AskForCredentialAssessmentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -52,14 +55,14 @@ public class CredentialViewBeanUser implements Serializable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private AssessmentManager assessmentManager;
-	@Autowired
-	@Qualifier("taskExecutor")
-	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
-	private EventFactory eventFactory;
-	@Inject private UserTextSearch userTextSearch;
-	@Inject private Competence1Manager compManager;
-	@Inject private AnnouncementManager announcementManager;
+	@Inject
+	private Competence1Manager compManager;
+	@Inject
+	private AnnouncementManager announcementManager;
+	@Inject
+	private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject
+	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
 
 	private String id;
 	private long decodedId;
@@ -88,12 +91,12 @@ public class CredentialViewBeanUser implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					if (justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getTitle());
+						PageUtil.fireSuccessfulInfoMessage(	"You have enrolled the " + credentialData.getIdData().getTitle());
 					}
 	
 					if (credentialData.isEnrolled()) {
 						numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
-						numberOfTags = credentialManager.getNumberOfTags(credentialData.getId());
+						numberOfTags = credentialManager.getNumberOfTags(credentialData.getIdData().getId());
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
@@ -108,6 +111,10 @@ public class CredentialViewBeanUser implements Serializable {
 		}
 	}
 
+	public void initAskForAssessment(AssessmentType aType) {
+		askForAssessmentBean.init(decodedId, credentialData.getTargetCredId(), aType, credentialData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
+	}
+
 	private void retrieveUserCredentialData() {
 		//note: if user is enrolled he does not need Learn privilege
 		access = credentialManager.getResourceAccessData(decodedId, loggedUser.getUserId(),
@@ -115,11 +122,6 @@ public class CredentialViewBeanUser implements Serializable {
 		credentialData = credentialManager
 				.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
 	}
-
-//	public boolean isCurrentUserCreator() {
-//		return credentialData == null || credentialData.getCreator() == null ? false
-//				: credentialData.getCreator().getId() == loggedUser.getUserId();
-//	}
 
 	/*
 	 * ACTIONS
@@ -133,19 +135,41 @@ public class CredentialViewBeanUser implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
-		} catch (EventException e) {
-			logger.error("Error", e);
 		}
 	}
 
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if (!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
+
 			if (cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
 				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			}
+
+			// determining whether user can access activities, i.e. whether to render activity titles as links
+			// or as a label.
+			boolean canAccessActivities = true;
+
+			// if user is not enrolled in a credential, then he can not access activities unless having the Learn
+			// privilege to the parent competency
+			if (!credentialData.isEnrolled()) {
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
+
+				ResourceAccessData compAccess = compManager.getResourceAccessData(cd.getCompetenceId(), loggedUser.getUserId(), req);
+
+				if (!compAccess.isCanAccess()) {
+					canAccessActivities = false;
+				}
+			}
+			for (ActivityData activity : activities) {
+				activity.setCanAccess(canAccessActivities);
+			}
+
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
@@ -153,11 +177,7 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void enrollInCredential() {
 		try {
-			PageContextData lcd = new PageContextData();
-			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
-			lcd.setLearningContext(PageUtil.getPostParameter("context"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext(lcd));
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext());
 			//reload user credential data after enroll
 			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
@@ -165,8 +185,6 @@ public class CredentialViewBeanUser implements Serializable {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 
@@ -196,6 +214,24 @@ public class CredentialViewBeanUser implements Serializable {
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(
 				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
+	}
+
+	/**
+	 * This method is called after student has chosen an instructor from the modal (it this option is enabled for
+	 * the delivery)
+	 */
+	public void updateAfterInstructorIsAssigned() {
+		InstructorData instructor = assignStudentToInstructorDialogBean.getInstructor();
+
+		if (instructor != null) {
+			credentialData.setInstructorId(instructor.getInstructorId());
+			credentialData.setInstructorAvatarUrl(instructor.getUser().getAvatarUrl());
+			credentialData.setInstructorFullName(instructor.getUser().getFullName());
+		} else {
+			credentialData.setInstructorId(-1);
+			credentialData.setInstructorAvatarUrl(null);
+			credentialData.setInstructorFullName(null);
+		}
 	}
 
 	/*
@@ -244,22 +280,6 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setAssessmentRequestData(AssessmentRequestData assessmentRequestData) {
 		this.assessmentRequestData = assessmentRequestData;
-	}
-
-	public AssessmentManager getAssessmentManager() {
-		return assessmentManager;
-	}
-
-	public void setAssessmentManager(AssessmentManager assessmentManager) {
-		this.assessmentManager = assessmentManager;
-	}
-
-	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-	}
-
-	public void setEventFactory(EventFactory eventFactory) {
-		this.eventFactory = eventFactory;
 	}
 
 	public long getNumberOfUsersLearningCred() {

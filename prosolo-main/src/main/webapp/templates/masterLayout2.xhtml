@@ -82,6 +82,15 @@
 									or util:getPagePath(view.viewId)  == 'activity-responses'
 									or util:getPagePath(view.viewId)  == 'assessments'
 									or util:getPagePath(view.viewId)  == 'announcement'
+									or util:getPagePath(view.viewId)  == 'credential-instructor-assessment'
+									or util:getPagePath(view.viewId)  == 'credential-self-assessment'
+									or util:getPagePath(view.viewId)  == 'credential-peer-assessments'
+									or util:getPagePath(view.viewId)  == 'credential-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-instructor-assessments'
+									or util:getPagePath(view.viewId)  == 'competence-instructor-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-self-assessment'
+									or util:getPagePath(view.viewId)  == 'competence-peer-assessments'
+									or util:getPagePath(view.viewId)  == 'competence-peer-assessment'
 									? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('library','mainmenu');"
 									value="Library" outcome="/credentialLibrary" />
@@ -90,6 +99,13 @@
 								class="#{util:getPagePath(view.viewId)  == 'people' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('people','mainmenu');"
 									value="People" outcome="/people" />
+							</li>
+							<li role="presentation" class="#{util:getPagePath(view.viewId)  eq 'evidences'
+								or util:getPagePath(view.viewId) eq 'evidence'
+								or util:getPagePath(view.viewId) eq 'evidence-edit'
+								? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('evidence', 'mainmenu');"
+										value="Evidence" outcome="/evidences" />
 							</li>
 						</ul>
 					</nav>
@@ -114,7 +130,7 @@
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" 
 							process="@this"
-							update=":messagesLink :notificationsIcon :notificationsContainer" 
+							update=":messagesLink :notificationsIcon :notificationsContainer"
 							widgetVar="messagesPoll" 
 							autoStart="true" />
 					</h:form>
@@ -130,51 +146,53 @@
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="notificationsIcon"
-							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}" 
-							pt:data-toggle="dropdown" 
-							pt:aria-haspopup="true" 
-							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
-							process="@this"
-							update="notificationLoop @this">
-							
+									   styleClass="iconNotifications #{studentNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
+									   pt:data-toggle="dropdown"
+									   pt:aria-haspopup="true"
+									   pt:aria-expanded="true"
+									   action="#{studentNotificationsBean.markNotificationsAsRead}"
+									   process="@this"
+									   update="notificationLoop @this">
+
 							Notifications
 							
 							<h:panelGroup id="unreadNotificationsDot">
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									class="#{studentNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
-					
-						<h:panelGroup layout="block" id="notificationsContainer" 
-							class="dropdown-menu bullet pull-center"
+
+						<div class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
-								<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
-										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3> 
-										#{notificationData.predicate}
-										<h3>#{notificationData.objectTitle}</h3>
-										#{notificationData.relationToTarget}
-										<h3>#{notificationData.targetTitle}</h3>
-										<span class="timestamp">
-											<utilcomp:convertTimeOutput
-													millis="#{notificationData.notificationTime}"
-													format="rel"
-											/>
-										</span>
-									</h:outputLink>
+
+							<h:panelGroup id="notificationsContainer">
+
+								<ui:repeat id="notificationLoop" var="notificationData" value="#{studentNotificationsBean.notificationData}">
+									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
+										<h:outputLink value="#{studentNotificationsBean.domainPrefix}#{notificationData.link}">
+											<span class="icon"></span>
+											<h3>#{notificationData.actor.fullName}</h3>
+											#{notificationData.predicate}
+											<h3>#{notificationData.objectTitle}</h3>
+											#{notificationData.relationToTarget}
+											<h3>#{notificationData.targetTitle}</h3>
+											<span class="timestamp">
+												<utilcomp:convertTimeOutput
+														millis="#{notificationData.notificationTime}"
+														format="rel"
+												/>
+											</span>
+										</h:outputLink>
+									</li>
+								</ui:repeat>
+
+								<li class="linkAllNotifications">
+									<h:link value="View all"
+										onclick="sendLogPageNavigation('notifications','mainmenu');"
+										outcome="/notifications" />
 								</li>
-							</ui:repeat>
-							
-							<li class="linkAllNotifications">
-								<h:link value="View all"
-									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/notifications" />
-							</li>
-						</h:panelGroup>
+							</h:panelGroup>
+						</div>
 					</div>
 
 					<h:form id="userMenuForm">
@@ -188,11 +206,6 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li>
-									<h:link value="Achievements" 
-										onclick="sendLogPageNavigation('achievements','mainmenu');"
-										outcome="/achievements/credentials" />
-								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"

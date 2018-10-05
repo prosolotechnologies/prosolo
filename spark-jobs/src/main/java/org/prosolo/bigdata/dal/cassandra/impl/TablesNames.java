@@ -52,4 +52,6 @@ public class TablesNames {
 
     public static final String JOBS_LOGS="jobs_logs";
     public static final String JOBS_SUMMARIES ="jobs_summaries" ;
+
+    public static final String NOTIFICATION_DATA="notification_data";
 }

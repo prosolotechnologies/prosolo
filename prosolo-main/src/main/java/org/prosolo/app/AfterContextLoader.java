@@ -5,6 +5,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -14,14 +15,12 @@ import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
@@ -31,6 +30,7 @@ import java.util.Arrays;
 public class AfterContextLoader implements ServletContextListener {
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
+
 	ReliableConsumer systemConsumer =null;
 	ReliableConsumer sessionConsumer =null;
 	ReliableConsumer broadcastConsumer=null;
@@ -60,7 +60,6 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 
 		if (settings.config.init.formatDB) {
-			//initialize ES indexes
 			try {
 				logger.debug("initialize elasticsearch indexes");
 				initElasticSearchIndexes();
@@ -97,7 +96,7 @@ public class AfterContextLoader implements ServletContextListener {
 			try {
 				esAdmin.createNonrecreatableSystemIndexesIfNotExist();
 			} catch (IndexingServiceNotAvailable e) {
-				logger.error("Error", e);
+				logger.warn("Warning", e);
 			}
 		}
 	
@@ -112,23 +111,16 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 		
 		logger.debug("Initialize thread to start elastic search");
-		new Thread(new Runnable() {
-			@SuppressWarnings("unused")
-			@Override
-			public void run() {
-				try {
-					Client client = ElasticSearchFactory.getClient();
-				} catch (NoNodeAvailableException e) {
-					logger.error(e);
-				}
-				
-				System.out.println("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
-						+ CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
-				if (!CommonSettings.getInstance().config.rabbitMQConfig.distributed || CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
-					System.out.println("Initializing Twitter Streams Manager here. REMOVED");
-				}
-			}
-		}).start();
+		new Thread(() -> {
+            try {
+                Client client = ElasticSearchFactory.getClient();
+            } catch (NoNodeAvailableException e) {
+                logger.error(e);
+            }
+
+            logger.debug("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
+                    + CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
+        }).start();
 		logger.debug("initialize Application services");
 		
 		initApplicationServices();
@@ -167,25 +159,22 @@ public class AfterContextLoader implements ServletContextListener {
 	}
 	
 	private void initStaticData() {
-		try {
-			Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
+		Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
 
-			ServiceLocator.getInstance().getService(UserManager.class)
-					.createNewUser(
-							0,
-							Settings.getInstance().config.init.defaultUser.name,
-							Settings.getInstance().config.init.defaultUser.lastname,
-							Settings.getInstance().config.init.defaultUser.email,
-							true,
-							Settings.getInstance().config.init.defaultUser.pass,
-							null, 
-							null,
-							null,
-							Arrays.asList(superAdminRoleId),
-							true);
-		} catch (EventException e) {
-			logger.error(e);
-		} catch (UserAlreadyRegisteredException e) {
+		try {
+			ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
+                    0,
+                    Settings.getInstance().config.init.defaultUser.name,
+                    Settings.getInstance().config.init.defaultUser.lastname,
+                    Settings.getInstance().config.init.defaultUser.email,
+                    true,
+                    Settings.getInstance().config.init.defaultUser.pass,
+                    null,
+                    null,
+                    null,
+                    Arrays.asList(superAdminRoleId),
+                    true);
+		} catch (IllegalDataStateException e) {
 			logger.error(e);
 		}
 	}
@@ -193,35 +182,23 @@ public class AfterContextLoader implements ServletContextListener {
 	/* Application Shutdown Event */
 	public void contextDestroyed(ServletContextEvent ce) {
 		 systemConsumer.StopAsynchronousConsumer();
-		sessionConsumer.StopAsynchronousConsumer();
-		broadcastConsumer.StopAsynchronousConsumer();
+		 sessionConsumer.StopAsynchronousConsumer();
+		 broadcastConsumer.StopAsynchronousConsumer();
 
 	}
 	
 	void initRepository(int bc) {
 		switch (bc) {
 		
-		case BusinessCase.BLANK:
-			try {
-				ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
-			} catch (Exception e) {
-				logger.error("Could not initialise Repository for BC BLANK:", e);
-			}
+		case 0:
+			ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
 			break;
-
-		case BusinessCase.AU_TEST:
-			try {
-				BusinessCase2_AU.initRepository();
-			} catch (Exception e) {
-				logger.error("Could not initialise Repository for BC AU_TEST:", e);
-			}
-			break;
-		case BusinessCase.STATISTICS:
-			ServiceLocator.getInstance().getService(BusinessCase3_Statistics.class).initRepository();
-			break;
-		case BusinessCase.EDX:
+		case 4:
 			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
-	break;
+			break;
+		case 5:
+			ServiceLocator.getInstance().getService(BusinessCase5_UniSA.class).initRepository();
+			break;
 		default:
 			break;
 		}

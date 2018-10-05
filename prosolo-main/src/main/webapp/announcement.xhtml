@@ -8,7 +8,7 @@
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
 	<ui:define name="windowTitle">
-		#{announcementBeanStudent.announcementData.title} - #{announcementBeanStudent.credentialData.title} - ProSolo
+		#{announcementBeanStudent.announcementData.title} - Announcements - #{announcementBeanStudent.credentialData.idData.title} - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -22,7 +22,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
     <ui:define name="resourceTitle">
-		<h1>#{announcementBeanStudent.credentialData.title}</h1>
+		<h1>#{announcementBeanStudent.credentialData.idData.title}</h1>
 	</ui:define>
 
 	<ui:define name="content">
@@ -57,7 +57,7 @@
 								<div class="tagCompleted item">Completed</div>
 							</ui:fragment>
 
-							<ui:fragment>
+							<ui:remove>
 								<h:link outcome="/assessments"
 										class="btn btn-green-stroke btn-sm item">
 									View Assessments
@@ -73,10 +73,10 @@
 								</h:commandButton>
 
 								<courses:askForAssessmentModal id='askForAssessmentModal'
-															   credentialTitle="#{announcementBeanStudent.credentialData.title}"
+															   credentialTitle="#{announcementBeanStudent.credentialData.idData.title}"
 															   role="#{cc.attrs.role}"
 															   toUpdate=":formMain:growlMain"/>
-							</ui:fragment>
+							</ui:remove>
 						</div>
 						<div class="whiteBarRight">
 							<h:panelGroup
@@ -95,7 +95,7 @@
 	        <ol class="breadcrumb">
 	            <li><h:link outcome="library">#{msg['label.credential.plural']}</h:link></li>
 	            <li> 
-	            	<h:link outcome="credential">#{announcementBeanStudent.credentialData.title}
+	            	<h:link outcome="credential">#{announcementBeanStudent.credentialData.idData.title}
 			                <f:param name="id" value="#{param['id']}"></f:param>
 			        </h:link>
 			    </li>
@@ -124,8 +124,7 @@
 							<utilcomp:convertTimeOutput
 									millis="#{announcementBeanStudent.announcementData.creationTime}"
 									format="MMM DD, YYYY"
-							/>
-							, by
+							/>, by
 						</h2>
 						<div class="user32">
 							<a href="#">

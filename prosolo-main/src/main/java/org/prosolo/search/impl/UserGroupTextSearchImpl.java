@@ -21,7 +21,6 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -58,8 +57,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return start;
 	}
-	
-	@Transactional
+
 	@Override
 	public PaginatedResult<UserGroupData> searchUserGroups (
 			long orgId, long unitId, String searchString, int page, int limit) {
@@ -72,7 +70,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-			
+
 				for (SearchHit hit : sResponse.getHits()) {
 					logger.info("ID: " + hit.getSource().get("id"));
 					long id = Long.parseLong(hit.getSource().get("id").toString());
@@ -89,9 +87,13 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return response;
 	}
-	
+
+	/**
+	 * This method is used for /manage/students, but for now we are not using that page
+	 * @deprecated
+	 */
+	@Deprecated
 	@Override
-	@Transactional
 	public PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit) {
 		
@@ -132,9 +134,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		Client client = ElasticSearchFactory.getClient();
 		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
 		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
-		
+
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
+				.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -153,7 +156,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 				.setQuery(bQueryBuilder)
 				.setFrom(start).setSize(size)
-				.addSort("name", SortOrder.ASC);
+				.addSort("name.sort", SortOrder.ASC);
 		//System.out.println(srb.toString());
 		return srb.execute().actionGet();
 	}
@@ -318,7 +321,17 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name");
+					.field("name")
+					/*
+					rewrite is used for multi term queries like query string query with wildcard. By default
+					when wildcard term is rewritten scores are not computed but each matched document receives constant
+					score. When changed to top_terms_N, it does compute score for top N terms.
+
+					There is no particular reason why N is set to 50. Alternative for this rewrite method would be to use
+					'scoring_boolean' rewrite which would compute scores for all terms matched by the wildcard which can lead to
+					exceptions
+					 */
+					.rewrite("top_terms_50");
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
 			bqBuilder.must(qb);
@@ -340,7 +353,8 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bqBuilder)
 					.setSize(limit)
-					.addSort("name", SortOrder.ASC);
+					.addSort("_score", SortOrder.DESC)
+					.addSort("name.sort", SortOrder.ASC);
 	
 			SearchResponse groupResponse = srb.execute().actionGet();
 			SearchHit[] groupHits = null;

@@ -1,19 +1,28 @@
 package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
+import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
+import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -21,18 +30,27 @@ public class CredentialDataFactory {
 
 	@Inject private CredentialDeliveryStatusFactory deliveryStatusFactory;
 	
-	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
-			Set<Tag> hashtags, boolean shouldTrackChanges) {
+	public CredentialData getCredentialData(User createdBy, Credential1 credential, CredentialCategory category,
+											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags,
+											Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null) {
 			return null;
 		}
 		CredentialData cred = new CredentialData(false);
 		cred.setVersion(credential.getVersion());
-		cred.setId(credential.getId());
+		cred.getIdData().setId(credential.getId());
+		cred.setOrganizationId(credential.getOrganization().getId());
 		cred.setType(credential.getType());
-		cred.setTitle(credential.getTitle());
+		cred.getIdData().setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
+		if (category != null) {
+			cred.setCategory(new CredentialCategoryData(category.getId(), category.getTitle(), false));
+		}
+		if (assessmentConfig != null) {
+			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
+		}
+
 		if (tags != null) {
 			cred.setTags(credential.getTags());
 			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
@@ -51,8 +69,21 @@ public class CredentialDataFactory {
 					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
-		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
+
+		cred.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.getAssessorAssignmentMethod(credential.getAssessorAssignmentMethod()));
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
+
+		boolean learningStagesEnabled = false;
+		if (credential.getLearningStage() != null) {
+			learningStagesEnabled = true;
+			LearningStage ls = credential.getLearningStage();
+			cred.setLearningStage(new LearningStageData(ls.getId(), ls.getTitle(), ls.getOrder(), false, false));
+			cred.setFirstLearningStageCredentialId(
+					credential.getFirstLearningStageCredential() == null
+							? credential.getId()
+							: credential.getFirstLearningStageCredential().getId());
+		}
+		cred.setLearningStageEnabled(learningStagesEnabled);
 
 		if (credential.getType() == CredentialType.Delivery) {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
@@ -61,6 +92,17 @@ public class CredentialDataFactory {
 			cred.setDeliveryEndTime(DateUtil.getMillisFromDate(credential.getDeliveryEnd()));
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
 					credential.getDeliveryStart(), credential.getDeliveryEnd()));
+			cred.getIdData().setOrder(credential.getDeliveryOrder());
+		}
+
+		cred.getAssessmentSettings().setMaxPoints(credential.getMaxPoints());
+		cred.getAssessmentSettings().setMaxPointsString(credential.getMaxPoints() > 0 ? String.valueOf(credential.getMaxPoints()) : "");
+		cred.getAssessmentSettings().setGradingMode(credential.getGradingMode());
+		//set rubric data
+		if (credential.getRubric() != null) {
+			cred.getAssessmentSettings().setRubricId(credential.getRubric().getId());
+			cred.getAssessmentSettings().setRubricName(credential.getRubric().getTitle());
+			cred.getAssessmentSettings().setRubricType(credential.getRubric().getRubricType());
 		}
 		
 		if (shouldTrackChanges) {
@@ -68,21 +110,32 @@ public class CredentialDataFactory {
 		}
 		return cred;
 	}
+
+	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CredentialAssessmentConfig> assessmentConfig) {
+		List<AssessmentTypeConfig> types = new ArrayList<>();
+		for (CredentialAssessmentConfig cac : assessmentConfig) {
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT, cac.getBlindAssessmentMode()));
+		}
+		return types;
+	}
 	
-	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
+	public CredentialData getCredentialData(TargetCredential1 credential, User createdBy, User student,
+											Set<CredentialAssessmentConfig> assessmentConfig, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if (credential == null || credential.getCredential() == null) {
 			return null;
 		}
 		Credential1 c = credential.getCredential();
 		//get credential specific data
-		CredentialData cred = getCredentialData(createdBy, c, tags, hashtags, false);
+		CredentialData cred = getCredentialData(createdBy, c, null, null, tags, hashtags, false);
 		
 		//set target credential specific data
 		cred.setEnrolled(true);
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
 		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+		if (student != null) {
+			cred.setStudent(new UserData(student));
+		}
 		
 		if (credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
 			cred.setInstructorPresent(true);
@@ -94,6 +147,15 @@ public class CredentialDataFactory {
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());
 		}
+
+		if (assessmentConfig != null) {
+			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
+		}
+
+		cred.setCredentialAssessmentsDisplayed(credential.isCredentialAssessmentsDisplayed());
+		cred.setCompetenceAssessmentsDisplayed(credential.isCompetenceAssessmentsDisplayed());
+		cred.setEvidenceDisplayed(credential.isEvidenceDisplayed());
+
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
@@ -113,9 +175,9 @@ public class CredentialDataFactory {
 	 * @return
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
-			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
+			CredentialCategory category, Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
 			long nextCompToLearnId) {
-		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
+		CredentialData cred = getCredentialData(createdBy, credential, category,null, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
 		cred.setEnrolled(true);
@@ -154,4 +216,38 @@ public class CredentialDataFactory {
 		return name + (lastName != null ? " " + lastName : "");
 	}
 
+	/**
+	 * This method assumes that credentials are already sorted by category
+	 *
+	 * @param credentialsSortedByCategory
+	 * @return
+	 */
+	public List<CategorizedCredentialsData> groupCredentialsByCategory(List<TargetCredentialData> credentialsSortedByCategory) {
+		if (credentialsSortedByCategory == null) {
+			return null;
+		}
+		if (credentialsSortedByCategory.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<CategorizedCredentialsData> categorizedCredentials = new ArrayList<>();
+		CredentialCategoryData currentCategory = null;
+		List<TargetCredentialData> credentialsInCurrentCategory = null;
+		boolean first = true;
+		for (TargetCredentialData cd : credentialsSortedByCategory) {
+			if (!(cd.getCategory() == currentCategory || (cd.getCategory() != null && currentCategory != null && cd.getCategory().getId() == currentCategory.getId())) || first) {
+				//if category is different than current one, we should add current data to the list because data for current category is collected
+				if (!first) {
+					categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
+				} else {
+					first = false;
+				}
+				currentCategory = cd.getCategory();
+				credentialsInCurrentCategory = new ArrayList<>();
+			}
+			credentialsInCurrentCategory.add(cd);
+		}
+		//add last category with credentials
+		categorizedCredentials.add(new CategorizedCredentialsData(currentCategory, credentialsInCurrentCategory));
+		return categorizedCredentials;
+	}
 }

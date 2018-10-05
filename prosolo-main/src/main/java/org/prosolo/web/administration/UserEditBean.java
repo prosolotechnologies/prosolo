@@ -1,27 +1,21 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
-import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,14 +72,14 @@ public class UserEditBean implements Serializable {
 	private long decodedOrgId;
 	private String id;
 	private long decodedId;
-	private AccountData accountData;
+	private UserData accountData;
 	private UserData userToDelete;
 	private UserData user;
 	private UserData newOwner = new UserData();
-	private List<RoleCheckboxData> allRoles;
 	private List<UserData> users;
 	private String searchTerm;
-	private List<Role> userRoles;
+	private List<Role> allRoles;
+	private List<RoleCheckboxData> allRolesCheckBoxData;
 	private List<UserData> usersToExclude = new ArrayList<>();
 
 	private String organizationTitle;
@@ -116,7 +110,7 @@ public class UserEditBean implements Serializable {
 	private void initDataForPasswordEdit() {
 		decodedId = idEncoder.decodeId(id);
 		user = userManager.getUserData(decodedId);
-		accountData = new AccountData();
+		accountData = new UserData();
 		usersToExclude.add(user);
 	}
 
@@ -155,7 +149,7 @@ public class UserEditBean implements Serializable {
 			if (decodedId > 0) {
 				user = userManager.getUserWithRoles(decodedId, decodedOrgId);
 				if (user != null) {
-					accountData = new AccountData();
+					accountData = new UserData();
 				} else {
 					user = new UserData();
 					PageUtil.fireErrorMessage("Admin cannot be found");
@@ -165,7 +159,7 @@ public class UserEditBean implements Serializable {
 			else {
 				user = new UserData();
 			}
-			userRoles = roleManager.getRolesByNames(rolesArray);
+			allRoles = roleManager.getRolesByNames(rolesArray);
 			usersToExclude.add(user);
 			prepareRoles();
 		} catch (Exception e) {
@@ -176,12 +170,12 @@ public class UserEditBean implements Serializable {
 
 	private void prepareRoles() {
 		try {
-			allRoles = new ArrayList<>();
-			if (userRoles != null) {
-				for (int i = 0; i < userRoles.size(); i++) {
-					Role r = userRoles.get(i);
+			allRolesCheckBoxData = new ArrayList<>();
+			if (allRoles != null) {
+				for (int i = 0; i < allRoles.size(); i++) {
+					Role r = allRoles.get(i);
 					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(), this.user.hasRole(r.getId()), r.getId());
-					allRoles.add(roleCheckboxData);
+					allRolesCheckBoxData.add(roleCheckboxData);
 				}
 			}
 		} catch (DbConnectionException e) {
@@ -199,24 +193,20 @@ public class UserEditBean implements Serializable {
 	}
 
 	private List<Long> getSelectedRoles(){
-		return allRoles.stream()
-				.filter(r -> r.isSelected())
+		return allRolesCheckBoxData.stream()
+				.filter(RoleCheckboxData::isSelected)
 				.map(RoleCheckboxData::getId)
 				.collect(Collectors.toList());
 	}
 
 	private void createNewUser() {
 		try {
-			User adminUser = userManager.createNewUser(decodedOrgId, this.user.getName(), this.user.getLastName(),
+			User adminUser = userManager.createNewUserAndSendEmail(decodedOrgId, this.user.getName(), this.user.getLastName(),
 					this.user.getEmail(),true, this.user.getPassword(), this.user.getPosition(),
-					null, null, getSelectedRoles());
-
-			this.user.setId(adminUser.getId());
+					null, null, getSelectedRoles(), false);
 
 			logger.debug("New user (" + adminUser.getName() + " " + adminUser.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
-
-			sendNewPassword();
 
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("A new user has been created");
 			if (decodedOrgId > 0) {
@@ -224,14 +214,9 @@ public class UserEditBean implements Serializable {
 			} else {
 				PageUtil.redirect("/admin/admins");
 			}
-		} catch (UserAlreadyRegisteredException e) {
-			logger.debug(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.debug(e);
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to save user data");
+			PageUtil.fireErrorMessage("Error trying to save user data");
 		}
 	}
 
@@ -247,17 +232,18 @@ public class UserEditBean implements Serializable {
 					this.user.getPassword(),
 					this.user.getPosition(),
 					getSelectedRoles(),
-					userRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
+					allRoles.stream().map(Role::getId).collect(Collectors.toList()),
 					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
+
+			// refresh user roles
+			this.user.setRoleIds(getSelectedRoles());
 
 			PageUtil.fireSuccessfulInfoMessage("The user has been updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the user");
-		} catch (EventException e) {
-			logger.error(e);
 		}
 	}
 
@@ -274,90 +260,11 @@ public class UserEditBean implements Serializable {
 		newOwner.setUserSet(false);
 	}
 
-	public UserData getUser() {
-		return user;
-	}
-
-	public void setUser(UserData user) {
-		this.user = user;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public List<RoleCheckboxData> getAllRoles() {
-		return allRoles;
-	}
-
-	public void setAllRoles(List<RoleCheckboxData> allRoles) {
-		this.allRoles = allRoles;
-	}
-
-	public AccountData getAccountData() {
-		return accountData;
-	}
-
-	public List<UserData> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<UserData> users) {
-		this.users = users;
-	}
-
-	public UserTextSearch getTextSearch() {
-		return textSearch;
-	}
-
-	public void setTextSearch(UserTextSearch textSearch) {
-		this.textSearch = textSearch;
-	}
-
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	public UserData getNewOwner() {
-		return newOwner;
-	}
-
 	public void setNewOwner(UserData userData) {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
 		newOwner.setFullName(userData.getFullName());
 		newOwner.setPosition(userData.getPosition());
-	}
-
-	private void sendNewPassword() {
-
-		final User user = userManager.getUser(this.user.getEmail());
-
-		taskExecutor.execute(() -> {
-			Session session = (Session) userManager.getPersistence().openSession();
-			try {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-				CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-				session.flush();
-				if (resetLinkSent) {
-					logger.info("Password instructions have been sent");
-				} else {
-					logger.error("Error sending password instruction");
-				}
-			}catch (Exception e){
-				logger.error("Exception in handling mail sending", e);
-			}finally {
-				HibernateUtil.close(session);
-			}
-		});
 	}
 
 	public void delete() {
@@ -413,6 +320,66 @@ public class UserEditBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");
 		}
+	}
+
+	public UserData getUser() {
+		return user;
+	}
+
+	public void setUser(UserData user) {
+		this.user = user;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public List<RoleCheckboxData> getAllRolesCheckBoxData() {
+		return allRolesCheckBoxData;
+	}
+
+	public void setAllRolesCheckBoxData(List<RoleCheckboxData> allRolesCheckBoxData) {
+		this.allRolesCheckBoxData = allRolesCheckBoxData;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public UserData getAccountData() {
+		return accountData;
+	}
+
+	public List<UserData> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<UserData> users) {
+		this.users = users;
+	}
+
+	public UserTextSearch getTextSearch() {
+		return textSearch;
+	}
+
+	public void setTextSearch(UserTextSearch textSearch) {
+		this.textSearch = textSearch;
+	}
+
+	public String getSearchTerm() {
+		return searchTerm;
+	}
+
+	public void setSearchTerm(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
+
+	public UserData getNewOwner() {
+		return newOwner;
 	}
 
 	public String getOrgId() {

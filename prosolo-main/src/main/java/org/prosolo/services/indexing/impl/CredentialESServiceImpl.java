@@ -91,7 +91,10 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 				builder.field("creatorId", cred.getCreatedBy().getId());
 				builder.field("type", cred.getType());
+				setCategoryInfo(builder, cred.getCategory());
 				builder.field("visibleToAll", cred.isVisibleToAll());
+
+				setLearningStageInfo(builder, cred);
 
 				addBookmarks(builder, cred.getId(), session);
 				addInstructors(builder, cred.getId());
@@ -108,6 +111,22 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		} catch (IOException e) {
 			logger.error("Error", e);
 		}
+	}
+
+	private void setCategoryInfo(XContentBuilder builder, CredentialCategory category) throws IOException {
+		long categoryId = 0;
+		if (category != null) {
+			categoryId = category.getId();
+		}
+		builder.field("category", categoryId);
+	}
+
+	private void setLearningStageInfo(XContentBuilder builder, Credential1 cred) throws IOException {
+		builder.field("learningStageId", cred.getLearningStage() != null ? cred.getLearningStage().getId() : 0);
+		builder.field("firstStageCredentialId",
+				cred.getFirstLearningStageCredential() != null
+						? cred.getFirstLearningStageCredential().getId()
+						: 0);
 	}
 
 	private void addUnits(XContentBuilder builder, List<Long> units) throws IOException {
@@ -381,6 +400,38 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
 					ESIndexTypes.CREDENTIAL, delivery.getId() + "", builder);
 		} catch(Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateLearningStageInfo(Credential1 cred) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			setLearningStageInfo(builder, cred);
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, cred.getOrganization().getId()),
+					ESIndexTypes.CREDENTIAL, cred.getId() + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateCredentialCategory(Credential1 cred) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			setCategoryInfo(builder, cred.getCategory());
+			builder.endObject();
+
+			partialUpdate(
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, cred.getOrganization().getId()),
+					ESIndexTypes.CREDENTIAL, cred.getId() + "", builder);
+		} catch (Exception e) {
 			logger.error("Error", e);
 		}
 	}

@@ -110,7 +110,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		
 		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+"(date bigint,course bigint, userid bigint, attach counter,  "
 				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
-				+ "posting counter,content_access counter,message counter,search counter, "
+				+ "posting counter,content_access counter,message counter,search counter, assessment counter, "
 				+ " PRIMARY KEY (date, course, userid))";
 		this.cqls.add(userprofileactionsobservationsbydateDDL);
 
@@ -197,6 +197,13 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String jobsSummariesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.JOBS_SUMMARIES+"(type varchar,  created timestamp, finished timestamp, generalinfo bigint, warning bigint, critical bigint, major bigint, minor bigint, trivial bigint, success boolean,  PRIMARY KEY (type, created))";
 		this.cqls.add(jobsSummariesDDL);
 
+		String notificationDataDDL="CREATE TABLE IF NOT EXISTS "
+				+TablesNames.NOTIFICATION_DATA+
+				"(date bigint, notificationtype varchar, id bigint, receiverid bigint, receiverfullname varchar, " +
+				"email varchar, actorid bigint, actorfullname varchar, objecttype varchar, objecttitle varchar, link varchar, " +
+				"objectid bigint, targetid bigint, targettitle varchar, section varchar, relationtotarget varchar, predicate varchar, " +
+				"PRIMARY KEY (date, notificationtype, id))";
+		this.cqls.add(notificationDataDDL);
 
 	}
 

@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserImportData;
@@ -39,6 +38,7 @@ public class ImportUsersBean implements Serializable {
 
 	private UploadedFile file;
 	private boolean fileContentValid;
+	private int lastSuccessfullyParsedLine;
 	private List<UserImportData> users;
 
 	private List<String> usersNotImported;
@@ -75,12 +75,14 @@ public class ImportUsersBean implements Serializable {
 
 	private void parseAndValidateImportedData() {
 		try (
-				InputStream inputStream = file.getInputstream();
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(
-						inputStream, "UTF-8"))) {
+			InputStream inputStream = file.getInputstream();
+			BufferedReader bReader = new BufferedReader(new InputStreamReader(
+					inputStream, "UTF-8"))) {
 			Set<String> uniqueEmails = new HashSet<>();
+			lastSuccessfullyParsedLine = 0;
 			String line;
 			boolean firstLine = true;
+
 			while ((line = bReader.readLine()) != null) {
 				int numberOfCommas = StringUtils.countMatches(line, ",");
 				if (numberOfCommas != 3) {
@@ -132,6 +134,7 @@ public class ImportUsersBean implements Serializable {
 
 				users.add(new UserImportData(email, firstName, lastName, position));
 				uniqueEmails.add(email);
+				lastSuccessfullyParsedLine++;
 			}
 			fileContentValid = true;
 		} catch (IOException e) {
@@ -168,7 +171,7 @@ public class ImportUsersBean implements Serializable {
 					boolean importSuccessful = userManager.createNewUserAndConnectToResources(
 							user.getFirstName(), user.getLastName(), user.getEmail(),
 							null, user.getPosition(), unitId, roleId, groupId,
-							loggedUser.getUserContext(organizationId));
+							loggedUser.getUserContext(organizationId)) != null;
 
 					if (!importSuccessful) {
 						usersNotImported.add(getUserCSV(user));
@@ -178,8 +181,6 @@ public class ImportUsersBean implements Serializable {
 				} catch (DbConnectionException e) {
 					logger.error("User not imported", e);
 					usersNotImported.add(getUserCSV(user));
-				} catch (EventException e) {
-					logger.error(e);
 				}
 			}
 			importFinished = true;
@@ -190,6 +191,13 @@ public class ImportUsersBean implements Serializable {
 		return user.getEmail() + ", " + user.getFirstName() + ", " +
 			   user.getLastName() + ", "
 			   + (user.getPosition() != null ? user.getPosition() : "");
+	}
+
+	/*
+	 * GETTERS / SETTERS
+	 */
+	public UploadedFile getFile() {
+		return file;
 	}
 
 	public boolean isFileTypeValid() {
@@ -203,11 +211,9 @@ public class ImportUsersBean implements Serializable {
 	public boolean isFileValid() {
 		return isFileTypeValid() && isFileContentValid();
 	}
-	/*
-	 * GETTERS / SETTERS
-	 */
-	public UploadedFile getFile() {
-		return file;
+
+	public int getLastSuccessfullyParsedLine() {
+		return lastSuccessfullyParsedLine;
 	}
 
 	public List<String> getUsersNotImported() {

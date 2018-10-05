@@ -1,0 +1,309 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:util="http://www.prosolo.com/util"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+			  xmlns:c="http://java.sun.com/jsp/jstl/core"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
+
+	<composite:interface>
+		<composite:attribute name="credentialId" required="true" />
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+		<script>
+            function hideConfirmDialog(dialogId) {
+                $('#' + dialogId).modal('hide');
+                $("body").removeAttr("class").removeAttr("style")
+                $("div.modal-backdrop.fade.in").remove()
+            }
+
+            function markDiscussionAsSeen(assessmentId, el, resource) {
+                switch (resource) {
+                    case 'ACTIVITY':
+                        markActivityDiscussionRead
+                        ([{
+                            name: 'assessmentEncId',
+                            value: assessmentId
+                        }]);
+                        break;
+                    case 'COMPETENCE':
+                        markCompetenceAssessmentDiscussionRead
+                        ([{
+                            name: 'assessmentEncId',
+                            value: assessmentId
+                        }]);
+                        break;
+                }
+                $(el).removeClass("hasNewComments");
+            }
+
+            //comment form hide/show
+            function displaySubmitButton(inputElem) {
+                if ($(inputElem).val().length == 0) {
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
+                } else {
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
+                }
+            }
+
+            function displaySubmitButtonPrivateConvModal(inputElem) {
+                if ($(inputElem).val().length == 0) {
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
+                } else {
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
+                }
+            }
+
+		</script>
+
+		<h:form prependId="false" id="remoteCommandForm">
+			<p:remoteCommand process="@this" action="#{competenceAssessmentBean.markActivityAssessmentDiscussionRead()}"
+							 name="markActivityDiscussionRead"></p:remoteCommand>
+			<p:remoteCommand process="@this" action="#{competenceAssessmentBean.markCompetenceAssessmentDiscussionRead()}"
+							 name="markCompetenceAssessmentDiscussionRead"/>
+		</h:form>
+
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"/>
+
+		<div class="whiteBar">
+
+		</div>
+
+		<div class="container">
+			<ui:fragment rendered="#{not empty param.credId}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+					</li>
+					<li>
+						<h:link
+								value="#{competenceAssessmentBean.credentialTitle}"
+								outcome="credential">
+							<f:param name="id" value="#{param.credId}"></f:param>
+						</h:link>
+					</li>
+					<li>
+						<h:link
+								value="#{competenceAssessmentBean.competenceAssessmentData.title}"
+								outcome="competence">
+							<f:param name="credId" value="#{param.credId}"/>
+							<f:param name="compId" value="#{param.compId}"/>
+						</h:link>
+					</li>
+					<li class="active">
+						Assessments
+					</li>
+				</ol>
+			</ui:fragment>
+			<ui:fragment rendered="#{empty param.credId}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link
+								value="#{msg['label.competence.plural']}"
+								outcome="/competenceLibrary">
+						</h:link>
+					</li>
+					<li>
+						<h:link
+								value="#{competenceAssessmentBean.competenceAssessmentData.title}"
+								outcome="competence">
+							<f:param name="compId" value="#{param.compId}"/>
+						</h:link>
+					</li>
+					<li class="active">
+						Assessments
+					</li>
+				</ol>
+			</ui:fragment>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<c:if test="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}">
+						<assessment:competenceAssessmentStudentTabs
+							selfAssessmentEnabled="#{competenceAssessmentBean.selfAssessmentEnabled}"
+							peerAssessmentEnabled="#{competenceAssessmentBean.peerAssessmentEnabled}"
+						/>
+					</c:if>
+
+					<div class="row">
+						<div class="col-md-#{competenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
+							<h2 class="bottom10">#{msg['label.competence']} Assessment</h2>
+							<ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
+								<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student
+									<assessment:assessmentActorName
+										actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+										actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+										actorType="STUDENT"
+									/>.
+									All comments between the student and the assessor are private.</p>
+							</ui:fragment>
+
+							<h:form>
+								<assessment:competenceAssessment
+										competenceAssessment="#{competenceAssessmentBean.competenceAssessmentData}"
+										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+										bean="#{competenceAssessmentBean}"
+										credentialId="#{cc.attrs.credentialId}"
+										role="USER"
+										learningContext="#{cc.attrs.learningContext}"
+										growlToUpdate=":#{cc.clientId}:growlMain"
+										toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
+										gradePanelSidebarId="gradeSidebar"
+										toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+										toUpdatePrivateConversationModal=":#{cc.clientId}:commentModal:formPrivateConversation:panelModalPrivateConversation"
+										currentUserAssessor="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}"
+										currentUserAssessedStudent="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}"
+								/>
+							</h:form>
+						</div>
+
+						<h:panelGroup layout="block" rendered="#{competenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}" styleClass="col-md-3">
+							<div class="sidebarBlock">
+								<h2>Student</h2>
+								<div class="user32">
+									<a href="javascript:void(0);">
+										<assessment:assessmentActorAvatar
+												actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+												avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
+												actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+												blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+												actorType="STUDENT"
+										/>
+									</a>
+									<h3>
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorName
+													actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
+													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													actorType="STUDENT"
+											/>
+										</a>
+									</h3>
+								</div>
+							</div>
+
+							<div class="sidebarBlock">
+								<ui:fragment
+										rendered="#{competenceAssessmentBean.competenceAssessmentData.assessorId > 0}">
+									<h2>Assessor</h2>
+									<div class="user32">
+										<a href="javascript:void(0);">
+											<assessment:assessmentActorAvatar
+													actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+													avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
+													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													actorType="ASSESSOR"
+											/>
+										</a>
+										<h3>
+											<a href="javascript:void(0);">
+												<assessment:assessmentActorName
+														actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+														actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+														blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+														actorType="ASSESSOR"
+												/>
+											</a>
+										</h3>
+									</div>
+								</ui:fragment>
+
+								<ui:fragment
+										rendered="#{competenceAssessmentBean.competenceAssessmentData.assessorId eq 0}">
+									<div class="user32">
+										<h3>Currently, there is no assessor assigned.</h3>
+									</div>
+								</ui:fragment>
+							</div>
+
+							<div class="sidebarBlock">
+								<h2>Requested</h2>
+								<p>#{competenceAssessmentBean.competenceAssessmentData.dateValue}</p>
+							</div>
+
+							<c:if test="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}">
+								<p:commandLink
+										styleClass="btn btn-green"
+										pt:data-toggle="modal"
+										value="Ask for #{msg['label.assessment.type.'.concat(competenceAssessmentBean.competenceAssessmentData.type)]}"
+										action="#{competenceAssessmentBean.initAskForAssessment()}"
+										update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+										oncomplete="$('#askAssessment').modal('show');">
+								</p:commandLink>
+							</c:if>
+						</h:panelGroup>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<assessment:assessmentCommentModal
+				id="commentModal"
+				toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId})"
+				messages="#{competenceAssessmentBean.currentAssessmentMessages}"
+				bean="#{competenceAssessmentBean.currentAssessmentBean}"
+				studentId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
+				assessorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+				blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+				learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
+					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))
+					: util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
+		/>
+
+		<c:if test="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and not competenceAssessmentBean.isUserAssessorInCurrentContext()}">
+			<assessment:rubricAssessmentPreview
+					id="rubricAssessmentPreview"
+					grade="#{competenceAssessmentBean.currentGradeData}"
+					resourceType="#{competenceAssessmentBean.currentResType}"
+					resourceTitle="#{competenceAssessmentBean.currentResTitle}"
+			/>
+
+			<c:if test="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
+				<h:form id="formAskForAssessment">
+					<assessment:askForAssessment
+							id="askForAssessment"
+							bean="#{askForCompetenceAssessmentBean}"
+							submitAssessmentRequestActionMethodName="submitAssessment"
+							submitAssessmentRequestAction="#{competenceAssessmentBean.submitAssessment}"
+							resource="COMPETENCE"
+							resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
+							toUpdate=":#{cc.clientId}:growlMain @(.panelAssessorNotificationSelector)"
+							learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
+					/>
+				</h:form>
+			</c:if>
+		</c:if>
+
+		<c:if test="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}">
+			<h:panelGroup id="gradePanelContainer">
+				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+				<ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:ACTIVITY|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))}" />
+
+				<assessment:gradePanel
+						id="resourceGradePanel"
+						gradeActionMethodName="updateAssessmentGrade"
+						gradeAction="#{competenceAssessmentBean.updateAssessmentGrade}"
+						assessmentId="#{competenceAssessmentBean.currentAssessmentId}"
+						completed="#{competenceAssessmentBean.hasStudentCompletedCurrentResource()}"
+						gradeData="#{competenceAssessmentBean.currentGradeData}"
+						resource="#{competenceAssessmentBean.currentResType}"
+						resourceTitle="#{competenceAssessmentBean.currentResTitle}"
+						toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelAssessorNotificationSelector)"
+						learningContext="#{competenceAssessmentBean.currentResType == null ? '' : (competenceAssessmentBean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)}"
+						gradePanelSidebarId="gradeSidebar"
+				/>
+			</h:panelGroup>
+		</c:if>
+	</composite:implementation>
+</ui:component>

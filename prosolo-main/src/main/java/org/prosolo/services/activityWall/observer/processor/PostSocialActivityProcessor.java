@@ -13,8 +13,6 @@ public class PostSocialActivityProcessor extends SocialActivityProcessor {
 	}
 	
 	@Override
-	public SocialActivity1 createSocialActivity() {
-		return (SocialActivity1) event.getObject();
-	}
+	public void createOrDeleteSocialActivity() {}
 
 }

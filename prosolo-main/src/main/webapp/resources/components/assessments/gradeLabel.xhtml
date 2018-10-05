@@ -1,0 +1,113 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="assessmentBean" required="true" />
+		<composite:attribute name="assessment" required="true" />
+		<composite:attribute name="gradeData" required="true" type="org.prosolo.services.assessment.data.grading.GradeData"/>
+		<composite:attribute name="currentUserAssessor" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="userAllowedToSeeRubric" required="true" type="java.lang.Boolean" />
+		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
+		<composite:attribute name="gradeLinkSelectorId" default=""/>
+		<composite:attribute name="toUpdateGradePanel" default="" />
+		<composite:attribute name="gradePanelSidebarId" default="" />
+		<composite:attribute name="growlToUpdate" default="" />
+		<composite:attribute name="toUpdateRubricPanelForStudent" />
+		<composite:attribute name="role" default="USER" />
+		<composite:attribute name="learningContext" required="true" />
+		<composite:attribute name="learningResource" required="true" type="java.lang.String"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<c:if test="#{(not cc.attrs.currentUserAssessor and cc.attrs.currentUserAssessedStudent) or not cc.attrs.fullDisplayMode}">
+			<p:commandLink rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.userAllowedToSeeRubric}"
+						   styleClass="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
+						   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
+						   update="#{cc.attrs.toUpdateRubricPanelForStudent} #{cc.attrs.growlToUpdate}"
+						   pt:data-html="true"
+						   pt:data-toggle="tooltip"
+						   pt:title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}"
+						   oncomplete="showPopupSidebar('#cbp-spmenu-s2');">
+				<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
+					#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
+					#{cc.attrs.gradeData.maxGrade}
+				</ui:fragment>
+				<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+					Rubric
+				</ui:fragment>
+			</p:commandLink>
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and (cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC' or not cc.attrs.userAllowedToSeeRubric)}">
+				<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
+				   data-html="true"
+				   data-toggle="tooltip"
+				   title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}">
+					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
+						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
+						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and !cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
+					</ui:fragment>
+				</a>
+			</ui:fragment>
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED'}">
+				<a href="javascript:void(0);" class="grade"
+				   data-toggle="tooltip"
+				   title="Nongraded resource">
+					&#160;
+				</a>
+			</ui:fragment>
+		</c:if>
+		<c:if test="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessor or not cc.attrs.currentUserAssessedStudent)}">
+			<ui:fragment rendered="#{cc.attrs.currentUserAssessor}">
+				<p:commandLink rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED'}"
+							   styleClass="grade gradeModalLink_#{cc.attrs.gradeLinkSelectorId} #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
+							   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
+							   update="#{cc.attrs.toUpdateGradePanel}"
+							   pt:data-html="true"
+							   pt:data-toggle="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' ? 'tooltip' : ''}"
+							   pt:title="#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}"
+							   oncomplete="showPopupSidebar('##{cc.attrs.gradePanelSidebarId}');">
+					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
+						#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
+						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
+					</ui:fragment>
+				</p:commandLink>
+				<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED'}">
+					<a href="javascript:void(0);" class="grade"
+					   data-toggle="tooltip"
+					   title="Nongraded resource">
+						&#160;
+					</a>
+				</ui:fragment>
+			</ui:fragment>
+
+			<ui:fragment rendered="#{not cc.attrs.currentUserAssessor}">
+				<a
+						class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.getAssessmentStarData())}"
+						disabled="disabled"
+						data-toggle="tooltip"
+						title="Only assessor can update the grade">
+					<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
+						#{cc.attrs.gradeData != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
+						#{cc.attrs.gradeData.maxGrade}
+					</ui:fragment>
+					<ui:fragment rendered="#{!cc.attrs.gradeData.pointBasedGrading}">
+						Rubric
+					</ui:fragment>
+				</a>
+			</ui:fragment>
+		</c:if>
+		<script>
+            $('.grade[data-toggle="tooltip"]').tooltip();
+		</script>
+	</composite:implementation>
+</ui:component>

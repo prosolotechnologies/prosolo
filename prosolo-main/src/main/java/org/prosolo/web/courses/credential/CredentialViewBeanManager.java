@@ -6,8 +6,8 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -54,7 +54,7 @@ public class CredentialViewBeanManager implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), AccessMode.MANAGER);
+							.getCredentialData(decodedId, true, false, false, true, loggedUser.getUserId(), AccessMode.MANAGER);
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();

@@ -42,6 +42,8 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 				competenceESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), comp.getId(), session);
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				competenceESService.updateVisibleToAll(event.getOrganizationId(), comp.getId(), comp.isVisibleToAll());
+			} else if (event.getAction() == EventType.LEARNING_STAGE_UPDATE) {
+				competenceESService.updateLearningStageInfo(comp);
 			} else {
 				if (params != null) {
 					String jsonChangeTracker = params.get("changes");

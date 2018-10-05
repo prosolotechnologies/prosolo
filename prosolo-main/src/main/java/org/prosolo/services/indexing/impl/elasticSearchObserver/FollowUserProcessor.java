@@ -1,6 +1,5 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.UserEntityESService;
 
@@ -19,6 +18,7 @@ public class FollowUserProcessor implements NodeChangeProcessor {
 	@Override
 	public void process() {
 		userEntityESService.updateFollowers(event.getOrganizationId(), event.getObject().getId());
+		userEntityESService.updateFollowingUsers(event.getOrganizationId(), event.getActorId());
 	}
 
 }

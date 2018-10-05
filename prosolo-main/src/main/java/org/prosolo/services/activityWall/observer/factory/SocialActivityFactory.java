@@ -10,6 +10,6 @@ import org.prosolo.services.event.Event;
  */
 public interface SocialActivityFactory {
 
-	SocialActivity1 createSocialActivity(Event event, Session session);
+	void createOrDeleteSocialActivity(Event event, Session session);
 
 }

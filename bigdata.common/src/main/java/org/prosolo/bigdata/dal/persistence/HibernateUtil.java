@@ -4,12 +4,15 @@ package org.prosolo.bigdata.dal.persistence;
  * @author zoran Jul 7, 2015
  */
 
+import java.beans.PropertyVetoException;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.sql.DataSource;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -22,6 +25,8 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.Config;
 import org.prosolo.common.config.MySQLConfig;
 import org.reflections.Reflections;
+
+
  
  
  
@@ -29,7 +34,7 @@ public class HibernateUtil {
     private static SessionFactory sessionFactory;
      
     public static synchronized SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
+         if (sessionFactory == null) {
         	Config config=CommonSettings.getInstance().config;
         	String host = config.mysqlConfig.host;
 			int port = config.mysqlConfig.port;
@@ -57,8 +62,12 @@ public class HibernateUtil {
             }
             StandardServiceRegistryBuilder serviceRegistryBuilder
                 = new StandardServiceRegistryBuilder();
-            	serviceRegistryBuilder.applySetting(Environment.DATASOURCE, dataSource());
-            	 ServiceRegistry serviceRegistry=  serviceRegistryBuilder.applySettings(configuration.getProperties()).build();
+			 try {
+				 serviceRegistryBuilder.applySetting(Environment.DATASOURCE, getBasicDataSource());
+			 } catch (PropertyVetoException e) {
+				 e.printStackTrace();
+			 }
+			 ServiceRegistry serviceRegistry=  serviceRegistryBuilder.applySettings(configuration.getProperties()).build();
                    
              
             // builds a session factory from the service registry
@@ -117,18 +126,56 @@ public class HibernateUtil {
 		p.setMinEvictableIdleTimeMillis(30000);
 		p.setMinIdle(10);
 		p.setLogAbandoned(true);
-		if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
+		//if(CommonSettings.getInstance().config.rabbitMQConfig.distributed){
 			p.setRemoveAbandoned(false);
-		}else{
-			p.setRemoveAbandoned(true);
-		}
+		//}else{
+			//p.setRemoveAbandoned(true);
+		//}
 		p.setDefaultTransactionIsolation(config.hibernateConfig.connection.isolation);
 		p.setJdbcInterceptors(
 	            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
 	            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;"
-	            + "org.apache.tomcat.jdbc.pool.interceptor.ResetAbandonedTimer");
+				//+ "org.prosolo.bigdata.dal.persistence.ConnectionLoggerJDBCInterceptor;"
+				);
+	            //+ "org.apache.tomcat.jdbc.pool.interceptor.ResetAbandonedTimer");
 			 org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
 			 ds.setPoolProperties(p);
 			 return ds;
 	 }
+	public static DataSource getBasicDataSource() throws PropertyVetoException {
+		Config config = CommonSettings.getInstance().config;
+		MySQLConfig mySQLConfig=config.mysqlConfig;
+		String username = mySQLConfig.user;
+		String password = mySQLConfig.password;
+		String host = mySQLConfig.host;
+		int port = mySQLConfig.port;
+		String database = mySQLConfig.database;
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
+
+		ComboPooledDataSource dataSource = new ComboPooledDataSource();
+		dataSource.setDriverClass("com.mysql.jdbc.Driver");
+
+		dataSource.setJdbcUrl(url);
+		 dataSource.setUser(username);
+		dataSource.setPassword(password);
+		dataSource.setMinPoolSize(5);
+		//dataSource.setAcquireIncrement(5);
+		dataSource.setMaxPoolSize(50);
+		//dataSource.setPreferredTestQuery("SELECT 1");
+		//dataSource.setCheckoutTimeout(3000);
+		//dataSource.setTestConnectionOnCheckin(true);
+		dataSource.setAcquireIncrement(10);
+		dataSource.setInitialPoolSize(5);
+		dataSource.setMinPoolSize(5);
+		dataSource.setMaxStatements(50);
+		dataSource.setMaxIdleTime(3000);
+		dataSource.setAutomaticTestTable("testTable");
+
+
+		// Connection pooling properties
+
+
+
+		return dataSource;
+	}
 }

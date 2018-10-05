@@ -6,7 +6,7 @@
 	xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments">
 
 	<ui:define name="windowTitle">
-		Assessments
+		Assessments - #{studentAssessmentBean.credentialTitle} - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -19,7 +19,7 @@
 
     <ui:define name="resourceTitle">
 		<h1>
-			<span>Assessment for: </span><h:outputText value="#{studentAssessmentBean.credentialTitle}" />
+			<span>Assessment of: </span><h:outputText value="#{studentAssessmentBean.credentialTitle}" />
 		</h1>
     </ui:define>
     

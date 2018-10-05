@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -28,14 +29,18 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void updateFollowers(long orgId, long userId);
 
+	void updateFollowingUsers(long orgId, long userId);
+
 	void updateCompetences(long orgId, long userId, Session session);
 
 	void updateCompetenceProgress(long orgId, long userId, TargetCompetence1 tComp);
 
 	void updateRoles(long userId, Session session);
 
-	void updateGroups(long orgId, long userId);
+	void updateGroups(long orgId, long userId, Session session);
 
 	void removeUserFromIndex(User user);
+
+	void updateCredentialAssessmentInfo(long orgId, CredentialAssessment assessment);
 
 }

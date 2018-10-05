@@ -40,8 +40,6 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
-		data.setMaxPoints(activity.getMaxPoints());
-		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 		data.getResultData().setResultType(getResultType(activity.getResultType()));
@@ -83,11 +81,15 @@ public class ActivityDataFactory {
 			data.setFiles(activityFiles);
 		}
 
-		data.setGradingMode(activity.getGradingMode());
+		data.getAssessmentSettings().setMaxPoints(activity.getMaxPoints());
+		data.getAssessmentSettings().setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
+		data.getAssessmentSettings().setGradingMode(activity.getGradingMode());
 		//set rubric data
 		if (activity.getRubric() != null) {
-			data.setRubricId(activity.getRubric().getId());
+			data.getAssessmentSettings().setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.getAssessmentSettings().setRubricName(activity.getRubric().getTitle());
+			data.getAssessmentSettings().setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
@@ -223,14 +225,16 @@ public class ActivityDataFactory {
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
 		act.setType(activity.getType());
-		act.setMaxPoints(activity.getMaxPoints());
 		act.getResultData().setResultType(getResultType(activity.getResultType()));
 
-		act.setGradingMode(activity.getGradingMode());
+		act.getAssessmentSettings().setMaxPoints(activity.getMaxPoints());
+		act.getAssessmentSettings().setGradingMode(activity.getGradingMode());
 		//set rubric data
 		if (activity.getRubric() != null) {
-			act.setRubricId(activity.getRubric().getId());
+			act.getAssessmentSettings().setRubricId(activity.getRubric().getId());
 			act.setRubricVisibility(activity.getRubricVisibility());
+			act.getAssessmentSettings().setRubricName(activity.getRubric().getTitle());
+			act.getAssessmentSettings().setRubricType(activity.getRubric().getRubricType());
 		}
 		
 		act.setActivityType(getActivityType(activity));
@@ -349,6 +353,7 @@ public class ActivityDataFactory {
 		data.setActivityId(activity.getId());
 		data.setTargetActivityId(targetActivity.getId());
 		data.setOrder(order);
+		data.setCommonScore(targetActivity.getCommonScore());
 		data.setTitle(activity.getTitle());
 		data.setDescription(activity.getDescription());
 		data.setDurationHours((int) (activity.getDuration() / 60));
@@ -359,8 +364,6 @@ public class ActivityDataFactory {
 		data.setType(activity.getType());
 		data.setResultData(getActivityResultData(targetActivity, isManager));
 		data.setCreatorId(activity.getCreatedBy().getId());
-		data.setMaxPoints(activity.getMaxPoints());
-		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		if (tags != null) {
@@ -368,11 +371,15 @@ public class ActivityDataFactory {
 			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
 
-		data.setGradingMode(activity.getGradingMode());
+		data.getAssessmentSettings().setMaxPoints(activity.getMaxPoints());
+		data.getAssessmentSettings().setMaxPointsString(String.valueOf(activity.getMaxPoints()));
+		data.getAssessmentSettings().setGradingMode(activity.getGradingMode());
 		//set rubric data
 		if (activity.getRubric() != null) {
-			data.setRubricId(activity.getRubric().getId());
+			data.getAssessmentSettings().setRubricId(activity.getRubric().getId());
 			data.setRubricVisibility(activity.getRubricVisibility());
+			data.getAssessmentSettings().setRubricName(activity.getRubric().getTitle());
+			data.getAssessmentSettings().setRubricType(activity.getRubric().getRubricType());
 		}
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
@@ -458,22 +465,25 @@ public class ActivityDataFactory {
 		Activity1 activ = activity.getActivity();
 		act.setActivityId(activ.getId());
 		act.setTargetActivityId(activity.getId());
+		act.setCommonScore(activity.getCommonScore());
 		act.setTitle(activ.getTitle());
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
 		act.setDurationHours((int) (activ.getDuration() / 60));
 		act.setDurationMinutes((int) (activ.getDuration() % 60));
 		act.calculateDurationString();
-		act.setMaxPoints(activ.getMaxPoints());
 		act.getResultData().setResultType(getResultType(activ.getResultType()));
 		act.getResultData().setResult(activity.getResult());
 		act.setTargetCompetenceId(activity.getTargetCompetence().getId());
 
-		act.setGradingMode(activ.getGradingMode());
+		act.getAssessmentSettings().setMaxPoints(activ.getMaxPoints());
+		act.getAssessmentSettings().setGradingMode(activ.getGradingMode());
 		//set rubric data
 		if (activ.getRubric() != null) {
-			act.setRubricId(activ.getRubric().getId());
+			act.getAssessmentSettings().setRubricId(activ.getRubric().getId());
 			act.setRubricVisibility(activ.getRubricVisibility());
+			act.getAssessmentSettings().setRubricName(activ.getRubric().getTitle());
+			act.getAssessmentSettings().setRubricType(activ.getRubric().getRubricType());
 		}
 
 		setBasicTypeSpecificData(activ, act);

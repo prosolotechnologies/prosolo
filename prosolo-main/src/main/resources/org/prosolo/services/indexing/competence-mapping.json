@@ -26,7 +26,7 @@
 				"type":"string",
 				"fields": {
 					"sort": {
-						"type":  "string",
+						"type": "string",
 						"analyzer": "ci_analyzer"
 					}
    	 			}
@@ -64,6 +64,14 @@
 			"visibleToAll":{
 				"store": false,
 				"type":"boolean"
+			},
+			"learningStageId": {
+				"store": false,
+				"type": "long"
+			},
+			"firstStageCompetenceId": {
+				"store": false,
+				"type": "long"
 			},
 			"usersWithEditPrivilege": {
 				"properties": {

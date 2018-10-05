@@ -2,11 +2,14 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
@@ -27,15 +30,17 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private CompetenceESService compESService;
 	private EventUserRole userRole;
 	private CredentialManager credManager;
+	private AssessmentManager assessmentManager;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, EventUserRole userRole) {
+			CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, AssessmentManager assessmentManager, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;
 		this.credESService = credESService;
 		this.compESService = compESService;
 		this.credManager = credManager;
+		this.assessmentManager = assessmentManager;
 		this.userRole = userRole;
 	}
 	
@@ -56,8 +61,10 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.removeUserFromOrganization(
 					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId());
 		} else if (eventType == EventType.ENROLL_COURSE) {
+			//TODO event actor does not have to be enrolled student, it could be an instructor that triggered student enroll
+			//this should be taken into account when we enable student enroll by instructor
 			//reindex user credentials collection
-			userEntityESService.updateCredentials(event.getOrganizationId(), event.getActorId(), session);
+			userEntityESService.updateCredentials(event.getOrganizationId(), event.getTarget().getId(), session);
 			//reindex credential students collection
 			credESService.updateStudents(event.getOrganizationId(), event.getObject().getId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {
@@ -85,12 +92,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    	if (object instanceof TargetCredential1) {
 		    	TargetCredential1 tc = (TargetCredential1) session.load(TargetCredential1.class, object.getId());
 		    	if (tc != null) {
-					userEntityESService.changeCredentialProgress(event.getOrganizationId(), event.getActorId(), tc.getCredential().getId(), tc.getProgress());
+					userEntityESService.changeCredentialProgress(event.getOrganizationId(), tc.getUser().getId(), tc.getCredential().getId(), tc.getProgress());
 				}
 	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) session.load(TargetCompetence1.class, event.getObject().getId());
 				if (tc != null) {
-			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), event.getActorId(), tc);
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), tc.getUser().getId(), tc);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
@@ -111,7 +118,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		} else if (eventType == EventType.Registered) {
 			//if object is not null than object id is id of a new user, otherwise it is actor id.
 			long newUserId = event.getObject() != null ? event.getObject().getId() : event.getActorId();
-			userEntityESService.saveUserNode((User) session.load(User.class, newUserId), session);
+			userEntityESService.saveUserNode((User) session.get(User.class, newUserId), session);
 		} else if (eventType == EventType.Account_Activated || eventType == EventType.USER_ROLES_UPDATED) {
 			/*
 			we need to update whole index when roles are updated because we don't know if user exists
@@ -119,6 +126,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			 */
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getObject().getId()),
 					session);
+		} else if (event.getObject() instanceof CredentialAssessment && (eventType == EventType.AssessmentRequested
+				|| eventType == EventType.ASSESSED_BY_AUTO_GRADING || eventType == EventType.GRADE_ADDED || eventType == EventType.AssessmentApproved)) {
+			CredentialAssessment ca = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
+			if (ca.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+				userEntityESService.updateCredentialAssessmentInfo(event.getOrganizationId(), ca);
+			}
 		} else {
 			//TODO check if there is a use case where this block is entered
 			if (userRole == EventUserRole.Subject) {

@@ -1,30 +1,14 @@
 package org.prosolo.core.spring.security;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
 import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.activityWall.filters.AllFilter;
-import org.prosolo.services.activityWall.filters.AllProsoloFilter;
-import org.prosolo.services.activityWall.filters.Filter;
-import org.prosolo.services.activityWall.filters.MyActivitiesFilter;
-import org.prosolo.services.activityWall.filters.MyNetworkFilter;
-import org.prosolo.services.activityWall.filters.TwitterFilter;
+import org.prosolo.services.activityWall.filters.*;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -34,6 +18,15 @@ import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.SessionCountBean;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 public class UserSessionDataLoader implements Serializable{
@@ -78,9 +71,6 @@ public class UserSessionDataLoader implements Serializable{
 				Filter selectedFilter = loadStatusWallFilter(user.getId(), chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
 
 				String ipAddress = accessResolver.findRemoteIPAddress(request);
-				logger.debug("User \"" + email + "\" IP address:" + ipAddress);
-
-				UserNotificationsSettings notificationsSettings = notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId());
 
 				sessionData.put("userId", user.getId());
 				long orgId = 0;
@@ -96,7 +86,7 @@ public class UserSessionDataLoader implements Serializable{
 				sessionData.put("statusWallFilter", selectedFilter);
 				sessionData.put("userSettings", userSettings);
 				sessionData.put("email", email);
-				sessionData.put("notificationsSettings", notificationsSettings);
+				sessionData.put("notificationsSettings", notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId()));
 				sessionData.put("password", user.getPassword());
 				sessionData.put("sessionId", session.getId());
 

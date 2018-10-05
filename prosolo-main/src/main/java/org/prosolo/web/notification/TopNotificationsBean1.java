@@ -1,77 +1,72 @@
 package org.prosolo.web.notification;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "topNotificationsBean1")
-@Component("topNotificationsBean1")
-@Scope("session")
-public class TopNotificationsBean1 {
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+public abstract class TopNotificationsBean1 {
 
 	private static Logger logger = Logger.getLogger(TopNotificationsBean1.class);
 
-	@Autowired
+	public abstract NotificationSection getSection();
+
+	@Inject
 	private LoggedUserBean loggedUser;
-	@Autowired
+	@Inject
 	private NotificationManager notificationsManager;
 
-	private LinkedList<NotificationData> notificationDatas;
-	private int unreadNotificationsNo;
-
 	private int notificationsLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
-	private int refreshRate = Settings.getInstance().config.application.notificationsRefreshRate;
 	private String domainPrefix = CommonSettings.getInstance().config.appConfig.domain.substring(0, CommonSettings.getInstance().config.appConfig.domain.length()-1);
 
+	private LinkedList<NotificationData> notificationData;
+	private int unreadNotificationsNo;
+
 	@PostConstruct
-	public void init() {
+	public void init(){
 		initNotificationsNo();
 		fetchNotifications();
 	}
 
-	private void initNotificationsNo() {
+	public void initNotificationsNo() {
 		logger.debug("Initializing unread notifications number.");
 
 		if (loggedUser.isLoggedIn())
-			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId());
+			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId(), getSection());
 	}
-	
+
 	public void fetchNotifications() {
 		logger.debug("Initializing notifications.");
 
 		try {
-			this.notificationDatas = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
-					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale());
+			this.notificationData = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
+					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale(), getSection());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 		}
 	}
 
 	public synchronized void addNotification(NotificationData notificationData, Session session) {
-		if (notificationDatas == null) {
+		if (this.notificationData == null) {
 			fetchNotifications();
 		} else {
-			notificationDatas.addFirst(notificationData);
+			this.notificationData.addFirst(notificationData);
 		}
 
 		unreadNotificationsNo++;
 
-		if (notificationDatas.size() > notificationsLimit) {
-			Iterator<NotificationData> iterator = notificationDatas.iterator();
+		if (this.notificationData.size() > notificationsLimit) {
+			Iterator<NotificationData> iterator = this.notificationData.iterator();
 			int index = 1;
 
 			while (iterator.hasNext()) {
@@ -88,33 +83,16 @@ public class TopNotificationsBean1 {
 	public void markNotificationsAsRead() {
 		unreadNotificationsNo = 0;
 	}
-	
-	public LinkedList<NotificationData> getNotificationDatas() {
-		return notificationDatas;
-	}
 
-	public void setNotificationDatas(LinkedList<NotificationData> notificationDatas) {
-		this.notificationDatas = notificationDatas;
+	public LinkedList<NotificationData> getNotificationData() {
+		return notificationData;
 	}
 
 	public int getUnreadNotificationsNo() {
 		return unreadNotificationsNo;
 	}
 
-	public void setUnreadNotificationsNo(int unreadNotificationsNo) {
-		this.unreadNotificationsNo = unreadNotificationsNo;
-	}
-
-	public int getRefreshRate() {
-		return refreshRate;
-	}
-
-	public void setRefreshRate(int refreshRate) {
-		this.refreshRate = refreshRate;
-	}
-	
 	public String getDomainPrefix() {
 		return domainPrefix;
 	}
-	
 }
