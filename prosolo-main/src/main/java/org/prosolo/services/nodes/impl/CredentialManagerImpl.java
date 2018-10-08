@@ -2252,7 +2252,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id), COUNT(case cred.progress when 100 then 1 else null end), COUNT(case when a.assessorNotified IS TRUE then 1 else null end), COUNT(case when a.assessed IS TRUE then 1 else null end) " +
+			String query = "SELECT COUNT(cred.id), COUNT(case cred.progress when 100 then 1 else null end), COUNT(case when a.assessorNotified IS TRUE then 1 else null end), COUNT(case when a.assessed IS TRUE then 1 else null end) " +
 					"FROM TargetCredential1 cred " +
 					"LEFT JOIN cred.assessments a " +
 					"WITH a.type = :instructorAssessment " +
@@ -2268,23 +2268,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				long all = (long) res[0];
 				CredentialMembersSearchFilter allFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.All, all);
-				long assigned = (long) res[1];
-				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
-						CredentialMembersSearchFilter.SearchFilter.Unassigned, all - assigned);
-				CredentialMembersSearchFilter assignedFilter = new CredentialMembersSearchFilter(
-						CredentialMembersSearchFilter.SearchFilter.Assigned, assigned);
-				long completed = (long) res[2];
+				long completed = (long) res[1];
 				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.Completed, completed);
 				CredentialMembersSearchFilter assessmentNotificationsFilter = new CredentialMembersSearchFilter(
-						CredentialMembersSearchFilter.SearchFilter.AssessorNotified, (long) res[3]);
-				long numberOfGradedStudents = (long) res[4];
+						CredentialMembersSearchFilter.SearchFilter.AssessorNotified, (long) res[2]);
+				long numberOfGradedStudents = (long) res[3];
 				CredentialMembersSearchFilter gradedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.Graded, numberOfGradedStudents);
 				CredentialMembersSearchFilter nongradedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.Nongraded, all - numberOfGradedStudents);
 
-				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, assignedFilter, assessmentNotificationsFilter, nongradedFilter, gradedFilter, completedFilter};
+				return new CredentialMembersSearchFilter[] {allFilter, assessmentNotificationsFilter, nongradedFilter, gradedFilter, completedFilter};
 			}
 
 			return null;
