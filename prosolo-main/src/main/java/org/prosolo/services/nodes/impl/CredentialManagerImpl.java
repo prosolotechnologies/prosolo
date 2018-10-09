@@ -4106,4 +4106,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional (readOnly = true)
+	public AssessorAssignmentMethod getAssessorAssignmentMethod(long credId) {
+		try {
+			String q =
+					"SELECT cred.assessorAssignmentMethod FROM Credential1 cred " +
+					"WHERE cred.id = :credId";
+
+			AssessorAssignmentMethod assignmentMethod = (AssessorAssignmentMethod) persistence.currentManager()
+					.createQuery(q)
+					.setLong("credId", credId)
+					.uniqueResult();
+			return assignmentMethod;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading assessor assignment method");
+		}
+	}
+
 }
