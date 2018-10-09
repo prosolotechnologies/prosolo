@@ -16,7 +16,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
-import org.prosolo.web.messaging.data.MessagesThreadData;
+import org.prosolo.web.messaging.data.MessageThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.search.UserSearchBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -58,8 +58,8 @@ public class MessagesBean implements Serializable {
     @Inject
     private UnitManager unitManager;
 
-    private MessagesThreadData selectedThread;
-    private List<MessagesThreadData> messageThreads;
+    private MessageThreadData selectedThread;
+    private List<MessageThreadData> messageThreads;
     private int limitThreads = 5;
     private int pageThread = 0;
     private boolean loadMoreThreads;
@@ -101,7 +101,7 @@ public class MessagesBean implements Serializable {
         this.messageRecipient = null;
 
         // init message threads
-        List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
+        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
                 loggedUser.getUserId(),
                 pageThread, limitThreads, archiveView);
 
@@ -121,7 +121,7 @@ public class MessagesBean implements Serializable {
                     this.selectedThread = messagingManager.markThreadAsRead(messageThreadId, loggedUser.getUserId(), getLoggedUserContextData());
 
                     // if the opened message thread is among loaded threads in the sidebar, then "selectedThread" should reference that object
-                    Optional<MessagesThreadData> optionalSelectedMThread = messageThreads.stream().filter(mt -> mt.getId() == messageThreadId).findAny();
+                    Optional<MessageThreadData> optionalSelectedMThread = messageThreads.stream().filter(mt -> mt.getId() == messageThreadId).findAny();
 
                     if (optionalSelectedMThread.isPresent()) {
                         this.selectedThread = optionalSelectedMThread.get();
@@ -153,17 +153,14 @@ public class MessagesBean implements Serializable {
         return loggedUser.getUserContext(new PageContextData(page, context, null));
     }
 
-    public void changeThread(MessagesThreadData threadData) {
+    public void changeThread(MessageThreadData threadData) {
         // if previously selected thread was not initially marked as read, mark it as read
-        if (this.selectedThread != null && !this.selectedThread.isReaded()) {
-            this.messageThreads.stream().filter(mt -> mt.getId() == this.selectedThread.getId()).forEach(mt -> mt.setReaded(true));
-            this.selectedThread.setReaded(true);
-        }
+        markThreadRead();
 
         newMessageView = false;
 
         // look into already loaded message threads
-        Optional<MessagesThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
+        Optional<MessageThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
 
         if (optionalThread.isPresent()) {
             this.selectedThread = optionalThread.get();
@@ -178,13 +175,13 @@ public class MessagesBean implements Serializable {
 
     private void openThreadWithParticipant(UserData messageRecipient) {
         // first search in already loaded threads
-        Optional<MessagesThreadData> optionalMessagesThreadData = messageThreads.stream().filter(t -> t.getParticipants().stream().anyMatch(p -> p.getId() == messageRecipient.getId())).findAny();
+        Optional<MessageThreadData> optionalMessageThreadData = messageThreads.stream().filter(t -> t.getParticipants().stream().anyMatch(p -> p.getId() == messageRecipient.getId())).findAny();
 
-        if (optionalMessagesThreadData.isPresent()) {
-            changeThread(optionalMessagesThreadData.get());
+        if (optionalMessageThreadData.isPresent()) {
+            changeThread(optionalMessageThreadData.get());
         } else {
             // if not found, load from the database
-            Optional<MessagesThreadData> threadData = messagingManager.getMessageThreadDataForUsers(loggedUser.getUserId(), messageRecipient.getId());
+            Optional<MessageThreadData> threadData = messagingManager.getMessageThreadDataForUsers(loggedUser.getUserId(), messageRecipient.getId());
 
             if (threadData.isPresent()) {
                 this.selectedThread = threadData.get();
@@ -238,7 +235,11 @@ public class MessagesBean implements Serializable {
     }
 
     private void markThreadRead() {
-        if (!selectedThread.isReaded()) {
+        if (this.selectedThread != null && !selectedThread.isReaded()) {
+            // update the data objects
+            this.messageThreads.stream().filter(mt -> mt.getId() == this.selectedThread.getId()).forEach(mt -> mt.setReaded(true));
+            this.selectedThread.setReaded(true);
+
             //save read info to database
             messagingManager.markThreadAsRead(selectedThread.getId(), loggedUser.getUserId(), getLoggedUserContextData());
         }
@@ -247,7 +248,7 @@ public class MessagesBean implements Serializable {
     public void loadMoreThreads() {
         pageThread++;
 
-        List<MessagesThreadData> loadedThreads = messagingManager.getMessageThreads(
+        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
                 loggedUser.getUserId(),
                 pageThread, limitThreads, archiveView);
 
@@ -285,7 +286,7 @@ public class MessagesBean implements Serializable {
 
             // if there is no thread with this user
             if (this.selectedThread == null) {
-                Pair<MessageData, MessagesThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
+                Pair<MessageData, MessageThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
                         0, loggedUser.getUserId(), messageRecipient.getId(), this.messageText, userContext);
 
                 this.selectedThread = result.getSecond();
@@ -402,11 +403,11 @@ public class MessagesBean implements Serializable {
         this.threadId = threadId;
     }
 
-    public MessagesThreadData getSelectedThread() {
+    public MessageThreadData getSelectedThread() {
         return selectedThread;
     }
 
-    public List<MessagesThreadData> getMessageThreads() {
+    public List<MessageThreadData> getMessageThreads() {
         return messageThreads;
     }
 

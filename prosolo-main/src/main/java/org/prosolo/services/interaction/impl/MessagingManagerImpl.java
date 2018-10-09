@@ -14,14 +14,14 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.Pair;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.messaging.data.MessageData;
-import org.prosolo.web.messaging.data.MessagesThreadData;
+import org.prosolo.web.messaging.data.MessageThreadData;
+import org.prosolo.web.messaging.data.MessageThreadParticipantData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,26 +46,26 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@Override
 	public MessageData sendMessage(long threadId, long senderId, long receiverId, String text, UserContextData contextData)
 			throws DbConnectionException {
-		Result<Pair<MessageData, MessagesThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, text, contextData);
+		Result<Pair<MessageData, MessageThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, text, contextData);
 		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult().getFirst();
 	}
 
 
 	@Override
-	public Pair<MessageData, MessagesThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	public Pair<MessageData, MessageThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
 			throws DbConnectionException {
-		Result<Pair<MessageData, MessagesThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, msg, contextData);
+		Result<Pair<MessageData, MessageThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, msg, contextData);
 		eventFactory.generateEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<Pair<MessageData, MessagesThreadData>> sendMessageAndGetEvents(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	public Result<Pair<MessageData, MessageThreadData>> sendMessageAndGetEvents(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
 			throws DbConnectionException {
 		try {
-			Result<Pair<MessageData, MessagesThreadData>> result = new Result<>();
+			Result<Pair<MessageData, MessageThreadData>> result = new Result<>();
 
 			MessageThread thread ;
 			Date now = new Date();
@@ -132,7 +132,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			result.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, contextData,
 					message, null, null, parameters));
 
-			result.setResult(new Pair<>(new MessageData(message, true), new MessagesThreadData(thread, senderId)));
+			result.setResult(new Pair<>(new MessageData(message, true), new MessageThreadData(thread, senderId)));
 
 			return result;
 		} catch (Exception e) {
@@ -183,7 +183,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public List<MessagesThreadData> getMessageThreads(long userId, int page, int limit, boolean archived) {
+	public List<MessageThreadData> getMessageThreads(long userId, int page, int limit, boolean archived) {
 		try {
 			String query =
 					"SELECT DISTINCT thread " +
@@ -205,11 +205,11 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 			List<MessageThread> result = q.list();
 
-			List<MessagesThreadData> messageThreadData = new LinkedList<>();
+			List<MessageThreadData> messageThreadData = new LinkedList<>();
 
 			if (result != null) {
 				for (MessageThread mThread : result) {
-					MessagesThreadData mtData = new MessagesThreadData(mThread, userId);
+					MessageThreadData mtData = new MessageThreadData(mThread, userId);
 					messageThreadData.add(mtData);
 				}
 			}
@@ -223,15 +223,15 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	// nt
-	public MessagesThreadData markThreadAsRead(long threadId, long userId, UserContextData context) throws DbConnectionException {
-		Result<MessagesThreadData> res = self.markThreadAsReadAndGetEvents(threadId, userId, context);
+	public MessageThreadData markThreadAsRead(long threadId, long userId, UserContextData context) throws DbConnectionException {
+		Result<MessageThreadData> res = self.markThreadAsReadAndGetEvents(threadId, userId, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<MessagesThreadData> markThreadAsReadAndGetEvents(long threadId, long userId, UserContextData context) throws DbConnectionException {
+	public Result<MessageThreadData> markThreadAsReadAndGetEvents(long threadId, long userId, UserContextData context) throws DbConnectionException {
 		try {
 			String query =
 					"SELECT thread, participant, message " +
@@ -251,7 +251,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 					.setMaxResults(1)
 					.uniqueResult();
 
-			Result<MessagesThreadData> result = new Result<>();
+			Result<MessageThreadData> result = new Result<>();
 
 			if (queryResult != null) {
 				MessageThread thread = (MessageThread) queryResult[0];
@@ -259,7 +259,9 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				Message lastMessage = (Message) queryResult[2];
 
 				// mark thread as read by setting the last read message
+				participant.setRead(true);
 				participant.setLastReadMessage(lastMessage);
+				persistence.currentManager().flush();
 
 
 				Map<String, String> parameters = new HashMap<>();
@@ -268,7 +270,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				result.appendEvent(eventFactory.generateEventData(EventType.READ_MESSAGE_THREAD,
 						context, thread, null, null, parameters));
 
-				result.setResult(new MessagesThreadData(thread, userId));
+				result.setResult(new MessageThreadData(thread, userId));
 			}
 
 			return result;
@@ -385,13 +387,13 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public MessagesThreadData getMessageThread(long threadId, long userId) {
+	public MessageThreadData getMessageThread(long threadId, long userId) {
 		try {
 			MessageThread messageThread = loadResource(MessageThread.class, threadId);
 
-			MessagesThreadData messagesThreadData = new MessagesThreadData(messageThread, userId);
+			MessageThreadData messageThreadData = new MessageThreadData(messageThread, userId);
 
-			return messagesThreadData;
+			return messageThreadData;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -425,12 +427,12 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public Optional<MessagesThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId) {
+	public Optional<MessageThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId) {
 		try {
 			MessageThread thread = getMessageThreadForUsers(loggedUserId, otherUserId);
 
 			if (thread != null) {
-				return Optional.of(new MessagesThreadData(thread, loggedUserId));
+				return Optional.of(new MessageThreadData(thread, loggedUserId));
 			}
 			return Optional.empty();
 		} catch (Exception e) {
@@ -440,4 +442,54 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		}
 	}
 
+	@Override
+	@Transactional
+	public long getSenderId(long messageId, Session session) {
+		try {
+			String query =
+					"SELECT user.id " +
+					"FROM Message message " +
+					"LEFT JOIN message.sender sender " +
+					"LEFT JOIN sender.user user " +
+					"WHERE message.id = :messageId";
+
+			return (Long) session.createQuery(query)
+					.setLong("messageId", messageId)
+					.uniqueResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading message sender");
+		}
+	}
+
+	@Override
+	@Transactional
+	public List<MessageThreadParticipantData> getThreadParticipansForMessage(long messageId, Session session) {
+		try {
+			String query =
+					"SELECT thread.participants " +
+					"FROM Message message " +
+					"LEFT JOIN message.messageThread thread " +
+					"WHERE message.id = messageId ";
+
+			List<ThreadParticipant> participants = session.createQuery(query)
+					.setLong("messageId", messageId)
+					.list();
+
+			List<MessageThreadParticipantData> participantDataList = new LinkedList<>();
+
+			if (participants != null) {
+				for (ThreadParticipant participant : participants) {
+					participantDataList.add(new MessageThreadParticipantData(participant));
+				}
+			}
+
+			return participantDataList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading message sender");
+		}
+	}
 }

@@ -3,7 +3,6 @@ package org.prosolo.web.messaging.data;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
-import org.prosolo.services.nodes.data.UserData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,24 +12,24 @@ import java.util.stream.Collectors;
 /*
  * @author Zoran Jeremic 2013-05-19
  */
-public class MessagesThreadData implements Serializable {
+public class MessageThreadData implements Serializable {
 	
 	private static final long serialVersionUID = -5533560146824083368L;
 
 	private String subject;
 	private long id;
 	private List<MessageData> messages;
-	private List<MessagesThreadParticipantData> participants;
-	private MessagesThreadParticipantData receiver;
+	private List<MessageThreadParticipantData> participants;
+	private MessageThreadParticipantData receiver;
 	private MessageData lastUpdated;
 	private boolean readed;
 	
-	public MessagesThreadData() {
+	public MessageThreadData() {
 		messages = new ArrayList<>();
 		participants = new ArrayList<>();
 	}
 	
-	public MessagesThreadData(MessageThread thread, long userId) {
+	public MessageThreadData(MessageThread thread, long userId) {
 		this();
 		
 		this.id = thread.getId();
@@ -40,8 +39,8 @@ public class MessagesThreadData implements Serializable {
 		this.readed = participant.isRead();
 
 
-		this.participants = thread.getParticipants().stream().map(tp -> new MessagesThreadParticipantData(tp)).collect(Collectors.toList());
-		this.receiver = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessagesThreadParticipantData(tp)).findAny().get();
+		this.participants = thread.getParticipants().stream().map(tp -> new MessageThreadParticipantData(tp)).collect(Collectors.toList());
+		this.receiver = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessageThreadParticipantData(tp)).findAny().get();
 
 		List<MessageData> messagesData = new ArrayList<>();
 		for (Message m : thread.getMessages()) {
@@ -106,16 +105,16 @@ public class MessagesThreadData implements Serializable {
 		this.lastUpdated = lReceived;
 	}
 
-	public List<MessagesThreadParticipantData> getParticipants() {
+	public List<MessageThreadParticipantData> getParticipants() {
 		return participants;
 	}
 
-	public void setParticipants(List<MessagesThreadParticipantData> participants) {
+	public void setParticipants(List<MessageThreadParticipantData> participants) {
 		this.participants = participants;
 	}
 	
-	public MessagesThreadParticipantData getParticipantThatIsNotUser(long userId) {
-		for (MessagesThreadParticipantData participant : participants) {
+	public MessageThreadParticipantData getParticipantThatIsNotUser(long userId) {
+		for (MessageThreadParticipantData participant : participants) {
 			if (participant.getId() != userId) {
 				return participant;
 			}
@@ -123,11 +122,11 @@ public class MessagesThreadData implements Serializable {
 		return null;
 	}
 
-	public MessagesThreadParticipantData getReceiver() {
+	public MessageThreadParticipantData getReceiver() {
 		return receiver;
 	}
 
-	public void setReceiver(MessagesThreadParticipantData receiver) {
+	public void setReceiver(MessageThreadParticipantData receiver) {
 		this.receiver = receiver;
 	}
 }

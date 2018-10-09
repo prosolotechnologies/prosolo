@@ -11,7 +11,7 @@ import org.prosolo.web.util.AvatarUtils;
  * @date 2018-01-12
  * @since 1.2
  */
-public class MessagesThreadParticipantData extends UserData {
+public class MessageThreadParticipantData extends UserData {
 
 
     private static final long serialVersionUID = 1645000395726643265L;
@@ -19,7 +19,7 @@ public class MessagesThreadParticipantData extends UserData {
     private long participantId;
     private boolean deleted;
 
-    public MessagesThreadParticipantData(ThreadParticipant participant) {
+    public MessageThreadParticipantData(ThreadParticipant participant) {
         User user = participant.getUser();
 
         setId(user.getId());

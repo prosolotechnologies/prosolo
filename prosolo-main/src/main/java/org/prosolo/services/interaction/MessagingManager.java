@@ -1,5 +1,6 @@
 package org.prosolo.services.interaction;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -8,8 +9,8 @@ import org.prosolo.common.util.Pair;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.web.messaging.data.MessageData;
-import org.prosolo.web.messaging.data.MessagesThreadData;
-import org.springframework.transaction.annotation.Transactional;
+import org.prosolo.web.messaging.data.MessageThreadData;
+import org.prosolo.web.messaging.data.MessageThreadParticipantData;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public interface MessagingManager extends AbstractManager {
 	 * @param archived whether to show archived messages (is set true) or not archived (if set false)
 	 * @return list of message threads data
 	 */
-	List<MessagesThreadData> getMessageThreads(long userId, int page, int limit, boolean archived);
+	List<MessageThreadData> getMessageThreads(long userId, int page, int limit, boolean archived);
 
 	/**
 	 * Marks the message thread as read for the given user.
@@ -49,7 +50,7 @@ public interface MessagingManager extends AbstractManager {
 	 * @return message thread data
 	 * @throws DbConnectionException if there was an exception updating the appropriate {@link org.prosolo.common.domainmodel.messaging.ThreadParticipant} instance.
 	 */
-	MessagesThreadData markThreadAsRead(long threadId, long userId, UserContextData context) throws DbConnectionException;
+	MessageThreadData markThreadAsRead(long threadId, long userId, UserContextData context) throws DbConnectionException;
 
 	/**
 	 * Marks the message thread as read for the given user. Returns it with event data.
@@ -60,7 +61,7 @@ public interface MessagingManager extends AbstractManager {
 	 * @return message thread data (with event data)
 	 * @throws DbConnectionException if there was an exception updating the appropriate {@link org.prosolo.common.domainmodel.messaging.ThreadParticipant} instance.
 	 */
-	Result<MessagesThreadData> markThreadAsReadAndGetEvents(long threadId, long userId, UserContextData context) throws DbConnectionException;
+	Result<MessageThreadData> markThreadAsReadAndGetEvents(long threadId, long userId, UserContextData context) throws DbConnectionException;
 
 	/**
 	 * Sends a message from a sender to a receiver. If messageThreadId is unknown (value is 0), then the message thread for these two users will be found if exists or new one will be created.
@@ -76,10 +77,10 @@ public interface MessagingManager extends AbstractManager {
 	MessageData sendMessage(long threadId, long senderId, long receiverId, String text, UserContextData contextData)
 			throws DbConnectionException;
 
-	Pair<MessageData, MessagesThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	Pair<MessageData, MessageThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
 			throws DbConnectionException;
 
-	Result<Pair<MessageData, MessagesThreadData>> sendMessageAndGetEvents(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
+	Result<Pair<MessageData, MessageThreadData>> sendMessageAndGetEvents(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
 			throws DbConnectionException;
 
 	/**
@@ -139,7 +140,7 @@ public interface MessagingManager extends AbstractManager {
 	 * @param userId user id
 	 * @return message thread data
 	 */
-	MessagesThreadData getMessageThread(long threadId, long userId);
+	MessageThreadData getMessageThread(long threadId, long userId);
 
 	/**
 	 * Retrieves a message thread between two users.
@@ -157,5 +158,23 @@ public interface MessagingManager extends AbstractManager {
 	 * @param otherUserId id of the other user
 	 * @return message thread data
 	 */
-	Optional<MessagesThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId);
+	Optional<MessageThreadData> getMessageThreadDataForUsers(long loggedUserId, long otherUserId);
+
+	/**
+	 * Retrieves id of a user who sent a message.
+	 *
+	 * @param messageId id of a message
+	 * @param session session within which to execute a query
+	 * @return id of a user who sent the message
+	 */
+    long getSenderId(long messageId, Session session);
+
+	/**
+	 * Returns a list of participants of a message thread the message belongs to.
+	 *
+	 * @param messageId id of a message
+	 * @param session session within which to execute a query
+	 * @return list of thread participants
+	 */
+	List<MessageThreadParticipantData> getThreadParticipansForMessage(long messageId, Session session);
 }

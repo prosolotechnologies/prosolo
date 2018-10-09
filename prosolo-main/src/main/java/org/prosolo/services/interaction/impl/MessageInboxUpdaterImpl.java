@@ -20,19 +20,7 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	private static final long serialVersionUID = 344209605228225877L;
 
 	@Override
-	public void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession) {
-		if (httpSession != null) {
-			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-			
-			if (topInboxBean != null) {
-				topInboxBean.markMessageUnread();
-			}
-		}
-	}
-
-
-	@Override
-	public void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession) {
+	public void updateOnNewMessage(HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			
