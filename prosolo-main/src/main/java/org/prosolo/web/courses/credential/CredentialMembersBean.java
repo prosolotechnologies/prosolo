@@ -10,8 +10,11 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
+import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserBasicData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -20,6 +23,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -29,7 +33,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +57,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private StudentEnrollBean studentEnrollBean;
 	@Inject
 	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
+	@Inject
+	private CredentialInstructorManager credentialInstructorManager;
 
 	private List<StudentData> members;
 
@@ -65,14 +70,14 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.STUDENT_NAME;
 	private PaginationData paginationData = new PaginationData();
 	private CredentialMembersSearchFilter searchFilter;
+	private CredentialStudentsInstructorFilter instructorFilter;
 	
-	private long personalizedForUserId = -1;
-
 	private String context;
 	
 	private CredentialIdData credentialIdData;
 	
 	private CredentialMembersSearchFilter[] searchFilters;
+	private CredentialStudentsInstructorFilter[] instructorFilters;
 	private CredentialMembersSortOption[] sortOptions;
 	
 	private ResourceAccessData access;
@@ -106,8 +111,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						 * if user can't edit resource, it means that he can only instruct and that is why
 						 * he can only see his students
 						 */
-						if(!access.isCanEdit()) {
-							personalizedForUserId = loggedUserBean.getUserId();
+						if (!access.isCanEdit()) {
+							instructorFilter = new CredentialStudentsInstructorFilter(loggedUserBean.getUserId(), null, CredentialStudentsInstructorFilter.SearchFilter.INSTRUCTOR);
+						} else {
+							initInstructorFilters();
 						}
 						searchCredentialMembers();
 						studentEnrollBean.init(decodedId, context);
@@ -121,6 +128,31 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		} else {
 			PageUtil.notFound();
 		}
+	}
+
+	private void initInstructorFilters() {
+		List<UserBasicData> deliveryInstructors = credentialInstructorManager
+				.getCredentialInstructorsBasicUserData(decodedId, true);
+		int filtersNumber = deliveryInstructors.size() + 2;
+		instructorFilters = new CredentialStudentsInstructorFilter[filtersNumber];
+		int filtersIndex = 0;
+		instructorFilters[filtersIndex++] = new CredentialStudentsInstructorFilter(
+				0,
+				ResourceBundleUtil.getLabel("enum.CredentialStudentsInstructorFilter.SearchFilter." + CredentialStudentsInstructorFilter.SearchFilter.ALL.name()),
+				CredentialStudentsInstructorFilter.SearchFilter.ALL);
+		instructorFilters[filtersIndex++] = new CredentialStudentsInstructorFilter(
+				0,
+				ResourceBundleUtil.getLabel("enum.CredentialStudentsInstructorFilter.SearchFilter." + CredentialStudentsInstructorFilter.SearchFilter.NO_INSTRUCTOR.name()),
+				CredentialStudentsInstructorFilter.SearchFilter.NO_INSTRUCTOR);
+		//for all instructor from db iterate and set filter from i = 2; i<size; i++
+		for (UserBasicData instructor : deliveryInstructors) {
+			instructorFilters[filtersIndex++] = new CredentialStudentsInstructorFilter(
+					instructor.getId(),
+					instructor.getFullName(),
+					CredentialStudentsInstructorFilter.SearchFilter.INSTRUCTOR);
+		}
+
+		instructorFilter = instructorFilters[0];
 	}
 
 	public void searchCredentialMembers() {
@@ -146,8 +178,9 @@ public class CredentialMembersBean implements Serializable, Paginable {
 					loggedUserBean.getOrganizationId(),
 					searchTerm,
 					searchFilter.getFilter(),
+					instructorFilter,
 					this.paginationData.getPage() - 1, this.paginationData.getLimit(),
-					decodedId, personalizedForUserId, sortOption);
+					decodedId, sortOption);
 
 		this.paginationData.update((int) searchResponse.getHitsNumber());
 		members = searchResponse.getFoundNodes();
@@ -165,6 +198,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		sortOption = CredentialMembersSortOption.DATE;
 		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
+		//TODO update instructor filters if needed when this functionality is reintroduced
 		for (CredentialMembersSearchFilter f : searchFilters) {
 			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
 				searchFilter = f;
@@ -172,15 +206,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				break;
 			}
 		}
-	}
-
-
-	private void updateFiltersStudentAssigned() {
-		updateFilters(1, -1);
-	}
-
-	private void updateFiltersStudentUnassigned() {
-		updateFilters(-1, 1);
 	}
 
 	/**
@@ -197,30 +222,16 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		if (updatedStudent.isPresent()) {
 			updatedStudent.get().setInstructor(instructor);
 		}
-
-		// update filters
-		switch (assignStudentToInstructorDialogBean.getLastAction()) {
-			case ASSIGNED:
-				updateFiltersStudentAssigned();
-				break;
-			case UNASSIGNED:
-				updateFiltersStudentUnassigned();
-				break;
-		}
-	}
-
-	private void updateFilters(int numberOfAssignedToAdd, int numberOfUnassignedToAdd) {
-		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Assigned, numberOfAssignedToAdd);
-		updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter.Unassigned, numberOfUnassignedToAdd);
-	}
-
-	private void updateFilterResultNumber(CredentialMembersSearchFilter.SearchFilter filter, int numberToAdd) {
-		CredentialMembersSearchFilter searchFilter = Arrays.stream(searchFilters).filter(f -> f.getFilter() == filter).findFirst().get();
-		searchFilter.setNumberOfResults(searchFilter.getNumberOfResults() + numberToAdd);
 	}
 
 	public void applySearchFilter(CredentialMembersSearchFilter filter) {
 		this.searchFilter = filter;
+		this.paginationData.setPage(1);
+		searchCredentialMembers();
+	}
+
+	public void applyInstructorFilter(CredentialStudentsInstructorFilter filter) {
+		this.instructorFilter = filter;
 		this.paginationData.setPage(1);
 		searchCredentialMembers();
 	}
@@ -326,4 +337,13 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	public CredentialIdData getCredentialIdData() {
 		return credentialIdData;
 	}
+
+	public CredentialStudentsInstructorFilter[] getInstructorFilters() {
+		return instructorFilters;
+	}
+
+	public CredentialStudentsInstructorFilter getInstructorFilter() {
+		return instructorFilter;
+	}
+
 }

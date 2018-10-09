@@ -347,8 +347,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchCredentialMembers (
-			long organizationId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, int page, int limit, long credId,
-			long instructorId, CredentialMembersSortOption sortOption) {
+			long organizationId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, CredentialStudentsInstructorFilter instructorFilter,
+			int page, int limit, long credId, CredentialMembersSortOption sortOption) {
 		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> response =
 				new TextSearchFilteredResponse<>();
 		try {
@@ -367,15 +367,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
-			if (instructorId != -1) {
-				nestedFB.must(QueryBuilders.termQuery("credentials.instructorId", instructorId));
+
+			if (instructorFilter != null && instructorFilter.getFilter() != CredentialStudentsInstructorFilter.SearchFilter.ALL) {
+				nestedFB.filter(QueryBuilders.termQuery("credentials.instructorId", instructorFilter.getInstructorId()));
 			}
 			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials", nestedFB, ScoreMode.None);
-//					.innerHit(new QueryInnerHitBuilder());
-//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-//					nestedFilter1);
+
 			bQueryBuilder.filter(nestedFilter1);
-			//bQueryBuilder.must(termQuery("credentials.id", credId));
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -400,12 +398,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				} else {
 					BoolQueryBuilder postFilter = QueryBuilders.boolQuery();
 					switch (filter) {
-						case Assigned:
-							postFilter.mustNot(QueryBuilders.termQuery("credentials.instructorId", 0));
-							break;
-						case Unassigned:
-							postFilter.filter(QueryBuilders.termQuery("credentials.instructorId", 0));
-							break;
 						case AssessorNotified:
 							postFilter.filter(QueryBuilders.termQuery("credentials.assessorNotified", true));
 							break;
@@ -507,8 +499,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						long allStudentsNumber = filtered.getDocCount();
 						
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.All, allStudentsNumber);
-						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Unassigned, unassigned.getDocCount());
-						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Assigned, allStudentsNumber - unassigned.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.AssessorNotified, assessorNotified.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Nongraded, allStudentsNumber - assessed.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Graded, assessed.getDocCount());
