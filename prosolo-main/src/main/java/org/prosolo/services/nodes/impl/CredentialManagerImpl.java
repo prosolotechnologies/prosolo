@@ -1143,11 +1143,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId,
-																			  CredentialType type)
+	public List<CredentialIdData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred.id, cred.title " +
+			String query = "SELECT cred.id, cred.title ";
+			if (type == CredentialType.Delivery) {
+				query += ", cred.deliveryOrder ";
+			}
+			query +=
 					"FROM CredentialCompetence1 credComp " +
 					"INNER JOIN credComp.credential cred " +
 					"WHERE credComp.competence.id = :compId " +
@@ -1173,17 +1176,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				return new ArrayList<>();
 			}
 
-			List<CredentialData> resultList = new ArrayList<>();
+			List<CredentialIdData> resultList = new ArrayList<>();
 			for (Object[] row : res) {
-				CredentialData cd = new CredentialData(false);
-				cd.getIdData().setId((long) row[0]);
-				cd.getIdData().setTitle((String) row[1]);
-				resultList.add(cd);
+				CredentialIdData idData = new CredentialIdData(false);
+				idData.setId((long) row[0]);
+				idData.setTitle((String) row[1]);
+				if (type == CredentialType.Delivery) {
+					idData.setOrder((int) row[2]);
+				}
+				resultList.add(idData);
 			}
 			return resultList;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}

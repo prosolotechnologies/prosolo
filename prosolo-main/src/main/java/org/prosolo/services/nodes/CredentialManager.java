@@ -158,7 +158,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
+	List<CredentialIdData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
 			throws DbConnectionException;
 
 	List<Tag> getCredentialTags(long credentialId) 

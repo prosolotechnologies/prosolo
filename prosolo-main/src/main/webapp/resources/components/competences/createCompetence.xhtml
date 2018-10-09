@@ -43,11 +43,11 @@
 		            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 		            </li>
 		            <li>
-		            	<h:link
-		            		value="#{competenceEditBean.credTitle}"
-		            		outcome="credential-create">
-		            		<f:param name="id" value="#{param['credId']}"></f:param>
-		            	</h:link>
+						<h:link
+								value="#{competenceEditBean.credentialIdData.fullTitle}"
+								outcome="/manage/credential-create">
+							<f:param name="id" value="#{param.credId}"></f:param>
+						</h:link>
 		            </li>
 		            <ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
@@ -142,9 +142,9 @@
 			                                        <ul class="addedItems">
 			                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
 			                                        		<li>
-			                                        			<h:link value="#{cred.idData.title}"
+			                                        			<h:link value="#{cred.title}"
 			                                        				outcome="credential">
-			                                        				<f:param name="id" value="#{util:encodeId(cred.idData.id)}" />
+			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
 			                                        			</h:link>
 				                                            </li>
 			                                        	</ui:repeat>

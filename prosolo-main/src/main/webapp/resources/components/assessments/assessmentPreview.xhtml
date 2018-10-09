@@ -163,12 +163,13 @@
 			<ol class="breadcrumb">
 				<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 					<li>
-						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary" />
+						<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library" />
 					</li>
 					<li>
-						<h:link value="#{cc.attrs.bean.credentialTitle}"
+						<h:link
+								value="#{cc.attrs.bean.credentialIdData.fullTitle}"
 								outcome="/manage/credential">
-							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}" />
+							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"></f:param>
 						</h:link>
 					</li>
 					<li>
