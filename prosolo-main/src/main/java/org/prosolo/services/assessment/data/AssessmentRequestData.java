@@ -6,7 +6,6 @@ public class AssessmentRequestData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String messageText;
 	private long studentId;
 	private long assessorId;
 	private String assessorFullName;
@@ -15,14 +14,6 @@ public class AssessmentRequestData implements Serializable {
 	private long targetResourceId;
 	private boolean assessorSet;
 	private boolean newAssessment;
-
-	public String getMessageText() {
-		return messageText;
-	}
-
-	public void setMessageText(String messageText) {
-		this.messageText = messageText;
-	}
 
 	public long getStudentId() {
 		return studentId;

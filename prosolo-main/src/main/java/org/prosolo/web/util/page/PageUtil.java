@@ -241,15 +241,28 @@ public class PageUtil {
 	}
 	
 	public static void notFound() {
-		forward(getSectionForView().getPrefix() + "/notfound");
+		notFound(null);
 	}
 
 	/**
 	 * Forwards to not found page
 	 * @param uri
 	 */
-	public static void notFound(String uri) {
-		forward(getSectionForUri(uri).getPrefix() + "/notfound");
+	public static void notFoundForGivenUri(String uri) {
+		notFound(getSectionForUri(uri).getPrefix(), null);
+	}
+
+	/**
+	 * Forwards to not found page with given msg displayed
+	 *
+	 * @param msg
+	 */
+	public static void notFound(String msg) {
+		notFound(getSectionForView().getPrefix(), msg);
+	}
+
+	private static void notFound(String section, String msg) {
+		forward(section + "/notfound" + (msg != null && !msg.isEmpty() ? "?msg=" + msg : ""));
 	}
 
 	public static boolean isInManageSection() {

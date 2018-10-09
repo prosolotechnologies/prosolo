@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.core.spring.security.HomePageResolver;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.OpenIDBean;
+import org.prosolo.web.util.UserSessionUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -50,20 +51,8 @@ public class LoginBean implements Serializable{
 		}
 	}
 	
-	public boolean isUserLoggedIn(){
-		SecurityContext context = SecurityContextHolder.getContext();
-        if (context == null){
-            return false;
-        }
-        
-        Authentication authentication = context.getAuthentication();
-        if (authentication == null){
-            return false;
-        }
-        if(authentication instanceof AnonymousAuthenticationToken){
-        	return false;
-        }
-        return true;
+	public boolean isUserLoggedIn() {
+		return UserSessionUtil.isUserLoggedIn();
 	}
 	
 	

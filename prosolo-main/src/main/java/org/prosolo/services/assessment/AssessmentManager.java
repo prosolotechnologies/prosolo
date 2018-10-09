@@ -180,7 +180,6 @@ public interface AssessmentManager {
 	 * @param targetCredential
 	 * @param studentId
 	 * @param assessorId
-	 * @param message
 	 * @param type
 	 * @param context
 	 * @return
@@ -188,7 +187,7 @@ public interface AssessmentManager {
 	 * @throws IllegalDataStateException
 	 */
 	Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-												   String message, AssessmentType type, UserContextData context)
+												   AssessmentType type, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
@@ -222,7 +221,7 @@ public interface AssessmentManager {
 	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, String message, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
@@ -241,7 +240,7 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-																					long assessorId, String message, AssessmentType type, boolean isExplicitRequest, UserContextData context)
+																			  long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
 	GradeData updateGradeForCompetenceAssessment(

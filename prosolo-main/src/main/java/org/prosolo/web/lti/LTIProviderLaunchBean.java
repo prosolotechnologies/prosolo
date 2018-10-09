@@ -5,10 +5,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.LtiUserManager;
@@ -19,8 +17,10 @@ import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.prosolo.web.lti.message.extract.LtiMessageBuilder;
 import org.prosolo.web.lti.message.extract.LtiMessageBuilderFactory;
 import org.prosolo.web.lti.urlbuilder.ToolLaunchUrlBuilderFactory;
+import org.prosolo.web.util.UserSessionUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
@@ -28,7 +28,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,8 +71,7 @@ public class LTIProviderLaunchBean implements Serializable {
 			launch(msg);
 		} catch (Exception e) {
 			redirectUser(externalContext, e.getMessage());
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 		}
 	}
 	
@@ -117,9 +116,14 @@ public class LTIProviderLaunchBean implements Serializable {
 
 	private boolean login(User user) {
 		//if there is a different user logged in, invalidate his session
-		HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-		applicationBean.unregisterSession(session);
-		return loggedUserBean.loginUser(user.getEmail(), learningContext);
+		if (UserSessionUtil.isUserLoggedIn()) {
+			loggedUserBean.forceUserLogout();
+		}
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		return authenticationService.loginUserLTI(
+				(HttpServletRequest) externalContext.getRequest(),
+				(HttpServletResponse) externalContext.getResponse(),
+				user.getEmail());
 	}
 
 

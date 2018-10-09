@@ -480,4 +480,15 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
+
+	/**
+	 * Returns id of a first credential competency is added to and student has the learn privilege for.
+	 * If there is no credential that meets these conditions 0 is returned.
+	 *
+	 * @param compId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(long compId, long studentId);
 }

@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
+import org.prosolo.services.nodes.data.UserBasicData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -771,6 +772,38 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential instructors user ids");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserBasicData> getCredentialInstructorsBasicUserData(long credentialId, boolean returnInstructorsWithoutAssignedStudents) {
+		try {
+			StringBuilder query = new StringBuilder(
+					"SELECT DISTINCT user " +
+					"FROM CredentialInstructor credInstructor " +
+					"INNER JOIN credInstructor.user user ");
+			if (!returnInstructorsWithoutAssignedStudents) {
+				query.append("INNER JOIN credInstructor.assignedStudents ");
+			}
+			query.append(
+					"WHERE credInstructor.credential.id = :credId " +
+					"ORDER BY user.name, user.lastname");
+
+			List<User> result = (List<User>) persistence
+					.currentManager()
+					.createQuery(query.toString())
+					.setLong("credId", credentialId)
+					.list();
+
+			List<UserBasicData> users = new ArrayList<>();
+			for (User user : result) {
+				users.add(new UserBasicData(user.getId(), user.getFullName()));
+			}
+			return users;
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential instructors");
 		}
 	}
 	

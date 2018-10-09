@@ -634,6 +634,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
     		compToUpdate.setTags(new HashSet<>(tagManager.parseCSVTagsAndSave(
     				data.getTagsString())));		     
     	}
+
+		if (data.getAssessmentTypes() != null) {
+			for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
+				if (atc.hasObjectChanged()) {
+					CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
+					cac.setEnabled(atc.isEnabled());
+				}
+			}
+		}
     	
     	//these changes are not allowed if competence was once published
     	if(data.getDatePublished() == null) {
@@ -692,14 +701,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compToUpdate.setDuration(0);
 			}
 
-			if (data.getAssessmentTypes() != null) {
-				for (AssessmentTypeConfig atc : data.getAssessmentTypes()) {
-					if (atc.hasObjectChanged()) {
-						CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
-						cac.setEnabled(atc.isEnabled());
-					}
-				}
-			}
 			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
 	    
@@ -2877,6 +2878,53 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the blind assessment mode for competency");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(long compId, long studentId) {
+		CompetenceData1 compData = null;
+		try {
+			String query = "SELECT cred.id, tc.id " +
+					"FROM CredentialCompetence1 cc " +
+					"INNER JOIN cc.credential cred " +
+					"WITH cred.type = :type " +
+					"LEFT JOIN cred.targetCredentials tc " +
+					"WITH tc.user.id = :userId " +
+					"WHERE cc.competence.id = :compId";
+
+			List<Object[]> res = (List<Object[]>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("compId", compId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+
+			for (Object[] row : res) {
+				long credId = (long) row[0];
+				if (row[1] != null) {
+					/*
+					if student is enrolled in credential it means he has a privilege to learn it so
+					return id of that credential
+					 */
+					return credId;
+				}
+				ResourceAccessData resourceAccess = credentialManager.getResourceAccessData(
+						credId,
+						studentId,
+						ResourceAccessRequirements.of(AccessMode.USER).addPrivilege(UserGroupPrivilege.Learn));
+				if (resourceAccess.isCanLearn()) {
+					/*
+					if student is allowed to learn credential return id of that credential
+					 */
+					return credId;
+				}
+			}
+			return 0L;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential id");
 		}
 	}
 

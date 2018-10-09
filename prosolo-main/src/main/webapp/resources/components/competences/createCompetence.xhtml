@@ -73,42 +73,46 @@
 	    </div>
 
 	    <div id="#{cc.clientId}">
-		    <script>
-				containerId = '#{cc.clientId}';
-				var isDraft = '#{competenceEditBean.draft}';
+		    <h:panelGroup id="jsPanel">
+				<script>
+					containerId = '#{cc.clientId}';
+					var isDraft = #{competenceEditBean.draft};
 
-				function shouldOpenCanNotPublishModal(){
-                    var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
-                    if (lPath !== 'ACTIVITY') {
-                        return false;
-					}
-					var activityListSize = $('.activityItem').length - 1;
-					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
-
-					 if(activityListSize &lt;= 0 &amp;&amp; selectStatus == "PUBLISHED"){
-						var desc = $("#createCompetence\\:formMain\\:description");
-						var title = $("#createCompetence\\:formMain\\:inputTitle");
-						if(desc.val() &amp;&amp; title.val()){
-							return true;
+					function shouldOpenCanNotPublishModal(){
+						var lPath = $("#createCompetence\\:formMain\\:pathChooser").val();
+						if (lPath !== 'ACTIVITY') {
+							return false;
 						}
-					}
-					return false;
-				}
+						var activityListSize = $('.activityItem').length - 1;
+						var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 
-				function shouldOpenPublishModal(){
-					var activityListSize = $('.activityItem').length - 1;
-					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
-
-				 	if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
-						var desc = $("#createCompetence\\:formMain\\:description");
-						var title = $("#createCompetence\\:formMain\\:inputTitle");
-						if(desc.val() &amp;&amp; title.val()){
-							return true;
+						 if(activityListSize &lt;= 0 &amp;&amp; selectStatus == "PUBLISHED"){
+							var desc = $("#createCompetence\\:formMain\\:description");
+							var title = $("#createCompetence\\:formMain\\:inputTitle");
+							if(desc.val() &amp;&amp; title.val()){
+								return true;
+							}
 						}
+						return false;
 					}
-					return false;
-				}
-			</script>
+
+					function shouldOpenPublishModal(){
+						console.log("IS DRAFT " + isDraft);
+						var activityListSize = $('.activityItem').length - 1;
+						var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
+
+						if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
+							console.log("PASSED");
+							var desc = $("#createCompetence\\:formMain\\:description");
+							var title = $("#createCompetence\\:formMain\\:inputTitle");
+							if(desc.val() &amp;&amp; title.val()){
+								return true;
+							}
+						}
+						return false;
+					}
+				</script>
+			</h:panelGroup>
 
 			<h:form id="formMain">
 				<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
@@ -220,7 +224,7 @@
 												<div class="formLineRight">
 													<ui:repeat value="#{competenceEditBean.competenceData.assessmentTypes}" var="at">
 														<div class="checkbox checkLine">
-															<h:selectBooleanCheckbox value="#{at.enabled}" id="checkAssessmentType" disabled="#{at.mandatory or competenceEditBean.limitedEdit}"/>
+															<h:selectBooleanCheckbox value="#{at.enabled}" id="checkAssessmentType" disabled="#{at.mandatory}"/>
 															<h:outputLabel for="checkAssessmentType">#{msg['label.assessment.type.'.concat(at.type)]} #{at.mandatory ? '(mandatory)' : ''}</h:outputLabel>
 														</div>
 													</ui:repeat>
@@ -357,7 +361,7 @@
 			                    				<p:commandLink
 													styleClass="btn btn-green saveChangesSelector"
 													action="#{competenceEditBean.save}"
-													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog :#{cc.clientId}:jsPanel"
 													oncomplete="hideModal('publishModal');">
 													<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 													<f:param name="service" value="name:publish_resource_dialog"></f:param>

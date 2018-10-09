@@ -58,7 +58,6 @@
 							<utilcomp:singleClickLink rendered="#{cc.attrs.bean.access.canLearn and cc.attrs.role == 'USER' and !startedLearning}"
 										   value="Start"
 										   styleClass="btn btn-green btn-sm"
-										   onclick="preventDoubleClick(this);"
 										   action="#{cc.attrs.bean.enrollInCompetence()}"
 										   update=":#{cc.clientId} #{cc.attrs.toUpdateOnEnroll}">
 								<f:param name="learningContext" value="#{learningContext}"/>

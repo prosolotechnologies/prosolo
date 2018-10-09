@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   cassandra:
      build:  ./cassandra
@@ -16,11 +16,11 @@ services:
      ports:
       - "9042:9042"
       - "9160:9160"
-    # volumes:
+     volumes:
       #- ./cassandra/init_scripts:/prosolo/init_scripts
       #- ../db/cassandra/keyspaces.dev:/prosolo/init_scripts/keyspaces
       #- ../db/dev-bootstrap:/init_script/dev_bootstrap
-      #- cassandra_volume:/var/lib/cassandra
+      - cassandra_volume:/var/lib/cassandra
      ulimits:
        nofile:
         soft: 100000
@@ -40,20 +40,34 @@ services:
     # volumes_from:
      #        - mysql_data
      volumes:
-             - "./mysql/config:/etc/mysql/conf.d"
+             - ./mysql/config:/etc/mysql/conf.d
+             - mysql_volume:/var/lib/mysql
+
      expose:
              - "3307"
      ports:
              - "3307:3306"
   elasticsearch:
      container_name: elasticsearch
-     build: elasticsearch
-     #volumes_from:
-      #           - elasticsearch_data
-     command: -Des.node.name="Prosolo-elasticsearch"
+     image: ${ES_VERSION_MANIFEST}
+     environment:
+          - LOGSPOUT=ignore
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - cluster.name=docker-prosolo-elasticsearch
+          - bootstrap.memory_lock=true
+     #command: -Des.node.name="Prosolo-elasticsearch"
+     ulimits:
+          memlock:
+             soft: -1
+             hard: -1
+     networks:
+          - localnet
      ports:
-         - "9200:9200"
-         - "9300:9300"
+         - 9200:9200
+         - 9300:9300
+     volumes:
+         - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/elasticsearch.yml
+         - elasticsearch_volume:/usr/share/elasticsearch/data
 
   rabbitmq:
      container_name: "rabbitmq-prosolo"
@@ -71,11 +85,11 @@ services:
 volumes:
   cassandra_volume:
     external:
-      name: cassandra_volume_${VCS_BRANCH}
-  mysql_data_volume:
+      name: cassandra_data_volume_${VCS_BRANCH}
+  mysql_volume:
     external:
       name: mysql_data_volume_${VCS_BRANCH}
-  elasticsearch_data_volume:
+  elasticsearch_volume:
     external:
       name: elasticsearch_data_volume_${VCS_BRANCH}
 networks:

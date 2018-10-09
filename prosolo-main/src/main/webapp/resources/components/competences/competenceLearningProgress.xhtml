@@ -22,13 +22,13 @@
 				<h:link
 					value="Resume"
 					styleClass="btn btn-green btn-sm"
-					outcome="/activity"
-					onclick="sendLogPageNavigation('/activity.xhtml', 
+					outcome="/competence"
+					onclick="sendLogPageNavigation('/competence.xhtml',
 					'#{facesContext.viewRoot.viewId}', 
 					'#{util:addSubContext(cc.attrs.learningContext, &#34;name:competence|id:&#34;.concat(cc.attrs.competence.competenceId).concat(&#34;|context:/name:resume_learning/&#34;))}', 
 					'#{cc.attrs.service}');">
 					<f:param name="compId" value="#{util:encodeId(cc.attrs.competence.competenceId)}"/>
-					<f:param name="actId" value="#{util:encodeId(cc.attrs.competence.nextActivityToLearnId)}"/>
+					<f:param name="credId" value="#{util:encodeId(cc.attrs.competence.credentialId)}" disable="#{cc.attrs.competence.credentialId eq 0}"/>
 				</h:link>
 				
 				<div class="progressBar">

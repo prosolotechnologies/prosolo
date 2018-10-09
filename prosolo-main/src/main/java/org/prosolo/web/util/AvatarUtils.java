@@ -98,7 +98,9 @@ public class AvatarUtils {
 		
 		String initials = "";
 		for (String namePart : parts) {
-			initials += namePart.charAt(0);
+			if (!namePart.isEmpty()) {
+				initials += namePart.charAt(0);
+			}
 		}
 		return initials.toUpperCase();
 	}

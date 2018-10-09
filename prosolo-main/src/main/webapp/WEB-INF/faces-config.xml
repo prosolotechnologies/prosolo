@@ -17,7 +17,7 @@
 		</resource-bundle>-->
 
 		<message-bundle>
-			org.prosolo.web.generic_messages
+			org.prosolo.web.jsf.Messages
 		</message-bundle>
 	</application>
 

@@ -90,15 +90,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         //.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
         .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class)
 		.authorizeRequests()
-				.antMatchers("/favicon.ico").permitAll()
-				.antMatchers("/resources/css2/**").permitAll()
-				.antMatchers("/resources/images2/**").permitAll()
-				.antMatchers("/resources/fonts/**").permitAll()
-				.antMatchers("/resources/javascript2/**").permitAll()
-				.antMatchers("/resources/javascript/**").permitAll()
-				.antMatchers("/javax.faces.resource/**").permitAll()
-				.antMatchers("/javax.faces.resource/schedule/**").permitAll()
-				.antMatchers("/javax.faces.**").permitAll()
 				.antMatchers("/api/lti/**").permitAll()
 				//.antMatchers("/prosolo/api/lti/**").permitAll()
 				.antMatchers("/about").permitAll()
@@ -120,7 +111,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/reset/successful/**").permitAll()
 				.antMatchers("/reset").permitAll()
 				.antMatchers("/recovery/**").permitAll()
-				.antMatchers("/javax.faces.resource/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
 				.antMatchers("/api/health").permitAll()
 				//.antMatchers("/notfound").permitAll()
@@ -178,8 +168,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/evidence/*").permitAll()
 				.antMatchers("/evidence/new").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/evidence/*").permitAll()
 				.antMatchers("/evidence/*/edit").hasAuthority("BASIC.USER.ACCESS")
 
 
@@ -346,7 +336,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/email.xhtml")
 			.antMatchers("/notfound")
 			.antMatchers("/manage/notfound")
-			.antMatchers("/admin/notfound");
+			.antMatchers("/admin/notfound")
+			.antMatchers("/favicon.ico")
+			.antMatchers("/resources/css2/**")
+			.antMatchers("/resources/images2/**")
+			.antMatchers("/resources/fonts/**")
+			.antMatchers("/resources/javascript2/**")
+			.antMatchers("/resources/javascript/**")
+			//.antMatchers("/javax.faces.resource/schedule/**")
+			.antMatchers("/javax.faces.resource/**")
+			.antMatchers("/javax.faces.**");
 	}
 	
 	@Inject

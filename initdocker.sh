@@ -9,7 +9,7 @@ onErrorQuit () {
     exit 1
 }
 function createBranchVolumes {
-    docker volume create --name=cassandra_volume_${VCS_BRANCH} && \
+    docker volume create --name=cassandra_data_volume_${VCS_BRANCH} && \
     docker volume create --name=elasticsearch_data_volume_${VCS_BRANCH} && \
     docker volume create --name=mysql_data_volume_${VCS_BRANCH}
 }
@@ -21,13 +21,12 @@ function check_cassandra {
     printf "Is cassandra on? "
     cassandra_port=9042
     if is_db_running $cassandra_port ; then
-        echo "CHECK"
         printf "Is cassandra running in container? "
         if is_container_running docker_cassandra_1 ; then
-            echo "CHECK"
+            echo "Cassandra is running"
         else
             echo "ERROR"
-            onErrorQuit "Cassandra is running as a local process instead of a container. Shut down cassandra and retry"
+            onErrorQuit "Cassandra is still running as a local process. Wait until cassandra shut down and retry"
         fi
     else
         echo "DOWN. Will start container"
@@ -52,9 +51,14 @@ function is_container_running {
 
 function start_database {
     pushd docker
-    docker-compose up -d || onErrorQuit " cannot start container orchestration"
+    if $DEBUG; then
+        docker-compose up || onErrorQuit " cannot start container orchestration"
+    else
+        docker-compose up -d || onErrorQuit " cannot start container orchestration"
+    fi
+
     popd
-    echo "started database"
+    echo "started databases"
 }
 function handle_parameter {
     while [[ $# -gt 0 ]]
@@ -74,13 +78,21 @@ function handle_parameter {
                 RESET=true
                 shift
                 ;;
-            start-database)
-                START_VSERVER=false
+            debug)
+                DEBUG=true
+                shift
+                ;;
+            stop)
+                STOP=true
                 shift
                 ;;
             -h|--help)
                 displayHelp
                 exit 0
+                ;;
+            -es6)
+                ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+                shift
                 ;;
 			-d|--dev)
 			    VCS_BRANCH='dev'
@@ -112,7 +124,9 @@ function handle_parameter {
         esac
     done
 
+    [[ -z $DEBUG ]] && DEBUG=false
     [[ -z $RESET ]] && RESET=false
+    [[ -z $STOP ]] && STOP=false
     [[ -z $ALWAYSYES ]] && ALWAYSYES=false
     [[ -z $ALWAYSNO ]] && ALWAYSNO=false
     [[ -z $START_VSERVER ]] && START_VSERVER=true
@@ -139,10 +153,16 @@ function reset_database {
     if [ ! -z "${container}" ]; then
         docker rm -v ${container}
     fi
-    docker volume rm -f cassandra_volume_${VCS_BRANCH}
-    docker volume rm -f mysql_volume_${VCS_BRANCH}
-    docker volume rm -f elasticsearch_volume_${VCS_BRANCH}
+    docker volume rm -f cassandra_data_volume_${VCS_BRANCH}
+    docker volume rm -f mysql_data_volume_${VCS_BRANCH}
+    docker volume rm -f elasticsearch__data_volume_${VCS_BRANCH}
 }
+
+function stop_database {
+    pushd docker
+    docker-compose down || onErrorQuit "cannot stop containers"
+    popd
+  }
 
 function displayHelp() {
     echo -e "
@@ -158,7 +178,10 @@ function displayHelp() {
         -b <branch>    : uses named branch to label container volumes. If no branch is specified (just -b) it will use
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
+        -es6           : initializes docker container with elasticsearch v6.2.4 instead of deafult v2.3.0
         reset          : resets database content and repeats bootstrap process
+        stop           : stops the currently running databases
+        debug          : prevents running containers in the background which is set as default and makes it possible to investigate container initialization problems
 
     "
 }
@@ -167,14 +190,24 @@ function displayHelp() {
 #            LOGIC FLOW STARTS HERE                  #
 ######################################################
 
+ ES_VERSION_MANIFEST=elasticsearch:2.3.0
+
 handle_parameter $@
+
+echo "ES VERSION MANIFEST:" $ES_VERSION_MANIFEST
+export ES_VERSION_MANIFEST=$ES_VERSION_MANIFEST
+
+if $STOP; then
+    stop_database
+    exit 1
+fi
 
 if [ -z ${VCS_BRANCH+x} ];
     then
     VCS_BRANCH=$(getBranch)
 fi
 export VCS_BRANCH=$VCS_BRANCH
-echo "BRANCH is set to:" + $VCS_BRANCH
+echo "BRANCH is set to:"  $VCS_BRANCH
 
 if ! check_docker ; then
     echo "ERROR"

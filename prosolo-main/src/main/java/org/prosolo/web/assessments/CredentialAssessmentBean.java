@@ -83,6 +83,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
 
+	private ResourceAccessData access;
+
 	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
 		setIds(encodedCredId, encodedAssessmentId);
 		this.displayMode = displayMode;
@@ -111,7 +113,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			try {
 				// for managers, load all other assessments
 
-				ResourceAccessData access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+				access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
 						ResourceAccessRequirements.of(AccessMode.MANAGER)
 								.addPrivilege(UserGroupPrivilege.Instruct)
 								.addPrivilege(UserGroupPrivilege.Edit));
@@ -157,30 +159,28 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		decodeCredentialAndAssessmentIds();
 		boolean success = true;
 		try {
-			fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
-					loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
-			if (fullAssessmentData == null) {
-				PageUtil.notFound();
-				success = false;
-			} else {
-				/*
-				if user is not student or assessor, he is not allowed to access this page
-				 */
-				if (!isUserAllowedToAccessPage()) {
-					PageUtil.accessDenied();
+			assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
+			if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, type)) {
+				fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
+						loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+				if (fullAssessmentData == null) {
+					PageUtil.notFound();
 					success = false;
 				} else {
-					credentialIdData = new CredentialIdData(false);
-					credentialIdData.setId(decodedId);
-					credentialIdData.setTitle(fullAssessmentData.getTitle());
 					/*
-					if user is assessed student or it is public display mode load assessment types config for credential
-					so it can be determined which tabs should be displayed
+					if user is not student or assessor, he is not allowed to access this page
 					 */
-					if (fullAssessmentData.getAssessedStudentId() == loggedUserBean.getUserId() || displayMode == AssessmentDisplayMode.PUBLIC) {
-						assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
+					if (!isUserAllowedToAccessPage()) {
+						PageUtil.accessDenied();
+						success = false;
+					} else {
+						credentialIdData = new CredentialIdData(false);
+						credentialIdData.setId(decodedId);
+						credentialIdData.setTitle(fullAssessmentData.getTitle());
 					}
 				}
+			} else {
+				PageUtil.notFound("This page is no longer available");
 			}
 		} catch (Exception e) {
 			logger.error("Error while loading assessment data", e);
@@ -193,6 +193,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private void decodeCredentialAndAssessmentIds() {
 		decodedId = idEncoder.decodeId(id);
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
+	}
+
+	public boolean canUserEditDelivery() {
+		return access.isCanEdit();
 	}
 
 	private boolean isUserAllowedToAccessPage() {

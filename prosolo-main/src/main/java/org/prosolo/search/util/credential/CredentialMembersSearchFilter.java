@@ -1,7 +1,5 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.web.util.ResourceBundleUtil;
-
 public class CredentialMembersSearchFilter {
 
 	private SearchFilter filter;
@@ -26,9 +24,9 @@ public class CredentialMembersSearchFilter {
 	}
 
 	public enum SearchFilter {
-		All("All"),
-		Unassigned("Without " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
-		Assigned("With " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
+		All("All students"),
+		//Unassigned("Without " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
+		//Assigned("With " + ResourceBundleUtil.getLabel("instructor").toLowerCase()),
 		AssessorNotified("Asked to be assessed"),
 		Nongraded("Nongraded"),
 		Graded("Graded"),
