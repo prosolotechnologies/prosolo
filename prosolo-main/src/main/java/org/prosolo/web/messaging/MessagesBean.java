@@ -48,8 +48,6 @@ public class MessagesBean implements Serializable {
     @Inject
     private UrlIdEncoder idEncoder;
     @Inject
-    private UserSearchBean userSearchBean;
-    @Inject
     private TopInboxBean topInboxBean;
     @Inject
     private RoleManager roleManager;
@@ -269,7 +267,7 @@ public class MessagesBean implements Serializable {
         if (newMessages.size() <= limitMessages) {
             loadMoreMessages = false;
         } else {
-            newMessages.remove(newMessages.size()-1);
+            newMessages.remove(newMessages.size() - 1);
         }
 
         // As we sorted them by date DESC, now show them ASC (so last message will be last one created)
@@ -282,43 +280,31 @@ public class MessagesBean implements Serializable {
         try {
             UserContextData userContext = getLoggedUserContextData();
 
-            MessageData newMessageData;
-
-            // if there is no thread with this user
-            if (this.selectedThread == null) {
-                Pair<MessageData, MessageThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
-                        0, loggedUser.getUserId(), messageRecipient.getId(), this.messageText, userContext);
-
-                this.selectedThread = result.getSecond();
-                this.messageThreads.add(0, this.selectedThread);
-                this.messages = this.selectedThread.getMessages();
-            } else {
-                newMessageData = messagingManager.sendMessage(this.selectedThread.getId(), loggedUser.getUserId(), selectedThread.getReceiver().getId(),
-                        this.messageText, userContext);
-                this.messages.add(newMessageData);
-                this.selectedThread.setLastUpdated(newMessageData);
-
-                // mark all messages as read
-                for (MessageData message : this.messages) {
-                    message.setReaded(true);
-                }
-            }
-
-            // reorder message threads based on the lastUpdated field. Multiplying by -1 to reverse the order.
-            this.messageThreads.sort((o1, o2) -> o1.getLastUpdated().getCreated().compareTo(o2.getLastUpdated().getCreated()) * -1);
+            Pair<MessageData, MessageThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
+                    0, loggedUser.getUserId(), messageRecipient.getId(), this.messageText, userContext);
 
             // if the message is sent from the Archive section, then reinitialize everything as the thread has now
             // been revoked
             if (archiveView) {
                 setArchiveView(false);
+            } else {
+                MessageThreadData thread = result.getSecond();
+
+                // if this thread is already in the sidebar, remove it
+                this.messageThreads.removeIf(t -> t.getId() == thread.getId());
+
+                // add the thread as the first one
+                this.messageThreads.add(0, thread);
+                this.selectedThread = thread;
+                this.messages = this.selectedThread.getMessages();
+                this.archiveView = false;
+                this.newMessageView = false;
             }
+
+            this.messageText = null;
 
             logger.debug("User " + loggedUser.getUserId() + " sent a message to thread " + selectedThread.getId() + " with content: '" + this.messageText + "'");
             PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
-
-            this.archiveView = false;
-            this.newMessageView = false;
-            this.messageText = null;
         } catch (Exception e) {
             logger.error("Exception while sending message", e);
             PageUtil.fireErrorMessage("There was an error sending the message");
@@ -329,7 +315,7 @@ public class MessagesBean implements Serializable {
         this.newMessageView = newMessageView;
 
         if (newMessageView) {
-            userSearchBean.resetSearch();
+            resetSearch();
         }
         this.messageText = null;
         this.selectedThread = null;
@@ -373,7 +359,7 @@ public class MessagesBean implements Serializable {
                 UserSearchConfig.UserScope.ORGANIZATION, UserScopeFilter.USERS_UNITS, studentRoleId, usersUnitsWithStudentRole);
 
         PaginatedResult<UserData> usersResponse = userTextSearch.searchUsersWithFollowInfo(
-                loggedUser.getOrganizationId(), query, - 1, userSearchLimit, loggedUser.getUserId(), searchConfig);
+                loggedUser.getOrganizationId(), query, -1, userSearchLimit, loggedUser.getUserId(), searchConfig);
 
         if (usersResponse != null) {
             this.userSize = (int) usersResponse.getHitsNumber();
@@ -391,9 +377,9 @@ public class MessagesBean implements Serializable {
     }
 
 
-	/*
+    /*
      * GETTERS / SETTERS
-	 */
+     */
 
     public String getThreadId() {
         return threadId;
@@ -455,7 +441,7 @@ public class MessagesBean implements Serializable {
         this.messageRecipient = messageRecipient;
         this.newMessageView = false;
 
-        userSearchBean.resetSearch();
+        resetSearch();
 
         this.selectedThread = null;
         this.messages = null;

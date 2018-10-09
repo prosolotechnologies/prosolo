@@ -117,13 +117,7 @@ public class ProfileBean {
 					message1.setId(messageData.getId());
 
 					UserContextData userContext = loggedUserBean.getUserContext();
-					taskExecutor.execute(() -> {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("user", String.valueOf(decodedStudentId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
-								null, null, parameters);
-					});
+
 					this.message = "";
 					
 					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Your message is sent");

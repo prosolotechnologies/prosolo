@@ -75,6 +75,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			} else {
 				thread = getMessageThreadForUsers(senderId, receiverId);
 
+				// if there is no existing thread for users, create a new one
 				if (thread == null) {
 					Result<MessageThread> threadResult = createNewMessageThread(senderId, Arrays.asList(senderId, receiverId), msg);
 					thread = threadResult.getResult();
@@ -465,13 +466,13 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 	@Override
 	@Transactional
-	public List<MessageThreadParticipantData> getThreadParticipansForMessage(long messageId, Session session) {
+	public List<MessageThreadParticipantData> getThreadParticipantsForMessage(long messageId, Session session) {
 		try {
 			String query =
 					"SELECT thread.participants " +
 					"FROM Message message " +
 					"LEFT JOIN message.messageThread thread " +
-					"WHERE message.id = messageId ";
+					"WHERE message.id = :messageId ";
 
 			List<ThreadParticipant> participants = session.createQuery(query)
 					.setLong("messageId", messageId)

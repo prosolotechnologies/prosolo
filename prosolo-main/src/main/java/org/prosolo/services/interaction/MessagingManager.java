@@ -176,5 +176,5 @@ public interface MessagingManager extends AbstractManager {
 	 * @param session session within which to execute a query
 	 * @return list of thread participants
 	 */
-	List<MessageThreadParticipantData> getThreadParticipansForMessage(long messageId, Session session);
+	List<MessageThreadParticipantData> getThreadParticipantsForMessage(long messageId, Session session);
 }

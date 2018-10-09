@@ -38,12 +38,17 @@ public class MessageThreadData implements Serializable {
 		ThreadParticipant participant = thread.getParticipant(userId);
 		this.readed = participant.isRead();
 
-
 		this.participants = thread.getParticipants().stream().map(tp -> new MessageThreadParticipantData(tp)).collect(Collectors.toList());
 		this.receiver = thread.getParticipants().stream().filter(tp -> tp.getUser().getId() != userId).map(tp -> new MessageThreadParticipantData(tp)).findAny().get();
 
+		// add only messages from the showMessagesFrom field value
 		List<MessageData> messagesData = new ArrayList<>();
 		for (Message m : thread.getMessages()) {
+			if (participant.getShowMessagesFrom() != null &&
+					participant.getShowMessagesFrom().after(m.getCreatedTimestamp())) {
+				continue;
+			}
+
 			boolean read = false;
 
 			if (participant.getLastReadMessage() != null) {

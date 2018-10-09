@@ -61,7 +61,7 @@ public class MessagesObserver extends EventObserver {
             if (event.getAction().equals(EventType.SEND_MESSAGE)) {
                 long messageId = event.getObject().getId();
                 long senderId = messagingManager.getSenderId(messageId, session);
-                List<MessageThreadParticipantData> participants = messagingManager.getThreadParticipansForMessage(messageId, session);
+                List<MessageThreadParticipantData> participants = messagingManager.getThreadParticipantsForMessage(messageId, session);
 
                 for (MessageThreadParticipantData participant : participants) {
 

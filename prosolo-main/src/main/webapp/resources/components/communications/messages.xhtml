@@ -13,7 +13,7 @@
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<script>
 			function changeConversation(threadId) {
-			    if (threadId != "") {
+			    if (typeof threadId != 'undefined') {
                     $('.messagesList li.active').removeClass('active');
                     $('.messagesList li[thread-id='+threadId+']').addClass('active');
                     history.replaceState("", "", "#{request.contextPath}/messages/" + threadId);
@@ -54,7 +54,7 @@
 
 							<p:commandLink styleClass="newMessageBtn"
 										   action="#{messagesBean.setNewMessageView(true)}"
-										   update=":#{cc.clientId}:messagesForm @this"
+										   update=":#{cc.clientId}:messagesForm :#{cc.clientId}:threadsForm @this"
 										   oncomplete="$('##{cc.clientId}\\:messageRecievingUserName').focus()"
 										   disabled="#{messagesBean.newMessageView}"
 										   process="@this">
@@ -186,16 +186,14 @@
 									</div>
 								</ui:fragment>
 
-	                    		<!-- FIRST SHOW MESSAGES THAT ARE READ -->
+	                    		<!-- READ MESSAGES -->
 	                    		<ui:repeat value="#{messagesBean.readMessages}" var="message" varStatus="iterator">
 	                    			<div class="media">
-	                    				<!-- when avatar is null, display initials div -->
-	                    				<h:panelGroup layout="block" rendered="#{empty message.actor.avatarUrl}" class="media-left">
-	                                		<span class="letterAvatar letterAvatar32 img-circle">#{message.actor.initials}</span>
-	                            		</h:panelGroup>
-	                            		<h:panelGroup layout="block" rendered="#{not empty message.actor.avatarUrl}" class="media-left">
-	                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.fullName}" />
-	                            		</h:panelGroup>
+	                    				<div class="media-left">
+											<utilcomp:userAvatar
+													avatar="#{message.actor.avatarUrl}"
+													fullName="#{message.actor.fullName}" />
+										</div>
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.fullName}</h3>
 	                               			<span>
@@ -211,19 +209,17 @@
 	                    		</ui:repeat>
 
 	                    		<h:panelGroup layout="block" class="newMessagesSeparator" rendered="#{messagesBean.unreadMessages.size() > 0}" >
-	                    		New Messages
+	                    			New Messages
 	                    		</h:panelGroup>
 
-	                    		<!-- FOLLOWED BY UNREAD MESSAGES -->
+	                    		<!-- UNREAD MESSAGES -->
 	                    		<ui:repeat value="#{messagesBean.unreadMessages}" var="message" varStatus="iterator">
 	                    			<div class="media">
-	                            		<!-- when avatar is null, display initials div -->
-	                    				<h:panelGroup layout="block" rendered="#{empty message.actor.avatarUrl}" class="media-left">
-	                                		<span class="letterAvatar letterAvatar32 img-circle">#{message.actor.initials}</span>
-	                            		</h:panelGroup>
-	                            		<h:panelGroup layout="block" rendered="#{not empty message.actor.avatarUrl}" class="media-left">
-	                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.fullName}" />
-	                            		</h:panelGroup>
+	                    				<div class="media-left">
+											<utilcomp:userAvatar
+													avatar="#{message.actor.avatarUrl}"
+													fullName="#{message.actor.fullName}" />
+										</div>
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.fullName}</h3>
 	                               			<span>
@@ -248,17 +244,22 @@
 		                            </div>
 		                            <div class="media-body">
 		                                <div class="">
-											<script>$("#messages:messageContentTextarea").focus()</script>
 		                                    <p:inputTextarea id="messageContentTextarea"
 															 placeholder="Write message..."
 															 value="#{messagesBean.messageText}"
 															 onkeyup="displaySubmitButton(this);" />
 
-		                                    <utilcomp:singleClickLink value="Send"
+		                                    <utilcomp:singleClickLink value="Send1"
 																	  styleClass="btn btn-green btn-sm hidden submitBtn"
 																	  action="#{messagesBean.sendMessage()}"
 																	  update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
 	                                    	/>
+
+											<script>
+                                                $(function(){
+                                                    $('#' + escapeColons('messages:messageContentTextarea')).focus();
+                                                })
+											</script>
 		                                </div>
 		                            </div>
 		                        </div>
