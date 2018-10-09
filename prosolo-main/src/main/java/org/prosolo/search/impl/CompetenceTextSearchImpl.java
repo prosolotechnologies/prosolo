@@ -253,31 +253,36 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						 */
 						Long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 						try {
-							CompetenceData1 cd = null;
+							CompetenceData1 cd;
 							/*
 							 * we should include user progress for this competence only
 							 * if includeEnrolledCompetences is true
 							 */
-							if(config.shouldIncludeEnrolledResources()) {
-								cd = compManager
-										.getCompetenceDataWithProgressIfExists(id, userId);
+							if (config.shouldIncludeEnrolledResources()) {
+								cd = compManager.getCompetenceDataWithProgressIfExists(id, userId);
 							} else {
-								cd = compManager
-										.getBasicCompetenceData(id, userId);
+								cd = compManager.getBasicCompetenceData(id, userId);
 							}
 							
-							if(cd != null) {
+							if (cd != null) {
+								/*
+								TODO hack retrieve id of a first credential where this competency is used
+								and user has learn privilege for
+								so we can always have a link to a credential because we don't fully support
+								independent competency
+								 */
+								cd.setCredentialId(compManager.getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(id, userId));
+
 								response.addFoundNode(cd);
 							}
 						} catch (DbConnectionException e) {
-							logger.error(e);
+							logger.error("Error", e);
 						}
 					}
 				}
 			}
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
 		return response;
 	}
