@@ -401,9 +401,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(AggregationBuilders.filter("filtered")
 										.filter(QueryBuilders.termQuery("credentials.id", credId))
-									.subAggregation(
-										AggregationBuilders.filter("unassigned")
-										.filter(QueryBuilders.termQuery("credentials.instructorId", 0)))
 									.subAggregation(AggregationBuilders.filter("completed")
 										.filter(QueryBuilders.termQuery("credentials.progress", 100)))
 									.subAggregation(AggregationBuilders.filter("assessorNotified")
@@ -508,7 +505,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						//get number of unassigned students
 						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
 						Filter filtered = nestedAgg.getAggregations().get("filtered");
-						Filter unassigned = filtered.getAggregations().get("unassigned");
 						Filter completed = filtered.getAggregations().get("completed");
 						Filter assessorNotified = filtered.getAggregations().get("assessorNotified");
 						Filter assessed = filtered.getAggregations().get("assessed");
