@@ -144,7 +144,7 @@ public class MessagesBean implements Serializable {
     }
 
     private UserContextData getLoggedUserContextData() {
-        String page = PageUtil.getPostParameter("pageMessages");
+        String page = PageUtil.getPostParameter("page");
         String context = PageUtil.getPostParameter("context");
         page = (page != null) ? page : "messages";
         context = (context != null) ? context : "name:messages";

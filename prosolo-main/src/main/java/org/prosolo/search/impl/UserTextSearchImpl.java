@@ -71,7 +71,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
-	public PaginatedResult<UserData> searchStudents(
+	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		
