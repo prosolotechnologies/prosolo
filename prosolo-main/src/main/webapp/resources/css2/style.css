@@ -57,7 +57,8 @@ body {
   font: 14px/22px 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: #859095;
-  -webkit-font-smoothing: antialiased; }
+  -webkit-font-smoothing: antialiased;
+  word-wrap: break-word; }
 
 .bigWrapper {
   min-height: 100%;
@@ -3606,7 +3607,11 @@ header {
     float: left;
     margin-top: 0;
     margin-bottom: 20px;
-    padding-right: 20px; }
+    padding-right: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 95%; }
     .summaryCard h2 span {
       color: #AAB1B5; }
   .summaryCard .optMoreMenu {
@@ -3727,7 +3732,10 @@ header {
       line-height: 20px;
       padding: 10px 30px;
       background: #F8F9FB;
-      border-top: 1px solid #EEEFF3; }
+      border-top: 1px solid #EEEFF3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
     .summaryCard .collapseActivityList ul li a {
       position: relative;
       display: block;
@@ -3737,7 +3745,10 @@ header {
       font-weight: 400;
       color: #859095;
       background: #F8F9FB;
-      border-top: 1px solid #EEEFF3; }
+      border-top: 1px solid #EEEFF3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
       .summaryCard .collapseActivityList ul li a:hover {
         color: #363636; }
       .summaryCard .collapseActivityList ul li a .check {
@@ -3807,7 +3818,10 @@ header {
         font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 400;
         color: #859095;
-        flex-grow: 1; }
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; }
         .summaryCard .collapseStandard ul li > a:hover {
           color: #363636; }
       .summaryCard .collapseStandard ul li .activityOptions {
@@ -3838,10 +3852,13 @@ header {
       .evidencesListInModal .evidence .evidenceLeft .checkbox {
         margin: 0 10px 0 0; }
       .evidencesListInModal .evidence .evidenceLeft .icon {
-        margin-right: 15px; }
+        margin-right: 15px;
+        flex-shrink: 0; }
       .evidencesListInModal .evidence .evidenceLeft h3 {
         margin-bottom: 0;
         margin-right: 30px; }
+    .evidencesListInModal .evidence .evidenceRight {
+      flex-shrink: 0; }
 
 .assessmentsListInModal {
   padding: 30px 0; }
@@ -3891,7 +3908,10 @@ header {
       flex-grow: 1;
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
-      color: #859095; }
+      color: #859095;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
       .assessmentActivityList > ul > li > a:hover {
         color: #363636; }
     .assessmentActivityList > ul > li .activityOptions {
@@ -4430,7 +4450,8 @@ header {
   .previewActiv .content p::after,
   .previewLink .content p::after,
   .previewFile .content p::after,
-  .previewLinkSmall .content h2::after {
+  .previewLinkSmall .content h2::after,
+  .evidenceSummary .text p::after {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -4488,7 +4509,10 @@ header {
       flex-shrink: 0; }
     .activitiesList .activityItem h3 {
       flex-grow: 1;
-      margin: 0 10px 0 0; }
+      margin: 0 10px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
     .activitiesList .activityItem .editOptions {
       flex-shrink: 0; }
       .activitiesList .activityItem .editOptions .optMoreMenu {
@@ -4548,7 +4572,10 @@ header {
       margin-right: 20px;
       flex-shrink: 0; }
     .competenceProgressList li h3 {
-      margin: 0; }
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; }
       .competenceProgressList li h3 a {
         color: #859095; }
         .competenceProgressList li h3 a:hover {
@@ -4778,8 +4805,10 @@ header {
   .submitEvidenceTab .lastRow .btn {
     margin-right: 20px; }
 
-.submitEvidenceTab .evidenceActions a {
-  margin-left: 20px; }
+.submitEvidenceTab .evidenceActions {
+  flex-shrink: 0; }
+  .submitEvidenceTab .evidenceActions a {
+    margin-left: 20px; }
 
 .addEvidencePage .submitEvidenceTab .lastRow {
   padding-bottom: 0; }
@@ -4863,7 +4892,11 @@ header {
 .evidenceSummary {
   margin-bottom: 30px; }
   .evidenceSummary .text p {
-    margin-bottom: 10px; }
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden; }
 
 .evidenceBox {
   padding-bottom: 30px; }
@@ -4877,7 +4910,8 @@ header {
       .evidenceBox .evidenceTop .evidenceTopLeft .icon {
         width: 20px;
         height: 20px;
-        margin-right: 20px; }
+        margin-right: 20px;
+        flex-shrink: 0; }
         .evidenceBox .evidenceTop .evidenceTopLeft .icon.doc {
           background: url("../images2/iconFile20.svg") no-repeat center center; }
         .evidenceBox .evidenceTop .evidenceTopLeft .icon.archive {
@@ -4897,7 +4931,8 @@ header {
         word-break: break-word; }
     .evidenceBox .evidenceTop .evidenceTopRight {
       display: flex;
-      align-items: center; }
+      align-items: center;
+      flex-shrink: 0; }
       .evidenceBox .evidenceTop .evidenceTopRight .btn {
         width: 100px;
         margin-left: 30px; }
@@ -6471,6 +6506,12 @@ header {
   .twitterBtnBox small {
     line-height: 16px;
     display: block; }
+
+.yourPhotoBox h2 {
+  float: left; }
+
+.yourPhotoBox .redText {
+  float: right; }
 
 .yourPhotoBox .yourPhotoContent {
   display: flex;
