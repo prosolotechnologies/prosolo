@@ -18,7 +18,6 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessageThreadData;
 import org.prosolo.web.notification.TopInboxBean;
-import org.prosolo.web.search.UserSearchBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -57,6 +56,7 @@ public class MessagesBean implements Serializable {
     private UnitManager unitManager;
 
     private MessageThreadData selectedThread;
+    private boolean selectedThreadUnread;
     private List<MessageThreadData> messageThreads;
     private int limitThreads = 5;
     private int pageThread = 0;
@@ -134,6 +134,13 @@ public class MessagesBean implements Serializable {
                 this.selectedThread = messageThreads.get(0);
             }
 
+            if (!selectedThread.isReaded()) {
+                markThreadRead();
+                selectedThreadUnread = true;
+            } else {
+                selectedThreadUnread = false;
+            }
+
             this.messageRecipient = selectedThread.getReceiver();
             // init messages for the selected thread
             loadMessages();
@@ -152,9 +159,6 @@ public class MessagesBean implements Serializable {
     }
 
     public void changeThread(MessageThreadData threadData) {
-        // if previously selected thread was not initially marked as read, mark it as read
-        markThreadRead();
-
         newMessageView = false;
 
         // look into already loaded message threads
@@ -167,6 +171,8 @@ public class MessagesBean implements Serializable {
         }
 
         this.messageRecipient = selectedThread.getReceiver();
+
+        selectedThreadUnread = false;
 
         loadMessages();
     }
@@ -226,10 +232,6 @@ public class MessagesBean implements Serializable {
 
         // /As we sorted them by date DESC, now show them ASC (so last message will be last one created)
         Collections.sort(messages, Comparator.comparing(MessageData::getCreated));
-
-        if (!archiveView) {
-            markThreadRead();
-        }
     }
 
     private void markThreadRead() {
@@ -463,5 +465,9 @@ public class MessagesBean implements Serializable {
 
     public int getUserSize() {
         return userSize;
+    }
+
+    public boolean isSelectedThreadUnread() {
+        return selectedThreadUnread;
     }
 }

@@ -99,7 +99,7 @@
 												</div>
 											</div>
 
-											<h:panelGroup rendered="#{!messageThreadData.readed}" class="unread" />
+											<h:panelGroup rendered="#{messagesBean.selectedThread.id == messageThreadData.id ? messagesBean.selectedThreadUnread : !messageThreadData.readed}" class="unread" />
 										</p:commandLink>
 									</li>
 								</ui:repeat>
@@ -249,7 +249,7 @@
 															 value="#{messagesBean.messageText}"
 															 onkeyup="displaySubmitButton(this);" />
 
-		                                    <utilcomp:singleClickLink value="Send1"
+		                                    <utilcomp:singleClickLink value="Send"
 																	  styleClass="btn btn-green btn-sm hidden submitBtn"
 																	  action="#{messagesBean.sendMessage()}"
 																	  update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
