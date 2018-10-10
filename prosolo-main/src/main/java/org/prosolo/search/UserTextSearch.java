@@ -33,16 +33,15 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param orgId
 	 * @param searchTerm
 	 * @param filter
+	 * @param instructorFilter
 	 * @param page
 	 * @param limit
 	 * @param credId
-	 * @param instructorId
 	 * @param sortOption
 	 * @return
 	 */
 	TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchCredentialMembers (
-			long orgId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, int page, int limit, long credId,
-			long instructorId, CredentialMembersSortOption sortOption);
+			long orgId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, CredentialStudentsInstructorFilter instructorFilter, int page, int limit, long credId, CredentialMembersSortOption sortOption);
 	
 	PaginatedResult<InstructorData> searchInstructors (
 			long orgId, String searchTerm, int page, int limit, long credId,

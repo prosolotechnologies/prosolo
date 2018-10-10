@@ -360,8 +360,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> searchCredentialMembers (
-			long organizationId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, int page, int limit, long credId,
-			long instructorId, CredentialMembersSortOption sortOption) {
+			long organizationId, String searchTerm, CredentialMembersSearchFilter.SearchFilter filter, CredentialStudentsInstructorFilter instructorFilter,
+			int page, int limit, long credId, CredentialMembersSortOption sortOption) {
 		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilter.SearchFilter> response =
 				new TextSearchFilteredResponse<>();
 		try {
@@ -374,7 +374,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
@@ -385,16 +385,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
-			if(instructorId != -1) {
-				nestedFB.must(QueryBuilders.termQuery("credentials.instructorId", instructorId));
+			if (instructorFilter != null && instructorFilter.getFilter() != CredentialStudentsInstructorFilter.SearchFilter.ALL) {
+				nestedFB.filter(QueryBuilders.termQuery("credentials.instructorId", instructorFilter.getInstructorId()));
 			}
 			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
 					nestedFB);
-//					.innerHit(new QueryInnerHitBuilder());
-//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-//					nestedFilter1);
 			bQueryBuilder.filter(nestedFilter1);
-			//bQueryBuilder.must(termQuery("credentials.id", credId));
 			
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -425,12 +421,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				} else {
 					BoolQueryBuilder postFilter = QueryBuilders.boolQuery();
 					switch (filter) {
-						case Assigned:
-							postFilter.mustNot(QueryBuilders.termQuery("credentials.instructorId", 0));
-							break;
-						case Unassigned:
-							postFilter.filter(QueryBuilders.termQuery("credentials.instructorId", 0));
-							break;
 						case AssessorNotified:
 							postFilter.filter(QueryBuilders.termQuery("credentials.assessorNotified", true));
 							break;
@@ -461,11 +451,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				
-				if(sResponse != null) {
+				if (sResponse != null) {
 					SearchHits searchHits = sResponse.getHits();
 					response.setHitsNumber(searchHits.getTotalHits());
 					
-					if(searchHits != null) {
+					if (searchHits != null) {
 						for(SearchHit sh : searchHits) {
 							StudentData student = new StudentData();
 							Map<String, Object> fields = sh.getSource();
@@ -532,8 +522,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						long allStudentsNumber = filtered.getDocCount();
 						
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.All, allStudentsNumber);
-						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Unassigned, unassigned.getDocCount());
-						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Assigned, allStudentsNumber - unassigned.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.AssessorNotified, assessorNotified.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Nongraded, allStudentsNumber - assessed.getDocCount());
 						response.putFilter(CredentialMembersSearchFilter.SearchFilter.Graded, assessed.getDocCount());

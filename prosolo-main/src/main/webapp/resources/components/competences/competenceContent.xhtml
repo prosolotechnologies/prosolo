@@ -202,7 +202,23 @@
 								</h:link>
 							</div>
 							<ul class="assessmentsSidebar">
-
+								<c:if test="#{cc.attrs.bean.decodedCredId gt 0}">
+									<li>
+										<h3>#{msg['label.instructor']} Assessment</h3>
+										<div class="right">
+											<p:commandLink
+													pt:data-toggle="modal"
+													value="Ask"
+													action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
+													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+													oncomplete="$('#askAssessment').modal('show');">
+											</p:commandLink>
+											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
+												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>
+											</div>
+										</div>
+									</li>
+								</c:if>
 								<c:if test="#{cc.attrs.bean.competenceData.peerAssessmentEnabled}">
 									<li>
 										<h3>Peer Assessment</h3>
@@ -216,24 +232,6 @@
 											</p:commandLink>
 											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}">
 												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}"></div>
-											</div>
-										</div>
-									</li>
-								</c:if>
-
-								<c:if test="#{cc.attrs.bean.decodedCredId gt 0}">
-									<li>
-										<h3>Tutor Assessment</h3>
-										<div class="right">
-											<p:commandLink
-													pt:data-toggle="modal"
-													value="Ask"
-													action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
-													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-													oncomplete="$('#askAssessment').modal('show');">
-											</p:commandLink>
-											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
-												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>
 											</div>
 										</div>
 									</li>
