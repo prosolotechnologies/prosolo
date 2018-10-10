@@ -57,7 +57,7 @@
 							<c:if test="#{profileCompetenceAssessmentBean.competenceAssessmentData.approved}">
 								<h2 class="bottom10">#{msg['label.competence']} Assessment</h2>
 								<ui:fragment rendered="#{profileCompetenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
-									<p>This is the ${msg['label.competence'].toLowerCase()} assessment of student #{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}.
+									<p>This is the ${msg['label.competence'].toLowerCase()} assessment for student #{profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName}.
 										All comments between the student and the assessor are private.</p>
 								</ui:fragment>
 
