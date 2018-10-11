@@ -14,6 +14,7 @@ import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -57,7 +58,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	private CompetenceStudentsSearchFilter searchFilter;
 	
 	private String competenceTitle;
-	private String credTitle;
+	private CredentialIdData credentialIdData;
 	
 	private CompetenceStudentsSearchFilter[] searchFilters;
 	private CompetenceStudentsSortOption[] sortOptions;
@@ -84,7 +85,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if (decodedCredId > 0){
-					this.credTitle = credManager.getCredentialTitle(decodedCredId);
+					this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 				}
 				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
@@ -243,6 +244,10 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	}
 
 	public String getCredTitle() {
-		return credTitle;
+		return credentialIdData.getTitle();
+	}
+
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 }
