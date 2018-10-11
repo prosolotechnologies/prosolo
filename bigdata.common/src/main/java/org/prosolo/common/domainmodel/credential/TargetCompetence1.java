@@ -28,8 +28,7 @@ public class TargetCompetence1 extends BaseEntity {
 	private Competence1 competence;
 	private User user;
 	private List<TargetActivity1> targetActivities;
-	private boolean hiddenFromProfile;
-	
+
 	private Date dateCompleted;
 	
 	private long nextActivityToLearnId;
@@ -66,14 +65,6 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setTargetActivities(List<TargetActivity1> targetActivities) {
 		this.targetActivities = targetActivities;
-	}
-
-	public boolean isHiddenFromProfile() {
-		return hiddenFromProfile;
-	}
-
-	public void setHiddenFromProfile(boolean hiddenFromProfile) {
-		this.hiddenFromProfile = hiddenFromProfile;
 	}
 	
 	public Date getDateCompleted() {

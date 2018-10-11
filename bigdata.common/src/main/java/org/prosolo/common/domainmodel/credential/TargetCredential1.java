@@ -1,13 +1,12 @@
 package org.prosolo.common.domainmodel.credential;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "user"})})
@@ -27,7 +26,6 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private int progress;
 	
-	private boolean hiddenFromProfile;
 	private boolean credentialAssessmentsDisplayed = true;
 	private boolean competenceAssessmentsDisplayed = true;
 	private boolean evidenceDisplayed = true;
@@ -103,14 +101,6 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setProgress(int progress) {
 		this.progress = progress;
-	}
-
-	public boolean isHiddenFromProfile() {
-		return hiddenFromProfile;
-	}
-
-	public void setHiddenFromProfile(boolean hiddenFromProfile) {
-		this.hiddenFromProfile = hiddenFromProfile;
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)
