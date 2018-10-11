@@ -11,7 +11,7 @@ import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -62,7 +62,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean published;
 	private boolean archived;
 	
-	private List<CredentialData> credentialsWithIncludedCompetence;
+	private List<CredentialIdData> credentialsWithIncludedCompetence;
 	private long instructorId;
 	
 	private boolean bookmarkedByCurrentUser;
@@ -397,11 +397,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.targetCompId = targetCompId;
 	}
 
-	public List<CredentialData> getCredentialsWithIncludedCompetence() {
+	public List<CredentialIdData> getCredentialsWithIncludedCompetence() {
 		return credentialsWithIncludedCompetence;
 	}
 
-	public void setCredentialsWithIncludedCompetence(List<CredentialData> credentialsWithIncludedCompetence) {
+	public void setCredentialsWithIncludedCompetence(List<CredentialIdData> credentialsWithIncludedCompetence) {
 		this.credentialsWithIncludedCompetence = credentialsWithIncludedCompetence;
 	}
 

@@ -10,6 +10,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -52,6 +53,8 @@ public class ActivityViewBeanManager implements Serializable {
 	private CompetenceData1 competenceData;
 	private ResourceAccessData access;
 	private CommentsData commentsData;
+
+	private CredentialIdData credentialIdData;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
@@ -103,10 +106,10 @@ public class ActivityViewBeanManager implements Serializable {
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
-		if(decodedCredId > 0) {
-			String credTitle = credManager.getCredentialTitle(decodedCredId);
+		if (decodedCredId > 0) {
+			credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 			competenceData.setCredentialId(decodedCredId);
-			competenceData.setCredentialTitle(credTitle);
+			competenceData.setCredentialTitle(credentialIdData.getTitle());
 		}
 		
 	}
@@ -199,4 +202,7 @@ public class ActivityViewBeanManager implements Serializable {
 		return access;
 	}
 
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
+	}
 }

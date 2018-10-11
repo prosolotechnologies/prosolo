@@ -7,6 +7,7 @@ import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -53,7 +54,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private UserGroupPrivilege privilege;
 
-	private String credTitle;
+	private CredentialIdData credentialIdData;
 
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
@@ -88,10 +89,10 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
-				if(decodedCredId > 0){
-					this.credTitle = credManager.getCredentialTitle(decodedCredId);
+				if (decodedCredId > 0){
+					this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 				}
-				if(!access.isCanAccess()) {
+				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
 					competenceTitle = compManager.getCompetenceTitle(compId);
@@ -294,7 +295,11 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	}
 
 	public String getCredTitle() {
-		return credTitle;
+		return credentialIdData.getTitle();
+	}
+
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 
 	public UserGroupPrivilege getPrivilege() {

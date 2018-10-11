@@ -21,6 +21,7 @@ import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -75,7 +76,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	private ResourceAccessData access;
 	private String competenceName;
 	private ResourceLinkData resLinkToAdd;
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 	
 	private ActivityType[] activityTypes;
 	
@@ -180,7 +181,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		activityData.setCompetenceName(competenceName);
 		
 		if (credId != null) {
-			credentialTitle = credManager.getCredentialTitle(idEncoder.decodeId(credId));
+			credentialIdData = credManager.getCredentialIdData(idEncoder.decodeId(credId), null);
 		}
 	}
 
@@ -519,11 +520,11 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
 	}
 
-	public void setCredentialTitle(String credentialTitle) {
-		this.credentialTitle = credentialTitle;
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 
 	public ActivityResultType[] getResultTypes() {
