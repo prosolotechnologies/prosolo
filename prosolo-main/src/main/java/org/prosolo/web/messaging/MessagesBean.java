@@ -159,7 +159,6 @@ public class MessagesBean implements Serializable {
     }
 
     public void changeThread(MessageThreadData threadData) {
-
         // look into already loaded message threads
         Optional<MessageThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
 
@@ -170,6 +169,10 @@ public class MessagesBean implements Serializable {
         }
 
         this.messageRecipient = selectedThread.getReceiver();
+
+        if (!selectedThread.isReaded()) {
+            markThreadRead();
+        }
 
         newMessageView = false;
         selectedThreadUnread = false;
@@ -231,7 +234,7 @@ public class MessagesBean implements Serializable {
         this.messages.addAll(unreadMessages);
         this.messages.addAll(readMessages);
 
-        // /As we sorted them by date DESC, now show them ASC (so last message will be last one created)
+        // As we got the messages sorted by date DESC, now show them ASC
         Collections.sort(messages, Comparator.comparing(MessageData::getCreated));
     }
 
