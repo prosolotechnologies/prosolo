@@ -68,7 +68,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			Result<Pair<MessageData, MessageThreadData>> result = new Result<>();
 
 			MessageThread thread ;
-			Date now = new Date();
 
 			if (threadId > 0) {
 				thread = loadResource(MessageThread.class, threadId);
@@ -82,6 +81,9 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 					result.appendEvents(threadResult.getEventQueue());
 				}
 			}
+
+			// this variable should be created here, after thread is created (if it is newly created)
+			Date now = new Date();
 
 			Message message = new Message();
 			message.setCreatedTimestamp(now);
@@ -122,7 +124,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			thread.setLastUpdated(now);
 			saveEntity(thread);
 
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, String> parameters = new HashMap<>();
 
 			parameters.put("context", contextData.getContext().getLearningContext());
 			parameters.put("users", thread.getParticipants().stream().map(u ->

@@ -159,7 +159,6 @@ public class MessagesBean implements Serializable {
     }
 
     public void changeThread(MessageThreadData threadData) {
-        newMessageView = false;
 
         // look into already loaded message threads
         Optional<MessageThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
@@ -172,7 +171,9 @@ public class MessagesBean implements Serializable {
 
         this.messageRecipient = selectedThread.getReceiver();
 
+        newMessageView = false;
         selectedThreadUnread = false;
+        pageMessages = 0;
 
         loadMessages();
     }
@@ -303,10 +304,13 @@ public class MessagesBean implements Serializable {
                 this.newMessageView = false;
             }
 
-            this.messageText = null;
-
             logger.debug("User " + loggedUser.getUserId() + " sent a message to thread " + selectedThread.getId() + " with content: '" + this.messageText + "'");
             PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
+
+            this.messageText = null;
+
+//            // if selected thread is marked as unread, mark it as read
+//            this.selectedThreadUnread = false;
         } catch (Exception e) {
             logger.error("Exception while sending message", e);
             PageUtil.fireErrorMessage("There was an error sending the message");
@@ -322,6 +326,8 @@ public class MessagesBean implements Serializable {
         this.messageText = null;
         this.selectedThread = null;
         this.messageRecipient = null;
+        this.loadMoreMessages = false;
+        this.pageMessages = 0;
     }
 
     public void setArchiveView(boolean archiveView) {
@@ -354,6 +360,12 @@ public class MessagesBean implements Serializable {
      * Search related methods
      */
     public void search() {
+        if (query.isEmpty()) {
+            this.userSize = 0;
+            this.users = null;
+            return;
+        }
+
         List<Long> excludeUsers = new ArrayList<>();
         excludeUsers.add(loggedUser.getUserId());
 
