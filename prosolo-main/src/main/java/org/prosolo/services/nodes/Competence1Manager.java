@@ -482,6 +482,16 @@ public interface Competence1Manager {
 	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 
 	/**
+	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class
+	 * with id given by {@code targetCompetenceId}.
+	 *
+	 * @param targetCompetenceId
+	 * @param evidenceSummary
+	 * @throws DbConnectionException
+	 */
+	void saveEvidenceSummary(long targetCompetenceId, String evidenceSummary);
+
+	/**
 	 * Returns id of a first credential competency is added to and student has the learn privilege for.
 	 * If there is no credential that meets these conditions 0 is returned.
 	 *
@@ -491,4 +501,5 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	long getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(long compId, long studentId);
+
 }

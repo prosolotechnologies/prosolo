@@ -52,6 +52,8 @@ public class CompetenceAssessmentData {
 	private String durationString;
 	private String dateValue;
 	private AssessmentType type;
+	private LearningPathType learningPathType;
+	private String evidenceSummary;
 
 //	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 //			long userId, DateFormat dateFormat) {
@@ -117,6 +119,7 @@ public class CompetenceAssessmentData {
 		}
 
 		int maxPoints = 0;
+		data.setLearningPathType(cd.getLearningPathType());
 		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
 			List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
 			for (ActivityData ad : cd.getActivities()) {
@@ -132,6 +135,7 @@ public class CompetenceAssessmentData {
 			data.setActivityAssessmentData(activityAssessmentData);
 		} else {
 			data.setEvidences(cd.getEvidences());
+			data.setEvidenceSummary(cd.getEvidenceSummary());
 		}
 		if (cd.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC) {
 			maxPoints = cd.getAssessmentSettings().getMaxPoints();
@@ -398,5 +402,21 @@ public class CompetenceAssessmentData {
 
 	public void setAssessorFullName(String assessorFullName) {
 		this.assessorFullName = assessorFullName;
+	}
+
+	public String getEvidenceSummary() {
+		return evidenceSummary;
+	}
+
+	public void setEvidenceSummary(String evidenceSummary) {
+		this.evidenceSummary = evidenceSummary;
+	}
+
+	public LearningPathType getLearningPathType() {
+		return learningPathType;
+	}
+
+	public void setLearningPathType(LearningPathType learningPathType) {
+		this.learningPathType = learningPathType;
 	}
 }

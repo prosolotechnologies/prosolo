@@ -4108,6 +4108,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional (readOnly = true)
+	public boolean doesCredentialHaveAtLeastOneEvidenceBasedCompetence(long credId) {
+		try {
+			String q =
+					"SELECT comp.id " +
+							"FROM CredentialCompetence1 cc " +
+							"INNER JOIN cc.competence comp " +
+							"WHERE cc.credential.id = :credId AND comp.learningPathType = :learningPathType";
+
+			Long res = (Long) persistence.currentManager().createQuery(q)
+					.setLong("credId", credId)
+					.setString("learningPathType", LearningPathType.EVIDENCE.name())
+					.setMaxResults(1)
+					.uniqueResult();
+			return res != null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error checking if credential has at least one evidence based competency");
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
 	public AssessorAssignmentMethod getAssessorAssignmentMethod(long credId) {
 		try {
 			String q =
