@@ -2,6 +2,8 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -90,4 +92,8 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
                 loggedUser.getUserContext());
     }
 
+    @Override
+    protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
+        return credManager.doesCredentialHaveAtLeastOneEvidenceBasedCompetence(resourceId);
+    }
 }

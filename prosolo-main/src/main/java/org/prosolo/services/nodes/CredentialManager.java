@@ -505,5 +505,15 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
 
+	/**
+	 * Returns true if there is at least one competency in credential with evidence learning path enabled
+	 *
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean doesCredentialHaveAtLeastOneEvidenceBasedCompetence(long credId);
+
 	AssessorAssignmentMethod getAssessorAssignmentMethod(long credId);
+
 }
