@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data.credential;
 
 import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.web.util.ResourceBundleUtil;
 
 import java.io.Serializable;
 
@@ -50,5 +51,16 @@ public class CredentialIdData extends StandardObservable implements Serializable
 
     public String getFormattedOrder() {
         return String.format("%02d", order);
+    }
+
+    /**
+     * For delivery, returns string in the following format: 'delivery(localized) order: title'.
+     * For credential template title is returned.
+     * @return
+     */
+    public String getFullTitle() {
+        return order > 0
+                ? ResourceBundleUtil.getLabel("delivery") + " " + getFormattedOrder() + ": " + getTitle()
+                : getTitle();
     }
 }

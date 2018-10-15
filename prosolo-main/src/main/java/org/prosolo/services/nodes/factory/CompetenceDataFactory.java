@@ -119,6 +119,7 @@ public class CompetenceDataFactory {
 		comp.setProgress(tc.getProgress());
 		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
 		comp.setLearningPathType(competence.getLearningPathType());
+		comp.setEvidenceSummary(tc.getEvidenceSummary());
 
 		if (assessmentConfig != null) {
 			comp.setAssessmentTypes(getAssessmentConfig(assessmentConfig));

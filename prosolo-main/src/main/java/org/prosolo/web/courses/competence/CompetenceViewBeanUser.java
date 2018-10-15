@@ -1,7 +1,6 @@
 package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -25,13 +24,9 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.stream.Collectors;
@@ -258,6 +253,21 @@ public class CompetenceViewBeanUser implements Serializable {
 		} catch (Exception e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error marking the " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " as completed");
+		}
+	}
+
+	public void saveEvidenceSummary() {
+		try {
+			if (competenceData.isEvidenceSummaryChanged()) {
+				competenceManager.saveEvidenceSummary(competenceData.getTargetCompId(), competenceData.getEvidenceSummary());
+				competenceData.resetTrackingForEvidenceSummary();
+			}
+			PageUtil.fireSuccessfulInfoMessage("Evidence summary saved");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			//reset evidence summary to previous value
+			competenceData.setEvidenceSummary(competenceData.getEvidenceSummaryBeforeUpdate());
+			PageUtil.fireErrorMessage("Error saving the evidence summary");
 		}
 	}
 

@@ -50,6 +50,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
     protected BlindAssessmentMode blindAssessmentMode;
     protected PaginationData paginationData = new PaginationData();
+    protected boolean remindStudentToSubmitEvidenceSummary;
 
     protected abstract void initInstructorAssessmentAssessor();
     public abstract void searchPeers();
@@ -57,6 +58,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected abstract LearningResourceType getResourceType();
     protected abstract void submitAssessmentRequest() throws IllegalDataStateException;
     protected abstract void notifyAssessorToAssessResource();
+    protected abstract boolean shouldStudentBeRemindedToSubmitEvidenceSummary();
 
     public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
@@ -65,6 +67,7 @@ public abstract class AskForAssessmentBean implements Serializable {
         } else if (assessmentType == AssessmentType.PEER_ASSESSMENT && (blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)) {
             chooseRandomPeerForAssessor();
         }
+        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
     }
 
     /**
@@ -82,6 +85,7 @@ public abstract class AskForAssessmentBean implements Serializable {
             assessmentRequestData.setAssessorFullName(assessor.getFullName());
             assessmentRequestData.setAssessorAvatarUrl(assessor.getAvatarUrl());
         }
+        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
     }
 
     private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
@@ -166,6 +170,10 @@ public abstract class AskForAssessmentBean implements Serializable {
         return status;
     }
 
+    public void determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary() {
+        this.remindStudentToSubmitEvidenceSummary = shouldStudentBeRemindedToSubmitEvidenceSummary();
+    }
+
     private void populateAssessmentRequestFields(long targetResourceId) {
         this.assessmentRequestData.setStudentId(loggedUser.getUserId());
         this.assessmentRequestData.setResourceId(resourceId);
@@ -214,5 +222,9 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public BlindAssessmentMode getBlindAssessmentMode() {
         return blindAssessmentMode;
+    }
+
+    public boolean isRemindStudentToSubmitEvidenceSummary() {
+        return remindStudentToSubmitEvidenceSummary;
     }
 }

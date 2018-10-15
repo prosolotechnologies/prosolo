@@ -13,9 +13,12 @@ import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -72,7 +75,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 
 	private LearningPathDescription[] learningPaths;
 	
-	private String credTitle;
+	private CredentialIdData credentialIdData;
 	
 	private String context;
 	
@@ -96,18 +99,18 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			}
 			setContext();
 			if (decodedCredId > 0) {
-				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
-						.stream().filter(cd -> cd.getIdData().getId() == decodedCredId).findFirst();
+				Optional<CredentialIdData> res = competenceData.getCredentialsWithIncludedCompetence()
+						.stream().filter(id -> id.getId() == decodedCredId).findFirst();
 				if (res.isPresent()) {
-					credTitle = res.get().getIdData().getTitle();
+					credentialIdData = res.get();
 				} else {
-					credTitle = credManager.getCredentialTitle(decodedCredId);
+					credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 					//we add passed credential to parent credentials only if new competency is being created
 					if (id == null) {
-						CredentialData cd = new CredentialData(false);
-						cd.getIdData().setId(decodedCredId);
-						cd.getIdData().setTitle(credTitle);
-						competenceData.getCredentialsWithIncludedCompetence().add(cd);
+						CredentialIdData idData = new CredentialIdData(false);
+						idData.setId(decodedCredId);
+						idData.setTitle(credentialIdData.getTitle());
+						competenceData.getCredentialsWithIncludedCompetence().add(idData);
 					}
 				}
 			}
@@ -185,7 +188,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			if (!access.isCanAccess()) {
 				PageUtil.accessDenied();
 			} else {
-				List<CredentialData> credentialsWithCompetence = credManager
+				List<CredentialIdData> credentialsWithCompetence = credManager
 						.getCredentialsWithIncludedCompetenceBasicData(id, CredentialType.Original);
 				competenceData.getCredentialsWithIncludedCompetence().addAll(credentialsWithCompetence);
 				List<ActivityData> activities = competenceData.getActivities();
@@ -561,11 +564,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	}
 
 	public String getCredTitle() {
-		return credTitle;
-	}
-
-	public void setCredTitle(String credTitle) {
-		this.credTitle = credTitle;
+		return credentialIdData.getTitle();
 	}
 
 	public long getDecodedCredId() {
@@ -574,5 +573,9 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 
 	public LearningPathDescription[] getLearningPaths() {
 		return learningPaths;
+	}
+
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 }

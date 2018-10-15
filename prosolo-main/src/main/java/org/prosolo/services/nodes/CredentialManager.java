@@ -159,7 +159,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
+	List<CredentialIdData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
 			throws DbConnectionException;
 
 	List<Tag> getCredentialTags(long credentialId) 
@@ -505,5 +505,15 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
 
+	/**
+	 * Returns true if there is at least one competency in credential with evidence learning path enabled
+	 *
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	boolean doesCredentialHaveAtLeastOneEvidenceBasedCompetence(long credId);
+
 	AssessorAssignmentMethod getAssessorAssignmentMethod(long credId);
+
 }

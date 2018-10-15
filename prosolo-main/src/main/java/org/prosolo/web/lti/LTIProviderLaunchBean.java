@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.core.spring.security.HomePageResolver;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
@@ -29,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,9 +68,17 @@ public class LTIProviderLaunchBean implements Serializable {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		try {
 			logger.info("New Lti Launch");
-			LTILaunchMessage msg = validateRequest();
-			logger.info("Launch request valid");
-			launch(msg);
+			String httpMethod = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest())
+					.getMethod();
+			if (LTIConstants.GET_REQUEST.equalsIgnoreCase(httpMethod) && UserSessionUtil.isUserLoggedIn()) {
+				//TODO hack - temporary solution to redirect user that was previously authenticated using remember me token
+				logger.debug("User tried to log in with LTI but was authenticated via remember me cookie");
+				PageUtil.redirect(new HomePageResolver().getHomeUrl(loggedUserBean.getOrganizationId()));
+			} else {
+				LTILaunchMessage msg = validateRequest();
+				logger.info("Launch request valid");
+				launch(msg);
+			}
 		} catch (Exception e) {
 			redirectUser(externalContext, e.getMessage());
 			logger.error("Error", e);
@@ -108,7 +118,13 @@ public class LTIProviderLaunchBean implements Serializable {
 		if (url != null) {
 			String returnURL = buildReturnURL(url, message);
 			logger.info("Redirecting to "+returnURL);
-			PageUtil.redirect(returnURL);
+			//our util method for redirecting in PageUtil class can't be used because this is the external url
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(url);
+			} catch (IOException e) {
+				logger.error("Error redirecting to LTI return url");
+			}
 		} else {
 			logger.info("LTI consumer did not send return url to redirect user back");
 		}

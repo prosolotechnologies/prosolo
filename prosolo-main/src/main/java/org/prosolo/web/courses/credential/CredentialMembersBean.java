@@ -133,8 +133,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private void initInstructorFilters() {
 		List<UserBasicData> deliveryInstructors = credentialInstructorManager
 				.getCredentialInstructorsBasicUserData(decodedId, true);
-		int filtersNumber = deliveryInstructors.size() + 2;
-		instructorFilters = new CredentialStudentsInstructorFilter[filtersNumber];
+		instructorFilters = new CredentialStudentsInstructorFilter[deliveryInstructors.size() + 2];
 		int filtersIndex = 0;
 		instructorFilters[filtersIndex++] = new CredentialStudentsInstructorFilter(
 				0,

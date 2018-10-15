@@ -163,12 +163,13 @@
 			<ol class="breadcrumb">
 				<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 					<li>
-						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary" />
+						<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library" />
 					</li>
 					<li>
-						<h:link value="#{cc.attrs.bean.credentialTitle}"
+						<h:link
+								value="#{cc.attrs.bean.credentialIdData.fullTitle}"
 								outcome="/manage/credential">
-							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}" />
+							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"></f:param>
 						</h:link>
 					</li>
 					<li>
@@ -346,7 +347,7 @@
 					</c:if>
 					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
 						<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
-							<p>This is the ${msg['label.credential'].toLowerCase()} assessment of student
+							<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student
 								<assessment:assessmentActorName
 										actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
 										actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
@@ -643,11 +644,11 @@
 									</div>
 								</div>
 								<div class="alert alert-warning" role="alert">
-									Please enter the review description.
+									Please add the assessment summary.
 								</div>
 								<div class="modal-body alignLeft">
 									<h:inputTextarea
-										placeholder="Type a review that will be shown on student's profile..."
+										placeholder="Type a summary that will be displayed on student's profile..."
 										value="#{cc.attrs.bean.fullAssessmentData.review}"
 									/>
 									<h:panelGroup id="panelCredentialResult">
@@ -671,14 +672,13 @@
 									</h:panelGroup>
 								</div>
 								<div class="modal-footer alignLeft">
-									<p:commandLink
-											styleClass="btn btn-green"
-											value="Submit"
-											update=":#{cc.clientId}:growlMain :#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
-											action="#{cc.attrs.bean.approveCredential()}"
-											oncomplete="$('#approveAssessment').modal('hide')">
-										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-									</p:commandLink>
+									<utilcomp:singleClickLink styleClass="btn btn-green"
+															  value="Submit"
+															  update=":#{cc.clientId}:growlMain :#{cc.clientId}:assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector)  #{cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments' : ''}"
+															  action="#{cc.attrs.bean.approveCredential()}"
+															  oncomplete="$('#approveAssessment').modal('hide')">
+										<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+									</utilcomp:singleClickLink>
 								</div>
 							</div>
 						</div>
