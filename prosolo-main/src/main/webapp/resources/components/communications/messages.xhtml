@@ -154,24 +154,26 @@
 							<div class="messagePaneHead">
 								<h2>#{messagesBean.messageRecipient.fullName}</h2>
 
-								<div class="dropdown messageMenu">
-									<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
-									<ul class="dropdown-menu dropdown-menu-right bullet pull-center" aria-labelledby="dropdownMenu1">
-										<li>
-											<p:commandLink rendered="#{!messagesBean.archiveView}"
-														   value="Archive"
-														   action="#{messagesBean.archiveSelectedThread}"
-														   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
-											<p:commandLink rendered="#{messagesBean.archiveView}"
-														   value="Revoke from archive"
-														   action="#{messagesBean.revokeFromArchiveSelectedThread}"
-														   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
-										</li>
-										<li>
-											<a href="#" data-toggle="modal" data-target="#deleteConv">Delete conversation</a>
-										</li>
-									</ul>
-								</div>
+								<ui:fragment rendered="#{messagesBean.selectedThread != null}">
+									<div class="dropdown messageMenu">
+										<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
+										<ul class="dropdown-menu dropdown-menu-right bullet pull-center" aria-labelledby="dropdownMenu1">
+											<li>
+												<p:commandLink rendered="#{!messagesBean.archiveView}"
+															   value="Archive"
+															   action="#{messagesBean.archiveSelectedThread}"
+															   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
+												<p:commandLink rendered="#{messagesBean.archiveView}"
+															   value="Revoke from archive"
+															   action="#{messagesBean.revokeFromArchiveSelectedThread}"
+															   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
+											</li>
+											<li>
+												<a href="#" data-toggle="modal" data-target="#deleteConv">Delete conversation</a>
+											</li>
+										</ul>
+									</div>
+								</ui:fragment>
 							</div>
 	                    	<div class="greyBar"></div>
 

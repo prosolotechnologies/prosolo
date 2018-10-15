@@ -312,8 +312,8 @@ public class MessagesBean implements Serializable {
 
             this.messageText = null;
 
-//            // if selected thread is marked as unread, mark it as read
-//            this.selectedThreadUnread = false;
+            // if selected thread is marked as unread, mark it as read
+            this.selectedThreadUnread = false;
         } catch (Exception e) {
             logger.error("Exception while sending message", e);
             PageUtil.fireErrorMessage("There was an error sending the message");
