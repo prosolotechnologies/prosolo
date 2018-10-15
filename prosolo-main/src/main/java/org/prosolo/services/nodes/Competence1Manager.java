@@ -482,6 +482,8 @@ public interface Competence1Manager {
 	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 
 	/**
+	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class
+	 * with id given by {@code targetCompetenceId}.
 	 *
 	 * @param targetCompetenceId
 	 * @param evidenceSummary
