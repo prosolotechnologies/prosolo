@@ -1,6 +1,5 @@
-package org.prosolo.web.lti.urlbuilder;
+package org.prosolo.core.spring.security.authentication.lti.urlbuilder;
 
-import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.core.spring.security.HomePageResolver;
 
 /**
@@ -9,15 +8,16 @@ import org.prosolo.core.spring.security.HomePageResolver;
  * @date 2018-01-24
  * @since 1.2.0
  */
-public class GlobalUrlBuilder extends ToolLaunchUrlBuilder{
+public class GlobalUrlBuilder implements ToolLaunchUrlBuilder {
 
-	@Override
-	protected String getUrlParameters(LtiTool tool, long userId) {
-		return null;
+	private final long organizationId;
+
+	public GlobalUrlBuilder(long organizationId) {
+		this.organizationId = organizationId;
 	}
 
 	@Override
-	public String getLaunchUrl(LtiTool tool, long userId, long organizationId) {
+	public String getLaunchUrl() {
 		// this method assumes user is already logged in as it reads his granted authorities from the Spring Security
 		return new HomePageResolver().getHomeUrl(organizationId);
 	}

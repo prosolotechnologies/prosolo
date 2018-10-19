@@ -73,7 +73,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 
 	@Override
 	@Transactional(readOnly=true)
-	public LtiTool getToolDetails(long toolId) throws DbConnectionException{
+	public LtiTool getToolDetails(long toolId) throws DbConnectionException {
 		try{
 			return (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
 		}catch(Exception e){

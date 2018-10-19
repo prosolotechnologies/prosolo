@@ -1,7 +1,7 @@
 package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.core.spring.security.CustomAuthenticationSuccessHandler;
+import org.prosolo.core.spring.security.successhandlers.CustomAuthenticationSuccessHandler;
 import org.prosolo.core.spring.security.LTICustomAuthenticationSuccessHandler;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;

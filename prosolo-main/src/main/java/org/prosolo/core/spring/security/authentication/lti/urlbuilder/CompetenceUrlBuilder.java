@@ -1,4 +1,4 @@
-package org.prosolo.web.lti.urlbuilder;
+package org.prosolo.core.spring.security.authentication.lti.urlbuilder;
 
 import org.prosolo.common.domainmodel.lti.LtiTool;
 
@@ -8,9 +8,13 @@ import org.prosolo.common.domainmodel.lti.LtiTool;
  * @deprecated since 0.7
  */
 @Deprecated
-public class CompetenceUrlBuilder extends ToolLaunchUrlBuilder{
+public class CompetenceUrlBuilder implements ToolLaunchUrlBuilder {
 
 	@Override
+	public String getLaunchUrl() {
+		return null;
+	}
+
 	protected String getUrlParameters(LtiTool tool, long userId) {
 //		Object [] ids = ServiceLocator.getInstance().getService(CourseManager.class).
 //				getTargetGoalAndCompetenceIds(userId, tool.getLearningGoalId(), tool.getCompetenceId());

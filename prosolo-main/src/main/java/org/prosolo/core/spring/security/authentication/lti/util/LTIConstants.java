@@ -1,4 +1,4 @@
-package org.prosolo.web.lti;
+package org.prosolo.core.spring.security.authentication.lti.util;
 
 public class LTIConstants {
 	
