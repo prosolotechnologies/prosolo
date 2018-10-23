@@ -16,6 +16,7 @@ import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.prosolo.core.spring.security.authentication.loginas.SessionClearingSwitchUserFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationProvider;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationSuccessHandler;
@@ -59,6 +60,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -69,6 +71,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.inject.Inject;
+import javax.servlet.Filter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -100,6 +103,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         //.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
         .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class)
 		.addFilterAfter(ltiAuthenticationFilter(), BasicAuthenticationFilter.class)
+		.addFilterAfter(switchUserFilter(), FilterSecurityInterceptor.class)
 		.authorizeRequests()
 				.antMatchers("/api/lti/**").permitAll()
 				//.antMatchers("/prosolo/api/lti/**").permitAll()
@@ -124,6 +128,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/recovery/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
 				.antMatchers("/api/health").permitAll()
+				.antMatchers("/loginAs/login").hasAuthority("LOGIN.AS")
+				//this capability is added by switch user filter when user logs in as another user
+				.antMatchers("/loginAs/logout").hasAuthority("ROLE_PREVIOUS_ADMINISTRATOR")
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
@@ -869,6 +876,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 		ltiAuthenticationFilter.setDefaultAuthenticationFailureUrl(LOGIN_PAGE + (errorMsg != null ? "?error=" + errorMsg : ""));
 		return ltiAuthenticationFilter;
+	}
+
+	@Bean
+	public Filter switchUserFilter() {
+		SessionClearingSwitchUserFilter filter = new SessionClearingSwitchUserFilter();
+		filter.setSwitchUserUrl("/loginAs/login");
+		filter.setExitUserUrl("/loginAs/logout");
+		filter.setUserDetailsService(userDetailsService);
+		filter.setSuccessHandler(authenticationSuccessHandler);
+		return filter;
 	}
 
 }

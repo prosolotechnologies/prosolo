@@ -38,7 +38,7 @@ public abstract class SessionDataInitializerSuccessHandler extends SavedRequestA
             authentication = null;
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(null);
-            setDefaultTargetUrl("/login?error=" + URLEncoder.encode("Error occured during logging in", "utf-8"));
+            setDefaultTargetUrl("/login?error=" + URLEncoder.encode("Error occurred during logging in", "utf-8"));
             logger.error("Session initialization during log in failed");
             super.onAuthenticationSuccess(request, response, authentication);
         }

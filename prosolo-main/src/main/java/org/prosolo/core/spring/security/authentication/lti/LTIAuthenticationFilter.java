@@ -74,8 +74,9 @@ public class LTIAuthenticationFilter extends AbstractAuthenticationProcessingFil
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         //make sure to proceed with authentication only if request method is valid
-        boolean valid = validateRequestMethod((HttpServletRequest) req);
-        if (!valid) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+        if (!requiresAuthentication(request, response) || !isRequestMethodValid(request)) {
             chain.doFilter(req, res);
             return;
         }
@@ -113,7 +114,7 @@ public class LTIAuthenticationFilter extends AbstractAuthenticationProcessingFil
         }
     }
 
-    private boolean validateRequestMethod(HttpServletRequest request) {
+    private boolean isRequestMethodValid(HttpServletRequest request) {
         String httpMethod = request.getMethod();
         if (!LTIConstants.POST_REQUEST.equalsIgnoreCase(httpMethod)) {
             logger.error("LTI PROVIDER LAUNCH METHOD NOT POST AS EXPECTED BUT: " + httpMethod);

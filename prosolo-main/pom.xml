@@ -146,6 +146,9 @@
 			<artifactId>jsr250-api</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<!-- Needed when not existing page with .xhtml extension is requested.
+			 Without this dependency in such scenario exception is thrown.
+		-->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>

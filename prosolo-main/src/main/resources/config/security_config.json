@@ -251,6 +251,14 @@
                 "Instructor"
             ]
 
+        },
+        {
+            "name": "login.as",
+            "description": "Capability to login as another user",
+            "roles": [
+                "Admin",
+                "Super Admin"
+            ]
         }
     ]
 }
