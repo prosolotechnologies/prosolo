@@ -313,11 +313,17 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 	ACTIONS
 	 */
 
-	public void approveCompetence(CompetenceAssessmentData compAssessment) {
+	public void approveCompetence(long compAssessmentId) {
 		try {
-			assessmentManager.approveCompetence(compAssessment.getCompetenceAssessmentId(), loggedUserBean.getUserContext());
-			compAssessment.setApproved(true);
-			compAssessment.setAssessorNotified(false);
+			assessmentManager.approveCompetence(compAssessmentId, loggedUserBean.getUserContext());
+
+			Optional<CompetenceAssessmentData> compAssessmentOptional = assessmentsSummary.getAssessments().getFoundNodes().stream().filter(ca -> ca.getCompetenceAssessmentId() == compAssessmentId).findAny();
+
+			if (compAssessmentOptional.isPresent()) {
+				CompetenceAssessmentData compAssessment = compAssessmentOptional.get();
+				compAssessment.setApproved(true);
+				compAssessment.setAssessorNotified(false);
+			}
 
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
 		} catch (Exception e) {
