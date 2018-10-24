@@ -55,4 +55,5 @@ public class RubricCriterionGradeData<T extends RubricLevelGradeData> extends Ru
     public void setComment(String comment) {
         this.comment = comment;
     }
+
 }

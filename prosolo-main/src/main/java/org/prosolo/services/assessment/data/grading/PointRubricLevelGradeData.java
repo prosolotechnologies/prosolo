@@ -7,6 +7,8 @@ package org.prosolo.services.assessment.data.grading;
  */
 public class PointRubricLevelGradeData extends RubricLevelGradeData {
 
+    private static final long serialVersionUID = 3530040182212197132L;
+
     private double weight;
     private int points;
 

@@ -7,6 +7,8 @@ package org.prosolo.services.assessment.data.grading;
  */
 public class ExternalToolAutoGradeData extends AutomaticGradeData {
 
+    private static final long serialVersionUID = -8956929660971082247L;
+
     public ExternalToolAutoGradeData() {}
 
     public ExternalToolAutoGradeData(int maxPoints, int grade) {
