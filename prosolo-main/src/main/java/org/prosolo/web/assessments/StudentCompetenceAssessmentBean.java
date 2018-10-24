@@ -378,8 +378,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error updating the grade");
 			throw e;
 		}

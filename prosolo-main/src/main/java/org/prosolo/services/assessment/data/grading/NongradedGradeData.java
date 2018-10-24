@@ -7,6 +7,8 @@ package org.prosolo.services.assessment.data.grading;
  */
 public class NongradedGradeData implements GradeData {
 
+    private static final long serialVersionUID = -4123758661020690387L;
+
     @Override
     public <T> T accept(GradeDataVisitor<T> visitor) {
         return visitor.visit(this);
@@ -44,4 +46,5 @@ public class NongradedGradeData implements GradeData {
     public int getMinGrade() {
         return 0;
     }
+
 }

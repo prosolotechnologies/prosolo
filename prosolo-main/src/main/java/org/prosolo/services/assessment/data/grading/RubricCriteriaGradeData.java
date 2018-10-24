@@ -1,8 +1,8 @@
 package org.prosolo.services.assessment.data.grading;
 
 import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * @date 2018-01-18
  * @since 1.2.0
  */
-public abstract class RubricCriteriaGradeData<T extends RubricCriterionGradeData> {
+public abstract class RubricCriteriaGradeData<T extends RubricCriterionGradeData> implements Serializable {
 
     private List<T> criteria;
 

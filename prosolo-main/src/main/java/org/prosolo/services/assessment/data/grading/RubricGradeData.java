@@ -2,7 +2,6 @@ package org.prosolo.services.assessment.data.grading;
 
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.common.util.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
