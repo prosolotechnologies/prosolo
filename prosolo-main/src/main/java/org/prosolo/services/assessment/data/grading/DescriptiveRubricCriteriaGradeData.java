@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class DescriptiveRubricCriteriaGradeData extends RubricCriteriaGradeData<RubricCriterionGradeData> {
 
+    private static final long serialVersionUID = 5083590874934386621L;
+
     public DescriptiveRubricCriteriaGradeData(List<RubricCriterionGradeData> criteria) {
         super(criteria);
     }
@@ -19,4 +21,5 @@ public class DescriptiveRubricCriteriaGradeData extends RubricCriteriaGradeData<
     public RubricType getRubricType() {
         return RubricType.DESCRIPTIVE;
     }
+
 }

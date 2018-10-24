@@ -1,13 +1,13 @@
 package org.prosolo.services.assessment.data.grading;
 
-import org.prosolo.common.util.Pair;
-
 /**
  * @author stefanvuckovic
  * @date 2018-01-11
  * @since 1.2.0
  */
 public class AutomaticGradeData implements GradeData {
+
+    private static final long serialVersionUID = 7237613666252186916L;
 
     private PointGradeValues gradeInfo;
     private AssessmentGradeSummary assessmentStarData;
@@ -74,4 +74,5 @@ public class AutomaticGradeData implements GradeData {
     public AssessmentGradeSummary getAssessmentStarData() {
         return assessmentStarData;
     }
+
 }
