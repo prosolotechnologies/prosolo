@@ -16,6 +16,7 @@ import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.prosolo.core.spring.security.authentication.loginas.LoginAsAuthenticationFailureHandler;
 import org.prosolo.core.spring.security.authentication.loginas.SessionClearingSwitchUserFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationProvider;
@@ -885,6 +886,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		filter.setExitUserUrl("/loginAs/logout");
 		filter.setUserDetailsService(userDetailsService);
 		filter.setSuccessHandler(authenticationSuccessHandler);
+		filter.setFailureHandler(new LoginAsAuthenticationFailureHandler());
 		return filter;
 	}
 

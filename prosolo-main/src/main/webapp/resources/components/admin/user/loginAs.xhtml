@@ -2,6 +2,7 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
@@ -23,6 +24,7 @@
 						</div>
 						<div class="modal-footer">
 							<input type="hidden" id="j_username" name="j_username" value="#{loggeduser.loginAsUser.email}"/>
+							<input type="hidden" id="failureUrl" name="failureUrl" value="#{util:getForwardedUri('error=Error trying to log in as '.concat(loggeduser.loginAsUser.fullName))}"/>
 							<input id="loginAsBtn" type="submit" class="btn btn-green" value="Proceed"/>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 						</div>

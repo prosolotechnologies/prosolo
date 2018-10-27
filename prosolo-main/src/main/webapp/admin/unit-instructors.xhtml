@@ -14,6 +14,7 @@
             <f:viewParam name="orgId" value="#{unitUsersBean.orgId}" />
             <f:viewParam name="id" value="#{unitUsersBean.id}" />
             <f:viewParam name="p" value="#{unitUsersBean.page}" default="1" />
+            <f:viewParam name="error" value="#{unitUsersBean.error}"/>
             <f:viewAction action="#{unitUsersBean.initInstructors()}" />
         </f:metadata>
     </ui:define>

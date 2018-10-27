@@ -1,14 +1,10 @@
 package org.prosolo.core.spring.security.authentication.lti;
 
+import org.prosolo.core.spring.security.RequestParameterUrlAuthenticationFailureHandler;
 import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.web.lti.Util;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,26 +16,12 @@ import java.util.Map;
  * @date 2018-10-16
  * @since 1.2.0
  */
-public class LTIAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+public class LTIAuthenticationFailureHandler extends RequestParameterUrlAuthenticationFailureHandler {
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    protected String getFailureUrlFromRequest(HttpServletRequest request) {
         String url = request.getParameter(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
-        if (url != null) {
-            String returnURL = buildReturnURL(url);
-            logger.info("LTI authentication failure url " + returnURL);
-            saveException(request, exception);
-            if (isUseForward()) {
-                logger.info("Forwarding to " + returnURL);
-                request.getRequestDispatcher(returnURL).forward(request, response);
-            } else {
-                logger.info("Redirecting to " + returnURL);
-                getRedirectStrategy().sendRedirect(request, response, returnURL);
-            }
-        } else {
-            logger.info("LTI consumer did not send return url to redirect user back");
-            super.onAuthenticationFailure(request, response, exception);
-        }
+        return url != null ? buildReturnURL(url) : null;
     }
 
     // create return url with query params

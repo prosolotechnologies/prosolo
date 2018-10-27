@@ -22,6 +22,7 @@
             <f:viewParam name="unitId" value="#{groupUsersBean.unitId}" />
             <f:viewParam name="id" value="#{groupUsersBean.groupId}" />
             <f:viewParam name="p" value="#{groupUsersBean.page}" default="1" />
+            <f:viewParam name="error" value="#{groupUsersBean.error}"/>
             <f:viewAction action="#{groupUsersBean.init()}" />
         </f:metadata>
     </ui:define>
