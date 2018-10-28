@@ -93,7 +93,7 @@
 	
 	    <div class="container">
 	        <ol class="breadcrumb">
-	            <li><h:link outcome="library">#{msg['label.credential.plural']}</h:link></li>
+	            <li><h:link outcome="credentialLibrary">#{msg['label.credential.plural']}</h:link></li>
 	            <li> 
 	            	<h:link outcome="credential"
 							value="#{util:shortenAndAddCommas(announcementBeanStudent.credentialData.idData.title)}">
@@ -134,7 +134,7 @@
 										fullName="#{announcementBeanStudent.announcementData.creatorFullName}" />
 							</a>
 							<h3>
-								<a href="#">#{announcementBeanStudent.announcementData.creatorFullName}</a>
+								#{announcementBeanStudent.announcementData.creatorFullName}
 							</h3>
 						</div>
 					</div>
