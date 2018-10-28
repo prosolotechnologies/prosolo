@@ -93,15 +93,13 @@
                         <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
                     </li>
                     <li>
-                        <h:link
-                            value="#{competenceInstructorAssessmentsBean.credentialTitle}"
-                            outcome="credential">
+                        <h:link value="#{util:shortenAndAddCommas(competenceInstructorAssessmentsBean.credentialTitle)}"
+                                outcome="credential">
                             <f:param name="id" value="#{param.credId}"></f:param>
                         </h:link>
                     </li>
                     <li>
-                        <h:link
-                                value="#{competenceInstructorAssessmentsBean.competenceTitle}"
+                        <h:link value="#{util:shortenAndAddCommas(competenceInstructorAssessmentsBean.competenceTitle)}"
                                 outcome="competence">
                             <f:param name="credId" value="#{param.credId}"></f:param>
                             <f:param name="compId" value="#{param.compId}"/>
@@ -115,14 +113,12 @@
             <ui:fragment rendered="#{empty param.credId}">
                 <ol class="breadcrumb">
                     <li>
-                        <h:link
-                                value="#{msg['label.competence.plural']}"
+                        <h:link value="#{msg['label.competence.plural']}"
                                 outcome="/competenceLibrary">
                         </h:link>
                     </li>
                     <li>
-                        <h:link
-                                value="#{competenceInstructorAssessmentsBean.competenceTitle}"
+                        <h:link value="#{util:shortenAndAddCommas(competenceInstructorAssessmentsBean.competenceTitle)}"
                                 outcome="competence">
                             <f:param name="compId" value="#{param.compId}"/>
                         </h:link>

@@ -43,14 +43,13 @@
 		            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 		            </li>
 		            <li>
-						<h:link
-								value="#{competenceEditBean.credentialIdData.fullTitle}"
+						<h:link value="#{util:shortenAndAddCommas(competenceEditBean.credentialIdData.fullTitle)}"
 								outcome="/manage/credential-create">
 							<f:param name="id" value="#{param.credId}"></f:param>
 						</h:link>
 		            </li>
 		            <ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            	<li class="active">#{util:shortenAndAddCommas(competenceEditBean.competenceData.title)}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">New #{msg['label.competence']}</li>
@@ -63,7 +62,7 @@
 		            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
+		            	<li class="active">#{util:shortenAndAddCommas(competenceEditBean.competenceData.title)}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">New #{msg['label.competence']}</li>

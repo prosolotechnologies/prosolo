@@ -74,8 +74,7 @@
 					<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library"/>
 				</li>
 				<li>
-					<h:link
-							value="#{announcementBeanManager.credentialData.idData.fullTitle}"
+					<h:link value="#{util:shortenAndAddCommas(announcementBeanManager.credentialData.idData.fullTitle)}"
 							outcome="/manage/credential">
 						<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 					</h:link>

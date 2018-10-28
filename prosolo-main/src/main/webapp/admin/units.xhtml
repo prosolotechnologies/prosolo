@@ -58,7 +58,7 @@
 							</li>
 						</ui:fragment>
 						<li>
-							<h:link value="#{unitsBean.organizationData.title}" outcome="/admin/units">
+							<h:link value="#{util:shortenAndAddCommas(unitsBean.organizationData.title)}" outcome="/admin/units">
 								<f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
 						</li>
 						<li class="active">
@@ -66,6 +66,7 @@
 						</li>
 					</ol>
 				</div>
+
 				<h:form id="formUnits">
 					<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 					<div class="col-md-12">

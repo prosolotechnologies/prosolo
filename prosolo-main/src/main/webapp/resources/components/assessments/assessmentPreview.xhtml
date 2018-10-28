@@ -166,8 +166,7 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library" />
 					</li>
 					<li>
-						<h:link
-								value="#{cc.attrs.bean.credentialIdData.fullTitle}"
+						<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.credentialIdData.fullTitle)}"
 								outcome="/manage/credential">
 							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"></f:param>
 						</h:link>
@@ -181,7 +180,7 @@
 					<li class="active">
 						<assessment:assessmentActorName
 								actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
-								actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+								actorFullName="#{util:shortenAndAddCommas(cc.attrs.bean.fullAssessmentData.studentFullName)}"
 								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 								actorType="STUDENT"
 						/>
@@ -194,7 +193,7 @@
 							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 						</li>
 						<li>
-							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+							<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.credentialTitle)}" outcome="credential">
 								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
 							</h:link>
 						</li>
@@ -211,7 +210,7 @@
 							<li class="active">
 								<assessment:assessmentActorName
 										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										actorFullName="#{util:shortenAndAddCommas(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
 										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 										actorType="ASSESSOR"
 								/>
@@ -221,12 +220,12 @@
 					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode eq 'OFF'}">
 							<li>
-								<h:link value="#{cc.attrs.bean.fullAssessmentData.studentFullName}" outcome="profile">
+								<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.fullAssessmentData.studentFullName)}" outcome="profile">
 									<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
 								</h:link>
 							</li>
 							<li>
-								<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
+								<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.credentialTitle)}" outcome="public-credential">
 									<f:param name="credId" value="#{cc.attrs.bean.id}"/>
 									<f:param name="studentId" value="#{param.studentId}"/>
 								</h:link>
@@ -244,7 +243,7 @@
 							<li class="active">
 								<assessment:assessmentActorName
 										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										actorFullName="#{util:shortenAndAddCommas(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
 										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 										actorType="ASSESSOR"
 								/>

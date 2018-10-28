@@ -77,7 +77,7 @@
             </ui:fragment>
             <li>
                 <h:link outcome="/admin/units">
-                    #{manageGroupsBean.organizationTitle}
+                    #{util:shortenAndAddCommas(manageGroupsBean.organizationTitle)}
                     <f:param name="id" value="#{param.orgId}" />
                 </h:link>
             </li>
@@ -89,7 +89,7 @@
             </li>
             <li>
                 <h:link outcome="/admin/unit-credentials">
-                    #{manageGroupsBean.unitTitle}
+                    #{util:shortenAndAddCommas(manageGroupsBean.unitTitle)}
                     <f:param name="id" value="#{param.orgId}" />
                     <f:param name="unitId" value="#{param.id}" />
                 </h:link>

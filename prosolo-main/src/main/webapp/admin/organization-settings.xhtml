@@ -56,7 +56,7 @@
                         <ui:fragment rendered="#{not empty organizationEditBean.id}">
                             <li>
                                 <h:link outcome="/admin/units">
-                                    #{organizationEditBean.organization.title}
+                                    #{util:shortenAndAddCommas(organizationEditBean.organization.title)}
                                     <f:param name="id" value="#{organizationEditBean.id}" />
                                 </h:link>
                             </li>
@@ -67,6 +67,7 @@
                         </ui:fragment>
                     </ol>
                 </div>
+
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">

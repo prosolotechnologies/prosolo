@@ -72,8 +72,8 @@
                     <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
                 </ui:fragment>
                 <li>
-                    <h:link outcome="/admin/units">
-                        #{groupUsersBean.organizationTitle}
+                    <h:link outcome="/admin/units"
+                            value="#{util:shortenAndAddCommas(groupUsersBean.organizationTitle)}">
                         <f:param name="id" value="#{param.orgId}" />
                     </h:link>
                 </li>
@@ -84,8 +84,8 @@
                     </h:link>
                 </li>
                 <li>
-                    <h:link outcome="/admin/unit-credentials">
-                        #{groupUsersBean.unitTitle}
+                    <h:link outcome="/admin/unit-credentials"
+                            value="#{util:shortenAndAddCommas(groupUsersBean.unitTitle)}">
                         <f:param name="id" value="#{param.orgId}" />
                         <f:param name="unitId" value="#{param.unitId}" />
                     </h:link>
@@ -97,7 +97,7 @@
                         <f:param name="id" value="#{param.unitId}" />
                     </h:link>
                 </li>
-                <li class="active">#{groupUsersBean.userGroupTitle}</li>
+                <li class="active">#{util:shortenAndAddCommas(groupUsersBean.userGroupTitle)}</li>
             </ol>
         </div>
 

@@ -37,6 +37,7 @@
 				<p:focus />
 				<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
 				<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
+
 				<div class="container">
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
@@ -44,22 +45,20 @@
 				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
-								<h:link
-										value="#{activityEditBean.credentialIdData.fullTitle}"
+								<h:link value="#{util:shortenAndAddCommas(activityEditBean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential-create">
 									<f:param name="id" value="#{param.credId}"></f:param>
 								</h:link>
 				            </li>
 				            <li>
-				            	<h:link 
-				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="create-competence">
+				            	<h:link value="#{util:shortenAndAddCommas(activityEditBean.activityData.competenceName)}"
+				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            	<li class="active">#{util:shortenAndAddCommas(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>
@@ -72,14 +71,13 @@
 				            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
-				            	<h:link 
-				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="create-competence">
+				            	<h:link value="#{util:shortenAndAddCommas(activityEditBean.activityData.competenceName)}"
+				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            	<li class="active">#{util:shortenAndAddCommas(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>

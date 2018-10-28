@@ -47,7 +47,7 @@
                             </li>
                         </ui:fragment>
                         <li>
-                            <h:link value="#{unitEditBean.organizationTitle}" outcome="/admin/units">
+                            <h:link value="#{util:shortenAndAddCommas(unitEditBean.organizationTitle)}" outcome="/admin/units">
                                 <f:param name="id" value="#{param.orgId}" />
                             </h:link>
                         </li>
@@ -58,7 +58,8 @@
                             </h:link>
                         </li>
                         <li>
-                            <h:link outcome="/admin/unit-teachers" value="#{unitEditBean.unit.title}">
+                            <h:link outcome="/admin/unit-teachers"
+                                    value="#{util:shortenAndAddCommas(unitEditBean.unit.title)}">
                                 <f:param name="orgId" value="#{param.id}" />
                                 <f:param name="id" value="#{param.unitId}" />
                             </h:link>

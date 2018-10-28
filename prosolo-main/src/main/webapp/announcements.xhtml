@@ -100,15 +100,15 @@
                 <li>
                     <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
                 </li>
-                <li><h:link
-                        value="#{announcementBeanStudent.credentialData.idData.title}"
-                        outcome="credential"
-                        onclick="sendLogPageNavigation('/credential.xhtml',
-										'#{facesContext.viewRoot.viewId}',
+                <li><h:link value="#{util:shortenAndAddCommas(announcementBeanStudent.credentialData.idData.title)}"
+                            outcome="credential"
+                            onclick="sendLogPageNavigation('/credential.xhtml',
+                                        '#{facesContext.viewRoot.viewId}',
 										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(announcementBeanStudent.credentialId).concat(&#34;/&#34;))}',
 										'#{cc.attrs.service}');">
-                    <f:param name="id" value="#{param.id}"/>
-                </h:link></li>
+                        <f:param name="id" value="#{param.id}"/>
+                    </h:link>
+                </li>
                 <li class="active">Announcements</li>
             </ol>
         </div>
