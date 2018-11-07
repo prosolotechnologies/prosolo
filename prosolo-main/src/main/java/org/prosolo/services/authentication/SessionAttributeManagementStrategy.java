@@ -26,7 +26,6 @@ import java.util.Enumeration;
 public class SessionAttributeManagementStrategy implements SessionAuthenticationStrategy {
 
     private UserSessionEndStrategy sessionEndStrategy;
-
     private AuthenticationChangeType authenticationChangeType;
 
     public SessionAttributeManagementStrategy(UserSessionEndStrategy userSessionEndStrategy, AuthenticationChangeType authenticationChangeType) {

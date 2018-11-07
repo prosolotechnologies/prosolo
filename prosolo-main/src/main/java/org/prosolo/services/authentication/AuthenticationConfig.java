@@ -9,6 +9,7 @@ import org.prosolo.services.authentication.reauthentication.providers.LTIAuthent
 import org.prosolo.services.authentication.reauthentication.providers.RememberMeAuthenticationRefreshProvider;
 import org.prosolo.services.authentication.reauthentication.providers.SAMLAuthenticationRefreshProvider;
 import org.prosolo.services.authentication.reauthentication.providers.UsernamePasswordAuthenticationRefreshProvider;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -16,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.function.Function;
 
 /**
  * Bean definitions for authentication related functionalities
@@ -43,13 +43,9 @@ public class AuthenticationConfig {
     }
 
     @Bean
-    @Scope("prototype")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SessionAttributeManagementStrategy sessionAttributeManagementStrategy(AuthenticationChangeType authenticationChangeType) {
         return new SessionAttributeManagementStrategy(userSessionEndStrategy, authenticationChangeType);
     }
 
-    @Bean
-    public Function<AuthenticationChangeType, SessionAttributeManagementStrategy> sessionAttributeManagementStrategyFactory() {
-        return type -> sessionAttributeManagementStrategy(type);
-    }
 }

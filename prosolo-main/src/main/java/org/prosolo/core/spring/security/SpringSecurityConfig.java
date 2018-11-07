@@ -24,6 +24,7 @@ import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationSucc
 import org.prosolo.core.spring.security.successhandlers.DefaultProsoloAuthenticationSuccessHandler;
 import org.prosolo.services.authentication.SessionAttributeManagementStrategy;
 import org.prosolo.services.authentication.annotations.AuthenticationChangeType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -77,7 +78,6 @@ import javax.servlet.Filter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * @author "Nikola Milikic"
@@ -97,7 +97,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private SAMLUserDetailsService samlUserDetailsService;
 	@Inject private LTIAuthenticationProvider ltiAuthenticationProvider;
 	@Inject private LTIAuthenticationSuccessHandler ltiAuthenticationSuccessHandler;
-	@Inject private Function<AuthenticationChangeType, SessionAttributeManagementStrategy> sessionAttributeManagementStrategyFactory;
+	@Inject private ObjectProvider<SessionAttributeManagementStrategy> sessionAttributeManagementStrategyProvider;
 
 	private static final String LOGIN_PAGE = "/login";
 	public static final String REMEMBER_ME_KEY = "prosoloremembermekey";
@@ -869,7 +869,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Bean
 	public LTIAuthenticationFilter ltiAuthenticationFilter() {
-		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyFactory.apply(AuthenticationChangeType.USER_SESSION_END));
+		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_SESSION_END));
 		String errorMsg = null;
 		try {
 			errorMsg = URLEncoder.encode("Error launching the external activity", "utf-8");
@@ -882,7 +882,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public Filter switchUserFilter() {
-		ProsoloSwitchUserFilter filter = new ProsoloSwitchUserFilter(sessionAttributeManagementStrategyFactory.apply(AuthenticationChangeType.USER_AUTHENTICATION_CHANGE));
+		ProsoloSwitchUserFilter filter = new ProsoloSwitchUserFilter(sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_AUTHENTICATION_CHANGE));
 		filter.setSwitchUserUrl("/loginAs/login");
 		filter.setExitUserUrl("/loginAs/logout");
 		filter.setUserDetailsService(userDetailsService);
