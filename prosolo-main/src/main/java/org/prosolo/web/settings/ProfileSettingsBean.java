@@ -9,7 +9,6 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -93,9 +92,6 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveAccountChanges() {
 		try {
 			userManager.saveAccountChanges(accountData, loggedUser.getUserContext());
-
-			loggedUser.reinitializeSessionData(accountData, loggedUser.getOrganizationId());
-
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch (Exception e) {
 			logger.error(e);
@@ -136,10 +132,7 @@ public class ProfileSettingsBean implements Serializable {
 
 		try {
 			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUserId(), imagePath, left, top, width, height);
-			User updatedUser = userManager.changeAvatar(loggedUser.getUserId(), newAvatarPath);
-
-			loggedUser.getSessionData().setAvatar(updatedUser.getAvatarUrl());
-			loggedUser.initializeAvatar();
+			userManager.changeAvatar(loggedUser.getUserId(), newAvatarPath);
 
 			accountData.setAvatarUrl(loggedUser.getAvatar());
 
@@ -148,8 +141,8 @@ public class ProfileSettingsBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "The profile photo has been updated");
 
 			init();
-		} catch (IOException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+		} catch (IOException | ResourceCouldNotBeLoadedException | DbConnectionException e) {
+			logger.error("error", e);
 			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing the profile photo.");
 		}
 	}

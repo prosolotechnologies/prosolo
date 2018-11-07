@@ -641,7 +641,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToUsersOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<User> students) {
@@ -655,7 +655,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
@@ -669,7 +669,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private long getDaysFromNow(int days) {
@@ -702,7 +702,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private UserContextData createUserContext(User user) {
-		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null);
+		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null);
 	}
 
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {

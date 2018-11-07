@@ -1,17 +1,7 @@
 package org.prosolo.web;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.faces.bean.ManagedBean;
-import javax.servlet.http.HttpSession;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
@@ -22,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import javax.faces.bean.ManagedBean;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.*;
+import java.util.Map.Entry;
 
 /*
  * @author Zoran Jeremic 2013-05-18
@@ -48,9 +41,7 @@ public class ApplicationBean implements Serializable {
 		loginTime = new Date().getTime();
 	}
 	
-	public void registerNewUserSession(User user, HttpSession session){
-		long userId = user.getId();
-		
+	public void registerNewUserSession(long userId, HttpSession session){
 		if (userSessions.containsKey(userId)) {
 			userSessions.remove(userId);
 		} 

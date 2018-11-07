@@ -17,7 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.inject.Inject;
@@ -54,13 +54,12 @@ public class LTIAuthenticationFilter extends AbstractAuthenticationProcessingFil
     private final static String DEFAULT_PROCESSING_URL = "/ltiproviderlaunch.xhtml";
     private Set<LogoutHandler> logoutHandlers = new HashSet<>();
 
-    public LTIAuthenticationFilter(LTIAuthenticationProvider authenticationProvider, LTIAuthenticationSuccessHandler successHandler) {
+    public LTIAuthenticationFilter(LTIAuthenticationProvider authenticationProvider, LTIAuthenticationSuccessHandler successHandler, SessionAuthenticationStrategy sessionAuthenticationStrategy) {
         super(new AntPathRequestMatcher(DEFAULT_PROCESSING_URL, "POST"));
         setAuthenticationManager(new ProviderManager(Arrays.asList(authenticationProvider)));
         setAuthenticationSuccessHandler(successHandler);
         setAuthenticationFailureHandler(new LTIAuthenticationFailureHandler());
-        //logout handler that kills current session which will also act as a session fixation protection strategy
-        addLogoutHandler(new SecurityContextLogoutHandler());
+        setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
     }
 
     public void setDefaultAuthenticationFailureUrl(String url) {
@@ -88,7 +87,7 @@ public class LTIAuthenticationFilter extends AbstractAuthenticationProcessingFil
         try {
             logger.info("New Lti Launch");
             /*
-            if there was existing session user is logged out and then authenticated
+            if there was existing session user is logged out by calling logout handlers that are configured and then authenticated
              */
             logoutPreviouslyLoggedInUser(request, response);
             LTILaunchMessage msg = createLTILaunchMessage(request);
