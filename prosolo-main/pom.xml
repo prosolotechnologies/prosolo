@@ -388,6 +388,7 @@
 		</dependency-->
 
 		<!-- Spring Security -->
+		<!-- when this dependency is upgraded to newer version check whether org.prosolo.services.authentication.reauthentication.DefaultAuthenticationRefreshManager still works and is up to date according to Spring's implementation of specific authentication types-->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -662,6 +663,7 @@
 			<artifactId>commons-validator</artifactId>
 			<version>1.5.0</version>
 		</dependency>
+		<!-- when this dependency is upgraded to newer version check whether org.prosolo.services.authentication.reauthentication.DefaultAuthenticationRefreshManager still works and is up to date according to Spring's implementation of specific authentication types-->
 		<dependency>
 			<groupId>org.springframework.security.extensions</groupId>
 			<artifactId>spring-security-saml2-core</artifactId>
