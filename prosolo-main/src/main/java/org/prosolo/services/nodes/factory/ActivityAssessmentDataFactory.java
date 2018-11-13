@@ -37,7 +37,7 @@ public class ActivityAssessmentDataFactory implements Serializable {
 		data.setEncodedSenderId(idEncoder.encodeId(msg.getSender().getParticipant().getId()));
 		data.setSenderFullName(msg.getSender().getParticipant().getName()+" "+msg.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(msg.getSender().getParticipant(), ImageFormat.size120x120));
-		data.setSenderInstructor(msg.getSender().getParticipant().getId() == assessorId);
+		data.setSenderAssessor(msg.getSender().getParticipant().getId() == assessorId);
 		data.setDateCreated(msg.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(msg.getDateCreated()));
 		data.setDateUpdated(msg.getLastUpdated());
