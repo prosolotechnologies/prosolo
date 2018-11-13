@@ -9,7 +9,6 @@ import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDe
 import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.ApplicationBean;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -32,7 +31,6 @@ public class DefaultUserSessionEndStrategy implements UserSessionEndStrategy {
 
     @Inject private UserManager userManager;
     @Inject private EventFactory eventFactory;
-    @Inject private ApplicationBean applicationBean;
     @Inject private AuthenticatedUserService authenticatedUserService;
 
     @Override
@@ -56,9 +54,6 @@ public class DefaultUserSessionEndStrategy implements UserSessionEndStrategy {
                     null, null, null, parameters);
 
             logger.debug("UserSession unbound; session id: " + session.getId() + "; user:" + userInfo.getUserId());
-
-            applicationBean.unregisterSession(session);
-            applicationBean.unregisterUser(userInfo.getUserId());
         }
     }
 }

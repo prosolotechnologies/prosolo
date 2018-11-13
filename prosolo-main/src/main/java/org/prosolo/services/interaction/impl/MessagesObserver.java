@@ -1,9 +1,5 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.Set;
-
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
@@ -20,9 +16,13 @@ import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.web.ApplicationBean;
+import org.prosolo.services.user.ActiveUsersSessionRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
+import java.util.Set;
 
 /*
  * @author Zoran Jeremic 2013-05-18
@@ -31,10 +31,10 @@ import org.springframework.stereotype.Service;
 public class MessagesObserver extends EventObserver {
 	private static Logger logger = Logger.getLogger(MessagesObserver.class);
 	
-	@Autowired private ApplicationBean applicationBean;
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private SessionMessageDistributer messageDistributer;
 	@Autowired private MessageInboxUpdater messageInboxUpdater;
+	@Inject private ActiveUsersSessionRegistry activeUsersSessionRegistry;
 	
 	@Override
 	public EventType[] getSupportedEvents() {
@@ -69,9 +69,10 @@ public class MessagesObserver extends EventObserver {
 							messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, user.getId(), message.getId(), null, null);
 						}
 					} else {
-						HttpSession httpSession = applicationBean.getUserSession(user.getId());
-						
-						messageInboxUpdater.updateOnNewMessage(message, messagesThread, httpSession);
+						Set<HttpSession> userSessions = activeUsersSessionRegistry.getAllUserSessions(user.getId());
+						for (HttpSession httpSession : userSessions) {
+							messageInboxUpdater.updateOnNewMessage(message, messagesThread, httpSession);
+						}
 					}
 				}
 			} else if (event.getAction().equals(EventType.START_MESSAGE_THREAD)) {
@@ -82,11 +83,11 @@ public class MessagesObserver extends EventObserver {
 					
 					for (ThreadParticipant participant : participants) {
 						User user = participant.getUser();
-						HttpSession httpSession = applicationBean.getUserSession(user.getId());
-						
-						if (httpSession != null) {
+						Set<HttpSession> userSessions = activeUsersSessionRegistry.getAllUserSessions(user.getId());
+						for (HttpSession httpSession : userSessions) {
 							messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
-						} else if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
+						}
+						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
 									ServiceType.ADD_NEW_MESSAGE_THREAD, 
 									user.getId(), 

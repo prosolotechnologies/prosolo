@@ -5,8 +5,7 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.SessionCountBean;
+import org.prosolo.services.user.ActiveUsersSessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
@@ -28,8 +27,7 @@ import java.io.IOException;
 public abstract class ProsoloAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     @Inject private EventFactory eventFactory;
-    @Inject private ApplicationBean applicationBean;
-    @Inject private SessionCountBean sessionCounter;
+    @Inject private ActiveUsersSessionRegistry activeUsersSessionRegistry;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -44,8 +42,7 @@ public abstract class ProsoloAuthenticationSuccessHandler extends SavedRequestAw
     }
 
     private void registerNewUserSession(long userId, HttpSession session) {
-        applicationBean.registerNewUserSession(userId, session);
-        sessionCounter.addSession(session.getId());
+        activeUsersSessionRegistry.registerUserSession(userId, session);
     }
 
     protected abstract void determineSuccessTargetUrl(HttpServletRequest request, Authentication authentication);
