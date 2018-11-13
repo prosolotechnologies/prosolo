@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
  */
 public class DescriptiveRubricGradeData extends RubricGradeData<DescriptiveRubricCriteriaGradeData> {
 
+    private static final long serialVersionUID = -4771292760848004866L;
+
     //it will be -1 or 0 depending on whether student is assessed or not
     private int currentGrade;
 
@@ -77,4 +79,5 @@ public class DescriptiveRubricGradeData extends RubricGradeData<DescriptiveRubri
     public void setCurrentGrade(int currentGrade) {
         this.currentGrade = currentGrade;
     }
+
 }

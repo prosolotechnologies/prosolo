@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class PointRubricCriteriaGradeData extends RubricCriteriaGradeData<PointRubricCriterionGradeData> {
 
+    private static final long serialVersionUID = -9159729667576477239L;
+
     public PointRubricCriteriaGradeData(List<PointRubricCriterionGradeData> criteria, int maxPoints) {
         super(criteria);
         calculateCriteriaAndLevelPoints(maxPoints);
@@ -81,4 +83,5 @@ public class PointRubricCriteriaGradeData extends RubricCriteriaGradeData<PointR
     public RubricType getRubricType() {
         return RubricType.POINT;
     }
+
 }

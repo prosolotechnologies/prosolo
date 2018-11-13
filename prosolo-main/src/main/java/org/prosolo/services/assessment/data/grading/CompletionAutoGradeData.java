@@ -7,6 +7,8 @@ package org.prosolo.services.assessment.data.grading;
  */
 public class CompletionAutoGradeData extends AutomaticGradeData {
 
+    private static final long serialVersionUID = 568178243078077962L;
+
     public CompletionAutoGradeData() {}
 
     public CompletionAutoGradeData(int maxPoints, int grade) {

@@ -7,6 +7,8 @@ package org.prosolo.services.assessment.data.grading;
  */
 public class RubricLevelGradeData extends RubricItemGradeData {
 
+    private static final long serialVersionUID = 82789843715531990L;
+
     private String description;
 
     public String getDescription() {

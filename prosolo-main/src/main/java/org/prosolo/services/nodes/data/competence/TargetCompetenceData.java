@@ -35,7 +35,6 @@ public class TargetCompetenceData implements Serializable {
         this.id = targetCompetence1.getId();
         this.description = targetCompetence1.getCompetence().getDescription();
         this.title = targetCompetence1.getCompetence().getTitle();
-        this.hiddenFromProfile = targetCompetence1.isHiddenFromProfile();
         this.duration = targetCompetence1.getCompetence().getDuration();
         this.learningResourceType = targetCompetence1.getCompetence().getType();
         this.competenceId = targetCompetence1.getCompetence().getId();
