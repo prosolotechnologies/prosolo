@@ -2457,13 +2457,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
 					"WHERE assessment.student.id = :assessedStudentId " +
-						"AND assessment.targetCredential.credential.id = :credentialId";
+						"AND assessment.targetCredential.credential.id = :credentialId " +
+					"ORDER BY CASE WHEN assessment.type = :instructorAssessment THEN 1 WHEN assessment.type = :selfAssessment THEN 2 ELSE 3 END, assessor.name, assessor.lastname";
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("selfAssessment", AssessmentType.SELF_ASSESSMENT.name())
 					.list();
 
 			BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
