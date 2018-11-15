@@ -172,20 +172,6 @@
 
 				</div>
 				<div class="headerTopRight">
-					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
-								update=":messagesLink"
-								widgetVar="messagesPoll" autoStart="true" />
-					</h:form>
-
-					<h:link id="messagesLink"
-							class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
-							onclick="sendLogPageNavigation('messages','mainmenu');"
-							outcome="/admin/messages">
-						Messages
-						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">unreadDot </span>
-					</h:link>
-
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"

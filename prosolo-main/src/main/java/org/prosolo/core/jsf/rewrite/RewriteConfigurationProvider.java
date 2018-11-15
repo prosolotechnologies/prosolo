@@ -125,8 +125,6 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/rubrics/{id}/privacy").to("/manage/rubric-privacy.xhtml"))
 				.addRule(Join.path("/manage/rubrics/{id}").to("/manage/rubric-criteria.xhtml"))
 				.addRule(Join.path("/manage/notifications").to("/manage/notifications.xhtml"))
-				.addRule(Join.path("/manage/messages/{id}").to("/manage/messages.xhtml"))
-				.addRule(Join.path("/manage/messages").to("/manage/messages.xhtml"))
 				.addRule(Join.path("/manage/settings/password").to("/manage/settings/password.xhtml"))
 				.addRule(Join.path("/manage/settings/email").to("/manage/settings/email.xhtml"))
 				.addRule(Join.path("/manage/settings").to("/manage/settings.xhtml"))
@@ -230,7 +228,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings/password").to("/admin/settings/password.xhtml"))
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
-				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
+//				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
 				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"))
 				.addRule(Join.path("/admin/migrations").to("/admin/migrations.xhtml"));
 	}

@@ -23,9 +23,9 @@ import java.util.List;
  */
 public interface UserTextSearch extends AbstractManager {
 
-	TextSearchResponse searchUsers(long orgId, String searchString,
-			int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds);
+	PaginatedResult<UserData> searchUsers(long orgId, String searchString,
+										  int page, int limit, boolean loadOneMore,
+										  Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.

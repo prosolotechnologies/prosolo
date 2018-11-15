@@ -49,9 +49,6 @@ import java.util.*;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
-//import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
-
 
 /**
  * 
@@ -72,14 +69,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserManager userManager;
-	@Inject private UserGroupManager userGroupManager;
 
 	@Override
-	public TextSearchResponse searchUsers (
+	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		
-		TextSearchResponse response = new TextSearchResponse();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
@@ -133,7 +129,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						User user = defaultManager.loadResource(User.class, id);
 						
 						if (user != null) {
-							response.addFoundNode(user);
+							response.addFoundNode(new UserData(user));
 						}
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error("User was not found: " + id);

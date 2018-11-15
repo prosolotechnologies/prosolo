@@ -37,25 +37,14 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 
 		long receiverId = message.getReceiverId();
 		HttpSession httpSession = applicationBean.getUserSession(receiverId);
+
 		try {
 			long resourceId = message.getResourceId();
 
 			switch (message.getServiceType()) {
 			case DIRECT_MESSAGE:
 				if (httpSession != null) {
-					Message directMessage = (Message) session.load(Message.class, resourceId);
-
-					MessageThread messagesThread = directMessage.getMessageThread();
-					messagesThread = (MessageThread) session.merge(messagesThread);
-
-					messageInboxUpdater.updateOnNewMessage(directMessage, messagesThread, httpSession);
-				}
-				break;
-			case ADD_NEW_MESSAGE_THREAD:
-				if (httpSession != null) {
-					MessageThread messagesThread = (MessageThread) session.load(MessageThread.class, resourceId);
-
-					messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
+					messageInboxUpdater.updateOnNewMessage(httpSession);
 				}
 				break;
 			case ADD_NOTIFICATION:

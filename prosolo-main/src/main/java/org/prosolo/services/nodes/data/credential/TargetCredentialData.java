@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  * 
- * @author "Musa Paljos"
+ * @author Nikola Milikic
  *
  */
 public class TargetCredentialData implements Serializable {

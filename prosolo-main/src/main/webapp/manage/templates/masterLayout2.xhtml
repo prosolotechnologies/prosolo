@@ -130,24 +130,7 @@
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
 					</h:panelGroup>
-					
-					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" 
-							process="@this"
-							update=":messagesLink :unreadNotificationsDot :notificationsContainer" 
-							widgetVar="messagesPoll" 
-							autoStart="true" />
-					</h:form>
-					
-					<h:link id="messagesLink" class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
-						onclick="sendLogPageNavigation('messages','mainmenu');"
-						outcome="/manage/messages">
-						Messages
-						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
-							unreadDot
-						</span>
-					</h:link>
-	
+
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="iconNotificationsId"
 							styleClass="iconNotifications #{managerNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
