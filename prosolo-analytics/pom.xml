@@ -15,13 +15,13 @@
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<jetty.version>9.4.8.v20171121</jetty.version>
 		<jersey.version>1.19.1</jersey.version>
-		<jersey2.version>2.23</jersey2.version>
-		<jaxrs.version>2.0.1</jaxrs.version>
+		<jersey2.version>2.27</jersey2.version>
+		<jaxrs.version>2.1.1</jaxrs.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
 		<spark.version>2.2.0</spark.version>
 		<scala.version>2.11.12</scala.version>
 		<quartz.version>2.2.1</quartz.version>
-		<twitter4j.version>4.0.4</twitter4j.version>
+		<twitter4j.version>4.0.7</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
 	    <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
 		<cassandra-java-driver.version>3.0.0</cassandra-java-driver.version>
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
-			<version>1.4.5</version>
+			<version>1.5.0-b01</version>
 		</dependency>
 		<dependency>
 			<groupId>org.prosolo</groupId>
@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>3.5.1</version>
+			<version>5.5.0</version>
 		</dependency>
 
 		<!-- JSON -->
@@ -111,7 +111,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
+			<version>3.8.1</version>
 		</dependency>
 
 		<dependency>
@@ -179,13 +179,13 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.4</version>
+			<version>4.5.6</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
-			<version>4.4.8</version>
+			<version>4.4.10</version>
 		</dependency>
 
 		<dependency>
@@ -375,7 +375,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>3.0.0-M1</version>
+					<configuration>
+						<argLine>
+							--illegal-access=permit
+						</argLine>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>net.alchim31.maven</groupId>
@@ -417,8 +422,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<release>11</release>
 				</configuration>
 				<executions>
 					<execution>
@@ -432,7 +436,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.1.0</version>
 				<configuration>
 					<skip>false</skip>
 				</configuration>
@@ -474,10 +478,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.18</version>
+				<version>3.0.0-M1</version>
 				<configuration>
 					<argLine>-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError
-						-XX:HeapDumpPath=/home/zoran/Desktop/dumps</argLine>
+						-XX:HeapDumpPath=/home/zoran/Desktop/dumps --illegal-access=permit</argLine>
 				</configuration>
 			</plugin>
 			<plugin>

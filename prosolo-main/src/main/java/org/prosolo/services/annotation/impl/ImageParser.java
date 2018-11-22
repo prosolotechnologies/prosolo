@@ -95,7 +95,7 @@ public class ImageParser implements Parser {
 		Iterator<?> directories=null;
 			//Iterator<?> directories = jpegMetaData.getDirectoryIterator();
 			
-			while (directories.hasNext()) {
+			/*while (directories.hasNext()) {
 				Directory directory = (Directory) directories.next();
 				// iterate through tags and print to System.out
 				Iterator<?> tags = directory.getTagIterator();
@@ -109,7 +109,7 @@ public class ImageParser implements Parser {
 						logger.error(e);
 					}
 				}
-			 }
+			 }*/
 	//	} catch (JpegProcessingException e) {
 	//		logger.error(e);
 	 //	}
