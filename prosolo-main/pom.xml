@@ -19,7 +19,7 @@
 		<el.version>2.2</el.version>
 		<primefaces.version>6.2</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
-		<jetty.version>9.4.8.v20171121</jetty.version>
+		<jetty.version>9.4.14.v20181114</jetty.version>
 
 		<jersey.version>1.19</jersey.version>
 		<jersey2.version>2.23</jersey2.version>
@@ -232,69 +232,13 @@
 			<version>0.21.4</version>
 		</dependency>
 
-		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId>
-			<version>1.6.1</version> </dependency -->
 
-
-
-
-
-
-		<!-- <dependency> <groupId>javax.persistence</groupId> <artifactId>persistence-api</artifactId>
-			<version>1.0.2</version> </dependency> -->
-		<!-- <dependency> <groupId>org.hibernate.javax.persistence</groupId> <artifactId>hibernate-jpa-2.1-api</artifactId>
-			<version>1.0.0.Final</version> </dependency> -->
-
-		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search</artifactId>
-			<version>${hibernate-search.version}</version> </dependency -->
-		<!-- dependency> <groupId>org.hibernate</groupId> <artifactId>hibernate-search-analyzers</artifactId>
-			<version>${hibernate-search.version}</version> <exclusions> <exclusion> <groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId> </exclusion> <exclusion> <groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers</artifactId> </exclusion> </exclusions> </dependency -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-core</artifactId>
-			<version>3.6.1</version> </dependency -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId>
-			<version>3.6.1</version> </dependency> <dependency> <groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-queries</artifactId> <version>3.6.1</version> </dependency -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
 			<version>1.19.1</version>
-		</dependency>
-		<!--dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging-spi</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-logging-annotations</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-
-			<version>5.1.1.Final</version>
 		</dependency-->
 
-		<!-- EL 2.2 -->
-		<!--dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>el-api</artifactId>
-			<version>${el.version}</version-->
-		<!-- scope>provided</scope -->
-		<!--/dependency-->
-
-		<!--dependency>
-			<groupId>c3p0</groupId>
-			<artifactId>c3p0</artifactId>
-			<version>0.9.1.2</version>
-		</dependency-->
 
 
 		<!--SPRING -->
@@ -308,12 +252,6 @@
 			<artifactId>spring-beans</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-
-		<!--dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${spring.version}</version>
-		</dependency-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -345,16 +283,7 @@
 			<artifactId>spring-web</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		<!--dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aspects</artifactId>
-			<version>${spring.version}</version>
-		</dependency-->
-		<!--dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-expression</artifactId>
-			<version>${spring.version}</version
-		</dependency-->
+
 		<dependency>
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>

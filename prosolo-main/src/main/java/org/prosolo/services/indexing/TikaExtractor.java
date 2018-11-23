@@ -11,6 +11,6 @@ import org.prosolo.services.indexing.impl.ExtractedTikaDocument;
  */
 public interface  TikaExtractor {
 
-	ExtractedTikaDocument parseInputStream(InputStream inputStream);
+	//ExtractedTikaDocument parseInputStream(InputStream inputStream);
 
 }

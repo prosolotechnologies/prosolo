@@ -11,13 +11,13 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.apache.tika.config.TikaConfig;
+/*import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.Parser;*/
 import org.prosolo.services.indexing.TikaExtractor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("org.prosolo.services.indexing.TikaExtractor")
 public class TikaExtractorImpl implements TikaExtractor{
-	private static Logger logger = Logger.getLogger(TikaExtractorImpl.class);
+/*	private static Logger logger = Logger.getLogger(TikaExtractorImpl.class);
 	
 	private ExtractedTikaDocument parseInputStream(InputStream inputStream, TikaConfig tikaConfig, Metadata metadata) {
         SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
@@ -76,5 +76,5 @@ public ExtractedTikaDocument parseInputStream(InputStream inputStream){
 		e.printStackTrace();
 	}
     return doc;
-}
+}*/
 }
