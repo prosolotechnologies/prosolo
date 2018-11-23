@@ -20,8 +20,6 @@ public interface ESAdministration  extends Serializable{
 
 	void createNonrecreatableSystemIndexesIfNotExist() throws IndexingServiceNotAvailable;
 
-	void indexTrainingSet();
-
 	boolean createOrganizationIndexes(long organizationId) throws IndexingServiceNotAvailable;
 
 	boolean deleteOrganizationIndexes(long organizationId) throws IndexingServiceNotAvailable;

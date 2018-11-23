@@ -48,7 +48,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 	private static final int maxResults = 1000;
 	
-	@Inject private ESIndexer esIndexer;
+	//@Inject private ESIndexer esIndexer;
 	@Inject private UserGroupManager userGroupManager;
 	
 	private int setStart(int page, int limit){

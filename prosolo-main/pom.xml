@@ -21,8 +21,8 @@
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
 		<jetty.version>9.4.14.v20181114</jetty.version>
 
-		<jersey.version>1.19</jersey.version>
-		<jersey2.version>2.23</jersey2.version>
+		<!--jersey.version>1.19</jersey.version-->
+		<jersey2.version>2.27</jersey2.version>
 		<jaxrs.version>2.1.1</jaxrs.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<spring.version>4.3.8.RELEASE</spring.version>
@@ -59,59 +59,11 @@
 			<artifactId>boilerpipe-1.2.0</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		<!--dependency>
-			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging</artifactId>
-			<version>3.2.1.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging-spi</artifactId>
-			<version>2.2.0.CR1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging-annotations</artifactId>
-			<version>2.0.0.Alpha2</version>
-		</dependency-->
-		<!-- REST easy API dependencies -->
-		<!--dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>jaxrs-api</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-json-p-provider</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jackson-provider</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency-->
-		<!--dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.7</version>
-		</dependency-->
-		<!-- JSF dependencies -->
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
 			<version>${primefaces.version}</version>
 		</dependency>
-		<!-- <dependency> <groupId>com.sun.faces</groupId> <artifactId>jsf-api</artifactId>
-			<version>${jsf.version}</version> </dependency> <dependency> <groupId>com.sun.faces</groupId>
-			<artifactId>jsf-impl</artifactId> </dependency> -->
-		<!-- dependency> <groupId>javax.faces</groupId> <artifactId>javax.faces-api</artifactId>
-			<version>2.2</version> </dependency> <dependency> <groupId>org.glassfish</groupId>
-			<artifactId>javax.faces</artifactId> <version>${jsf.version}</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-api</artifactId>
@@ -126,7 +78,7 @@
 		<dependency>
 			<groupId>org.omnifaces</groupId>
 			<artifactId>omnifaces</artifactId>
-			<version>3.2</version>
+			<version>1.14.1</version>
 		</dependency>
 
 		<dependency>
@@ -134,23 +86,11 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>4.0.1</version>
 		</dependency>
-
-		<!--dependency>
-			<groupId>org.glassfish.web</groupId>
-			<artifactId>el-impl</artifactId>
-			<version>2.2.1-b05</version>
-		</dependency-->
-
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>jsr250-api</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!--dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-		</dependency-->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
@@ -376,31 +316,7 @@
 			<version>4.0.1</version>
 		</dependency>
 
-		<!-- Jersey REST services -->
-		<!-- comment start -->
-		<!--dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-core</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
 
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-servlet</artifactId>
-			<version>${jersey.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>${jersey.version}</version>
-		</dependency-->
 		
 		<!-- comment end -->
 		
@@ -409,7 +325,7 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>${jaxrs.version}</version>
 		</dependency>
-	<!-- Jersey 2.19 -->
+	<!-- Jersey 2.27 -->
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-servlet</artifactId>
@@ -428,6 +344,11 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.ext</groupId>
 			<artifactId>jersey-bean-validation</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.inject</groupId>
+			<artifactId>jersey-hk2</artifactId>
 			<version>${jersey2.version}</version>
 		</dependency>
 		<!-- jsoup - URL Scrapper -->
