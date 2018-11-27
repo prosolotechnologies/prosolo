@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.impl;
+package org.prosolo.services.user.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -24,17 +24,18 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserGroupData;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service("org.prosolo.services.nodes.UserGroupManager")
+@Service("org.prosolo.services.user.UserGroupManager")
 public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGroupManager {
 	
 	private static final long serialVersionUID = 8236179314516077700L;

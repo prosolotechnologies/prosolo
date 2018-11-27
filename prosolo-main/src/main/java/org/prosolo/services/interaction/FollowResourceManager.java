@@ -12,7 +12,7 @@ import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 
 import java.util.List;
 

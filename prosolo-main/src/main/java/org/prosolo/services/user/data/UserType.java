@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.user.data;
 
 /**
  * @author "Nikola Milikic"

@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.user.data;
 
 /**
  * @author stefanvuckovic
@@ -9,10 +9,18 @@ public class UserBasicData {
 
     private final long id;
     private final String fullName;
+    private final String avatar;
 
     public UserBasicData(long id, String fullName) {
         this.id = id;
         this.fullName = fullName;
+        this.avatar = null;
+    }
+
+    public UserBasicData(long id, String fullName, String avatar) {
+        this.id = id;
+        this.fullName = fullName;
+        this.avatar = avatar;
     }
 
     public String getFullName() {
@@ -21,5 +29,9 @@ public class UserBasicData {
 
     public long getId() {
         return id;
+    }
+
+    public String getAvatar() {
+        return avatar;
     }
 }

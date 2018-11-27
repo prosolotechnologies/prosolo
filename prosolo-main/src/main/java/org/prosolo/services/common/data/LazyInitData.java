@@ -15,6 +15,8 @@ public class LazyInitData<T> {
     private boolean initialized;
     private List<T> data;
 
+    public LazyInitData() {}
+
     public LazyInitData(long count) {
         this.count = count;
     }

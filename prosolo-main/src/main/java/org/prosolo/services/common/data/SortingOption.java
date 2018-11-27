@@ -1,4 +1,4 @@
-package org.prosolo.services.util;
+package org.prosolo.services.common.data;
 
 public enum SortingOption {
 	NONE,

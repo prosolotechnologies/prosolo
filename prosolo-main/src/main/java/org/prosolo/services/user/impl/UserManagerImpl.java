@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.impl;
+package org.prosolo.services.user.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -23,9 +23,11 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.UserCreationData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserCreationData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-@Service("org.prosolo.services.nodes.UserManager")
+@Service("org.prosolo.services.user.UserManager")
 public class UserManagerImpl extends AbstractManagerImpl implements UserManager {
 
 	private static final long serialVersionUID = 7695010428900106309L;
@@ -896,7 +898,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			User user = (User) persistence.currentManager()
 					.get(User.class, id);
-			return new UserData(user);
+			return user != null ? new UserData(user) : null;
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving user data");

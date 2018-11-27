@@ -109,49 +109,9 @@ public class UserCredentialReadOnlyBean implements Serializable {
 		return credentialData != null && credentialData.getStudent().getId() == loggedUser.getUserId();
 	}
 
-
 	/*
 	ACTIONS
 	 */
-
-	public void updateCredentialAssessmentsVisibility() {
-		try {
-			credentialManager.updateCredentialAssessmentsVisibility(credentialData.getTargetCredId(), credentialData.isCredentialAssessmentsDisplayed());
-			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " assessments visibility updated");
-			//reload data
-			retrieveUserCredentialDataWithExceptionHandling();
-		} catch (DbConnectionException e) {
-			credentialData.setCredentialAssessmentsDisplayed(!credentialData.isCredentialAssessmentsDisplayed());
-			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " assessments visibility");
-			logger.error("Error", e);
-		}
-	}
-
-	public void updateCompetenceAssessmentsVisibility() {
-		try {
-			credentialManager.updateCompetenceAssessmentsVisibility(credentialData.getTargetCredId(), credentialData.isCompetenceAssessmentsDisplayed());
-			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " assessments visibility updated");
-			//reload data
-			retrieveUserCredentialDataWithExceptionHandling();
-		} catch (DbConnectionException e) {
-			credentialData.setCompetenceAssessmentsDisplayed(!credentialData.isCompetenceAssessmentsDisplayed());
-			PageUtil.fireErrorMessage("Error updating " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " assessments visibility");
-			logger.error("Error", e);
-		}
-	}
-
-	public void updateEvidenceVisibility() {
-		try {
-			credentialManager.updateEvidenceVisibility(credentialData.getTargetCredId(), credentialData.isEvidenceDisplayed());
-			PageUtil.fireSuccessfulInfoMessage("Evidence visibility updated");
-			//reload data
-			retrieveUserCredentialDataWithExceptionHandling();
-		} catch (DbConnectionException e) {
-			credentialData.setEvidenceDisplayed(!credentialData.isEvidenceDisplayed());
-			PageUtil.fireErrorMessage("Error updating evidence visibility");
-			logger.error("Error", e);
-		}
-	}
 
 	/*
 	 * GETTERS / SETTERS

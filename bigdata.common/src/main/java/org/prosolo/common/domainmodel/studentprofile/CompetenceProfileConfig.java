@@ -2,10 +2,8 @@ package org.prosolo.common.domainmodel.studentprofile;
 
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Represents competence to be displayed on student's profile
@@ -23,6 +21,8 @@ public class CompetenceProfileConfig extends StudentProfileConfig {
     private CredentialProfileConfig credentialProfileConfig;
     private TargetCompetence1 targetCompetence;
 
+    private List<CompetenceEvidenceProfileConfig> evidenceProfileConfigs;
+    private List<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs;
 
     @ManyToOne (fetch = FetchType.LAZY)
     public CredentialProfileConfig getCredentialProfileConfig() {
@@ -40,5 +40,23 @@ public class CompetenceProfileConfig extends StudentProfileConfig {
 
     public void setTargetCompetence(TargetCompetence1 targetCompetence) {
         this.targetCompetence = targetCompetence;
+    }
+
+    @OneToMany(mappedBy = "competenceProfileConfig")
+    public List<CompetenceEvidenceProfileConfig> getEvidenceProfileConfigs() {
+        return evidenceProfileConfigs;
+    }
+
+    public void setEvidenceProfileConfigs(List<CompetenceEvidenceProfileConfig> evidenceProfileConfigs) {
+        this.evidenceProfileConfigs = evidenceProfileConfigs;
+    }
+
+    @OneToMany(mappedBy = "competenceProfileConfig")
+    public List<CompetenceAssessmentProfileConfig> getCompetenceAssessmentProfileConfigs() {
+        return competenceAssessmentProfileConfigs;
+    }
+
+    public void setCompetenceAssessmentProfileConfigs(List<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs) {
+        this.competenceAssessmentProfileConfigs = competenceAssessmentProfileConfigs;
     }
 }

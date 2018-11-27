@@ -26,9 +26,9 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private int progress;
 	
-	private boolean credentialAssessmentsDisplayed = true;
-	private boolean competenceAssessmentsDisplayed = true;
-	private boolean evidenceDisplayed = true;
+	private boolean credentialAssessmentsDisplayed;
+	private boolean competenceAssessmentsDisplayed;
+	private boolean evidenceDisplayed;
 	
 	private long nextCompetenceToLearnId;
 	

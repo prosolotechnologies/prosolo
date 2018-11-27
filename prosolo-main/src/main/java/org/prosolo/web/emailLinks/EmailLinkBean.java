@@ -8,7 +8,7 @@ import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParse
 import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
 import org.prosolo.services.email.emailLinks.data.LinkObjectData;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.util.page.PageUtil;

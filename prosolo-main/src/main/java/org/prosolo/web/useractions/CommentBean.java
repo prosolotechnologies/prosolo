@@ -9,7 +9,7 @@ import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.*;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.util.ICommentBean;
 import org.prosolo.web.util.HTMLUtil;

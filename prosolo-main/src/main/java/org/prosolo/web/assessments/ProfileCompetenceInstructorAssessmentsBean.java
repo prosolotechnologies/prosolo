@@ -1,23 +1,15 @@
 package org.prosolo.web.assessments;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.web.LoggedUserBean;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author stefanvuckovic

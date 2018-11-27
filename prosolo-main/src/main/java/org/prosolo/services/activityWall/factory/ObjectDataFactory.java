@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.stereotype.Component;
 

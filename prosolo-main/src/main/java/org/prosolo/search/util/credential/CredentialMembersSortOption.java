@@ -1,6 +1,6 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public enum CredentialMembersSortOption {
 

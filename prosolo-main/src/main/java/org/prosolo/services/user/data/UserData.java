@@ -1,8 +1,9 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.user.data;
 
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.AvatarUtils;
 

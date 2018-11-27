@@ -1,18 +1,17 @@
 package org.prosolo.web.reports;
 
+import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.user.data.UserData;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.nodes.data.UserData;
 
 /**
  * @author Zoran Jeremic Feb 1, 2014

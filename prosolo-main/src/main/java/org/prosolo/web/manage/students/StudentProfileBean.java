@@ -13,9 +13,10 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
@@ -132,7 +133,7 @@ public class StudentProfileBean implements Serializable {
 	private void initCredentials() {
 		try {
 			credentials = new ArrayList<>();
-			List<TargetCredentialData> userCredentials = credentialManager.getAllCredentials(decodedId, false);
+			List<TargetCredentialData> userCredentials = credentialManager.getAllCredentials(decodedId);
 			boolean first = true;
 
 			for (TargetCredentialData targetCred : userCredentials) {
@@ -235,8 +236,8 @@ public class StudentProfileBean implements Serializable {
 		if (userSocialNetworksData == null) {
 			try {
 				userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(student.getId());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
+			} catch (DbConnectionException e) {
+				logger.error("error", e);
 			}
 		}
 	}

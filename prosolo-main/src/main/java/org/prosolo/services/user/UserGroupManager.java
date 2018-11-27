@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes;
+package org.prosolo.services.user;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -12,8 +12,8 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserGroupData;
 
 import java.util.List;
 

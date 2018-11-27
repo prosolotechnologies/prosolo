@@ -1,6 +1,6 @@
 package org.prosolo.search.util.competences;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public enum CompetenceStudentsSortOption {
 

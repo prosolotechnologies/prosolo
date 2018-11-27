@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
@@ -147,7 +148,7 @@ public class ActivityViewBeanUser implements Serializable {
 						CommentsData commData = ad.getResultData().getResultComments();
 						commData.setNumberOfComments(numberOfComments);
 						
-						UserData ud = new UserData(loggedUser.getUserId(), loggedUser.getFullName(), 
+						UserData ud = new UserData(loggedUser.getUserId(), loggedUser.getFullName(),
 								loggedUser.getAvatar(), null, null, true);
 						ad.getResultData().setUser(ud);
 					}

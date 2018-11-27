@@ -13,7 +13,7 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.SessionCountBean;
 import org.prosolo.web.util.AvatarUtils;

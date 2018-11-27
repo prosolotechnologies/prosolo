@@ -7,7 +7,7 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.*;
 import org.prosolo.services.idencoding.IdEncoder;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.stereotype.Component;

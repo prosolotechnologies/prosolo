@@ -9,8 +9,8 @@ import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 
 import java.util.Collection;

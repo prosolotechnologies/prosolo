@@ -14,10 +14,10 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.SocialNetworksManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
@@ -81,8 +81,8 @@ public class ProfileSettingsBean implements Serializable {
 			userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(loggedUser.getUserId());
 
 			connectedToTwitter = oauthAccessTokenManager.hasOAuthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}

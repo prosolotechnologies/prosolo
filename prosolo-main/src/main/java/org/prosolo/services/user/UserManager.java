@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes;
+package org.prosolo.services.user;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -13,8 +13,8 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.UserCreationData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserCreationData;
+import org.prosolo.services.user.data.UserData;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -144,6 +144,13 @@ public interface UserManager extends AbstractManager {
 
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
+	/**
+	 * Returns user data for given user id or null if user does not exist.
+	 *
+	 * @param id
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	UserData getUserData(long id) throws DbConnectionException;
 
 	PaginatedResult<UserData> getPaginatedOrganizationUsersWithRoleNotAddedToUnit(

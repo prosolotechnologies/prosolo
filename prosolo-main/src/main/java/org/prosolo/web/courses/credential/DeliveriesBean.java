@@ -3,9 +3,8 @@ package org.prosolo.web.courses.credential;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.common.data.LazyInitData;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 
 import javax.inject.Inject;

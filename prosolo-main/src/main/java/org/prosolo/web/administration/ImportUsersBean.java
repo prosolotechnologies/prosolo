@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserImportData;
 import org.prosolo.web.validators.EmailValidatorUtil;

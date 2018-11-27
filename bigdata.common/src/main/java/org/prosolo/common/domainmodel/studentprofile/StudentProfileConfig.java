@@ -23,7 +23,7 @@ import javax.persistence.*;
         @UniqueConstraint(columnNames = {"credential_profile_config", "credential_assessment"}),
         @UniqueConstraint(columnNames = {"credential_profile_config", "target_competence"}),
         @UniqueConstraint(columnNames = {"competence_profile_config", "competence_assessment"}),
-        @UniqueConstraint(columnNames = {"competence_profile_config", "learning_evidence"})
+        @UniqueConstraint(columnNames = {"competence_profile_config", "competence_evidence"})
 })
 public abstract class StudentProfileConfig extends BaseEntity {
 
