@@ -151,7 +151,7 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 
 	/**
-	 * Load all credential assessments for the given user, but excluding the specific assessment id
+	 * Load all credential assessments for the given user
 	 *
 	 * @param assessedStudentId
 	 * @param credentialId

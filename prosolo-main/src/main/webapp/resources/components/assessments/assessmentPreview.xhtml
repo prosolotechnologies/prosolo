@@ -300,38 +300,35 @@
 							<h:panelGroup layout="block" id="otherAssessments" styleClass="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
 								   aria-expanded="true">
-									<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorFullName != null}">
-										<assessment:assessmentActorName
-												actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-												actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
-												blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
-												actorType="ASSESSOR"
-										/>
-									</ui:fragment>
-									<ui:fragment rendered="#{empty cc.attrs.bean.fullAssessmentData.assessorFullName}">
-										Default assessment
-									</ui:fragment>
 									<span class="arrowDown">arrowDown</span>
+									#{msg['label.assessment.type.'.concat(cc.attrs.bean.fullAssessmentData.type.name())]}<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId gt 0}">: </ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId gt 0}">
+										<assessment:assessmentActorName
+													actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+													actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+													blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+													actorType="ASSESSOR"/>
+									</ui:fragment>
 								</a>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
 									<ui:repeat value="#{cc.attrs.bean.otherAssessments}"
 											   var="otherAssessment">
-										<li><h:outputLink
+										<li>
+											<h:outputLink
 												value="#{applicationbean.domain}manage/credentials/#{otherAssessment.encodedCredentialId}/assessments/#{otherAssessment.encodedAssessmentId}">
-											<ui:fragment rendered="#{otherAssessment.assessorId gt 0}">
-												<assessment:assessmentActorName
-														actorId="#{otherAssessment.assessorId}"
-														actorFullName="#{otherAssessment.assessorFullName}"
-														blindAssessmentMode="#{otherAssessment.blindAssessmentMode}"
-														actorType="ASSESSOR"
-												/>
-											</ui:fragment>
-											<ui:fragment rendered="#{otherAssessment.assessorId eq 0}">
-												Default assessment
-											</ui:fragment>
-											<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
-												? 'Approved' : 'Pending'}</span>
-										</h:outputLink></li>
+												#{msg['label.assessment.type.'.concat(otherAssessment.type.name())]}<ui:fragment rendered="#{otherAssessment.type ne 'SELF_ASSESSMENT' and otherAssessment.assessorId gt 0}">: </ui:fragment>
+												<ui:fragment rendered="#{otherAssessment.type ne 'SELF_ASSESSMENT' and otherAssessment.assessorId gt 0}">
+													<assessment:assessmentActorName
+															actorId="#{otherAssessment.assessorId}"
+															actorFullName="#{otherAssessment.assessorFullName}"
+															blindAssessmentMode="#{otherAssessment.blindAssessmentMode}"
+															actorType="ASSESSOR"
+													/>
+												</ui:fragment>
+												<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
+													? 'Approved' : 'Pending'}</span>
+											</h:outputLink>
+										</li>
 									</ui:repeat>
 								</ul>
 							</h:panelGroup>
