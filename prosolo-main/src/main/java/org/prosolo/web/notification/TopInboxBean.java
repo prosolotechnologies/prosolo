@@ -29,7 +29,14 @@ public class TopInboxBean implements Serializable {
 	private static final long serialVersionUID = -6523581537208723654L;
 	protected static Logger logger = Logger.getLogger(TopInboxBean.class);
 
-	//store user id to make sure this bean is in sync with user currently logged in.
+	/*
+	store user id to make sure this bean is in sync with user currently logged in.
+
+	There is a small possibility for this bean to be out of sync when user makes two parallel
+	requests (one of them being reauthentication request: LTI, Login as) where with some unlucky timing this bean
+	could hold values for previously authenticated user but this is only theoretical possibility
+	and will probably never happen in practice.
+	 */
 	private long userId;
 	private int refreshRate = Settings.getInstance().config.application.messagesInboxRefreshRate;
 	private List<Long> unreadThreadIds;

@@ -32,7 +32,14 @@ public abstract class TopNotificationsBean1 {
 	private LinkedList<NotificationData> notificationData;
 	private int unreadNotificationsNo;
 
-	//store user id to make sure this bean is in sync with user currently logged in.
+	/*
+	store user id to make sure this bean is in sync with user currently logged in.
+
+	There is a small possibility for this bean to be out of sync when user makes two parallel
+	requests (one of them being reauthentication request: LTI, Login as) where with some unlucky timing this bean
+	could hold values for previously authenticated user but this is only theoretical possibility
+	and will probably never happen in practice.
+	 */
 	private long userId;
 
 	@PostConstruct
