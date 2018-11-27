@@ -1,13 +1,10 @@
 package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
-import org.prosolo.core.spring.security.successhandlers.CustomAuthenticationSuccessHandler;
-import org.prosolo.core.spring.security.LTICustomAuthenticationSuccessHandler;
+import org.prosolo.core.spring.security.successhandlers.DefaultProsoloAuthenticationSuccessHandler;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +15,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 
 @Service("org.prosolo.services.authentication.AuthenticationService")
@@ -31,23 +27,9 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Inject
 	private PasswordEncoder passwordEncoder;
 	@Inject
-	private CustomAuthenticationSuccessHandler authSuccessHandler;
+	private DefaultProsoloAuthenticationSuccessHandler authSuccessHandler;
 	@Inject
 	private UserDetailsService userDetailsService;
-	@Inject
-	private LTICustomAuthenticationSuccessHandler ltiCustomAuthenticationSuccessHandler;
-	
-	@Override
-	public void loginAs(HttpServletRequest req, HttpServletResponse resp, String email)
-			throws AuthenticationException {
-		try {
-			Authentication authentication = authenticateUser(email);
-			authSuccessHandler.onAuthenticationSuccess(req, resp, authentication);
-		} catch (Exception e) {
-			logger.error("Error while trying to login as user with email " + email + ";", e);
-			throw new AuthenticationException("Error while trying to authentication user");
-		}
-	}
 
 	@Override
 	public boolean loginUserOpenID(String email) {
@@ -56,24 +38,6 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 			return authentication.isAuthenticated();
 		} catch (org.springframework.security.core.AuthenticationException e) {
 			logger.error("Error", e);
-			return false;
-		}
-	}
-
-	@Override
-	public boolean loginUserLTI(HttpServletRequest request, HttpServletResponse response, String email) {
-		try {
-			Authentication authentication = authenticateUser(email);
-			if (authentication.isAuthenticated()) {
-				ltiCustomAuthenticationSuccessHandler.onAuthenticationSuccess(request, response, authentication);
-				return true;
-			} else {
-				return false;
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			SecurityContext securityContext = SecurityContextHolder.getContext();
-			securityContext.setAuthentication(null);
 			return false;
 		}
 	}

@@ -7,6 +7,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParser;
 import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
 import org.prosolo.services.email.emailLinks.data.LinkObjectData;
+import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -39,6 +40,7 @@ public class EmailLinkBean implements Serializable {
 	@Inject private LoggingNavigationBean loggingBean;
 	@Inject private EmailLinkContextParser emailLinkContextParser;
     @Inject private UserManager userManager;
+	@Inject private AccessResolver accessResolver;
 
 	private String userId;
 	private String context;
@@ -72,7 +74,7 @@ public class EmailLinkBean implements Serializable {
 						sessionId = session.getId();
 					}
 
-					loggingBean.logEmailNavigation(UserContextData.of(decodedUserId, organizationId, sessionId, lContextData), link);
+					loggingBean.logEmailNavigation(UserContextData.of(decodedUserId, organizationId, sessionId, accessResolver.findRemoteIPAddress(), lContextData), link);
 					
 					ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 				    externalContext.redirect(link);

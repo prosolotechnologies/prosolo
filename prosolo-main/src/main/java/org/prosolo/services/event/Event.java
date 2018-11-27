@@ -41,6 +41,8 @@ public class Event extends BaseEntity  {
 
 	private String sessionId;
 
+	private String ipAddress;
+
 	private Map<String, String> parameters;
 
 	private Class<? extends EventObserver>[] observersToExclude;
@@ -172,5 +174,12 @@ public class Event extends BaseEntity  {
 		return "Event [actorId=" + actorId + ", action=" + action + ", object="
 				+ object + ", target=" + target + ", parameters=" + parameters + "]";
 	}
-	
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
 }

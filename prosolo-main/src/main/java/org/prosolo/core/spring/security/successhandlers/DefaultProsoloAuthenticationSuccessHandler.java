@@ -1,18 +1,18 @@
 package org.prosolo.core.spring.security.successhandlers;
 
 import org.prosolo.core.spring.security.HomePageResolver;
+import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 @Component
-public class CustomAuthenticationSuccessHandler extends SessionDataInitializerSuccessHandler {
+public class DefaultProsoloAuthenticationSuccessHandler extends ProsoloAuthenticationSuccessHandler {
 
 	@Override
-	public void determineSuccessTargetUrl(HttpServletRequest request, Authentication authentication, Map<String, Object> sessionData) {
+	public void determineSuccessTargetUrl(HttpServletRequest request, Authentication authentication) {
 		if (authentication instanceof RememberMeAuthenticationToken) {
 			String uri = request.getRequestURI() +
 					(request.getQueryString() != null ? "?" + request.getQueryString() : "");
@@ -20,9 +20,9 @@ public class CustomAuthenticationSuccessHandler extends SessionDataInitializerSu
 			logger.info("Remember me login; URL: " + uri);
 			setDefaultTargetUrl(uri);
 		} else {
-			Long orgId = (Long) sessionData.get("organizationId");
-			long organizationId = orgId == null ? 0 : orgId;
-			String url = new HomePageResolver().getHomeUrl(organizationId);
+			ProsoloUserDetails user = (ProsoloUserDetails) authentication.getPrincipal();
+			Long orgId = user.getOrganizationId();
+			String url = new HomePageResolver().getHomeUrl(orgId);
 			logger.info("Standard login; URL: " + url);
 			setDefaultTargetUrl(url);
 		}

@@ -32,17 +32,25 @@ public abstract class TopNotificationsBean1 {
 	private LinkedList<NotificationData> notificationData;
 	private int unreadNotificationsNo;
 
+	//store user id to make sure this bean is in sync with user currently logged in.
+	private long userId;
+
 	@PostConstruct
-	public void init(){
+	public void init() {
+		this.userId = loggedUser.getUserId();
 		initNotificationsNo();
 		fetchNotifications();
 	}
 
+	private void refreshDataIfNotInSync() {
+		if (loggedUser.getUserId() != this.userId) {
+			init();
+		}
+	}
+
 	public void initNotificationsNo() {
 		logger.debug("Initializing unread notifications number.");
-
-		if (loggedUser.isLoggedIn())
-			this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(loggedUser.getUserId(), getSection());
+		this.unreadNotificationsNo = notificationsManager.getNumberOfUnreadNotifications(this.userId, getSection());
 	}
 
 	public void fetchNotifications() {
@@ -50,7 +58,7 @@ public abstract class TopNotificationsBean1 {
 
 		try {
 			this.notificationData = (LinkedList<NotificationData>) notificationsManager.getNotificationsForUser(
-					loggedUser.getUserId(), 0, notificationsLimit, null, loggedUser.getLocale(), getSection());
+					this.userId, 0, notificationsLimit, null, loggedUser.getLocale(), getSection());
 		} catch (DbConnectionException e) {
 			logger.error(e);
 		}
@@ -85,10 +93,12 @@ public abstract class TopNotificationsBean1 {
 	}
 
 	public LinkedList<NotificationData> getNotificationData() {
+		refreshDataIfNotInSync();
 		return notificationData;
 	}
 
 	public int getUnreadNotificationsNo() {
+		refreshDataIfNotInSync();
 		return unreadNotificationsNo;
 	}
 

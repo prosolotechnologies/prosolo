@@ -17,11 +17,14 @@ import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.prosolo.core.spring.security.authentication.loginas.LoginAsAuthenticationFailureHandler;
-import org.prosolo.core.spring.security.authentication.loginas.SessionClearingSwitchUserFilter;
+import org.prosolo.core.spring.security.authentication.loginas.ProsoloSwitchUserFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationProvider;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationSuccessHandler;
-import org.prosolo.core.spring.security.successhandlers.CustomAuthenticationSuccessHandler;
+import org.prosolo.core.spring.security.successhandlers.DefaultProsoloAuthenticationSuccessHandler;
+import org.prosolo.services.authentication.SessionAttributeManagementStrategy;
+import org.prosolo.services.authentication.annotations.AuthenticationChangeType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -63,7 +66,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
@@ -90,13 +92,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Inject
 	private UserDetailsService userDetailsService;
     @Inject
-    private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private DefaultProsoloAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
     private SAMLUserDetailsService samlUserDetailsService;
 	@Inject private LTIAuthenticationProvider ltiAuthenticationProvider;
 	@Inject private LTIAuthenticationSuccessHandler ltiAuthenticationSuccessHandler;
+	@Inject private ObjectProvider<SessionAttributeManagementStrategy> sessionAttributeManagementStrategyProvider;
 
 	private static final String LOGIN_PAGE = "/login";
+	public static final String REMEMBER_ME_KEY = "prosoloremembermekey";
 
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -343,11 +347,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 	private void addRememberMeSupport(HttpSecurity http) throws Exception {
-		String rememberMeKey = "prosoloremembermekey";
-		TokenBasedRememberMeServices rememberMeServices = rememberMeService(rememberMeKey);
+		TokenBasedRememberMeServices rememberMeServices = rememberMeService(REMEMBER_ME_KEY);
 		http
 			.rememberMe()
-			.rememberMeServices(rememberMeServices).key(rememberMeKey)
+			.rememberMeServices(rememberMeServices).key(REMEMBER_ME_KEY)
 			.authenticationSuccessHandler(authenticationSuccessHandler);
 			//.key("key").userDetailsService(userDetailsService).authenticationSuccessHandler(authenticationSuccessHandler)
 		//when remember me login is configured, it should be added as a logout handler because it adds cookie for logging user in
@@ -361,8 +364,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 			//if logout is configured, use built in method for deleting cookies
 			logoutConfigurer.deleteCookies(cookieToRemove);
 		}
-		//add cookie clearing handler to lti authentication filter
-		ltiAuthenticationFilter().addLogoutHandler(new CookieClearingLogoutHandler(cookieToRemove));
 	}
 
 	@Override
@@ -432,7 +433,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public TokenBasedRememberMeServices rememberMeService(String key){
+	public TokenBasedRememberMeServices rememberMeService(String key) {
 		TokenBasedRememberMeServices service = new TokenBasedRememberMeServices(key, userDetailsService);
 		
 		service.setCookieName("ProSolo");
@@ -868,7 +869,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Bean
 	public LTIAuthenticationFilter ltiAuthenticationFilter() {
-		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler);
+		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_SESSION_END));
 		String errorMsg = null;
 		try {
 			errorMsg = URLEncoder.encode("Error launching the external activity", "utf-8");
@@ -881,7 +882,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public Filter switchUserFilter() {
-		SessionClearingSwitchUserFilter filter = new SessionClearingSwitchUserFilter();
+		ProsoloSwitchUserFilter filter = new ProsoloSwitchUserFilter(sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_AUTHENTICATION_CHANGE));
 		filter.setSwitchUserUrl("/loginAs/login");
 		filter.setExitUserUrl("/loginAs/logout");
 		filter.setUserDetailsService(userDetailsService);

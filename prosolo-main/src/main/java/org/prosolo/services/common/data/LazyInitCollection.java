@@ -9,13 +9,13 @@ import java.util.List;
  * @date 2018-08-16
  * @since 1.2.0
  */
-public class LazyInitData<T> {
+public class LazyInitCollection<T> {
 
     private long count;
     private boolean initialized;
     private List<T> data;
 
-    public LazyInitData(long count) {
+    public LazyInitCollection(long count) {
         this.count = count;
     }
 
