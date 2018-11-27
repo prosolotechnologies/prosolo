@@ -1,25 +1,17 @@
 package org.prosolo.web.login;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.Logger;
 import org.prosolo.core.spring.security.HomePageResolver;
+import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.OpenIDBean;
-import org.prosolo.web.util.UserSessionUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
 
 @ManagedBean(name="loginbean")
 @Component("loginbean")
@@ -35,6 +27,7 @@ public class LoginBean implements Serializable{
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private OpenIDBean openIdBean;
+	@Inject private AuthenticatedUserService authenticatedUserService;
 	
 	
 	public void signinOpenidEDX(){
@@ -52,7 +45,7 @@ public class LoginBean implements Serializable{
 	}
 	
 	public boolean isUserLoggedIn() {
-		return UserSessionUtil.isUserLoggedIn();
+		return authenticatedUserService.isUserLoggedIn();
 	}
 	
 	

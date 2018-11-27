@@ -167,11 +167,11 @@ public class CommentBean implements Serializable, ICommentBean {
 
 			UserData creator = new UserData(
 					loggedUser.getUserId(),
-					loggedUser.getSessionData().getName(),
-					loggedUser.getSessionData().getLastName(),
-					loggedUser.getSessionData().getAvatar(),
-					loggedUser.getSessionData().getPosition(),
-					loggedUser.getSessionData().getEmail(),
+					loggedUser.getName(),
+					loggedUser.getLastName(),
+					loggedUser.getAvatar(),
+					loggedUser.getPosition(),
+					loggedUser.getEmail(),
 					true);
 
 			newComment.setCreator(creator);
