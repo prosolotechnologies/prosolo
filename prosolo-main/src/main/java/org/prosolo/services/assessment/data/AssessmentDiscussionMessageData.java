@@ -19,7 +19,7 @@ public class AssessmentDiscussionMessageData {
 	private long senderId;
 	private String encodedSenderId;
 	private String encodedMessageId;
-	private boolean senderInstructor;
+	private boolean senderAssessor;
 	private Date dateCreated;
 	private Date dateUpdated;
 	private String dateCreatedFormat;
@@ -44,12 +44,12 @@ public class AssessmentDiscussionMessageData {
 		this.senderFullName = senderFullName;
 	}
 
-	public boolean isSenderInstructor() {
-		return senderInstructor;
+	public boolean isSenderAssessor() {
+		return senderAssessor;
 	}
 
-	public void setSenderInstructor(boolean senderInstructor) {
-		this.senderInstructor = senderInstructor;
+	public void setSenderAssessor(boolean senderAssessor) {
+		this.senderAssessor = senderAssessor;
 	}
 
 	public static AssessmentDiscussionMessageData from(ActivityDiscussionMessage activityMessage, User assessor, UrlIdEncoder encoder) {
@@ -59,7 +59,7 @@ public class AssessmentDiscussionMessageData {
 		data.setEncodedSenderId(encoder.encodeId(activityMessage.getSender().getParticipant().getId()));
 		data.setSenderFullName(activityMessage.getSender().getParticipant().getName()+" "+activityMessage.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size120x120));
-		data.setSenderInstructor(isSenderAssessor(activityMessage, assessor));
+		data.setSenderAssessor(isSenderAssessor(activityMessage, assessor));
 		data.setSenderId(activityMessage.getSender().getParticipant().getId());
 		data.setDateCreated(activityMessage.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(activityMessage.getDateCreated()));
@@ -80,7 +80,7 @@ public class AssessmentDiscussionMessageData {
 		data.setEncodedSenderId(encoder.encodeId(message.getSender().getParticipant().getId()));
 		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
-		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setSenderAssessor(isSenderAssessor(message, assessorId));
 		data.setSenderId(message.getSender().getParticipant().getId());
 		data.setDateCreated(message.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
@@ -101,7 +101,7 @@ public class AssessmentDiscussionMessageData {
 		data.setEncodedSenderId(encoder.encodeId(message.getSender().getParticipant().getId()));
 		data.setSenderFullName(message.getSender().getParticipant().getName() + " " + message.getSender().getParticipant().getLastname());
 		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(message.getSender().getParticipant(), ImageFormat.size120x120));
-		data.setSenderInstructor(isSenderAssessor(message, assessorId));
+		data.setSenderAssessor(isSenderAssessor(message, assessorId));
 		data.setSenderId(message.getSender().getParticipant().getId());
 		data.setDateCreated(message.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(message.getDateCreated()));
