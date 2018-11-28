@@ -2,6 +2,7 @@ package org.prosolo.services.user.data.profile.factory;
 
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.studentprofile.CredentialProfileConfig;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.data.LazyInitData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.util.TimeUtil;
@@ -32,7 +33,7 @@ public class CredentialProfileDataFactory {
                 credentialProfileConfig.getTargetCredential().getCredential().getDescription(),
                 TimeUtil.getHoursAndMinutesInString(credentialProfileConfig.getTargetCredential().getCredential().getDuration()),
                 credentialProfileConfig.getTargetCredential().getCredential().getTags().stream().map(tag -> tag.getTitle()).collect(Collectors.toList()),
-                credentialProfileConfig.getTargetCredential().getDateFinished().getTime(),
+                DateUtil.getMillisFromDate(credentialProfileConfig.getTargetCredential().getDateFinished()),
                 new LazyInitData<>(),
                 new LazyInitData<>(),
                 categoryData);

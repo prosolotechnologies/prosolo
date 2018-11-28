@@ -65,7 +65,7 @@
                                         pt:data-toggle="modal"
                                         value="Add #{msg['label.credential']}"
                                         action="#{profileBean.prepareAddingCredentials()}"
-                                        update=":formAddCredentials:panelAddCredentials"
+                                        update="profileGrowl :formAddCredentials:panelAddCredentials"
                                         oncomplete="$('#addStandard').modal('show');">
                                 </p:commandLink>
                                 <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
@@ -165,7 +165,7 @@
                                                         value="Edit"
                                                         pt:data-toggle="modal"
                                                         action="#{profileBean.prepareEditCredential(cred)}"
-                                                        update="panelEditCredential"
+                                                        update="profileGrowl :formEditCredential:panelEditCredential"
                                                         oncomplete="$('#editStandard').modal('show')">
                                                 </p:commandLink>
                                             </li>
@@ -203,7 +203,7 @@
                                                     <td>
                                                         <utilcomp:convertTimeOutput
                                                                 millis="#{cred.dateCompleted}"
-                                                                format="rel"
+                                                                format="MMM DD, YYYY"
                                                         />
                                                     </td>
                                                 </tr>
@@ -565,342 +565,167 @@
                     <h:panelGroup id="panelEditCredential" layout="block" styleClass="modal-content">
                         <div class="modal-header alignLeft">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title">#{profileBean.credentialForEdit.title}</h2>
+                            <h2 class="modal-title">#{not empty profileBean.credentialForEdit ? profileBean.credentialForEdit.title : 'Error occurred'}</h2>
                         </div>
                         <div class="modal-body alignLeft">
-                            <p>Select approved #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short']} or #{msg['label.assessment.type.SELF_ASSESSMENT.short']} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
+                            <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
+                                <p>Select approved #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short'].toLowerCase()} or #{msg['label.assessment.type.SELF_ASSESSMENT.short'].toLowerCase()} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
 
-                            <div class="standardInModal bottom30">
-                                <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
-                                    <div class="checkbox checkLine">
-                                        <input type="checkbox" id="checkCredentialAssessments#{status.index}"></input>
-                                        <label for="checkCredentialAssessments#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
-                                    </div>
-                                    <div class="assessmentsListInModal">
-                                        <ui:repeat value="#{assessmentType.assessments}" var="assessment">
-                                            <div class="assessmentItem">
-                                                <div class="assessmentLeft">
-                                                    <div class="subIndicator"></div>
-                                                    <div class="checkbox">
-                                                        <h:selectBooleanCheckbox id="checkCredentialAssessment#{status.index}" value="#{assessment.selected}"/>
-                                                        <label for="checkCredentialAssessment#{status.index}"></label>
-                                                    </div>
-                                                    <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
-                                                        <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
-                                                    </div>
-                                                    <div class="user32">
-                                                        <assessment:assessmentActorAvatar
-                                                                actorId="#{assessment.data.userBasicData.id}"
-                                                                avatarUrl="#{assessment.data.userBasicData.avatar}"
-                                                                actorFullName="#{assessment.data.userBasicData.fullName}"
-                                                                blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                actorType="ASSESSOR"
-                                                        />
-                                                        <h3>
-                                                            <assessment:assessmentActorName
+                                <div class="standardInModal bottom30">
+                                    <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
+                                        <div class="checkbox checkLine">
+                                            <input type="checkbox" id="checkCredentialAssessments#{status.index}"></input>
+                                            <label for="checkCredentialAssessments#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                        </div>
+                                        <div class="assessmentsListInModal">
+                                            <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
+                                                <div class="assessmentItem">
+                                                    <div class="assessmentLeft">
+                                                        <div class="subIndicator"></div>
+                                                        <div class="checkbox">
+                                                            <h:selectBooleanCheckbox
+                                                                    id="checkCredentialAssessment"
+                                                                    value="#{assessment.selected}"
+                                                                    pt:data-check-id="checkCredentialAssessments#{status.index}"/>
+                                                            <h:outputLabel for="checkCredentialAssessment"/>
+                                                        </div>
+                                                        <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
+                                                            <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                        </div>
+                                                        <div class="user32">
+                                                            <assessment:assessmentActorAvatar
                                                                     actorId="#{assessment.data.userBasicData.id}"
+                                                                    avatarUrl="#{assessment.data.userBasicData.avatar}"
                                                                     actorFullName="#{assessment.data.userBasicData.fullName}"
                                                                     blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
                                                                     actorType="ASSESSOR"
                                                             />
-                                                        </h3>
+                                                            <h3>
+                                                                <assessment:assessmentActorName
+                                                                        actorId="#{assessment.data.userBasicData.id}"
+                                                                        actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                        blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                        actorType="ASSESSOR"
+                                                                />
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="assessmentRight">
+                                                        <utilcomp:convertTimeOutput
+                                                                millis="#{assessment.data.dateApproved}"
+                                                                format="MMM DD, YYYY"
+                                                        />
                                                     </div>
                                                 </div>
-                                                <div class="assessmentRight">
-                                                    <utilcomp:convertTimeOutput
-                                                            millis="#{assessment.data.dateApproved}"
-                                                            format="rel"
-                                                    />
-                                                </div>
+                                            </ui:repeat>
+                                        </div>
+                                        <script>
+                                            bindCheckAllOnclick('checkCredentialAssessments#{status.index}');
+                                        </script>
+                                    </ui:repeat>
+                                </div>
+
+                                <h2>#{msg['label.competence.plural']}</h2>
+
+                                <p>Select evidence and approved assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
+
+                                <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
+                                    <div class="standardInModal bottom30">
+                                        <h3>#{comp.title}</h3>
+                                        <ui:fragment rendered="#{comp.learningPathType eq 'EVIDENCE'}">
+                                            <div class="checkbox checkLine">
+                                                <input type="checkbox" id="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}"></input>
+                                                <label for="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}">Evidence:</label>
                                             </div>
+                                            <div class="evidencesListInModal">
+                                                <ui:repeat value="#{comp.evidence}" var="evidence" varStatus="statusEvidence">
+                                                    <div class="evidence">
+                                                        <div class="evidenceLeft #{evidence.data.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(evidence.data.url)}">
+                                                            <div class="subIndicator"></div>
+                                                            <div class="checkbox">
+                                                                <h:selectBooleanCheckbox
+                                                                        id="checkEvidence"
+                                                                        value="#{evidence.selected}"
+                                                                        pt:data-check-id="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}"
+                                                                />
+                                                                <h:outputLabel for="checkEvidence"/>
+                                                            </div>
+                                                            <div class="icon iconType"></div>
+                                                            <h3>#{evidence.data.title}</h3>
+                                                        </div>
+                                                        <div class="evidenceRight">
+                                                            <utilcomp:convertTimeOutput
+                                                                    millis="#{evidence.data.dateAttached}"
+                                                                    format="MMM DD, YYYY"/>
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        bindCheckAllOnclick('checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}');
+                                                    </script>
+                                                </ui:repeat>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
+                                            <div class="checkbox checkLine">
+                                                <input type="checkbox" id="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}"></input>
+                                                <label for="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                            </div>
+                                            <div class="assessmentsListInModal">
+                                                <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
+                                                    <div class="assessmentItem">
+                                                        <div class="assessmentLeft">
+                                                            <div class="subIndicator"></div>
+                                                            <div class="checkbox">
+                                                                <h:selectBooleanCheckbox
+                                                                        id="checkCompetenceAssessment"
+                                                                        value="#{assessment.selected}"
+                                                                        pt:data-check-id="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}"/>
+                                                                <h:outputLabel for="checkCompetenceAssessment"/>
+                                                            </div>
+                                                            <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
+                                                                <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                            </div>
+                                                            <div class="user32">
+                                                                <assessment:assessmentActorAvatar
+                                                                        actorId="#{assessment.data.userBasicData.id}"
+                                                                        avatarUrl="#{assessment.data.userBasicData.avatar}"
+                                                                        actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                        blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                        actorType="ASSESSOR"
+                                                                />
+                                                                <h3>
+                                                                    <assessment:assessmentActorName
+                                                                            actorId="#{assessment.data.userBasicData.id}"
+                                                                            actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                            blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                            actorType="ASSESSOR"
+                                                                    />
+                                                                </h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="assessmentRight">
+                                                            <utilcomp:convertTimeOutput
+                                                                    millis="#{assessment.data.dateApproved}"
+                                                                    format="MMM DD, YYYY"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </ui:repeat>
+                                            </div>
+                                            <script>
+                                                bindCheckAllOnclick('checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}');
+                                            </script>
                                         </ui:repeat>
-                                        <div class="assessmentItem">
-                                            <div class="assessmentLeft">
-                                                <div class="subIndicator"></div>
-                                                <div class="checkbox">
-                                                    <input type="checkbox" id="checkAssessment02"></input>
-                                                    <label for="checkAssessment02"></label>
-                                                </div>
-                                                <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                    <div class="star"></div>
-                                                </div>
-                                                <div class="user32">
-                                                    <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                    <h3><a href="#">Gustavo Fring</a></h3>
-                                                </div>
-                                            </div>
-                                            <div class="assessmentRight">
-                                                Sep 24, 2017
-                                            </div>
-                                        </div>
                                     </div>
-                                    <script>
-
-                                    </script>
                                 </ui:repeat>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkPeerAssessments"></input>
-                                    <label for="checkPeerAssessments">Peer assessments:</label>
-                                </div>
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment03"></input>
-                                                <label for="checkAssessment03"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment04"></input>
-                                                <label for="checkAssessment04"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2>#{msg['label.competence.plural']}</h2>
-
-                            <p>Select #{msg['label.competence.plural'].toLowerCase()}, approved assessments and evidence you want to be displayed on your profile:</p>
-
-                            <div class="standardInModal bottom30">
-                                <h3>1.1 Physical, social and intellectual development and characteristics of students</h3>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkPeacesOfEvidence"></input>
-                                    <label for="checkPeacesOfEvidence">Evidence:</label>
-                                </div>
-                                <div class="evidencesListInModal">
-                                    <div class="evidence">
-                                        <div class="evidenceLeft evidenceDoc">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkEvidence01"></input>
-                                                <label for="checkEvidence01"></label>
-                                            </div>
-                                            <div class="icon iconType"></div>
-                                            <h3>Quisque a nisl sed lacus laoreet dapibus</h3>
-                                        </div>
-                                        <div class="evidenceRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="evidence">
-                                        <div class="evidenceLeft evidenceArchive">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkEvidence02"></input>
-                                                <label for="checkEvidence02"></label>
-                                            </div>
-                                            <div class="icon iconType"></div>
-                                            <h3>Quisque a nisl sed lacus laoreet dapibus</h3>
-                                        </div>
-                                        <div class="evidenceRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkInstructorAssessments"></input>
-                                    <label for="checkInstructorAssessments">Instructor assessments:</label>
-                                </div>
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment01"></input>
-                                                <label for="checkAssessment01"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment02"></input>
-                                                <label for="checkAssessment02"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkPeerAssessments"></input>
-                                    <label for="checkPeerAssessments">Peer assessments:</label>
-                                </div>
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment03"></input>
-                                                <label for="checkAssessment03"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment04"></input>
-                                                <label for="checkAssessment04"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="standardInModal bottom30">
-                                <h3>1.2 Understand how students learn</h3>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkPeacesOfEvidence"></input>
-                                    <label for="checkPeacesOfEvidence">Evidence:</label>
-                                </div>
-                                <div class="evidencesListInModal">
-                                    <div class="evidence">
-                                        <div class="evidenceLeft evidenceDoc">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkEvidence01"></input>
-                                                <label for="checkEvidence01"></label>
-                                            </div>
-                                            <div class="icon iconType"></div>
-                                            <h3>Quisque a nisl sed lacus laoreet dapibus</h3>
-                                        </div>
-                                        <div class="evidenceRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="evidence">
-                                        <div class="evidenceLeft evidenceArchive">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkEvidence02"></input>
-                                                <label for="checkEvidence02"></label>
-                                            </div>
-                                            <div class="icon iconType"></div>
-                                            <h3>Quisque a nisl sed lacus laoreet dapibus</h3>
-                                        </div>
-                                        <div class="evidenceRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="checkbox checkLine">
-                                    <input type="checkbox" id="checkInstructorAssessments"></input>
-                                    <label for="checkInstructorAssessments">Instructor assessments:</label>
-                                </div>
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment01"></input>
-                                                <label for="checkAssessment01"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="subIndicator"></div>
-                                            <div class="checkbox">
-                                                <input type="checkbox" id="checkAssessment02"></input>
-                                                <label for="checkAssessment02"></label>
-                                            </div>
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            </ui:fragment>
                         </div>
-                        <div class="modal-footer alignLeft">
-                            <a href="#" class="btn btn-green">Done</a>
-                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                        </div>
+                        <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
+                            <div class="modal-footer alignLeft">
+                                <a href="#" class="btn btn-green">Done</a>
+                                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            </div>
+                        </ui:fragment>
                     </h:panelGroup>
                 </div>
             </div>

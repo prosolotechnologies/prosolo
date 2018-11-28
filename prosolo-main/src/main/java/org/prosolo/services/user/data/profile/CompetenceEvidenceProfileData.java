@@ -1,5 +1,7 @@
 package org.prosolo.services.user.data.profile;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 
@@ -12,6 +14,8 @@ import java.util.Set;
  * @date 2018-11-15
  * @since 1.2.0
  */
+@AllArgsConstructor
+@Getter
 public class CompetenceEvidenceProfileData implements Serializable {
 
     private static final long serialVersionUID = -6875110248347473987L;
@@ -20,13 +24,8 @@ public class CompetenceEvidenceProfileData implements Serializable {
     private final long evidenceId;
     private final String title;
     private final LearningEvidenceType type;
+    private final String url;
     //date when evidence is added to the competence
     private final long dateAttached;
 
-    public CompetenceEvidenceProfileData(long evidenceId, String title, LearningEvidenceType type, long dateAttached) {
-        this.evidenceId = evidenceId;
-        this.title = title;
-        this.type = type;
-        this.dateAttached = dateAttached;
-    }
 }

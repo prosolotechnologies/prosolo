@@ -401,7 +401,7 @@ public interface AssessmentManager {
 	 */
 	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
 
-	List<CompetenceAssessment> getCompetenceAssessments(long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
+	List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
 
 	/**
 	 * Returns grade summary for competence assessment

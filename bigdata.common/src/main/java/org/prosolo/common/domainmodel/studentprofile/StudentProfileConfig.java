@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.studentprofile;
 
+import org.hibernate.annotations.DiscriminatorOptions;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -25,6 +26,7 @@ import javax.persistence.*;
         @UniqueConstraint(columnNames = {"competence_profile_config", "competence_assessment"}),
         @UniqueConstraint(columnNames = {"competence_profile_config", "competence_evidence"})
 })
+@DiscriminatorOptions(force = true)
 public abstract class StudentProfileConfig extends BaseEntity {
 
     private static final long serialVersionUID = 5483843339820996516L;

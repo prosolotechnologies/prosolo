@@ -3,6 +3,7 @@ package org.prosolo.services.user.data.profile.factory;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.studentprofile.*;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.user.data.factory.UserBasicDataFactory;
 import org.prosolo.services.user.data.parameterobjects.CompetenceAssessmentWithGradeSummaryData;
@@ -36,10 +37,10 @@ public class CredentialProfileOptionsDataFactory {
                 getCredentialAssessmentsProfileOptionsData(
                         targetCredential.getCredential(),
                         param.getAssessments(),
-                        credentialProfileConfig.isPresent() ? credentialProfileConfig.get().getCredentialAssessmentProfileConfigs() : Collections.emptyList()));
+                        credentialProfileConfig.isPresent() ? credentialProfileConfig.get().getCredentialAssessmentProfileConfigs() : Collections.emptySet()));
     }
 
-    private List<AssessmentByTypeProfileOptionsData> getCredentialAssessmentsProfileOptionsData(Credential1 credential, List<CredentialAssessmentWithGradeSummaryData> assessments, List<CredentialAssessmentProfileConfig> assessmentProfileConfigs) {
+    private List<AssessmentByTypeProfileOptionsData> getCredentialAssessmentsProfileOptionsData(Credential1 credential, Collection<CredentialAssessmentWithGradeSummaryData> assessments, Collection<CredentialAssessmentProfileConfig> assessmentProfileConfigs) {
         List<AssessmentByTypeProfileOptionsData> assessmentsByTypeProfileOptions = new ArrayList<>();
         Map<AssessmentType, List<CredentialAssessmentWithGradeSummaryData>> groupedAssessments =
                 assessments
@@ -67,7 +68,7 @@ public class CredentialProfileOptionsDataFactory {
         return new AssessmentProfileData(
                 userBasicDataFactory.getBasicUserData(ca.getCredentialAssessment().getAssessor()),
                 blindAssessmentMode,
-                ca.getCredentialAssessment().getLastAssessment().getTime(),
+                DateUtil.getMillisFromDate(ca.getCredentialAssessment().getLastAssessment()),
                 ca.getGradeSummary());
     }
 
@@ -85,17 +86,20 @@ public class CredentialProfileOptionsDataFactory {
     }
 
     private CompetenceProfileOptionsData getCompetenceProfileOptionsData(TargetCompetence1 tc, Collection<CredentialAssessmentConfig> credentialAssessmentConfigs, List<CompetenceAssessmentWithGradeSummaryData> assessments, Optional<CompetenceProfileConfig> profileConfig) {
-        List<SelectableData<CompetenceEvidenceProfileData>> evidence = getCompetenceEvidenceProfileOptionsData(
-                tc.getEvidences(),
-                profileConfig.isPresent() ? profileConfig.get().getEvidenceProfileConfigs() : Collections.emptyList());
+        List<SelectableData<CompetenceEvidenceProfileData>> evidence = tc.getCompetence().getLearningPathType() == LearningPathType.EVIDENCE
+                ? getCompetenceEvidenceProfileOptionsData(
+                        tc.getEvidences(),
+                        profileConfig.isPresent() ? profileConfig.get().getEvidenceProfileConfigs() : Collections.emptyList())
+                : Collections.emptyList();
         List<AssessmentByTypeProfileOptionsData> assessmentsByType = getCompetenceAssessmentsProfileOptionsData(
                 credentialAssessmentConfigs,
                 assessments,
-                profileConfig.isPresent() ? profileConfig.get().getCompetenceAssessmentProfileConfigs() : Collections.emptyList());
+                profileConfig.isPresent() ? profileConfig.get().getCompetenceAssessmentProfileConfigs() : Collections.emptySet());
 
         return new CompetenceProfileOptionsData(
                 tc.getId(),
                 tc.getCompetence().getTitle(),
+                tc.getCompetence().getLearningPathType(),
                 evidence,
                 assessmentsByType);
     }
@@ -108,13 +112,14 @@ public class CredentialProfileOptionsDataFactory {
                         ce.getEvidence().getId(),
                         ce.getEvidence().getTitle(),
                         ce.getEvidence().getType(),
-                        ce.getDateCreated().getTime()),
+                        ce.getEvidence().getUrl(),
+                        DateUtil.getMillisFromDate(ce.getDateCreated())),
                     evidenceProfileConfigs.stream().filter(conf -> conf.getCompetenceEvidence().getId() == ce.getId()).findFirst().isPresent()));
         }
         return evidence;
     }
 
-    private List<AssessmentByTypeProfileOptionsData> getCompetenceAssessmentsProfileOptionsData(Collection<CredentialAssessmentConfig> credentialAssessmentConfigs, List<CompetenceAssessmentWithGradeSummaryData> assessments, List<CompetenceAssessmentProfileConfig> assessmentProfileConfigs) {
+    private List<AssessmentByTypeProfileOptionsData> getCompetenceAssessmentsProfileOptionsData(Collection<CredentialAssessmentConfig> credentialAssessmentConfigs, Collection<CompetenceAssessmentWithGradeSummaryData> assessments, Collection<CompetenceAssessmentProfileConfig> assessmentProfileConfigs) {
         List<AssessmentByTypeProfileOptionsData> assessmentsByTypeProfileOptions = new ArrayList<>();
         Map<AssessmentType, List<CompetenceAssessmentWithGradeSummaryData>> groupedAssessments =
                 assessments
@@ -146,7 +151,7 @@ public class CredentialProfileOptionsDataFactory {
         return new AssessmentProfileData(
                 userBasicDataFactory.getBasicUserData(ca.getCompetenceAssessment().getAssessor()),
                 blindAssessmentMode,
-                ca.getCompetenceAssessment().getLastAssessment().getTime(),
+                DateUtil.getMillisFromDate(ca.getCompetenceAssessment().getLastAssessment()),
                 ca.getGradeSummary());
     }
 }

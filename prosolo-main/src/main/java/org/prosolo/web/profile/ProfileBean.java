@@ -148,6 +148,7 @@ public class ProfileBean {
 		try {
 			credentialForEdit = studentProfileManager.getCredentialProfileOptions(credentialProfileData.getTargetCredentialId());
 		} catch (Exception e) {
+			credentialForEdit = null;
 			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
@@ -170,7 +171,7 @@ public class ProfileBean {
 
 				this.message = "";
 
-				PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Your message is sent");
+				PageUtil.fireSuccessfulInfoMessage("Your message is sent");
 			} catch (Exception e) {
 				logger.error(e);
 			}

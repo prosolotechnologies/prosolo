@@ -4042,18 +4042,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						break;
 				}
 			}
-			return String.join(", ", orderBy);
+			return "order by " + String.join(", ", orderBy);
 		}
 		return "";
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessment> getCompetenceAssessments(long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
+	public List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
 		try {
 			String query =
-					"SELECT ca FROM CompetenceAssessment ca " +
-					"WHERE ca.competence.id = :compId " +
+					"SELECT ca FROM CredentialCompetenceAssessment cca " +
+					"INNER JOIN cca.competenceAssessment ca " +
+					"INNER JOIN cca.credentialAssessment credA " +
+					"WHERE credA.targetCredential.id = :tcId " +
+					"AND ca.competence.id = :compId " +
 					"AND ca.student.id = :userId ";
 			if (loadOnlyApproved) {
 				query += "AND ca.approved is TRUE ";
@@ -4062,6 +4065,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return (List<CompetenceAssessment>) persistence.currentManager()
 					.createQuery(query)
+					.setLong("tcId", targetCredId)
 					.setLong("compId", competenceId)
 					.setLong("userId", userId)
 					.list();

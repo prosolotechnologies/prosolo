@@ -3,7 +3,7 @@ package org.prosolo.common.domainmodel.studentprofile;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents competence to be displayed on student's profile
@@ -21,8 +21,8 @@ public class CompetenceProfileConfig extends StudentProfileConfig {
     private CredentialProfileConfig credentialProfileConfig;
     private TargetCompetence1 targetCompetence;
 
-    private List<CompetenceEvidenceProfileConfig> evidenceProfileConfigs;
-    private List<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs;
+    private Set<CompetenceEvidenceProfileConfig> evidenceProfileConfigs;
+    private Set<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs;
 
     @ManyToOne (fetch = FetchType.LAZY)
     public CredentialProfileConfig getCredentialProfileConfig() {
@@ -43,20 +43,20 @@ public class CompetenceProfileConfig extends StudentProfileConfig {
     }
 
     @OneToMany(mappedBy = "competenceProfileConfig")
-    public List<CompetenceEvidenceProfileConfig> getEvidenceProfileConfigs() {
+    public Set<CompetenceEvidenceProfileConfig> getEvidenceProfileConfigs() {
         return evidenceProfileConfigs;
     }
 
-    public void setEvidenceProfileConfigs(List<CompetenceEvidenceProfileConfig> evidenceProfileConfigs) {
+    public void setEvidenceProfileConfigs(Set<CompetenceEvidenceProfileConfig> evidenceProfileConfigs) {
         this.evidenceProfileConfigs = evidenceProfileConfigs;
     }
 
     @OneToMany(mappedBy = "competenceProfileConfig")
-    public List<CompetenceAssessmentProfileConfig> getCompetenceAssessmentProfileConfigs() {
+    public Set<CompetenceAssessmentProfileConfig> getCompetenceAssessmentProfileConfigs() {
         return competenceAssessmentProfileConfigs;
     }
 
-    public void setCompetenceAssessmentProfileConfigs(List<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs) {
+    public void setCompetenceAssessmentProfileConfigs(Set<CompetenceAssessmentProfileConfig> competenceAssessmentProfileConfigs) {
         this.competenceAssessmentProfileConfigs = competenceAssessmentProfileConfigs;
     }
 }

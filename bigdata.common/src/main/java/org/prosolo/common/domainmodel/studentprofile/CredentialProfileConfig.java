@@ -3,7 +3,7 @@ package org.prosolo.common.domainmodel.studentprofile;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents credential to be displayed on student's profile
@@ -27,11 +27,11 @@ public class CredentialProfileConfig extends StudentProfileConfig {
     us to define unique constraint only if specific condition is met.
      */
     private TargetCredential1 credentialProfileConfigTargetCredential;
-    private List<CompetenceProfileConfig> competenceProfileConfigs;
-    private List<CredentialAssessmentProfileConfig> credentialAssessmentProfileConfigs;
+    private Set<CompetenceProfileConfig> competenceProfileConfigs;
+    private Set<CredentialAssessmentProfileConfig> credentialAssessmentProfileConfigs;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(unique = false)
+    @JoinColumn(unique = true)
     public TargetCredential1 getCredentialProfileConfigTargetCredential() {
         return credentialProfileConfigTargetCredential;
     }
@@ -41,20 +41,20 @@ public class CredentialProfileConfig extends StudentProfileConfig {
     }
 
     @OneToMany(mappedBy = "credentialProfileConfig")
-    public List<CompetenceProfileConfig> getCompetenceProfileConfigs() {
+    public Set<CompetenceProfileConfig> getCompetenceProfileConfigs() {
         return competenceProfileConfigs;
     }
 
-    public void setCompetenceProfileConfigs(List<CompetenceProfileConfig> competenceProfileConfigs) {
+    public void setCompetenceProfileConfigs(Set<CompetenceProfileConfig> competenceProfileConfigs) {
         this.competenceProfileConfigs = competenceProfileConfigs;
     }
 
-    @OneToMany(mappedBy = "credentialProfileConfig")
-    public List<CredentialAssessmentProfileConfig> getCredentialAssessmentProfileConfigs() {
+    @OneToMany(mappedBy = "credentialProfileConfig", targetEntity = CredentialAssessmentProfileConfig.class)
+    public Set<CredentialAssessmentProfileConfig> getCredentialAssessmentProfileConfigs() {
         return credentialAssessmentProfileConfigs;
     }
 
-    public void setCredentialAssessmentProfileConfigs(List<CredentialAssessmentProfileConfig> credentialAssessmentProfileConfigs) {
+    public void setCredentialAssessmentProfileConfigs(Set<CredentialAssessmentProfileConfig> credentialAssessmentProfileConfigs) {
         this.credentialAssessmentProfileConfigs = credentialAssessmentProfileConfigs;
     }
 }

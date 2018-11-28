@@ -1,12 +1,10 @@
 package org.prosolo.services.user.impl;
 
-import com.google.api.client.auth.oauth2.Credential;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
@@ -104,7 +102,9 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
             for (Long id : idsOfTargetCredentialsToAdd) {
                 CredentialProfileConfig config = new CredentialProfileConfig();
                 config.setStudent((User) persistence.currentManager().load(User.class, userId));
-                config.setTargetCredential((TargetCredential1) persistence.currentManager().load(TargetCredential1.class, id));
+                TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, id);
+                config.setTargetCredential(tc);
+                config.setCredentialProfileConfigTargetCredential(tc);
                 saveEntity(config);
                 saveCompetenceProfileConfigForCredentialCompetences(config);
             }
@@ -211,7 +211,8 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 Optional<CompetenceProfileConfig> competenceProfileConfig = credProfileConfigOpt.isPresent()
                         ? credProfileConfigOpt.get().getCompetenceProfileConfigs().stream().filter(conf -> conf.getTargetCompetence().getId() == tc.getId()).findFirst()
                         : Optional.empty();
-                List<CompetenceAssessment> competenceAssessments = assessmentManager.getCompetenceAssessments(
+                List<CompetenceAssessment> competenceAssessments = assessmentManager.getCredentialCompetenceAssessments(
+                        targetCredentialId,
                         tc.getCompetence().getId(),
                         tc.getUser().getId(),
                         true,
