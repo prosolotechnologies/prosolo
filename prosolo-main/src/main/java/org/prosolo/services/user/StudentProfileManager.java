@@ -1,10 +1,12 @@
 package org.prosolo.services.user;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
+import org.prosolo.services.user.data.profile.CredentialProfileOptionsBasicData;
 import org.prosolo.services.user.data.profile.CredentialProfileOptionsData;
 import org.prosolo.services.user.data.profile.StudentProfileData;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,4 +63,14 @@ public interface StudentProfileManager extends AbstractManager {
      * @return
      */
     CredentialProfileOptionsData getCredentialProfileOptions(long targetCredentialId);
+
+    /**
+     * Updates credential profile options based on {@code profileOptionsData}
+     *
+     * @param profileOptionsData
+     *
+     * @throws DbConnectionException
+     * @throws StaleDataException when data changed in the meantime (from another browser tab for example) and update is not performed
+     */
+    void updateCredentialProfileOptions(CredentialProfileOptionsBasicData profileOptionsData);
 }

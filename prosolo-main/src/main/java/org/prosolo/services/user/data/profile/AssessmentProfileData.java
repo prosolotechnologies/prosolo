@@ -19,6 +19,7 @@ public class AssessmentProfileData implements Serializable {
 
     private static final long serialVersionUID = -3608777079207808629L;
 
+    private final long assessmentId;
     private final UserBasicData userBasicData;
     private final BlindAssessmentMode blindAssessmentMode;
     private final long dateApproved;

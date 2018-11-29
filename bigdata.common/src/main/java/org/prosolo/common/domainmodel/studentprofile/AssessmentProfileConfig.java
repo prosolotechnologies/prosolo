@@ -15,9 +15,9 @@ public abstract class AssessmentProfileConfig extends StudentProfileConfig {
     private static final long serialVersionUID = 6538772167089269061L;
 
     /*
-        the following two values are normalized on agreed scale because we have different grading methods and
-        we need to be able to threat them the same and compare them
-         */
+    the following two values are normalized on agreed scale because we have different grading methods and
+    we need to be able to threat them the same and compare them
+     */
     //grade student received
     private int grade;
     //max grade for the resource

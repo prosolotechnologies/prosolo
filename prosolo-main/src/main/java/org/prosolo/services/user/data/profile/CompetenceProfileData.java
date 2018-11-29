@@ -20,7 +20,6 @@ public class CompetenceProfileData implements Serializable {
 
     private final long id;
     private final String title;
-    private final LearningPathType learningPathType;
     private final LazyInitData<CompetenceEvidenceProfileData> evidence;
     private final LazyInitData<AssessmentByTypeProfileData> assessments;
 

@@ -66,6 +66,7 @@ public class CredentialProfileOptionsDataFactory {
 
     private AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessmentWithGradeSummaryData ca, BlindAssessmentMode blindAssessmentMode) {
         return new AssessmentProfileData(
+                ca.getCredentialAssessment().getId(),
                 userBasicDataFactory.getBasicUserData(ca.getCredentialAssessment().getAssessor()),
                 blindAssessmentMode,
                 DateUtil.getMillisFromDate(ca.getCredentialAssessment().getLastAssessment()),
@@ -99,7 +100,6 @@ public class CredentialProfileOptionsDataFactory {
         return new CompetenceProfileOptionsData(
                 tc.getId(),
                 tc.getCompetence().getTitle(),
-                tc.getCompetence().getLearningPathType(),
                 evidence,
                 assessmentsByType);
     }
@@ -110,6 +110,7 @@ public class CredentialProfileOptionsDataFactory {
             evidence.add(new SelectableData<>(
                     new CompetenceEvidenceProfileData(
                         ce.getEvidence().getId(),
+                        ce.getId(),
                         ce.getEvidence().getTitle(),
                         ce.getEvidence().getType(),
                         ce.getEvidence().getUrl(),
@@ -149,6 +150,7 @@ public class CredentialProfileOptionsDataFactory {
 
     private AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessmentWithGradeSummaryData ca, BlindAssessmentMode blindAssessmentMode) {
         return new AssessmentProfileData(
+                ca.getCompetenceAssessment().getId(),
                 userBasicDataFactory.getBasicUserData(ca.getCompetenceAssessment().getAssessor()),
                 blindAssessmentMode,
                 DateUtil.getMillisFromDate(ca.getCompetenceAssessment().getLastAssessment()),

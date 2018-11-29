@@ -26,6 +26,7 @@ import javax.persistence.*;
         @UniqueConstraint(columnNames = {"competence_profile_config", "competence_assessment"}),
         @UniqueConstraint(columnNames = {"competence_profile_config", "competence_evidence"})
 })
+//TODO check if this annotation is needed in later hibernate versions and if not remove it since it is hibernate specific
 @DiscriminatorOptions(force = true)
 public abstract class StudentProfileConfig extends BaseEntity {
 

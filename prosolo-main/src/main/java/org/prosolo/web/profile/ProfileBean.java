@@ -3,6 +3,7 @@ package org.prosolo.web.profile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.data.SelectableData;
@@ -16,6 +17,7 @@ import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
 import org.prosolo.services.user.data.profile.CredentialProfileData;
 import org.prosolo.services.user.data.profile.CredentialProfileOptionsData;
 import org.prosolo.services.user.data.profile.StudentProfileData;
+import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsFullToBasicFunction;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
@@ -48,6 +50,7 @@ public class ProfileBean {
 	private StudentProfileManager studentProfileManager;
 	@Inject 
 	private MessagingManager messagingManager;
+	@Inject private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
 
 	private StudentProfileData studentProfileData;
 	private List<SelectableData<CredentialIdData>> credentialsToAdd = new ArrayList<>();
@@ -151,6 +154,22 @@ public class ProfileBean {
 			credentialForEdit = null;
 			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
+		}
+	}
+
+	public void updateCredentialProfileOptions() {
+		if (credentialForEdit != null) {
+			try {
+				studentProfileManager.updateCredentialProfileOptions(
+						credentialProfileOptionsFullToBasicFunction.apply(credentialForEdit));
+				PageUtil.fireSuccessfulInfoMessage("Profile options successfully saved");
+			} catch (StaleDataException e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error: " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " profile options have bean changed in the meantime. Please try again.");
+			} catch (DbConnectionException e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error updating profile options");
+			}
 		}
 	}
 

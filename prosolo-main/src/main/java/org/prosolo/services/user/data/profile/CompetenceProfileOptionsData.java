@@ -19,9 +19,8 @@ public class CompetenceProfileOptionsData implements Serializable {
 
     private static final long serialVersionUID = -6284496293208098696L;
 
-    private final long id;
+    private final long targetCompetenceId;
     private final String title;
-    private final LearningPathType learningPathType;
     private final List<SelectableData<CompetenceEvidenceProfileData>> evidence;
     private final List<AssessmentByTypeProfileOptionsData> assessments;
 

@@ -22,6 +22,7 @@ public class CompetenceEvidenceProfileData implements Serializable {
 
 
     private final long evidenceId;
+    private final long competenceEvidenceId;
     private final String title;
     private final LearningEvidenceType type;
     private final String url;

@@ -573,102 +573,10 @@
 
                                 <div class="standardInModal bottom30">
                                     <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
-                                        <div class="checkbox checkLine">
-                                            <input type="checkbox" id="checkCredentialAssessments#{status.index}"></input>
-                                            <label for="checkCredentialAssessments#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
-                                        </div>
-                                        <div class="assessmentsListInModal">
-                                            <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
-                                                <div class="assessmentItem">
-                                                    <div class="assessmentLeft">
-                                                        <div class="subIndicator"></div>
-                                                        <div class="checkbox">
-                                                            <h:selectBooleanCheckbox
-                                                                    id="checkCredentialAssessment"
-                                                                    value="#{assessment.selected}"
-                                                                    pt:data-check-id="checkCredentialAssessments#{status.index}"/>
-                                                            <h:outputLabel for="checkCredentialAssessment"/>
-                                                        </div>
-                                                        <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
-                                                            <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
-                                                        </div>
-                                                        <div class="user32">
-                                                            <assessment:assessmentActorAvatar
-                                                                    actorId="#{assessment.data.userBasicData.id}"
-                                                                    avatarUrl="#{assessment.data.userBasicData.avatar}"
-                                                                    actorFullName="#{assessment.data.userBasicData.fullName}"
-                                                                    blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                    actorType="ASSESSOR"
-                                                            />
-                                                            <h3>
-                                                                <assessment:assessmentActorName
-                                                                        actorId="#{assessment.data.userBasicData.id}"
-                                                                        actorFullName="#{assessment.data.userBasicData.fullName}"
-                                                                        blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                        actorType="ASSESSOR"
-                                                                />
-                                                            </h3>
-                                                        </div>
-                                                    </div>
-                                                    <div class="assessmentRight">
-                                                        <utilcomp:convertTimeOutput
-                                                                millis="#{assessment.data.dateApproved}"
-                                                                format="MMM DD, YYYY"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </ui:repeat>
-                                        </div>
-                                        <script>
-                                            bindCheckAllOnclick('checkCredentialAssessments#{status.index}');
-                                        </script>
-                                    </ui:repeat>
-                                </div>
-
-                                <h2>#{msg['label.competence.plural']}</h2>
-
-                                <p>Select evidence and approved assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
-
-                                <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
-                                    <div class="standardInModal bottom30">
-                                        <h3>#{comp.title}</h3>
-                                        <ui:fragment rendered="#{comp.learningPathType eq 'EVIDENCE'}">
+                                        <ui:fragment rendered="#{not empty assessmentType.assessments}">
                                             <div class="checkbox checkLine">
-                                                <input type="checkbox" id="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}"></input>
-                                                <label for="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}">Evidence:</label>
-                                            </div>
-                                            <div class="evidencesListInModal">
-                                                <ui:repeat value="#{comp.evidence}" var="evidence" varStatus="statusEvidence">
-                                                    <div class="evidence">
-                                                        <div class="evidenceLeft #{evidence.data.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(evidence.data.url)}">
-                                                            <div class="subIndicator"></div>
-                                                            <div class="checkbox">
-                                                                <h:selectBooleanCheckbox
-                                                                        id="checkEvidence"
-                                                                        value="#{evidence.selected}"
-                                                                        pt:data-check-id="checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}"
-                                                                />
-                                                                <h:outputLabel for="checkEvidence"/>
-                                                            </div>
-                                                            <div class="icon iconType"></div>
-                                                            <h3>#{evidence.data.title}</h3>
-                                                        </div>
-                                                        <div class="evidenceRight">
-                                                            <utilcomp:convertTimeOutput
-                                                                    millis="#{evidence.data.dateAttached}"
-                                                                    format="MMM DD, YYYY"/>
-                                                        </div>
-                                                    </div>
-                                                    <script>
-                                                        bindCheckAllOnclick('checkPiecesOfEvidence_comp#{comp.id}_ind_#{status.index}');
-                                                    </script>
-                                                </ui:repeat>
-                                            </div>
-                                        </ui:fragment>
-                                        <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
-                                            <div class="checkbox checkLine">
-                                                <input type="checkbox" id="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}"></input>
-                                                <label for="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                                <input type="checkbox" id="checkCredentialAssessments#{status.index}"></input>
+                                                <label for="checkCredentialAssessments#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
                                             </div>
                                             <div class="assessmentsListInModal">
                                                 <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
@@ -677,10 +585,10 @@
                                                             <div class="subIndicator"></div>
                                                             <div class="checkbox">
                                                                 <h:selectBooleanCheckbox
-                                                                        id="checkCompetenceAssessment"
+                                                                        id="checkCredentialAssessment"
                                                                         value="#{assessment.selected}"
-                                                                        pt:data-check-id="checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}"/>
-                                                                <h:outputLabel for="checkCompetenceAssessment"/>
+                                                                        pt:data-check-id="checkCredentialAssessments#{status.index}"/>
+                                                                <h:outputLabel for="checkCredentialAssessment"/>
                                                             </div>
                                                             <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
                                                                 <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
@@ -713,8 +621,104 @@
                                                 </ui:repeat>
                                             </div>
                                             <script>
-                                                bindCheckAllOnclick('checkCompetenceAssessments_comp#{comp.id}_ind_#{status.index}');
+                                                bindCheckAllOnclick('checkCredentialAssessments#{status.index}');
                                             </script>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </div>
+
+                                <h2>#{msg['label.competence.plural']}</h2>
+
+                                <p>Select evidence and approved assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
+
+                                <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
+                                    <div class="standardInModal bottom30">
+                                        <h3>#{comp.title}</h3>
+                                        <ui:fragment rendered="#{not empty comp.evidence}">
+                                            <div class="checkbox checkLine">
+                                                <input type="checkbox" id="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}"></input>
+                                                <label for="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}">Evidence:</label>
+                                            </div>
+                                            <div class="evidencesListInModal">
+                                                <ui:repeat value="#{comp.evidence}" var="evidence" varStatus="statusEvidence">
+                                                    <div class="evidence">
+                                                        <div class="evidenceLeft #{evidence.data.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(evidence.data.url)}">
+                                                            <div class="subIndicator"></div>
+                                                            <div class="checkbox">
+                                                                <h:selectBooleanCheckbox
+                                                                        id="checkEvidence"
+                                                                        value="#{evidence.selected}"
+                                                                        pt:data-check-id="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}"
+                                                                />
+                                                                <h:outputLabel for="checkEvidence"/>
+                                                            </div>
+                                                            <div class="icon iconType"></div>
+                                                            <h3>#{evidence.data.title}</h3>
+                                                        </div>
+                                                        <div class="evidenceRight">
+                                                            <utilcomp:convertTimeOutput
+                                                                    millis="#{evidence.data.dateAttached}"
+                                                                    format="MMM DD, YYYY"/>
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        bindCheckAllOnclick('checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}');
+                                                    </script>
+                                                </ui:repeat>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
+                                            <ui:fragment rendered="#{not empty assessmentType.assessments}">
+                                                <div class="checkbox checkLine">
+                                                    <input type="checkbox" id="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}"></input>
+                                                    <label for="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                                </div>
+                                                <div class="assessmentsListInModal">
+                                                    <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
+                                                        <div class="assessmentItem">
+                                                            <div class="assessmentLeft">
+                                                                <div class="subIndicator"></div>
+                                                                <div class="checkbox">
+                                                                    <h:selectBooleanCheckbox
+                                                                            id="checkCompetenceAssessment"
+                                                                            value="#{assessment.selected}"
+                                                                            pt:data-check-id="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}"/>
+                                                                    <h:outputLabel for="checkCompetenceAssessment"/>
+                                                                </div>
+                                                                <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
+                                                                    <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                                </div>
+                                                                <div class="user32">
+                                                                    <assessment:assessmentActorAvatar
+                                                                            actorId="#{assessment.data.userBasicData.id}"
+                                                                            avatarUrl="#{assessment.data.userBasicData.avatar}"
+                                                                            actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                            blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                            actorType="ASSESSOR"
+                                                                    />
+                                                                    <h3>
+                                                                        <assessment:assessmentActorName
+                                                                                actorId="#{assessment.data.userBasicData.id}"
+                                                                                actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                                blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                                actorType="ASSESSOR"
+                                                                        />
+                                                                    </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="assessmentRight">
+                                                                <utilcomp:convertTimeOutput
+                                                                        millis="#{assessment.data.dateApproved}"
+                                                                        format="MMM DD, YYYY"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </ui:repeat>
+                                                </div>
+                                                <script>
+                                                    bindCheckAllOnclick('checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}');
+                                                </script>
+                                            </ui:fragment>
                                         </ui:repeat>
                                     </div>
                                 </ui:repeat>
@@ -722,7 +726,15 @@
                         </div>
                         <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
                             <div class="modal-footer alignLeft">
-                                <a href="#" class="btn btn-green">Done</a>
+                                <p:commandLink
+                                        id="linkUpdateCred"
+                                        styleClass="btn btn-green"
+                                        value="Done"
+                                        action="#{profileBean.updateCredentialProfileOptions()}"
+                                        update="profileGrowl panelCredentials"
+                                        oncomplete="$('#editStandard').modal('hide');"
+                                />
+                                <p:defaultCommand target="linkUpdateCred"/>
                                 <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                             </div>
                         </ui:fragment>
