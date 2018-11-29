@@ -768,6 +768,8 @@ input {
   opacity: .5; }
   .numberAssessments:hover {
     opacity: 1; }
+  .numberAssessments.disabled {
+    opacity: .15; }
 
 .duration,
 .mandatoryTag,
@@ -3606,6 +3608,14 @@ header {
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500; }
 
+.textLimit4 {
+  position: relative;
+  max-height: 88px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden; }
+
 .summaryCard {
   position: relative; }
   .summaryCard h2 {
@@ -3845,6 +3855,8 @@ header {
           opacity: .5; }
           .summaryCard .collapseStandard ul li .activityOptions .numberEvidences:hover {
             opacity: 1; }
+          .summaryCard .collapseStandard ul li .activityOptions .numberEvidences.disabled {
+            opacity: .15; }
 
 .evidencesListInModal {
   padding: 30px 0; }
@@ -4456,7 +4468,8 @@ header {
   .previewLink .content p::after,
   .previewFile .content p::after,
   .previewLinkSmall .content h2::after,
-  .evidenceSummary .text p::after {
+  .evidenceSummary .text p::after,
+  .textLimit4::after {
     position: absolute;
     bottom: 0;
     right: 0;

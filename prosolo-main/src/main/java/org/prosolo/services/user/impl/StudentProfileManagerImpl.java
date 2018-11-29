@@ -79,18 +79,20 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     public List<CategorizedCredentialsProfileData> getCredentialProfileData(long userId) {
         try {
             String query =
-                    "SELECT cpc FROM CredentialProfileConfig cpc " +
-                            "INNER JOIN fetch cpc.targetCredential tc " +
-                            "INNER JOIN fetch tc.credential c " +
-                            "LEFT JOIN fetch c.category cat " +
-                            "WHERE cpc.student.id = :userId " +
-                            "ORDER BY cat.title";
-            List<CredentialProfileConfig> confList = (List<CredentialProfileConfig>) persistence.currentManager()
+                    "SELECT cpc, count(assessmentConf.id) FROM CredentialProfileConfig cpc " +
+                    "INNER JOIN fetch cpc.targetCredential tc " +
+                    "INNER JOIN fetch tc.credential c " +
+                    "LEFT JOIN fetch c.category cat " +
+                    "LEFT JOIN cpc.credentialAssessmentProfileConfigs assessmentConf " +
+                    "WHERE cpc.student.id = :userId " +
+                    "GROUP BY cpc " +
+                    "ORDER BY cat.title";
+            List<Object[]> confList = (List<Object[]>) persistence.currentManager()
                     .createQuery(query)
                     .setLong("userId", userId)
                     .list();
             List<CredentialProfileData> credentialProfileData = new ArrayList<>();
-            confList.forEach(conf -> credentialProfileData.add(credentialProfileDataFactory.getCredentialProfileData(conf)));
+            confList.forEach(row -> credentialProfileData.add(credentialProfileDataFactory.getCredentialProfileData((CredentialProfileConfig) row[0], (long) row[1], 0)));
             return credentialProfileDataFactory.groupCredentialsByCategory(credentialProfileData);
         } catch (Exception e) {
             logger.error("error", e);

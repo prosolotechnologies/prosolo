@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Component
 public class CredentialProfileDataFactory {
 
-    public CredentialProfileData getCredentialProfileData(CredentialProfileConfig credentialProfileConfig) {
+    public CredentialProfileData getCredentialProfileData(CredentialProfileConfig credentialProfileConfig, long assessmentsCount, long competencesCount) {
         CredentialCategory category = credentialProfileConfig.getTargetCredential().getCredential().getCategory();
         CredentialCategoryData categoryData = category != null ? new CredentialCategoryData(category.getId(), category.getTitle(), false) : null;
         return new CredentialProfileData(
@@ -34,8 +34,8 @@ public class CredentialProfileDataFactory {
                 TimeUtil.getHoursAndMinutesInString(credentialProfileConfig.getTargetCredential().getCredential().getDuration()),
                 credentialProfileConfig.getTargetCredential().getCredential().getTags().stream().map(tag -> tag.getTitle()).collect(Collectors.toList()),
                 DateUtil.getMillisFromDate(credentialProfileConfig.getTargetCredential().getDateFinished()),
-                new LazyInitData<>(),
-                new LazyInitData<>(),
+                new LazyInitData<>(assessmentsCount),
+                new LazyInitData<>(competencesCount),
                 categoryData);
     }
 

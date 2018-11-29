@@ -210,7 +210,12 @@
                                             </table>
                                         </div>
                                         <div class="metaRight">
-                                            <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
+                                            <ui:fragment rendered="#{cred.assessments.count le 0}">
+                                                <a class="numberAssessments disabled"/>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{cred.assessments.count gt 0}">
+                                                <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
+                                            </ui:fragment>
                                             <div class="duration">#{cred.duration}</div>
                                         </div>
                                     </div>
