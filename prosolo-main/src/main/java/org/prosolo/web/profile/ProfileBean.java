@@ -84,6 +84,19 @@ public class ProfileBean {
 		}
 	}
 
+	public void initCompetencesIfNotInitialized(CredentialProfileData credentialProfileData) {
+		if (!credentialProfileData.getCompetences().isInitialized()) {
+			try {
+				credentialProfileData.getCompetences().init(
+						studentProfileManager.getCredentialCompetencesProfileData(
+								credentialProfileData.getCredentialProfileConfigId()));
+			} catch (DbConnectionException e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the data");
+			}
+		}
+	}
+
 	public void prepareAddingCredentials() {
 		try {
 			credentialsToAdd.clear();
@@ -162,7 +175,10 @@ public class ProfileBean {
 			try {
 				studentProfileManager.updateCredentialProfileOptions(
 						credentialProfileOptionsFullToBasicFunction.apply(credentialForEdit));
-				PageUtil.fireSuccessfulInfoMessage("Profile options successfully saved");
+				boolean success = refreshProfile();
+				if (success) {
+					PageUtil.fireSuccessfulInfoMessage("Profile options successfully saved");
+				}
 			} catch (StaleDataException e) {
 				logger.error("error", e);
 				PageUtil.fireErrorMessage("Error: " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " profile options have bean changed in the meantime. Please try again.");

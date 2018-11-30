@@ -211,7 +211,7 @@
                                         </div>
                                         <div class="metaRight">
                                             <ui:fragment rendered="#{cred.assessments.count le 0}">
-                                                <a class="numberAssessments disabled"/>
+                                                <a class="numberAssessments disabled">assessments</a>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{cred.assessments.count gt 0}">
                                                 <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
@@ -221,55 +221,53 @@
                                     </div>
                                 </div>
                                 <div class="collapseStandard">
-                                    <div id="comp1" class="collapse">
-                                        <ul>
-                                            <li>
-                                                <a href="#">1.1 Physical, social and intellectual development and characteristics of students</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberEvidences" data-toggle="modal" data-target="#evidencesList">evidences</a>
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#">1.2 Understand how students learn</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#">1.3 Students with diverse linguistic, cultural, religious and socioeconomic backgrounds</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberEvidences" data-toggle="modal" data-target="#evidencesList">evidences</a>
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#">1.4 Strategies for teaching Aboriginal and Torres Strait Islander students</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#">1.5 Differentiate teaching to meet the specific learning needs of students across the full range of abilities</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberEvidences" data-toggle="modal" data-target="#evidencesList">evidences</a>
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <a href="#">1.6 Strategies to support full participation of students with disability</a>
-                                                <div class="activityOptions">
-                                                    <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
-                                                </div>
-                                            </li>
-                                        </ul>
+                                    <div id="comp#{cred.credentialProfileConfigId}" class="collapse">
+                                        <h:panelGroup id="panelCompList">
+                                            <ul>
+                                                <ui:repeat value="#{cred.competences.data}" var="comp">
+                                                    <li>
+                                                        <a>#{comp.title}</a>
+                                                        <div class="activityOptions">
+                                                            <ui:fragment rendered="#{comp.evidence.count le 0}">
+                                                                <a class="numberEvidences disabled">evidences</a>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.evidence.count gt 0}">
+                                                                <a href="#" class="numberEvidences" data-toggle="modal" data-target="#evidencesList">evidences</a>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.assessments.count le 0}">
+                                                                <a class="numberAssessments disabled"/>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.assessments.count gt 0}">
+                                                                <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
+                                                            </ui:fragment>
+                                                        </div>
+                                                    </li>
+                                                </ui:repeat>
+                                            </ul>
+                                        </h:panelGroup>
                                     </div>
-                                    <a href="#comp1" data-toggle="collapse" class="collapseButton collapsed">
-                                        <span class="textShow">Show #{msg['label.competence.plural']}</span>
-                                        <span class="arrowDown">down</span>
-                                        <span class="textHide">Hide #{msg['label.competence.plural']}</span>
-                                        <span class="arrowUp">up</span>
-                                    </a>
+                                    <h:panelGroup id="panelExpandCompetences">
+                                        <ui:fragment rendered="#{cred.competences.initialized}">
+                                            <a href="#comp#{cred.credentialProfileConfigId}" data-toggle="collapse" class="collapseButton collapsed">
+                                                <span class="textShow">Show #{msg['label.competence.plural']}</span>
+                                                <span class="arrowDown">down</span>
+                                                <span class="textHide">Hide #{msg['label.competence.plural']}</span>
+                                                <span class="arrowUp">up</span>
+                                            </a>
+                                        </ui:fragment>
+                                        <p:commandLink
+                                                rendered="#{not cred.competences.initialized}"
+                                                styleClass="collapseButton collapsed"
+                                                process="@this"
+                                                action="#{profileBean.initCompetencesIfNotInitialized(cred)}"
+                                                update="profileGrowl panelCompList panelExpandCompetences"
+                                                oncomplete="$('#comp#{cred.credentialProfileConfigId}').collapse();">
+                                            <span class="textShow">Show #{msg['label.competence.plural']}</span>
+                                            <span class="arrowDown">down</span>
+                                            <span class="textHide">Hide #{msg['label.competence.plural']}</span>
+                                            <span class="arrowUp">up</span>
+                                        </p:commandLink>
+                                    </h:panelGroup>
                                 </div>
                             </article>
                         </ui:repeat>

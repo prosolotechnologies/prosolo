@@ -101,6 +101,33 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CompetenceProfileData> getCredentialCompetencesProfileData(long credProfileConfigId) {
+        try {
+            String query =
+                    "SELECT conf, count(evidenceConf.id), count(assessmentConf.id) FROM CompetenceProfileConfig conf " +
+                    "INNER JOIN fetch conf.credentialProfileConfig tc " +
+                    "INNER JOIN fetch conf.targetCompetence tc " +
+                    "INNER JOIN fetch tc.competence c " +
+                    "LEFT JOIN conf.competenceAssessmentProfileConfigs assessmentConf " +
+                    "LEFT JOIN conf.evidenceProfileConfigs evidenceConf " +
+                    "WHERE conf.credentialProfileConfig.id = :credProfileConfigId " +
+                    "GROUP BY conf";
+            List<Object[]> confList = (List<Object[]>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credProfileConfigId", credProfileConfigId)
+                    .list();
+            return confList
+                    .stream()
+                    .map(row -> credentialProfileDataFactory.getCompetenceProfileData((CompetenceProfileConfig) row[0], (long) row[1], (long) row[2]))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error loading credential competences profile data");
+        }
+    }
+
+    @Override
     @Transactional
     public void addCredentialsToProfile(long userId, List<Long> idsOfTargetCredentialsToAdd) {
         try {

@@ -1,12 +1,14 @@
 package org.prosolo.services.user.data.profile.factory;
 
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
+import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
 import org.prosolo.common.domainmodel.studentprofile.CredentialProfileConfig;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.data.LazyInitData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
+import org.prosolo.services.user.data.profile.CompetenceProfileData;
 import org.prosolo.services.user.data.profile.CredentialProfileData;
 import org.springframework.stereotype.Component;
 
@@ -72,6 +74,14 @@ public class CredentialProfileDataFactory {
         //add last category with credentials
         categorizedCredentials.add(new CategorizedCredentialsProfileData(currentCategory, credentialsInCurrentCategory));
         return categorizedCredentials;
+    }
+
+    public CompetenceProfileData getCompetenceProfileData(CompetenceProfileConfig compProfileConfig, long evidenceCount, long assessmentsCount) {
+        return new CompetenceProfileData(
+                compProfileConfig.getId(),
+                compProfileConfig.getTargetCompetence().getCompetence().getTitle(),
+                new LazyInitData<>(evidenceCount),
+                new LazyInitData<>(assessmentsCount));
     }
 
 }
