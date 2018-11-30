@@ -232,7 +232,14 @@
                                                                 <a class="numberEvidences disabled">evidences</a>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.evidence.count gt 0}">
-                                                                <a href="#" class="numberEvidences" data-toggle="modal" data-target="#evidencesList">evidences</a>
+                                                                <p:commandLink
+                                                                        styleClass="numberEvidences"
+                                                                        pt:data-toggle="modal"
+                                                                        action="#{profileBean.initCompetenceEvidenceIfNotInitialized(comp)}"
+                                                                        update="profileGrowl panelCompetenceEvidence"
+                                                                        oncomplete="$('#evidencesList').modal('show')">
+                                                                    evidences
+                                                                </p:commandLink>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.assessments.count le 0}">
                                                                 <a class="numberAssessments disabled"/>
@@ -357,7 +364,7 @@
 
         <div class="modal fade" id="evidencesList" tabindex="-1" role="dialog" aria-labelledby="evidencesListModal">
             <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <h:panelGroup layout="block" id="panelCompetenceEvidence" styleClass="modal-content">
                     <div class="modal-header alignLeft">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
                         <h2 class="modal-title" id="evidencesListModal">Evidence</h2>
@@ -368,81 +375,28 @@
                                 #{msg['label.competence']}:
                             </div>
                             <div class="assessmentModalMetaRight">
-                                <h3>1.3 Students with diverse linguistic, cultural, religious and socioeconomic backgrounds</h3>
+                                <h3>#{profileBean.selectedResourceTitle}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="modal-body alignLeft">
                         <div class="evidencesListInModal">
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceDoc">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
+                            <ui:repeat value="#{profileBean.selectedCompetenceEvidences}" var="ev">
+                                <div class="evidence">
+                                    <div class="evidenceLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+                                        <div class="icon iconType"></div>
+                                        <h3>#{ev.title}</h3>
+                                    </div>
+                                    <div class="evidenceRight">
+                                        <utilcomp:convertTimeOutput
+                                                millis="#{ev.dateAttached}"
+                                                format="MMM DD, YYYY"/>
+                                    </div>
                                 </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceArchive">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceImage">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceAudio">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceVideoAlt">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceLink">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
-                            <div class="evidence">
-                                <div class="evidenceLeft evidenceText">
-                                    <div class="icon iconType"></div>
-                                    <h3><a href="student-profile-evidence.html" target="_blank">Quisque a nisl sed lacus laoreet dapibus</a></h3>
-                                </div>
-                                <div class="evidenceRight">
-                                    Sep 24, 2017
-                                </div>
-                            </div>
+                            </ui:repeat>
                         </div>
                     </div>
-                    <div class="modal-footer alignLeft">
-                        <a href="#">View All</a>
-                    </div>
-                </div>
+                </h:panelGroup>
             </div>
         </div>
 

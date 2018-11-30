@@ -5,18 +5,17 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.messaging.Message;
+import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.StudentProfileManager;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
-import org.prosolo.services.user.data.profile.CredentialProfileData;
-import org.prosolo.services.user.data.profile.CredentialProfileOptionsData;
-import org.prosolo.services.user.data.profile.StudentProfileData;
+import org.prosolo.services.user.data.profile.*;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsFullToBasicFunction;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
@@ -29,6 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,6 +65,10 @@ public class ProfileBean {
 	private CredentialProfileData credentialToRemove;
 	private CredentialProfileOptionsData credentialForEdit;
 
+	private CredentialProfileData selectedCredentialProfileData;
+	private CompetenceProfileData selectedCompetenceProfileData;
+	private LearningResourceType selectedResourceType;
+
 	public void init() {
 		decodedStudentId = idEncoder.decodeId(studentId);
 		ownerOfAProfileUserId = StringUtils.isNotBlank(studentId) ? decodedStudentId : loggedUserBean.getUserId();
@@ -90,6 +94,20 @@ public class ProfileBean {
 				credentialProfileData.getCompetences().init(
 						studentProfileManager.getCredentialCompetencesProfileData(
 								credentialProfileData.getCredentialProfileConfigId()));
+			} catch (DbConnectionException e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the data");
+			}
+		}
+	}
+
+	public void initCompetenceEvidenceIfNotInitialized(CompetenceProfileData competenceProfileData) {
+		this.selectedResourceType = LearningResourceType.COMPETENCE;
+		this.selectedCompetenceProfileData = competenceProfileData;
+		if (!competenceProfileData.getEvidence().isInitialized()) {
+			try {
+				competenceProfileData.getEvidence().init(
+						studentProfileManager.getCompetenceEvidenceProfileData(competenceProfileData.getId()));
 			} catch (DbConnectionException e) {
 				logger.error("error", e);
 				PageUtil.fireErrorMessage("Error loading the data");
@@ -263,5 +281,19 @@ public class ProfileBean {
 
 	public CredentialProfileOptionsData getCredentialForEdit() {
 		return credentialForEdit;
+	}
+
+	public String getSelectedResourceTitle() {
+		return selectedResourceType != null
+				? selectedResourceType == LearningResourceType.CREDENTIAL
+					? selectedCredentialProfileData.getTitle()
+					: selectedCompetenceProfileData.getTitle()
+				: "";
+	}
+
+	public List<CompetenceEvidenceProfileData> getSelectedCompetenceEvidences() {
+		return selectedCompetenceProfileData != null
+				? selectedCompetenceProfileData.getEvidence().getData()
+				: Collections.emptyList();
 	}
 }

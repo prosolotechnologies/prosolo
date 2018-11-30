@@ -1,6 +1,7 @@
 package org.prosolo.services.user.data.profile.factory;
 
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
+import org.prosolo.common.domainmodel.studentprofile.CompetenceEvidenceProfileConfig;
 import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
 import org.prosolo.common.domainmodel.studentprofile.CredentialProfileConfig;
 import org.prosolo.common.util.date.DateUtil;
@@ -8,6 +9,7 @@ import org.prosolo.services.common.data.LazyInitData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
+import org.prosolo.services.user.data.profile.CompetenceEvidenceProfileData;
 import org.prosolo.services.user.data.profile.CompetenceProfileData;
 import org.prosolo.services.user.data.profile.CredentialProfileData;
 import org.springframework.stereotype.Component;
@@ -82,6 +84,16 @@ public class CredentialProfileDataFactory {
                 compProfileConfig.getTargetCompetence().getCompetence().getTitle(),
                 new LazyInitData<>(evidenceCount),
                 new LazyInitData<>(assessmentsCount));
+    }
+
+    public CompetenceEvidenceProfileData getCompetenceEvidenceProfileData(CompetenceEvidenceProfileConfig competenceEvidenceProfileConfig) {
+        return new CompetenceEvidenceProfileData(
+                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getId(),
+                competenceEvidenceProfileConfig.getCompetenceEvidence().getId(),
+                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getTitle(),
+                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getType(),
+                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getUrl(),
+                DateUtil.getMillisFromDate(competenceEvidenceProfileConfig.getCompetenceEvidence().getDateCreated()));
     }
 
 }

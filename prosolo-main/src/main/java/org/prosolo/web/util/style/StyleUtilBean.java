@@ -133,7 +133,7 @@ public class StyleUtilBean implements Serializable {
 			case "odt":
 			case "rtf":
 			case "pdf":
-				return "evidenceText";
+				return "evidenceDoc";
 			case "jpg":
 			case "jpeg":
 			case "png":
@@ -161,7 +161,7 @@ public class StyleUtilBean implements Serializable {
 			case "7z":
 				return "evidenceArchive";
 			default:
-				return "evidenceDoc";
+				return "evidenceLink";
 		}
 	}
 
