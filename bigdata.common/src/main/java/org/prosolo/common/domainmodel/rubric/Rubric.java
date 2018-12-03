@@ -17,7 +17,7 @@ import java.util.Set;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","organization"})})
+//unique constraint added from the script
 public class Rubric extends BaseEntity {
 
     private RubricType rubricType = RubricType.DESCRIPTIVE;

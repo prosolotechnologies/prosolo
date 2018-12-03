@@ -1,7 +1,9 @@
 package org.prosolo.core.persistance;
 
+import javax.sql.DataSource;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Generic Data Access Object. Contains various get methods for querying the
@@ -114,4 +116,10 @@ public interface PersistenceManager<Type> {
 	void delete(Object object, boolean inNewSession);
 	void save(Object object, boolean inNewSession);
 
+    /**
+     * Returns data source used if available
+     *
+     * @return
+     */
+    Optional<DataSource> getDataSource();
 }
