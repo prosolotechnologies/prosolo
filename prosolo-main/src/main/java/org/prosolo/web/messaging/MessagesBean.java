@@ -55,16 +55,16 @@ public class MessagesBean implements Serializable {
     @Inject
     private UnitManager unitManager;
 
+    private List<MessageThreadData> messageThreads;
     private MessageThreadData selectedThread;
     private boolean selectedThreadUnread;
-    private List<MessageThreadData> messageThreads;
-    private int limitThreads = 5;
+    private static final int LIMIT_THREADS = 5;
     private int pageThread = 0;
     private boolean loadMoreThreads;
 
     private List<MessageData> messages;
     private String threadId;
-    private int limitMessages = 7;
+    private static final int LIMIT_MESSAGES = 7;
     private int pageMessages = 0;
     private boolean loadMoreMessages;
 
@@ -76,8 +76,8 @@ public class MessagesBean implements Serializable {
     private String messageText = "";
 
     // search related fields
-    private long studentRoleId;
-    private List<Long> usersUnitsWithStudentRole;
+    private long loggedUserRoleId;
+    private List<Long> loggedUserUnits;
     private String query;
     private List<UserData> users;
     private int userSize;
@@ -85,55 +85,50 @@ public class MessagesBean implements Serializable {
 
     public void init() {
         long decodedThreadId = idEncoder.decodeId(threadId);
-        studentRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
-        usersUnitsWithStudentRole = unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), studentRoleId);
+        loggedUserRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
+        loggedUserUnits = unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), loggedUserRoleId);
 
-        init(decodedThreadId);
+        initThread(decodedThreadId);
+
+        // set hasUnreadMessages flag in TopInboxBean to false
+        topInboxBean.markMessageRead();
     }
 
-    private void init(long messageThreadId) {
+    private void initThread(long messageThreadId) {
         this.messageThreads = null;
-        this.newMessageView = false;
         this.selectedThread = null;
+        this.pageThread = 0;
+        this.newMessageView = false;
         this.messages = null;
+        this.pageMessages = 0;
         this.messageRecipient = null;
 
-        // init message threads
-        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
-                loggedUser.getUserId(),
-                pageThread, limitThreads, archiveView);
+        // load message threads
+        loadMessageThreads();
 
-        if (loadedThreads.size() > limitThreads) {
-            loadMoreThreads = true;
-            this.messageThreads = loadedThreads.subList(0, limitThreads);
-        } else {
-            loadMoreThreads = false;
-            this.messageThreads = loadedThreads;
-        }
-
-        // set latest message thread to be selected
         if (!messageThreads.isEmpty()) {
-            // if URL contained id of the message thread, try loading it from the db.
+            // if URL contained a thread id, try loading it from the db.
             if (messageThreadId > 0) {
                 try {
                     this.selectedThread = messagingManager.markThreadAsRead(messageThreadId, loggedUser.getUserId(), getLoggedUserContextData());
 
-                    // if the opened message thread is among loaded threads in the sidebar, then "selectedThread" should reference that object
+                    // if the selected message thread is among the loaded threads in the sidebar, then "selectedThread" should reference that object
                     Optional<MessageThreadData> optionalSelectedMThread = messageThreads.stream().filter(mt -> mt.getId() == messageThreadId).findAny();
 
                     if (optionalSelectedMThread.isPresent()) {
                         this.selectedThread = optionalSelectedMThread.get();
                     }
                 } catch (Exception e) {
-                    logger.debug("Could not find the message thread with id " + messageThreadId + ". The first message thread will be shown");
+                    logger.debug("Could not find the message thread with id " + messageThreadId + ". The first message thread will be shown.");
                 }
             }
 
-            // if no thread id was passed in the URL, or thread with passed id could not be loaded, open the first message thread
+            // if no thread id was passed in the URL, or thread id could not be loaded, open the first thread
             if (selectedThread == null) {
                 this.selectedThread = messageThreads.get(0);
             }
 
+            // if thread was unread, mark it as read now
             if (!selectedThread.isReaded()) {
                 markThreadRead();
                 selectedThreadUnread = true;
@@ -142,12 +137,24 @@ public class MessagesBean implements Serializable {
             }
 
             this.messageRecipient = selectedThread.getReceiver();
-            // init messages for the selected thread
+
+            // load messages for the selected thread
             loadMessages();
         }
+    }
 
-        // set hasUnreadMessages flag in TopInboxBean to false
-        topInboxBean.markMessageRead();
+    private void loadMessageThreads() {
+        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
+                loggedUser.getUserId(),
+                pageThread, LIMIT_THREADS, archiveView);
+
+        if (loadedThreads.size() > LIMIT_THREADS) {
+            loadMoreThreads = true;
+            this.messageThreads = loadedThreads.subList(0, LIMIT_THREADS);
+        } else {
+            loadMoreThreads = false;
+            this.messageThreads = loadedThreads;
+        }
     }
 
     private UserContextData getLoggedUserContextData() {
@@ -181,6 +188,45 @@ public class MessagesBean implements Serializable {
         loadMessages();
     }
 
+    private void loadMessages() {
+        List<MessageData> unreadMessages = messagingManager.getAllUnreadMessages(selectedThread.getId(), loggedUser.getUserId());
+
+        List<MessageData> readMessages;
+
+        //if number of unread messages >= LIMIT_MESSAGES, fetch only the latest two read messages in order to show unread messages in a context.
+        if (unreadMessages.size() >= LIMIT_MESSAGES) {
+            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, 2);
+        } else {
+            //shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
+            int numberOfMessagesToLoad = LIMIT_MESSAGES - unreadMessages.size();
+            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, numberOfMessagesToLoad);
+        }
+
+        // since getReadMessages loads an additional message, we will use this information to set the loadMoreMessages flag
+        if (unreadMessages.size() >= LIMIT_MESSAGES) {
+            if (readMessages.size() > 2) {
+                loadMoreMessages = true;
+                readMessages.remove(readMessages.size() - 1);
+            } else {
+                loadMoreMessages = false;
+            }
+        } else {
+            if (unreadMessages.size() + readMessages.size() > LIMIT_MESSAGES) {
+                loadMoreMessages = true;
+                readMessages.remove(readMessages.size() - 1);
+            } else {
+                loadMoreMessages = false;
+            }
+        }
+
+        this.messages = new LinkedList<>();
+        this.messages.addAll(unreadMessages);
+        this.messages.addAll(readMessages);
+
+        // As we got the messages sorted by date DESC, now show them ASC
+        Collections.sort(messages, Comparator.comparing(MessageData::getCreated));
+    }
+
     private void openThreadWithParticipant(UserData messageRecipient) {
         // first search in already loaded threads
         Optional<MessageThreadData> optionalMessageThreadData = messageThreads.stream().filter(t -> t.getParticipants().stream().anyMatch(p -> p.getId() == messageRecipient.getId())).findAny();
@@ -199,45 +245,6 @@ public class MessagesBean implements Serializable {
         }
     }
 
-    private void loadMessages() {
-        List<MessageData> unreadMessages = messagingManager.getAllUnreadMessages(selectedThread.getId(), loggedUser.getUserId());
-
-        List<MessageData> readMessages;
-
-        //if number of unread messages >= limitMessages, fetch only the latest two read messages in order to show unread messages in a context.
-        if (unreadMessages.size() >= limitMessages) {
-            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, 2);
-        } else {
-            //shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
-            int numberOfMessagesToLoad = limitMessages - unreadMessages.size();
-            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, numberOfMessagesToLoad);
-        }
-
-        // since getReadMessages loads an additional message, we will use this information to set the loadMoreMessages flag
-        if (unreadMessages.size() >= limitMessages) {
-            if (readMessages.size() > 2) {
-                loadMoreMessages = true;
-                readMessages.remove(readMessages.size() - 1);
-            } else {
-                loadMoreMessages = false;
-            }
-        } else {
-            if (unreadMessages.size() + readMessages.size() > limitMessages) {
-                loadMoreMessages = true;
-                readMessages.remove(readMessages.size() - 1);
-            } else {
-                loadMoreMessages = false;
-            }
-        }
-
-        this.messages = new LinkedList<>();
-        this.messages.addAll(unreadMessages);
-        this.messages.addAll(readMessages);
-
-        // As we got the messages sorted by date DESC, now show them ASC
-        Collections.sort(messages, Comparator.comparing(MessageData::getCreated));
-    }
-
     private void markThreadRead() {
         if (this.selectedThread != null && !selectedThread.isReaded()) {
             // update the data objects
@@ -254,10 +261,10 @@ public class MessagesBean implements Serializable {
 
         List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
                 loggedUser.getUserId(),
-                pageThread, limitThreads, archiveView);
+                pageThread, LIMIT_THREADS, archiveView);
 
-        if (loadedThreads.size() > limitThreads) {
-            this.messageThreads.addAll(loadedThreads.subList(0, limitThreads));
+        if (loadedThreads.size() > LIMIT_THREADS) {
+            this.messageThreads.addAll(loadedThreads.subList(0, LIMIT_THREADS));
         } else {
             this.messageThreads.addAll(loadedThreads);
             loadMoreThreads = false;
@@ -267,10 +274,10 @@ public class MessagesBean implements Serializable {
     public void loadMoreMessages() {
         pageMessages++;
 
-        List<MessageData> newMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), pageMessages, limitMessages);
+        List<MessageData> newMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), pageMessages, LIMIT_MESSAGES);
 
         // getReadMessages returns always one more message than requested
-        if (newMessages.size() <= limitMessages) {
+        if (newMessages.size() <= LIMIT_MESSAGES) {
             loadMoreMessages = false;
         } else {
             newMessages.remove(newMessages.size() - 1);
@@ -336,12 +343,12 @@ public class MessagesBean implements Serializable {
     public void setArchiveView(boolean archiveView) {
         this.archiveView = archiveView;
         pageThread = 0;
-        init(-1);
+        initThread(-1);
     }
 
     public void archiveSelectedThread() {
         messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), true);
-        init(-1);
+        initThread(-1);
 
         PageUtil.fireSuccessfulInfoMessage("Conversation is archived");
     }
@@ -349,14 +356,14 @@ public class MessagesBean implements Serializable {
     public void revokeFromArchiveSelectedThread() {
         messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), false);
         this.archiveView = false;
-        init(selectedThread.getId());
+        initThread(selectedThread.getId());
 
         PageUtil.fireSuccessfulInfoMessage("Conversation is revoked from the Archive");
     }
 
     public void deleteCurrentThread() {
         messagingManager.markThreadDeleted(selectedThread.getId(), loggedUser.getUserId());
-        init(-1);
+        initThread(-1);
     }
 
     /*
@@ -373,7 +380,7 @@ public class MessagesBean implements Serializable {
         excludeUsers.add(loggedUser.getUserId());
 
         UserSearchConfig searchConfig = UserSearchConfig.of(
-                UserSearchConfig.UserScope.ORGANIZATION, UserScopeFilter.USERS_UNITS, studentRoleId, usersUnitsWithStudentRole);
+                UserSearchConfig.UserScope.ORGANIZATION, UserScopeFilter.USERS_UNITS, loggedUserRoleId, loggedUserUnits);
 
         PaginatedResult<UserData> usersResponse = userTextSearch.searchUsersWithFollowInfo(
                 loggedUser.getOrganizationId(), query, -1, userSearchLimit, loggedUser.getUserId(), searchConfig);
@@ -384,7 +391,6 @@ public class MessagesBean implements Serializable {
         } else {
             this.userSize = 0;
         }
-
     }
 
     public void resetSearch() {
@@ -423,11 +429,11 @@ public class MessagesBean implements Serializable {
     }
 
     public List<MessageData> getReadMessages() {
-        return messages != null ? messages.stream().filter((msg) -> msg.isReaded()).collect(Collectors.toList()) : null;
+        return messages != null ? messages.stream().filter(msg -> msg.isReaded()).collect(Collectors.toList()) : null;
     }
 
     public List<MessageData> getUnreadMessages() {
-        return messages != null ? messages.stream().filter((msg) -> !msg.isReaded()).collect(Collectors.toList()) : null;
+        return messages != null ? messages.stream().filter(msg -> !msg.isReaded()).collect(Collectors.toList()) : null;
     }
 
     public boolean isLoadMoreMessages() {
