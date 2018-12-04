@@ -59,7 +59,7 @@ public enum ApplicationPage {
 	USER_ACTIVITY("/activity.xhtml"),
 	USER_CREDENTIAL_LIBRARY("/credentialLibrary.xhtml"),
 	MANAGER_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),
-	EVIDENCES("/evidences.xhtml"),
+	EVIDENCES("/evidence-repository.xhtml"),
 	EVIDENCE("/evidence.xhtml"),
 	EVIDENCE_EDIT("/evidence-edit.xhtml"),
 
